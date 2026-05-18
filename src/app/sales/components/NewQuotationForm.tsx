@@ -518,12 +518,12 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
               {/* 2. Classification */}
               <div className="bg-slate-50/30 p-6 rounded-3xl border border-slate-100/50 space-y-4 shadow-sm">
                 <div className="grid grid-cols-2 gap-6">
-                  <SelectField name="branchOrHeadOffice" label="สาขา/สำนักงานใหญ่ :" options={['สำนักงานใหญ่', 'สาขา']} value={formData.branchOrHeadOffice} onChange={handleInputChange} />
-                  <SelectField name="businessType" label="ประเภทธุรกิจ :" options={businessTypes.length > 0 ? businessTypes : ['โรงงานอุตสาหกรรม', 'รับเหมาก่อสร้าง', 'ขายปลีก', 'อื่นๆ']} value={formData.businessType} onChange={handleInputChange} />
+                  <SelectField name="branchOrHeadOffice" label="สาขา/สำนักงานใหญ่ :" vertical={true} options={['สำนักงานใหญ่', 'สาขา']} value={formData.branchOrHeadOffice} onChange={handleInputChange} />
+                  <SelectField name="businessType" label="ประเภทธุรกิจ :" vertical={true} options={businessTypes.length > 0 ? businessTypes : ['โรงงานอุตสาหกรรม', 'รับเหมาก่อสร้าง', 'ขายปลีก', 'อื่นๆ']} value={formData.businessType} onChange={handleInputChange} />
                 </div>
                 <div className="grid grid-cols-2 gap-6">
-                  <SelectField name="customerType" label="ประเภทลูกค้า :" options={['USER', 'MAKER', 'TRADING']} value={formData.customerType} onChange={handleInputChange} />
-                  <SelectField name="customerStatus" label="สถานะลูกค้า :" options={['ลูกค้าใหม่', 'ลูกค้าเก่า', 'ลูกค้ากลับมา']} value={formData.customerStatus} onChange={handleInputChange} />
+                  <SelectField name="customerType" label="ประเภทลูกค้า :" vertical={true} options={['USER', 'MAKER', 'TRADING']} value={formData.customerType} onChange={handleInputChange} />
+                  <SelectField name="customerStatus" label="สถานะลูกค้า :" vertical={true} options={['ลูกค้าใหม่', 'ลูกค้าเก่า', 'ลูกค้ากลับมา']} value={formData.customerStatus} onChange={handleInputChange} />
                 </div>
                 <SelectField name="customerAccessChannel" label="ช่องทางรับลูกค้า :" options={['Website', 'Facebook', 'LINE', 'โทรศัพท์', 'Walk-in', 'Telesale']} value={formData.customerAccessChannel} onChange={handleInputChange} />
               </div>
@@ -549,7 +549,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="relative">
-                    <InputField name="subDistrict" label="ตำบล/แขวง :" type="text" value={formData.subDistrict || ''} onChange={handleInputChange} />
+                    <InputField name="subDistrict" label="ตำบล/แขวง :" type="text" vertical={true} value={formData.subDistrict || ''} onChange={handleInputChange} />
                     {showPostalDropdown && postalResults.length > 1 && (
                       <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-48 overflow-y-auto animate-in fade-in zoom-in duration-200">
                         <div className="p-2 border-b border-slate-50 bg-slate-50/50">
@@ -568,14 +568,15 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                       </div>
                     )}
                   </div>
-                  <InputField name="district" label="อำเภอ/เขต :" type="text" value={formData.district || ''} onChange={handleInputChange} />
+                  <InputField name="district" label="อำเภอ/เขต :" type="text" vertical={true} value={formData.district || ''} onChange={handleInputChange} />
                 </div>
                 <div className="grid grid-cols-2 gap-6">
-                  <InputField name="province" label="จังหวัด :" type="text" value={formData.province || ''} onChange={handleInputChange} />
+                  <InputField name="province" label="จังหวัด :" type="text" vertical={true} value={formData.province || ''} onChange={handleInputChange} />
                   <InputField 
                     name="postalCode" 
                     label="รหัสไปรษณีย์ :" 
                     type="text" 
+                    vertical={true}
                     value={formData.postalCode || ''} 
                     onChange={(e) => handlePostalCodeChange(e.target.value)} 
                   />
