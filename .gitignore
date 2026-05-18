@@ -52,3 +52,7 @@ next-env.d.ts
 
 # Scratch folder
 /scratch/
+
+# Root app icon image
+/app icon.jpg
+
