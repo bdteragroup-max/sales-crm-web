@@ -1,0 +1,237 @@
+"use server";
+
+import prisma from "@/app/lib/db";
+import { getUser } from "@/app/lib/dal";
+import { revalidatePath } from "next/cache";
+
+export async function saveTelesaleData(formData: FormData) {
+  const user = await getUser();
+  if (!user) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const companyName = formData.get("companyName") as string;
+    if (!companyName) {
+      return { success: false, error: "ชื่อบริษัทเป็นสิ่งจำเป็น (Company Name is required)" };
+    }
+
+    const callDateRaw = formData.get("callDate") as string;
+    const callStatus = formData.get("callStatus") as string;
+    const callOutcome = formData.get("callOutcome") as string;
+    const branch = formData.get("branch") as string;
+    const contactPerson = formData.get("contactPerson") as string;
+    const phoneNumber = formData.get("phoneNumber") as string;
+    const customerType = formData.get("customerType") as string;
+    const customerStatus = formData.get("customerStatus") as string;
+    const forwardTo = formData.get("forwardTo") as string;
+    const conversationSummary = formData.get("conversationSummary") as string;
+
+    const needsOrProblems = formData.get("needsOrProblems") as string;
+    const meetingObjective = formData.get("meetingObjective") as string;
+
+    const competitorName = formData.get("competitorName") as string;
+    const competitorPrice = parseFloat(formData.get("competitorPrice") as string) || null;
+    const competitorPromotion = formData.get("competitorPromotion") as string;
+
+    const lastMeetingDateRaw = formData.get("lastMeetingDate") as string;
+    const callbackAtRaw = formData.get("callbackAt") as string;
+    const resultArr = formData.getAll("result"); // Multiple checkboxes
+    const result = resultArr.length > 0 ? resultArr.join(", ") : null;
+
+    const parseDate = (d?: string) => (d ? new Date(d) : null);
+
+    const callbackTime = parseDate(callbackAtRaw);
+    if (callbackTime) {
+      const fifteenMinsBefore = new Date(callbackTime.getTime() - 15 * 60000);
+      const fifteenMinsAfter = new Date(callbackTime.getTime() + 15 * 60000);
+      
+      const overlapping = await prisma.telesale.findFirst({
+        where: {
+          userId: user.id,
+          callbackAt: {
+            gte: fifteenMinsBefore,
+            lte: fifteenMinsAfter
+          }
+        }
+      });
+
+      if (overlapping && overlapping.callbackAt) {
+        return { success: false, error: `มีคิวโทรกลับซ้อนทับในช่วงเวลานี้แล้ว (${overlapping.callbackAt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.)` };
+      }
+    }
+
+    // Upsert company
+    let company = await prisma.company.findFirst({
+      where: { companyName },
+    });
+
+    if (!company) {
+      company = await prisma.company.create({
+        data: {
+          companyName,
+          customerType,
+          customerStatus,
+        },
+      });
+    } else {
+      await prisma.company.update({
+        where: { id: company.id },
+        data: {
+          customerType: customerType || company.customerType,
+          customerStatus: customerStatus || company.customerStatus,
+        },
+      });
+    }
+
+    let contact = null;
+    if (contactPerson) {
+      contact = await prisma.contact.findFirst({
+        where: {
+          companyId: company.id,
+          contactName: contactPerson,
+        },
+      });
+
+      if (!contact) {
+        contact = await prisma.contact.create({
+          data: {
+            companyId: company.id,
+            contactName: contactPerson,
+            mobilePhone: phoneNumber,
+          },
+        });
+      } else if (phoneNumber) {
+        await prisma.contact.update({
+          where: { id: contact.id },
+          data: { mobilePhone: phoneNumber },
+        });
+      }
+    }
+
+    // Create Telesale Record
+    await prisma.telesale.create({
+      data: {
+        companyId: company.id,
+        userId: user.id,
+        callDate: parseDate(callDateRaw),
+        callStatus,
+        callOutcome,
+        forwardTo,
+        conversationSummary,
+        needsOrProblems,
+        meetingObjective,
+        competitorName,
+        competitorPrice,
+        competitorPromotion,
+        lastMeetingDate: parseDate(lastMeetingDateRaw),
+        callbackAt: parseDate(callbackAtRaw),
+        result,
+      },
+    });
+
+    revalidatePath("/telesales");
+    return { success: true };
+  } catch (error) {
+    console.error("Telesale Save Error:", error);
+    return { success: false, error: "เกิดข้อผิดพลาดในการบันทึกข้อมูล" };
+  }
+}
+
+export async function updateTelesaleData(id: string, formData: FormData) {
+  const user = await getUser();
+  if (!user) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const companyName = formData.get("companyName") as string;
+    if (!companyName) {
+      return { success: false, error: "ชื่อบริษัทเป็นสิ่งจำเป็น" };
+    }
+
+    const callDateRaw = formData.get("callDate") as string;
+    const callStatus = formData.get("callStatus") as string;
+    const callOutcome = formData.get("callOutcome") as string;
+    const contactPerson = formData.get("contactPerson") as string;
+    const phoneNumber = formData.get("phoneNumber") as string;
+    const customerType = formData.get("customerType") as string;
+    const customerStatus = formData.get("customerStatus") as string;
+    const forwardTo = formData.get("forwardTo") as string;
+    const conversationSummary = formData.get("conversationSummary") as string;
+    const needsOrProblems = formData.get("needsOrProblems") as string;
+    const meetingObjective = formData.get("meetingObjective") as string;
+    const competitorName = formData.get("competitorName") as string;
+    const competitorPrice = parseFloat(formData.get("competitorPrice") as string) || null;
+    const competitorPromotion = formData.get("competitorPromotion") as string;
+    const lastMeetingDateRaw = formData.get("lastMeetingDate") as string;
+    const callbackAtRaw = formData.get("callbackAt") as string;
+    const resultArr = formData.getAll("result");
+    const result = resultArr.length > 0 ? resultArr.join(", ") : null;
+
+    const parseDate = (d?: string) => (d ? new Date(d) : null);
+
+    const callbackTime = parseDate(callbackAtRaw);
+    if (callbackTime) {
+      const fifteenMinsBefore = new Date(callbackTime.getTime() - 15 * 60000);
+      const fifteenMinsAfter = new Date(callbackTime.getTime() + 15 * 60000);
+      
+      const overlapping = await prisma.telesale.findFirst({
+        where: {
+          userId: user.id,
+          id: { not: id },
+          callbackAt: {
+            gte: fifteenMinsBefore,
+            lte: fifteenMinsAfter
+          }
+        }
+      });
+
+      if (overlapping && overlapping.callbackAt) {
+        return { success: false, error: `มีคิวโทรกลับซ้อนทับในช่วงเวลานี้แล้ว (${overlapping.callbackAt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.)` };
+      }
+    }
+
+    // Find company
+    let company = await prisma.company.findFirst({
+      where: { companyName },
+    });
+
+    if (!company) {
+      company = await prisma.company.create({
+        data: { companyName, customerType, customerStatus },
+      });
+    } else {
+      await prisma.company.update({
+        where: { id: company.id },
+        data: { customerType, customerStatus },
+      });
+    }
+
+    await prisma.telesale.update({
+      where: { id },
+      data: {
+        companyId: company.id,
+        callDate: parseDate(callDateRaw),
+        callStatus,
+        callOutcome,
+        forwardTo,
+        conversationSummary,
+        needsOrProblems,
+        meetingObjective,
+        competitorName,
+        competitorPrice,
+        competitorPromotion,
+        lastMeetingDate: parseDate(lastMeetingDateRaw),
+        callbackAt: parseDate(callbackAtRaw),
+        result,
+      },
+    });
+
+    revalidatePath("/telesales");
+    return { success: true };
+  } catch (error) {
+    console.error("Telesale Update Error:", error);
+    return { success: false, error: "เกิดข้อผิดพลาดในการแก้ไขข้อมูล" };
+  }
+}

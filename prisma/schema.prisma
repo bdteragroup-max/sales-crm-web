@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String      @id @default(cuid())
+  employeeId  String      @unique
+  email       String?     @unique
+  fullName    String
+  phoneNumber String?
+  role        String      @default("Sales Representative")
+  position    String?
+  password    String
+  createdAt   DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime    @default(now()) @updatedAt @db.Timestamptz(6)
+  otpCode     String?
+  otpExpiresAt DateTime?  @db.Timestamptz(6)
+  isActive     Boolean     @default(true)
+  quotations  Quotation[]
+  schedules   Schedule[]
+  telesales   Telesale[]
+  employeeSale EmployeeSale?
+  monthlyTargets MonthlyTarget[]
+  assignedCompanies Company[] @relation("AssignedCompany")
+}
+
+model MonthlyTarget {
+  id        String   @id @default(cuid())
+  userId    String?  // If null, it's a team-wide target
+  month     Int      // 1-12
+  year      Int
+  amount    Float    @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@unique([userId, month, year])
+  @@index([month, year])
+}
+
+model Schedule {
+  id                 String   @id @default(cuid())
+  userId             String
+  title              String
+  description        String?
+  date               DateTime @db.Timestamptz(6)
+  status             String   @default("Planned")
+  
+  // Tracking fields
+  presentationStatus String?
+  quotationNumber    String?
+  poNumber           String?
+  invoiceNumber      String?
+  notes              String?
+  
+  createdAt          DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime @updatedAt @db.Timestamptz(6)
+  user               User     @relation(fields: [userId], references: [id])
+  companyId          String?
+  company            Company? @relation(fields: [companyId], references: [id])
+  
+  @@index([userId])
+  @@index([companyId])
+  @@index([date])
+}
+
+model EmployeeSale {
+  id         String    @id @default(cuid())
+  userId     String?   @unique
+  employeeId String?   @unique
+  fullName   String
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  nickname   String?
+  branch     String?
+  teamLeader String?
+  position   String?
+  department String?
+  startDate  DateTime? @db.Timestamptz(6)
+  user       User?     @relation(fields: [userId], references: [id])
+
+  @@map("Employee Sale")
+}
+
+model Company {
+  id                    String      @id @default(cuid())
+  companyName           String
+  taxId                 String?
+  address               String?
+  createdAt             DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime    @updatedAt @db.Timestamptz(6)
+  area                  String?
+  branchOrHeadOffice    String?
+  businessType          String?
+  customerAccessChannel String?
+  customerStatus        String?
+  customerType          String?
+  district              String?
+  postalCode            String?
+  province              String?
+  subDistrict           String?
+  contacts              Contact[]
+  quotations            Quotation[]
+  telesales             Telesale[]
+  schedules             Schedule[]
+  assignedUserId        String?
+  assignedUser          User?       @relation("AssignedCompany", fields: [assignedUserId], references: [id], onDelete: SetNull)
+
+  @@index([companyName])
+}
+
+model Contact {
+  id          String      @id @default(cuid())
+  companyId   String
+  contactName String
+  position    String?
+  mobilePhone String?
+  createdAt   DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime    @updatedAt @db.Timestamptz(6)
+  company     Company     @relation(fields: [companyId], references: [id])
+  quotations  Quotation[]
+
+  @@index([companyId])
+}
+
+model Quotation {
+  id                   String    @id @default(cuid())
+  companyId            String
+  status               String    @default("Pending")
+  salesBeforeVat       Float?
+  transportationFee    Float?
+  installationFee      Float?
+  totalAmountBeforeVat Float?
+  actualClosingAmount  Float?
+  createdAt            DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime  @updatedAt @db.Timestamptz(6)
+  billingDate          DateTime? @db.Timestamptz(6)
+  contactId            String?
+  followUp1            DateTime? @db.Timestamptz(6)
+  followUp2            DateTime? @db.Timestamptz(6)
+  followUp3            DateTime? @db.Timestamptz(6)
+  followUp4            DateTime? @db.Timestamptz(6)
+  invoiceNumber        String?
+  poDate               DateTime? @db.Timestamptz(6)
+  productType          String?
+  quotationDate        DateTime? @db.Timestamptz(6)
+  quotationNumber      String?
+  rejectReason         String?
+  remarks              String?
+  requirementDate      DateTime? @db.Timestamptz(6)
+  requirementNumber    String?
+  salesBranch          String?
+  salesTeamLeader      String?
+  salespersonId        String?
+  subject              String?
+  winLossReason        String?
+  company              Company   @relation(fields: [companyId], references: [id])
+  contact              Contact?  @relation(fields: [contactId], references: [id])
+  salesperson          User?     @relation(fields: [salespersonId], references: [id])
+
+  @@index([companyId])
+  @@index([salespersonId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Telesale {
+  id                  String    @id @default(cuid())
+  companyId           String
+  userId              String?
+  conversationSummary String?
+  needsOrProblems     String?
+  meetingObjective    String?
+  competitorName      String?
+  competitorPrice     Float?
+  competitorPromotion String?
+  lastMeetingDate     DateTime? @db.Timestamptz(6)
+  result              String?
+  createdAt           DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime  @updatedAt @db.Timestamptz(6)
+  callDate            DateTime? @db.Timestamptz(6)
+  callOutcome         String?
+  callStatus          String?
+  forwardTo           String?
+  callbackAt          DateTime? @db.Timestamptz(6)
+  company             Company   @relation(fields: [companyId], references: [id])
+  user                User?     @relation(fields: [userId], references: [id])
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([lastMeetingDate])
+  @@index([createdAt])
+}
+
+model BusinessType {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}
+
+model PostalData {
+  id          String   @id @default(cuid())
+  postalCode  String
+  subDistrict String
+  district    String
+  province    String
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([postalCode])
+}
+
+model Competitor {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  price     Float?
+  promotion String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([name])
+}
