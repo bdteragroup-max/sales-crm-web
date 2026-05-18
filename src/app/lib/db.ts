@@ -5,8 +5,8 @@ import { PrismaPg } from '@prisma/adapter-pg'
 const prismaClientSingleton = () => {
   const pool = new Pool({ 
     connectionString: process.env.DATABASE_URL,
-    max: 10, // Reduced to prevent EMAXCONNSESSION
-    idleTimeoutMillis: 60000,
+    max: 2, // Reduced to 2 to prevent EMAXCONNSESSION in highly concurrent serverless environments
+    idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
   })
   const adapter = new PrismaPg(pool)
