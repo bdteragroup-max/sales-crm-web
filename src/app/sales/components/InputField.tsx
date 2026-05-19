@@ -49,8 +49,8 @@ export default function InputField({
   }
 
   return (
-    <div className="flex items-center gap-4">
-      <label className="w-1/3 text-sm font-medium text-gray-600 text-right">
+    <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 w-full">
+      <label className="w-full md:w-1/3 text-left md:text-right text-xs md:text-sm font-semibold md:font-medium text-slate-500 md:text-gray-600 ml-1 md:ml-0 shrink-0">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <input 

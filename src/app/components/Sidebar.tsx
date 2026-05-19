@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, PhoneCall,
-  LogOut, TrendingUp, ChevronLeft, ChevronRight, Settings,
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X,
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 
@@ -14,246 +16,326 @@ type SidebarProps = {
   userRole?: string;
 };
 
+const managerNav = [
+  { icon: LayoutDashboard, label: 'ภาพรวมทีม', href: '/dashboard' },
+  { icon: TrendingUp, label: 'จัดการใบเสนอราคา', href: '/sales' },
+  { icon: Users, label: 'จัดการทีม', href: '/team' },
+  { icon: CalendarDays, label: 'จัดการตารางงาน', href: '/schedule' },
+  { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
+  { icon: Users, label: 'ลูกค้าและบริษัท', href: '/clients' },
+  { icon: Settings, label: 'ตั้งค่าระบบ', href: '/settings' },
+];
+
+const repNav = [
+  { icon: LayoutDashboard, label: 'ภาพรวมของฉัน', href: '/dashboard' },
+  { icon: TrendingUp, label: 'บันทึกใบเสนอราคา', href: '/sales' },
+  { icon: CalendarDays, label: 'ตารางงานของฉัน', href: '/schedule' },
+  { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
+  { icon: Users, label: 'ลูกค้าและบริษัท', href: '/clients' },
+  { icon: Settings, label: 'ตั้งค่าระบบ', href: '/settings' },
+];
+
 export default function Sidebar(props: SidebarProps) {
-  return props.userRole === 'ผู้จัดการ'
-    ? <ManagerSidebar {...props} />
-    : <RepSidebar {...props} />;
+  const nav = props.userRole === 'ผู้จัดการ' ? managerNav : repNav;
+  return <ResponsiveSidebar {...props} nav={nav} />;
 }
 
-/* ─── Fade wrapper ────────────────────────────────────────────────────────────
-   Renders children with a smooth opacity + translate animation.
-   When `show` flips to false the element fades out, then unmounts after the
-   CSS transition ends so it doesn't occupy space in collapsed mode.           */
-function Fade({ show, children, className = '' }: { show: boolean; children: React.ReactNode; className?: string }) {
-  const [mounted, setMounted] = useState(show);
+type NavItem = { icon: React.ElementType; label: string; href: string };
 
+function ResponsiveSidebar({
+  activeRoute = '/dashboard',
+  userFullName = 'User',
+  userRole = 'ตัวแทนฝ่ายขาย',
+  nav,
+}: SidebarProps & { nav: NavItem[] }) {
+  const router = useRouter();
+  const [loadingHref, setLoadingHref] = useState<string | null>(null);
+  const [isSettingsLoading, setIsSettingsLoading] = useState(false);
+  const [isLogoutLoading, setIsLogoutLoading] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const [tooltip, setTooltip] = useState<{ label: string; y: number } | null>(null);
+  const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Aggressively prefetch all route bundles and server component data on mount
   useEffect(() => {
-    if (show) setMounted(true);
-  }, [show]);
+    nav.forEach(({ href }) => {
+      router.prefetch(href);
+    });
+    router.prefetch('/settings');
+  }, [router, nav]);
 
-  if (!mounted) return null;
-
-  return (
-    <span
-      onTransitionEnd={() => { if (!show) setMounted(false); }}
-      className={`inline-block transition-all duration-300 ease-in-out origin-left ${show
-        ? 'opacity-100 translate-x-0 scale-x-100'
-        : 'opacity-0 -translate-x-2 scale-x-95 pointer-events-none'
-        } ${className}`}
-    >
-      {children}
-    </span>
-  );
-}
-
-/* ─── Shared hook for hover / pin logic ──────────────────────────────────── */
-function useSidebarState() {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isPinned, setIsPinned] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => setIsHovered(false), 500);
-  };
-
-  useEffect(() => {
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+  const showTooltip = useCallback((label: string, e: React.MouseEvent) => {
+    if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setTooltip({ label, y: rect.top + rect.height / 2 });
   }, []);
 
-  const collapsed = !isHovered && !isPinned;
+  const hideTooltip = useCallback(() => {
+    tooltipTimeout.current = setTimeout(() => setTooltip(null), 80);
+  }, []);
 
-  return { collapsed, isPinned, setIsPinned, handleMouseEnter, handleMouseLeave };
-}
-
-// ─── Manager Sidebar (White / Red) ──────────────────────────────────────────
-function ManagerSidebar({ activeRoute = '/dashboard', userFullName = 'User', userRole = 'ผู้จัดการ' }: SidebarProps) {
-  const { collapsed, isPinned, setIsPinned, handleMouseEnter, handleMouseLeave } = useSidebarState();
-
-  const nav = [
-    { icon: <LayoutDashboard size={18} />, label: 'ภาพรวมทีม', href: '/dashboard' },
-    { icon: <Users size={18} />, label: 'จัดการทีม', href: '/team' },
-    { icon: <TrendingUp size={18} />, label: 'จัดการใบเสนอราคา', href: '/sales' },
-    { icon: <CalendarDays size={18} />, label: 'จัดการตารางงาน', href: '/schedule' },
-    { icon: <PhoneCall size={18} />, label: 'เทเลเซลล์', href: '/telesales' },
-    { icon: <Users size={18} />, label: 'ลูกค้าและบริษัท', href: '/clients' },
-    { icon: <Settings size={18} />, label: 'ตั้งค่าระบบ', href: '/settings' },
-  ];
+  useEffect(() => () => {
+    if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
+  }, []);
 
   return (
-    <aside
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={`${collapsed ? 'w-[80px]' : 'w-[260px]'} bg-white flex flex-col z-50 absolute md:relative shrink-0 h-screen transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-xl border-r border-gray-100`}
-    >
-      {/* Pin toggle */}
-      <button
-        onClick={() => setIsPinned(!isPinned)}
-        className={`absolute -right-3 top-10 bg-white text-gray-400 p-1.5 rounded-full shadow-lg border border-gray-100 z-30 hover:text-brand-red transition-all duration-300 hover:scale-110 ${collapsed ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100'}`}
+    <>
+      {/* ─── DESKTOP SIDEBAR (Inline, in-flow) ─── */}
+      <aside
+        className="hidden md:flex w-[76px] h-screen bg-white flex-col items-center py-6 shrink-0 justify-between border-r border-gray-100 relative z-40 select-none"
       >
-        {isPinned ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        {/* Top brand logo and navigation */}
+        <div className="flex flex-col items-center w-full">
+          {/* Logo mark */}
+          <Link href="/dashboard" className="w-12 h-12 bg-[#ff2301] rounded-2xl flex items-center justify-center shadow-lg shadow-red-100 hover:scale-105 transition-all duration-300">
+            <TrendingUp size={22} className="text-white" strokeWidth={2.5} />
+          </Link>
+
+          {/* Divider */}
+          <div className="w-8 h-px bg-gray-100 my-5 shrink-0" />
+
+          {/* Nav items */}
+          <nav className="flex flex-col gap-2 w-full px-2">
+            {nav.map(({ icon: Icon, label, href }) => {
+              const active = activeRoute === href;
+              const isLoading = loadingHref === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  prefetch={true}
+                  onMouseEnter={(e) => showTooltip(label, e)}
+                  onMouseLeave={hideTooltip}
+                  onClick={() => {
+                    if (activeRoute !== href) {
+                      setLoadingHref(href);
+                    }
+                  }}
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${
+                    active
+                      ? 'bg-red-50 text-[#ff2301] shadow-sm border border-red-100'
+                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  {isLoading ? (
+                    <Loader2 size={20} className="animate-spin text-[#ff2301]" />
+                  ) : (
+                    <Icon size={20} strokeWidth={active ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
+                  )}
+                  {active && !isLoading && (
+                    <span
+                      className="absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full bg-[#ff2301] border border-white animate-pulse"
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Bottom items */}
+        <div className="flex flex-col items-center gap-3 w-full px-2 shrink-0">
+          <div className="w-8 h-px bg-gray-100 my-1 shrink-0" />
+
+          <Link
+            href="/dashboard"
+            onMouseEnter={(e) => showTooltip('การแจ้งเตือน', e)}
+            onMouseLeave={hideTooltip}
+            className="w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 relative group"
+          >
+            <Bell size={20} strokeWidth={2} className="transition-transform duration-200 group-hover:scale-105" />
+            <span
+              className="absolute top-3.5 right-3.5 w-1.5 h-1.5 rounded-full bg-red-500 border border-white"
+            />
+          </Link>
+
+          <Link
+            href="/settings"
+            prefetch={true}
+            onMouseEnter={(e) => showTooltip(`${userFullName} (${userRole})`, e)}
+            onMouseLeave={hideTooltip}
+            onClick={() => {
+              if (activeRoute !== '/settings') {
+                setIsSettingsLoading(true);
+              }
+            }}
+            className="w-10 h-10 rounded-2xl bg-red-50 text-[#ff2301] border border-red-100 font-black text-xs flex items-center justify-center transition-all duration-200 hover:bg-red-100 hover:scale-105 uppercase"
+          >
+            {isSettingsLoading ? (
+              <Loader2 size={16} className="animate-spin text-[#ff2301]" />
+            ) : (
+              userFullName.charAt(0)
+            )}
+          </Link>
+
+          <form action={logout} onSubmit={() => setIsLogoutLoading(true)} className="w-full flex justify-center">
+            <button
+              type="submit"
+              onMouseEnter={(e) => showTooltip('ออกจากระบบ', e)}
+              onMouseLeave={hideTooltip}
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:text-[#ff2301] hover:bg-red-50 transition-all duration-200 group"
+            >
+              {isLogoutLoading ? (
+                <Loader2 size={18} className="animate-spin text-[#ff2301]" />
+              ) : (
+                <LogOut
+                  size={18}
+                  strokeWidth={2}
+                  className="transition-transform duration-200 group-hover:translate-x-0.5"
+                />
+              )}
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      {/* ─── MOBILE FLOATING TRIGGER BUTTON ─── */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="md:hidden fixed left-4 bottom-4 z-50 bg-[#ff2301] text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-red-200 hover:scale-105 active:scale-95 transition-all outline-none"
+      >
+        {isMobileMenuOpen ? <X size={26} strokeWidth={2.5} /> : <Menu size={26} strokeWidth={2.5} />}
       </button>
 
-      {/* Logo */}
-      <div className={`p-6 mb-2 transition-all duration-300 ${collapsed ? 'flex justify-center px-2' : ''}`}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-brand-red rounded-xl flex items-center justify-center shadow-lg shadow-red-200 shrink-0 transition-transform duration-300">
-            <TrendingUp size={22} className="text-white" />
-          </div>
-          <Fade show={!collapsed}>
-            <div className="overflow-hidden whitespace-nowrap">
-              <h1 className="text-xl font-black text-gray-900 tracking-tight leading-none italic">TeraSales</h1>
-              <p className="text-[10px] font-bold text-brand-red uppercase tracking-[0.2em] mt-1.5">CRM System</p>
-            </div>
-          </Fade>
-        </div>
-      </div>
+      {/* ─── MOBILE SLIDER DRAWER OVERLAY ─── */}
+      {isMobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-opacity duration-300 animate-in fade-in"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 space-y-1 mt-4 overflow-hidden">
-        {nav.map(({ icon, label, href }) => {
-          const active = activeRoute === href;
-          return (
-            <a
-              key={href}
-              href={href}
-              title={collapsed ? label : undefined}
-              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group
-                ${active ? 'bg-red-50 text-brand-red border border-red-100' : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'}
-                ${collapsed ? 'justify-center' : ''}`}
-            >
-              <div className={`shrink-0 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
-                {icon}
-              </div>
-              <Fade show={!collapsed}>
-                <span className="font-bold text-[14px] whitespace-nowrap">{label}</span>
-              </Fade>
-            </a>
-          );
-        })}
-      </nav>
-
-      {/* User & Logout */}
-      <div className="mt-auto p-4 bg-gray-50/50 border-t border-gray-100">
-        <div className={`flex items-center gap-3 p-3 rounded-2xl bg-white border border-gray-100 shadow-sm transition-all duration-300 ${collapsed ? 'justify-center px-2' : ''}`}>
-          <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-brand-red font-black text-lg shrink-0 border border-red-50">
-            {userFullName.charAt(0)}
-          </div>
-          <Fade show={!collapsed}>
-            <div className="overflow-hidden">
-              <p className="text-xs font-black text-gray-900 truncate">{userFullName}</p>
-              <p className="text-[10px] font-bold text-gray-400 truncate uppercase tracking-tighter">{userRole}</p>
-            </div>
-          </Fade>
-        </div>
-        <form action={logout}>
-          <button
-            className={`group w-full mt-3 flex items-center gap-3 px-3 py-3 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 font-black text-[11px] uppercase tracking-widest ${collapsed ? 'justify-center' : ''}`}
-          >
-            <LogOut size={18} className="group-hover:translate-x-1 transition-transform duration-200" />
-            <Fade show={!collapsed}>
-              <span>ออกจากระบบ</span>
-            </Fade>
-          </button>
-        </form>
-      </div>
-    </aside>
-  );
-}
-
-// ─── Rep Sidebar (White / Red) ───────────────────────────────────────────────
-function RepSidebar({ activeRoute = '/dashboard', userFullName = 'User', userRole = 'ตัวแทนฝ่ายขาย' }: SidebarProps) {
-  const { collapsed, isPinned, setIsPinned, handleMouseEnter, handleMouseLeave } = useSidebarState();
-
-  const nav = [
-    { icon: <LayoutDashboard size={18} />, label: 'ภาพรวมของฉัน', href: '/dashboard' },
-    { icon: <TrendingUp size={18} />, label: 'บันทึกใบเสนอราคา', href: '/sales' },
-    { icon: <CalendarDays size={18} />, label: 'ตารางงานของฉัน', href: '/schedule' },
-    { icon: <PhoneCall size={18} />, label: 'เทเลเซลล์', href: '/telesales' },
-    { icon: <Users size={18} />, label: 'ลูกค้าและบริษัท', href: '/clients' },
-    { icon: <Settings size={18} />, label: 'ตั้งค่าระบบ', href: '/settings' },
-  ];
-
-  return (
-    <aside
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={`${collapsed ? 'w-[80px]' : 'w-[260px]'} bg-white flex flex-col z-50 absolute md:relative shrink-0 h-screen transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-xl border-r border-gray-100`}
-    >
-      <button
-        onClick={() => setIsPinned(!isPinned)}
-        className={`absolute -right-3 top-10 bg-white text-gray-400 p-1.5 rounded-full shadow-lg border border-gray-100 z-30 hover:text-red-600 transition-all duration-300 hover:scale-110 ${collapsed ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100'}`}
+      {/* ─── MOBILE SLIDER DRAWER CONTENT ─── */}
+      <aside
+        className={`md:hidden fixed top-0 bottom-0 left-0 w-[270px] bg-white border-r border-gray-100 flex flex-col justify-between py-8 px-5 z-50 transition-transform duration-300 ease-out transform shadow-2xl ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
       >
-        {isPinned ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
-      </button>
-
-      {/* Logo */}
-      <div className={`p-6 mb-2 transition-all duration-300 ${collapsed ? 'flex justify-center px-2' : ''}`}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-brand-red rounded-xl flex items-center justify-center shadow-lg shadow-red-200 shrink-0 transition-transform duration-300">
-            <TrendingUp size={22} className="text-white" />
-          </div>
-          <Fade show={!collapsed}>
-            <div className="overflow-hidden whitespace-nowrap">
-              <h1 className="text-xl font-black text-gray-900 tracking-tight leading-none italic">TeraSales</h1>
-              <p className="text-[10px] font-bold text-brand-red uppercase tracking-[0.2em] mt-1.5">CRM System</p>
+        {/* Brand header */}
+        <div className="flex flex-col w-full">
+          <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#ff2301] rounded-xl flex items-center justify-center shadow-lg shadow-red-100">
+              <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
             </div>
-          </Fade>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-3 space-y-1 mt-4 overflow-hidden">
-        {nav.map(({ icon, label, href }) => {
-          const active = activeRoute === href;
-          return (
-            <a
-              key={href}
-              href={href}
-              title={collapsed ? label : undefined}
-              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group
-                ${active ? 'bg-red-50 text-brand-red border border-red-100' : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'}
-                ${collapsed ? 'justify-center' : ''}`}
-            >
-              <div className={`shrink-0 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
-                {icon}
-              </div>
-              <Fade show={!collapsed}>
-                <span className="font-bold text-[14px] whitespace-nowrap">{label}</span>
-              </Fade>
-            </a>
-          );
-        })}
-      </nav>
-
-      {/* User & Logout */}
-      <div className="mt-auto p-4 bg-gray-50/50 border-t border-gray-100">
-        <div className={`flex items-center gap-3 p-3 rounded-2xl bg-white border border-gray-100 shadow-sm transition-all duration-300 ${collapsed ? 'justify-center px-2' : ''}`}>
-          <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-brand-red font-black text-lg shrink-0 border border-red-50">
-            {userFullName.charAt(0)}
-          </div>
-          <Fade show={!collapsed}>
-            <div className="overflow-hidden">
-              <p className="text-xs font-black text-gray-900 truncate">{userFullName}</p>
-              <p className="text-[10px] font-bold text-gray-400 truncate uppercase tracking-tighter">{userRole}</p>
+            <div>
+              <span className="font-sans font-black text-lg text-gray-900 tracking-tight block">TeraSales</span>
+              <span className="text-[9px] font-sans font-bold text-[#ff2301] tracking-wider block -mt-1 uppercase">CRM System</span>
             </div>
-          </Fade>
+          </Link>
+
+          {/* Divider */}
+          <div className="w-full h-px bg-gray-100 my-6" />
+
+          {/* Nav items list */}
+          <nav className="flex flex-col gap-1.5 w-full">
+            {nav.map(({ icon: Icon, label, href }) => {
+              const active = activeRoute === href;
+              const isLoading = loadingHref === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  prefetch={true}
+                  onClick={() => {
+                    if (activeRoute !== href) {
+                      setLoadingHref(href);
+                    }
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 transition-all duration-200 border ${
+                    active
+                      ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
+                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
+                  }`}
+                >
+                  <div className="shrink-0">
+                    {isLoading ? (
+                      <Loader2 size={18} className="animate-spin text-[#ff2301]" />
+                    ) : (
+                      <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+                    )}
+                  </div>
+                  <span className="text-[14px] font-sans font-semibold tracking-wide">{label}</span>
+                </Link>
+              );
+            })}
+          </nav>
         </div>
-        <form action={logout}>
-          <button
-            className={`group w-full mt-3 flex items-center gap-3 px-3 py-3 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 font-black text-[11px] uppercase tracking-widest ${collapsed ? 'justify-center' : ''}`}
+
+        {/* User profile & Action buttons */}
+        <div className="flex flex-col gap-4 w-full">
+          <div className="h-px bg-gray-100 w-full" />
+
+          {/* Profile Card / Settings Link */}
+          <Link
+            href="/settings"
+            prefetch={true}
+            onClick={() => {
+              if (activeRoute !== '/settings') {
+                setIsSettingsLoading(true);
+              }
+              setIsMobileMenuOpen(false);
+            }}
+            className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all duration-200 border ${
+              activeRoute === '/settings'
+                ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
+                : 'bg-gray-50/50 hover:bg-gray-50 text-gray-700 border-gray-100'
+            }`}
           >
-            <LogOut size={18} className="group-hover:translate-x-1 transition-transform duration-200" />
-            <Fade show={!collapsed}>
+            <div className="w-10 h-10 rounded-lg bg-red-100 text-[#ff2301] border border-red-200 font-black text-sm flex items-center justify-center uppercase shrink-0">
+              {isSettingsLoading ? (
+                <Loader2 size={16} className="animate-spin text-[#ff2301]" />
+              ) : (
+                userFullName.charAt(0)
+              )}
+            </div>
+            <div className="flex flex-col overflow-hidden">
+              <span className="text-xs font-sans font-bold text-gray-900 truncate leading-none">{userFullName}</span>
+              <span className="text-[9px] font-sans font-semibold text-gray-400 truncate uppercase mt-1 tracking-tight">{userRole}</span>
+            </div>
+          </Link>
+
+          {/* Logout button */}
+          <form action={logout} onSubmit={() => setIsLogoutLoading(true)} className="w-full">
+            <button
+              type="submit"
+              className="w-full h-12 rounded-xl flex items-center gap-3.5 px-4 text-gray-500 hover:text-[#ff2301] hover:bg-red-50 transition-all duration-200 font-sans font-semibold text-sm outline-none"
+            >
+              <div className="shrink-0">
+                {isLogoutLoading ? (
+                  <Loader2 size={18} className="animate-spin text-[#ff2301]" />
+                ) : (
+                  <LogOut size={18} strokeWidth={2} />
+                )}
+              </div>
               <span>ออกจากระบบ</span>
-            </Fade>
-          </button>
-        </form>
-      </div>
-    </aside>
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      {/* ─── DESKTOP TOOLTIP ─── */}
+      {tooltip && (
+        <div
+          className="fixed z-[60] pointer-events-none animate-in fade-in slide-in-from-left-1 duration-150"
+          style={{ left: 88, top: tooltip.y, transform: 'translateY(-50%)' }}
+        >
+          <div
+            className="text-white text-[10px] font-black tracking-wider uppercase px-3 py-1.5 rounded-lg shadow-xl relative font-sans"
+            style={{
+              background: '#0f172a',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            {tooltip.label}
+            <span
+              className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 rotate-45"
+              style={{ background: '#0f172a' }}
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 }

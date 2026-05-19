@@ -31,6 +31,17 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
 
   const isManager = userRole === 'ผู้จัดการ'
 
+  // Calculate overdue visits (planned date has passed, status not Completed/Cancelled, no visit report)
+  const now = new Date(
+    new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })
+  )
+  const overdueVisits = schedules.filter(s => {
+    const isPast = new Date(s.date) < now
+    const isPending = !s.status || (s.status !== 'Completed' && s.status !== 'เสร็จสิ้น' && s.status !== 'Cancelled' && s.status !== 'ยกเลิก')
+    const noReport = !s.visitReport?.trim()
+    return isPast && isPending && noReport
+  })
+
   const handleSuccess = (newSchedule: any) => {
     setSchedules([...schedules, newSchedule].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()))
     setActiveTab('list')
@@ -126,6 +137,47 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
         ))}
       </div>
 
+      {/* ── Overdue Visits Warning Alert ── */}
+      {overdueVisits.length > 0 && (
+        <div className="shrink-0 mx-8 mt-6 p-5 bg-amber-50 border border-amber-200 rounded-[24px] flex items-start gap-4 shadow-sm animate-in slide-in-from-top-4 duration-500">
+          <div className="p-2.5 bg-amber-500 text-white rounded-xl shadow-md shrink-0">
+            <Clock size={18} className="animate-pulse" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm font-black text-amber-900 tracking-tight flex items-center gap-2 flex-wrap">
+              <span>พบแผนงานเข้าพบเลยกำหนดแต่ยังไม่มีรายงานผล {overdueVisits.length} รายการ</span>
+              <span className="text-[9px] bg-amber-200/80 text-amber-800 px-2 py-0.5 rounded-full font-black uppercase tracking-widest">Overdue Warning</span>
+            </h4>
+            <p className="text-[11px] text-amber-700/80 font-bold mt-1">
+              กรุณาคลิกบันทึกผลการเข้าพบ (Visit Report) และเปลี่ยนสถานะงานเป็นเสร็จสิ้น (Completed)
+            </p>
+            <div className="mt-3.5 flex flex-wrap gap-2">
+              {overdueVisits.slice(0, 3).map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setSelectedSchedule(s)}
+                  className="flex items-center gap-2 bg-white hover:bg-amber-100/50 text-amber-900 border border-amber-200/70 px-3.5 py-2 rounded-xl text-[11px] font-bold shadow-sm transition-all text-left"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                  <span className="font-bold truncate max-w-[120px]">{s.company?.companyName || s.title}</span>
+                  <span className="text-[9px] text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100 shrink-0">
+                    {new Date(s.date).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' })}
+                  </span>
+                  {isManager && s.user?.fullName && (
+                    <span className="text-[9px] text-gray-400 font-bold shrink-0">({s.user.fullName})</span>
+                  )}
+                </button>
+              ))}
+              {overdueVisits.length > 3 && (
+                <div className="flex items-center text-[10px] font-bold text-amber-600 px-2">
+                  และอีก {overdueVisits.length - 3} รายการ...
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Content ── */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {activeTab === 'new' ? (
@@ -207,6 +259,12 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
                               {schedule.quotationNumber && <span className="text-[10px] bg-red-50 text-brand-red px-2 py-0.5 rounded-lg border border-red-100 font-black">QT: {schedule.quotationNumber}</span>}
                               {schedule.poNumber && <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-lg border border-gray-200 font-black">PO: {schedule.poNumber}</span>}
                               {schedule.invoiceNumber && <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-lg border border-emerald-100 font-black">IV: {schedule.invoiceNumber}</span>}
+                            </div>
+                          )}
+                          {schedule.visitReport && (
+                            <div className="mt-2 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-100/50 animate-in fade-in duration-300">
+                              <p className="text-[8px] font-black text-emerald-700 uppercase tracking-widest mb-0.5">รายงานผลการเข้าพบ (Visit Report):</p>
+                              <p className="text-[10px] text-emerald-800 font-medium leading-relaxed whitespace-pre-wrap">{schedule.visitReport}</p>
                             </div>
                           )}
                           {schedule.notes && (

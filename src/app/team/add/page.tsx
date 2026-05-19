@@ -16,7 +16,7 @@ export default async function AddTeamMemberPage() {
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
       <Sidebar activeRoute="/team" userFullName={user.fullName} userId={user.id} userRole={user.role} />
       
-      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-10">
+      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
         <div className="max-w-4xl mx-auto w-full">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">เพิ่มพนักงานใหม่</h1>

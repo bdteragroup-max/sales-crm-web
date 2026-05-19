@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, X, FileText, MapPin, User } from 'lucide-react';
+import { Save, X, FileText, MapPin, User, AlertTriangle } from 'lucide-react';
 import { saveSalesData, updateSalesData, searchCompanies, searchContacts, getPostalInfo } from '@/app/actions/sales';
 import Card from './Card';
 import InputField from './InputField';
@@ -173,43 +173,83 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
       setTransportationFee(Number(initialData.transportationFee) || 0);
       setInstallationFee(Number(initialData.installationFee) || 0);
       
-      setFormData({
-        updatedDate: formatDateForInput(initialData.updatedDate || initialData.createdAt),
-        requirementNumber: initialData.requirementNumber || '',
-        requirementDate: formatDateForInput(initialData.requirementDate),
-        quotationNumber: initialData.quotationNumber || '',
-        quotationDate: formatDateForInput(initialData.quotationDate),
-        rejectReason: initialData.rejectReason || '',
-        actualClosingAmount: initialData.actualClosingAmount || '',
-        poDate: formatDateForInput(initialData.poDate),
-        billingDate: formatDateForInput(initialData.billingDate),
-        invoiceNumber: initialData.invoiceNumber || '',
-        winLossReason: initialData.winLossReason || '',
-        companyName: initialData.company?.companyName || '',
-        taxId: initialData.company?.taxId || '',
-        branchOrHeadOffice: initialData.company?.branchOrHeadOffice || 'สำนักงานใหญ่',
-        businessType: initialData.company?.businessType || '',
-        customerType: initialData.company?.customerType || 'USER',
-        customerStatus: initialData.company?.customerStatus || 'ลูกค้าใหม่',
-        customerAccessChannel: initialData.company?.customerAccessChannel || 'Website',
-        address: initialData.company?.address || '',
-        subDistrict: initialData.company?.subDistrict || '',
-        district: initialData.company?.district || '',
-        province: initialData.company?.province || '',
-        postalCode: initialData.company?.postalCode || '',
-        contactName: initialData.contact?.contactName || '',
-        position: initialData.contact?.position || '',
-        mobilePhone: initialData.contact?.mobilePhone || '',
-        productInterest: initialData.subject || '',
-        productType: initialData.productType || 'อื่นๆ',
-        followUp1: formatDateForInput(initialData.followUp1),
-        followUp2: formatDateForInput(initialData.followUp2),
-        followUp3: formatDateForInput(initialData.followUp3),
-        followUp4: formatDateForInput(initialData.followUp4),
-        salesBranch: initialData.salesBranch || initialData.salesperson?.employeeSale?.branch || '',
-        salesTeamLeader: initialData.salesTeamLeader || initialData.salesperson?.employeeSale?.teamLeader || '',
-        remarks: initialData.remarks || '',
-      });
+      if (initialData.isPrefilled) {
+        setFormData({
+          updatedDate: formatDateForInput(new Date()),
+          requirementNumber: generateRequirementNumber(),
+          requirementDate: formatDateForInput(new Date()),
+          quotationNumber: '',
+          quotationDate: '',
+          rejectReason: '',
+          actualClosingAmount: '',
+          poDate: '',
+          billingDate: '',
+          invoiceNumber: '',
+          winLossReason: '',
+          companyName: initialData.company?.companyName || '',
+          taxId: initialData.company?.taxId || '',
+          branchOrHeadOffice: initialData.company?.branchOrHeadOffice || 'สำนักงานใหญ่',
+          businessType: initialData.company?.businessType || '',
+          customerType: initialData.company?.customerType || 'USER',
+          customerStatus: initialData.company?.customerStatus || 'ลูกค้าใหม่',
+          customerAccessChannel: initialData.company?.customerAccessChannel || 'Website',
+          address: initialData.company?.address || '',
+          subDistrict: initialData.company?.subDistrict || '',
+          district: initialData.company?.district || '',
+          province: initialData.company?.province || '',
+          postalCode: initialData.company?.postalCode || '',
+          contactName: initialData.contact?.contactName || '',
+          position: initialData.contact?.position || '',
+          mobilePhone: initialData.contact?.mobilePhone || '',
+          productInterest: '',
+          productType: 'อื่นๆ',
+          followUp1: '',
+          followUp2: '',
+          followUp3: '',
+          followUp4: '',
+          salesBranch: currentUserSale?.branch || '',
+          salesTeamLeader: currentUserSale?.teamLeader || '',
+          remarks: '',
+        });
+      } else {
+        setFormData({
+          updatedDate: formatDateForInput(initialData.updatedDate || initialData.createdAt),
+          requirementNumber: initialData.requirementNumber || '',
+          requirementDate: formatDateForInput(initialData.requirementDate),
+          quotationNumber: initialData.quotationNumber || '',
+          quotationDate: formatDateForInput(initialData.quotationDate),
+          rejectReason: initialData.rejectReason || '',
+          actualClosingAmount: initialData.actualClosingAmount || '',
+          poDate: formatDateForInput(initialData.poDate),
+          billingDate: formatDateForInput(initialData.billingDate),
+          invoiceNumber: initialData.invoiceNumber || '',
+          winLossReason: initialData.winLossReason || '',
+          companyName: initialData.company?.companyName || '',
+          taxId: initialData.company?.taxId || '',
+          branchOrHeadOffice: initialData.company?.branchOrHeadOffice || 'สำนักงานใหญ่',
+          businessType: initialData.company?.businessType || '',
+          customerType: initialData.company?.customerType || 'USER',
+          customerStatus: initialData.company?.customerStatus || 'ลูกค้าเก่า',
+          customerAccessChannel: initialData.company?.customerAccessChannel || 'Website',
+          address: initialData.company?.address || '',
+          subDistrict: initialData.company?.subDistrict || '',
+          district: initialData.company?.district || '',
+          province: initialData.company?.province || '',
+          postalCode: initialData.company?.postalCode || '',
+          contactName: initialData.contact?.contactName || '',
+          position: initialData.contact?.position || '',
+          mobilePhone: initialData.contact?.mobilePhone || '',
+          productInterest: initialData.subject || '',
+          productType: initialData.productType || 'อื่นๆ',
+          followUp1: formatDateForInput(initialData.followUp1),
+          followUp2: formatDateForInput(initialData.followUp2),
+          followUp3: formatDateForInput(initialData.followUp3),
+          followUp4: formatDateForInput(initialData.followUp4),
+          salesBranch: initialData.salesBranch || initialData.salesperson?.employeeSale?.branch || '',
+          salesTeamLeader: initialData.salesTeamLeader || initialData.salesperson?.employeeSale?.teamLeader || '',
+          remarks: initialData.remarks || '',
+        });
+      }
       setSelectedCompanyId(initialData.companyId || null);
     } else {
       // Clear form and pre-fill with current user's sale info if available
@@ -382,8 +422,9 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
 
                   {winLossReason === 'แพ้ให้คู่แข่ง (โปรดระบุรายละเอียด)' && (
                     <div className="flex justify-end pl-[33.33%]">
-                      <span className="text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5 animate-pulse">
-                        ⚠️ โปรดระบุชื่อคู่แข่งในช่องรายละเอียดเพิ่มเติมด้านล่างเพื่อเก็บข้อมูลเชิงวิเคราะห์
+                      <span className="text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5 animate-pulse flex items-center gap-1.5">
+                        <AlertTriangle size={12} className="text-amber-500 shrink-0" />
+                        <span>โปรดระบุชื่อคู่แข่งในช่องรายละเอียดเพิ่มเติมด้านล่างเพื่อเก็บข้อมูลเชิงวิเคราะห์</span>
                       </span>
                     </div>
                   )}
@@ -517,11 +558,11 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
 
               {/* 2. Classification */}
               <div className="bg-slate-50/30 p-6 rounded-3xl border border-slate-100/50 space-y-4 shadow-sm">
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <SelectField name="branchOrHeadOffice" label="สาขา/สำนักงานใหญ่ :" vertical={true} options={['สำนักงานใหญ่', 'สาขา']} value={formData.branchOrHeadOffice} onChange={handleInputChange} />
                   <SelectField name="businessType" label="ประเภทธุรกิจ :" vertical={true} options={businessTypes.length > 0 ? businessTypes : ['โรงงานอุตสาหกรรม', 'รับเหมาก่อสร้าง', 'ขายปลีก', 'อื่นๆ']} value={formData.businessType} onChange={handleInputChange} />
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <SelectField name="customerType" label="ประเภทลูกค้า :" vertical={true} options={['USER', 'MAKER', 'TRADING']} value={formData.customerType} onChange={handleInputChange} />
                   <SelectField name="customerStatus" label="สถานะลูกค้า :" vertical={true} options={['ลูกค้าใหม่', 'ลูกค้าเก่า', 'ลูกค้ากลับมา']} value={formData.customerStatus} onChange={handleInputChange} />
                 </div>
@@ -547,7 +588,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                     placeholder="บ้านเลขที่, ถนน, หมู่บ้าน..."
                   ></textarea>
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="relative">
                     <InputField name="subDistrict" label="ตำบล/แขวง :" type="text" vertical={true} value={formData.subDistrict || ''} onChange={handleInputChange} />
                     {showPostalDropdown && postalResults.length > 1 && (
@@ -570,7 +611,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                   </div>
                   <InputField name="district" label="อำเภอ/เขต :" type="text" vertical={true} value={formData.district || ''} onChange={handleInputChange} />
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <InputField name="province" label="จังหวัด :" type="text" vertical={true} value={formData.province || ''} onChange={handleInputChange} />
                   <InputField 
                     name="postalCode" 
@@ -629,7 +670,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                     )}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-6 pl-[33.333%]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 md:pl-[33.333%]">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-wider">ตำแหน่ง</label>
                     <input 
@@ -673,7 +714,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
 
           <Card title="การติดตาม">
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputField name="followUp1" label="ติดตามครั้งที่ 1 :" type="date" value={formData.followUp1 || ''} onChange={handleInputChange} />
                 <InputField name="followUp2" label="ติดตามครั้งที่ 2 :" type="date" value={formData.followUp2 || ''} onChange={handleInputChange} />
                 <InputField name="followUp3" label="ติดตามครั้งที่ 3 :" type="date" value={formData.followUp3 || ''} onChange={handleInputChange} />
@@ -684,7 +725,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
 
           <Card title="ข้อมูลเพิ่มเติม">
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputField name="salesBranch" label="สาขาของเซลล์ :" type="text" readOnly value={formData.salesBranch || ''} />
                 <InputField name="salesTeamLeader" label="หัวหน้าทีม :" type="text" readOnly value={formData.salesTeamLeader || ''} />
               </div>

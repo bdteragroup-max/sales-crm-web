@@ -93,17 +93,27 @@ export default function UpdateScheduleForm({ schedule, onClose, onSuccess, onDel
     setIsSubmitting(true)
     const fData = new FormData(e.currentTarget)
     
+    const status = fData.get('status') as string
+    const visitReport = fData.get('visitReport') as string
+
+    if ((status === 'Completed' || status === 'เสร็จสิ้น') && !visitReport?.trim()) {
+      alert('กรุณากรอกรายงานผลการเข้าพบลูกค้าเมื่อระบุสถานะเสร็จสิ้น (Visit Report is required for Completed status)')
+      setIsSubmitting(false)
+      return
+    }
+
     const res = await updateSchedule(schedule.id, {
       title: fData.get('title') as string,
       description: fData.get('description') as string,
       date: fData.get('date') as string,
       time: fData.get('time') as string,
-      status: fData.get('status') as string,
+      status: status,
       presentationStatus: fData.get('presentationStatus') as string,
       quotationNumber: fData.get('quotationNumber') as string,
       poNumber: fData.get('poNumber') as string,
       invoiceNumber: fData.get('invoiceNumber') as string,
       notes: fData.get('notes') as string,
+      visitReport: visitReport,
       // Company info
       companyName: formData.companyName,
       businessType: formData.businessType,
@@ -270,7 +280,21 @@ export default function UpdateScheduleForm({ schedule, onClose, onSuccess, onDel
                     name="notes" 
                     defaultValue={schedule.notes || ''}
                     rows={2}
-                    className="w-full border border-gray-200 rounded-xl p-3 text-xs outline-none"
+                    className="w-full border border-gray-200 rounded-xl p-3 text-xs outline-none focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red transition-all"
+                  ></textarea>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                    <span>รายงานผลการเข้าพบ (Visit Report) :</span>
+                    <span className="text-[10px] text-brand-red font-black uppercase tracking-wider">(จำเป็นเมื่อสถานะเสร็จสิ้น)</span>
+                  </label>
+                  <textarea 
+                    name="visitReport" 
+                    defaultValue={schedule.visitReport || ''}
+                    rows={3}
+                    placeholder="กรอกรายละเอียดผลการเข้าพบลูกค้า..."
+                    className="w-full border border-gray-200 rounded-xl p-3 text-xs outline-none focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red bg-white transition-all"
                   ></textarea>
                 </div>
               </div>

@@ -36,6 +36,7 @@ export async function saveTelesaleData(formData: FormData) {
 
     const lastMeetingDateRaw = formData.get("lastMeetingDate") as string;
     const callbackAtRaw = formData.get("callbackAt") as string;
+    const visitDateRaw = formData.get("visitDate") as string;
     const resultArr = formData.getAll("result"); // Multiple checkboxes
     const result = resultArr.length > 0 ? resultArr.join(", ") : null;
 
@@ -110,7 +111,7 @@ export async function saveTelesaleData(formData: FormData) {
     }
 
     // Create Telesale Record
-    await prisma.telesale.create({
+    const telesale = await prisma.telesale.create({
       data: {
         companyId: company.id,
         userId: user.id,
@@ -126,9 +127,33 @@ export async function saveTelesaleData(formData: FormData) {
         competitorPromotion,
         lastMeetingDate: parseDate(lastMeetingDateRaw),
         callbackAt: parseDate(callbackAtRaw),
+        visitDate: parseDate(visitDateRaw),
         result,
       },
     });
+
+    const visitDate = parseDate(visitDateRaw);
+    if (visitDate) {
+      await prisma.schedule.upsert({
+        where: { telesaleId: telesale.id },
+        create: {
+          userId: user.id,
+          companyId: company.id,
+          title: `นัดหมายเข้าพบลูกค้า: ${companyName}`,
+          description: `วัตถุประสงค์: ${meetingObjective || "-"}\n${needsOrProblems ? `สิ่งที่ลูกค้าต้องการ: ${needsOrProblems}` : ""}`,
+          date: visitDate,
+          status: "Planned",
+          telesaleId: telesale.id,
+        },
+        update: {
+          userId: user.id,
+          companyId: company.id,
+          title: `นัดหมายเข้าพบลูกค้า: ${companyName}`,
+          description: `วัตถุประสงค์: ${meetingObjective || "-"}\n${needsOrProblems ? `สิ่งที่ลูกค้าต้องการ: ${needsOrProblems}` : ""}`,
+          date: visitDate,
+        }
+      });
+    }
 
     revalidatePath("/telesales");
     return { success: true };
@@ -166,6 +191,7 @@ export async function updateTelesaleData(id: string, formData: FormData) {
     const competitorPromotion = formData.get("competitorPromotion") as string;
     const lastMeetingDateRaw = formData.get("lastMeetingDate") as string;
     const callbackAtRaw = formData.get("callbackAt") as string;
+    const visitDateRaw = formData.get("visitDate") as string;
     const resultArr = formData.getAll("result");
     const result = resultArr.length > 0 ? resultArr.join(", ") : null;
 
@@ -208,7 +234,7 @@ export async function updateTelesaleData(id: string, formData: FormData) {
       });
     }
 
-    await prisma.telesale.update({
+    const telesale = await prisma.telesale.update({
       where: { id },
       data: {
         companyId: company.id,
@@ -224,9 +250,37 @@ export async function updateTelesaleData(id: string, formData: FormData) {
         competitorPromotion,
         lastMeetingDate: parseDate(lastMeetingDateRaw),
         callbackAt: parseDate(callbackAtRaw),
+        visitDate: parseDate(visitDateRaw),
         result,
       },
     });
+
+    const visitDate = parseDate(visitDateRaw);
+    if (visitDate) {
+      await prisma.schedule.upsert({
+        where: { telesaleId: telesale.id },
+        create: {
+          userId: user.id,
+          companyId: company.id,
+          title: `นัดหมายเข้าพบลูกค้า: ${companyName}`,
+          description: `วัตถุประสงค์: ${meetingObjective || "-"}\n${needsOrProblems ? `สิ่งที่ลูกค้าต้องการ: ${needsOrProblems}` : ""}`,
+          date: visitDate,
+          status: "Planned",
+          telesaleId: telesale.id,
+        },
+        update: {
+          userId: user.id,
+          companyId: company.id,
+          title: `นัดหมายเข้าพบลูกค้า: ${companyName}`,
+          description: `วัตถุประสงค์: ${meetingObjective || "-"}\n${needsOrProblems ? `สิ่งที่ลูกค้าต้องการ: ${needsOrProblems}` : ""}`,
+          date: visitDate,
+        }
+      });
+    } else {
+      await prisma.schedule.deleteMany({
+        where: { telesaleId: telesale.id }
+      });
+    }
 
     revalidatePath("/telesales");
     return { success: true };

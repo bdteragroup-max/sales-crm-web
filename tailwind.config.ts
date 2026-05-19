@@ -9,6 +9,10 @@ const config: Config = {
   darkMode: "class",
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-prompt)", "Prompt", "sans-serif"],
+        mono: ["var(--font-prompt)", "Prompt", "sans-serif"],
+      },
       colors: {
         'brand-red': '#ff2301',
         'iron-gold': '#D4AF37',

@@ -16,7 +16,7 @@
 }
 
 body {
-  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-family: 'Prompt', sans-serif;
   background: var(--background);
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
@@ -25,7 +25,7 @@ body {
 }
 
 .number, .data {
-  font-family: var(--font-ibm-plex-mono), monospace;
+  font-family: var(--font-prompt), 'Prompt', sans-serif;
   font-variant-numeric: tabular-nums;
 }
 

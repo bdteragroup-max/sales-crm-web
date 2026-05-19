@@ -168,7 +168,8 @@ export async function updateSchedule(id: string, data: {
   quotationNumber?: string,
   poNumber?: string,
   invoiceNumber?: string,
-  notes?: string
+  notes?: string,
+  visitReport?: string
 }) {
   const session = (await cookies()).get('session')?.value
   const payload = await decrypt(session)
@@ -254,7 +255,8 @@ export async function updateSchedule(id: string, data: {
         quotationNumber: data.quotationNumber,
         poNumber: data.poNumber,
         invoiceNumber: data.invoiceNumber,
-        notes: data.notes
+        notes: data.notes,
+        visitReport: data.visitReport
       },
       include: {
         company: true

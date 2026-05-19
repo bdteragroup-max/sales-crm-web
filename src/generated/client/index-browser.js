@@ -158,9 +158,11 @@ exports.Prisma.ScheduleScalarFieldEnum = {
   poNumber: 'poNumber',
   invoiceNumber: 'invoiceNumber',
   notes: 'notes',
+  visitReport: 'visitReport',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  companyId: 'companyId'
+  companyId: 'companyId',
+  telesaleId: 'telesaleId'
 };
 
 exports.Prisma.EmployeeSaleScalarFieldEnum = {
@@ -195,7 +197,18 @@ exports.Prisma.CompanyScalarFieldEnum = {
   postalCode: 'postalCode',
   province: 'province',
   subDistrict: 'subDistrict',
-  assignedUserId: 'assignedUserId'
+  assignedUserId: 'assignedUserId',
+  billingAddress: 'billingAddress',
+  billingSubDistrict: 'billingSubDistrict',
+  billingDistrict: 'billingDistrict',
+  billingProvince: 'billingProvince',
+  billingPostalCode: 'billingPostalCode',
+  shippingAddress: 'shippingAddress',
+  shippingSubDistrict: 'shippingSubDistrict',
+  shippingDistrict: 'shippingDistrict',
+  shippingProvince: 'shippingProvince',
+  shippingPostalCode: 'shippingPostalCode',
+  paymentMethod: 'paymentMethod'
 };
 
 exports.Prisma.ContactScalarFieldEnum = {
@@ -204,6 +217,8 @@ exports.Prisma.ContactScalarFieldEnum = {
   contactName: 'contactName',
   position: 'position',
   mobilePhone: 'mobilePhone',
+  email: 'email',
+  isETaxReceiver: 'isETaxReceiver',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -259,7 +274,8 @@ exports.Prisma.TelesaleScalarFieldEnum = {
   callOutcome: 'callOutcome',
   callStatus: 'callStatus',
   forwardTo: 'forwardTo',
-  callbackAt: 'callbackAt'
+  callbackAt: 'callbackAt',
+  visitDate: 'visitDate'
 };
 
 exports.Prisma.BusinessTypeScalarFieldEnum = {
@@ -284,6 +300,19 @@ exports.Prisma.CompetitorScalarFieldEnum = {
   name: 'name',
   price: 'price',
   promotion: 'promotion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TelesalesKPIScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  month: 'month',
+  year: 'year',
+  weeklyCallGoal: 'weeklyCallGoal',
+  monthlyCallGoal: 'monthlyCallGoal',
+  appointmentGoal: 'appointmentGoal',
+  connectionRateMin: 'connectionRateMin',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -315,7 +344,8 @@ exports.Prisma.ModelName = {
   Telesale: 'Telesale',
   BusinessType: 'BusinessType',
   PostalData: 'PostalData',
-  Competitor: 'Competitor'
+  Competitor: 'Competitor',
+  TelesalesKPI: 'TelesalesKPI'
 };
 
 /**

@@ -37,7 +37,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
       <Sidebar activeRoute="/team" userFullName={user.fullName} userId={user.id} userRole={user.role} />
       
-      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-6 lg:p-10">
+      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
         <div className="max-w-5xl mx-auto w-full">
           {/* Breadcrumb / Nav */}
           <div className="flex items-center gap-2 text-sm text-gray-400 mb-6">

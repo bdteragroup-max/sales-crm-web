@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans_Thai, IBM_Plex_Mono } from "next/font/google";
+import { Prompt } from "next/font/google";
 import "./globals.css";
 
-const ibmPlexSansThai = IBM_Plex_Sans_Thai({ 
-  weight: ['300', '400', '500', '600', '700'],
+const prompt = Prompt({ 
+  weight: ['300', '400', '500', '600', '700', '800'],
   subsets: ["latin", "thai"],
-  display: "swap"
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  weight: ['400', '500', '600'],
-  subsets: ["latin"],
   display: "swap",
-  variable: "--font-ibm-plex-mono"
+  variable: "--font-prompt"
 });
 
 export const metadata: Metadata = {
@@ -27,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th">
-      <body className={`${ibmPlexSansThai.className} ${ibmPlexMono.variable} antialiased`}>
+      <body className={`${prompt.variable} ${prompt.className} antialiased`}>
         {children}
       </body>
     </html>

@@ -9,6 +9,10 @@ interface SalesClientPageProps {
   initialQuotations?: any[];
   businessTypes?: string[];
   currentUserSale?: any;
+  prefillData?: {
+    company: any;
+    contact: any;
+  } | null;
 }
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
@@ -38,11 +42,22 @@ function statusBadge(status: string) {
   );
 }
 
-export default function SalesClientPage({ initialQuotations = [], businessTypes = [], currentUserSale }: SalesClientPageProps) {
+export default function SalesClientPage({ initialQuotations = [], businessTypes = [], currentUserSale, prefillData }: SalesClientPageProps) {
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'new' | 'list'>('new');
   const [searchTerm, setSearchTerm] = useState('');
-  const [editingData, setEditingData] = useState<any>(null);
+  const [editingData, setEditingData] = useState<any>(() => {
+    if (prefillData) {
+      return {
+        company: prefillData.company,
+        contact: prefillData.contact,
+        companyId: prefillData.company?.id || null,
+        // Trigger pre-fill defaults in NewQuotationForm
+        isPrefilled: true
+      };
+    }
+    return null;
+  });
   const [statusFilter, setStatusFilter] = useState('');
 
   const filteredQuotations = initialQuotations.filter(q => {
@@ -65,10 +80,10 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
   const handleCreateNew = () => { setEditingData(null); setActiveTab('new'); };
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm md:overflow-hidden overflow-visible">
 
       {/* ── Top Header Bar ── */}
-      <header className="shrink-0 h-20 border-b border-gray-100 px-8 flex items-center justify-between bg-white">
+      <header className="shrink-0 md:h-20 py-4 md:py-0 border-b border-gray-100 px-6 md:px-8 flex flex-col md:flex-row gap-4 items-center justify-between bg-white w-full">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-brand-red flex items-center justify-center shadow-lg shadow-red-200">
             <FileText size={20} className="text-white" />
@@ -92,18 +107,18 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
 
       {/* ── KPI Summary Strip (list tab only) ── */}
       {activeTab === 'list' && (
-        <div className="shrink-0 grid grid-cols-4 border-b border-gray-100">
+        <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 border-b border-gray-100 divide-x divide-y md:divide-y-0 divide-gray-100">
           {[
             { label: 'ทั้งหมด',        value: initialQuotations.length, icon: <FileText size={14} />, color: 'text-gray-400', bg: 'bg-gray-50' },
             { label: 'ปิดได้ (Won)',    value: wonCount,                  icon: <CheckCircle2 size={14} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
             { label: 'รออยู่ระหว่างดำเนินการ', value: openCount,          icon: <Clock size={14} />, color: 'text-amber-500', bg: 'bg-amber-50' },
             { label: 'ยอด Won รวม',     value: `฿${(wonValue/1000000).toFixed(2)}M`, icon: <TrendingUp size={14} />, color: 'text-brand-red', bg: 'bg-red-50' },
           ].map(k => (
-            <div key={k.label} className={`flex items-center gap-3 px-6 py-4 ${k.bg} border-r border-gray-100 last:border-0`}>
+            <div key={k.label} className={`flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 ${k.bg}`}>
               <span className={k.color}>{k.icon}</span>
               <div>
                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{k.label}</p>
-                <p className={`text-lg font-black ${k.color}`}>{k.value}</p>
+                <p className={`text-sm md:text-lg font-black ${k.color}`}>{k.value}</p>
               </div>
             </div>
           ))}
@@ -177,8 +192,8 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <table className="w-full text-left text-sm">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+              <table className="w-full text-left text-sm min-w-[800px]">
                 <thead>
                   <tr className="border-b border-gray-100">
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่</th>

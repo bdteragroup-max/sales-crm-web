@@ -60,6 +60,7 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
         competitorPrice: initialData.competitorPrice || '',
         competitorPromotion: initialData.competitorPromotion || '',
         callbackAt: formatDateTimeForInput(initialData.callbackAt),
+        visitDate: formatDateTimeForInput(initialData.visitDate),
       });
       setSelectedCompanyId(initialData.companyId || null);
     } else {
@@ -79,6 +80,49 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const standardObjectives = ['นำเสนอสินค้า', 'ตรวจสอบหน้างาน', 'ส่งมอบสินค้า', 'ติดตามงาน'];
+
+  const getObjectiveValues = () => {
+    const val = formData.meetingObjective || '';
+    if (!val) return { selectVal: '', detailVal: '' };
+    if (standardObjectives.includes(val)) return { selectVal: val, detailVal: '' };
+
+    // Check if it matches "อื่นๆ (detail)"
+    const match = val.match(/^อื่นๆ \((.*)\)$/);
+    if (match) {
+      return { selectVal: 'อื่นๆ', detailVal: match[1] };
+    }
+    if (val === 'อื่นๆ') {
+      return { selectVal: 'อื่นๆ', detailVal: '' };
+    }
+    return { selectVal: 'อื่นๆ', detailVal: val };
+  };
+
+  const { selectVal, detailVal } = getObjectiveValues();
+
+  const handleObjectiveSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    if (val === 'อื่นๆ') {
+      setFormData((prev: any) => ({
+        ...prev,
+        meetingObjective: detailVal ? `อื่นๆ (${detailVal})` : 'อื่นๆ'
+      }));
+    } else {
+      setFormData((prev: any) => ({
+        ...prev,
+        meetingObjective: val
+      }));
+    }
+  };
+
+  const handleObjectiveDetailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setFormData((prev: any) => ({
+      ...prev,
+      meetingObjective: val ? `อื่นๆ (${val})` : 'อื่นๆ'
+    }));
   };
 
   const handleCompanySearch = async (query: string) => {
@@ -252,7 +296,32 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
                 ></textarea>
               </div>
               <InputField name="callbackAt" label="นัดโทรกลับ :" type="datetime-local" value={formData.callbackAt || ''} onChange={handleInputChange} />
-              <SelectField name="meetingObjective" label="วัตถุประสงค์เข้าพบ :" options={['นำเสนอสินค้า', 'ตรวจสอบหน้างาน', 'ส่งมอบสินค้า', 'ติดตามงาน', 'อื่นๆ']} value={formData.meetingObjective} onChange={handleInputChange} />
+              <SelectField 
+                name="meetingObjectiveSelect" 
+                label="วัตถุประสงค์เข้าพบ :" 
+                options={['นำเสนอสินค้า', 'ตรวจสอบหน้างาน', 'ส่งมอบสินค้า', 'ติดตามงาน', 'อื่นๆ']} 
+                value={selectVal} 
+                onChange={handleObjectiveSelectChange} 
+              />
+              {selectVal === 'อื่นๆ' && (
+                <InputField 
+                  name="meetingObjectiveDetail" 
+                  label="ระบุวัตถุประสงค์อื่นๆ :" 
+                  type="text" 
+                  placeholder="กรอกวัตถุประสงค์เข้าพบ..." 
+                  value={detailVal} 
+                  onChange={handleObjectiveDetailChange} 
+                  required
+                />
+              )}
+              <input type="hidden" name="meetingObjective" value={formData.meetingObjective || ''} />
+              <InputField 
+                name="visitDate" 
+                label="วันนัดเข้าพบ (Visit Date) :" 
+                type="datetime-local" 
+                value={formData.visitDate || ''} 
+                onChange={handleInputChange} 
+              />
             </div>
           </Card>
         </div>

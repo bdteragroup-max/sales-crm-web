@@ -41,9 +41,9 @@ export default function SelectField({
   }
 
   return (
-    <div className="flex items-center gap-4">
-      <label className="w-1/3 text-sm font-medium text-slate-600 text-right">{label}</label>
-      <div className="flex-1 relative">
+    <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 w-full">
+      <label className="w-full md:w-1/3 text-left md:text-right text-xs md:text-sm font-semibold md:font-medium text-slate-500 md:text-slate-600 ml-1 md:ml-0 shrink-0">{label}</label>
+      <div className="flex-1 relative w-full">
         <select 
           name={name} 
           value={value} 

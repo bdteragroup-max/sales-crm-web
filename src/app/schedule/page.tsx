@@ -46,7 +46,7 @@ export default async function SchedulePage() {
   return (
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
       <Sidebar activeRoute="/schedule" userFullName={user.fullName} userId={user.employeeId} userRole={user.role} />
-      <main className="flex-1 overflow-hidden p-6 bg-white">
+      <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 md:p-6 bg-white pb-24 md:pb-6">
         <ScheduleClientPage
           initialSchedules={initialSchedules}
           staffList={staff}

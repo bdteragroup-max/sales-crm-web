@@ -68,6 +68,11 @@ export type PostalData = $Result.DefaultSelection<Prisma.$PostalDataPayload>
  * 
  */
 export type Competitor = $Result.DefaultSelection<Prisma.$CompetitorPayload>
+/**
+ * Model TelesalesKPI
+ * 
+ */
+export type TelesalesKPI = $Result.DefaultSelection<Prisma.$TelesalesKPIPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -299,6 +304,16 @@ export class PrismaClient<
     * ```
     */
   get competitor(): Prisma.CompetitorDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.telesalesKPI`: Exposes CRUD operations for the **TelesalesKPI** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TelesalesKPIS
+    * const telesalesKPIS = await prisma.telesalesKPI.findMany()
+    * ```
+    */
+  get telesalesKPI(): Prisma.TelesalesKPIDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -743,7 +758,8 @@ export namespace Prisma {
     Telesale: 'Telesale',
     BusinessType: 'BusinessType',
     PostalData: 'PostalData',
-    Competitor: 'Competitor'
+    Competitor: 'Competitor',
+    TelesalesKPI: 'TelesalesKPI'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -759,7 +775,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1577,6 +1593,80 @@ export namespace Prisma {
           }
         }
       }
+      TelesalesKPI: {
+        payload: Prisma.$TelesalesKPIPayload<ExtArgs>
+        fields: Prisma.TelesalesKPIFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TelesalesKPIFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TelesalesKPIFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload>
+          }
+          findFirst: {
+            args: Prisma.TelesalesKPIFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TelesalesKPIFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload>
+          }
+          findMany: {
+            args: Prisma.TelesalesKPIFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload>[]
+          }
+          create: {
+            args: Prisma.TelesalesKPICreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload>
+          }
+          createMany: {
+            args: Prisma.TelesalesKPICreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TelesalesKPICreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload>[]
+          }
+          delete: {
+            args: Prisma.TelesalesKPIDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload>
+          }
+          update: {
+            args: Prisma.TelesalesKPIUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload>
+          }
+          deleteMany: {
+            args: Prisma.TelesalesKPIDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TelesalesKPIUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TelesalesKPIUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload>[]
+          }
+          upsert: {
+            args: Prisma.TelesalesKPIUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TelesalesKPIPayload>
+          }
+          aggregate: {
+            args: Prisma.TelesalesKPIAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTelesalesKPI>
+          }
+          groupBy: {
+            args: Prisma.TelesalesKPIGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TelesalesKPIGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TelesalesKPICountArgs<ExtArgs>
+            result: $Utils.Optional<TelesalesKPICountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1696,6 +1786,7 @@ export namespace Prisma {
     businessType?: BusinessTypeOmit
     postalData?: PostalDataOmit
     competitor?: CompetitorOmit
+    telesalesKPI?: TelesalesKPIOmit
   }
 
   /* Types for Logging */
@@ -1780,6 +1871,7 @@ export namespace Prisma {
     schedules: number
     telesales: number
     monthlyTargets: number
+    telesalesKPIs: number
     assignedCompanies: number
   }
 
@@ -1788,6 +1880,7 @@ export namespace Prisma {
     schedules?: boolean | UserCountOutputTypeCountSchedulesArgs
     telesales?: boolean | UserCountOutputTypeCountTelesalesArgs
     monthlyTargets?: boolean | UserCountOutputTypeCountMonthlyTargetsArgs
+    telesalesKPIs?: boolean | UserCountOutputTypeCountTelesalesKPIsArgs
     assignedCompanies?: boolean | UserCountOutputTypeCountAssignedCompaniesArgs
   }
 
@@ -1828,6 +1921,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountMonthlyTargetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MonthlyTargetWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTelesalesKPIsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TelesalesKPIWhereInput
   }
 
   /**
@@ -2164,6 +2264,7 @@ export namespace Prisma {
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
     monthlyTargets?: boolean | User$monthlyTargetsArgs<ExtArgs>
+    telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     assignedCompanies?: boolean | User$assignedCompaniesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -2223,6 +2324,7 @@ export namespace Prisma {
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
     monthlyTargets?: boolean | User$monthlyTargetsArgs<ExtArgs>
+    telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     assignedCompanies?: boolean | User$assignedCompaniesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -2237,6 +2339,7 @@ export namespace Prisma {
       telesales: Prisma.$TelesalePayload<ExtArgs>[]
       employeeSale: Prisma.$EmployeeSalePayload<ExtArgs> | null
       monthlyTargets: Prisma.$MonthlyTargetPayload<ExtArgs>[]
+      telesalesKPIs: Prisma.$TelesalesKPIPayload<ExtArgs>[]
       assignedCompanies: Prisma.$CompanyPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -2652,6 +2755,7 @@ export namespace Prisma {
     telesales<T extends User$telesalesArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     employeeSale<T extends User$employeeSaleArgs<ExtArgs> = {}>(args?: Subset<T, User$employeeSaleArgs<ExtArgs>>): Prisma__EmployeeSaleClient<$Result.GetResult<Prisma.$EmployeeSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     monthlyTargets<T extends User$monthlyTargetsArgs<ExtArgs> = {}>(args?: Subset<T, User$monthlyTargetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyTargetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    telesalesKPIs<T extends User$telesalesKPIsArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesKPIsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedCompanies<T extends User$assignedCompaniesArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedCompaniesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -3200,6 +3304,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MonthlyTargetScalarFieldEnum | MonthlyTargetScalarFieldEnum[]
+  }
+
+  /**
+   * User.telesalesKPIs
+   */
+  export type User$telesalesKPIsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+    where?: TelesalesKPIWhereInput
+    orderBy?: TelesalesKPIOrderByWithRelationInput | TelesalesKPIOrderByWithRelationInput[]
+    cursor?: TelesalesKPIWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TelesalesKPIScalarFieldEnum | TelesalesKPIScalarFieldEnum[]
   }
 
   /**
@@ -4417,9 +4545,11 @@ export namespace Prisma {
     poNumber: string | null
     invoiceNumber: string | null
     notes: string | null
+    visitReport: string | null
     createdAt: Date | null
     updatedAt: Date | null
     companyId: string | null
+    telesaleId: string | null
   }
 
   export type ScheduleMaxAggregateOutputType = {
@@ -4434,9 +4564,11 @@ export namespace Prisma {
     poNumber: string | null
     invoiceNumber: string | null
     notes: string | null
+    visitReport: string | null
     createdAt: Date | null
     updatedAt: Date | null
     companyId: string | null
+    telesaleId: string | null
   }
 
   export type ScheduleCountAggregateOutputType = {
@@ -4451,9 +4583,11 @@ export namespace Prisma {
     poNumber: number
     invoiceNumber: number
     notes: number
+    visitReport: number
     createdAt: number
     updatedAt: number
     companyId: number
+    telesaleId: number
     _all: number
   }
 
@@ -4470,9 +4604,11 @@ export namespace Prisma {
     poNumber?: true
     invoiceNumber?: true
     notes?: true
+    visitReport?: true
     createdAt?: true
     updatedAt?: true
     companyId?: true
+    telesaleId?: true
   }
 
   export type ScheduleMaxAggregateInputType = {
@@ -4487,9 +4623,11 @@ export namespace Prisma {
     poNumber?: true
     invoiceNumber?: true
     notes?: true
+    visitReport?: true
     createdAt?: true
     updatedAt?: true
     companyId?: true
+    telesaleId?: true
   }
 
   export type ScheduleCountAggregateInputType = {
@@ -4504,9 +4642,11 @@ export namespace Prisma {
     poNumber?: true
     invoiceNumber?: true
     notes?: true
+    visitReport?: true
     createdAt?: true
     updatedAt?: true
     companyId?: true
+    telesaleId?: true
     _all?: true
   }
 
@@ -4594,9 +4734,11 @@ export namespace Prisma {
     poNumber: string | null
     invoiceNumber: string | null
     notes: string | null
+    visitReport: string | null
     createdAt: Date
     updatedAt: Date
     companyId: string | null
+    telesaleId: string | null
     _count: ScheduleCountAggregateOutputType | null
     _min: ScheduleMinAggregateOutputType | null
     _max: ScheduleMaxAggregateOutputType | null
@@ -4628,11 +4770,14 @@ export namespace Prisma {
     poNumber?: boolean
     invoiceNumber?: boolean
     notes?: boolean
+    visitReport?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     companyId?: boolean
+    telesaleId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     company?: boolean | Schedule$companyArgs<ExtArgs>
+    telesale?: boolean | Schedule$telesaleArgs<ExtArgs>
   }, ExtArgs["result"]["schedule"]>
 
   export type ScheduleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4647,11 +4792,14 @@ export namespace Prisma {
     poNumber?: boolean
     invoiceNumber?: boolean
     notes?: boolean
+    visitReport?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     companyId?: boolean
+    telesaleId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     company?: boolean | Schedule$companyArgs<ExtArgs>
+    telesale?: boolean | Schedule$telesaleArgs<ExtArgs>
   }, ExtArgs["result"]["schedule"]>
 
   export type ScheduleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4666,11 +4814,14 @@ export namespace Prisma {
     poNumber?: boolean
     invoiceNumber?: boolean
     notes?: boolean
+    visitReport?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     companyId?: boolean
+    telesaleId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     company?: boolean | Schedule$companyArgs<ExtArgs>
+    telesale?: boolean | Schedule$telesaleArgs<ExtArgs>
   }, ExtArgs["result"]["schedule"]>
 
   export type ScheduleSelectScalar = {
@@ -4685,23 +4836,28 @@ export namespace Prisma {
     poNumber?: boolean
     invoiceNumber?: boolean
     notes?: boolean
+    visitReport?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     companyId?: boolean
+    telesaleId?: boolean
   }
 
-  export type ScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "title" | "description" | "date" | "status" | "presentationStatus" | "quotationNumber" | "poNumber" | "invoiceNumber" | "notes" | "createdAt" | "updatedAt" | "companyId", ExtArgs["result"]["schedule"]>
+  export type ScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "title" | "description" | "date" | "status" | "presentationStatus" | "quotationNumber" | "poNumber" | "invoiceNumber" | "notes" | "visitReport" | "createdAt" | "updatedAt" | "companyId" | "telesaleId", ExtArgs["result"]["schedule"]>
   export type ScheduleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     company?: boolean | Schedule$companyArgs<ExtArgs>
+    telesale?: boolean | Schedule$telesaleArgs<ExtArgs>
   }
   export type ScheduleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     company?: boolean | Schedule$companyArgs<ExtArgs>
+    telesale?: boolean | Schedule$telesaleArgs<ExtArgs>
   }
   export type ScheduleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     company?: boolean | Schedule$companyArgs<ExtArgs>
+    telesale?: boolean | Schedule$telesaleArgs<ExtArgs>
   }
 
   export type $SchedulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4709,6 +4865,7 @@ export namespace Prisma {
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
       company: Prisma.$CompanyPayload<ExtArgs> | null
+      telesale: Prisma.$TelesalePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4722,9 +4879,11 @@ export namespace Prisma {
       poNumber: string | null
       invoiceNumber: string | null
       notes: string | null
+      visitReport: string | null
       createdAt: Date
       updatedAt: Date
       companyId: string | null
+      telesaleId: string | null
     }, ExtArgs["result"]["schedule"]>
     composites: {}
   }
@@ -5121,6 +5280,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     company<T extends Schedule$companyArgs<ExtArgs> = {}>(args?: Subset<T, Schedule$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    telesale<T extends Schedule$telesaleArgs<ExtArgs> = {}>(args?: Subset<T, Schedule$telesaleArgs<ExtArgs>>): Prisma__TelesaleClient<$Result.GetResult<Prisma.$TelesalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5161,9 +5321,11 @@ export namespace Prisma {
     readonly poNumber: FieldRef<"Schedule", 'String'>
     readonly invoiceNumber: FieldRef<"Schedule", 'String'>
     readonly notes: FieldRef<"Schedule", 'String'>
+    readonly visitReport: FieldRef<"Schedule", 'String'>
     readonly createdAt: FieldRef<"Schedule", 'DateTime'>
     readonly updatedAt: FieldRef<"Schedule", 'DateTime'>
     readonly companyId: FieldRef<"Schedule", 'String'>
+    readonly telesaleId: FieldRef<"Schedule", 'String'>
   }
     
 
@@ -5581,6 +5743,25 @@ export namespace Prisma {
      */
     include?: CompanyInclude<ExtArgs> | null
     where?: CompanyWhereInput
+  }
+
+  /**
+   * Schedule.telesale
+   */
+  export type Schedule$telesaleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Telesale
+     */
+    select?: TelesaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Telesale
+     */
+    omit?: TelesaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesaleInclude<ExtArgs> | null
+    where?: TelesaleWhereInput
   }
 
   /**
@@ -6803,6 +6984,17 @@ export namespace Prisma {
     province: string | null
     subDistrict: string | null
     assignedUserId: string | null
+    billingAddress: string | null
+    billingSubDistrict: string | null
+    billingDistrict: string | null
+    billingProvince: string | null
+    billingPostalCode: string | null
+    shippingAddress: string | null
+    shippingSubDistrict: string | null
+    shippingDistrict: string | null
+    shippingProvince: string | null
+    shippingPostalCode: string | null
+    paymentMethod: string | null
   }
 
   export type CompanyMaxAggregateOutputType = {
@@ -6823,6 +7015,17 @@ export namespace Prisma {
     province: string | null
     subDistrict: string | null
     assignedUserId: string | null
+    billingAddress: string | null
+    billingSubDistrict: string | null
+    billingDistrict: string | null
+    billingProvince: string | null
+    billingPostalCode: string | null
+    shippingAddress: string | null
+    shippingSubDistrict: string | null
+    shippingDistrict: string | null
+    shippingProvince: string | null
+    shippingPostalCode: string | null
+    paymentMethod: string | null
   }
 
   export type CompanyCountAggregateOutputType = {
@@ -6843,6 +7046,17 @@ export namespace Prisma {
     province: number
     subDistrict: number
     assignedUserId: number
+    billingAddress: number
+    billingSubDistrict: number
+    billingDistrict: number
+    billingProvince: number
+    billingPostalCode: number
+    shippingAddress: number
+    shippingSubDistrict: number
+    shippingDistrict: number
+    shippingProvince: number
+    shippingPostalCode: number
+    paymentMethod: number
     _all: number
   }
 
@@ -6865,6 +7079,17 @@ export namespace Prisma {
     province?: true
     subDistrict?: true
     assignedUserId?: true
+    billingAddress?: true
+    billingSubDistrict?: true
+    billingDistrict?: true
+    billingProvince?: true
+    billingPostalCode?: true
+    shippingAddress?: true
+    shippingSubDistrict?: true
+    shippingDistrict?: true
+    shippingProvince?: true
+    shippingPostalCode?: true
+    paymentMethod?: true
   }
 
   export type CompanyMaxAggregateInputType = {
@@ -6885,6 +7110,17 @@ export namespace Prisma {
     province?: true
     subDistrict?: true
     assignedUserId?: true
+    billingAddress?: true
+    billingSubDistrict?: true
+    billingDistrict?: true
+    billingProvince?: true
+    billingPostalCode?: true
+    shippingAddress?: true
+    shippingSubDistrict?: true
+    shippingDistrict?: true
+    shippingProvince?: true
+    shippingPostalCode?: true
+    paymentMethod?: true
   }
 
   export type CompanyCountAggregateInputType = {
@@ -6905,6 +7141,17 @@ export namespace Prisma {
     province?: true
     subDistrict?: true
     assignedUserId?: true
+    billingAddress?: true
+    billingSubDistrict?: true
+    billingDistrict?: true
+    billingProvince?: true
+    billingPostalCode?: true
+    shippingAddress?: true
+    shippingSubDistrict?: true
+    shippingDistrict?: true
+    shippingProvince?: true
+    shippingPostalCode?: true
+    paymentMethod?: true
     _all?: true
   }
 
@@ -6998,6 +7245,17 @@ export namespace Prisma {
     province: string | null
     subDistrict: string | null
     assignedUserId: string | null
+    billingAddress: string | null
+    billingSubDistrict: string | null
+    billingDistrict: string | null
+    billingProvince: string | null
+    billingPostalCode: string | null
+    shippingAddress: string | null
+    shippingSubDistrict: string | null
+    shippingDistrict: string | null
+    shippingProvince: string | null
+    shippingPostalCode: string | null
+    paymentMethod: string | null
     _count: CompanyCountAggregateOutputType | null
     _min: CompanyMinAggregateOutputType | null
     _max: CompanyMaxAggregateOutputType | null
@@ -7035,6 +7293,17 @@ export namespace Prisma {
     province?: boolean
     subDistrict?: boolean
     assignedUserId?: boolean
+    billingAddress?: boolean
+    billingSubDistrict?: boolean
+    billingDistrict?: boolean
+    billingProvince?: boolean
+    billingPostalCode?: boolean
+    shippingAddress?: boolean
+    shippingSubDistrict?: boolean
+    shippingDistrict?: boolean
+    shippingProvince?: boolean
+    shippingPostalCode?: boolean
+    paymentMethod?: boolean
     contacts?: boolean | Company$contactsArgs<ExtArgs>
     quotations?: boolean | Company$quotationsArgs<ExtArgs>
     telesales?: boolean | Company$telesalesArgs<ExtArgs>
@@ -7061,6 +7330,17 @@ export namespace Prisma {
     province?: boolean
     subDistrict?: boolean
     assignedUserId?: boolean
+    billingAddress?: boolean
+    billingSubDistrict?: boolean
+    billingDistrict?: boolean
+    billingProvince?: boolean
+    billingPostalCode?: boolean
+    shippingAddress?: boolean
+    shippingSubDistrict?: boolean
+    shippingDistrict?: boolean
+    shippingProvince?: boolean
+    shippingPostalCode?: boolean
+    paymentMethod?: boolean
     assignedUser?: boolean | Company$assignedUserArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -7082,6 +7362,17 @@ export namespace Prisma {
     province?: boolean
     subDistrict?: boolean
     assignedUserId?: boolean
+    billingAddress?: boolean
+    billingSubDistrict?: boolean
+    billingDistrict?: boolean
+    billingProvince?: boolean
+    billingPostalCode?: boolean
+    shippingAddress?: boolean
+    shippingSubDistrict?: boolean
+    shippingDistrict?: boolean
+    shippingProvince?: boolean
+    shippingPostalCode?: boolean
+    paymentMethod?: boolean
     assignedUser?: boolean | Company$assignedUserArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -7103,9 +7394,20 @@ export namespace Prisma {
     province?: boolean
     subDistrict?: boolean
     assignedUserId?: boolean
+    billingAddress?: boolean
+    billingSubDistrict?: boolean
+    billingDistrict?: boolean
+    billingProvince?: boolean
+    billingPostalCode?: boolean
+    shippingAddress?: boolean
+    shippingSubDistrict?: boolean
+    shippingDistrict?: boolean
+    shippingProvince?: boolean
+    shippingPostalCode?: boolean
+    paymentMethod?: boolean
   }
 
-  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyName" | "taxId" | "address" | "createdAt" | "updatedAt" | "area" | "branchOrHeadOffice" | "businessType" | "customerAccessChannel" | "customerStatus" | "customerType" | "district" | "postalCode" | "province" | "subDistrict" | "assignedUserId", ExtArgs["result"]["company"]>
+  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyName" | "taxId" | "address" | "createdAt" | "updatedAt" | "area" | "branchOrHeadOffice" | "businessType" | "customerAccessChannel" | "customerStatus" | "customerType" | "district" | "postalCode" | "province" | "subDistrict" | "assignedUserId" | "billingAddress" | "billingSubDistrict" | "billingDistrict" | "billingProvince" | "billingPostalCode" | "shippingAddress" | "shippingSubDistrict" | "shippingDistrict" | "shippingProvince" | "shippingPostalCode" | "paymentMethod", ExtArgs["result"]["company"]>
   export type CompanyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     contacts?: boolean | Company$contactsArgs<ExtArgs>
     quotations?: boolean | Company$quotationsArgs<ExtArgs>
@@ -7148,6 +7450,17 @@ export namespace Prisma {
       province: string | null
       subDistrict: string | null
       assignedUserId: string | null
+      billingAddress: string | null
+      billingSubDistrict: string | null
+      billingDistrict: string | null
+      billingProvince: string | null
+      billingPostalCode: string | null
+      shippingAddress: string | null
+      shippingSubDistrict: string | null
+      shippingDistrict: string | null
+      shippingProvince: string | null
+      shippingPostalCode: string | null
+      paymentMethod: string | null
     }, ExtArgs["result"]["company"]>
     composites: {}
   }
@@ -7593,6 +7906,17 @@ export namespace Prisma {
     readonly province: FieldRef<"Company", 'String'>
     readonly subDistrict: FieldRef<"Company", 'String'>
     readonly assignedUserId: FieldRef<"Company", 'String'>
+    readonly billingAddress: FieldRef<"Company", 'String'>
+    readonly billingSubDistrict: FieldRef<"Company", 'String'>
+    readonly billingDistrict: FieldRef<"Company", 'String'>
+    readonly billingProvince: FieldRef<"Company", 'String'>
+    readonly billingPostalCode: FieldRef<"Company", 'String'>
+    readonly shippingAddress: FieldRef<"Company", 'String'>
+    readonly shippingSubDistrict: FieldRef<"Company", 'String'>
+    readonly shippingDistrict: FieldRef<"Company", 'String'>
+    readonly shippingProvince: FieldRef<"Company", 'String'>
+    readonly shippingPostalCode: FieldRef<"Company", 'String'>
+    readonly paymentMethod: FieldRef<"Company", 'String'>
   }
     
 
@@ -8143,6 +8467,8 @@ export namespace Prisma {
     contactName: string | null
     position: string | null
     mobilePhone: string | null
+    email: string | null
+    isETaxReceiver: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -8153,6 +8479,8 @@ export namespace Prisma {
     contactName: string | null
     position: string | null
     mobilePhone: string | null
+    email: string | null
+    isETaxReceiver: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -8163,6 +8491,8 @@ export namespace Prisma {
     contactName: number
     position: number
     mobilePhone: number
+    email: number
+    isETaxReceiver: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -8175,6 +8505,8 @@ export namespace Prisma {
     contactName?: true
     position?: true
     mobilePhone?: true
+    email?: true
+    isETaxReceiver?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -8185,6 +8517,8 @@ export namespace Prisma {
     contactName?: true
     position?: true
     mobilePhone?: true
+    email?: true
+    isETaxReceiver?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -8195,6 +8529,8 @@ export namespace Prisma {
     contactName?: true
     position?: true
     mobilePhone?: true
+    email?: true
+    isETaxReceiver?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -8278,6 +8614,8 @@ export namespace Prisma {
     contactName: string
     position: string | null
     mobilePhone: string | null
+    email: string | null
+    isETaxReceiver: boolean
     createdAt: Date
     updatedAt: Date
     _count: ContactCountAggregateOutputType | null
@@ -8305,6 +8643,8 @@ export namespace Prisma {
     contactName?: boolean
     position?: boolean
     mobilePhone?: boolean
+    email?: boolean
+    isETaxReceiver?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -8318,6 +8658,8 @@ export namespace Prisma {
     contactName?: boolean
     position?: boolean
     mobilePhone?: boolean
+    email?: boolean
+    isETaxReceiver?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -8329,6 +8671,8 @@ export namespace Prisma {
     contactName?: boolean
     position?: boolean
     mobilePhone?: boolean
+    email?: boolean
+    isETaxReceiver?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -8340,11 +8684,13 @@ export namespace Prisma {
     contactName?: boolean
     position?: boolean
     mobilePhone?: boolean
+    email?: boolean
+    isETaxReceiver?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ContactOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "contactName" | "position" | "mobilePhone" | "createdAt" | "updatedAt", ExtArgs["result"]["contact"]>
+  export type ContactOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "contactName" | "position" | "mobilePhone" | "email" | "isETaxReceiver" | "createdAt" | "updatedAt", ExtArgs["result"]["contact"]>
   export type ContactInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     quotations?: boolean | Contact$quotationsArgs<ExtArgs>
@@ -8369,6 +8715,8 @@ export namespace Prisma {
       contactName: string
       position: string | null
       mobilePhone: string | null
+      email: string | null
+      isETaxReceiver: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["contact"]>
@@ -8801,6 +9149,8 @@ export namespace Prisma {
     readonly contactName: FieldRef<"Contact", 'String'>
     readonly position: FieldRef<"Contact", 'String'>
     readonly mobilePhone: FieldRef<"Contact", 'String'>
+    readonly email: FieldRef<"Contact", 'String'>
+    readonly isETaxReceiver: FieldRef<"Contact", 'Boolean'>
     readonly createdAt: FieldRef<"Contact", 'DateTime'>
     readonly updatedAt: FieldRef<"Contact", 'DateTime'>
   }
@@ -10777,6 +11127,7 @@ export namespace Prisma {
     callStatus: string | null
     forwardTo: string | null
     callbackAt: Date | null
+    visitDate: Date | null
   }
 
   export type TelesaleMaxAggregateOutputType = {
@@ -10798,6 +11149,7 @@ export namespace Prisma {
     callStatus: string | null
     forwardTo: string | null
     callbackAt: Date | null
+    visitDate: Date | null
   }
 
   export type TelesaleCountAggregateOutputType = {
@@ -10819,6 +11171,7 @@ export namespace Prisma {
     callStatus: number
     forwardTo: number
     callbackAt: number
+    visitDate: number
     _all: number
   }
 
@@ -10850,6 +11203,7 @@ export namespace Prisma {
     callStatus?: true
     forwardTo?: true
     callbackAt?: true
+    visitDate?: true
   }
 
   export type TelesaleMaxAggregateInputType = {
@@ -10871,6 +11225,7 @@ export namespace Prisma {
     callStatus?: true
     forwardTo?: true
     callbackAt?: true
+    visitDate?: true
   }
 
   export type TelesaleCountAggregateInputType = {
@@ -10892,6 +11247,7 @@ export namespace Prisma {
     callStatus?: true
     forwardTo?: true
     callbackAt?: true
+    visitDate?: true
     _all?: true
   }
 
@@ -11000,6 +11356,7 @@ export namespace Prisma {
     callStatus: string | null
     forwardTo: string | null
     callbackAt: Date | null
+    visitDate: Date | null
     _count: TelesaleCountAggregateOutputType | null
     _avg: TelesaleAvgAggregateOutputType | null
     _sum: TelesaleSumAggregateOutputType | null
@@ -11040,6 +11397,8 @@ export namespace Prisma {
     callStatus?: boolean
     forwardTo?: boolean
     callbackAt?: boolean
+    visitDate?: boolean
+    schedule?: boolean | Telesale$scheduleArgs<ExtArgs>
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     user?: boolean | Telesale$userArgs<ExtArgs>
   }, ExtArgs["result"]["telesale"]>
@@ -11063,6 +11422,7 @@ export namespace Prisma {
     callStatus?: boolean
     forwardTo?: boolean
     callbackAt?: boolean
+    visitDate?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     user?: boolean | Telesale$userArgs<ExtArgs>
   }, ExtArgs["result"]["telesale"]>
@@ -11086,6 +11446,7 @@ export namespace Prisma {
     callStatus?: boolean
     forwardTo?: boolean
     callbackAt?: boolean
+    visitDate?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     user?: boolean | Telesale$userArgs<ExtArgs>
   }, ExtArgs["result"]["telesale"]>
@@ -11109,10 +11470,12 @@ export namespace Prisma {
     callStatus?: boolean
     forwardTo?: boolean
     callbackAt?: boolean
+    visitDate?: boolean
   }
 
-  export type TelesaleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "userId" | "conversationSummary" | "needsOrProblems" | "meetingObjective" | "competitorName" | "competitorPrice" | "competitorPromotion" | "lastMeetingDate" | "result" | "createdAt" | "updatedAt" | "callDate" | "callOutcome" | "callStatus" | "forwardTo" | "callbackAt", ExtArgs["result"]["telesale"]>
+  export type TelesaleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "userId" | "conversationSummary" | "needsOrProblems" | "meetingObjective" | "competitorName" | "competitorPrice" | "competitorPromotion" | "lastMeetingDate" | "result" | "createdAt" | "updatedAt" | "callDate" | "callOutcome" | "callStatus" | "forwardTo" | "callbackAt" | "visitDate", ExtArgs["result"]["telesale"]>
   export type TelesaleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    schedule?: boolean | Telesale$scheduleArgs<ExtArgs>
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     user?: boolean | Telesale$userArgs<ExtArgs>
   }
@@ -11128,6 +11491,7 @@ export namespace Prisma {
   export type $TelesalePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Telesale"
     objects: {
+      schedule: Prisma.$SchedulePayload<ExtArgs> | null
       company: Prisma.$CompanyPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs> | null
     }
@@ -11150,6 +11514,7 @@ export namespace Prisma {
       callStatus: string | null
       forwardTo: string | null
       callbackAt: Date | null
+      visitDate: Date | null
     }, ExtArgs["result"]["telesale"]>
     composites: {}
   }
@@ -11544,6 +11909,7 @@ export namespace Prisma {
    */
   export interface Prisma__TelesaleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    schedule<T extends Telesale$scheduleArgs<ExtArgs> = {}>(args?: Subset<T, Telesale$scheduleArgs<ExtArgs>>): Prisma__ScheduleClient<$Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends Telesale$userArgs<ExtArgs> = {}>(args?: Subset<T, Telesale$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
@@ -11593,6 +11959,7 @@ export namespace Prisma {
     readonly callStatus: FieldRef<"Telesale", 'String'>
     readonly forwardTo: FieldRef<"Telesale", 'String'>
     readonly callbackAt: FieldRef<"Telesale", 'DateTime'>
+    readonly visitDate: FieldRef<"Telesale", 'DateTime'>
   }
     
 
@@ -11991,6 +12358,25 @@ export namespace Prisma {
      * Limit how many Telesales to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Telesale.schedule
+   */
+  export type Telesale$scheduleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Schedule
+     */
+    select?: ScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Schedule
+     */
+    omit?: ScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScheduleInclude<ExtArgs> | null
+    where?: ScheduleWhereInput
   }
 
   /**
@@ -15092,6 +15478,1207 @@ export namespace Prisma {
 
 
   /**
+   * Model TelesalesKPI
+   */
+
+  export type AggregateTelesalesKPI = {
+    _count: TelesalesKPICountAggregateOutputType | null
+    _avg: TelesalesKPIAvgAggregateOutputType | null
+    _sum: TelesalesKPISumAggregateOutputType | null
+    _min: TelesalesKPIMinAggregateOutputType | null
+    _max: TelesalesKPIMaxAggregateOutputType | null
+  }
+
+  export type TelesalesKPIAvgAggregateOutputType = {
+    month: number | null
+    year: number | null
+    weeklyCallGoal: number | null
+    monthlyCallGoal: number | null
+    appointmentGoal: number | null
+    connectionRateMin: number | null
+  }
+
+  export type TelesalesKPISumAggregateOutputType = {
+    month: number | null
+    year: number | null
+    weeklyCallGoal: number | null
+    monthlyCallGoal: number | null
+    appointmentGoal: number | null
+    connectionRateMin: number | null
+  }
+
+  export type TelesalesKPIMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    month: number | null
+    year: number | null
+    weeklyCallGoal: number | null
+    monthlyCallGoal: number | null
+    appointmentGoal: number | null
+    connectionRateMin: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TelesalesKPIMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    month: number | null
+    year: number | null
+    weeklyCallGoal: number | null
+    monthlyCallGoal: number | null
+    appointmentGoal: number | null
+    connectionRateMin: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TelesalesKPICountAggregateOutputType = {
+    id: number
+    userId: number
+    month: number
+    year: number
+    weeklyCallGoal: number
+    monthlyCallGoal: number
+    appointmentGoal: number
+    connectionRateMin: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TelesalesKPIAvgAggregateInputType = {
+    month?: true
+    year?: true
+    weeklyCallGoal?: true
+    monthlyCallGoal?: true
+    appointmentGoal?: true
+    connectionRateMin?: true
+  }
+
+  export type TelesalesKPISumAggregateInputType = {
+    month?: true
+    year?: true
+    weeklyCallGoal?: true
+    monthlyCallGoal?: true
+    appointmentGoal?: true
+    connectionRateMin?: true
+  }
+
+  export type TelesalesKPIMinAggregateInputType = {
+    id?: true
+    userId?: true
+    month?: true
+    year?: true
+    weeklyCallGoal?: true
+    monthlyCallGoal?: true
+    appointmentGoal?: true
+    connectionRateMin?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TelesalesKPIMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    month?: true
+    year?: true
+    weeklyCallGoal?: true
+    monthlyCallGoal?: true
+    appointmentGoal?: true
+    connectionRateMin?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TelesalesKPICountAggregateInputType = {
+    id?: true
+    userId?: true
+    month?: true
+    year?: true
+    weeklyCallGoal?: true
+    monthlyCallGoal?: true
+    appointmentGoal?: true
+    connectionRateMin?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TelesalesKPIAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TelesalesKPI to aggregate.
+     */
+    where?: TelesalesKPIWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TelesalesKPIS to fetch.
+     */
+    orderBy?: TelesalesKPIOrderByWithRelationInput | TelesalesKPIOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TelesalesKPIWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TelesalesKPIS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TelesalesKPIS.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TelesalesKPIS
+    **/
+    _count?: true | TelesalesKPICountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TelesalesKPIAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TelesalesKPISumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TelesalesKPIMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TelesalesKPIMaxAggregateInputType
+  }
+
+  export type GetTelesalesKPIAggregateType<T extends TelesalesKPIAggregateArgs> = {
+        [P in keyof T & keyof AggregateTelesalesKPI]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTelesalesKPI[P]>
+      : GetScalarType<T[P], AggregateTelesalesKPI[P]>
+  }
+
+
+
+
+  export type TelesalesKPIGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TelesalesKPIWhereInput
+    orderBy?: TelesalesKPIOrderByWithAggregationInput | TelesalesKPIOrderByWithAggregationInput[]
+    by: TelesalesKPIScalarFieldEnum[] | TelesalesKPIScalarFieldEnum
+    having?: TelesalesKPIScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TelesalesKPICountAggregateInputType | true
+    _avg?: TelesalesKPIAvgAggregateInputType
+    _sum?: TelesalesKPISumAggregateInputType
+    _min?: TelesalesKPIMinAggregateInputType
+    _max?: TelesalesKPIMaxAggregateInputType
+  }
+
+  export type TelesalesKPIGroupByOutputType = {
+    id: string
+    userId: string | null
+    month: number
+    year: number
+    weeklyCallGoal: number
+    monthlyCallGoal: number
+    appointmentGoal: number
+    connectionRateMin: number
+    createdAt: Date
+    updatedAt: Date
+    _count: TelesalesKPICountAggregateOutputType | null
+    _avg: TelesalesKPIAvgAggregateOutputType | null
+    _sum: TelesalesKPISumAggregateOutputType | null
+    _min: TelesalesKPIMinAggregateOutputType | null
+    _max: TelesalesKPIMaxAggregateOutputType | null
+  }
+
+  type GetTelesalesKPIGroupByPayload<T extends TelesalesKPIGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TelesalesKPIGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TelesalesKPIGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TelesalesKPIGroupByOutputType[P]>
+            : GetScalarType<T[P], TelesalesKPIGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TelesalesKPISelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    month?: boolean
+    year?: boolean
+    weeklyCallGoal?: boolean
+    monthlyCallGoal?: boolean
+    appointmentGoal?: boolean
+    connectionRateMin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | TelesalesKPI$userArgs<ExtArgs>
+  }, ExtArgs["result"]["telesalesKPI"]>
+
+  export type TelesalesKPISelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    month?: boolean
+    year?: boolean
+    weeklyCallGoal?: boolean
+    monthlyCallGoal?: boolean
+    appointmentGoal?: boolean
+    connectionRateMin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | TelesalesKPI$userArgs<ExtArgs>
+  }, ExtArgs["result"]["telesalesKPI"]>
+
+  export type TelesalesKPISelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    month?: boolean
+    year?: boolean
+    weeklyCallGoal?: boolean
+    monthlyCallGoal?: boolean
+    appointmentGoal?: boolean
+    connectionRateMin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | TelesalesKPI$userArgs<ExtArgs>
+  }, ExtArgs["result"]["telesalesKPI"]>
+
+  export type TelesalesKPISelectScalar = {
+    id?: boolean
+    userId?: boolean
+    month?: boolean
+    year?: boolean
+    weeklyCallGoal?: boolean
+    monthlyCallGoal?: boolean
+    appointmentGoal?: boolean
+    connectionRateMin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TelesalesKPIOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "month" | "year" | "weeklyCallGoal" | "monthlyCallGoal" | "appointmentGoal" | "connectionRateMin" | "createdAt" | "updatedAt", ExtArgs["result"]["telesalesKPI"]>
+  export type TelesalesKPIInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | TelesalesKPI$userArgs<ExtArgs>
+  }
+  export type TelesalesKPIIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | TelesalesKPI$userArgs<ExtArgs>
+  }
+  export type TelesalesKPIIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | TelesalesKPI$userArgs<ExtArgs>
+  }
+
+  export type $TelesalesKPIPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TelesalesKPI"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string | null
+      month: number
+      year: number
+      weeklyCallGoal: number
+      monthlyCallGoal: number
+      appointmentGoal: number
+      connectionRateMin: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["telesalesKPI"]>
+    composites: {}
+  }
+
+  type TelesalesKPIGetPayload<S extends boolean | null | undefined | TelesalesKPIDefaultArgs> = $Result.GetResult<Prisma.$TelesalesKPIPayload, S>
+
+  type TelesalesKPICountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TelesalesKPIFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TelesalesKPICountAggregateInputType | true
+    }
+
+  export interface TelesalesKPIDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TelesalesKPI'], meta: { name: 'TelesalesKPI' } }
+    /**
+     * Find zero or one TelesalesKPI that matches the filter.
+     * @param {TelesalesKPIFindUniqueArgs} args - Arguments to find a TelesalesKPI
+     * @example
+     * // Get one TelesalesKPI
+     * const telesalesKPI = await prisma.telesalesKPI.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TelesalesKPIFindUniqueArgs>(args: SelectSubset<T, TelesalesKPIFindUniqueArgs<ExtArgs>>): Prisma__TelesalesKPIClient<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TelesalesKPI that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TelesalesKPIFindUniqueOrThrowArgs} args - Arguments to find a TelesalesKPI
+     * @example
+     * // Get one TelesalesKPI
+     * const telesalesKPI = await prisma.telesalesKPI.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TelesalesKPIFindUniqueOrThrowArgs>(args: SelectSubset<T, TelesalesKPIFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TelesalesKPIClient<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TelesalesKPI that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TelesalesKPIFindFirstArgs} args - Arguments to find a TelesalesKPI
+     * @example
+     * // Get one TelesalesKPI
+     * const telesalesKPI = await prisma.telesalesKPI.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TelesalesKPIFindFirstArgs>(args?: SelectSubset<T, TelesalesKPIFindFirstArgs<ExtArgs>>): Prisma__TelesalesKPIClient<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TelesalesKPI that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TelesalesKPIFindFirstOrThrowArgs} args - Arguments to find a TelesalesKPI
+     * @example
+     * // Get one TelesalesKPI
+     * const telesalesKPI = await prisma.telesalesKPI.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TelesalesKPIFindFirstOrThrowArgs>(args?: SelectSubset<T, TelesalesKPIFindFirstOrThrowArgs<ExtArgs>>): Prisma__TelesalesKPIClient<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TelesalesKPIS that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TelesalesKPIFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TelesalesKPIS
+     * const telesalesKPIS = await prisma.telesalesKPI.findMany()
+     * 
+     * // Get first 10 TelesalesKPIS
+     * const telesalesKPIS = await prisma.telesalesKPI.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const telesalesKPIWithIdOnly = await prisma.telesalesKPI.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TelesalesKPIFindManyArgs>(args?: SelectSubset<T, TelesalesKPIFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TelesalesKPI.
+     * @param {TelesalesKPICreateArgs} args - Arguments to create a TelesalesKPI.
+     * @example
+     * // Create one TelesalesKPI
+     * const TelesalesKPI = await prisma.telesalesKPI.create({
+     *   data: {
+     *     // ... data to create a TelesalesKPI
+     *   }
+     * })
+     * 
+     */
+    create<T extends TelesalesKPICreateArgs>(args: SelectSubset<T, TelesalesKPICreateArgs<ExtArgs>>): Prisma__TelesalesKPIClient<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TelesalesKPIS.
+     * @param {TelesalesKPICreateManyArgs} args - Arguments to create many TelesalesKPIS.
+     * @example
+     * // Create many TelesalesKPIS
+     * const telesalesKPI = await prisma.telesalesKPI.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TelesalesKPICreateManyArgs>(args?: SelectSubset<T, TelesalesKPICreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TelesalesKPIS and returns the data saved in the database.
+     * @param {TelesalesKPICreateManyAndReturnArgs} args - Arguments to create many TelesalesKPIS.
+     * @example
+     * // Create many TelesalesKPIS
+     * const telesalesKPI = await prisma.telesalesKPI.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TelesalesKPIS and only return the `id`
+     * const telesalesKPIWithIdOnly = await prisma.telesalesKPI.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TelesalesKPICreateManyAndReturnArgs>(args?: SelectSubset<T, TelesalesKPICreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TelesalesKPI.
+     * @param {TelesalesKPIDeleteArgs} args - Arguments to delete one TelesalesKPI.
+     * @example
+     * // Delete one TelesalesKPI
+     * const TelesalesKPI = await prisma.telesalesKPI.delete({
+     *   where: {
+     *     // ... filter to delete one TelesalesKPI
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TelesalesKPIDeleteArgs>(args: SelectSubset<T, TelesalesKPIDeleteArgs<ExtArgs>>): Prisma__TelesalesKPIClient<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TelesalesKPI.
+     * @param {TelesalesKPIUpdateArgs} args - Arguments to update one TelesalesKPI.
+     * @example
+     * // Update one TelesalesKPI
+     * const telesalesKPI = await prisma.telesalesKPI.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TelesalesKPIUpdateArgs>(args: SelectSubset<T, TelesalesKPIUpdateArgs<ExtArgs>>): Prisma__TelesalesKPIClient<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TelesalesKPIS.
+     * @param {TelesalesKPIDeleteManyArgs} args - Arguments to filter TelesalesKPIS to delete.
+     * @example
+     * // Delete a few TelesalesKPIS
+     * const { count } = await prisma.telesalesKPI.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TelesalesKPIDeleteManyArgs>(args?: SelectSubset<T, TelesalesKPIDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TelesalesKPIS.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TelesalesKPIUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TelesalesKPIS
+     * const telesalesKPI = await prisma.telesalesKPI.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TelesalesKPIUpdateManyArgs>(args: SelectSubset<T, TelesalesKPIUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TelesalesKPIS and returns the data updated in the database.
+     * @param {TelesalesKPIUpdateManyAndReturnArgs} args - Arguments to update many TelesalesKPIS.
+     * @example
+     * // Update many TelesalesKPIS
+     * const telesalesKPI = await prisma.telesalesKPI.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TelesalesKPIS and only return the `id`
+     * const telesalesKPIWithIdOnly = await prisma.telesalesKPI.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TelesalesKPIUpdateManyAndReturnArgs>(args: SelectSubset<T, TelesalesKPIUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TelesalesKPI.
+     * @param {TelesalesKPIUpsertArgs} args - Arguments to update or create a TelesalesKPI.
+     * @example
+     * // Update or create a TelesalesKPI
+     * const telesalesKPI = await prisma.telesalesKPI.upsert({
+     *   create: {
+     *     // ... data to create a TelesalesKPI
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TelesalesKPI we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TelesalesKPIUpsertArgs>(args: SelectSubset<T, TelesalesKPIUpsertArgs<ExtArgs>>): Prisma__TelesalesKPIClient<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TelesalesKPIS.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TelesalesKPICountArgs} args - Arguments to filter TelesalesKPIS to count.
+     * @example
+     * // Count the number of TelesalesKPIS
+     * const count = await prisma.telesalesKPI.count({
+     *   where: {
+     *     // ... the filter for the TelesalesKPIS we want to count
+     *   }
+     * })
+    **/
+    count<T extends TelesalesKPICountArgs>(
+      args?: Subset<T, TelesalesKPICountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TelesalesKPICountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TelesalesKPI.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TelesalesKPIAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TelesalesKPIAggregateArgs>(args: Subset<T, TelesalesKPIAggregateArgs>): Prisma.PrismaPromise<GetTelesalesKPIAggregateType<T>>
+
+    /**
+     * Group by TelesalesKPI.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TelesalesKPIGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TelesalesKPIGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TelesalesKPIGroupByArgs['orderBy'] }
+        : { orderBy?: TelesalesKPIGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TelesalesKPIGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTelesalesKPIGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TelesalesKPI model
+   */
+  readonly fields: TelesalesKPIFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TelesalesKPI.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TelesalesKPIClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends TelesalesKPI$userArgs<ExtArgs> = {}>(args?: Subset<T, TelesalesKPI$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TelesalesKPI model
+   */
+  interface TelesalesKPIFieldRefs {
+    readonly id: FieldRef<"TelesalesKPI", 'String'>
+    readonly userId: FieldRef<"TelesalesKPI", 'String'>
+    readonly month: FieldRef<"TelesalesKPI", 'Int'>
+    readonly year: FieldRef<"TelesalesKPI", 'Int'>
+    readonly weeklyCallGoal: FieldRef<"TelesalesKPI", 'Int'>
+    readonly monthlyCallGoal: FieldRef<"TelesalesKPI", 'Int'>
+    readonly appointmentGoal: FieldRef<"TelesalesKPI", 'Int'>
+    readonly connectionRateMin: FieldRef<"TelesalesKPI", 'Float'>
+    readonly createdAt: FieldRef<"TelesalesKPI", 'DateTime'>
+    readonly updatedAt: FieldRef<"TelesalesKPI", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TelesalesKPI findUnique
+   */
+  export type TelesalesKPIFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+    /**
+     * Filter, which TelesalesKPI to fetch.
+     */
+    where: TelesalesKPIWhereUniqueInput
+  }
+
+  /**
+   * TelesalesKPI findUniqueOrThrow
+   */
+  export type TelesalesKPIFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+    /**
+     * Filter, which TelesalesKPI to fetch.
+     */
+    where: TelesalesKPIWhereUniqueInput
+  }
+
+  /**
+   * TelesalesKPI findFirst
+   */
+  export type TelesalesKPIFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+    /**
+     * Filter, which TelesalesKPI to fetch.
+     */
+    where?: TelesalesKPIWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TelesalesKPIS to fetch.
+     */
+    orderBy?: TelesalesKPIOrderByWithRelationInput | TelesalesKPIOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TelesalesKPIS.
+     */
+    cursor?: TelesalesKPIWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TelesalesKPIS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TelesalesKPIS.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TelesalesKPIS.
+     */
+    distinct?: TelesalesKPIScalarFieldEnum | TelesalesKPIScalarFieldEnum[]
+  }
+
+  /**
+   * TelesalesKPI findFirstOrThrow
+   */
+  export type TelesalesKPIFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+    /**
+     * Filter, which TelesalesKPI to fetch.
+     */
+    where?: TelesalesKPIWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TelesalesKPIS to fetch.
+     */
+    orderBy?: TelesalesKPIOrderByWithRelationInput | TelesalesKPIOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TelesalesKPIS.
+     */
+    cursor?: TelesalesKPIWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TelesalesKPIS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TelesalesKPIS.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TelesalesKPIS.
+     */
+    distinct?: TelesalesKPIScalarFieldEnum | TelesalesKPIScalarFieldEnum[]
+  }
+
+  /**
+   * TelesalesKPI findMany
+   */
+  export type TelesalesKPIFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+    /**
+     * Filter, which TelesalesKPIS to fetch.
+     */
+    where?: TelesalesKPIWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TelesalesKPIS to fetch.
+     */
+    orderBy?: TelesalesKPIOrderByWithRelationInput | TelesalesKPIOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TelesalesKPIS.
+     */
+    cursor?: TelesalesKPIWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TelesalesKPIS from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TelesalesKPIS.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TelesalesKPIS.
+     */
+    distinct?: TelesalesKPIScalarFieldEnum | TelesalesKPIScalarFieldEnum[]
+  }
+
+  /**
+   * TelesalesKPI create
+   */
+  export type TelesalesKPICreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TelesalesKPI.
+     */
+    data: XOR<TelesalesKPICreateInput, TelesalesKPIUncheckedCreateInput>
+  }
+
+  /**
+   * TelesalesKPI createMany
+   */
+  export type TelesalesKPICreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TelesalesKPIS.
+     */
+    data: TelesalesKPICreateManyInput | TelesalesKPICreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TelesalesKPI createManyAndReturn
+   */
+  export type TelesalesKPICreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * The data used to create many TelesalesKPIS.
+     */
+    data: TelesalesKPICreateManyInput | TelesalesKPICreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TelesalesKPI update
+   */
+  export type TelesalesKPIUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TelesalesKPI.
+     */
+    data: XOR<TelesalesKPIUpdateInput, TelesalesKPIUncheckedUpdateInput>
+    /**
+     * Choose, which TelesalesKPI to update.
+     */
+    where: TelesalesKPIWhereUniqueInput
+  }
+
+  /**
+   * TelesalesKPI updateMany
+   */
+  export type TelesalesKPIUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TelesalesKPIS.
+     */
+    data: XOR<TelesalesKPIUpdateManyMutationInput, TelesalesKPIUncheckedUpdateManyInput>
+    /**
+     * Filter which TelesalesKPIS to update
+     */
+    where?: TelesalesKPIWhereInput
+    /**
+     * Limit how many TelesalesKPIS to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TelesalesKPI updateManyAndReturn
+   */
+  export type TelesalesKPIUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * The data used to update TelesalesKPIS.
+     */
+    data: XOR<TelesalesKPIUpdateManyMutationInput, TelesalesKPIUncheckedUpdateManyInput>
+    /**
+     * Filter which TelesalesKPIS to update
+     */
+    where?: TelesalesKPIWhereInput
+    /**
+     * Limit how many TelesalesKPIS to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TelesalesKPI upsert
+   */
+  export type TelesalesKPIUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TelesalesKPI to update in case it exists.
+     */
+    where: TelesalesKPIWhereUniqueInput
+    /**
+     * In case the TelesalesKPI found by the `where` argument doesn't exist, create a new TelesalesKPI with this data.
+     */
+    create: XOR<TelesalesKPICreateInput, TelesalesKPIUncheckedCreateInput>
+    /**
+     * In case the TelesalesKPI was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TelesalesKPIUpdateInput, TelesalesKPIUncheckedUpdateInput>
+  }
+
+  /**
+   * TelesalesKPI delete
+   */
+  export type TelesalesKPIDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+    /**
+     * Filter which TelesalesKPI to delete.
+     */
+    where: TelesalesKPIWhereUniqueInput
+  }
+
+  /**
+   * TelesalesKPI deleteMany
+   */
+  export type TelesalesKPIDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TelesalesKPIS to delete
+     */
+    where?: TelesalesKPIWhereInput
+    /**
+     * Limit how many TelesalesKPIS to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TelesalesKPI.user
+   */
+  export type TelesalesKPI$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * TelesalesKPI without action
+   */
+  export type TelesalesKPIDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TelesalesKPI
+     */
+    select?: TelesalesKPISelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TelesalesKPI
+     */
+    omit?: TelesalesKPIOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TelesalesKPIInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -15149,9 +16736,11 @@ export namespace Prisma {
     poNumber: 'poNumber',
     invoiceNumber: 'invoiceNumber',
     notes: 'notes',
+    visitReport: 'visitReport',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    companyId: 'companyId'
+    companyId: 'companyId',
+    telesaleId: 'telesaleId'
   };
 
   export type ScheduleScalarFieldEnum = (typeof ScheduleScalarFieldEnum)[keyof typeof ScheduleScalarFieldEnum]
@@ -15192,7 +16781,18 @@ export namespace Prisma {
     postalCode: 'postalCode',
     province: 'province',
     subDistrict: 'subDistrict',
-    assignedUserId: 'assignedUserId'
+    assignedUserId: 'assignedUserId',
+    billingAddress: 'billingAddress',
+    billingSubDistrict: 'billingSubDistrict',
+    billingDistrict: 'billingDistrict',
+    billingProvince: 'billingProvince',
+    billingPostalCode: 'billingPostalCode',
+    shippingAddress: 'shippingAddress',
+    shippingSubDistrict: 'shippingSubDistrict',
+    shippingDistrict: 'shippingDistrict',
+    shippingProvince: 'shippingProvince',
+    shippingPostalCode: 'shippingPostalCode',
+    paymentMethod: 'paymentMethod'
   };
 
   export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
@@ -15204,6 +16804,8 @@ export namespace Prisma {
     contactName: 'contactName',
     position: 'position',
     mobilePhone: 'mobilePhone',
+    email: 'email',
+    isETaxReceiver: 'isETaxReceiver',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -15265,7 +16867,8 @@ export namespace Prisma {
     callOutcome: 'callOutcome',
     callStatus: 'callStatus',
     forwardTo: 'forwardTo',
-    callbackAt: 'callbackAt'
+    callbackAt: 'callbackAt',
+    visitDate: 'visitDate'
   };
 
   export type TelesaleScalarFieldEnum = (typeof TelesaleScalarFieldEnum)[keyof typeof TelesaleScalarFieldEnum]
@@ -15304,6 +16907,22 @@ export namespace Prisma {
   };
 
   export type CompetitorScalarFieldEnum = (typeof CompetitorScalarFieldEnum)[keyof typeof CompetitorScalarFieldEnum]
+
+
+  export const TelesalesKPIScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    month: 'month',
+    year: 'year',
+    weeklyCallGoal: 'weeklyCallGoal',
+    monthlyCallGoal: 'monthlyCallGoal',
+    appointmentGoal: 'appointmentGoal',
+    connectionRateMin: 'connectionRateMin',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TelesalesKPIScalarFieldEnum = (typeof TelesalesKPIScalarFieldEnum)[keyof typeof TelesalesKPIScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -15423,6 +17042,7 @@ export namespace Prisma {
     telesales?: TelesaleListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
     monthlyTargets?: MonthlyTargetListRelationFilter
+    telesalesKPIs?: TelesalesKPIListRelationFilter
     assignedCompanies?: CompanyListRelationFilter
   }
 
@@ -15445,6 +17065,7 @@ export namespace Prisma {
     telesales?: TelesaleOrderByRelationAggregateInput
     employeeSale?: EmployeeSaleOrderByWithRelationInput
     monthlyTargets?: MonthlyTargetOrderByRelationAggregateInput
+    telesalesKPIs?: TelesalesKPIOrderByRelationAggregateInput
     assignedCompanies?: CompanyOrderByRelationAggregateInput
   }
 
@@ -15470,6 +17091,7 @@ export namespace Prisma {
     telesales?: TelesaleListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
     monthlyTargets?: MonthlyTargetListRelationFilter
+    telesalesKPIs?: TelesalesKPIListRelationFilter
     assignedCompanies?: CompanyListRelationFilter
   }, "id" | "employeeId" | "email">
 
@@ -15594,11 +17216,14 @@ export namespace Prisma {
     poNumber?: StringNullableFilter<"Schedule"> | string | null
     invoiceNumber?: StringNullableFilter<"Schedule"> | string | null
     notes?: StringNullableFilter<"Schedule"> | string | null
+    visitReport?: StringNullableFilter<"Schedule"> | string | null
     createdAt?: DateTimeFilter<"Schedule"> | Date | string
     updatedAt?: DateTimeFilter<"Schedule"> | Date | string
     companyId?: StringNullableFilter<"Schedule"> | string | null
+    telesaleId?: StringNullableFilter<"Schedule"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
+    telesale?: XOR<TelesaleNullableScalarRelationFilter, TelesaleWhereInput> | null
   }
 
   export type ScheduleOrderByWithRelationInput = {
@@ -15613,15 +17238,19 @@ export namespace Prisma {
     poNumber?: SortOrderInput | SortOrder
     invoiceNumber?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
+    visitReport?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     companyId?: SortOrderInput | SortOrder
+    telesaleId?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
     company?: CompanyOrderByWithRelationInput
+    telesale?: TelesaleOrderByWithRelationInput
   }
 
   export type ScheduleWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    telesaleId?: string
     AND?: ScheduleWhereInput | ScheduleWhereInput[]
     OR?: ScheduleWhereInput[]
     NOT?: ScheduleWhereInput | ScheduleWhereInput[]
@@ -15635,12 +17264,14 @@ export namespace Prisma {
     poNumber?: StringNullableFilter<"Schedule"> | string | null
     invoiceNumber?: StringNullableFilter<"Schedule"> | string | null
     notes?: StringNullableFilter<"Schedule"> | string | null
+    visitReport?: StringNullableFilter<"Schedule"> | string | null
     createdAt?: DateTimeFilter<"Schedule"> | Date | string
     updatedAt?: DateTimeFilter<"Schedule"> | Date | string
     companyId?: StringNullableFilter<"Schedule"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
-  }, "id">
+    telesale?: XOR<TelesaleNullableScalarRelationFilter, TelesaleWhereInput> | null
+  }, "id" | "telesaleId">
 
   export type ScheduleOrderByWithAggregationInput = {
     id?: SortOrder
@@ -15654,9 +17285,11 @@ export namespace Prisma {
     poNumber?: SortOrderInput | SortOrder
     invoiceNumber?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
+    visitReport?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     companyId?: SortOrderInput | SortOrder
+    telesaleId?: SortOrderInput | SortOrder
     _count?: ScheduleCountOrderByAggregateInput
     _max?: ScheduleMaxOrderByAggregateInput
     _min?: ScheduleMinOrderByAggregateInput
@@ -15677,9 +17310,11 @@ export namespace Prisma {
     poNumber?: StringNullableWithAggregatesFilter<"Schedule"> | string | null
     invoiceNumber?: StringNullableWithAggregatesFilter<"Schedule"> | string | null
     notes?: StringNullableWithAggregatesFilter<"Schedule"> | string | null
+    visitReport?: StringNullableWithAggregatesFilter<"Schedule"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Schedule"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Schedule"> | Date | string
     companyId?: StringNullableWithAggregatesFilter<"Schedule"> | string | null
+    telesaleId?: StringNullableWithAggregatesFilter<"Schedule"> | string | null
   }
 
   export type EmployeeSaleWhereInput = {
@@ -15793,6 +17428,17 @@ export namespace Prisma {
     province?: StringNullableFilter<"Company"> | string | null
     subDistrict?: StringNullableFilter<"Company"> | string | null
     assignedUserId?: StringNullableFilter<"Company"> | string | null
+    billingAddress?: StringNullableFilter<"Company"> | string | null
+    billingSubDistrict?: StringNullableFilter<"Company"> | string | null
+    billingDistrict?: StringNullableFilter<"Company"> | string | null
+    billingProvince?: StringNullableFilter<"Company"> | string | null
+    billingPostalCode?: StringNullableFilter<"Company"> | string | null
+    shippingAddress?: StringNullableFilter<"Company"> | string | null
+    shippingSubDistrict?: StringNullableFilter<"Company"> | string | null
+    shippingDistrict?: StringNullableFilter<"Company"> | string | null
+    shippingProvince?: StringNullableFilter<"Company"> | string | null
+    shippingPostalCode?: StringNullableFilter<"Company"> | string | null
+    paymentMethod?: StringNullableFilter<"Company"> | string | null
     contacts?: ContactListRelationFilter
     quotations?: QuotationListRelationFilter
     telesales?: TelesaleListRelationFilter
@@ -15818,6 +17464,17 @@ export namespace Prisma {
     province?: SortOrderInput | SortOrder
     subDistrict?: SortOrderInput | SortOrder
     assignedUserId?: SortOrderInput | SortOrder
+    billingAddress?: SortOrderInput | SortOrder
+    billingSubDistrict?: SortOrderInput | SortOrder
+    billingDistrict?: SortOrderInput | SortOrder
+    billingProvince?: SortOrderInput | SortOrder
+    billingPostalCode?: SortOrderInput | SortOrder
+    shippingAddress?: SortOrderInput | SortOrder
+    shippingSubDistrict?: SortOrderInput | SortOrder
+    shippingDistrict?: SortOrderInput | SortOrder
+    shippingProvince?: SortOrderInput | SortOrder
+    shippingPostalCode?: SortOrderInput | SortOrder
+    paymentMethod?: SortOrderInput | SortOrder
     contacts?: ContactOrderByRelationAggregateInput
     quotations?: QuotationOrderByRelationAggregateInput
     telesales?: TelesaleOrderByRelationAggregateInput
@@ -15846,6 +17503,17 @@ export namespace Prisma {
     province?: StringNullableFilter<"Company"> | string | null
     subDistrict?: StringNullableFilter<"Company"> | string | null
     assignedUserId?: StringNullableFilter<"Company"> | string | null
+    billingAddress?: StringNullableFilter<"Company"> | string | null
+    billingSubDistrict?: StringNullableFilter<"Company"> | string | null
+    billingDistrict?: StringNullableFilter<"Company"> | string | null
+    billingProvince?: StringNullableFilter<"Company"> | string | null
+    billingPostalCode?: StringNullableFilter<"Company"> | string | null
+    shippingAddress?: StringNullableFilter<"Company"> | string | null
+    shippingSubDistrict?: StringNullableFilter<"Company"> | string | null
+    shippingDistrict?: StringNullableFilter<"Company"> | string | null
+    shippingProvince?: StringNullableFilter<"Company"> | string | null
+    shippingPostalCode?: StringNullableFilter<"Company"> | string | null
+    paymentMethod?: StringNullableFilter<"Company"> | string | null
     contacts?: ContactListRelationFilter
     quotations?: QuotationListRelationFilter
     telesales?: TelesaleListRelationFilter
@@ -15871,6 +17539,17 @@ export namespace Prisma {
     province?: SortOrderInput | SortOrder
     subDistrict?: SortOrderInput | SortOrder
     assignedUserId?: SortOrderInput | SortOrder
+    billingAddress?: SortOrderInput | SortOrder
+    billingSubDistrict?: SortOrderInput | SortOrder
+    billingDistrict?: SortOrderInput | SortOrder
+    billingProvince?: SortOrderInput | SortOrder
+    billingPostalCode?: SortOrderInput | SortOrder
+    shippingAddress?: SortOrderInput | SortOrder
+    shippingSubDistrict?: SortOrderInput | SortOrder
+    shippingDistrict?: SortOrderInput | SortOrder
+    shippingProvince?: SortOrderInput | SortOrder
+    shippingPostalCode?: SortOrderInput | SortOrder
+    paymentMethod?: SortOrderInput | SortOrder
     _count?: CompanyCountOrderByAggregateInput
     _max?: CompanyMaxOrderByAggregateInput
     _min?: CompanyMinOrderByAggregateInput
@@ -15897,6 +17576,17 @@ export namespace Prisma {
     province?: StringNullableWithAggregatesFilter<"Company"> | string | null
     subDistrict?: StringNullableWithAggregatesFilter<"Company"> | string | null
     assignedUserId?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    billingAddress?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    billingSubDistrict?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    billingDistrict?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    billingProvince?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    billingPostalCode?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    shippingAddress?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    shippingSubDistrict?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    shippingDistrict?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    shippingProvince?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    shippingPostalCode?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    paymentMethod?: StringNullableWithAggregatesFilter<"Company"> | string | null
   }
 
   export type ContactWhereInput = {
@@ -15908,6 +17598,8 @@ export namespace Prisma {
     contactName?: StringFilter<"Contact"> | string
     position?: StringNullableFilter<"Contact"> | string | null
     mobilePhone?: StringNullableFilter<"Contact"> | string | null
+    email?: StringNullableFilter<"Contact"> | string | null
+    isETaxReceiver?: BoolFilter<"Contact"> | boolean
     createdAt?: DateTimeFilter<"Contact"> | Date | string
     updatedAt?: DateTimeFilter<"Contact"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -15920,6 +17612,8 @@ export namespace Prisma {
     contactName?: SortOrder
     position?: SortOrderInput | SortOrder
     mobilePhone?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    isETaxReceiver?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
@@ -15935,6 +17629,8 @@ export namespace Prisma {
     contactName?: StringFilter<"Contact"> | string
     position?: StringNullableFilter<"Contact"> | string | null
     mobilePhone?: StringNullableFilter<"Contact"> | string | null
+    email?: StringNullableFilter<"Contact"> | string | null
+    isETaxReceiver?: BoolFilter<"Contact"> | boolean
     createdAt?: DateTimeFilter<"Contact"> | Date | string
     updatedAt?: DateTimeFilter<"Contact"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -15947,6 +17643,8 @@ export namespace Prisma {
     contactName?: SortOrder
     position?: SortOrderInput | SortOrder
     mobilePhone?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    isETaxReceiver?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ContactCountOrderByAggregateInput
@@ -15963,6 +17661,8 @@ export namespace Prisma {
     contactName?: StringWithAggregatesFilter<"Contact"> | string
     position?: StringNullableWithAggregatesFilter<"Contact"> | string | null
     mobilePhone?: StringNullableWithAggregatesFilter<"Contact"> | string | null
+    email?: StringNullableWithAggregatesFilter<"Contact"> | string | null
+    isETaxReceiver?: BoolWithAggregatesFilter<"Contact"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Contact"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Contact"> | Date | string
   }
@@ -16177,6 +17877,8 @@ export namespace Prisma {
     callStatus?: StringNullableFilter<"Telesale"> | string | null
     forwardTo?: StringNullableFilter<"Telesale"> | string | null
     callbackAt?: DateTimeNullableFilter<"Telesale"> | Date | string | null
+    visitDate?: DateTimeNullableFilter<"Telesale"> | Date | string | null
+    schedule?: XOR<ScheduleNullableScalarRelationFilter, ScheduleWhereInput> | null
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
@@ -16200,6 +17902,8 @@ export namespace Prisma {
     callStatus?: SortOrderInput | SortOrder
     forwardTo?: SortOrderInput | SortOrder
     callbackAt?: SortOrderInput | SortOrder
+    visitDate?: SortOrderInput | SortOrder
+    schedule?: ScheduleOrderByWithRelationInput
     company?: CompanyOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
   }
@@ -16226,6 +17930,8 @@ export namespace Prisma {
     callStatus?: StringNullableFilter<"Telesale"> | string | null
     forwardTo?: StringNullableFilter<"Telesale"> | string | null
     callbackAt?: DateTimeNullableFilter<"Telesale"> | Date | string | null
+    visitDate?: DateTimeNullableFilter<"Telesale"> | Date | string | null
+    schedule?: XOR<ScheduleNullableScalarRelationFilter, ScheduleWhereInput> | null
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id">
@@ -16249,6 +17955,7 @@ export namespace Prisma {
     callStatus?: SortOrderInput | SortOrder
     forwardTo?: SortOrderInput | SortOrder
     callbackAt?: SortOrderInput | SortOrder
+    visitDate?: SortOrderInput | SortOrder
     _count?: TelesaleCountOrderByAggregateInput
     _avg?: TelesaleAvgOrderByAggregateInput
     _max?: TelesaleMaxOrderByAggregateInput
@@ -16278,6 +17985,7 @@ export namespace Prisma {
     callStatus?: StringNullableWithAggregatesFilter<"Telesale"> | string | null
     forwardTo?: StringNullableWithAggregatesFilter<"Telesale"> | string | null
     callbackAt?: DateTimeNullableWithAggregatesFilter<"Telesale"> | Date | string | null
+    visitDate?: DateTimeNullableWithAggregatesFilter<"Telesale"> | Date | string | null
   }
 
   export type BusinessTypeWhereInput = {
@@ -16448,6 +18156,89 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Competitor"> | Date | string
   }
 
+  export type TelesalesKPIWhereInput = {
+    AND?: TelesalesKPIWhereInput | TelesalesKPIWhereInput[]
+    OR?: TelesalesKPIWhereInput[]
+    NOT?: TelesalesKPIWhereInput | TelesalesKPIWhereInput[]
+    id?: StringFilter<"TelesalesKPI"> | string
+    userId?: StringNullableFilter<"TelesalesKPI"> | string | null
+    month?: IntFilter<"TelesalesKPI"> | number
+    year?: IntFilter<"TelesalesKPI"> | number
+    weeklyCallGoal?: IntFilter<"TelesalesKPI"> | number
+    monthlyCallGoal?: IntFilter<"TelesalesKPI"> | number
+    appointmentGoal?: IntFilter<"TelesalesKPI"> | number
+    connectionRateMin?: FloatFilter<"TelesalesKPI"> | number
+    createdAt?: DateTimeFilter<"TelesalesKPI"> | Date | string
+    updatedAt?: DateTimeFilter<"TelesalesKPI"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type TelesalesKPIOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    month?: SortOrder
+    year?: SortOrder
+    weeklyCallGoal?: SortOrder
+    monthlyCallGoal?: SortOrder
+    appointmentGoal?: SortOrder
+    connectionRateMin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type TelesalesKPIWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_month_year?: TelesalesKPIUserIdMonthYearCompoundUniqueInput
+    AND?: TelesalesKPIWhereInput | TelesalesKPIWhereInput[]
+    OR?: TelesalesKPIWhereInput[]
+    NOT?: TelesalesKPIWhereInput | TelesalesKPIWhereInput[]
+    userId?: StringNullableFilter<"TelesalesKPI"> | string | null
+    month?: IntFilter<"TelesalesKPI"> | number
+    year?: IntFilter<"TelesalesKPI"> | number
+    weeklyCallGoal?: IntFilter<"TelesalesKPI"> | number
+    monthlyCallGoal?: IntFilter<"TelesalesKPI"> | number
+    appointmentGoal?: IntFilter<"TelesalesKPI"> | number
+    connectionRateMin?: FloatFilter<"TelesalesKPI"> | number
+    createdAt?: DateTimeFilter<"TelesalesKPI"> | Date | string
+    updatedAt?: DateTimeFilter<"TelesalesKPI"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "userId_month_year">
+
+  export type TelesalesKPIOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    month?: SortOrder
+    year?: SortOrder
+    weeklyCallGoal?: SortOrder
+    monthlyCallGoal?: SortOrder
+    appointmentGoal?: SortOrder
+    connectionRateMin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TelesalesKPICountOrderByAggregateInput
+    _avg?: TelesalesKPIAvgOrderByAggregateInput
+    _max?: TelesalesKPIMaxOrderByAggregateInput
+    _min?: TelesalesKPIMinOrderByAggregateInput
+    _sum?: TelesalesKPISumOrderByAggregateInput
+  }
+
+  export type TelesalesKPIScalarWhereWithAggregatesInput = {
+    AND?: TelesalesKPIScalarWhereWithAggregatesInput | TelesalesKPIScalarWhereWithAggregatesInput[]
+    OR?: TelesalesKPIScalarWhereWithAggregatesInput[]
+    NOT?: TelesalesKPIScalarWhereWithAggregatesInput | TelesalesKPIScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TelesalesKPI"> | string
+    userId?: StringNullableWithAggregatesFilter<"TelesalesKPI"> | string | null
+    month?: IntWithAggregatesFilter<"TelesalesKPI"> | number
+    year?: IntWithAggregatesFilter<"TelesalesKPI"> | number
+    weeklyCallGoal?: IntWithAggregatesFilter<"TelesalesKPI"> | number
+    monthlyCallGoal?: IntWithAggregatesFilter<"TelesalesKPI"> | number
+    appointmentGoal?: IntWithAggregatesFilter<"TelesalesKPI"> | number
+    connectionRateMin?: FloatWithAggregatesFilter<"TelesalesKPI"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"TelesalesKPI"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"TelesalesKPI"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     employeeId: string
@@ -16467,6 +18258,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -16489,6 +18281,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -16511,6 +18304,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
   }
 
@@ -16533,6 +18327,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
@@ -16664,10 +18459,12 @@ export namespace Prisma {
     poNumber?: string | null
     invoiceNumber?: string | null
     notes?: string | null
+    visitReport?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutSchedulesInput
     company?: CompanyCreateNestedOneWithoutSchedulesInput
+    telesale?: TelesaleCreateNestedOneWithoutScheduleInput
   }
 
   export type ScheduleUncheckedCreateInput = {
@@ -16682,9 +18479,11 @@ export namespace Prisma {
     poNumber?: string | null
     invoiceNumber?: string | null
     notes?: string | null
+    visitReport?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyId?: string | null
+    telesaleId?: string | null
   }
 
   export type ScheduleUpdateInput = {
@@ -16698,10 +18497,12 @@ export namespace Prisma {
     poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSchedulesNestedInput
     company?: CompanyUpdateOneWithoutSchedulesNestedInput
+    telesale?: TelesaleUpdateOneWithoutScheduleNestedInput
   }
 
   export type ScheduleUncheckedUpdateInput = {
@@ -16716,9 +18517,11 @@ export namespace Prisma {
     poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    telesaleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ScheduleCreateManyInput = {
@@ -16733,9 +18536,11 @@ export namespace Prisma {
     poNumber?: string | null
     invoiceNumber?: string | null
     notes?: string | null
+    visitReport?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyId?: string | null
+    telesaleId?: string | null
   }
 
   export type ScheduleUpdateManyMutationInput = {
@@ -16749,6 +18554,7 @@ export namespace Prisma {
     poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -16765,9 +18571,11 @@ export namespace Prisma {
     poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    telesaleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type EmployeeSaleCreateInput = {
@@ -16891,6 +18699,17 @@ export namespace Prisma {
     postalCode?: string | null
     province?: string | null
     subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
@@ -16916,6 +18735,17 @@ export namespace Prisma {
     province?: string | null
     subDistrict?: string | null
     assignedUserId?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
@@ -16939,6 +18769,17 @@ export namespace Prisma {
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
@@ -16964,6 +18805,17 @@ export namespace Prisma {
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -16988,6 +18840,17 @@ export namespace Prisma {
     province?: string | null
     subDistrict?: string | null
     assignedUserId?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
   }
 
   export type CompanyUpdateManyMutationInput = {
@@ -17007,6 +18870,17 @@ export namespace Prisma {
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CompanyUncheckedUpdateManyInput = {
@@ -17027,6 +18901,17 @@ export namespace Prisma {
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ContactCreateInput = {
@@ -17034,6 +18919,8 @@ export namespace Prisma {
     contactName: string
     position?: string | null
     mobilePhone?: string | null
+    email?: string | null
+    isETaxReceiver?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutContactsInput
@@ -17046,6 +18933,8 @@ export namespace Prisma {
     contactName: string
     position?: string | null
     mobilePhone?: string | null
+    email?: string | null
+    isETaxReceiver?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     quotations?: QuotationUncheckedCreateNestedManyWithoutContactInput
@@ -17056,6 +18945,8 @@ export namespace Prisma {
     contactName?: StringFieldUpdateOperationsInput | string
     position?: NullableStringFieldUpdateOperationsInput | string | null
     mobilePhone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    isETaxReceiver?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutContactsNestedInput
@@ -17068,6 +18959,8 @@ export namespace Prisma {
     contactName?: StringFieldUpdateOperationsInput | string
     position?: NullableStringFieldUpdateOperationsInput | string | null
     mobilePhone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    isETaxReceiver?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     quotations?: QuotationUncheckedUpdateManyWithoutContactNestedInput
@@ -17079,6 +18972,8 @@ export namespace Prisma {
     contactName: string
     position?: string | null
     mobilePhone?: string | null
+    email?: string | null
+    isETaxReceiver?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -17088,6 +18983,8 @@ export namespace Prisma {
     contactName?: StringFieldUpdateOperationsInput | string
     position?: NullableStringFieldUpdateOperationsInput | string | null
     mobilePhone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    isETaxReceiver?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17098,6 +18995,8 @@ export namespace Prisma {
     contactName?: StringFieldUpdateOperationsInput | string
     position?: NullableStringFieldUpdateOperationsInput | string | null
     mobilePhone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    isETaxReceiver?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17347,6 +19246,8 @@ export namespace Prisma {
     callStatus?: string | null
     forwardTo?: string | null
     callbackAt?: Date | string | null
+    visitDate?: Date | string | null
+    schedule?: ScheduleCreateNestedOneWithoutTelesaleInput
     company: CompanyCreateNestedOneWithoutTelesalesInput
     user?: UserCreateNestedOneWithoutTelesalesInput
   }
@@ -17370,6 +19271,8 @@ export namespace Prisma {
     callStatus?: string | null
     forwardTo?: string | null
     callbackAt?: Date | string | null
+    visitDate?: Date | string | null
+    schedule?: ScheduleUncheckedCreateNestedOneWithoutTelesaleInput
   }
 
   export type TelesaleUpdateInput = {
@@ -17389,6 +19292,8 @@ export namespace Prisma {
     callStatus?: NullableStringFieldUpdateOperationsInput | string | null
     forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
     callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    schedule?: ScheduleUpdateOneWithoutTelesaleNestedInput
     company?: CompanyUpdateOneRequiredWithoutTelesalesNestedInput
     user?: UserUpdateOneWithoutTelesalesNestedInput
   }
@@ -17412,6 +19317,8 @@ export namespace Prisma {
     callStatus?: NullableStringFieldUpdateOperationsInput | string | null
     forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
     callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    schedule?: ScheduleUncheckedUpdateOneWithoutTelesaleNestedInput
   }
 
   export type TelesaleCreateManyInput = {
@@ -17433,6 +19340,7 @@ export namespace Prisma {
     callStatus?: string | null
     forwardTo?: string | null
     callbackAt?: Date | string | null
+    visitDate?: Date | string | null
   }
 
   export type TelesaleUpdateManyMutationInput = {
@@ -17452,6 +19360,7 @@ export namespace Prisma {
     callStatus?: NullableStringFieldUpdateOperationsInput | string | null
     forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
     callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type TelesaleUncheckedUpdateManyInput = {
@@ -17473,6 +19382,7 @@ export namespace Prisma {
     callStatus?: NullableStringFieldUpdateOperationsInput | string | null
     forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
     callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BusinessTypeCreateInput = {
@@ -17657,6 +19567,96 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TelesalesKPICreateInput = {
+    id?: string
+    month: number
+    year: number
+    weeklyCallGoal?: number
+    monthlyCallGoal?: number
+    appointmentGoal?: number
+    connectionRateMin?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutTelesalesKPIsInput
+  }
+
+  export type TelesalesKPIUncheckedCreateInput = {
+    id?: string
+    userId?: string | null
+    month: number
+    year: number
+    weeklyCallGoal?: number
+    monthlyCallGoal?: number
+    appointmentGoal?: number
+    connectionRateMin?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TelesalesKPIUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    weeklyCallGoal?: IntFieldUpdateOperationsInput | number
+    monthlyCallGoal?: IntFieldUpdateOperationsInput | number
+    appointmentGoal?: IntFieldUpdateOperationsInput | number
+    connectionRateMin?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutTelesalesKPIsNestedInput
+  }
+
+  export type TelesalesKPIUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    month?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    weeklyCallGoal?: IntFieldUpdateOperationsInput | number
+    monthlyCallGoal?: IntFieldUpdateOperationsInput | number
+    appointmentGoal?: IntFieldUpdateOperationsInput | number
+    connectionRateMin?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TelesalesKPICreateManyInput = {
+    id?: string
+    userId?: string | null
+    month: number
+    year: number
+    weeklyCallGoal?: number
+    monthlyCallGoal?: number
+    appointmentGoal?: number
+    connectionRateMin?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TelesalesKPIUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    weeklyCallGoal?: IntFieldUpdateOperationsInput | number
+    monthlyCallGoal?: IntFieldUpdateOperationsInput | number
+    appointmentGoal?: IntFieldUpdateOperationsInput | number
+    connectionRateMin?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TelesalesKPIUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    month?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    weeklyCallGoal?: IntFieldUpdateOperationsInput | number
+    monthlyCallGoal?: IntFieldUpdateOperationsInput | number
+    appointmentGoal?: IntFieldUpdateOperationsInput | number
+    connectionRateMin?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -17743,6 +19743,12 @@ export namespace Prisma {
     none?: MonthlyTargetWhereInput
   }
 
+  export type TelesalesKPIListRelationFilter = {
+    every?: TelesalesKPIWhereInput
+    some?: TelesalesKPIWhereInput
+    none?: TelesalesKPIWhereInput
+  }
+
   export type CompanyListRelationFilter = {
     every?: CompanyWhereInput
     some?: CompanyWhereInput
@@ -17767,6 +19773,10 @@ export namespace Prisma {
   }
 
   export type MonthlyTargetOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TelesalesKPIOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -18011,6 +20021,11 @@ export namespace Prisma {
     isNot?: CompanyWhereInput | null
   }
 
+  export type TelesaleNullableScalarRelationFilter = {
+    is?: TelesaleWhereInput | null
+    isNot?: TelesaleWhereInput | null
+  }
+
   export type ScheduleCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -18023,9 +20038,11 @@ export namespace Prisma {
     poNumber?: SortOrder
     invoiceNumber?: SortOrder
     notes?: SortOrder
+    visitReport?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     companyId?: SortOrder
+    telesaleId?: SortOrder
   }
 
   export type ScheduleMaxOrderByAggregateInput = {
@@ -18040,9 +20057,11 @@ export namespace Prisma {
     poNumber?: SortOrder
     invoiceNumber?: SortOrder
     notes?: SortOrder
+    visitReport?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     companyId?: SortOrder
+    telesaleId?: SortOrder
   }
 
   export type ScheduleMinOrderByAggregateInput = {
@@ -18057,9 +20076,11 @@ export namespace Prisma {
     poNumber?: SortOrder
     invoiceNumber?: SortOrder
     notes?: SortOrder
+    visitReport?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     companyId?: SortOrder
+    telesaleId?: SortOrder
   }
 
   export type EmployeeSaleCountOrderByAggregateInput = {
@@ -18135,6 +20156,17 @@ export namespace Prisma {
     province?: SortOrder
     subDistrict?: SortOrder
     assignedUserId?: SortOrder
+    billingAddress?: SortOrder
+    billingSubDistrict?: SortOrder
+    billingDistrict?: SortOrder
+    billingProvince?: SortOrder
+    billingPostalCode?: SortOrder
+    shippingAddress?: SortOrder
+    shippingSubDistrict?: SortOrder
+    shippingDistrict?: SortOrder
+    shippingProvince?: SortOrder
+    shippingPostalCode?: SortOrder
+    paymentMethod?: SortOrder
   }
 
   export type CompanyMaxOrderByAggregateInput = {
@@ -18155,6 +20187,17 @@ export namespace Prisma {
     province?: SortOrder
     subDistrict?: SortOrder
     assignedUserId?: SortOrder
+    billingAddress?: SortOrder
+    billingSubDistrict?: SortOrder
+    billingDistrict?: SortOrder
+    billingProvince?: SortOrder
+    billingPostalCode?: SortOrder
+    shippingAddress?: SortOrder
+    shippingSubDistrict?: SortOrder
+    shippingDistrict?: SortOrder
+    shippingProvince?: SortOrder
+    shippingPostalCode?: SortOrder
+    paymentMethod?: SortOrder
   }
 
   export type CompanyMinOrderByAggregateInput = {
@@ -18175,6 +20218,17 @@ export namespace Prisma {
     province?: SortOrder
     subDistrict?: SortOrder
     assignedUserId?: SortOrder
+    billingAddress?: SortOrder
+    billingSubDistrict?: SortOrder
+    billingDistrict?: SortOrder
+    billingProvince?: SortOrder
+    billingPostalCode?: SortOrder
+    shippingAddress?: SortOrder
+    shippingSubDistrict?: SortOrder
+    shippingDistrict?: SortOrder
+    shippingProvince?: SortOrder
+    shippingPostalCode?: SortOrder
+    paymentMethod?: SortOrder
   }
 
   export type CompanyScalarRelationFilter = {
@@ -18188,6 +20242,8 @@ export namespace Prisma {
     contactName?: SortOrder
     position?: SortOrder
     mobilePhone?: SortOrder
+    email?: SortOrder
+    isETaxReceiver?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -18198,6 +20254,8 @@ export namespace Prisma {
     contactName?: SortOrder
     position?: SortOrder
     mobilePhone?: SortOrder
+    email?: SortOrder
+    isETaxReceiver?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -18208,6 +20266,8 @@ export namespace Prisma {
     contactName?: SortOrder
     position?: SortOrder
     mobilePhone?: SortOrder
+    email?: SortOrder
+    isETaxReceiver?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -18359,6 +20419,11 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
+  export type ScheduleNullableScalarRelationFilter = {
+    is?: ScheduleWhereInput | null
+    isNot?: ScheduleWhereInput | null
+  }
+
   export type TelesaleCountOrderByAggregateInput = {
     id?: SortOrder
     companyId?: SortOrder
@@ -18378,6 +20443,7 @@ export namespace Prisma {
     callStatus?: SortOrder
     forwardTo?: SortOrder
     callbackAt?: SortOrder
+    visitDate?: SortOrder
   }
 
   export type TelesaleAvgOrderByAggregateInput = {
@@ -18403,6 +20469,7 @@ export namespace Prisma {
     callStatus?: SortOrder
     forwardTo?: SortOrder
     callbackAt?: SortOrder
+    visitDate?: SortOrder
   }
 
   export type TelesaleMinOrderByAggregateInput = {
@@ -18424,6 +20491,7 @@ export namespace Prisma {
     callStatus?: SortOrder
     forwardTo?: SortOrder
     callbackAt?: SortOrder
+    visitDate?: SortOrder
   }
 
   export type TelesaleSumOrderByAggregateInput = {
@@ -18516,6 +20584,69 @@ export namespace Prisma {
     price?: SortOrder
   }
 
+  export type TelesalesKPIUserIdMonthYearCompoundUniqueInput = {
+    userId: string
+    month: number
+    year: number
+  }
+
+  export type TelesalesKPICountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    month?: SortOrder
+    year?: SortOrder
+    weeklyCallGoal?: SortOrder
+    monthlyCallGoal?: SortOrder
+    appointmentGoal?: SortOrder
+    connectionRateMin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TelesalesKPIAvgOrderByAggregateInput = {
+    month?: SortOrder
+    year?: SortOrder
+    weeklyCallGoal?: SortOrder
+    monthlyCallGoal?: SortOrder
+    appointmentGoal?: SortOrder
+    connectionRateMin?: SortOrder
+  }
+
+  export type TelesalesKPIMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    month?: SortOrder
+    year?: SortOrder
+    weeklyCallGoal?: SortOrder
+    monthlyCallGoal?: SortOrder
+    appointmentGoal?: SortOrder
+    connectionRateMin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TelesalesKPIMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    month?: SortOrder
+    year?: SortOrder
+    weeklyCallGoal?: SortOrder
+    monthlyCallGoal?: SortOrder
+    appointmentGoal?: SortOrder
+    connectionRateMin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TelesalesKPISumOrderByAggregateInput = {
+    month?: SortOrder
+    year?: SortOrder
+    weeklyCallGoal?: SortOrder
+    monthlyCallGoal?: SortOrder
+    appointmentGoal?: SortOrder
+    connectionRateMin?: SortOrder
+  }
+
   export type QuotationCreateNestedManyWithoutSalespersonInput = {
     create?: XOR<QuotationCreateWithoutSalespersonInput, QuotationUncheckedCreateWithoutSalespersonInput> | QuotationCreateWithoutSalespersonInput[] | QuotationUncheckedCreateWithoutSalespersonInput[]
     connectOrCreate?: QuotationCreateOrConnectWithoutSalespersonInput | QuotationCreateOrConnectWithoutSalespersonInput[]
@@ -18548,6 +20679,13 @@ export namespace Prisma {
     connectOrCreate?: MonthlyTargetCreateOrConnectWithoutUserInput | MonthlyTargetCreateOrConnectWithoutUserInput[]
     createMany?: MonthlyTargetCreateManyUserInputEnvelope
     connect?: MonthlyTargetWhereUniqueInput | MonthlyTargetWhereUniqueInput[]
+  }
+
+  export type TelesalesKPICreateNestedManyWithoutUserInput = {
+    create?: XOR<TelesalesKPICreateWithoutUserInput, TelesalesKPIUncheckedCreateWithoutUserInput> | TelesalesKPICreateWithoutUserInput[] | TelesalesKPIUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TelesalesKPICreateOrConnectWithoutUserInput | TelesalesKPICreateOrConnectWithoutUserInput[]
+    createMany?: TelesalesKPICreateManyUserInputEnvelope
+    connect?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
   }
 
   export type CompanyCreateNestedManyWithoutAssignedUserInput = {
@@ -18589,6 +20727,13 @@ export namespace Prisma {
     connectOrCreate?: MonthlyTargetCreateOrConnectWithoutUserInput | MonthlyTargetCreateOrConnectWithoutUserInput[]
     createMany?: MonthlyTargetCreateManyUserInputEnvelope
     connect?: MonthlyTargetWhereUniqueInput | MonthlyTargetWhereUniqueInput[]
+  }
+
+  export type TelesalesKPIUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<TelesalesKPICreateWithoutUserInput, TelesalesKPIUncheckedCreateWithoutUserInput> | TelesalesKPICreateWithoutUserInput[] | TelesalesKPIUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TelesalesKPICreateOrConnectWithoutUserInput | TelesalesKPICreateOrConnectWithoutUserInput[]
+    createMany?: TelesalesKPICreateManyUserInputEnvelope
+    connect?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
   }
 
   export type CompanyUncheckedCreateNestedManyWithoutAssignedUserInput = {
@@ -18684,6 +20829,20 @@ export namespace Prisma {
     deleteMany?: MonthlyTargetScalarWhereInput | MonthlyTargetScalarWhereInput[]
   }
 
+  export type TelesalesKPIUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TelesalesKPICreateWithoutUserInput, TelesalesKPIUncheckedCreateWithoutUserInput> | TelesalesKPICreateWithoutUserInput[] | TelesalesKPIUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TelesalesKPICreateOrConnectWithoutUserInput | TelesalesKPICreateOrConnectWithoutUserInput[]
+    upsert?: TelesalesKPIUpsertWithWhereUniqueWithoutUserInput | TelesalesKPIUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TelesalesKPICreateManyUserInputEnvelope
+    set?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
+    disconnect?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
+    delete?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
+    connect?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
+    update?: TelesalesKPIUpdateWithWhereUniqueWithoutUserInput | TelesalesKPIUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TelesalesKPIUpdateManyWithWhereWithoutUserInput | TelesalesKPIUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TelesalesKPIScalarWhereInput | TelesalesKPIScalarWhereInput[]
+  }
+
   export type CompanyUpdateManyWithoutAssignedUserNestedInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -18764,6 +20923,20 @@ export namespace Prisma {
     deleteMany?: MonthlyTargetScalarWhereInput | MonthlyTargetScalarWhereInput[]
   }
 
+  export type TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TelesalesKPICreateWithoutUserInput, TelesalesKPIUncheckedCreateWithoutUserInput> | TelesalesKPICreateWithoutUserInput[] | TelesalesKPIUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TelesalesKPICreateOrConnectWithoutUserInput | TelesalesKPICreateOrConnectWithoutUserInput[]
+    upsert?: TelesalesKPIUpsertWithWhereUniqueWithoutUserInput | TelesalesKPIUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TelesalesKPICreateManyUserInputEnvelope
+    set?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
+    disconnect?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
+    delete?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
+    connect?: TelesalesKPIWhereUniqueInput | TelesalesKPIWhereUniqueInput[]
+    update?: TelesalesKPIUpdateWithWhereUniqueWithoutUserInput | TelesalesKPIUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TelesalesKPIUpdateManyWithWhereWithoutUserInput | TelesalesKPIUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TelesalesKPIScalarWhereInput | TelesalesKPIScalarWhereInput[]
+  }
+
   export type CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -18822,6 +20995,12 @@ export namespace Prisma {
     connect?: CompanyWhereUniqueInput
   }
 
+  export type TelesaleCreateNestedOneWithoutScheduleInput = {
+    create?: XOR<TelesaleCreateWithoutScheduleInput, TelesaleUncheckedCreateWithoutScheduleInput>
+    connectOrCreate?: TelesaleCreateOrConnectWithoutScheduleInput
+    connect?: TelesaleWhereUniqueInput
+  }
+
   export type UserUpdateOneRequiredWithoutSchedulesNestedInput = {
     create?: XOR<UserCreateWithoutSchedulesInput, UserUncheckedCreateWithoutSchedulesInput>
     connectOrCreate?: UserCreateOrConnectWithoutSchedulesInput
@@ -18838,6 +21017,16 @@ export namespace Prisma {
     delete?: CompanyWhereInput | boolean
     connect?: CompanyWhereUniqueInput
     update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutSchedulesInput, CompanyUpdateWithoutSchedulesInput>, CompanyUncheckedUpdateWithoutSchedulesInput>
+  }
+
+  export type TelesaleUpdateOneWithoutScheduleNestedInput = {
+    create?: XOR<TelesaleCreateWithoutScheduleInput, TelesaleUncheckedCreateWithoutScheduleInput>
+    connectOrCreate?: TelesaleCreateOrConnectWithoutScheduleInput
+    upsert?: TelesaleUpsertWithoutScheduleInput
+    disconnect?: TelesaleWhereInput | boolean
+    delete?: TelesaleWhereInput | boolean
+    connect?: TelesaleWhereUniqueInput
+    update?: XOR<XOR<TelesaleUpdateToOneWithWhereWithoutScheduleInput, TelesaleUpdateWithoutScheduleInput>, TelesaleUncheckedUpdateWithoutScheduleInput>
   }
 
   export type UserCreateNestedOneWithoutEmployeeSaleInput = {
@@ -19150,6 +21339,12 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutQuotationsInput, UserUpdateWithoutQuotationsInput>, UserUncheckedUpdateWithoutQuotationsInput>
   }
 
+  export type ScheduleCreateNestedOneWithoutTelesaleInput = {
+    create?: XOR<ScheduleCreateWithoutTelesaleInput, ScheduleUncheckedCreateWithoutTelesaleInput>
+    connectOrCreate?: ScheduleCreateOrConnectWithoutTelesaleInput
+    connect?: ScheduleWhereUniqueInput
+  }
+
   export type CompanyCreateNestedOneWithoutTelesalesInput = {
     create?: XOR<CompanyCreateWithoutTelesalesInput, CompanyUncheckedCreateWithoutTelesalesInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutTelesalesInput
@@ -19160,6 +21355,22 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutTelesalesInput, UserUncheckedCreateWithoutTelesalesInput>
     connectOrCreate?: UserCreateOrConnectWithoutTelesalesInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type ScheduleUncheckedCreateNestedOneWithoutTelesaleInput = {
+    create?: XOR<ScheduleCreateWithoutTelesaleInput, ScheduleUncheckedCreateWithoutTelesaleInput>
+    connectOrCreate?: ScheduleCreateOrConnectWithoutTelesaleInput
+    connect?: ScheduleWhereUniqueInput
+  }
+
+  export type ScheduleUpdateOneWithoutTelesaleNestedInput = {
+    create?: XOR<ScheduleCreateWithoutTelesaleInput, ScheduleUncheckedCreateWithoutTelesaleInput>
+    connectOrCreate?: ScheduleCreateOrConnectWithoutTelesaleInput
+    upsert?: ScheduleUpsertWithoutTelesaleInput
+    disconnect?: ScheduleWhereInput | boolean
+    delete?: ScheduleWhereInput | boolean
+    connect?: ScheduleWhereUniqueInput
+    update?: XOR<XOR<ScheduleUpdateToOneWithWhereWithoutTelesaleInput, ScheduleUpdateWithoutTelesaleInput>, ScheduleUncheckedUpdateWithoutTelesaleInput>
   }
 
   export type CompanyUpdateOneRequiredWithoutTelesalesNestedInput = {
@@ -19178,6 +21389,32 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTelesalesInput, UserUpdateWithoutTelesalesInput>, UserUncheckedUpdateWithoutTelesalesInput>
+  }
+
+  export type ScheduleUncheckedUpdateOneWithoutTelesaleNestedInput = {
+    create?: XOR<ScheduleCreateWithoutTelesaleInput, ScheduleUncheckedCreateWithoutTelesaleInput>
+    connectOrCreate?: ScheduleCreateOrConnectWithoutTelesaleInput
+    upsert?: ScheduleUpsertWithoutTelesaleInput
+    disconnect?: ScheduleWhereInput | boolean
+    delete?: ScheduleWhereInput | boolean
+    connect?: ScheduleWhereUniqueInput
+    update?: XOR<XOR<ScheduleUpdateToOneWithWhereWithoutTelesaleInput, ScheduleUpdateWithoutTelesaleInput>, ScheduleUncheckedUpdateWithoutTelesaleInput>
+  }
+
+  export type UserCreateNestedOneWithoutTelesalesKPIsInput = {
+    create?: XOR<UserCreateWithoutTelesalesKPIsInput, UserUncheckedCreateWithoutTelesalesKPIsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTelesalesKPIsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutTelesalesKPIsNestedInput = {
+    create?: XOR<UserCreateWithoutTelesalesKPIsInput, UserUncheckedCreateWithoutTelesalesKPIsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTelesalesKPIsInput
+    upsert?: UserUpsertWithoutTelesalesKPIsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTelesalesKPIsInput, UserUpdateWithoutTelesalesKPIsInput>, UserUncheckedUpdateWithoutTelesalesKPIsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -19482,9 +21719,11 @@ export namespace Prisma {
     poNumber?: string | null
     invoiceNumber?: string | null
     notes?: string | null
+    visitReport?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company?: CompanyCreateNestedOneWithoutSchedulesInput
+    telesale?: TelesaleCreateNestedOneWithoutScheduleInput
   }
 
   export type ScheduleUncheckedCreateWithoutUserInput = {
@@ -19498,9 +21737,11 @@ export namespace Prisma {
     poNumber?: string | null
     invoiceNumber?: string | null
     notes?: string | null
+    visitReport?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyId?: string | null
+    telesaleId?: string | null
   }
 
   export type ScheduleCreateOrConnectWithoutUserInput = {
@@ -19530,6 +21771,8 @@ export namespace Prisma {
     callStatus?: string | null
     forwardTo?: string | null
     callbackAt?: Date | string | null
+    visitDate?: Date | string | null
+    schedule?: ScheduleCreateNestedOneWithoutTelesaleInput
     company: CompanyCreateNestedOneWithoutTelesalesInput
   }
 
@@ -19551,6 +21794,8 @@ export namespace Prisma {
     callStatus?: string | null
     forwardTo?: string | null
     callbackAt?: Date | string | null
+    visitDate?: Date | string | null
+    schedule?: ScheduleUncheckedCreateNestedOneWithoutTelesaleInput
   }
 
   export type TelesaleCreateOrConnectWithoutUserInput = {
@@ -19624,6 +21869,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TelesalesKPICreateWithoutUserInput = {
+    id?: string
+    month: number
+    year: number
+    weeklyCallGoal?: number
+    monthlyCallGoal?: number
+    appointmentGoal?: number
+    connectionRateMin?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TelesalesKPIUncheckedCreateWithoutUserInput = {
+    id?: string
+    month: number
+    year: number
+    weeklyCallGoal?: number
+    monthlyCallGoal?: number
+    appointmentGoal?: number
+    connectionRateMin?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TelesalesKPICreateOrConnectWithoutUserInput = {
+    where: TelesalesKPIWhereUniqueInput
+    create: XOR<TelesalesKPICreateWithoutUserInput, TelesalesKPIUncheckedCreateWithoutUserInput>
+  }
+
+  export type TelesalesKPICreateManyUserInputEnvelope = {
+    data: TelesalesKPICreateManyUserInput | TelesalesKPICreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyCreateWithoutAssignedUserInput = {
     id?: string
     companyName: string
@@ -19641,6 +21920,17 @@ export namespace Prisma {
     postalCode?: string | null
     province?: string | null
     subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
@@ -19664,6 +21954,17 @@ export namespace Prisma {
     postalCode?: string | null
     province?: string | null
     subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
@@ -19763,9 +22064,11 @@ export namespace Prisma {
     poNumber?: StringNullableFilter<"Schedule"> | string | null
     invoiceNumber?: StringNullableFilter<"Schedule"> | string | null
     notes?: StringNullableFilter<"Schedule"> | string | null
+    visitReport?: StringNullableFilter<"Schedule"> | string | null
     createdAt?: DateTimeFilter<"Schedule"> | Date | string
     updatedAt?: DateTimeFilter<"Schedule"> | Date | string
     companyId?: StringNullableFilter<"Schedule"> | string | null
+    telesaleId?: StringNullableFilter<"Schedule"> | string | null
   }
 
   export type TelesaleUpsertWithWhereUniqueWithoutUserInput = {
@@ -19806,6 +22109,7 @@ export namespace Prisma {
     callStatus?: StringNullableFilter<"Telesale"> | string | null
     forwardTo?: StringNullableFilter<"Telesale"> | string | null
     callbackAt?: DateTimeNullableFilter<"Telesale"> | Date | string | null
+    visitDate?: DateTimeNullableFilter<"Telesale"> | Date | string | null
   }
 
   export type EmployeeSaleUpsertWithoutUserInput = {
@@ -19876,6 +22180,38 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MonthlyTarget"> | Date | string
   }
 
+  export type TelesalesKPIUpsertWithWhereUniqueWithoutUserInput = {
+    where: TelesalesKPIWhereUniqueInput
+    update: XOR<TelesalesKPIUpdateWithoutUserInput, TelesalesKPIUncheckedUpdateWithoutUserInput>
+    create: XOR<TelesalesKPICreateWithoutUserInput, TelesalesKPIUncheckedCreateWithoutUserInput>
+  }
+
+  export type TelesalesKPIUpdateWithWhereUniqueWithoutUserInput = {
+    where: TelesalesKPIWhereUniqueInput
+    data: XOR<TelesalesKPIUpdateWithoutUserInput, TelesalesKPIUncheckedUpdateWithoutUserInput>
+  }
+
+  export type TelesalesKPIUpdateManyWithWhereWithoutUserInput = {
+    where: TelesalesKPIScalarWhereInput
+    data: XOR<TelesalesKPIUpdateManyMutationInput, TelesalesKPIUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type TelesalesKPIScalarWhereInput = {
+    AND?: TelesalesKPIScalarWhereInput | TelesalesKPIScalarWhereInput[]
+    OR?: TelesalesKPIScalarWhereInput[]
+    NOT?: TelesalesKPIScalarWhereInput | TelesalesKPIScalarWhereInput[]
+    id?: StringFilter<"TelesalesKPI"> | string
+    userId?: StringNullableFilter<"TelesalesKPI"> | string | null
+    month?: IntFilter<"TelesalesKPI"> | number
+    year?: IntFilter<"TelesalesKPI"> | number
+    weeklyCallGoal?: IntFilter<"TelesalesKPI"> | number
+    monthlyCallGoal?: IntFilter<"TelesalesKPI"> | number
+    appointmentGoal?: IntFilter<"TelesalesKPI"> | number
+    connectionRateMin?: FloatFilter<"TelesalesKPI"> | number
+    createdAt?: DateTimeFilter<"TelesalesKPI"> | Date | string
+    updatedAt?: DateTimeFilter<"TelesalesKPI"> | Date | string
+  }
+
   export type CompanyUpsertWithWhereUniqueWithoutAssignedUserInput = {
     where: CompanyWhereUniqueInput
     update: XOR<CompanyUpdateWithoutAssignedUserInput, CompanyUncheckedUpdateWithoutAssignedUserInput>
@@ -19913,6 +22249,17 @@ export namespace Prisma {
     province?: StringNullableFilter<"Company"> | string | null
     subDistrict?: StringNullableFilter<"Company"> | string | null
     assignedUserId?: StringNullableFilter<"Company"> | string | null
+    billingAddress?: StringNullableFilter<"Company"> | string | null
+    billingSubDistrict?: StringNullableFilter<"Company"> | string | null
+    billingDistrict?: StringNullableFilter<"Company"> | string | null
+    billingProvince?: StringNullableFilter<"Company"> | string | null
+    billingPostalCode?: StringNullableFilter<"Company"> | string | null
+    shippingAddress?: StringNullableFilter<"Company"> | string | null
+    shippingSubDistrict?: StringNullableFilter<"Company"> | string | null
+    shippingDistrict?: StringNullableFilter<"Company"> | string | null
+    shippingProvince?: StringNullableFilter<"Company"> | string | null
+    shippingPostalCode?: StringNullableFilter<"Company"> | string | null
+    paymentMethod?: StringNullableFilter<"Company"> | string | null
   }
 
   export type UserCreateWithoutMonthlyTargetsInput = {
@@ -19933,6 +22280,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -19954,6 +22302,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -19991,6 +22340,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
   }
 
@@ -20012,6 +22362,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
@@ -20033,6 +22384,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -20054,6 +22406,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -20079,6 +22432,17 @@ export namespace Prisma {
     postalCode?: string | null
     province?: string | null
     subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
@@ -20103,6 +22467,17 @@ export namespace Prisma {
     province?: string | null
     subDistrict?: string | null
     assignedUserId?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
@@ -20111,6 +22486,55 @@ export namespace Prisma {
   export type CompanyCreateOrConnectWithoutSchedulesInput = {
     where: CompanyWhereUniqueInput
     create: XOR<CompanyCreateWithoutSchedulesInput, CompanyUncheckedCreateWithoutSchedulesInput>
+  }
+
+  export type TelesaleCreateWithoutScheduleInput = {
+    id?: string
+    conversationSummary?: string | null
+    needsOrProblems?: string | null
+    meetingObjective?: string | null
+    competitorName?: string | null
+    competitorPrice?: number | null
+    competitorPromotion?: string | null
+    lastMeetingDate?: Date | string | null
+    result?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    callDate?: Date | string | null
+    callOutcome?: string | null
+    callStatus?: string | null
+    forwardTo?: string | null
+    callbackAt?: Date | string | null
+    visitDate?: Date | string | null
+    company: CompanyCreateNestedOneWithoutTelesalesInput
+    user?: UserCreateNestedOneWithoutTelesalesInput
+  }
+
+  export type TelesaleUncheckedCreateWithoutScheduleInput = {
+    id?: string
+    companyId: string
+    userId?: string | null
+    conversationSummary?: string | null
+    needsOrProblems?: string | null
+    meetingObjective?: string | null
+    competitorName?: string | null
+    competitorPrice?: number | null
+    competitorPromotion?: string | null
+    lastMeetingDate?: Date | string | null
+    result?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    callDate?: Date | string | null
+    callOutcome?: string | null
+    callStatus?: string | null
+    forwardTo?: string | null
+    callbackAt?: Date | string | null
+    visitDate?: Date | string | null
+  }
+
+  export type TelesaleCreateOrConnectWithoutScheduleInput = {
+    where: TelesaleWhereUniqueInput
+    create: XOR<TelesaleCreateWithoutScheduleInput, TelesaleUncheckedCreateWithoutScheduleInput>
   }
 
   export type UserUpsertWithoutSchedulesInput = {
@@ -20142,6 +22566,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
   }
 
@@ -20163,6 +22588,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
@@ -20194,6 +22620,17 @@ export namespace Prisma {
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
@@ -20218,9 +22655,75 @@ export namespace Prisma {
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type TelesaleUpsertWithoutScheduleInput = {
+    update: XOR<TelesaleUpdateWithoutScheduleInput, TelesaleUncheckedUpdateWithoutScheduleInput>
+    create: XOR<TelesaleCreateWithoutScheduleInput, TelesaleUncheckedCreateWithoutScheduleInput>
+    where?: TelesaleWhereInput
+  }
+
+  export type TelesaleUpdateToOneWithWhereWithoutScheduleInput = {
+    where?: TelesaleWhereInput
+    data: XOR<TelesaleUpdateWithoutScheduleInput, TelesaleUncheckedUpdateWithoutScheduleInput>
+  }
+
+  export type TelesaleUpdateWithoutScheduleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    conversationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    needsOrProblems?: NullableStringFieldUpdateOperationsInput | string | null
+    meetingObjective?: NullableStringFieldUpdateOperationsInput | string | null
+    competitorName?: NullableStringFieldUpdateOperationsInput | string | null
+    competitorPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    competitorPromotion?: NullableStringFieldUpdateOperationsInput | string | null
+    lastMeetingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    result?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    callDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    callOutcome?: NullableStringFieldUpdateOperationsInput | string | null
+    callStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
+    callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: CompanyUpdateOneRequiredWithoutTelesalesNestedInput
+    user?: UserUpdateOneWithoutTelesalesNestedInput
+  }
+
+  export type TelesaleUncheckedUpdateWithoutScheduleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    needsOrProblems?: NullableStringFieldUpdateOperationsInput | string | null
+    meetingObjective?: NullableStringFieldUpdateOperationsInput | string | null
+    competitorName?: NullableStringFieldUpdateOperationsInput | string | null
+    competitorPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    competitorPromotion?: NullableStringFieldUpdateOperationsInput | string | null
+    lastMeetingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    result?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    callDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    callOutcome?: NullableStringFieldUpdateOperationsInput | string | null
+    callStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
+    callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserCreateWithoutEmployeeSaleInput = {
@@ -20241,6 +22744,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -20262,6 +22766,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -20299,6 +22804,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
   }
 
@@ -20320,6 +22826,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
   }
 
@@ -20328,6 +22835,8 @@ export namespace Prisma {
     contactName: string
     position?: string | null
     mobilePhone?: string | null
+    email?: string | null
+    isETaxReceiver?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     quotations?: QuotationCreateNestedManyWithoutContactInput
@@ -20338,6 +22847,8 @@ export namespace Prisma {
     contactName: string
     position?: string | null
     mobilePhone?: string | null
+    email?: string | null
+    isETaxReceiver?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     quotations?: QuotationUncheckedCreateNestedManyWithoutContactInput
@@ -20444,6 +22955,8 @@ export namespace Prisma {
     callStatus?: string | null
     forwardTo?: string | null
     callbackAt?: Date | string | null
+    visitDate?: Date | string | null
+    schedule?: ScheduleCreateNestedOneWithoutTelesaleInput
     user?: UserCreateNestedOneWithoutTelesalesInput
   }
 
@@ -20465,6 +22978,8 @@ export namespace Prisma {
     callStatus?: string | null
     forwardTo?: string | null
     callbackAt?: Date | string | null
+    visitDate?: Date | string | null
+    schedule?: ScheduleUncheckedCreateNestedOneWithoutTelesaleInput
   }
 
   export type TelesaleCreateOrConnectWithoutCompanyInput = {
@@ -20488,9 +23003,11 @@ export namespace Prisma {
     poNumber?: string | null
     invoiceNumber?: string | null
     notes?: string | null
+    visitReport?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutSchedulesInput
+    telesale?: TelesaleCreateNestedOneWithoutScheduleInput
   }
 
   export type ScheduleUncheckedCreateWithoutCompanyInput = {
@@ -20505,8 +23022,10 @@ export namespace Prisma {
     poNumber?: string | null
     invoiceNumber?: string | null
     notes?: string | null
+    visitReport?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    telesaleId?: string | null
   }
 
   export type ScheduleCreateOrConnectWithoutCompanyInput = {
@@ -20538,6 +23057,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAssignedCompaniesInput = {
@@ -20559,6 +23079,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAssignedCompaniesInput = {
@@ -20591,6 +23112,8 @@ export namespace Prisma {
     contactName?: StringFilter<"Contact"> | string
     position?: StringNullableFilter<"Contact"> | string | null
     mobilePhone?: StringNullableFilter<"Contact"> | string | null
+    email?: StringNullableFilter<"Contact"> | string | null
+    isETaxReceiver?: BoolFilter<"Contact"> | boolean
     createdAt?: DateTimeFilter<"Contact"> | Date | string
     updatedAt?: DateTimeFilter<"Contact"> | Date | string
   }
@@ -20673,6 +23196,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedCompaniesInput = {
@@ -20694,6 +23218,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CompanyCreateWithoutContactsInput = {
@@ -20713,6 +23238,17 @@ export namespace Prisma {
     postalCode?: string | null
     province?: string | null
     subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -20737,6 +23273,17 @@ export namespace Prisma {
     province?: string | null
     subDistrict?: string | null
     assignedUserId?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -20849,6 +23396,17 @@ export namespace Prisma {
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -20873,6 +23431,17 @@ export namespace Prisma {
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -20911,6 +23480,17 @@ export namespace Prisma {
     postalCode?: string | null
     province?: string | null
     subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -20935,6 +23515,17 @@ export namespace Prisma {
     province?: string | null
     subDistrict?: string | null
     assignedUserId?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -20950,6 +23541,8 @@ export namespace Prisma {
     contactName: string
     position?: string | null
     mobilePhone?: string | null
+    email?: string | null
+    isETaxReceiver?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutContactsInput
@@ -20961,6 +23554,8 @@ export namespace Prisma {
     contactName: string
     position?: string | null
     mobilePhone?: string | null
+    email?: string | null
+    isETaxReceiver?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20988,6 +23583,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -21009,6 +23605,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -21045,6 +23642,17 @@ export namespace Prisma {
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -21069,6 +23677,17 @@ export namespace Prisma {
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -21090,6 +23709,8 @@ export namespace Prisma {
     contactName?: StringFieldUpdateOperationsInput | string
     position?: NullableStringFieldUpdateOperationsInput | string | null
     mobilePhone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    isETaxReceiver?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutContactsNestedInput
@@ -21101,6 +23722,8 @@ export namespace Prisma {
     contactName?: StringFieldUpdateOperationsInput | string
     position?: NullableStringFieldUpdateOperationsInput | string | null
     mobilePhone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    isETaxReceiver?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21134,6 +23757,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
   }
 
@@ -21155,7 +23779,49 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+  }
+
+  export type ScheduleCreateWithoutTelesaleInput = {
+    id?: string
+    title: string
+    description?: string | null
+    date: Date | string
+    status?: string
+    presentationStatus?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    invoiceNumber?: string | null
+    notes?: string | null
+    visitReport?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutSchedulesInput
+    company?: CompanyCreateNestedOneWithoutSchedulesInput
+  }
+
+  export type ScheduleUncheckedCreateWithoutTelesaleInput = {
+    id?: string
+    userId: string
+    title: string
+    description?: string | null
+    date: Date | string
+    status?: string
+    presentationStatus?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    invoiceNumber?: string | null
+    notes?: string | null
+    visitReport?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    companyId?: string | null
+  }
+
+  export type ScheduleCreateOrConnectWithoutTelesaleInput = {
+    where: ScheduleWhereUniqueInput
+    create: XOR<ScheduleCreateWithoutTelesaleInput, ScheduleUncheckedCreateWithoutTelesaleInput>
   }
 
   export type CompanyCreateWithoutTelesalesInput = {
@@ -21175,6 +23841,17 @@ export namespace Prisma {
     postalCode?: string | null
     province?: string | null
     subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -21199,6 +23876,17 @@ export namespace Prisma {
     province?: string | null
     subDistrict?: string | null
     assignedUserId?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -21227,6 +23915,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
   }
 
@@ -21248,12 +23937,60 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
   }
 
   export type UserCreateOrConnectWithoutTelesalesInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutTelesalesInput, UserUncheckedCreateWithoutTelesalesInput>
+  }
+
+  export type ScheduleUpsertWithoutTelesaleInput = {
+    update: XOR<ScheduleUpdateWithoutTelesaleInput, ScheduleUncheckedUpdateWithoutTelesaleInput>
+    create: XOR<ScheduleCreateWithoutTelesaleInput, ScheduleUncheckedCreateWithoutTelesaleInput>
+    where?: ScheduleWhereInput
+  }
+
+  export type ScheduleUpdateToOneWithWhereWithoutTelesaleInput = {
+    where?: ScheduleWhereInput
+    data: XOR<ScheduleUpdateWithoutTelesaleInput, ScheduleUncheckedUpdateWithoutTelesaleInput>
+  }
+
+  export type ScheduleUpdateWithoutTelesaleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    presentationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSchedulesNestedInput
+    company?: CompanyUpdateOneWithoutSchedulesNestedInput
+  }
+
+  export type ScheduleUncheckedUpdateWithoutTelesaleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    presentationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CompanyUpsertWithoutTelesalesInput = {
@@ -21284,6 +24021,17 @@ export namespace Prisma {
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -21308,6 +24056,17 @@ export namespace Prisma {
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
     assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -21342,6 +24101,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
   }
 
@@ -21361,6 +24121,111 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+  }
+
+  export type UserCreateWithoutTelesalesKPIsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+  }
+
+  export type UserUncheckedCreateWithoutTelesalesKPIsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+  }
+
+  export type UserCreateOrConnectWithoutTelesalesKPIsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTelesalesKPIsInput, UserUncheckedCreateWithoutTelesalesKPIsInput>
+  }
+
+  export type UserUpsertWithoutTelesalesKPIsInput = {
+    update: XOR<UserUpdateWithoutTelesalesKPIsInput, UserUncheckedUpdateWithoutTelesalesKPIsInput>
+    create: XOR<UserCreateWithoutTelesalesKPIsInput, UserUncheckedCreateWithoutTelesalesKPIsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTelesalesKPIsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTelesalesKPIsInput, UserUncheckedUpdateWithoutTelesalesKPIsInput>
+  }
+
+  export type UserUpdateWithoutTelesalesKPIsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTelesalesKPIsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
@@ -21409,9 +24274,11 @@ export namespace Prisma {
     poNumber?: string | null
     invoiceNumber?: string | null
     notes?: string | null
+    visitReport?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyId?: string | null
+    telesaleId?: string | null
   }
 
   export type TelesaleCreateManyUserInput = {
@@ -21432,6 +24299,7 @@ export namespace Prisma {
     callStatus?: string | null
     forwardTo?: string | null
     callbackAt?: Date | string | null
+    visitDate?: Date | string | null
   }
 
   export type MonthlyTargetCreateManyUserInput = {
@@ -21439,6 +24307,18 @@ export namespace Prisma {
     month: number
     year: number
     amount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TelesalesKPICreateManyUserInput = {
+    id?: string
+    month: number
+    year: number
+    weeklyCallGoal?: number
+    monthlyCallGoal?: number
+    appointmentGoal?: number
+    connectionRateMin?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -21460,6 +24340,17 @@ export namespace Prisma {
     postalCode?: string | null
     province?: string | null
     subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
   }
 
   export type QuotationUpdateWithoutSalespersonInput = {
@@ -21569,9 +24460,11 @@ export namespace Prisma {
     poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneWithoutSchedulesNestedInput
+    telesale?: TelesaleUpdateOneWithoutScheduleNestedInput
   }
 
   export type ScheduleUncheckedUpdateWithoutUserInput = {
@@ -21585,9 +24478,11 @@ export namespace Prisma {
     poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    telesaleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ScheduleUncheckedUpdateManyWithoutUserInput = {
@@ -21601,9 +24496,11 @@ export namespace Prisma {
     poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    telesaleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TelesaleUpdateWithoutUserInput = {
@@ -21623,6 +24520,8 @@ export namespace Prisma {
     callStatus?: NullableStringFieldUpdateOperationsInput | string | null
     forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
     callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    schedule?: ScheduleUpdateOneWithoutTelesaleNestedInput
     company?: CompanyUpdateOneRequiredWithoutTelesalesNestedInput
   }
 
@@ -21644,6 +24543,8 @@ export namespace Prisma {
     callStatus?: NullableStringFieldUpdateOperationsInput | string | null
     forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
     callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    schedule?: ScheduleUncheckedUpdateOneWithoutTelesaleNestedInput
   }
 
   export type TelesaleUncheckedUpdateManyWithoutUserInput = {
@@ -21664,6 +24565,7 @@ export namespace Prisma {
     callStatus?: NullableStringFieldUpdateOperationsInput | string | null
     forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
     callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type MonthlyTargetUpdateWithoutUserInput = {
@@ -21693,6 +24595,42 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TelesalesKPIUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    weeklyCallGoal?: IntFieldUpdateOperationsInput | number
+    monthlyCallGoal?: IntFieldUpdateOperationsInput | number
+    appointmentGoal?: IntFieldUpdateOperationsInput | number
+    connectionRateMin?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TelesalesKPIUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    weeklyCallGoal?: IntFieldUpdateOperationsInput | number
+    monthlyCallGoal?: IntFieldUpdateOperationsInput | number
+    appointmentGoal?: IntFieldUpdateOperationsInput | number
+    connectionRateMin?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TelesalesKPIUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    weeklyCallGoal?: IntFieldUpdateOperationsInput | number
+    monthlyCallGoal?: IntFieldUpdateOperationsInput | number
+    appointmentGoal?: IntFieldUpdateOperationsInput | number
+    connectionRateMin?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CompanyUpdateWithoutAssignedUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     companyName?: StringFieldUpdateOperationsInput | string
@@ -21710,6 +24648,17 @@ export namespace Prisma {
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
@@ -21733,6 +24682,17 @@ export namespace Prisma {
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -21756,6 +24716,17 @@ export namespace Prisma {
     postalCode?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
     subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ContactCreateManyCompanyInput = {
@@ -21763,6 +24734,8 @@ export namespace Prisma {
     contactName: string
     position?: string | null
     mobilePhone?: string | null
+    email?: string | null
+    isETaxReceiver?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -21817,6 +24790,7 @@ export namespace Prisma {
     callStatus?: string | null
     forwardTo?: string | null
     callbackAt?: Date | string | null
+    visitDate?: Date | string | null
   }
 
   export type ScheduleCreateManyCompanyInput = {
@@ -21831,8 +24805,10 @@ export namespace Prisma {
     poNumber?: string | null
     invoiceNumber?: string | null
     notes?: string | null
+    visitReport?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    telesaleId?: string | null
   }
 
   export type ContactUpdateWithoutCompanyInput = {
@@ -21840,6 +24816,8 @@ export namespace Prisma {
     contactName?: StringFieldUpdateOperationsInput | string
     position?: NullableStringFieldUpdateOperationsInput | string | null
     mobilePhone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    isETaxReceiver?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     quotations?: QuotationUpdateManyWithoutContactNestedInput
@@ -21850,6 +24828,8 @@ export namespace Prisma {
     contactName?: StringFieldUpdateOperationsInput | string
     position?: NullableStringFieldUpdateOperationsInput | string | null
     mobilePhone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    isETaxReceiver?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     quotations?: QuotationUncheckedUpdateManyWithoutContactNestedInput
@@ -21860,6 +24840,8 @@ export namespace Prisma {
     contactName?: StringFieldUpdateOperationsInput | string
     position?: NullableStringFieldUpdateOperationsInput | string | null
     mobilePhone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    isETaxReceiver?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21977,6 +24959,8 @@ export namespace Prisma {
     callStatus?: NullableStringFieldUpdateOperationsInput | string | null
     forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
     callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    schedule?: ScheduleUpdateOneWithoutTelesaleNestedInput
     user?: UserUpdateOneWithoutTelesalesNestedInput
   }
 
@@ -21998,6 +24982,8 @@ export namespace Prisma {
     callStatus?: NullableStringFieldUpdateOperationsInput | string | null
     forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
     callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    schedule?: ScheduleUncheckedUpdateOneWithoutTelesaleNestedInput
   }
 
   export type TelesaleUncheckedUpdateManyWithoutCompanyInput = {
@@ -22018,6 +25004,7 @@ export namespace Prisma {
     callStatus?: NullableStringFieldUpdateOperationsInput | string | null
     forwardTo?: NullableStringFieldUpdateOperationsInput | string | null
     callbackAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ScheduleUpdateWithoutCompanyInput = {
@@ -22031,9 +25018,11 @@ export namespace Prisma {
     poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSchedulesNestedInput
+    telesale?: TelesaleUpdateOneWithoutScheduleNestedInput
   }
 
   export type ScheduleUncheckedUpdateWithoutCompanyInput = {
@@ -22048,8 +25037,10 @@ export namespace Prisma {
     poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    telesaleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ScheduleUncheckedUpdateManyWithoutCompanyInput = {
@@ -22064,8 +25055,10 @@ export namespace Prisma {
     poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    visitReport?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    telesaleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type QuotationCreateManyContactInput = {

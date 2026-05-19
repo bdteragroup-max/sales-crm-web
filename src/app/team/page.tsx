@@ -34,7 +34,7 @@ export default async function TeamPage() {
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
       <Sidebar activeRoute="/team" userFullName={user.fullName} userId={user.id} userRole={user.role} />
       
-      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-10">
+      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
         <div className="max-w-6xl mx-auto w-full">
           {/* Header */}
           <div className="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">

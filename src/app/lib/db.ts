@@ -18,12 +18,11 @@ const prismaClientSingleton = () => {
 }
 
 declare global {
-  var prisma_instance_v5: undefined | ReturnType<typeof prismaClientSingleton>
+  var prisma_instance_v9: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
-// Using a versioned key to force re-initialization after schema changes
-const prisma = globalThis.prisma_instance_v5 ?? prismaClientSingleton()
+const prisma = globalThis.prisma_instance_v9 ?? prismaClientSingleton()
 
 export default prisma
 
-if (process.env.NODE_ENV !== 'production') globalThis.prisma_instance_v5 = prisma
+if (process.env.NODE_ENV !== 'production') globalThis.prisma_instance_v9 = prisma

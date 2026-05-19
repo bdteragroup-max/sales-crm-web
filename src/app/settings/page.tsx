@@ -4,7 +4,7 @@ import prisma from '@/app/lib/db'
 import Sidebar from '@/app/components/Sidebar'
 import SettingsClientPage from './SettingsClientPage'
 import { redirect } from 'next/navigation'
-import { getMonthlyTargets } from '@/app/actions/settings'
+import { getMonthlyTargets, getTelesalesKPIs } from '@/app/actions/settings'
 
 export default async function SettingsPage() {
   const user = await getUser()
@@ -15,7 +15,7 @@ export default async function SettingsPage() {
 
   const isManager = user.role === 'ผู้จัดการ'
 
-  const [staffList, initialTargets] = await Promise.all([
+  const [staffList, initialTargets, initialTelesalesKPIs] = await Promise.all([
     prisma.user.findMany({
       where: isManager ? { 
         employeeSale: { teamLeader: user.fullName },
@@ -27,16 +27,18 @@ export default async function SettingsPage() {
       },
       select: { id: true, fullName: true, position: true }
     }),
-    getMonthlyTargets(currentMonth, currentYear)
+    getMonthlyTargets(currentMonth, currentYear),
+    getTelesalesKPIs(currentMonth, currentYear)
   ])
 
   return (
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
       <Sidebar activeRoute="/settings" userFullName={user.fullName} userId={user.id} userRole={user.role} />
-      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50">
+      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 pb-24 md:pb-0">
         <SettingsClientPage 
           staffList={staffList}
           initialTargets={initialTargets}
+          initialTelesalesKPIs={JSON.parse(JSON.stringify(initialTelesalesKPIs))}
           isManager={isManager}
         />
       </main>

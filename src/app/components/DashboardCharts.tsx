@@ -17,12 +17,12 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
         >
           <defs>
             <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#ff2301" stopOpacity={0.1}/>
-              <stop offset="95%" stopColor="#ff2301" stopOpacity={0}/>
+              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.1}/>
+              <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
             </linearGradient>
             <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.1}/>
-              <stop offset="95%" stopColor="#D4AF37" stopOpacity={0}/>
+              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
             </linearGradient>
             <linearGradient id="colorMeetings" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#4B5563" stopOpacity={0.1}/>
@@ -67,15 +67,15 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
             labelStyle={{ fontWeight: 'bold', marginBottom: '8px', fontSize: '12px' }}
             itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
             formatter={(value: any, name: any, props: any) => {
-              if (name === 'ยอดขายสะสม') return [`฿${value.toLocaleString()}`, name];
+              if (name === 'ยอดขายสะสม' || name === 'ยอดสะสมรอบก่อน') return [`฿${value.toLocaleString()}`, name];
               if (name === 'ยอดพรีเมียมรายวัน') {
                 const hit = props.payload?.hitTarget;
                 const suffix = hasDailyTarget 
-                  ? (hit ? ' ✅ ถึงเป้า' : ' ⚠️ ไม่ถึงเป้า') 
+                  ? (hit ? ' [ถึงเป้า]' : ' [ไม่ถึงเป้า]') 
                   : '';
                 return [`฿${value.toLocaleString()}${suffix}`, name];
               }
-              if (name === 'เป้ารายวัน') return [`฿${value.toLocaleString()}`, name];
+              if (name === 'เป้าหมายสะสม' || name === 'เป้ารายวัน' || name === 'เป้ารอบก่อน') return [`฿${value.toLocaleString()}`, name];
               return [value, name];
             }}
           />
@@ -85,12 +85,12 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
             <ReferenceLine
               yAxisId="left"
               y={dailyTarget}
-              stroke="#D4AF37"
+              stroke="#10b981"
               strokeDasharray="6 3"
               strokeWidth={2}
               label={{
                 value: `เป้า/วัน ฿${Math.round(dailyTarget).toLocaleString()}`,
-                fill: '#D4AF37',
+                fill: '#10b981',
                 fontSize: 10,
                 fontWeight: 'bold',
                 position: 'insideTopRight',
@@ -108,8 +108,8 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
           >
             {data.map((entry: any, index: number) => {
               const color = hasDailyTarget 
-                ? (entry.hitTarget ? '#22c55e' : '#ff2301') 
-                : '#ff2301'; // Default to theme red if no target
+                ? (entry.hitTarget ? '#22c55e' : '#ef4444') 
+                : '#ef4444'; // Default to theme red if no target
               return (
                 <RechartsCell
                   key={`bar-${index}`}
@@ -126,8 +126,8 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
               yAxisId="left"
               type="monotone"
               dataKey="cumulativeTarget"
-              name="เป้ารายวัน"
-              stroke="#D4AF37"
+              name="เป้าหมายสะสม"
+              stroke="#3b82f6"
               strokeWidth={1.5}
               strokeDasharray="6 3"
               dot={false}
@@ -141,7 +141,7 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
               type="monotone" 
               dataKey="cumulativeSales" 
               name="ยอดขายสะสม"
-              stroke="#ff2301" 
+              stroke="#ef4444" 
               strokeWidth={3} 
               fillOpacity={1} 
               fill="url(#colorSales)"
@@ -158,7 +158,7 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
               type="monotone" 
               dataKey="calls" 
               name="โทร"
-              stroke="#D4AF37" 
+              stroke="#8b5cf6" 
               strokeWidth={2} 
               fillOpacity={1} 
               fill="url(#colorCalls)"
@@ -1015,5 +1015,161 @@ export function ForecastAccuracyChart({ data }: { data: any[] }) {
         <Line yAxisId="right" type="monotone" dataKey="accuracy" name="ความแม่นยำ" stroke="#22c55e" strokeWidth={3} dot={{ r: 5, strokeWidth: 2, fill: '#fff', stroke: '#22c55e' }} />
       </ComposedChart>
     </ResponsiveContainer>
+  );
+}
+
+export function TelesalesComposedChart({ data }: { data: any[] }) {
+  if (!data || data.length === 0) return <div className="h-full flex items-center justify-center text-gray-400">กำลังโหลดข้อมูล...</div>;
+
+  return (
+    <div className="h-full w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart
+          data={data}
+          margin={{ top: 15, right: 10, left: 10, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+          
+          <XAxis 
+            dataKey="date" 
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: '#94a3b8', fontSize: 10 }} 
+            dy={10}
+            tickFormatter={(str) => {
+              try {
+                const date = new Date(str);
+                return date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+              } catch (e) {
+                return str;
+              }
+            }}
+          />
+          
+          <YAxis 
+            yAxisId="left"
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: '#94a3b8', fontSize: 10 }}
+            dx={-10}
+            domain={[0, 'auto']}
+            allowDecimals={false}
+          />
+          
+          <YAxis 
+            yAxisId="right"
+            orientation="right"
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: '#D4AF37', fontSize: 10 }}
+            dx={10}
+            domain={[0, 'auto']}
+            allowDecimals={false}
+          />
+          
+          <RechartsTooltip 
+            contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
+            labelStyle={{ fontWeight: 'bold', marginBottom: '8px', fontSize: '12px' }}
+            itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
+          />
+          
+          <Legend verticalAlign="top" align="center" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '15px' }} />
+
+          <Bar 
+            yAxisId="left" 
+            dataKey="calls" 
+            name="จำนวนสายที่โทร (ครั้ง)" 
+            fill="#ff2301" 
+            radius={[4, 4, 0, 0]} 
+            barSize={12} 
+            fillOpacity={0.65} 
+          />
+          <Line 
+            yAxisId="right" 
+            type="monotone" 
+            dataKey="appointments" 
+            name="นัดหมาย/สนใจ (ราย)" 
+            stroke="#D4AF37" 
+            strokeWidth={3} 
+            dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#D4AF37' }} 
+            activeDot={{ r: 6 }}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+export function TelesalesFunnelChart({ 
+  currentFunnel, 
+  teamBenchmark 
+}: { 
+  currentFunnel: {
+    outreach: number;
+    connected: number;
+    qualified: number;
+    forwarded: number;
+  },
+  teamBenchmark: {
+    connectedRate: number;
+    qualifiedRate: number;
+    forwardedRate: number;
+  }
+}) {
+  const { outreach, connected, qualified, forwarded } = currentFunnel;
+
+  const connectedPct = outreach > 0 ? (connected / outreach) * 100 : 0;
+  const qualifiedPct = outreach > 0 ? (qualified / outreach) * 100 : 0;
+  const forwardedPct = outreach > 0 ? (forwarded / outreach) * 100 : 0;
+
+  const stages = [
+    { label: '1. ลูกค้าที่ติดต่อทั้งหมด', value: outreach, pct: 100, unit: 'ราย', benchmark: null, color: 'from-slate-700 to-slate-800' },
+    { label: '2. รับสาย/ติดต่อได้สำเร็จ', value: connected, pct: connectedPct, unit: 'ราย', benchmark: teamBenchmark.connectedRate, color: 'from-blue-500 to-indigo-600' },
+    { label: '3. สนใจ / นัดหมายสำเร็จ', value: qualified, pct: qualifiedPct, unit: 'ราย', benchmark: teamBenchmark.qualifiedRate, color: 'from-amber-500 to-orange-600' },
+    { label: '4. ส่งต่อดีลให้ทีมขายหน้างาน', value: forwarded, pct: forwardedPct, unit: 'ราย', benchmark: teamBenchmark.forwardedRate, color: 'from-red-500 to-rose-600' },
+  ];
+
+  return (
+    <div className="w-full space-y-6 py-2">
+      {stages.map((stage, idx) => (
+        <div key={idx} className="space-y-2">
+          <div className="flex justify-between items-end text-xs font-bold">
+            <span className="text-slate-600">{stage.label}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-slate-900 font-black">{stage.value.toLocaleString()} {stage.unit}</span>
+              <span className="text-slate-400 font-medium">({stage.pct.toFixed(1)}%)</span>
+            </div>
+          </div>
+          <div className="relative h-6 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner flex items-center">
+            {/* Active stage bar */}
+            <div 
+              className={`h-full rounded-full bg-gradient-to-r ${stage.color} transition-all duration-1000 ease-out`}
+              style={{ width: `${stage.pct}%` }}
+            />
+            {/* Dynamic Benchmark Tick Marker Overlay */}
+            {stage.benchmark !== null && stage.benchmark > 0 && (
+              <div 
+                className="absolute top-0 bottom-0 w-0.5 border-l-2 border-dashed border-yellow-500 z-10"
+                style={{ left: `${stage.benchmark}%` }}
+                title={`ค่าเฉลี่ยทีม: ${stage.benchmark.toFixed(1)}%`}
+              />
+            )}
+          </div>
+          {/* Subtext displaying exact benchmark vs current */}
+          {stage.benchmark !== null && (
+            <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold px-1">
+              <span>
+                ค่าเฉลี่ยทีม (Team Benchmark): <strong className="text-slate-500">{stage.benchmark.toFixed(1)}%</strong>
+              </span>
+              {stage.pct >= stage.benchmark ? (
+                <span className="text-emerald-600 font-black">▲ สูงกว่าค่าเฉลี่ย (+{(stage.pct - stage.benchmark).toFixed(1)}%)</span>
+              ) : (
+                <span className="text-rose-500 font-black">▼ ต่ำกว่าค่าเฉลี่ย ({(stage.pct - stage.benchmark).toFixed(1)}%)</span>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
   );
 }

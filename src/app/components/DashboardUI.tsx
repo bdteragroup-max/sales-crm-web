@@ -6,7 +6,8 @@ import {
   ArrowUpRight, Target, BarChart3, MapPin,
   Users, Briefcase, ChevronDown, Check, Calendar, Clock,
   PieChart as PieIcon, LineChart as LineIcon, AlertCircle,
-  Zap, Package, DollarSign, ArrowRight
+  Zap, Package, DollarSign, ArrowRight,
+  Lock, TrendingDown, AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { 
   SalesOverviewChart, ProductMixPieChart, 
@@ -16,7 +17,7 @@ import {
   ComposedActivityCorrelationChart, PipelineComposedStageChart,
   ProductPerformanceComposedChart, RegionalComposedChart,
   LostReasonSummaryChart, LostReasonByProductChart,
-  ForecastAccuracyChart
+  ForecastAccuracyChart, TelesalesComposedChart, TelesalesFunnelChart
 } from './DashboardCharts';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -57,6 +58,12 @@ interface DashboardUIProps {
       previous: { newDeals: number, wonDeals: number, lostDeals: number, netChange: number };
       mom: { newPct: number, wonPct: number, lostPct: number, netPct: number };
     };
+    telesalesKPIs?: {
+      weeklyCallGoal: number;
+      monthlyCallGoal: number;
+      appointmentGoal: number;
+      connectionRateMin: number;
+    };
   };
   recentActivities: any[];
   nextMeetings: any[];
@@ -88,6 +95,8 @@ interface DashboardUIProps {
   atRiskCustomers: any[];
   atRiskDays: number;
   alerts: any[];
+  telesalesRecords?: any[];
+  telesalesBenchmark?: any[];
 }
 
 export default function DashboardUI({
@@ -121,6 +130,8 @@ export default function DashboardUI({
   atRiskCustomers,
   atRiskDays,
   alerts,
+  telesalesRecords = [],
+  telesalesBenchmark = [],
 }: DashboardUIProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -152,6 +163,7 @@ export default function DashboardUI({
   const [showMoMOverlay, setShowMoMOverlay] = React.useState(false);
   const [showAllAlerts, setShowAllAlerts] = React.useState(false);
   const [advancedTab, setAdvancedTab] = React.useState<'customer' | 'forecast'>('customer');
+  const [activeDashboardTab, setActiveDashboardTab] = React.useState<'sales' | 'telesales'>('sales');
 
   const todayStr = new Date().toLocaleDateString('th-TH', {
     day: 'numeric', month: 'long', year: 'numeric'
@@ -175,28 +187,140 @@ export default function DashboardUI({
     return a.salesPerCustomer - b.salesPerCustomer;
   });
 
+  // --- Telesales Analytics Data Processing ---
+  const uniqueCompaniesOutreach = new Set<string>();
+  const uniqueCompaniesConnected = new Set<string>();
+  const uniqueCompaniesQualified = new Set<string>();
+  const uniqueCompaniesForwarded = new Set<string>();
+
+  telesalesRecords.forEach((r: any) => {
+    if (r.companyId) {
+      uniqueCompaniesOutreach.add(r.companyId);
+      if (r.callStatus === 'รับสาย') {
+        uniqueCompaniesConnected.add(r.companyId);
+      }
+      if (r.callOutcome === 'สนใจ' || r.callOutcome === 'นัดหมายสำเร็จ') {
+        uniqueCompaniesQualified.add(r.companyId);
+      }
+      if (r.forwardTo && r.forwardTo.trim()) {
+        uniqueCompaniesForwarded.add(r.companyId);
+      }
+    }
+  });
+
+  const currentFunnel = {
+    outreach: uniqueCompaniesOutreach.size,
+    connected: uniqueCompaniesConnected.size,
+    qualified: uniqueCompaniesQualified.size,
+    forwarded: uniqueCompaniesForwarded.size,
+  };
+
+  const connectedPct = currentFunnel.outreach > 0 ? (currentFunnel.connected / currentFunnel.outreach) * 100 : 0;
+  const qualifiedPct = currentFunnel.outreach > 0 ? (currentFunnel.qualified / currentFunnel.outreach) * 100 : 0;
+  const forwardedPct = currentFunnel.outreach > 0 ? (currentFunnel.forwarded / currentFunnel.outreach) * 100 : 0;
+
+  // Team Benchmark (All telesales in active period)
+  const uniqueBenchmarkOutreach = new Set<string>();
+  const uniqueBenchmarkConnected = new Set<string>();
+  const uniqueBenchmarkQualified = new Set<string>();
+  const uniqueBenchmarkForwarded = new Set<string>();
+
+  telesalesBenchmark.forEach((r: any) => {
+    if (r.companyId) {
+      uniqueBenchmarkOutreach.add(r.companyId);
+      if (r.callStatus === 'รับสาย') {
+        uniqueBenchmarkConnected.add(r.companyId);
+      }
+      if (r.callOutcome === 'สนใจ' || r.callOutcome === 'นัดหมายสำเร็จ') {
+        uniqueBenchmarkQualified.add(r.companyId);
+      }
+      if (r.forwardTo && r.forwardTo.trim()) {
+        uniqueBenchmarkForwarded.add(r.companyId);
+      }
+    }
+  });
+
+  const benchmarkOutreachSize = uniqueBenchmarkOutreach.size;
+  const teamBenchmark = {
+    connectedRate: benchmarkOutreachSize > 0 ? (uniqueBenchmarkConnected.size / benchmarkOutreachSize) * 100 : 0,
+    qualifiedRate: benchmarkOutreachSize > 0 ? (uniqueBenchmarkQualified.size / benchmarkOutreachSize) * 100 : 0,
+    forwardedRate: benchmarkOutreachSize > 0 ? (uniqueBenchmarkForwarded.size / benchmarkOutreachSize) * 100 : 0,
+  };
+
+  // Daily composed calls & appointments data
+  const telesalesDailyData = dailyTrend.map((entry: any) => {
+    const dayRecords = telesalesRecords.filter((r: any) => {
+      try {
+        const entryDate = new Date(entry.date).toDateString();
+        const rDate = new Date(r.callDate || r.createdAt).toDateString();
+        return entryDate === rDate;
+      } catch (e) {
+        return false;
+      }
+    });
+
+    const appointmentsCount = dayRecords.filter(
+      (r: any) => r.callOutcome === 'สนใจ' || r.callOutcome === 'นัดหมายสำเร็จ'
+    ).length;
+
+    return {
+      date: entry.date,
+      calls: dayRecords.length,
+      appointments: appointmentsCount,
+    };
+  });
+
   return (
-    <main className="flex-1 overflow-hidden p-4 bg-gray-50/50 animate-fade-in">
+    <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 bg-gray-50/50 animate-fade-in pb-24 md:pb-4">
       <div 
-        className="h-full w-full bg-white rounded-3xl border border-gray-100 shadow-xl flex flex-col overflow-hidden" 
+        className="md:h-full min-h-screen md:min-h-0 w-full bg-white rounded-3xl border border-gray-100 shadow-xl flex flex-col md:overflow-hidden overflow-visible" 
         onClick={() => isSalespersonDropdownOpen && setIsSalespersonDropdownOpen(false)}
       >
         
-        <header className="h-20 border-b border-gray-50 flex items-center justify-between px-8 bg-white shrink-0">
-          <div className="flex flex-col">
-            <h2 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-              <Zap size={20} className="text-brand-red fill-brand-red" />
-              สรุปภาพรวมการขาย
-            </h2>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{todayStr}</p>
+        <div className="bg-white border-b border-gray-100 shrink-0 flex flex-col">
+          {/* Tier 1: Main Header Row */}
+          <div className="py-4 px-6 md:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-50 bg-white">
+            <div className="flex flex-col">
+              <h2 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+                <Zap size={20} className="text-brand-red fill-brand-red animate-pulse" />
+                สรุปภาพรวมการขาย
+              </h2>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{todayStr}</p>
+            </div>
+
+            <div className="flex bg-slate-100/80 p-0.5 rounded-2xl border border-slate-200 shrink-0 self-start md:self-auto">
+              <button
+                onClick={() => setActiveDashboardTab('sales')}
+                className={`text-[11px] font-black px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+                  activeDashboardTab === 'sales'
+                    ? 'bg-white text-gray-900 shadow-sm border border-slate-200/50'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <BarChart3 size={12} strokeWidth={2.5} />
+                <span>ภาพรวมยอดขาย</span>
+              </button>
+              <button
+                onClick={() => setActiveDashboardTab('telesales')}
+                className={`text-[11px] font-black px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+                  activeDashboardTab === 'telesales'
+                    ? 'bg-white text-gray-900 shadow-sm border border-slate-200/50'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <PhoneCall size={12} strokeWidth={2.5} />
+                <span>ประสิทธิภาพเทเลเซลล์</span>
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Tier 2: Filter Toolbar Row */}
+          <div className="py-3 px-6 md:px-8 bg-gray-50/40 flex flex-wrap items-center gap-3">
             {userRole === 'ผู้จัดการ' && (
               <div className="relative">
                 <button 
                   onClick={(e) => { e.stopPropagation(); setIsSalespersonDropdownOpen(!isSalespersonDropdownOpen); }}
-                  className="text-[11px] font-black bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 flex items-center gap-2 hover:border-brand-red transition-all"
+                  className="text-[11px] font-black bg-white border border-gray-200 rounded-2xl px-4 py-2 flex items-center gap-2 hover:border-brand-red transition-all shadow-sm"
                 >
                   <Users size={14} className="text-gray-400" />
                   {salespersonIds.length === 0 ? 'ทีมขายทั้งหมด' : `เลือกแล้ว (${salespersonIds.length})`}
@@ -204,7 +328,7 @@ export default function DashboardUI({
                 </button>
                 {isSalespersonDropdownOpen && (
                   <div 
-                    className="absolute top-full mt-2 right-0 w-64 bg-white border border-gray-100 rounded-3xl shadow-2xl z-50 py-4 max-h-80 overflow-y-auto custom-scrollbar" 
+                    className="absolute top-full mt-2 left-0 w-64 bg-white border border-gray-100 rounded-3xl shadow-2xl z-50 py-4 max-h-80 overflow-y-auto custom-scrollbar" 
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div 
@@ -233,7 +357,7 @@ export default function DashboardUI({
               </div>
             )}
 
-            <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-2xl border border-gray-100">
+            <div className="flex items-center gap-1 bg-white p-0.5 rounded-2xl border border-gray-200 shadow-sm">
               <button 
                 onClick={() => {
                   const today = new Date();
@@ -255,7 +379,7 @@ export default function DashboardUI({
 
             <div className="relative">
               <select 
-                className="text-[11px] font-black bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 outline-none appearance-none cursor-pointer hover:border-brand-red transition-all pr-8"
+                className="text-[11px] font-black bg-white border border-gray-200 rounded-2xl px-4 py-2 outline-none appearance-none cursor-pointer hover:border-brand-red transition-all pr-8 shadow-sm"
                 onChange={(e) => handleFilterChange('province', e.target.value)}
                 value={searchParams.get('province') || ''}
               >
@@ -269,7 +393,7 @@ export default function DashboardUI({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-2xl px-3 py-2">
+            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-2xl px-3 py-1.5 shadow-sm">
               <input 
                 type="date" 
                 className="text-[10px] font-black text-gray-700 outline-none bg-transparent" 
@@ -285,12 +409,13 @@ export default function DashboardUI({
               />
             </div>
           </div>
-        </header>
+        </div>
 
         <div className="flex-1 overflow-y-auto p-8 space-y-12 custom-scrollbar bg-gray-50/20">
-          
-          {/* 1. HIGH-LEVEL KPI STRIP */}
-          <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          {activeDashboardTab === 'sales' ? (
+            <>
+              {/* 1. HIGH-LEVEL KPI STRIP */}
+              <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
             <KPICard 
               label="เป้าหมายรายเดือน (MTD)" 
               value={`${metrics.targetAch.mtd.toFixed(1)}%`}
@@ -315,11 +440,12 @@ export default function DashboardUI({
               icon={<TrendingUp size={18} />}
             />
             <KPICard 
-              label="คาดการณ์ยอดปิดรวม" 
+              label="คาดการณ์ยอดปิดรวม (Method 3)" 
               value={`฿${(metrics.forecast.value / 1000000).toFixed(2)}M`}
-              subValue="ถ่วงน้ำหนักตามความน่าจะเป็น"
-              statusColor="#D4AF37"
-              icon={<LineIcon size={18} />}
+              subValue="Pipeline-Based (Most Accurate)"
+              statusColor="#3b82f6"
+              icon={<TrendingUp size={18} />}
+              benchmark="ยอดสะสม + (ใบเสนอราคาคงค้าง × Win Rate)"
             />
           </section>
 
@@ -344,8 +470,28 @@ export default function DashboardUI({
                       <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${alert.priority === 'critical' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
                         {alert.priority === 'critical' ? 'CRITICAL' : 'WARNING'}
                       </span>
-                      <span className="text-[9px] font-bold text-gray-400">
-                        {alert.type === 'deal_stuck' ? '🔒 ดีลค้าง' : alert.type === 'low_activity' ? '📉 กิจกรรมต่ำ' : alert.type === 'below_target' ? '⚠️ ต่ำกว่าเป้า' : '🔄 คาดการณ์เปลี่ยน'}
+                      <span className="text-[9px] font-bold text-gray-400 flex items-center gap-1.5">
+                        {alert.type === 'deal_stuck' ? (
+                          <>
+                            <Lock size={10} className="text-red-500 shrink-0" />
+                            <span>ดีลค้าง</span>
+                          </>
+                        ) : alert.type === 'low_activity' ? (
+                          <>
+                            <TrendingDown size={10} className="text-amber-500 shrink-0" />
+                            <span>กิจกรรมต่ำ</span>
+                          </>
+                        ) : alert.type === 'below_target' ? (
+                          <>
+                            <AlertTriangle size={10} className="text-red-500 shrink-0" />
+                            <span>ต่ำกว่าเป้า</span>
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw size={10} className="text-blue-500 shrink-0" />
+                            <span>คาดการณ์เปลี่ยน</span>
+                          </>
+                        )}
                       </span>
                     </div>
                     <span className="text-[11px] font-black text-gray-900">{alert.title}</span>
@@ -378,9 +524,10 @@ export default function DashboardUI({
                   ))}
                   <button
                     onClick={() => setShowMoMOverlay(!showMoMOverlay)}
-                    className={`px-4 py-2 rounded-xl text-[10px] font-black border transition-all ${showMoMOverlay ? 'bg-gray-700 text-white border-gray-700 shadow-lg shadow-gray-300' : 'bg-gray-50 text-gray-400 border-gray-100 hover:border-gray-200'}`}
+                    className={`px-4 py-2 rounded-xl text-[10px] font-black border transition-all flex items-center gap-1.5 ${showMoMOverlay ? 'bg-gray-700 text-white border-gray-700 shadow-lg shadow-gray-300' : 'bg-gray-50 text-gray-400 border-gray-100 hover:border-gray-200'}`}
                   >
-                    📊 เทียบรอบก่อน (MoM)
+                    <BarChart3 size={11} strokeWidth={2.5} />
+                    <span>เทียบรอบก่อน (MoM)</span>
                   </button>
                 </div>
               </div>
@@ -491,7 +638,7 @@ export default function DashboardUI({
               <div className="grid grid-cols-2 gap-4 mt-6">
                 <div className="bg-green-50/20 border border-green-100 rounded-3xl p-6 flex flex-col relative overflow-hidden">
                   <span className="text-[9px] font-black text-green-600 uppercase tracking-wider">ระยะเวลาเฉลี่ยที่ชนะ (Avg Time to Win)</span>
-                  <span className="text-3xl font-black text-green-700 italic mt-2">
+                  <span className="text-3xl font-black text-green-700 mt-2">
                     {metrics.salesCycle.avgTimeToWin > 0 ? `${metrics.salesCycle.avgTimeToWin.toFixed(1)} วัน` : 'ไม่มีข้อมูล'}
                   </span>
                   {metrics.salesCycle.avgTimeToWin > 0 && metrics.salesCycle.prevAvgTimeToWin > 0 && (
@@ -506,7 +653,7 @@ export default function DashboardUI({
 
                 <div className="bg-red-50/20 border border-red-100 rounded-3xl p-6 flex flex-col relative overflow-hidden">
                   <span className="text-[9px] font-black text-red-600 uppercase tracking-wider">ระยะเวลาเฉลี่ยที่แพ้ (Avg Time to Lose)</span>
-                  <span className="text-3xl font-black text-red-700 italic mt-2">
+                  <span className="text-3xl font-black text-red-700 mt-2">
                     {metrics.salesCycle.avgTimeToLose > 0 ? `${metrics.salesCycle.avgTimeToLose.toFixed(1)} วัน` : 'ไม่มีข้อมูล'}
                   </span>
                   {metrics.salesCycle.avgTimeToLose > 0 && metrics.salesCycle.prevAvgTimeToLose > 0 && (
@@ -585,10 +732,10 @@ export default function DashboardUI({
                     </div>
 
                     <div className="flex md:flex-col items-baseline md:items-end justify-between md:justify-start gap-1.5 shrink-0">
-                      <span className="text-xs font-black text-red-600 italic">
+                      <span className="text-xs font-black text-red-600">
                         ค้าง {deal.daysStuck} วัน (เกณฑ์: {deal.threshold} วัน)
                       </span>
-                      <span className="text-sm font-black text-gray-900 italic">
+                      <span className="text-sm font-black text-gray-900">
                         ฿{deal.value.toLocaleString()}
                       </span>
                     </div>
@@ -712,18 +859,26 @@ export default function DashboardUI({
 
               <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3">
                 {productWinRates.map((prod) => {
-                  const winRateColor = prod.winRate >= 80 ? 'text-green-600' : prod.winRate >= 50 ? 'text-yellow-600' : 'text-red-600';
+                  const hasData = prod.closedCount > 0;
+                  const rateVal = hasData ? prod.winRate : prod.companyWinRate;
+                  const winRateColor = rateVal >= 80 ? 'text-green-600' : rateVal >= 50 ? 'text-yellow-600' : 'text-red-600';
                   return (
                     <div key={prod.productType} className="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
                       <div>
                         <span className="text-[11px] font-black text-gray-800 block">{prod.productType}</span>
-                        <span className="text-[9px] font-bold text-gray-400">ปิดแล้วทั้งหมด: {prod.closedCount} ดีล</span>
+                        <span className="text-[9px] font-bold text-gray-400 font-sans">
+                          {hasData 
+                            ? `ปิดแล้วทั้งหมด: ${prod.closedCount} ดีล` 
+                            : `เฉลี่ยบริษัท: ${prod.companyWinRate.toFixed(1)}% (${prod.companyClosedCount} ดีล)`}
+                        </span>
                       </div>
                       <div className="text-right">
-                        <span className={`text-sm font-black italic block ${winRateColor}`}>
-                          {prod.winRate.toFixed(1)}%
+                        <span className={`text-sm font-black block ${winRateColor}`}>
+                          {hasData ? `${prod.winRate.toFixed(1)}%` : '-'}
                         </span>
-                        <span className="text-[9px] font-bold text-gray-400">({prod.wonCount}/{prod.closedCount} สำเร็จ)</span>
+                        {hasData && (
+                          <span className="text-[9px] font-bold text-gray-400">({prod.wonCount}/{prod.closedCount} สำเร็จ)</span>
+                        )}
                       </div>
                     </div>
                   );
@@ -784,7 +939,7 @@ export default function DashboardUI({
                       <div key={region.name} className="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-black text-gray-800">{region.name}</span>
-                          <span className="text-xs font-black text-brand-red italic">฿{region.value.toLocaleString()}</span>
+                          <span className="text-xs font-black text-brand-red">฿{region.value.toLocaleString()}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100/50 text-[9px] font-bold text-gray-500">
                           <div>
@@ -1009,8 +1164,23 @@ export default function DashboardUI({
                   {forecastAccuracy.map((m) => (
                     <div key={m.month} className="bg-gray-50 border border-gray-100 rounded-2xl p-3 flex flex-col gap-1 text-center">
                       <span className="text-[9px] font-black text-gray-400 uppercase">{m.month}</span>
-                      <span className={`text-[10px] font-black ${m.direction === 'under' ? 'text-green-600' : m.direction === 'over' ? 'text-red-600' : 'text-blue-600'}`}>
-                        {m.direction === 'under' ? '🟢 ขายทะลุเป้า' : m.direction === 'over' ? '🔴 ต่ำกว่าเป้า' : '🎯 แม่นยำ'}
+                      <span className={`text-[10px] font-black ${m.direction === 'under' ? 'text-green-600' : m.direction === 'over' ? 'text-red-600' : 'text-blue-600'} flex items-center justify-center gap-1`}>
+                        {m.direction === 'under' ? (
+                          <>
+                            <TrendingUp size={11} className="text-green-500 shrink-0" />
+                            <span>ขายทะลุเป้า</span>
+                          </>
+                        ) : m.direction === 'over' ? (
+                          <>
+                            <TrendingDown size={11} className="text-red-500 shrink-0" />
+                            <span>ต่ำกว่าเป้า</span>
+                          </>
+                        ) : (
+                          <>
+                            <Target size={11} className="text-blue-500 shrink-0" />
+                            <span>แม่นยำ</span>
+                          </>
+                        )}
                       </span>
                       <span className="text-lg font-black text-gray-900">{m.accuracy}%</span>
                       <span className="text-[8px] font-bold text-gray-400">เป้า ฿{(m.forecast / 1000).toFixed(0)}K / จริง ฿{(m.actual / 1000).toFixed(0)}K</span>
@@ -1120,10 +1290,10 @@ export default function DashboardUI({
                     <tfoot>
                       <tr className="bg-brand-red text-white">
                         <td colSpan={3} className="p-4 text-[10px] font-black uppercase tracking-widest">รวมเฉลี่ยทั้งทีม</td>
-                        <td className="p-4 text-[11px] font-black text-right italic">
+                        <td className="p-4 text-[11px] font-black text-right">
                           ฿{employeePerformance.reduce((acc, emp) => acc + (Number(emp.won) || 0), 0).toLocaleString()}
                         </td>
-                        <td className="p-4 text-[11px] font-black text-right italic bg-blue-900/20">
+                        <td className="p-4 text-[11px] font-black text-right bg-blue-900/20">
                           ฿{employeePerformance.reduce((acc, emp) => acc + (Number(emp.target) || 0), 0).toLocaleString()}
                         </td>
                         <td className="p-4 text-[11px] font-black text-center bg-blue-900/20">
@@ -1151,6 +1321,143 @@ export default function DashboardUI({
               </div>
             </section>
           )}
+            </>
+          ) : (
+            <>
+              {/* 1. TELESALES HIGH-LEVEL KPI STRIP */}
+              <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                <KPICard 
+                  label="ลูกค้าที่ติดต่อทั้งหมด (Outreach)" 
+                  value={`${currentFunnel.outreach.toLocaleString()} ราย`}
+                  subValue={`โทรจริง: ${telesalesRecords.length.toLocaleString()} / เป้าเดือน: ${(metrics.telesalesKPIs?.monthlyCallGoal ?? 1200).toLocaleString()} สาย (เป้าสัปดาห์: ${(metrics.telesalesKPIs?.weeklyCallGoal ?? 300).toLocaleString()})`}
+                  statusColor="#ff2301"
+                  icon={<PhoneCall size={18} />}
+                />
+                <KPICard 
+                  label="อัตราติดต่อได้ (Connection Rate)" 
+                  value={`${connectedPct.toFixed(1)}%`}
+                  subValue={`ติดต่อสำเร็จ ${currentFunnel.connected} / ทั้งหมด ${currentFunnel.outreach} ราย`}
+                  statusColor="#3b82f6"
+                  icon={<Zap size={18} />}
+                  benchmark={`เป้าขั้นต่ำ: ${Math.round((metrics.telesalesKPIs?.connectionRateMin ?? 0.6) * 100)}% (เฉลี่ยทีม: ${teamBenchmark.connectedRate.toFixed(1)}%)`}
+                />
+                <KPICard 
+                  label="อัตราความสนใจ (Interest Rate)" 
+                  value={`${qualifiedPct.toFixed(1)}%`}
+                  subValue={`นัดหมายสำเร็จ ${currentFunnel.qualified} / เป้าหมาย: ${metrics.telesalesKPIs?.appointmentGoal ?? 20} ครั้ง`}
+                  statusColor="#f59e0b"
+                  icon={<Trophy size={18} />}
+                  benchmark={`ค่าเฉลี่ยทีม: ${teamBenchmark.qualifiedRate.toFixed(1)}%`}
+                />
+                <KPICard 
+                  label="ส่งมอบงานต่อให้ทีมขาย (Forwarded)" 
+                  value={`${forwardedPct.toFixed(1)}%`}
+                  subValue={`ส่งต่อสำเร็จ ${currentFunnel.forwarded} ราย`}
+                  statusColor="#d4af37"
+                  icon={<TrendingUp size={18} />}
+                  benchmark={`ค่าเฉลี่ยทีม: ${teamBenchmark.forwardedRate.toFixed(1)}%`}
+                />
+              </section>
+
+              {/* 2. TREND & FUNNEL SPLIT GRID */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                {/* Daily Calls Trend Composed Chart (Left 2 columns) */}
+                <div className="xl:col-span-2 bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col h-[520px]">
+                  <div>
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">แนวโน้มการโทรและนัดหมายรายวัน (Daily Outreach Trend)</h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 italic">ปริมาณสายที่โทรสะสม vs จำนวนผู้ที่สนใจ/นัดหมายสำเร็จ</p>
+                  </div>
+                  <div className="flex-1 min-h-0 mt-6 relative">
+                    <TelesalesComposedChart data={telesalesDailyData} />
+                  </div>
+                </div>
+
+                {/* Conversion Funnel Widget (Right 1 column) */}
+                <div className="xl:col-span-1 bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col h-[520px] justify-between">
+                  <div>
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">กรวยประสิทธิภาพการสนทนา (Connection Funnel)</h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 italic">สถิติแปลงสถานะลูกค้าเทเลเซลล์เทียบกับค่าเฉลี่ยรวมของทั้งทีม</p>
+                  </div>
+                  <div className="flex-1 flex items-center mt-4">
+                    <TelesalesFunnelChart currentFunnel={currentFunnel} teamBenchmark={teamBenchmark} />
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. TELESALES LEAD FORWARD TABLE & DETAILS */}
+              <section className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col gap-6">
+                <div>
+                  <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">
+                    ประวัติสายการโทรเทเลเซลล์ (Telesales Dials History)
+                  </h3>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 italic">รายการสนทนาล่าสุด ผลการโทร และสถานะการส่งมอบงานให้ทีมขายหน้างาน</p>
+                </div>
+                
+                <div className="overflow-x-auto custom-scrollbar">
+                  {telesalesRecords.length === 0 ? (
+                    <div className="p-8 text-center text-xs font-bold text-slate-400">ไม่พบประวัติสายการโทรในช่วงเวลาที่เลือก</div>
+                  ) : (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-100 bg-slate-50/50">
+                          <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-wider">วันและเวลาที่โทร</th>
+                          <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-wider">สถานะการรับสาย</th>
+                          <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-wider">ผลลัพธ์การสนทนา</th>
+                          <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-wider">ส่งต่อให้เจ้าหน้าที่</th>
+                          <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-wider">กำหนดติดต่อกลับ</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {telesalesRecords.slice(0, 15).map((log: any, index: number) => (
+                          <tr key={log.id || index} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="p-4 text-[11px] font-black text-slate-900">
+                              {new Date(log.createdAt).toLocaleDateString('th-TH', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })} น.
+                            </td>
+                            <td className="p-4">
+                              <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${log.callStatus === 'รับสาย' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
+                                {log.callStatus || 'ไม่ระบุ'}
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
+                                log.callOutcome === 'สนใจ' || log.callOutcome === 'นัดหมายสำเร็จ' 
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-100' 
+                                  : 'bg-slate-50 text-slate-600 border border-slate-100'
+                              }`}>
+                                {log.callOutcome || 'ไม่มีข้อมูล'}
+                              </span>
+                            </td>
+                            <td className="p-4 text-[11px] font-bold text-slate-900">
+                              {log.forwardTo ? (
+                                <div className="flex items-center gap-1 text-brand-red">
+                                  <span>➜ {log.forwardTo}</span>
+                                </div>
+                              ) : (
+                                <span className="text-slate-400">-</span>
+                              )}
+                            </td>
+                            <td className="p-4 text-[11px] font-bold text-slate-500">
+                              {log.callbackAt ? (
+                                <span>{new Date(log.callbackAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}</span>
+                              ) : (
+                                <span className="text-slate-400">-</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </section>
+            </>
+          )}
 
         </div>
       </div>
@@ -1169,7 +1476,7 @@ function KPICard({ label, value, subValue, statusColor = '#4B5563', icon, trend,
       </div>
       <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">{label}</p>
       <div className="flex items-baseline gap-2">
-        <h4 className="text-3xl font-black text-gray-900 tracking-tighter italic number" style={{ color: statusColor === '#4B5563' ? '#111827' : statusColor }}>{value}</h4>
+        <h4 className="text-3xl font-black text-gray-900 tracking-tighter number" style={{ color: statusColor === '#4B5563' ? '#111827' : statusColor }}>{value}</h4>
         {trend !== undefined && (
           <span className={`text-[10px] font-black number ${trend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
             {trend >= 0 ? '▲' : '▼'} {Math.abs(trend).toFixed(1)}%
@@ -1182,8 +1489,8 @@ function KPICard({ label, value, subValue, statusColor = '#4B5563', icon, trend,
           <Clock size={10} className="text-gray-300" /> {subValue}
         </p>
         {benchmark && (
-          <p className="text-[9px] font-black text-blue-500 uppercase tracking-tighter">
-            📊 {benchmark}
+          <p className="text-[9px] font-black text-blue-500 uppercase tracking-tighter flex items-center gap-1">
+            <BarChart3 size={10} strokeWidth={2.5} /> {benchmark}
           </p>
         )}
       </div>

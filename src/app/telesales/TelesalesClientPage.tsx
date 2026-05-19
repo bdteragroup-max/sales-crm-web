@@ -2,45 +2,95 @@
 
 import React, { useState } from 'react';
 import { FileText, Plus, Search, Edit2, FileSpreadsheet, PhoneCall, CheckCircle2, Clock } from 'lucide-react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import NewTelesaleForm from './components/NewTelesaleForm';
 import TelesaleBulkUploadModal from './components/TelesaleBulkUploadModal';
 
 interface TelesalesClientPageProps {
   userFullName?: string;
   initialRecords?: any[];
+  totalCount?: number;
+  currentPage?: number;
+  limit?: number;
+  todayCallsCount?: number;
+  todayInterestedCount?: number;
+  todayCallbacksCount?: number;
 }
 
-export default function TelesalesClientPage({ userFullName, initialRecords = [] }: TelesalesClientPageProps) {
-  const [activeTab, setActiveTab] = useState<'new' | 'list' | 'callbacks'>('list');
-  const [searchTerm, setSearchTerm] = useState('');
+export default function TelesalesClientPage({ 
+  userFullName, 
+  initialRecords = [],
+  totalCount = 0,
+  currentPage = 1,
+  limit = 10,
+  todayCallsCount = 0,
+  todayInterestedCount = 0,
+  todayCallbacksCount = 0
+}: TelesalesClientPageProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const activeTab = (searchParams.get('tab') || 'list') as 'new' | 'list' | 'callbacks';
+  const searchTerm = searchParams.get('search') || '';
+
+  const [localSearch, setLocalSearch] = useState(searchTerm);
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
 
-  // Stats
-  const today = new Date().toLocaleDateString('th-TH');
-  const todayRecords = initialRecords.filter(r => new Date(r.createdAt).toLocaleDateString('th-TH') === today);
-  const totalCalls = todayRecords.length;
-  const interestedCount = todayRecords.filter(r => r.callOutcome === 'สนใจ' || r.callOutcome === 'นัดหมายสำเร็จ').length;
-  const callbacksToday = initialRecords.filter(r => r.callbackAt && new Date(r.callbackAt).toLocaleDateString('th-TH') === today).length;
+  // Sync search input with search param changes
+  React.useEffect(() => {
+    setLocalSearch(searchTerm);
+  }, [searchTerm]);
 
-  const filteredRecords = initialRecords.filter(record => 
-    record.company?.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    record.user?.fullName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Debounced Search Logic
+  React.useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (localSearch.trim()) {
+        params.set('search', localSearch.trim());
+      } else {
+        params.delete('search');
+      }
+      params.set('page', '1'); // Reset to page 1 on search
+      router.push(`${pathname}?${params.toString()}`);
+    }, 250);
 
-  const callbackRecords = initialRecords
-    .filter(record => record.callbackAt)
-    .sort((a, b) => new Date(a.callbackAt).getTime() - new Date(b.callbackAt).getTime());
+    return () => clearTimeout(delayDebounceFn);
+  }, [localSearch]);
+
+  const handleTabChange = (tab: 'new' | 'list' | 'callbacks') => {
+    setEditingRecord(null);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', tab);
+    params.set('page', '1'); // Reset page when tab changes
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const totalPages = Math.ceil(totalCount / limit);
+    if (newPage < 1 || newPage > totalPages) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', newPage.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   const handleEdit = (record: any) => {
     setEditingRecord(record);
-    setActiveTab('new');
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', 'new');
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleCreateNew = () => {
     setEditingRecord(null);
-    setActiveTab('new');
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', 'new');
+    router.push(`${pathname}?${params.toString()}`);
   };
+
+  const totalPages = Math.ceil(totalCount / limit);
 
   return (
     <div className="h-full flex flex-col space-y-6">
@@ -72,10 +122,10 @@ export default function TelesalesClientPage({ userFullName, initialRecords = [] 
       {activeTab === 'list' && (
         <div className="shrink-0 grid grid-cols-4 border-b border-gray-100">
           {[
-            { label: 'โทรวันนี้',        value: totalCalls,                  icon: <PhoneCall size={14} />, color: 'text-gray-400', bg: 'bg-gray-50' },
-            { label: 'นัดหมายสำเร็จ',    value: interestedCount,             icon: <CheckCircle2 size={14} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-            { label: 'นัดโทรกลับวันนี้', value: callbacksToday,              icon: <Clock size={14} />, color: 'text-amber-500', bg: 'bg-amber-50' },
-            { label: 'รายการทั้งหมด',    value: initialRecords.length,        icon: <FileText size={14} />, color: 'text-brand-red', bg: 'bg-red-50' },
+            { label: 'โทรวันนี้',        value: todayCallsCount,             icon: <PhoneCall size={14} />, color: 'text-gray-400', bg: 'bg-gray-50' },
+            { label: 'นัดหมายสำเร็จ',    value: todayInterestedCount,        icon: <CheckCircle2 size={14} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+            { label: 'นัดโทรกลับวันนี้', value: todayCallbacksCount,         icon: <Clock size={14} />, color: 'text-amber-500', bg: 'bg-amber-50' },
+            { label: 'รายการที่พบ',      value: totalCount,                  icon: <FileText size={14} />, color: 'text-brand-red', bg: 'bg-red-50' },
           ].map(k => (
             <div key={k.label} className={`flex items-center gap-3 px-6 py-4 ${k.bg} border-r border-gray-100 last:border-0`}>
               <span className={k.color}>{k.icon}</span>
@@ -92,8 +142,8 @@ export default function TelesalesClientPage({ userFullName, initialRecords = [] 
       <div className="shrink-0 flex items-center gap-1 border-b border-gray-200">
         {[
           { id: 'new' as const, label: editingRecord ? 'แก้ไขข้อมูล' : 'บันทึกใหม่', icon: <Plus size={14} />, action: handleCreateNew },
-          { id: 'list' as const, label: `รายการบันทึก (${initialRecords.length})`, icon: <FileText size={14} />, action: () => setActiveTab('list') },
-          { id: 'callbacks' as const, label: `นัดโทรกลับ (${callbackRecords.length})`, icon: <PhoneCall size={14} />, action: () => setActiveTab('callbacks') },
+          { id: 'list' as const, label: 'รายการบันทึก', icon: <FileText size={14} />, action: () => handleTabChange('list') },
+          { id: 'callbacks' as const, label: 'นัดโทรกลับ', icon: <PhoneCall size={14} />, action: () => handleTabChange('callbacks') },
         ].map(tab => (
           <button
             key={tab.id}
@@ -120,7 +170,7 @@ export default function TelesalesClientPage({ userFullName, initialRecords = [] 
                 initialData={editingRecord}
                 onSuccess={() => {
                   setEditingRecord(null);
-                  setActiveTab('list');
+                  handleTabChange('list');
                 }}
               />
             </div>
@@ -135,8 +185,8 @@ export default function TelesalesClientPage({ userFullName, initialRecords = [] 
                 type="text"
                 placeholder="ค้นหาตามชื่อบริษัท หรือ เซลล์..."
                 className="w-full pl-9 pr-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
               />
             </div>
 
@@ -153,8 +203,8 @@ export default function TelesalesClientPage({ userFullName, initialRecords = [] 
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {filteredRecords.length > 0 ? (
-                    filteredRecords.map((record: any) => (
+                  {initialRecords.length > 0 ? (
+                    initialRecords.map((record: any) => (
                       <tr key={record.id} className="group hover:bg-gray-50/60 transition-colors">
                         <td className="py-4 px-5 text-[11px] font-bold text-gray-400 whitespace-nowrap">
                           {record.callDate ? new Date(record.callDate).toLocaleDateString('th-TH') : '-'}
@@ -208,11 +258,98 @@ export default function TelesalesClientPage({ userFullName, initialRecords = [] 
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100">
+                <div className="flex flex-1 justify-between sm:hidden">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all active:scale-95"
+                  >
+                    ก่อนหน้า
+                  </button>
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="relative ml-3 inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all active:scale-95"
+                  >
+                    ถัดไป
+                  </button>
+                </div>
+                <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500 font-sans">
+                      แสดงรายการที่ <span className="font-bold text-gray-800">{Math.min((currentPage - 1) * limit + 1, totalCount)}</span> ถึง{' '}
+                      <span className="font-bold text-gray-800">{Math.min(currentPage * limit, totalCount)}</span> จากทั้งหมด{' '}
+                      <span className="font-bold text-gray-800">{totalCount}</span> รายการ
+                    </p>
+                  </div>
+                  <div>
+                    <nav className="isolate inline-flex -space-x-px rounded-xl gap-1.5 font-sans" aria-label="Pagination">
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="relative inline-flex items-center rounded-xl px-2.5 py-2 text-gray-400 hover:bg-red-50 hover:text-brand-red disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all active:scale-95"
+                      >
+                        <span className="transform rotate-180 block">&#x276F;</span>
+                      </button>
+                      
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                        if (totalPages > 7 && p !== 1 && p !== totalPages && Math.abs(p - currentPage) > 1) {
+                          if (p === 2 && currentPage > 3) {
+                            return <span key="dots-start" className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
+                          }
+                          if (p === totalPages - 1 && currentPage < totalPages - 2) {
+                            return <span key="dots-end" className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
+                          }
+                          return null;
+                        }
+
+                        return (
+                          <button
+                            key={p}
+                            onClick={() => handlePageChange(p)}
+                            className={`relative inline-flex items-center rounded-xl px-3.5 py-1.5 text-sm font-bold transition-all active:scale-95 ${
+                              p === currentPage
+                                ? 'z-10 bg-brand-red text-white shadow-md shadow-red-200'
+                                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="relative inline-flex items-center rounded-xl px-2.5 py-2 text-gray-400 hover:bg-red-50 hover:text-brand-red disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all active:scale-95"
+                      >
+                        <span>&#x276F;</span>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'callbacks' && (
           <div className="p-8 space-y-6">
+            <div className="relative w-full max-w-sm">
+              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="ค้นหาตามชื่อบริษัท หรือ เซลล์..."
+                className="w-full pl-9 pr-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+              />
+            </div>
+
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
               <table className="w-full text-left text-sm">
                 <thead>
@@ -224,38 +361,87 @@ export default function TelesalesClientPage({ userFullName, initialRecords = [] 
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {callbackRecords.length > 0 ? (
-                    callbackRecords.map((record: any) => (
-                      <tr key={record.id} className="group hover:bg-gray-50/60 transition-colors">
-                        <td className="py-4 px-5">
-                          <div className="flex flex-col">
-                            <span className="text-brand-red font-black text-sm">
-                              {new Date(record.callbackAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                  {initialRecords.length > 0 ? (
+                    initialRecords.map((record: any) => {
+                      const primaryContact = record.company?.contacts?.[0];
+                      const callbackDate = record.callbackAt ? new Date(record.callbackAt) : null;
+                      const now = new Date();
+                      
+                      let badge = null;
+                      if (callbackDate) {
+                        const callbackDay = new Date(callbackDate.getFullYear(), callbackDate.getMonth(), callbackDate.getDate()).getTime();
+                        const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+                        
+                        if (callbackDate.getTime() < now.getTime()) {
+                          badge = (
+                            <span className="inline-flex px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-100/50">
+                              เกินกำหนด (Overdue)
                             </span>
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                              {new Date(record.callbackAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
+                          );
+                        } else if (callbackDay === todayDay) {
+                          badge = (
+                            <span className="inline-flex px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-600 border border-amber-100/50">
+                              วันนี้ (Today)
                             </span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-5">
-                          <p className="text-xs font-bold text-gray-900">{record.company?.companyName || '-'}</p>
-                          <p className="text-[10px] text-gray-400 font-medium mt-0.5">{record.user?.fullName || '-'}</p>
-                        </td>
-                        <td className="py-4 px-5">
-                          <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-100 text-gray-400">
-                            {record.callOutcome || record.callStatus || '-'}
-                          </span>
-                        </td>
-                        <td className="py-4 px-5 text-center">
-                          <button 
-                            onClick={() => handleEdit(record)}
-                            className="bg-brand-red text-white px-5 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase shadow-lg shadow-red-200 hover:scale-105 transition-all"
-                          >
-                            CALL NOW
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                          );
+                        } else {
+                          badge = (
+                            <span className="inline-flex px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-50 text-slate-500 border border-slate-100/50">
+                              รอดำเนินการ (Scheduled)
+                            </span>
+                          );
+                        }
+                      }
+
+                      return (
+                        <tr key={record.id} className="group hover:bg-gray-50/60 transition-colors">
+                          <td className="py-4 px-5">
+                            <div className="flex flex-col">
+                              <span className="text-brand-red font-black text-sm">
+                                {record.callbackAt ? new Date(record.callbackAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) : '-'}
+                              </span>
+                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                {record.callbackAt ? new Date(record.callbackAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '-'} น.
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-5">
+                            <p className="text-xs font-bold text-gray-900">{record.company?.companyName || '-'}</p>
+                            <p className="text-[10px] text-gray-400 font-medium mt-0.5">
+                              {primaryContact ? `ผู้ติดต่อ: ${primaryContact.contactName} (${primaryContact.mobilePhone})` : 'ไม่มีข้อมูลผู้ติดต่อหลัก'}
+                            </p>
+                          </td>
+                          <td className="py-4 px-5">
+                            <div className="flex flex-col gap-1.5 items-start">
+                              <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold bg-gray-100 text-gray-500">
+                                {record.callOutcome || record.callStatus || '-'}
+                              </span>
+                              {badge}
+                            </div>
+                          </td>
+                          <td className="py-4 px-5 text-center">
+                            <button 
+                              onClick={() => {
+                                if (primaryContact && primaryContact.mobilePhone) {
+                                  // 1. Open native dialer
+                                  window.location.href = `tel:${primaryContact.mobilePhone}`;
+                                  // 2. Redirect to log page after 1200ms
+                                  setTimeout(() => {
+                                    window.location.href = `/telesales/log?contactId=${primaryContact.id}&companyId=${record.companyId}&returnTo=/telesales?tab=callbacks`;
+                                  }, 1200);
+                                } else {
+                                  // Redirect to logger anyway or clients to set contact info
+                                  window.location.href = `/clients?page=1`;
+                                }
+                              }}
+                              className="bg-brand-red text-white px-5 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase shadow-lg shadow-red-200 hover:scale-105 transition-all"
+                            >
+                              CALL NOW
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td colSpan={4} className="py-20 text-center">
@@ -269,6 +455,82 @@ export default function TelesalesClientPage({ userFullName, initialRecords = [] 
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100">
+                <div className="flex flex-1 justify-between sm:hidden">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all active:scale-95"
+                  >
+                    ก่อนหน้า
+                  </button>
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="relative ml-3 inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all active:scale-95"
+                  >
+                    ถัดไป
+                  </button>
+                </div>
+                <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500 font-sans">
+                      แสดงรายการที่ <span className="font-bold text-gray-800">{Math.min((currentPage - 1) * limit + 1, totalCount)}</span> ถึง{' '}
+                      <span className="font-bold text-gray-800">{Math.min(currentPage * limit, totalCount)}</span> จากทั้งหมด{' '}
+                      <span className="font-bold text-gray-800">{totalCount}</span> รายการ
+                    </p>
+                  </div>
+                  <div>
+                    <nav className="isolate inline-flex -space-x-px rounded-xl gap-1.5 font-sans" aria-label="Pagination">
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="relative inline-flex items-center rounded-xl px-2.5 py-2 text-gray-400 hover:bg-red-50 hover:text-brand-red disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all active:scale-95"
+                      >
+                        <span className="transform rotate-180 block">&#x276F;</span>
+                      </button>
+                      
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                        if (totalPages > 7 && p !== 1 && p !== totalPages && Math.abs(p - currentPage) > 1) {
+                          if (p === 2 && currentPage > 3) {
+                            return <span key="dots-start" className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
+                          }
+                          if (p === totalPages - 1 && currentPage < totalPages - 2) {
+                            return <span key="dots-end" className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
+                          }
+                          return null;
+                        }
+
+                        return (
+                          <button
+                            key={p}
+                            onClick={() => handlePageChange(p)}
+                            className={`relative inline-flex items-center rounded-xl px-3.5 py-1.5 text-sm font-bold transition-all active:scale-95 ${
+                              p === currentPage
+                                ? 'z-10 bg-brand-red text-white shadow-md shadow-red-200'
+                                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="relative inline-flex items-center rounded-xl px-2.5 py-2 text-gray-400 hover:bg-red-50 hover:text-brand-red disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all active:scale-95"
+                      >
+                        <span>&#x276F;</span>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -278,7 +540,7 @@ export default function TelesalesClientPage({ userFullName, initialRecords = [] 
         onClose={() => setIsBulkUploadOpen(false)}
         onSuccess={() => {
           setIsBulkUploadOpen(false);
-          setActiveTab('list');
+          handleTabChange('list');
         }}
       />
     </div>
