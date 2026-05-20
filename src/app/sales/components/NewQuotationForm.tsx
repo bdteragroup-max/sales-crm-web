@@ -726,8 +726,8 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           <Card title="ข้อมูลเพิ่มเติม">
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField name="salesBranch" label="สาขาของเซลล์ :" type="text" readOnly value={formData.salesBranch || ''} />
-                <InputField name="salesTeamLeader" label="หัวหน้าทีม :" type="text" readOnly value={formData.salesTeamLeader || ''} />
+                <InputField name="salesBranch" label="สาขาของเซลล์ :" type="text" readOnly vertical={true} value={formData.salesBranch || ''} />
+                <InputField name="salesTeamLeader" label="หัวหน้าทีม :" type="text" readOnly vertical={true} value={formData.salesTeamLeader || ''} />
               </div>
               <div className="mt-2">
                 <label className="block text-sm font-medium text-gray-600 mb-1">หมายเหตุ :</label>

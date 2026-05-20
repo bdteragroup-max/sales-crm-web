@@ -10,6 +10,12 @@ export default async function proxy(req: NextRequest) {
   const rawPath = req.nextUrl.pathname
   const path = rawPath.toLowerCase()
 
+  try {
+    console.log('[proxy] incoming request', { method: req.method, rawPath, path })
+  } catch (e) {
+    // swallow logging errors
+  }
+
   // 1. Normalize case (e.g., /Dashboard -> /dashboard) for non-asset/non-API routes
   if (
     rawPath !== path &&
@@ -24,19 +30,39 @@ export default async function proxy(req: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(route => path === route || path.startsWith(route + '/'))
   const isPublicRoute = publicRoutes.includes(path)
 
+  try {
+    console.log('[proxy] route check', { isProtectedRoute, isPublicRoute })
+  } catch (e) {}
+
   // 3. Decrypt the session from the cookie
-  const cookie = (await cookies()).get('session')?.value
-  const session = await decrypt(cookie)
+  let cookie: string | undefined
+  let session: any
+  try {
+    cookie = (await cookies()).get('session')?.value
+    session = await decrypt(cookie)
+  } catch (err) {
+    console.error('[proxy] session decrypt error', err)
+  }
+
+  try {
+    console.log('[proxy] session state', { hasCookie: !!cookie, userId: session?.userId })
+  } catch (e) {}
 
   // 4. Redirect to / if the user is not authenticated
   if (isProtectedRoute && !session?.userId) {
+    console.log('[proxy] redirecting to / (unauthenticated) for', { path })
     return NextResponse.redirect(new URL('/', req.nextUrl))
   }
 
   // 5. Redirect to /dashboard if the user is authenticated and trying to access public auth routes
   if (isPublicRoute && session?.userId && (path === '/' || path === '/login')) {
+    console.log('[proxy] redirecting to /dashboard (already authenticated)')
     return NextResponse.redirect(new URL('/dashboard', req.nextUrl))
   }
+
+  try {
+    console.log('[proxy] passing through')
+  } catch (e) {}
 
   return NextResponse.next()
 }

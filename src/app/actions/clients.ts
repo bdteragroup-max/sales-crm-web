@@ -19,10 +19,17 @@ export async function getLocationsByPostalCode(postalCode: string) {
 
 export async function createCompany(formData: any) {
   try {
-    // 1. Tax ID Duplicate Check
-    if (formData.taxId) {
+    // 1. Safe Trimming and Guards
+    const trimmedCompanyName = formData.companyName ? String(formData.companyName).trim() : '';
+    const trimmedTaxId = formData.taxId ? String(formData.taxId).trim() : null;
+
+    if (!trimmedCompanyName) {
+      return { success: false, message: 'กรุณากรอกชื่อบริษัท/ลูกค้า' };
+    }
+
+    if (trimmedTaxId) {
       const existing = await prisma.company.findFirst({
-        where: { taxId: formData.taxId }
+        where: { taxId: trimmedTaxId }
       })
       if (existing) {
         return { 
@@ -34,7 +41,7 @@ export async function createCompany(formData: any) {
 
     let bType = formData.businessType;
     if (bType === 'ADD_NEW' && formData.newBusinessType) {
-      bType = formData.newBusinessType;
+      bType = String(formData.newBusinessType).trim();
       // Upsert to ensure we don't duplicate if it was added by another user simultaneously
       await prisma.businessType.upsert({
         where: { name: bType },
@@ -50,8 +57,8 @@ export async function createCompany(formData: any) {
     const result = await prisma.$transaction(async (tx) => {
       const company = tx.company.create({
         data: {
-          companyName: formData.companyName,
-          taxId: formData.taxId || null,
+          companyName: trimmedCompanyName,
+          taxId: trimmedTaxId || null,
           businessType: bType || null,
           customerStatus: formData.customerStatus || 'ลูกค้าใหม่',
           customerType: formData.customerType || 'นิติบุคคล',
@@ -59,19 +66,19 @@ export async function createCompany(formData: any) {
           province: formData.province || null,
           district: formData.district || null,
           subDistrict: formData.subDistrict || null,
-          address: formData.address || null,
-          postalCode: formData.postalCode || null,
+          address: formData.address ? String(formData.address).trim() : null,
+          postalCode: formData.postalCode ? String(formData.postalCode).trim() : null,
           assignedUserId: formData.assignedUserId || null,
-          billingAddress: formData.billingAddress || null,
-          billingSubDistrict: formData.billingSubDistrict || null,
-          billingDistrict: formData.billingDistrict || null,
-          billingProvince: formData.billingProvince || null,
-          billingPostalCode: formData.billingPostalCode || null,
-          shippingAddress: formData.shippingAddress || null,
-          shippingSubDistrict: formData.shippingSubDistrict || null,
-          shippingDistrict: formData.shippingDistrict || null,
-          shippingProvince: formData.shippingProvince || null,
-          shippingPostalCode: formData.shippingPostalCode || null,
+          billingAddress: formData.billingAddress ? String(formData.billingAddress).trim() : null,
+          billingSubDistrict: formData.billingSubDistrict ? String(formData.billingSubDistrict).trim() : null,
+          billingDistrict: formData.billingDistrict ? String(formData.billingDistrict).trim() : null,
+          billingProvince: formData.billingProvince ? String(formData.billingProvince).trim() : null,
+          billingPostalCode: formData.billingPostalCode ? String(formData.billingPostalCode).trim() : null,
+          shippingAddress: formData.shippingAddress ? String(formData.shippingAddress).trim() : null,
+          shippingSubDistrict: formData.shippingSubDistrict ? String(formData.shippingSubDistrict).trim() : null,
+          shippingDistrict: formData.shippingDistrict ? String(formData.shippingDistrict).trim() : null,
+          shippingProvince: formData.shippingProvince ? String(formData.shippingProvince).trim() : null,
+          shippingPostalCode: formData.shippingPostalCode ? String(formData.shippingPostalCode).trim() : null,
           paymentMethod: formData.paymentMethod || null,
         }
       })
@@ -80,9 +87,14 @@ export async function createCompany(formData: any) {
 
       // If contact name is provided, create the contact atomically
       if (formData.contactName?.trim()) {
-        if (formData.contactPhone?.trim()) {
+        const contactNameTrimmed = String(formData.contactName).trim();
+        const contactPhoneTrimmed = formData.contactPhone ? String(formData.contactPhone).trim() : null;
+        const contactPositionTrimmed = formData.contactPosition ? String(formData.contactPosition).trim() : null;
+        const contactEmailTrimmed = formData.contactEmail ? String(formData.contactEmail).trim() : null;
+
+        if (contactPhoneTrimmed) {
           const existingPhone = await tx.contact.findFirst({
-            where: { mobilePhone: formData.contactPhone.trim() }
+            where: { mobilePhone: contactPhoneTrimmed }
           });
           if (existingPhone) {
             throw new Error(`เบอร์โทรศัพท์ผู้ติดต่อหลักนี้ถูกใช้งานโดย ${existingPhone.contactName} แล้ว`);
@@ -91,10 +103,10 @@ export async function createCompany(formData: any) {
         await tx.contact.create({
           data: {
             companyId: finalCompany.id,
-            contactName: formData.contactName.trim(),
-            position: formData.contactPosition || null,
-            mobilePhone: formData.contactPhone || null,
-            email: formData.contactEmail || null,
+            contactName: contactNameTrimmed,
+            position: contactPositionTrimmed,
+            mobilePhone: contactPhoneTrimmed,
+            email: contactEmailTrimmed,
             isETaxReceiver: isETax,
           }
         })
@@ -113,9 +125,18 @@ export async function createCompany(formData: any) {
 
 export async function createContact(formData: any) {
   try {
-    if (formData.mobilePhone?.trim()) {
+    const contactNameTrimmed = formData.contactName ? String(formData.contactName).trim() : '';
+    const mobilePhoneTrimmed = formData.mobilePhone ? String(formData.mobilePhone).trim() : null;
+    const positionTrimmed = formData.position ? String(formData.position).trim() : null;
+    const emailTrimmed = formData.email ? String(formData.email).trim() : null;
+
+    if (!contactNameTrimmed) {
+      return { success: false, message: 'กรุณากรอกชื่อผู้ติดต่อ' };
+    }
+
+    if (mobilePhoneTrimmed) {
       const existing = await prisma.contact.findFirst({
-        where: { mobilePhone: formData.mobilePhone.trim() }
+        where: { mobilePhone: mobilePhoneTrimmed }
       });
       if (existing) {
         return {
@@ -128,10 +149,10 @@ export async function createContact(formData: any) {
     const contact = await prisma.contact.create({
       data: {
         companyId: formData.companyId,
-        contactName: formData.contactName,
-        position: formData.position || null,
-        mobilePhone: formData.mobilePhone || null,
-        email: formData.email || null,
+        contactName: contactNameTrimmed,
+        position: positionTrimmed,
+        mobilePhone: mobilePhoneTrimmed,
+        email: emailTrimmed,
         isETaxReceiver: isETax,
       }
     })
@@ -177,10 +198,17 @@ export async function searchPostalData(query: string) {
 
 export async function updateCompany(companyId: string, formData: any) {
   try {
-    if (formData.taxId) {
+    const trimmedCompanyName = formData.companyName ? String(formData.companyName).trim() : '';
+    const trimmedTaxId = formData.taxId ? String(formData.taxId).trim() : null;
+
+    if (!trimmedCompanyName) {
+      return { success: false, message: 'กรุณากรอกชื่อบริษัท/ลูกค้า' };
+    }
+
+    if (trimmedTaxId) {
       const existing = await prisma.company.findFirst({
         where: { 
-          taxId: formData.taxId,
+          taxId: trimmedTaxId,
           id: { not: companyId }
         }
       })
@@ -194,7 +222,7 @@ export async function updateCompany(companyId: string, formData: any) {
 
     let bType = formData.businessType;
     if (bType === 'ADD_NEW' && formData.newBusinessType) {
-      bType = formData.newBusinessType;
+      bType = String(formData.newBusinessType).trim();
       await prisma.businessType.upsert({
         where: { name: bType },
         update: {},
@@ -205,8 +233,8 @@ export async function updateCompany(companyId: string, formData: any) {
     const company = await prisma.company.update({
       where: { id: companyId },
       data: {
-        companyName: formData.companyName,
-        taxId: formData.taxId || null,
+        companyName: trimmedCompanyName,
+        taxId: trimmedTaxId || null,
         businessType: bType || null,
         customerStatus: formData.customerStatus || 'ลูกค้าใหม่',
         customerType: formData.customerType || 'นิติบุคคล',
@@ -214,19 +242,19 @@ export async function updateCompany(companyId: string, formData: any) {
         province: formData.province || null,
         district: formData.district || null,
         subDistrict: formData.subDistrict || null,
-        address: formData.address || null,
-        postalCode: formData.postalCode || null,
+        address: formData.address ? String(formData.address).trim() : null,
+        postalCode: formData.postalCode ? String(formData.postalCode).trim() : null,
         assignedUserId: formData.assignedUserId || null,
-        billingAddress: formData.billingAddress || null,
-        billingSubDistrict: formData.billingSubDistrict || null,
-        billingDistrict: formData.billingDistrict || null,
-        billingProvince: formData.billingProvince || null,
-        billingPostalCode: formData.billingPostalCode || null,
-        shippingAddress: formData.shippingAddress || null,
-        shippingSubDistrict: formData.shippingSubDistrict || null,
-        shippingDistrict: formData.shippingDistrict || null,
-        shippingProvince: formData.shippingProvince || null,
-        shippingPostalCode: formData.shippingPostalCode || null,
+        billingAddress: formData.billingAddress ? String(formData.billingAddress).trim() : null,
+        billingSubDistrict: formData.billingSubDistrict ? String(formData.billingSubDistrict).trim() : null,
+        billingDistrict: formData.billingDistrict ? String(formData.billingDistrict).trim() : null,
+        billingProvince: formData.billingProvince ? String(formData.billingProvince).trim() : null,
+        billingPostalCode: formData.billingPostalCode ? String(formData.billingPostalCode).trim() : null,
+        shippingAddress: formData.shippingAddress ? String(formData.shippingAddress).trim() : null,
+        shippingSubDistrict: formData.shippingSubDistrict ? String(formData.shippingSubDistrict).trim() : null,
+        shippingDistrict: formData.shippingDistrict ? String(formData.shippingDistrict).trim() : null,
+        shippingProvince: formData.shippingProvince ? String(formData.shippingProvince).trim() : null,
+        shippingPostalCode: formData.shippingPostalCode ? String(formData.shippingPostalCode).trim() : null,
         paymentMethod: formData.paymentMethod || null,
       }
     })
@@ -241,10 +269,19 @@ export async function updateCompany(companyId: string, formData: any) {
 
 export async function updateContact(contactId: string, formData: any) {
   try {
-    if (formData.mobilePhone?.trim()) {
+    const contactNameTrimmed = formData.contactName ? String(formData.contactName).trim() : '';
+    const mobilePhoneTrimmed = formData.mobilePhone ? String(formData.mobilePhone).trim() : null;
+    const positionTrimmed = formData.position ? String(formData.position).trim() : null;
+    const emailTrimmed = formData.email ? String(formData.email).trim() : null;
+
+    if (!contactNameTrimmed) {
+      return { success: false, message: 'กรุณากรอกชื่อผู้ติดต่อ' };
+    }
+
+    if (mobilePhoneTrimmed) {
       const existing = await prisma.contact.findFirst({
         where: {
-          mobilePhone: formData.mobilePhone.trim(),
+          mobilePhone: mobilePhoneTrimmed,
           id: { not: contactId }
         }
       });
@@ -261,10 +298,10 @@ export async function updateContact(contactId: string, formData: any) {
       where: { id: contactId },
       data: {
         companyId: formData.companyId,
-        contactName: formData.contactName,
-        position: formData.position || null,
-        mobilePhone: formData.mobilePhone || null,
-        email: formData.email || null,
+        contactName: contactNameTrimmed,
+        position: positionTrimmed,
+        mobilePhone: mobilePhoneTrimmed,
+        email: emailTrimmed,
         isETaxReceiver: isETax,
       }
     })
@@ -289,5 +326,27 @@ export async function reassignCompanyAdministrator(companyId: string, assignedUs
   } catch (error: any) {
     console.error('Reassign administrator error:', error);
     return { success: false, message: 'ไม่สามารถมอบหมายผู้ดูแลบัญชีใหม่ได้' };
+  }
+}
+
+export async function checkTaxIdExists(taxId: string, excludeCompanyId?: string) {
+  try {
+    if (!taxId || taxId.trim() === '') {
+      return { exists: false };
+    }
+    const existing = await prisma.company.findFirst({
+      where: {
+        taxId: taxId.trim(),
+        ...(excludeCompanyId ? { id: { not: excludeCompanyId } } : {})
+      },
+      select: { companyName: true }
+    });
+    if (existing) {
+      return { exists: true, companyName: existing.companyName };
+    }
+    return { exists: false };
+  } catch (error) {
+    console.error('Error checking Tax ID:', error);
+    return { exists: false };
   }
 }

@@ -13,6 +13,7 @@ interface SalesClientPageProps {
     company: any;
     contact: any;
   } | null;
+  editingQuotation?: any | null; // Full quotation from DB when coming from /pipeline?editId=xxx
 }
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
@@ -42,23 +43,28 @@ function statusBadge(status: string) {
   );
 }
 
-export default function SalesClientPage({ initialQuotations = [], businessTypes = [], currentUserSale, prefillData }: SalesClientPageProps) {
+export default function SalesClientPage({ initialQuotations = [], businessTypes = [], currentUserSale, prefillData, editingQuotation }: SalesClientPageProps) {
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'new' | 'list'>('new');
+
+  // If a full quotation was passed in for editing (from pipeline), open on the edit form immediately
+  const [activeTab, setActiveTab] = useState<'new' | 'list'>(editingQuotation ? 'new' : 'new');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingData, setEditingData] = useState<any>(() => {
+    // Priority 1: a specific quotation to edit (from pipeline ?editId=)
+    if (editingQuotation) return editingQuotation;
+    // Priority 2: prefill for a brand-new quotation
     if (prefillData) {
       return {
         company: prefillData.company,
         contact: prefillData.contact,
         companyId: prefillData.company?.id || null,
-        // Trigger pre-fill defaults in NewQuotationForm
         isPrefilled: true
       };
     }
     return null;
   });
   const [statusFilter, setStatusFilter] = useState('');
+
 
   const filteredQuotations = initialQuotations.filter(q => {
     const matchSearch =
@@ -126,24 +132,38 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
       )}
 
       {/* ── Tab Navigation ── */}
-      <div className="shrink-0 flex items-center gap-1 px-8 pt-4 border-b border-gray-100 bg-white">
-        {[
-          { id: 'new' as const, label: editingData ? 'แก้ไขใบเสนอราคา' : 'บันทึกใหม่', icon: <Plus size={14} />, action: handleCreateNew },
-          { id: 'list' as const, label: `รายการทั้งหมด (${initialQuotations.length})`, icon: <FileText size={14} />, action: () => setActiveTab('list') },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={tab.action}
-            className={`flex items-center gap-2 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-t-xl border-b-2 transition-all ${
-              activeTab === tab.id
-                ? 'text-brand-red border-brand-red bg-red-50/50'
-                : 'text-gray-400 border-transparent hover:text-gray-700 hover:bg-gray-50'
-            }`}
+      <div className="shrink-0 flex items-center justify-between px-8 pt-4 border-b border-gray-100 bg-white">
+        <div className="flex items-center gap-1">
+          {[
+            { id: 'new' as const, label: editingData ? 'แก้ไขใบเสนอราคา' : 'บันทึกใหม่', icon: <Plus size={14} />, action: handleCreateNew },
+            { id: 'list' as const, label: `รายการทั้งหมด (${initialQuotations.length})`, icon: <FileText size={14} />, action: () => setActiveTab('list') },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={tab.action}
+              className={`flex items-center gap-2 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-t-xl border-b-2 transition-all ${
+                activeTab === tab.id
+                  ? 'text-brand-red border-brand-red bg-red-50/50'
+                  : 'text-gray-400 border-transparent hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {tab.icon} {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Back-to-pipeline button — only shown when arriving from /pipeline?editId= */}
+        {editingQuotation && (
+          <a
+            href="/pipeline"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-red hover:bg-red-50 border border-gray-200 rounded-xl transition-all mb-1"
           >
-            {tab.icon} {tab.label}
-          </button>
-        ))}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            กลับ Pipeline
+          </a>
+        )}
       </div>
+
 
       {/* ── Content ── */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">

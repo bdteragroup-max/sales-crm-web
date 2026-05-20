@@ -17,7 +17,8 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   const province = typeof searchParams.province === 'string' ? searchParams.province : undefined;
   const atRiskDays = typeof searchParams.atRiskDays === 'string' ? parseInt(searchParams.atRiskDays) : 60;
 
-  const today = new Date();
+  // Get today's date in Bangkok timezone (Asia/Bangkok) to avoid server-local timezone morning cuts
+  const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
 
   // Bangkok timezone offset helper (UTC+7)
   const BKK_OFFSET_MS = 7 * 60 * 60 * 1000;
@@ -73,7 +74,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   const yoyStart = new Date(filterStart); yoyStart.setFullYear(yoyStart.getFullYear() - 1);
   const yoyEnd = new Date(filterEnd); yoyEnd.setFullYear(yoyEnd.getFullYear() - 1);
 
-  // 0. Fetch only subordinates
+  // 0. Fetch subordinates and the manager themselves to allow managers to view and select their own sales
   const salesReps = isManager ? await prisma.user.findMany({
     select: { 
       id: true, 
@@ -87,8 +88,10 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
       }
     },
     where: {
-      employeeSale: { teamLeader: user.fullName },
-      id: { not: user.id },
+      OR: [
+        { employeeSale: { teamLeader: user.fullName } },
+        { id: user.id }
+      ],
       isActive: true
     }
   }) : [];
@@ -115,17 +118,39 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     'อื่นๆ': 25,              // Others default is 25%
   };
 
+  // getQuotationWhereClause filters quotations by date using robust fallbacks for null billing/PO dates.
+  // Note: Billed/PO transactions with null billing/PO dates fall back to quotationDate and createdAt.
+  // This means that if a quotation was created in a previous month and recently updated to won/PO,
+  // it is counted in its original period of creation/quotation (for data integrity and consistency).
   const getQuotationWhereClause = (start: Date, end: Date) => ({
     salespersonId: { in: filterIds }, 
     company: province ? { province } : undefined,
     OR: [
       {
         status: 'เปิดบิลแล้ว',
-        billingDate: { gte: start, lte: end }
+        OR: [
+          { billingDate: { gte: start, lte: end } },
+          { 
+            billingDate: null, 
+            OR: [
+              { quotationDate: { gte: start, lte: end } },
+              { quotationDate: null, createdAt: { gte: start, lte: end } }
+            ]
+          }
+        ]
       },
       {
         status: { startsWith: 'PO' },
-        poDate: { gte: start, lte: end }
+        OR: [
+          { poDate: { gte: start, lte: end } },
+          { 
+            poDate: null, 
+            OR: [
+              { quotationDate: { gte: start, lte: end } },
+              { quotationDate: null, createdAt: { gte: start, lte: end } }
+            ]
+          }
+        ]
       },
       {
         status: { notIn: ['เปิดบิลแล้ว'] },
@@ -279,7 +304,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         companyId: true
       }
     }),
-    // 13. Product Mix
+    // 13. Product Mix (supporting fallbacks for null billing/PO dates)
     prisma.quotation.groupBy({
       by: ['productType'],
       _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
@@ -289,28 +314,64 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         OR: [
           {
             status: 'เปิดบิลแล้ว',
-            billingDate: { gte: filterStart, lte: filterEnd }
+            OR: [
+              { billingDate: { gte: filterStart, lte: filterEnd } },
+              { 
+                billingDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
+            ]
           },
           {
             status: { startsWith: 'PO' },
-            poDate: { gte: filterStart, lte: filterEnd }
+            OR: [
+              { poDate: { gte: filterStart, lte: filterEnd } },
+              { 
+                poDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
+            ]
           }
         ],
         company: province ? { province } : undefined
       }
     }),
-    // 14. Detailed Analytical Data
+    // 14. Detailed Analytical Data (supporting fallbacks for null billing/PO dates)
     prisma.quotation.findMany({
       where: { 
         salespersonId: { in: filterIds }, 
         OR: [
           {
             status: 'เปิดบิลแล้ว',
-            billingDate: { gte: filterStart, lte: filterEnd }
+            OR: [
+              { billingDate: { gte: filterStart, lte: filterEnd } },
+              { 
+                billingDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
+            ]
           },
           {
             status: { startsWith: 'PO' },
-            poDate: { gte: filterStart, lte: filterEnd }
+            OR: [
+              { poDate: { gte: filterStart, lte: filterEnd } },
+              { 
+                poDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
+            ]
           },
           {
             status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
@@ -414,17 +475,35 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         callDate: true
       }
     }),
-    // 21. Company-wide Closed Quotations (for sales cycle fallbacks & Win Rate benchmarks)
+    // 21. Company-wide Closed Quotations (for sales cycle fallbacks & Win Rate benchmarks, supporting null date fallbacks)
     prisma.quotation.findMany({
       where: {
         OR: [
           {
             status: 'เปิดบิลแล้ว',
-            billingDate: { gte: filterStart, lte: filterEnd }
+            OR: [
+              { billingDate: { gte: filterStart, lte: filterEnd } },
+              { 
+                billingDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
+            ]
           },
           {
             status: { startsWith: 'PO' },
-            poDate: { gte: filterStart, lte: filterEnd }
+            OR: [
+              { poDate: { gte: filterStart, lte: filterEnd } },
+              { 
+                poDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
+            ]
           },
           {
             status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
@@ -652,8 +731,8 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   }
 
   const getQuotationDateHelper = (q: any) => {
-    if (q.status === 'เปิดบิลแล้ว') return q.billingDate || q.createdAt;
-    if (q.status?.startsWith('PO')) return q.poDate || q.createdAt;
+    if (q.status === 'เปิดบิลแล้ว') return q.billingDate || q.quotationDate || q.createdAt;
+    if (q.status?.startsWith('PO')) return q.poDate || q.quotationDate || q.createdAt;
     return q.quotationDate || q.createdAt;
   };
 
@@ -721,11 +800,11 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     return days >= 0 ? days : 0;
   };
 
-  // Safe Cycle Win Averages (Exclude updatedAt fallback entirely)
+  // Safe Cycle Win Averages (Exclude updatedAt fallback entirely, supporting null billing/PO fallbacks)
   const wonDealsWithCycles = analyticalData.filter(q => 
-    (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate)
+    (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate || q.quotationDate || q.createdAt)
   ).map(q => {
-    const closeDate = q.billingDate || q.poDate;
+    const closeDate = q.billingDate || q.poDate || q.quotationDate || q.createdAt;
     return {
       ...q,
       cycleDays: getDiffDaysHelper(q.quotationDate || q.createdAt, closeDate)
@@ -748,11 +827,11 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     ? lostDealsWithCycles.reduce((sum, q) => sum + (q.cycleDays as number), 0) / lostDealsWithCycles.length 
     : 0;
 
-  // Company-wide Benchmarks (calculated from companyClosedQuotations)
+  // Company-wide Benchmarks (calculated from companyClosedQuotations, supporting null date fallbacks)
   const companyWonDealsWithCycles = companyClosedQuotations.filter((q: any) => 
-    (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate)
+    (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate || q.quotationDate || q.createdAt)
   ).map((q: any) => {
-    const closeDate = q.billingDate || q.poDate;
+    const closeDate = q.billingDate || q.poDate || q.quotationDate || q.createdAt;
     return {
       ...q,
       cycleDays: getDiffDaysHelper(q.quotationDate || q.createdAt, closeDate)
@@ -777,11 +856,11 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   const finalAvgTimeToWin = teamAvgTimeToWin > 0 ? teamAvgTimeToWin : companyAvgTimeToWin;
   const finalAvgTimeToLose = teamAvgTimeToLose > 0 ? teamAvgTimeToLose : companyAvgTimeToLose;
 
-  // Previous Period Benchmarks for Win/Lose Cycle
+  // Previous Period Benchmarks for Win/Lose Cycle (supporting null date fallbacks)
   const prevWonDeals = prevPeriodQuotations.filter(q => 
-    (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate)
+    (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) && (q.billingDate || q.poDate || q.quotationDate || q.createdAt)
   ).map(q => {
-    const closeDate = q.billingDate || q.poDate;
+    const closeDate = q.billingDate || q.poDate || q.quotationDate || q.createdAt;
     return getDiffDaysHelper(q.quotationDate || q.createdAt, closeDate);
   }).filter(c => c !== null) as number[];
 

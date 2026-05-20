@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { CalendarDays, Plus, Search, Edit2, Calendar, CheckCircle2, Clock, XCircle, LayoutList } from 'lucide-react'
+import Link from 'next/link'
+import { CalendarDays, Plus, Search, Edit2, Calendar, CheckCircle2, Clock, XCircle, LayoutList, FileSignature } from 'lucide-react'
 import NewScheduleForm from './components/NewScheduleForm'
 import UpdateScheduleForm from './components/UpdateScheduleForm'
 import ScheduleCalendar from './components/ScheduleCalendar'
@@ -153,9 +154,9 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
             </p>
             <div className="mt-3.5 flex flex-wrap gap-2">
               {overdueVisits.slice(0, 3).map(s => (
-                <button
+                <Link
                   key={s.id}
-                  onClick={() => setSelectedSchedule(s)}
+                  href={`/schedule/report/${s.id}`}
                   className="flex items-center gap-2 bg-white hover:bg-amber-100/50 text-amber-900 border border-amber-200/70 px-3.5 py-2 rounded-xl text-[11px] font-bold shadow-sm transition-all text-left"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
@@ -166,7 +167,10 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
                   {isManager && s.user?.fullName && (
                     <span className="text-[9px] text-gray-400 font-bold shrink-0">({s.user.fullName})</span>
                   )}
-                </button>
+                  <span className="ml-1 text-[9px] font-black text-brand-red bg-red-50 px-1.5 py-0.5 rounded border border-red-100 shrink-0 uppercase tracking-widest">
+                    เขียนรายงาน
+                  </span>
+                </Link>
               ))}
               {overdueVisits.length > 3 && (
                 <div className="flex items-center text-[10px] font-bold text-amber-600 px-2">
@@ -277,13 +281,25 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
                         <td className="py-4 px-5">{statusBadge(schedule.status)}</td>
                         {/* Action */}
                         <td className="py-4 px-5 text-center">
-                          <button
-                            onClick={() => setSelectedSchedule(schedule)}
-                            className="p-2 text-gray-300 hover:text-brand-red hover:bg-red-50 rounded-xl transition-all group-hover:text-gray-500"
-                            title="แก้ไข / บันทึกผล"
-                          >
-                            <Edit2 size={15} />
-                          </button>
+                          <div className="flex items-center justify-center gap-2">
+                            {!schedule.visitReport && schedule.status !== 'Cancelled' && schedule.status !== 'ยกเลิก' && (
+                              <Link
+                                href={`/schedule/report/${schedule.id}`}
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-brand-red/10 text-brand-red border border-brand-red/20 hover:bg-brand-red hover:text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap"
+                                title="เขียนรายงานผลการเข้าพบ"
+                              >
+                                <FileSignature size={12} />
+                                <span>เขียนรายงาน</span>
+                              </Link>
+                            )}
+                            <button
+                              onClick={() => setSelectedSchedule(schedule)}
+                              className="p-2 text-gray-300 hover:text-brand-red hover:bg-red-50 rounded-xl transition-all group-hover:text-gray-500"
+                              title="แก้ไข / บันทึกผล"
+                            >
+                              <Edit2 size={15} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

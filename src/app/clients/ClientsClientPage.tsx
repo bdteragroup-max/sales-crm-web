@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Building2,
   Users,
@@ -16,7 +16,7 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
-import { createCompany, createContact, getDistricts, getSubDistricts, getLocationsByPostalCode, updateCompany, updateContact, reassignCompanyAdministrator } from '@/app/actions/clients';
+import { createCompany, createContact, getDistricts, getSubDistricts, getLocationsByPostalCode, updateCompany, updateContact, reassignCompanyAdministrator, checkTaxIdExists } from '@/app/actions/clients';
 
 interface Company {
   id: string;
@@ -47,6 +47,7 @@ interface Company {
       fullName: string;
       role: string;
       employeeSale?: { position: string | null } | null;
+      isActive?: boolean | null;
     } | null;
   }[];
   contacts: { 
@@ -82,17 +83,29 @@ interface Contact {
   company?: { id: string; companyName: string } | null;
 }
 
+interface SalesRep {
+  id: string;
+  fullName: string;
+  role: string;
+  employeeSale?: { position: string | null } | null;
+}
+
 interface ClientsClientPageProps {
   initialCompanies: Company[];
   initialContacts: Contact[];
   companiesCount: number;
   contactsCount: number;
   allCompanies: { id: string; companyName: string }[];
-  salesReps: any[];
+  salesReps: SalesRep[];
   businessTypes: { id: string; name: string }[];
   provinces: string[];
   currentPage: number;
   limit: number;
+  currentUser?: {
+    id: string;
+    fullName: string;
+    role: string;
+  } | null;
 }
 
 type ActiveTab = 'companies' | 'contacts';
@@ -109,17 +122,64 @@ export default function ClientsClientPage({
   initialCompanies,
   initialContacts,
   companiesCount,
-  contactsCount,
   allCompanies,
   salesReps,
   businessTypes,
   provinces,
   currentPage,
   limit,
+  currentUser,
 }: ClientsClientPageProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<ActiveTab>('companies');
-  const [searchTerm, setSearchTerm] = useState('');
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const activeTab = 'companies';
+  const urlSearch = searchParams.get('search') || '';
+  const searchTerm = urlSearch;
+
+  const [localSearch, setLocalSearch] = useState(urlSearch);
+  const [prevUrlSearch, setPrevUrlSearch] = useState(urlSearch);
+
+  if (urlSearch !== prevUrlSearch) {
+    setPrevUrlSearch(urlSearch);
+    setLocalSearch(urlSearch);
+  }
+
+  React.useEffect(() => {
+    try {
+      console.log('[clients:browser] initialCompanies', { count: initialCompanies.length, sample: initialCompanies[0] });
+      console.log('[clients:browser] initialContacts', { count: initialContacts.length, sample: initialContacts[0] });
+    } catch {}
+  }, [initialCompanies, initialContacts]);
+
+  // Debounced Search Logic
+  React.useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (localSearch.trim()) {
+        params.set('search', localSearch.trim());
+      } else {
+        params.delete('search');
+      }
+      params.set('page', '1'); // Reset to page 1 on search
+      router.push(`${pathname}?${params.toString()}`);
+    }, 250);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [localSearch, pathname, router, searchParams]);
+
+  const handlePageChange = (newPage: number) => {
+    const totalPages = Math.ceil(companiesCount / limit);
+    if (newPage < 1 || newPage > totalPages) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', newPage.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const companiesTotalPages = Math.ceil(companiesCount / limit);
+
   const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -147,15 +207,11 @@ export default function ClientsClientPage({
   const [editAutoPostalCode, setEditAutoPostalCode] = useState('');
 
   // Billing Address States for Create Form
-  const [isBillingSameAsRegistered, setIsBillingSameAsRegistered] = useState(true);
   const [billingAddress, setBillingAddress] = useState('');
   const [billingProvince, setBillingProvince] = useState('');
   const [billingDistrict, setBillingDistrict] = useState('');
   const [billingSubDistrict, setBillingSubDistrict] = useState('');
   const [billingPostalCode, setBillingPostalCode] = useState('');
-
-  // Shipping Address States for Create Form
-  const [isShippingSameAsBilling, setIsShippingSameAsBilling] = useState(true);
   const [shippingAddress, setShippingAddress] = useState('');
   const [shippingProvince, setShippingProvince] = useState('');
   const [shippingDistrict, setShippingDistrict] = useState('');
@@ -163,7 +219,6 @@ export default function ClientsClientPage({
   const [shippingPostalCode, setShippingPostalCode] = useState('');
 
   // Billing Address States for Edit Form
-  const [editIsBillingSameAsRegistered, setEditIsBillingSameAsRegistered] = useState(true);
   const [editBillingAddress, setEditBillingAddress] = useState('');
   const [editBillingProvince, setEditBillingProvince] = useState('');
   const [editBillingDistrict, setEditBillingDistrict] = useState('');
@@ -171,7 +226,6 @@ export default function ClientsClientPage({
   const [editBillingPostalCode, setEditBillingPostalCode] = useState('');
 
   // Shipping Address States for Edit Form
-  const [editIsShippingSameAsBilling, setEditIsShippingSameAsBilling] = useState(true);
   const [editShippingAddress, setEditShippingAddress] = useState('');
   const [editShippingProvince, setEditShippingProvince] = useState('');
   const [editShippingDistrict, setEditShippingDistrict] = useState('');
@@ -190,6 +244,83 @@ export default function ClientsClientPage({
   const [selectedSubDistrict, setSelectedSubDistrict] = useState('');
   const [autoPostalCode, setAutoPostalCode] = useState('');
 
+  // ─── Real-Time Tax ID Duplicate Check & Custom Alert States ─────────
+  const [createTaxId, setCreateTaxId] = useState('');
+  const [taxIdWarning, setTaxIdWarning] = useState<string | null>(null);
+  const [isCheckingTaxId, setIsCheckingTaxId] = useState(false);
+
+  const [editTaxId, setEditTaxId] = useState('');
+  const [editTaxIdWarning, setEditTaxIdWarning] = useState<string | null>(null);
+  const [isCheckingEditTaxId, setIsCheckingEditTaxId] = useState(false);
+
+  const [customAlert, setCustomAlert] = useState<{ isOpen: boolean; message: string; title?: string } | null>(null);
+
+  const showAlert = (message: string, title: string = 'เกิดข้อผิดพลาด') => {
+    setCustomAlert({ isOpen: true, message, title });
+  };
+
+  const openCompanyModal = () => {
+    setCreateTaxId('');
+    setTaxIdWarning(null);
+    setIsCheckingTaxId(false);
+    setIsCompanyModalOpen(true);
+  };
+
+  const closeCompanyModal = () => {
+    setIsCompanyModalOpen(false);
+    setCreateTaxId('');
+    setTaxIdWarning(null);
+    setIsCheckingTaxId(false);
+  };
+
+  // Debounced Tax ID Check for Create Modal
+  React.useEffect(() => {
+    if (!createTaxId || createTaxId.trim() === '') {
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const res = await checkTaxIdExists(createTaxId);
+        if (res.exists) {
+          setTaxIdWarning(`เลขประจำตัวผู้เสียภาษีนี้ซ้ำในระบบแล้ว! ถูกใช้โดย: ${res.companyName}`);
+        } else {
+          setTaxIdWarning(null);
+        }
+      } catch (err) {
+        console.error('Error checking Tax ID:', err);
+      } finally {
+        setIsCheckingTaxId(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [createTaxId]);
+
+  // Debounced Tax ID Check for Edit Modal
+  React.useEffect(() => {
+    if (!editTaxId || editTaxId.trim() === '' || !editingCompany) {
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const res = await checkTaxIdExists(editTaxId, editingCompany.id);
+        if (res.exists) {
+          setEditTaxIdWarning(`เลขประจำตัวผู้เสียภาษีนี้ซ้ำในระบบแล้ว! ถูกใช้โดย: ${res.companyName}`);
+        } else {
+          setEditTaxIdWarning(null);
+        }
+      } catch (err) {
+        console.error('Error checking Edit Tax ID:', err);
+      } finally {
+        setIsCheckingEditTaxId(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [editTaxId, editingCompany]);
+
   const handleInlineReassign = async (companyId: string) => {
     if (!selectedNewRepId) return;
     setIsReassigningLoading(true);
@@ -200,11 +331,11 @@ export default function ClientsClientPage({
         setSelectedNewRepId('');
         router.refresh();
       } else {
-        alert(res.message || 'เกิดข้อผิดพลาดในการมอบหมายผู้ดูแลใหม่');
+        showAlert(res.message || 'เกิดข้อผิดพลาดในการมอบหมายผู้ดูแลใหม่');
       }
     } catch (err) {
       console.error(err);
-      alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+      showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
     } finally {
       setIsReassigningLoading(false);
     }
@@ -247,6 +378,10 @@ export default function ClientsClientPage({
     setEditingCompany(company);
     setShowEditNewBusinessTypeInput(false);
     
+    // Populate Edit Tax ID states
+    setEditTaxId(company.taxId || '');
+    setEditTaxIdWarning(null);
+    
     // Pre-populate main address
     setEditSelectedProvince(company.province || '');
     setEditSelectedDistrict(company.district || '');
@@ -273,14 +408,6 @@ export default function ClientsClientPage({
     setEditBillingProvince(company.billingProvince || '');
     setEditBillingPostalCode(company.billingPostalCode || '');
 
-    // Detect if billing is same as registered
-    const sameBilling = 
-      (company.billingAddress || '') === (company.address || '') &&
-      (company.billingProvince || '') === (company.province || '') &&
-      (company.billingDistrict || '') === (company.district || '') &&
-      (company.billingSubDistrict || '') === (company.subDistrict || '') &&
-      (company.billingPostalCode || '') === (company.postalCode || '');
-    setEditIsBillingSameAsRegistered(sameBilling && !!company.billingAddress);
 
     // Pre-populate Shipping Address
     setEditShippingAddress(company.shippingAddress || '');
@@ -289,14 +416,6 @@ export default function ClientsClientPage({
     setEditShippingProvince(company.shippingProvince || '');
     setEditShippingPostalCode(company.shippingPostalCode || '');
 
-    // Detect if shipping is same as billing
-    const sameShipping =
-      (company.shippingAddress || '') === (company.billingAddress || '') &&
-      (company.shippingProvince || '') === (company.billingProvince || '') &&
-      (company.shippingDistrict || '') === (company.billingDistrict || '') &&
-      (company.shippingSubDistrict || '') === (company.billingSubDistrict || '') &&
-      (company.shippingPostalCode || '') === (company.billingPostalCode || '');
-    setEditIsShippingSameAsBilling(sameShipping && !!company.shippingAddress);
 
     setEditPaymentMethod(company.paymentMethod || '');
     setIsEditCompanyModalOpen(true);
@@ -387,25 +506,8 @@ export default function ClientsClientPage({
   }, [editAutoPostalCode]);
 
   // ─── Filtered data ───────────────────────────────────────────────────
-  const filteredCompanies = initialCompanies.filter((c) => {
-    const q = searchTerm.toLowerCase();
-    return (
-      c.companyName?.toLowerCase().includes(q) ||
-      c.taxId?.toLowerCase().includes(q) ||
-      c.businessType?.toLowerCase().includes(q) ||
-      c.province?.toLowerCase().includes(q)
-    );
-  });
-
-  const filteredContacts = initialContacts.filter((c) => {
-    const q = searchTerm.toLowerCase();
-    return (
-      c.contactName?.toLowerCase().includes(q) ||
-      c.company?.companyName?.toLowerCase().includes(q) ||
-      c.mobilePhone?.toLowerCase().includes(q) ||
-      c.position?.toLowerCase().includes(q)
-    );
-  });
+  const filteredCompanies = initialCompanies;
+  const filteredContacts = initialContacts;
 
   const getTimeSince = (dateStr?: string) => {
     if (!dateStr) return null;
@@ -443,7 +545,7 @@ export default function ClientsClientPage({
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => setIsCompanyModalOpen(true)}
+            onClick={openCompanyModal}
             className="flex items-center gap-2 bg-brand-red text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95 text-sm"
           >
             <Plus size={18} />
@@ -459,24 +561,6 @@ export default function ClientsClientPage({
         </div>
       </div>
 
-      {/* ─── Tabs ────────────────────────────────────────────────────────── */}
-      <div className="flex items-center border-b border-gray-200 mb-6 bg-white/50 px-2 pt-2 rounded-t-xl overflow-x-auto">
-        <TabButton
-          active={activeTab === 'companies'}
-          onClick={() => { setActiveTab('companies'); setSearchTerm(''); setExpandedCompany(null); }}
-          icon={<Building2 size={16} />}
-          label="บริษัท"
-          count={initialCompanies.length}
-        />
-        <TabButton
-          active={activeTab === 'contacts'}
-          onClick={() => { setActiveTab('contacts'); setSearchTerm(''); setExpandedCompany(null); }}
-          icon={<Users size={16} />}
-          label="ผู้ติดต่อ"
-          count={initialContacts.length}
-        />
-      </div>
-
       {/* ─── Search bar ──────────────────────────────────────────────────── */}
       <div className="relative max-w-md mb-6">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -484,14 +568,10 @@ export default function ClientsClientPage({
         </div>
         <input
           type="text"
-          placeholder={
-            activeTab === 'companies'
-              ? 'ค้นหาตามชื่อบริษัท, เลขภาษี, จังหวัด...'
-              : 'ค้นหาตามชื่อ, บริษัท, เบอร์โทร...'
-          }
+          placeholder="ค้นหาตามชื่อบริษัท, เลขภาษี, จังหวัด..."
           className="block w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 transition-all"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
         />
       </div>
 
@@ -502,26 +582,31 @@ export default function ClientsClientPage({
             <EmptyState message={searchTerm ? 'ไม่พบบริษัทที่ค้นหา' : 'ยังไม่มีข้อมูลบริษัท'} icon={<Building2 size={40} className="text-gray-300" />} />
           ) : (
             filteredCompanies.map((company) => {
-              const activeHandler = company.quotations?.[0]?.salesperson || company.assignedUser;
+              const activeHandler = 
+                (company.quotations?.[0]?.salesperson && company.quotations?.[0]?.salesperson.isActive === true)
+                  ? company.quotations?.[0]?.salesperson 
+                  : (company.assignedUser && company.assignedUser.isActive === true)
+                    ? company.assignedUser
+                    : null;
               return (
                 <div
                 key={company.id}
                 className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:border-red-100"
               >
                 {/* Company Row */}
-                <button
+                <div
                   onClick={() => setExpandedCompany(expandedCompany === company.id ? null : company.id)}
-                  className="w-full flex items-center gap-4 p-5 text-left group"
+                  className="w-full flex items-center gap-4 p-5 text-left group cursor-pointer"
                 >
                   {/* Avatar */}
                   <div className="w-11 h-11 rounded-full bg-red-50 flex items-center justify-center text-red-600 font-black text-lg shrink-0 border border-red-100">
-                    {company.companyName.charAt(0)}
+                    {company.companyName.trim().charAt(0)}
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-gray-900 text-[15px]">{company.companyName}</span>
+                      <span className="font-bold text-gray-900 text-[15px]">{company.companyName.trim()}</span>
                       {company.customerStatus && (
                         <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${statusColors[company.customerStatus] || 'bg-gray-100 text-gray-600'}`}>
                           {company.customerStatus}
@@ -621,33 +706,14 @@ export default function ClientsClientPage({
                             </button>
                           </div>
                         </div>
-                      ) : company.assignedUser ? (
+                      ) : (company.assignedUser && company.assignedUser.isActive === true) ? (
                         <div>
-                          <p className={`text-[11px] font-black mt-0.5 truncate max-w-[120px] ${company.assignedUser.isActive === false ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
+                          <p className="text-[11px] font-black text-gray-800 mt-0.5 truncate max-w-[120px]">
                             {company.assignedUser.fullName}
                           </p>
-                          {company.assignedUser.isActive === false ? (
-                            <div className="flex flex-col items-start gap-1 mt-1">
-                              <span className="inline-block bg-red-50 text-red-600 text-[8px] font-extrabold px-1.5 py-0.5 rounded border border-red-100 uppercase tracking-wider animate-pulse">
-                                unavailable
-                              </span>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setReassigningCompanyId(company.id);
-                                  setSelectedNewRepId('');
-                                }}
-                                className="text-[9px] text-red-600 hover:text-red-700 font-black tracking-wide underline mt-0.5 bg-transparent border-0 p-0 cursor-pointer transition-colors block"
-                              >
-                                Assign new administrator
-                              </button>
-                            </div>
-                          ) : (
-                            <p className="text-[9px] text-gray-400 font-bold truncate max-w-[120px]">
-                              {company.assignedUser.employeeSale?.position || 'Sales Rep'}
-                            </p>
-                          )}
+                          <p className="text-[9px] text-gray-400 font-bold truncate max-w-[120px]">
+                            {company.assignedUser.employeeSale?.position || 'Sales Rep'}
+                          </p>
                         </div>
                       ) : activeHandler ? (
                         <div>
@@ -657,7 +723,9 @@ export default function ClientsClientPage({
                           </p>
                         </div>
                       ) : (
-                        <p className="text-[11px] font-bold mt-0.5 text-gray-300">ไม่มีผู้ดูแล</p>
+                        <div>
+                          <p className="text-[11px] font-bold mt-0.5 text-gray-300">ไม่มีผู้ดูแล</p>
+                        </div>
                       )}
                     </div>
 
@@ -688,7 +756,7 @@ export default function ClientsClientPage({
                     size={18}
                     className={`text-gray-300 shrink-0 transition-transform duration-200 group-hover:text-red-400 ${expandedCompany === company.id ? 'rotate-90 text-red-400' : ''}`}
                   />
-                </button>
+                </div>
 
                 {/* Expanded contacts section */}
                 {expandedCompany === company.id && company.contacts.length > 0 && (
@@ -714,16 +782,27 @@ export default function ClientsClientPage({
                         <div key={contact.id} className="flex items-center justify-between gap-3 bg-white rounded-xl px-3 py-2.5 border border-gray-100">
                           <div className="flex items-center gap-3 min-w-0">
                             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-sm shrink-0">
-                              {contact.contactName.charAt(0)}
+                              {contact.contactName.trim().charAt(0)}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-sm font-semibold text-gray-800 truncate">{contact.contactName}</p>
-                              <div className="flex items-center gap-2 text-xs text-gray-500">
-                                {contact.position && <span>{contact.position}</span>}
+                              <p className="text-sm font-semibold text-gray-800 truncate">{contact.contactName.trim()}</p>
+                              <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500 mt-0.5">
+                                {contact.position && <span className="text-gray-400 font-medium">{contact.position}</span>}
                                 {contact.mobilePhone && (
-                                  <span className="flex items-center gap-0.5">
-                                    <Phone size={10} /> {contact.mobilePhone}
-                                  </span>
+                                  <a
+                                    href={`tel:${contact.mobilePhone}`}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      window.location.href = `tel:${contact.mobilePhone}`;
+                                      setTimeout(() => {
+                                        router.push(`/telesales/log?contactId=${contact.id}&companyId=${company.id}&returnTo=/clients`);
+                                      }, 1200);
+                                    }}
+                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 hover:bg-red-500 text-brand-red hover:text-white rounded font-bold text-[10px] transition-all cursor-pointer"
+                                  >
+                                    <Phone size={10} className="shrink-0" /> {contact.mobilePhone}
+                                  </a>
                                 )}
                               </div>
                             </div>
@@ -765,78 +844,82 @@ export default function ClientsClientPage({
             );
           })
           )}
-        </div>
-      )}
+          
+          {/* Companies Pagination Controls */}
+          {companiesTotalPages > 1 && (
+            <div className="flex items-center justify-between bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100 mt-4 font-sans">
+              <div className="flex flex-1 justify-between sm:hidden">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all active:scale-95"
+                >
+                  ก่อนหน้า
+                </button>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === companiesTotalPages}
+                  className="relative ml-3 inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all active:scale-95"
+                >
+                  ถัดไป
+                </button>
+              </div>
+              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 font-sans">
+                    แสดงรายการที่ <span className="font-bold text-gray-800">{Math.min((currentPage - 1) * limit + 1, companiesCount)}</span> ถึง{' '}
+                    <span className="font-bold text-gray-800">{Math.min(currentPage * limit, companiesCount)}</span> จากทั้งหมด{' '}
+                    <span className="font-bold text-gray-800">{companiesCount}</span> รายการ
+                  </p>
+                </div>
+                <div>
+                  <nav className="isolate inline-flex -space-x-px rounded-xl gap-1.5 font-sans" aria-label="Pagination">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center rounded-xl px-2.5 py-2 text-gray-400 hover:bg-red-50 hover:text-brand-red disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all active:scale-95"
+                    >
+                      <span className="transform rotate-180 block">&#x276F;</span>
+                    </button>
+                    
+                    {Array.from({ length: companiesTotalPages }, (_, i) => i + 1).map((p) => {
+                      if (companiesTotalPages > 7 && p !== 1 && p !== companiesTotalPages && Math.abs(p - currentPage) > 1) {
+                        if (p === 2 && currentPage > 3) {
+                          return <span key="dots-start" className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
+                        }
+                        if (p === companiesTotalPages - 1 && currentPage < companiesTotalPages - 2) {
+                          return <span key="dots-end" className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
+                        }
+                        return null;
+                      }
 
-      {/* ─── Contacts Tab ────────────────────────────────────────────────── */}
-      {activeTab === 'contacts' && (
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-600">
-              <thead className="bg-gray-50/60 text-gray-600 border-b border-gray-100">
-                <tr>
-                  <th className="font-semibold py-4 px-6">ชื่อผู้ติดต่อ</th>
-                  <th className="font-semibold py-4 px-6">ตำแหน่ง</th>
-                  <th className="font-semibold py-4 px-6">บริษัท</th>
-                  <th className="font-semibold py-4 px-6">เบอร์โทรศัพท์</th>
-                  <th className="font-semibold py-4 px-6 text-right">การจัดการ</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredContacts.length > 0 ? (
-                  filteredContacts.map((contact) => (
-                    <tr key={contact.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold shrink-0">
-                            {contact.contactName.charAt(0)}
-                          </div>
-                          <span className="font-semibold text-gray-900">{contact.contactName}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6 text-gray-500">{contact.position || '-'}</td>
-                      <td className="py-4 px-6">
-                        <span className="flex items-center gap-1.5 text-gray-700">
-                          <Building2 size={14} className="text-red-400 shrink-0" />
-                          {contact.company?.companyName || '-'}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        {contact.mobilePhone ? (
-                          <a
-                            href={`tel:${contact.mobilePhone}`}
-                            className="flex items-center gap-1.5 text-brand-red hover:text-red-700 font-medium"
-                          >
-                            <Phone size={14} /> {contact.mobilePhone}
-                          </a>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="py-4 px-6 text-right">
+                      return (
                         <button
-                          type="button"
-                          onClick={() => handleEditContact(contact, contact.companyId || contact.company?.id || '')}
-                          className="text-[11px] font-black text-slate-400 hover:text-brand-red underline transition-colors"
+                          key={p}
+                          onClick={() => handlePageChange(p)}
+                          className={`relative inline-flex items-center rounded-xl px-3.5 py-1.5 text-sm font-bold transition-all active:scale-95 ${
+                            p === currentPage
+                              ? 'z-10 bg-brand-red text-white shadow-md shadow-red-200'
+                              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                          }`}
                         >
-                          แก้ไข
+                          {p}
                         </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="py-14 text-center text-gray-400">
-                      <div className="flex flex-col items-center gap-2">
-                        <Users size={36} className="text-gray-200" />
-                        <span>{searchTerm ? 'ไม่พบผู้ติดต่อที่ค้นหา' : 'ยังไม่มีข้อมูลผู้ติดต่อ'}</span>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                      );
+                    })}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === companiesTotalPages}
+                      className="relative inline-flex items-center rounded-xl px-2.5 py-2 text-gray-400 hover:bg-red-50 hover:text-brand-red disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all active:scale-95"
+                    >
+                      <span>&#x276F;</span>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -851,7 +934,7 @@ export default function ClientsClientPage({
                 </div>
                 <h3 className="text-xl font-black text-gray-900">เพิ่มบริษัทใหม่</h3>
               </div>
-              <button onClick={() => setIsCompanyModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
+              <button onClick={closeCompanyModal} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -859,10 +942,10 @@ export default function ClientsClientPage({
             <form action={async (formData) => {
               const res = await createCompany(Object.fromEntries(formData));
               if (res.success) {
-                setIsCompanyModalOpen(false);
+                closeCompanyModal();
                 window.location.reload(); // Quick refresh to show new data
               } else {
-                alert(res.message);
+                showAlert(res.message || 'เกิดข้อผิดพลาดในการเพิ่มบริษัทใหม่');
               }
             }} className="p-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -872,7 +955,39 @@ export default function ClientsClientPage({
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เลขประจำตัวผู้เสียภาษี (Tax ID)</label>
-                  <input name="taxId" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all" placeholder="0123456789012" />
+                  <div className="relative">
+                    <input 
+                      name="taxId" 
+                      value={createTaxId}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCreateTaxId(val);
+                        if (!val || val.trim() === '') {
+                          setTaxIdWarning(null);
+                          setIsCheckingTaxId(false);
+                        } else {
+                          setIsCheckingTaxId(true);
+                        }
+                      }}
+                      className={`w-full bg-gray-50 border rounded-xl px-4 py-3 outline-none transition-all focus:ring-4 ${
+                        taxIdWarning 
+                          ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-400/10 bg-amber-50/5' 
+                          : 'border-gray-200 focus:border-brand-red focus:ring-brand-red/10'
+                      }`}
+                      placeholder="0123456789012" 
+                    />
+                    {isCheckingTaxId && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
+                        <Loader2 size={18} className="animate-spin text-brand-red" />
+                      </div>
+                    )}
+                  </div>
+                  {taxIdWarning && (
+                    <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl px-4 py-3 text-xs mt-1.5 animate-in slide-in-from-top-1 duration-200 shadow-sm shadow-amber-50">
+                      <span className="text-sm">⚠️</span>
+                      <span className="font-semibold leading-relaxed">{taxIdWarning}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทลูกค้า (นิติบุคคล / บุคคลธรรมดา) *</label>
@@ -919,14 +1034,33 @@ export default function ClientsClientPage({
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ผู้ดูแลบัญชี (Account Manager)</label>
-                  <select name="assignedUserId" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
-                    <option value="">-- เลือกผู้จัดการ/พนักงาน --</option>
-                    {salesReps.map(rep => (
-                      <option key={rep.id} value={rep.id}>
-                        {rep.fullName} ({rep.employeeSale?.position || rep.role})
-                      </option>
-                    ))}
-                  </select>
+                  {currentUser?.role === 'ตัวแทนฝ่ายขาย' ? (
+                    <>
+                      <select 
+                        disabled 
+                        value={currentUser.id} 
+                        className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 outline-none transition-all appearance-none cursor-not-allowed opacity-80"
+                      >
+                        <option value={currentUser.id}>
+                          {currentUser.fullName} ({currentUser.role})
+                        </option>
+                      </select>
+                      <input type="hidden" name="assignedUserId" value={currentUser.id} />
+                    </>
+                  ) : (
+                    <select 
+                      name="assignedUserId" 
+                      defaultValue={currentUser?.id || ''} 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none"
+                    >
+                      <option value="">-- เลือกผู้จัดการ/พนักงาน --</option>
+                      {salesReps.map(rep => (
+                        <option key={rep.id} value={rep.id}>
+                          {rep.fullName} ({rep.employeeSale?.position || rep.role})
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด *</label>
@@ -1207,7 +1341,7 @@ export default function ClientsClientPage({
               </div>
 
               <div className="flex gap-4 pt-4">
-                <button type="button" onClick={() => setIsCompanyModalOpen(false)} className="flex-1 px-6 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-all">ยกเลิก</button>
+                <button type="button" onClick={closeCompanyModal} className="flex-1 px-6 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-all">ยกเลิก</button>
                 <button type="submit" className="flex-2 px-10 py-3 bg-brand-red text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-100 transition-all">บันทึกข้อมูลบริษัท</button>
               </div>
             </form>
@@ -1236,14 +1370,14 @@ export default function ClientsClientPage({
                 setIsContactModalOpen(false);
                 window.location.reload();
               } else {
-                alert(res.message);
+                showAlert(res.message || 'เกิดข้อผิดพลาดในการเพิ่มผู้ติดต่อ');
               }
             }} className="p-8 space-y-5">
               <div className="space-y-2">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สังกัดบริษัท *</label>
                 <select required name="companyId" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
                   <option value="">-- เลือกบริษัท --</option>
-                  {initialCompanies.map(comp => (
+                  {allCompanies.map(comp => (
                     <option key={comp.id} value={comp.id}>{comp.companyName}</option>
                   ))}
                 </select>
@@ -1292,7 +1426,7 @@ export default function ClientsClientPage({
                 setIsEditCompanyModalOpen(false);
                 window.location.reload();
               } else {
-                alert(res.message);
+                showAlert(res.message || 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลบริษัท');
               }
             }} className="p-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1302,7 +1436,38 @@ export default function ClientsClientPage({
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เลขประจำตัวผู้เสียภาษี (Tax ID)</label>
-                  <input name="taxId" defaultValue={editingCompany.taxId || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
+                  <div className="relative">
+                    <input 
+                      name="taxId" 
+                      value={editTaxId}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditTaxId(val);
+                        if (!val || val.trim() === '') {
+                          setEditTaxIdWarning(null);
+                          setIsCheckingEditTaxId(false);
+                        } else {
+                          setIsCheckingEditTaxId(true);
+                        }
+                      }}
+                      className={`w-full bg-gray-50 border rounded-xl px-4 py-3 outline-none transition-all focus:ring-4 ${
+                        editTaxIdWarning 
+                          ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-400/10 bg-amber-50/5' 
+                          : 'border-gray-200 focus:border-brand-red focus:ring-brand-red/10'
+                      }`}
+                    />
+                    {isCheckingEditTaxId && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
+                        <Loader2 size={18} className="animate-spin text-brand-red" />
+                      </div>
+                    )}
+                  </div>
+                  {editTaxIdWarning && (
+                    <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl px-4 py-3 text-xs mt-1.5 animate-in slide-in-from-top-1 duration-200 shadow-sm shadow-amber-50">
+                      <span className="text-sm">⚠️</span>
+                      <span className="font-semibold leading-relaxed">{editTaxIdWarning}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทลูกค้า *</label>
@@ -1350,14 +1515,33 @@ export default function ClientsClientPage({
                 </div>
                  <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ผู้ดูแลบัญชี (Account Manager)</label>
-                  <select name="assignedUserId" defaultValue={editingCompany.assignedUser?.id || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none">
-                    <option value="">-- เลือกผู้จัดการ/พนักงาน --</option>
-                    {salesReps.map(rep => (
-                      <option key={rep.id} value={rep.id}>
-                        {rep.fullName} ({rep.employeeSale?.position || rep.role})
-                      </option>
-                    ))}
-                  </select>
+                  {currentUser?.role === 'ตัวแทนฝ่ายขาย' ? (
+                    <>
+                      <select 
+                        disabled 
+                        value={currentUser.id} 
+                        className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 outline-none transition-all appearance-none cursor-not-allowed opacity-80"
+                      >
+                        <option value={currentUser.id}>
+                          {currentUser.fullName} ({currentUser.role})
+                        </option>
+                      </select>
+                      <input type="hidden" name="assignedUserId" value={currentUser.id} />
+                    </>
+                  ) : (
+                    <select 
+                      name="assignedUserId" 
+                      defaultValue={editingCompany.assignedUser?.id || ''} 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
+                    >
+                      <option value="">-- เลือกผู้จัดการ/พนักงาน --</option>
+                      {salesReps.map(rep => (
+                        <option key={rep.id} value={rep.id}>
+                          {rep.fullName} ({rep.employeeSale?.position || rep.role})
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 {/* Address Section */}
@@ -1608,14 +1792,14 @@ export default function ClientsClientPage({
                 setIsEditContactModalOpen(false);
                 window.location.reload();
               } else {
-                alert(res.message);
+                showAlert(res.message || 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลผู้ติดต่อ');
               }
             }} className="p-8 space-y-5">
               <div className="space-y-2">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สังกัดบริษัท *</label>
                 <select required name="companyId" defaultValue={editingContact.companyId || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
                   <option value="">-- เลือกบริษัท --</option>
-                  {initialCompanies.map(comp => (
+                  {allCompanies.map(comp => (
                     <option key={comp.id} value={comp.id}>{comp.companyName}</option>
                   ))}
                 </select>
@@ -1655,6 +1839,38 @@ export default function ClientsClientPage({
                 <button type="submit" className="flex-2 px-10 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 shadow-lg shadow-slate-100 transition-all">บันทึกการแก้ไข</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Premium Custom Red Alert Modal ─────────────────────────────────── */}
+      {customAlert?.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-red-100/50">
+            {/* Red top bar accent */}
+            <div className="h-2.5 bg-red-600 w-full" />
+            <div className="p-8 text-center">
+              {/* Premium Red Circular Warning Icon */}
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 text-red-600 mb-6 ring-8 ring-red-50/50">
+                <X size={32} strokeWidth={2.5} />
+              </div>
+              
+              <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tight">
+                {customAlert.title}
+              </h3>
+              
+              <p className="text-gray-600 text-sm leading-relaxed mb-8 px-2 font-medium">
+                {customAlert.message}
+              </p>
+              
+              <button
+                type="button"
+                onClick={() => setCustomAlert(null)}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-red-200 hover:shadow-red-300 transition-all duration-200 active:scale-[0.98] text-sm focus:outline-none focus:ring-4 focus:ring-red-600/20"
+              >
+                ตกลง (OK)
+              </button>
+            </div>
           </div>
         </div>
       )}

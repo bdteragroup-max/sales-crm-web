@@ -12,6 +12,7 @@ interface PageProps {
     prefill?: string;
     companyId?: string;
     contactId?: string;
+    editId?: string;
   }>;
 }
 
@@ -25,9 +26,29 @@ export default async function SalesPage({ searchParams }: PageProps) {
   // Manager sees all; rep sees only their own
   const whereClause = isManager ? {} : { salespersonId: user.id };
 
-  // Fetch prefill details if requested
+  // ── Handle editId: load a specific quotation for editing (from pipeline click) ──
+  let editingData: any = null;
+  if (params.editId) {
+    const quotationToEdit = await prisma.quotation.findUnique({
+      where: { id: params.editId },
+      include: {
+        company: true,
+        contact: true,
+        salesperson: { include: { employeeSale: true } },
+      },
+    });
+    // Only allow edit if the user owns it or is a manager
+    if (
+      quotationToEdit &&
+      (isManager || quotationToEdit.salespersonId === user.id || quotationToEdit.salespersonId === null)
+    ) {
+      editingData = JSON.parse(JSON.stringify(quotationToEdit));
+    }
+  }
+
+  // ── Handle prefill: load company/contact for a fresh new quotation ──
   let prefillData: any = null;
-  if (params.prefill === 'true' && params.companyId) {
+  if (!editingData && params.prefill === 'true' && params.companyId) {
     const company = await prisma.company.findUnique({
       where: { id: params.companyId },
       include: {
@@ -79,6 +100,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
           businessTypes={businessTypes}
           currentUserSale={currentUserWithSale?.employeeSale}
           prefillData={prefillData}
+          editingQuotation={editingData}
         />
       </main>
     </div>

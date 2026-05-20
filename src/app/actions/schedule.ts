@@ -246,22 +246,23 @@ export async function updateSchedule(id: string, data: {
     const updated = await prisma.schedule.update({
       where: { id },
       data: {
-        title: data.title,
-        description: data.description,
-        date: scheduleDate,
-        status: data.status,
-        companyId,
-        presentationStatus: data.presentationStatus,
-        quotationNumber: data.quotationNumber,
-        poNumber: data.poNumber,
-        invoiceNumber: data.invoiceNumber,
-        notes: data.notes,
-        visitReport: data.visitReport
+        ...(data.title !== undefined        ? { title: data.title }                        : {}),
+        ...(data.description !== undefined  ? { description: data.description }            : {}),
+        ...(scheduleDate !== schedule.date  ? { date: scheduleDate }                       : {}),
+        ...(data.status !== undefined       ? { status: data.status }                      : {}),
+        ...(companyId !== undefined         ? { companyId }                                : {}),
+        ...(data.presentationStatus !== undefined ? { presentationStatus: data.presentationStatus } : {}),
+        ...(data.quotationNumber !== undefined    ? { quotationNumber: data.quotationNumber }       : {}),
+        ...(data.poNumber !== undefined           ? { poNumber: data.poNumber }                     : {}),
+        ...(data.invoiceNumber !== undefined      ? { invoiceNumber: data.invoiceNumber }           : {}),
+        ...(data.notes !== undefined              ? { notes: data.notes }                           : {}),
+        ...(data.visitReport !== undefined        ? { visitReport: data.visitReport }               : {}),
       },
       include: {
         company: true
       }
     })
+
 
     return { success: true, data: updated }
   } catch (error: any) {

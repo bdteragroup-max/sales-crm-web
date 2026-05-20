@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, PhoneCall,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X,
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 
@@ -18,6 +18,7 @@ type SidebarProps = {
 
 const managerNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมทีม', href: '/dashboard' },
+  { icon: GitCommit, label: 'ท่อดีลฝ่ายขาย', href: '/pipeline' },
   { icon: TrendingUp, label: 'จัดการใบเสนอราคา', href: '/sales' },
   { icon: Users, label: 'จัดการทีม', href: '/team' },
   { icon: CalendarDays, label: 'จัดการตารางงาน', href: '/schedule' },
@@ -28,6 +29,7 @@ const managerNav = [
 
 const repNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมของฉัน', href: '/dashboard' },
+  { icon: GitCommit, label: 'ท่อดีลของฉัน', href: '/pipeline' },
   { icon: TrendingUp, label: 'บันทึกใบเสนอราคา', href: '/sales' },
   { icon: CalendarDays, label: 'ตารางงานของฉัน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },

@@ -20,7 +20,7 @@ export async function getProvinces() {
     const cached = await unstable_cache(
       async () => {
         const res = await getProvincesFromDb();
-        return res.map((p: any) => p.province);
+        return res.map((p: { province: string }) => p.province);
       },
       ['thai-provinces-list'],
       { revalidate: 3600, tags: ['thai-provinces-list'] }
@@ -33,7 +33,7 @@ export async function getProvinces() {
   } catch (e) {
     console.error("Next.js unstable_cache failed, falling back to direct DB query:", e);
     const res = await getProvincesFromDb();
-    return res.map((p: any) => p.province);
+    return res.map((p: { province: string }) => p.province);
   }
 }
 
@@ -74,22 +74,49 @@ export default async function ClientsPage({ searchParams }: PageProps) {
       }
     : {};
 
-  // Parallel database execution
+  // Parallel database execution (wrapped in try/catch to surface DB errors and fallback)
   const tStartQueries = performance.now();
-  const [
-    companies,
-    companiesCount,
-    contacts,
-    contactsCount,
-    salesReps,
-    businessTypes,
-    provinces,
-    allCompaniesMinimal
-  ] = await Promise.all([
+  let companies: { companyName?: string }[] = [];
+  let companiesCount = 0;
+  let contacts: unknown[] = [];
+  let contactsCount = 0;
+  let salesReps: unknown[] = [];
+  let businessTypes: unknown[] = [];
+  let provinces: string[] = [];
+  let allCompaniesMinimal: unknown[] = [];
+
+  try {
+    // 0. Auto-unassign resigned/inactive administrators from companies
+    const inactiveUsers = await prisma.user.findMany({
+      where: { isActive: false },
+      select: { id: true }
+    });
+    const inactiveUserIds = inactiveUsers.map((u: { id: string }) => u.id);
+    if (inactiveUserIds.length > 0) {
+      const hasInactiveAssignment = await prisma.company.findFirst({
+        where: {
+          assignedUserId: { in: inactiveUserIds }
+        },
+        select: { id: true }
+      });
+      if (hasInactiveAssignment) {
+        await prisma.company.updateMany({
+          where: {
+            assignedUserId: { in: inactiveUserIds }
+          },
+          data: {
+            assignedUserId: null
+          }
+        });
+        console.log(`[clients] Auto-unassigned inactive users: ${inactiveUserIds.join(', ')}`);
+      }
+    }
+
+    const results = await Promise.all([
     // 1. Paginated Companies
     prisma.company.findMany({
       where: companySearchFilter,
-      orderBy: { companyName: 'asc' },
+      orderBy: { createdAt: 'desc' as const },
       take: limit,
       skip: skip,
       include: {
@@ -113,6 +140,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
                 id: true,
                 fullName: true,
                 role: true,
+                isActive: true,
                 employeeSale: {
                   select: {
                     position: true
@@ -131,7 +159,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
     // 3. Paginated Contacts
     prisma.contact.findMany({
       where: contactSearchFilter,
-      orderBy: { contactName: 'asc' },
+      orderBy: { createdAt: 'desc' as const },
       take: limit,
       skip: skip,
       include: { company: true },
@@ -156,10 +184,45 @@ export default async function ClientsPage({ searchParams }: PageProps) {
       select: { id: true, companyName: true },
       orderBy: { companyName: 'asc' }
     })
-  ]);
-  const tEndQueries = performance.now();
-  const dbTime = tEndQueries - tStartQueries;
-  console.log(`[PERF] ClientsPage Initial DB Queries Promise.all took: ${dbTime.toFixed(2)}ms`);
+    ]);
+
+    [
+      companies,
+      companiesCount,
+      contacts,
+      contactsCount,
+      salesReps,
+      businessTypes,
+      provinces,
+      allCompaniesMinimal
+    ] = results as [
+      { companyName?: string }[],
+      number,
+      unknown[],
+      number,
+      unknown[],
+      unknown[],
+      string[],
+      unknown[]
+    ];
+
+    try {
+      console.log('[clients] query results', {
+        companiesCount: companies.length,
+        companiesCountFromCount: companiesCount,
+        contactsCount: contacts.length,
+        contactsCountFromCount: contactsCount,
+        firstCompany: companies[0]?.companyName
+      });
+    } catch {}
+
+    const tEndQueries = performance.now();
+    const dbTime = tEndQueries - tStartQueries;
+    console.log(`[PERF] ClientsPage Initial DB Queries Promise.all took: ${dbTime.toFixed(2)}ms`);
+  } catch (err) {
+    console.error('[clients] DB query error in ClientsPage:', err);
+    // Leave fallback empty data so the page renders and the client can see an empty state.
+  }
 
   return (
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
@@ -176,6 +239,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
           provinces={provinces}
           currentPage={page}
           limit={limit}
+          currentUser={user ? { id: user.id, fullName: user.fullName, role: user.role } : null}
         />
       </main>
     </div>
