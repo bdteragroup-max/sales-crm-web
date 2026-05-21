@@ -188,7 +188,7 @@ export default function OrdersClientPage({
                 className={`flex-1 flex flex-col rounded-2xl overflow-hidden transition-all duration-200 bg-white ${
                   isHovered ? 'ring-2 shadow-xl scale-[1.02]' : 'shadow-sm border border-gray-100'
                 }`}
-                style={isHovered ? { ringColor: col.accent, boxShadow: `0 0 0 2px ${col.accent}40, 0 10px 30px -10px ${col.accent}30` } : {}}
+                style={isHovered ? { '--tw-ring-color': col.accent, boxShadow: `0 0 0 2px ${col.accent}40, 0 10px 30px -10px ${col.accent}30` } as any : {}}
                 onDragOver={(e) => handleDragOver(e, col.id)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, col.id)}

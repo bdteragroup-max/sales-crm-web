@@ -577,7 +577,7 @@ export default function PipelineClientPage({
                     ? 'ring-2 shadow-xl scale-[1.01]'
                     : 'shadow-sm'
                 }`}
-                style={isHovered ? { ringColor: col.accent, boxShadow: `0 0 0 2px ${col.accent}40, 0 20px 40px ${col.accent}15` } : {}}
+                style={isHovered ? { '--tw-ring-color': col.accent, boxShadow: `0 0 0 2px ${col.accent}40, 0 20px 40px ${col.accent}15` } as any : {}}
                 onDragOver={(e) => handleDragOver(e, col.id)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, col.id)}
