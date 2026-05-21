@@ -498,7 +498,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
               <InputField name="invoiceNumber" label="หมายเลขใบแจ้งหนี้ :" type="text" value={formData.invoiceNumber || ''} onChange={handleInputChange} />
               {(status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) && (
                 <div className="pt-2">
-                  <SelectField name="jobType" label="ประเภทงาน (Job Type) :" options={JOB_TYPES} value={formData.jobType || ''} onChange={handleInputChange} />
+                  <SelectField name="jobType" label="ประเภทงาน (Job Type) :" options={[...JOB_TYPES]} value={formData.jobType || ''} onChange={handleInputChange} />
                 </div>
               )}
               {!isLostStatus && (
