@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 };
 
 import { GlobalProgressBar } from "./components/GlobalProgressBar";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,
@@ -24,7 +25,9 @@ export default function RootLayout({
   return (
     <html lang="th">
       <body className={`${prompt.variable} ${prompt.className} antialiased`}>
-        <GlobalProgressBar />
+        <Suspense fallback={null}>
+          <GlobalProgressBar />
+        </Suspense>
         {children}
       </body>
     </html>
