@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "scratch", ".agents", "scripts"]
+  "exclude": ["node_modules", "scratch", ".agents", "scripts", "prisma"]
 }
