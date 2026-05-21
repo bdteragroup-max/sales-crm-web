@@ -34,22 +34,14 @@ export default async function TelesaleLogPage({ searchParams }: PageProps) {
     const context = await getTelesaleLogContext(contactId, companyId);
 
     return (
-      <div className="flex h-screen bg-slate-55 text-gray-900 font-sans overflow-hidden">
-        <Sidebar
-          activeRoute="/clients"
-          userFullName={currentUser.fullName}
-          userId={currentUser.id}
-          userRole={currentUser.role}
+      <main className="flex-1 flex flex-col overflow-y-auto bg-[#fafbfc] p-4 md:p-8 pb-24 md:pb-8">
+        <TelesaleLogClient
+          contactId={contactId}
+          companyId={companyId}
+          returnTo={returnTo}
+          initialContext={context}
         />
-        <main className="flex-1 flex flex-col overflow-y-auto bg-[#fafbfc] p-4 md:p-8 pb-24 md:pb-8">
-          <TelesaleLogClient
-            contactId={contactId}
-            companyId={companyId}
-            returnTo={returnTo}
-            initialContext={context}
-          />
-        </main>
-      </div>
+      </main>
     );
   } catch (error) {
     console.error("Failed to load telesale log page context:", error);

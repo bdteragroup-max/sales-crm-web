@@ -1,7 +1,6 @@
 import React from 'react';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
-import Sidebar from '@/app/components/Sidebar';
 import DashboardUI from '@/app/components/DashboardUI';
 import { redirect } from 'next/navigation';
 
@@ -186,7 +185,8 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     prevPeriodHistoryQuotations,
     teamTelesalesBenchmark,
     companyClosedQuotations,
-    telesalesKPIsResult
+    telesalesKPIsResult,
+    ordersAgg
   ] = await Promise.all([
     // 1. Grouped Quotation Metrics (Filtered Range)
     prisma.quotation.groupBy({
@@ -533,6 +533,19 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         OR: [
           { userId: { in: filterIds } },
           { userId: null }
+        ]
+      }
+    }),
+    // 23. Orders tracking metrics
+    prisma.order.groupBy({
+      by: ['status'],
+      _sum: { value: true },
+      _count: { id: true },
+      where: {
+        company: province ? { province } : undefined,
+        OR: [
+          { salespersonId: { in: filterIds } },
+          { salespersonId: null }
         ]
       }
     })
@@ -1344,8 +1357,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   }
 
   return (
-    <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
-      <Sidebar activeRoute="/dashboard" userFullName={user.fullName} userId={user.id} userRole={user.role} />
+    <>
       <DashboardUI
         userFullName={user.fullName}
         userRole={user.role}
@@ -1380,7 +1392,8 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
             monthlyCallGoal,
             appointmentGoal,
             connectionRateMin
-          }
+          },
+          orderMetrics: ordersAgg
         } as any}
         recentActivities={recentQ}
         nextMeetings={nextM}
@@ -1452,6 +1465,6 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         telesalesRecords={historyTelesales}
         telesalesBenchmark={teamTelesalesBenchmark}
       />
-    </div>
+    </>
   );
 }

@@ -148,6 +148,7 @@ export async function saveSalesData(formData: FormData) {
     const quotationDateRaw = formData.get("quotationDate") as string;
     const status = formData.get("status") as string;
     const rejectReason = formData.get("rejectReason") as string;
+    const jobType = formData.get("jobType") as string;
     
     const salesBeforeVat = parseFloat(formData.get("salesBeforeVat") as string) || 0;
     const transportationFee = parseFloat(formData.get("transportationFee") as string) || 0;
@@ -156,6 +157,7 @@ export async function saveSalesData(formData: FormData) {
 
     const actualClosingAmount = parseFloat(formData.get("actualClosingAmount") as string) || null;
     const poDateRaw = formData.get("poDate") as string;
+    const poNumber = formData.get("poNumber") as string;
     const billingDateRaw = formData.get("billingDate") as string;
     const invoiceNumber = formData.get("invoiceNumber") as string;
     const winLossReason = formData.get("winLossReason") as string;
@@ -262,7 +264,7 @@ export async function saveSalesData(formData: FormData) {
       }
     }
 
-    await prisma.quotation.create({
+    const newQuotation = await prisma.quotation.create({
       data: {
         companyId: company.id,
         contactId: contact?.id,
@@ -281,6 +283,7 @@ export async function saveSalesData(formData: FormData) {
         totalAmountBeforeVat,
         actualClosingAmount,
         poDate: parseDate(poDateRaw),
+        poNumber: poNumber || null,
         billingDate: parseDate(billingDateRaw),
         invoiceNumber,
         winLossReason,
@@ -294,7 +297,52 @@ export async function saveSalesData(formData: FormData) {
       }
     });
 
+    // Auto-create an Order if status is closed (เปิดบิลแล้ว / PO...)
+    if (status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) {
+      const existingOrder = await prisma.order.findFirst({
+        where: { quotationId: newQuotation.id }
+      });
+      if (!existingOrder && company.id) {
+        const baseOrderNumber = poNumber || quotationNumber || `ORD-${newQuotation.id.slice(0, 8)}`;
+        let finalOrderNumber = baseOrderNumber;
+        let c = 0;
+        while (await prisma.order.findUnique({ where: { orderNumber: finalOrderNumber } })) {
+          c++;
+          finalOrderNumber = `${baseOrderNumber}-${c}`;
+        }
+        const newOrder = await prisma.order.create({
+          data: {
+            orderNumber: finalOrderNumber,
+            companyId: company.id,
+            quotationId: newQuotation.id,
+            salespersonId: user.id,
+            value: actualClosingAmount || totalAmountBeforeVat || 0,
+            status: 'รอยืนยัน',
+          }
+        });
+        await prisma.orderStatusLog.create({
+          data: {
+            orderId: newOrder.id,
+            userId: user.id,
+            fromStatus: 'System',
+            toStatus: 'รอยืนยัน'
+          }
+        });
+        revalidatePath("/orders");
+      }
+      
+      // Auto-create Job
+      const { createJobFromQuotation } = await import('@/app/actions/jobs');
+      await createJobFromQuotation({
+        quotationId: newQuotation.id,
+        poNumber: poNumber,
+        jobType: jobType || undefined,
+        closedDate: new Date(),
+      });
+    }
+
     revalidatePath("/sales");
+    revalidatePath("/dashboard");
     return { success: true };
 
   } catch (error) {
@@ -320,6 +368,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
     const quotationDateRaw = formData.get("quotationDate") as string;
     const status = formData.get("status") as string;
     const rejectReason = formData.get("rejectReason") as string;
+    const jobType = formData.get("jobType") as string;
     
     const salesBeforeVat = parseFloat(formData.get("salesBeforeVat") as string) || 0;
     const transportationFee = parseFloat(formData.get("transportationFee") as string) || 0;
@@ -328,6 +377,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
 
     const actualClosingAmount = parseFloat(formData.get("actualClosingAmount") as string) || null;
     const poDateRaw = formData.get("poDate") as string;
+    const poNumber = formData.get("poNumber") as string;
     const billingDateRaw = formData.get("billingDate") as string;
     const invoiceNumber = formData.get("invoiceNumber") as string;
     const winLossReason = formData.get("winLossReason") as string;
@@ -433,7 +483,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       }
     }
 
-    await prisma.quotation.update({
+    const updatedQuotation = await prisma.quotation.update({
       where: { id: quotationId },
       data: {
         companyId: company.id,
@@ -453,6 +503,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
         totalAmountBeforeVat,
         actualClosingAmount,
         poDate: parseDate(poDateRaw),
+        poNumber: poNumber || null,
         billingDate: parseDate(billingDateRaw),
         invoiceNumber,
         winLossReason,
@@ -466,7 +517,52 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       }
     });
 
+    // Auto-create an Order if status is closed (เปิดบิลแล้ว / PO...)
+    if (status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) {
+      const existingOrder = await prisma.order.findFirst({
+        where: { quotationId: updatedQuotation.id }
+      });
+      if (!existingOrder && company.id) {
+        const baseOrderNumber = poNumber || quotationNumber || `ORD-${updatedQuotation.id.slice(0, 8)}`;
+        let finalOrderNumber = baseOrderNumber;
+        let c = 0;
+        while (await prisma.order.findUnique({ where: { orderNumber: finalOrderNumber } })) {
+          c++;
+          finalOrderNumber = `${baseOrderNumber}-${c}`;
+        }
+        const newOrder = await prisma.order.create({
+          data: {
+            orderNumber: finalOrderNumber,
+            companyId: company.id,
+            quotationId: updatedQuotation.id,
+            salespersonId: user.id,
+            value: actualClosingAmount || totalAmountBeforeVat || 0,
+            status: 'รอยืนยัน',
+          }
+        });
+        await prisma.orderStatusLog.create({
+          data: {
+            orderId: newOrder.id,
+            userId: user.id,
+            fromStatus: 'System',
+            toStatus: 'รอยืนยัน'
+          }
+        });
+        revalidatePath("/orders");
+      }
+      
+      // Auto-create Job
+      const { createJobFromQuotation } = await import('@/app/actions/jobs');
+      await createJobFromQuotation({
+        quotationId: updatedQuotation.id,
+        poNumber: poNumber,
+        jobType: jobType || undefined,
+        closedDate: new Date(),
+      });
+    }
+
     revalidatePath("/sales");
+    revalidatePath("/dashboard");
     return { success: true };
 
   } catch (error) {

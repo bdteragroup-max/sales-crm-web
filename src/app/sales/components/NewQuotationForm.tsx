@@ -4,6 +4,8 @@ import { saveSalesData, updateSalesData, searchCompanies, searchContacts, getPos
 import Card from './Card';
 import InputField from './InputField';
 import SelectField from './SelectField';
+import { LoadingButton } from '@/app/components/LoadingButton';
+import { JOB_TYPES } from '@/constants/job-types';
 
 interface NewQuotationFormProps {
   businessTypes?: string[];
@@ -183,6 +185,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           rejectReason: '',
           actualClosingAmount: '',
           poDate: '',
+          poNumber: '',
           billingDate: '',
           invoiceNumber: '',
           winLossReason: '',
@@ -213,7 +216,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
         });
       } else {
         setFormData({
-          updatedDate: formatDateForInput(initialData.updatedDate || initialData.createdAt),
+          updatedDate: formatDateForInput(new Date()),
           requirementNumber: initialData.requirementNumber || '',
           requirementDate: formatDateForInput(initialData.requirementDate),
           quotationNumber: initialData.quotationNumber || '',
@@ -221,6 +224,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           rejectReason: initialData.rejectReason || '',
           actualClosingAmount: initialData.actualClosingAmount || '',
           poDate: formatDateForInput(initialData.poDate),
+          poNumber: initialData.poNumber || '',
           billingDate: formatDateForInput(initialData.billingDate),
           invoiceNumber: initialData.invoiceNumber || '',
           winLossReason: initialData.winLossReason || '',
@@ -318,14 +322,14 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="flex flex-wrap items-center gap-3 mb-6">
-        <button
+        <LoadingButton
           type="submit"
-          disabled={isSubmitting}
+          loading={isSubmitting}
           className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-red-200 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100"
         >
-          <Save size={18} />
-          {isSubmitting ? 'กำลังบันทึก...' : (initialData ? 'ยืนยันการแก้ไข' : 'บันทึกข้อมูล')}
-        </button>
+          {!isSubmitting && <Save size={18} />}
+          {initialData ? 'ยืนยันการแก้ไข' : 'บันทึกข้อมูล'}
+        </LoadingButton>
         <button 
           type="button" 
           onClick={() => {
@@ -489,8 +493,14 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
             <div className="space-y-4">
               <InputField name="actualClosingAmount" label="ยอดปิดงานจริง (ก่อน VAT) :" type="number" rightAlign value={formData.actualClosingAmount || ''} onChange={handleInputChange} />
               <InputField name="poDate" label="วันเปิด P/O :" type="date" value={formData.poDate || ''} onChange={handleInputChange} />
+              <InputField name="poNumber" label="เลขที่ P/O (Purchase Order) :" type="text" placeholder="กรอกเลขที่ใบสั่งซื้อ..." value={formData.poNumber || ''} onChange={handleInputChange} />
               <InputField name="billingDate" label="วันเปิดบิลขาย :" type="date" value={formData.billingDate || ''} onChange={handleInputChange} />
               <InputField name="invoiceNumber" label="หมายเลขใบแจ้งหนี้ :" type="text" value={formData.invoiceNumber || ''} onChange={handleInputChange} />
+              {(status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) && (
+                <div className="pt-2">
+                  <SelectField name="jobType" label="ประเภทงาน (Job Type) :" options={JOB_TYPES} value={formData.jobType || ''} onChange={handleInputChange} />
+                </div>
+              )}
               {!isLostStatus && (
                 <div className="flex items-start gap-4">
                   <label className="w-1/3 text-sm font-medium text-gray-600 text-right mt-2.5">เหตุผล ซื้อ/ไม่ซื้อ :</label>

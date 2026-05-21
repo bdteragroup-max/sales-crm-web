@@ -22,6 +22,7 @@ model User {
   otpExpiresAt      DateTime?       @db.Timestamptz(6)
   isActive          Boolean         @default(true)
   quotations        Quotation[]
+  orders            Order[]
   schedules         Schedule[]
   telesales         Telesale[]
   employeeSale      EmployeeSale?
@@ -111,6 +112,7 @@ model Company {
   subDistrict           String?
   contacts              Contact[]
   quotations            Quotation[]
+  orders                Order[]
   telesales             Telesale[]
   schedules             Schedule[]
   assignedUserId        String?
@@ -165,6 +167,8 @@ model Quotation {
   createdAt            DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt            DateTime  @updatedAt @db.Timestamptz(6)
   billingDate          DateTime? @db.Timestamptz(6)
+  appointmentDate      DateTime? @db.Timestamptz(6)
+  appointmentNote      String?
   contactId            String?
   followUp1            DateTime? @db.Timestamptz(6)
   followUp2            DateTime? @db.Timestamptz(6)
@@ -172,6 +176,7 @@ model Quotation {
   followUp4            DateTime? @db.Timestamptz(6)
   invoiceNumber        String?
   poDate               DateTime? @db.Timestamptz(6)
+  poNumber             String?
   productType          String?
   quotationDate        DateTime? @db.Timestamptz(6)
   quotationNumber      String?
@@ -187,6 +192,8 @@ model Quotation {
   company              Company   @relation(fields: [companyId], references: [id])
   contact              Contact?  @relation(fields: [contactId], references: [id])
   salesperson          User?     @relation(fields: [salespersonId], references: [id])
+  orders               Order[]
+  jobs                 Job[]
 
   @@index([companyId])
   @@index([salespersonId])
@@ -271,4 +278,94 @@ model TelesalesKPI {
   user              User?    @relation(fields: [userId], references: [id])
 
   @@unique([userId, month, year])
+}
+
+model Order {
+  id                 String    @id @default(cuid())
+  orderNumber        String    @unique
+  companyId          String
+  quotationId        String?
+  salespersonId      String?
+  status             String    @default("รอยืนยัน") // รอยืนยัน, กำลังผลิต, กำลังจัดส่ง, เสร็จสิ้น
+  value              Float     @default(0)
+  priority           String    @default("Normal") // Low, Normal, High, Urgent
+  targetDeliveryDate DateTime? @db.Timestamptz(6)
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(6)
+
+  company     Company          @relation(fields: [companyId], references: [id])
+  quotation   Quotation?       @relation(fields: [quotationId], references: [id])
+  salesperson User?            @relation(fields: [salespersonId], references: [id])
+  statusLogs  OrderStatusLog[]
+
+  @@index([companyId])
+  @@index([quotationId])
+  @@index([salespersonId])
+  @@index([status])
+}
+
+model OrderStatusLog {
+  id         String   @id @default(cuid())
+  orderId    String
+  userId     String?
+  fromStatus String
+  toStatus   String
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Job {
+  id          String @id @default(cuid())
+  jobNumber   String @unique
+  companyCode String // TG / TE / TP
+  jobType     String @default("") // manual select later
+  month       Int
+  yearBe      Int
+
+  dateClosed      DateTime @db.Timestamptz(6)
+  customerName    String
+  item            String?
+  quotationNumber String?
+  poNumber        String?
+  sellerName      String?
+
+  quotationId String?
+  quotation   Quotation? @relation(fields: [quotationId], references: [id])
+
+  // สถานะ
+  currentStep String       @default("sales") @map("current_step")
+  flowVariant String?      @map("flow_variant")
+  stepLogs    JobStepLog[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("jobs")
+}
+
+model JobRunningNumber {
+  id         String @id @default(cuid())
+  yearBe     Int
+  month      Int
+  lastNumber Int    @default(0)
+
+  @@unique([yearBe, month])
+  @@map("job_running_numbers")
+}
+
+model JobStepLog {
+  id          String   @id @default(cuid())
+  jobId       String   @map("job_id")
+  step        String
+  completedBy String   @map("completed_by")
+  department  String
+  note        String?
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamptz(6)
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@map("job_step_logs")
 }

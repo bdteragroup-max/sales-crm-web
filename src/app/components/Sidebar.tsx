@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, PhoneCall,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase
 } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 
@@ -85,10 +85,10 @@ function ResponsiveSidebar({
     <>
       {/* ─── DESKTOP SIDEBAR (Inline, in-flow) ─── */}
       <aside
-        className="hidden md:flex w-[76px] h-screen bg-white flex-col items-center py-6 shrink-0 justify-between border-r border-gray-100 relative z-40 select-none"
+        className="hidden md:flex w-[76px] h-screen bg-white flex-col items-center py-6 shrink-0 justify-between border-r border-gray-100 relative z-40 select-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
         {/* Top brand logo and navigation */}
-        <div className="flex flex-col items-center w-full">
+        <div className="flex flex-col items-center w-full shrink-0">
           {/* Logo mark */}
           <Link href="/dashboard" className="w-12 h-12 bg-[#ff2301] rounded-2xl flex items-center justify-center shadow-lg shadow-red-100 hover:scale-105 transition-all duration-300">
             <TrendingUp size={22} className="text-white" strokeWidth={2.5} />
@@ -139,6 +139,32 @@ function ResponsiveSidebar({
         {/* Bottom items */}
         <div className="flex flex-col items-center gap-3 w-full px-2 shrink-0">
           <div className="w-8 h-px bg-gray-100 my-1 shrink-0" />
+
+          <Link
+            href="/jobs"
+            prefetch={true}
+            onMouseEnter={(e) => showTooltip('ระบบลงทะเบียนงาน (Jobs)', e)}
+            onMouseLeave={hideTooltip}
+            onClick={() => {
+              if (activeRoute !== '/jobs') {
+                setLoadingHref('/jobs');
+              }
+            }}
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative group ${
+              activeRoute === '/jobs'
+                ? 'bg-red-50 text-[#ff2301] shadow-sm border border-red-100'
+                : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+            }`}
+          >
+            {loadingHref === '/jobs' ? (
+              <Loader2 size={20} className="animate-spin text-[#ff2301]" />
+            ) : (
+              <Briefcase size={20} strokeWidth={activeRoute === '/jobs' ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
+            )}
+            {activeRoute === '/jobs' && loadingHref !== '/jobs' && (
+              <span className="absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full bg-[#ff2301] border border-white animate-pulse" />
+            )}
+          </Link>
 
           <Link
             href="/dashboard"
@@ -268,6 +294,31 @@ function ResponsiveSidebar({
         {/* User profile & Action buttons */}
         <div className="flex flex-col gap-4 w-full">
           <div className="h-px bg-gray-100 w-full" />
+
+          <Link
+            href="/jobs"
+            prefetch={true}
+            onClick={() => {
+              if (activeRoute !== '/jobs') {
+                setLoadingHref('/jobs');
+              }
+              setIsMobileMenuOpen(false);
+            }}
+            className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 transition-all duration-200 border ${
+              activeRoute === '/jobs'
+                ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
+                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
+            }`}
+          >
+            <div className="shrink-0">
+              {loadingHref === '/jobs' ? (
+                <Loader2 size={18} className="animate-spin text-[#ff2301]" />
+              ) : (
+                <Briefcase size={18} strokeWidth={activeRoute === '/jobs' ? 2.5 : 2} />
+              )}
+            </div>
+            <span className="text-[14px] font-sans font-semibold tracking-wide">ระบบลงทะเบียนงาน (Jobs)</span>
+          </Link>
 
           {/* Profile Card / Settings Link */}
           <Link

@@ -108,7 +108,6 @@ interface ClientsClientPageProps {
   } | null;
 }
 
-type ActiveTab = 'companies' | 'contacts';
 
 const statusColors: Record<string, string> = {
   ลูกค้าเก่า: 'bg-gray-100 text-gray-700',
@@ -167,7 +166,8 @@ export default function ClientsClientPage({
     }, 250);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [localSearch, pathname, router, searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localSearch]); // Only localSearch triggers this effect
 
   const handlePageChange = (newPage: number) => {
     const totalPages = Math.ceil(companiesCount / limit);
@@ -507,7 +507,6 @@ export default function ClientsClientPage({
 
   // ─── Filtered data ───────────────────────────────────────────────────
   const filteredCompanies = initialCompanies;
-  const filteredContacts = initialContacts;
 
   const getTimeSince = (dateStr?: string) => {
     if (!dateStr) return null;
@@ -883,14 +882,17 @@ export default function ClientsClientPage({
                     </button>
                     
                     {Array.from({ length: companiesTotalPages }, (_, i) => i + 1).map((p) => {
-                      if (companiesTotalPages > 7 && p !== 1 && p !== companiesTotalPages && Math.abs(p - currentPage) > 1) {
-                        if (p === 2 && currentPage > 3) {
-                          return <span key="dots-start" className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
+                      if (companiesTotalPages > 7) {
+                        const nearCurrent = Math.abs(p - currentPage) <= 1;
+                        const isFirst = p === 1;
+                        const isLast = p === companiesTotalPages;
+
+                        if (!nearCurrent && !isFirst && !isLast) {
+                          if (p === 2 || p === companiesTotalPages - 1) {
+                            return <span key={`dots-${p}`} className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
+                          }
+                          return null;
                         }
-                        if (p === companiesTotalPages - 1 && currentPage < companiesTotalPages - 2) {
-                          return <span key="dots-end" className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
-                        }
-                        return null;
                       }
 
                       return (
@@ -1880,36 +1882,6 @@ export default function ClientsClientPage({
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function TabButton({
-  active,
-  onClick,
-  icon,
-  label,
-  count,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  label: string;
-  count: number;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2 px-6 py-3 font-medium text-sm transition-all border-b-2 whitespace-nowrap ${
-        active
-          ? 'border-red-600 text-red-600 bg-white shadow-sm rounded-t-lg'
-          : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-white/60'
-      }`}
-    >
-      {icon}
-      {label}
-      <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${active ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
-        {count}
-      </span>
-    </button>
-  );
-}
 
 function EmptyState({ message, icon }: { message: string; icon: React.ReactNode }) {
   return (

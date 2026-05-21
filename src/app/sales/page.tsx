@@ -1,5 +1,4 @@
 import React from 'react';
-import Sidebar from '@/app/components/Sidebar';
 import SalesClientPage from './SalesClientPage';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
@@ -92,17 +91,14 @@ export default async function SalesPage({ searchParams }: PageProps) {
   const businessTypes = businessTypesData.map(bt => bt.name);
 
   return (
-    <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
-      <Sidebar activeRoute="/sales" userFullName={user.fullName} userId={user.id} userRole={user.role} />
-      <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 md:p-6 bg-white pb-24 md:pb-6">
-        <SalesClientPage
-          initialQuotations={JSON.parse(JSON.stringify(quotations))}
-          businessTypes={businessTypes}
-          currentUserSale={currentUserWithSale?.employeeSale}
-          prefillData={prefillData}
-          editingQuotation={editingData}
-        />
-      </main>
-    </div>
+    <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 md:p-6 bg-white pb-24 md:pb-6">
+      <SalesClientPage
+        initialQuotations={JSON.parse(JSON.stringify(quotations))}
+        businessTypes={businessTypes}
+        currentUserSale={currentUserWithSale?.employeeSale}
+        prefillData={prefillData}
+        editingQuotation={editingData}
+      />
+    </main>
   );
 }

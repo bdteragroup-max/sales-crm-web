@@ -73,6 +73,31 @@ export type Competitor = $Result.DefaultSelection<Prisma.$CompetitorPayload>
  * 
  */
 export type TelesalesKPI = $Result.DefaultSelection<Prisma.$TelesalesKPIPayload>
+/**
+ * Model Order
+ * 
+ */
+export type Order = $Result.DefaultSelection<Prisma.$OrderPayload>
+/**
+ * Model OrderStatusLog
+ * 
+ */
+export type OrderStatusLog = $Result.DefaultSelection<Prisma.$OrderStatusLogPayload>
+/**
+ * Model Job
+ * 
+ */
+export type Job = $Result.DefaultSelection<Prisma.$JobPayload>
+/**
+ * Model JobRunningNumber
+ * 
+ */
+export type JobRunningNumber = $Result.DefaultSelection<Prisma.$JobRunningNumberPayload>
+/**
+ * Model JobStepLog
+ * 
+ */
+export type JobStepLog = $Result.DefaultSelection<Prisma.$JobStepLogPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -314,6 +339,56 @@ export class PrismaClient<
     * ```
     */
   get telesalesKPI(): Prisma.TelesalesKPIDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.order`: Exposes CRUD operations for the **Order** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Orders
+    * const orders = await prisma.order.findMany()
+    * ```
+    */
+  get order(): Prisma.OrderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.orderStatusLog`: Exposes CRUD operations for the **OrderStatusLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OrderStatusLogs
+    * const orderStatusLogs = await prisma.orderStatusLog.findMany()
+    * ```
+    */
+  get orderStatusLog(): Prisma.OrderStatusLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.job`: Exposes CRUD operations for the **Job** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Jobs
+    * const jobs = await prisma.job.findMany()
+    * ```
+    */
+  get job(): Prisma.JobDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.jobRunningNumber`: Exposes CRUD operations for the **JobRunningNumber** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more JobRunningNumbers
+    * const jobRunningNumbers = await prisma.jobRunningNumber.findMany()
+    * ```
+    */
+  get jobRunningNumber(): Prisma.JobRunningNumberDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.jobStepLog`: Exposes CRUD operations for the **JobStepLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more JobStepLogs
+    * const jobStepLogs = await prisma.jobStepLog.findMany()
+    * ```
+    */
+  get jobStepLog(): Prisma.JobStepLogDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -759,7 +834,12 @@ export namespace Prisma {
     BusinessType: 'BusinessType',
     PostalData: 'PostalData',
     Competitor: 'Competitor',
-    TelesalesKPI: 'TelesalesKPI'
+    TelesalesKPI: 'TelesalesKPI',
+    Order: 'Order',
+    OrderStatusLog: 'OrderStatusLog',
+    Job: 'Job',
+    JobRunningNumber: 'JobRunningNumber',
+    JobStepLog: 'JobStepLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -775,7 +855,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobRunningNumber" | "jobStepLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1667,6 +1747,376 @@ export namespace Prisma {
           }
         }
       }
+      Order: {
+        payload: Prisma.$OrderPayload<ExtArgs>
+        fields: Prisma.OrderFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OrderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OrderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          findFirst: {
+            args: Prisma.OrderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OrderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          findMany: {
+            args: Prisma.OrderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>[]
+          }
+          create: {
+            args: Prisma.OrderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          createMany: {
+            args: Prisma.OrderCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OrderCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>[]
+          }
+          delete: {
+            args: Prisma.OrderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          update: {
+            args: Prisma.OrderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          deleteMany: {
+            args: Prisma.OrderDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OrderUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OrderUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>[]
+          }
+          upsert: {
+            args: Prisma.OrderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          aggregate: {
+            args: Prisma.OrderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrder>
+          }
+          groupBy: {
+            args: Prisma.OrderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrderGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OrderCountArgs<ExtArgs>
+            result: $Utils.Optional<OrderCountAggregateOutputType> | number
+          }
+        }
+      }
+      OrderStatusLog: {
+        payload: Prisma.$OrderStatusLogPayload<ExtArgs>
+        fields: Prisma.OrderStatusLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OrderStatusLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OrderStatusLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload>
+          }
+          findFirst: {
+            args: Prisma.OrderStatusLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OrderStatusLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload>
+          }
+          findMany: {
+            args: Prisma.OrderStatusLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload>[]
+          }
+          create: {
+            args: Prisma.OrderStatusLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload>
+          }
+          createMany: {
+            args: Prisma.OrderStatusLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OrderStatusLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload>[]
+          }
+          delete: {
+            args: Prisma.OrderStatusLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload>
+          }
+          update: {
+            args: Prisma.OrderStatusLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.OrderStatusLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OrderStatusLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OrderStatusLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.OrderStatusLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderStatusLogPayload>
+          }
+          aggregate: {
+            args: Prisma.OrderStatusLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrderStatusLog>
+          }
+          groupBy: {
+            args: Prisma.OrderStatusLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrderStatusLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OrderStatusLogCountArgs<ExtArgs>
+            result: $Utils.Optional<OrderStatusLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      Job: {
+        payload: Prisma.$JobPayload<ExtArgs>
+        fields: Prisma.JobFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.JobFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.JobFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload>
+          }
+          findFirst: {
+            args: Prisma.JobFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.JobFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload>
+          }
+          findMany: {
+            args: Prisma.JobFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload>[]
+          }
+          create: {
+            args: Prisma.JobCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload>
+          }
+          createMany: {
+            args: Prisma.JobCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.JobCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload>[]
+          }
+          delete: {
+            args: Prisma.JobDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload>
+          }
+          update: {
+            args: Prisma.JobUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload>
+          }
+          deleteMany: {
+            args: Prisma.JobDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.JobUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.JobUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload>[]
+          }
+          upsert: {
+            args: Prisma.JobUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobPayload>
+          }
+          aggregate: {
+            args: Prisma.JobAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateJob>
+          }
+          groupBy: {
+            args: Prisma.JobGroupByArgs<ExtArgs>
+            result: $Utils.Optional<JobGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.JobCountArgs<ExtArgs>
+            result: $Utils.Optional<JobCountAggregateOutputType> | number
+          }
+        }
+      }
+      JobRunningNumber: {
+        payload: Prisma.$JobRunningNumberPayload<ExtArgs>
+        fields: Prisma.JobRunningNumberFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.JobRunningNumberFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.JobRunningNumberFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload>
+          }
+          findFirst: {
+            args: Prisma.JobRunningNumberFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.JobRunningNumberFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload>
+          }
+          findMany: {
+            args: Prisma.JobRunningNumberFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload>[]
+          }
+          create: {
+            args: Prisma.JobRunningNumberCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload>
+          }
+          createMany: {
+            args: Prisma.JobRunningNumberCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.JobRunningNumberCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload>[]
+          }
+          delete: {
+            args: Prisma.JobRunningNumberDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload>
+          }
+          update: {
+            args: Prisma.JobRunningNumberUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload>
+          }
+          deleteMany: {
+            args: Prisma.JobRunningNumberDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.JobRunningNumberUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.JobRunningNumberUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload>[]
+          }
+          upsert: {
+            args: Prisma.JobRunningNumberUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobRunningNumberPayload>
+          }
+          aggregate: {
+            args: Prisma.JobRunningNumberAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateJobRunningNumber>
+          }
+          groupBy: {
+            args: Prisma.JobRunningNumberGroupByArgs<ExtArgs>
+            result: $Utils.Optional<JobRunningNumberGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.JobRunningNumberCountArgs<ExtArgs>
+            result: $Utils.Optional<JobRunningNumberCountAggregateOutputType> | number
+          }
+        }
+      }
+      JobStepLog: {
+        payload: Prisma.$JobStepLogPayload<ExtArgs>
+        fields: Prisma.JobStepLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.JobStepLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.JobStepLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload>
+          }
+          findFirst: {
+            args: Prisma.JobStepLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.JobStepLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload>
+          }
+          findMany: {
+            args: Prisma.JobStepLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload>[]
+          }
+          create: {
+            args: Prisma.JobStepLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload>
+          }
+          createMany: {
+            args: Prisma.JobStepLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.JobStepLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload>[]
+          }
+          delete: {
+            args: Prisma.JobStepLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload>
+          }
+          update: {
+            args: Prisma.JobStepLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.JobStepLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.JobStepLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.JobStepLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.JobStepLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobStepLogPayload>
+          }
+          aggregate: {
+            args: Prisma.JobStepLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateJobStepLog>
+          }
+          groupBy: {
+            args: Prisma.JobStepLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<JobStepLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.JobStepLogCountArgs<ExtArgs>
+            result: $Utils.Optional<JobStepLogCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1787,6 +2237,11 @@ export namespace Prisma {
     postalData?: PostalDataOmit
     competitor?: CompetitorOmit
     telesalesKPI?: TelesalesKPIOmit
+    order?: OrderOmit
+    orderStatusLog?: OrderStatusLogOmit
+    job?: JobOmit
+    jobRunningNumber?: JobRunningNumberOmit
+    jobStepLog?: JobStepLogOmit
   }
 
   /* Types for Logging */
@@ -1868,6 +2323,7 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     quotations: number
+    orders: number
     schedules: number
     telesales: number
     monthlyTargets: number
@@ -1877,6 +2333,7 @@ export namespace Prisma {
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     quotations?: boolean | UserCountOutputTypeCountQuotationsArgs
+    orders?: boolean | UserCountOutputTypeCountOrdersArgs
     schedules?: boolean | UserCountOutputTypeCountSchedulesArgs
     telesales?: boolean | UserCountOutputTypeCountTelesalesArgs
     monthlyTargets?: boolean | UserCountOutputTypeCountMonthlyTargetsArgs
@@ -1900,6 +2357,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountQuotationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: QuotationWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderWhereInput
   }
 
   /**
@@ -1945,6 +2409,7 @@ export namespace Prisma {
   export type CompanyCountOutputType = {
     contacts: number
     quotations: number
+    orders: number
     telesales: number
     schedules: number
   }
@@ -1952,6 +2417,7 @@ export namespace Prisma {
   export type CompanyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     contacts?: boolean | CompanyCountOutputTypeCountContactsArgs
     quotations?: boolean | CompanyCountOutputTypeCountQuotationsArgs
+    orders?: boolean | CompanyCountOutputTypeCountOrdersArgs
     telesales?: boolean | CompanyCountOutputTypeCountTelesalesArgs
     schedules?: boolean | CompanyCountOutputTypeCountSchedulesArgs
   }
@@ -1979,6 +2445,13 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountQuotationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: QuotationWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderWhereInput
   }
 
   /**
@@ -2024,6 +2497,108 @@ export namespace Prisma {
    */
   export type ContactCountOutputTypeCountQuotationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: QuotationWhereInput
+  }
+
+
+  /**
+   * Count Type QuotationCountOutputType
+   */
+
+  export type QuotationCountOutputType = {
+    orders: number
+    jobs: number
+  }
+
+  export type QuotationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    orders?: boolean | QuotationCountOutputTypeCountOrdersArgs
+    jobs?: boolean | QuotationCountOutputTypeCountJobsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * QuotationCountOutputType without action
+   */
+  export type QuotationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QuotationCountOutputType
+     */
+    select?: QuotationCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * QuotationCountOutputType without action
+   */
+  export type QuotationCountOutputTypeCountOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderWhereInput
+  }
+
+  /**
+   * QuotationCountOutputType without action
+   */
+  export type QuotationCountOutputTypeCountJobsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobWhereInput
+  }
+
+
+  /**
+   * Count Type OrderCountOutputType
+   */
+
+  export type OrderCountOutputType = {
+    statusLogs: number
+  }
+
+  export type OrderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    statusLogs?: boolean | OrderCountOutputTypeCountStatusLogsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * OrderCountOutputType without action
+   */
+  export type OrderCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderCountOutputType
+     */
+    select?: OrderCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * OrderCountOutputType without action
+   */
+  export type OrderCountOutputTypeCountStatusLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderStatusLogWhereInput
+  }
+
+
+  /**
+   * Count Type JobCountOutputType
+   */
+
+  export type JobCountOutputType = {
+    stepLogs: number
+  }
+
+  export type JobCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stepLogs?: boolean | JobCountOutputTypeCountStepLogsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobCountOutputType
+     */
+    select?: JobCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeCountStepLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobStepLogWhereInput
   }
 
 
@@ -2260,6 +2835,7 @@ export namespace Prisma {
     otpExpiresAt?: boolean
     isActive?: boolean
     quotations?: boolean | User$quotationsArgs<ExtArgs>
+    orders?: boolean | User$ordersArgs<ExtArgs>
     schedules?: boolean | User$schedulesArgs<ExtArgs>
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
@@ -2320,6 +2896,7 @@ export namespace Prisma {
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employeeId" | "email" | "fullName" | "phoneNumber" | "role" | "position" | "password" | "createdAt" | "updatedAt" | "otpCode" | "otpExpiresAt" | "isActive", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     quotations?: boolean | User$quotationsArgs<ExtArgs>
+    orders?: boolean | User$ordersArgs<ExtArgs>
     schedules?: boolean | User$schedulesArgs<ExtArgs>
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
@@ -2335,6 +2912,7 @@ export namespace Prisma {
     name: "User"
     objects: {
       quotations: Prisma.$QuotationPayload<ExtArgs>[]
+      orders: Prisma.$OrderPayload<ExtArgs>[]
       schedules: Prisma.$SchedulePayload<ExtArgs>[]
       telesales: Prisma.$TelesalePayload<ExtArgs>[]
       employeeSale: Prisma.$EmployeeSalePayload<ExtArgs> | null
@@ -2751,6 +3329,7 @@ export namespace Prisma {
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     quotations<T extends User$quotationsArgs<ExtArgs> = {}>(args?: Subset<T, User$quotationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    orders<T extends User$ordersArgs<ExtArgs> = {}>(args?: Subset<T, User$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     schedules<T extends User$schedulesArgs<ExtArgs> = {}>(args?: Subset<T, User$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     telesales<T extends User$telesalesArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     employeeSale<T extends User$employeeSaleArgs<ExtArgs> = {}>(args?: Subset<T, User$employeeSaleArgs<ExtArgs>>): Prisma__EmployeeSaleClient<$Result.GetResult<Prisma.$EmployeeSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -3213,6 +3792,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: QuotationScalarFieldEnum | QuotationScalarFieldEnum[]
+  }
+
+  /**
+   * User.orders
+   */
+  export type User$ordersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    where?: OrderWhereInput
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    cursor?: OrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
   }
 
   /**
@@ -7306,6 +7909,7 @@ export namespace Prisma {
     paymentMethod?: boolean
     contacts?: boolean | Company$contactsArgs<ExtArgs>
     quotations?: boolean | Company$quotationsArgs<ExtArgs>
+    orders?: boolean | Company$ordersArgs<ExtArgs>
     telesales?: boolean | Company$telesalesArgs<ExtArgs>
     schedules?: boolean | Company$schedulesArgs<ExtArgs>
     assignedUser?: boolean | Company$assignedUserArgs<ExtArgs>
@@ -7411,6 +8015,7 @@ export namespace Prisma {
   export type CompanyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     contacts?: boolean | Company$contactsArgs<ExtArgs>
     quotations?: boolean | Company$quotationsArgs<ExtArgs>
+    orders?: boolean | Company$ordersArgs<ExtArgs>
     telesales?: boolean | Company$telesalesArgs<ExtArgs>
     schedules?: boolean | Company$schedulesArgs<ExtArgs>
     assignedUser?: boolean | Company$assignedUserArgs<ExtArgs>
@@ -7428,6 +8033,7 @@ export namespace Prisma {
     objects: {
       contacts: Prisma.$ContactPayload<ExtArgs>[]
       quotations: Prisma.$QuotationPayload<ExtArgs>[]
+      orders: Prisma.$OrderPayload<ExtArgs>[]
       telesales: Prisma.$TelesalePayload<ExtArgs>[]
       schedules: Prisma.$SchedulePayload<ExtArgs>[]
       assignedUser: Prisma.$UserPayload<ExtArgs> | null
@@ -7857,6 +8463,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     contacts<T extends Company$contactsArgs<ExtArgs> = {}>(args?: Subset<T, Company$contactsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotations<T extends Company$quotationsArgs<ExtArgs> = {}>(args?: Subset<T, Company$quotationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    orders<T extends Company$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Company$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     telesales<T extends Company$telesalesArgs<ExtArgs> = {}>(args?: Subset<T, Company$telesalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     schedules<T extends Company$schedulesArgs<ExtArgs> = {}>(args?: Subset<T, Company$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedUser<T extends Company$assignedUserArgs<ExtArgs> = {}>(args?: Subset<T, Company$assignedUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -8363,6 +8970,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: QuotationScalarFieldEnum | QuotationScalarFieldEnum[]
+  }
+
+  /**
+   * Company.orders
+   */
+  export type Company$ordersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    where?: OrderWhereInput
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    cursor?: OrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
   }
 
   /**
@@ -9636,6 +10267,8 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     billingDate: Date | null
+    appointmentDate: Date | null
+    appointmentNote: string | null
     contactId: string | null
     followUp1: Date | null
     followUp2: Date | null
@@ -9643,6 +10276,7 @@ export namespace Prisma {
     followUp4: Date | null
     invoiceNumber: string | null
     poDate: Date | null
+    poNumber: string | null
     productType: string | null
     quotationDate: Date | null
     quotationNumber: string | null
@@ -9669,6 +10303,8 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     billingDate: Date | null
+    appointmentDate: Date | null
+    appointmentNote: string | null
     contactId: string | null
     followUp1: Date | null
     followUp2: Date | null
@@ -9676,6 +10312,7 @@ export namespace Prisma {
     followUp4: Date | null
     invoiceNumber: string | null
     poDate: Date | null
+    poNumber: string | null
     productType: string | null
     quotationDate: Date | null
     quotationNumber: string | null
@@ -9702,6 +10339,8 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     billingDate: number
+    appointmentDate: number
+    appointmentNote: number
     contactId: number
     followUp1: number
     followUp2: number
@@ -9709,6 +10348,7 @@ export namespace Prisma {
     followUp4: number
     invoiceNumber: number
     poDate: number
+    poNumber: number
     productType: number
     quotationDate: number
     quotationNumber: number
@@ -9753,6 +10393,8 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     billingDate?: true
+    appointmentDate?: true
+    appointmentNote?: true
     contactId?: true
     followUp1?: true
     followUp2?: true
@@ -9760,6 +10402,7 @@ export namespace Prisma {
     followUp4?: true
     invoiceNumber?: true
     poDate?: true
+    poNumber?: true
     productType?: true
     quotationDate?: true
     quotationNumber?: true
@@ -9786,6 +10429,8 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     billingDate?: true
+    appointmentDate?: true
+    appointmentNote?: true
     contactId?: true
     followUp1?: true
     followUp2?: true
@@ -9793,6 +10438,7 @@ export namespace Prisma {
     followUp4?: true
     invoiceNumber?: true
     poDate?: true
+    poNumber?: true
     productType?: true
     quotationDate?: true
     quotationNumber?: true
@@ -9819,6 +10465,8 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     billingDate?: true
+    appointmentDate?: true
+    appointmentNote?: true
     contactId?: true
     followUp1?: true
     followUp2?: true
@@ -9826,6 +10474,7 @@ export namespace Prisma {
     followUp4?: true
     invoiceNumber?: true
     poDate?: true
+    poNumber?: true
     productType?: true
     quotationDate?: true
     quotationNumber?: true
@@ -9939,6 +10588,8 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     billingDate: Date | null
+    appointmentDate: Date | null
+    appointmentNote: string | null
     contactId: string | null
     followUp1: Date | null
     followUp2: Date | null
@@ -9946,6 +10597,7 @@ export namespace Prisma {
     followUp4: Date | null
     invoiceNumber: string | null
     poDate: Date | null
+    poNumber: string | null
     productType: string | null
     quotationDate: Date | null
     quotationNumber: string | null
@@ -9991,6 +10643,8 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     billingDate?: boolean
+    appointmentDate?: boolean
+    appointmentNote?: boolean
     contactId?: boolean
     followUp1?: boolean
     followUp2?: boolean
@@ -9998,6 +10652,7 @@ export namespace Prisma {
     followUp4?: boolean
     invoiceNumber?: boolean
     poDate?: boolean
+    poNumber?: boolean
     productType?: boolean
     quotationDate?: boolean
     quotationNumber?: boolean
@@ -10013,6 +10668,9 @@ export namespace Prisma {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     contact?: boolean | Quotation$contactArgs<ExtArgs>
     salesperson?: boolean | Quotation$salespersonArgs<ExtArgs>
+    orders?: boolean | Quotation$ordersArgs<ExtArgs>
+    jobs?: boolean | Quotation$jobsArgs<ExtArgs>
+    _count?: boolean | QuotationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["quotation"]>
 
   export type QuotationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -10027,6 +10685,8 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     billingDate?: boolean
+    appointmentDate?: boolean
+    appointmentNote?: boolean
     contactId?: boolean
     followUp1?: boolean
     followUp2?: boolean
@@ -10034,6 +10694,7 @@ export namespace Prisma {
     followUp4?: boolean
     invoiceNumber?: boolean
     poDate?: boolean
+    poNumber?: boolean
     productType?: boolean
     quotationDate?: boolean
     quotationNumber?: boolean
@@ -10063,6 +10724,8 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     billingDate?: boolean
+    appointmentDate?: boolean
+    appointmentNote?: boolean
     contactId?: boolean
     followUp1?: boolean
     followUp2?: boolean
@@ -10070,6 +10733,7 @@ export namespace Prisma {
     followUp4?: boolean
     invoiceNumber?: boolean
     poDate?: boolean
+    poNumber?: boolean
     productType?: boolean
     quotationDate?: boolean
     quotationNumber?: boolean
@@ -10099,6 +10763,8 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     billingDate?: boolean
+    appointmentDate?: boolean
+    appointmentNote?: boolean
     contactId?: boolean
     followUp1?: boolean
     followUp2?: boolean
@@ -10106,6 +10772,7 @@ export namespace Prisma {
     followUp4?: boolean
     invoiceNumber?: boolean
     poDate?: boolean
+    poNumber?: boolean
     productType?: boolean
     quotationDate?: boolean
     quotationNumber?: boolean
@@ -10120,11 +10787,14 @@ export namespace Prisma {
     winLossReason?: boolean
   }
 
-  export type QuotationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "status" | "salesBeforeVat" | "transportationFee" | "installationFee" | "totalAmountBeforeVat" | "actualClosingAmount" | "createdAt" | "updatedAt" | "billingDate" | "contactId" | "followUp1" | "followUp2" | "followUp3" | "followUp4" | "invoiceNumber" | "poDate" | "productType" | "quotationDate" | "quotationNumber" | "rejectReason" | "remarks" | "requirementDate" | "requirementNumber" | "salesBranch" | "salesTeamLeader" | "salespersonId" | "subject" | "winLossReason", ExtArgs["result"]["quotation"]>
+  export type QuotationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "status" | "salesBeforeVat" | "transportationFee" | "installationFee" | "totalAmountBeforeVat" | "actualClosingAmount" | "createdAt" | "updatedAt" | "billingDate" | "appointmentDate" | "appointmentNote" | "contactId" | "followUp1" | "followUp2" | "followUp3" | "followUp4" | "invoiceNumber" | "poDate" | "poNumber" | "productType" | "quotationDate" | "quotationNumber" | "rejectReason" | "remarks" | "requirementDate" | "requirementNumber" | "salesBranch" | "salesTeamLeader" | "salespersonId" | "subject" | "winLossReason", ExtArgs["result"]["quotation"]>
   export type QuotationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     contact?: boolean | Quotation$contactArgs<ExtArgs>
     salesperson?: boolean | Quotation$salespersonArgs<ExtArgs>
+    orders?: boolean | Quotation$ordersArgs<ExtArgs>
+    jobs?: boolean | Quotation$jobsArgs<ExtArgs>
+    _count?: boolean | QuotationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type QuotationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -10143,6 +10813,8 @@ export namespace Prisma {
       company: Prisma.$CompanyPayload<ExtArgs>
       contact: Prisma.$ContactPayload<ExtArgs> | null
       salesperson: Prisma.$UserPayload<ExtArgs> | null
+      orders: Prisma.$OrderPayload<ExtArgs>[]
+      jobs: Prisma.$JobPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10156,6 +10828,8 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       billingDate: Date | null
+      appointmentDate: Date | null
+      appointmentNote: string | null
       contactId: string | null
       followUp1: Date | null
       followUp2: Date | null
@@ -10163,6 +10837,7 @@ export namespace Prisma {
       followUp4: Date | null
       invoiceNumber: string | null
       poDate: Date | null
+      poNumber: string | null
       productType: string | null
       quotationDate: Date | null
       quotationNumber: string | null
@@ -10572,6 +11247,8 @@ export namespace Prisma {
     company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     contact<T extends Quotation$contactArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$contactArgs<ExtArgs>>): Prisma__ContactClient<$Result.GetResult<Prisma.$ContactPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     salesperson<T extends Quotation$salespersonArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$salespersonArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    orders<T extends Quotation$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    jobs<T extends Quotation$jobsArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$jobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10612,6 +11289,8 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Quotation", 'DateTime'>
     readonly updatedAt: FieldRef<"Quotation", 'DateTime'>
     readonly billingDate: FieldRef<"Quotation", 'DateTime'>
+    readonly appointmentDate: FieldRef<"Quotation", 'DateTime'>
+    readonly appointmentNote: FieldRef<"Quotation", 'String'>
     readonly contactId: FieldRef<"Quotation", 'String'>
     readonly followUp1: FieldRef<"Quotation", 'DateTime'>
     readonly followUp2: FieldRef<"Quotation", 'DateTime'>
@@ -10619,6 +11298,7 @@ export namespace Prisma {
     readonly followUp4: FieldRef<"Quotation", 'DateTime'>
     readonly invoiceNumber: FieldRef<"Quotation", 'String'>
     readonly poDate: FieldRef<"Quotation", 'DateTime'>
+    readonly poNumber: FieldRef<"Quotation", 'String'>
     readonly productType: FieldRef<"Quotation", 'String'>
     readonly quotationDate: FieldRef<"Quotation", 'DateTime'>
     readonly quotationNumber: FieldRef<"Quotation", 'String'>
@@ -11067,6 +11747,54 @@ export namespace Prisma {
      */
     include?: UserInclude<ExtArgs> | null
     where?: UserWhereInput
+  }
+
+  /**
+   * Quotation.orders
+   */
+  export type Quotation$ordersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    where?: OrderWhereInput
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    cursor?: OrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Quotation.jobs
+   */
+  export type Quotation$jobsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    where?: JobWhereInput
+    orderBy?: JobOrderByWithRelationInput | JobOrderByWithRelationInput[]
+    cursor?: JobWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JobScalarFieldEnum | JobScalarFieldEnum[]
   }
 
   /**
@@ -16679,6 +17407,5765 @@ export namespace Prisma {
 
 
   /**
+   * Model Order
+   */
+
+  export type AggregateOrder = {
+    _count: OrderCountAggregateOutputType | null
+    _avg: OrderAvgAggregateOutputType | null
+    _sum: OrderSumAggregateOutputType | null
+    _min: OrderMinAggregateOutputType | null
+    _max: OrderMaxAggregateOutputType | null
+  }
+
+  export type OrderAvgAggregateOutputType = {
+    value: number | null
+  }
+
+  export type OrderSumAggregateOutputType = {
+    value: number | null
+  }
+
+  export type OrderMinAggregateOutputType = {
+    id: string | null
+    orderNumber: string | null
+    companyId: string | null
+    quotationId: string | null
+    salespersonId: string | null
+    status: string | null
+    value: number | null
+    priority: string | null
+    targetDeliveryDate: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrderMaxAggregateOutputType = {
+    id: string | null
+    orderNumber: string | null
+    companyId: string | null
+    quotationId: string | null
+    salespersonId: string | null
+    status: string | null
+    value: number | null
+    priority: string | null
+    targetDeliveryDate: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrderCountAggregateOutputType = {
+    id: number
+    orderNumber: number
+    companyId: number
+    quotationId: number
+    salespersonId: number
+    status: number
+    value: number
+    priority: number
+    targetDeliveryDate: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OrderAvgAggregateInputType = {
+    value?: true
+  }
+
+  export type OrderSumAggregateInputType = {
+    value?: true
+  }
+
+  export type OrderMinAggregateInputType = {
+    id?: true
+    orderNumber?: true
+    companyId?: true
+    quotationId?: true
+    salespersonId?: true
+    status?: true
+    value?: true
+    priority?: true
+    targetDeliveryDate?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrderMaxAggregateInputType = {
+    id?: true
+    orderNumber?: true
+    companyId?: true
+    quotationId?: true
+    salespersonId?: true
+    status?: true
+    value?: true
+    priority?: true
+    targetDeliveryDate?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrderCountAggregateInputType = {
+    id?: true
+    orderNumber?: true
+    companyId?: true
+    quotationId?: true
+    salespersonId?: true
+    status?: true
+    value?: true
+    priority?: true
+    targetDeliveryDate?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OrderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Order to aggregate.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Orders
+    **/
+    _count?: true | OrderCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OrderAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OrderSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OrderMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OrderMaxAggregateInputType
+  }
+
+  export type GetOrderAggregateType<T extends OrderAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrder]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOrder[P]>
+      : GetScalarType<T[P], AggregateOrder[P]>
+  }
+
+
+
+
+  export type OrderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderWhereInput
+    orderBy?: OrderOrderByWithAggregationInput | OrderOrderByWithAggregationInput[]
+    by: OrderScalarFieldEnum[] | OrderScalarFieldEnum
+    having?: OrderScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OrderCountAggregateInputType | true
+    _avg?: OrderAvgAggregateInputType
+    _sum?: OrderSumAggregateInputType
+    _min?: OrderMinAggregateInputType
+    _max?: OrderMaxAggregateInputType
+  }
+
+  export type OrderGroupByOutputType = {
+    id: string
+    orderNumber: string
+    companyId: string
+    quotationId: string | null
+    salespersonId: string | null
+    status: string
+    value: number
+    priority: string
+    targetDeliveryDate: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: OrderCountAggregateOutputType | null
+    _avg: OrderAvgAggregateOutputType | null
+    _sum: OrderSumAggregateOutputType | null
+    _min: OrderMinAggregateOutputType | null
+    _max: OrderMaxAggregateOutputType | null
+  }
+
+  type GetOrderGroupByPayload<T extends OrderGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OrderGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OrderGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OrderGroupByOutputType[P]>
+            : GetScalarType<T[P], OrderGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderNumber?: boolean
+    companyId?: boolean
+    quotationId?: boolean
+    salespersonId?: boolean
+    status?: boolean
+    value?: boolean
+    priority?: boolean
+    targetDeliveryDate?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    quotation?: boolean | Order$quotationArgs<ExtArgs>
+    salesperson?: boolean | Order$salespersonArgs<ExtArgs>
+    statusLogs?: boolean | Order$statusLogsArgs<ExtArgs>
+    _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["order"]>
+
+  export type OrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderNumber?: boolean
+    companyId?: boolean
+    quotationId?: boolean
+    salespersonId?: boolean
+    status?: boolean
+    value?: boolean
+    priority?: boolean
+    targetDeliveryDate?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    quotation?: boolean | Order$quotationArgs<ExtArgs>
+    salesperson?: boolean | Order$salespersonArgs<ExtArgs>
+  }, ExtArgs["result"]["order"]>
+
+  export type OrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderNumber?: boolean
+    companyId?: boolean
+    quotationId?: boolean
+    salespersonId?: boolean
+    status?: boolean
+    value?: boolean
+    priority?: boolean
+    targetDeliveryDate?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    quotation?: boolean | Order$quotationArgs<ExtArgs>
+    salesperson?: boolean | Order$salespersonArgs<ExtArgs>
+  }, ExtArgs["result"]["order"]>
+
+  export type OrderSelectScalar = {
+    id?: boolean
+    orderNumber?: boolean
+    companyId?: boolean
+    quotationId?: boolean
+    salespersonId?: boolean
+    status?: boolean
+    value?: boolean
+    priority?: boolean
+    targetDeliveryDate?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderNumber" | "companyId" | "quotationId" | "salespersonId" | "status" | "value" | "priority" | "targetDeliveryDate" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+  export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    quotation?: boolean | Order$quotationArgs<ExtArgs>
+    salesperson?: boolean | Order$salespersonArgs<ExtArgs>
+    statusLogs?: boolean | Order$statusLogsArgs<ExtArgs>
+    _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type OrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    quotation?: boolean | Order$quotationArgs<ExtArgs>
+    salesperson?: boolean | Order$salespersonArgs<ExtArgs>
+  }
+  export type OrderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    quotation?: boolean | Order$quotationArgs<ExtArgs>
+    salesperson?: boolean | Order$salespersonArgs<ExtArgs>
+  }
+
+  export type $OrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Order"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      quotation: Prisma.$QuotationPayload<ExtArgs> | null
+      salesperson: Prisma.$UserPayload<ExtArgs> | null
+      statusLogs: Prisma.$OrderStatusLogPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      orderNumber: string
+      companyId: string
+      quotationId: string | null
+      salespersonId: string | null
+      status: string
+      value: number
+      priority: string
+      targetDeliveryDate: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["order"]>
+    composites: {}
+  }
+
+  type OrderGetPayload<S extends boolean | null | undefined | OrderDefaultArgs> = $Result.GetResult<Prisma.$OrderPayload, S>
+
+  type OrderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OrderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OrderCountAggregateInputType | true
+    }
+
+  export interface OrderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Order'], meta: { name: 'Order' } }
+    /**
+     * Find zero or one Order that matches the filter.
+     * @param {OrderFindUniqueArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OrderFindUniqueArgs>(args: SelectSubset<T, OrderFindUniqueArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Order that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OrderFindUniqueOrThrowArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OrderFindUniqueOrThrowArgs>(args: SelectSubset<T, OrderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Order that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderFindFirstArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OrderFindFirstArgs>(args?: SelectSubset<T, OrderFindFirstArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Order that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderFindFirstOrThrowArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OrderFindFirstOrThrowArgs>(args?: SelectSubset<T, OrderFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Orders that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Orders
+     * const orders = await prisma.order.findMany()
+     * 
+     * // Get first 10 Orders
+     * const orders = await prisma.order.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const orderWithIdOnly = await prisma.order.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OrderFindManyArgs>(args?: SelectSubset<T, OrderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Order.
+     * @param {OrderCreateArgs} args - Arguments to create a Order.
+     * @example
+     * // Create one Order
+     * const Order = await prisma.order.create({
+     *   data: {
+     *     // ... data to create a Order
+     *   }
+     * })
+     * 
+     */
+    create<T extends OrderCreateArgs>(args: SelectSubset<T, OrderCreateArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Orders.
+     * @param {OrderCreateManyArgs} args - Arguments to create many Orders.
+     * @example
+     * // Create many Orders
+     * const order = await prisma.order.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OrderCreateManyArgs>(args?: SelectSubset<T, OrderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Orders and returns the data saved in the database.
+     * @param {OrderCreateManyAndReturnArgs} args - Arguments to create many Orders.
+     * @example
+     * // Create many Orders
+     * const order = await prisma.order.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Orders and only return the `id`
+     * const orderWithIdOnly = await prisma.order.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OrderCreateManyAndReturnArgs>(args?: SelectSubset<T, OrderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Order.
+     * @param {OrderDeleteArgs} args - Arguments to delete one Order.
+     * @example
+     * // Delete one Order
+     * const Order = await prisma.order.delete({
+     *   where: {
+     *     // ... filter to delete one Order
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OrderDeleteArgs>(args: SelectSubset<T, OrderDeleteArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Order.
+     * @param {OrderUpdateArgs} args - Arguments to update one Order.
+     * @example
+     * // Update one Order
+     * const order = await prisma.order.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OrderUpdateArgs>(args: SelectSubset<T, OrderUpdateArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Orders.
+     * @param {OrderDeleteManyArgs} args - Arguments to filter Orders to delete.
+     * @example
+     * // Delete a few Orders
+     * const { count } = await prisma.order.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OrderDeleteManyArgs>(args?: SelectSubset<T, OrderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Orders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Orders
+     * const order = await prisma.order.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OrderUpdateManyArgs>(args: SelectSubset<T, OrderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Orders and returns the data updated in the database.
+     * @param {OrderUpdateManyAndReturnArgs} args - Arguments to update many Orders.
+     * @example
+     * // Update many Orders
+     * const order = await prisma.order.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Orders and only return the `id`
+     * const orderWithIdOnly = await prisma.order.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OrderUpdateManyAndReturnArgs>(args: SelectSubset<T, OrderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Order.
+     * @param {OrderUpsertArgs} args - Arguments to update or create a Order.
+     * @example
+     * // Update or create a Order
+     * const order = await prisma.order.upsert({
+     *   create: {
+     *     // ... data to create a Order
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Order we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OrderUpsertArgs>(args: SelectSubset<T, OrderUpsertArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Orders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderCountArgs} args - Arguments to filter Orders to count.
+     * @example
+     * // Count the number of Orders
+     * const count = await prisma.order.count({
+     *   where: {
+     *     // ... the filter for the Orders we want to count
+     *   }
+     * })
+    **/
+    count<T extends OrderCountArgs>(
+      args?: Subset<T, OrderCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OrderCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Order.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OrderAggregateArgs>(args: Subset<T, OrderAggregateArgs>): Prisma.PrismaPromise<GetOrderAggregateType<T>>
+
+    /**
+     * Group by Order.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OrderGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OrderGroupByArgs['orderBy'] }
+        : { orderBy?: OrderGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OrderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Order model
+   */
+  readonly fields: OrderFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Order.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    quotation<T extends Order$quotationArgs<ExtArgs> = {}>(args?: Subset<T, Order$quotationArgs<ExtArgs>>): Prisma__QuotationClient<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    salesperson<T extends Order$salespersonArgs<ExtArgs> = {}>(args?: Subset<T, Order$salespersonArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    statusLogs<T extends Order$statusLogsArgs<ExtArgs> = {}>(args?: Subset<T, Order$statusLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Order model
+   */
+  interface OrderFieldRefs {
+    readonly id: FieldRef<"Order", 'String'>
+    readonly orderNumber: FieldRef<"Order", 'String'>
+    readonly companyId: FieldRef<"Order", 'String'>
+    readonly quotationId: FieldRef<"Order", 'String'>
+    readonly salespersonId: FieldRef<"Order", 'String'>
+    readonly status: FieldRef<"Order", 'String'>
+    readonly value: FieldRef<"Order", 'Float'>
+    readonly priority: FieldRef<"Order", 'String'>
+    readonly targetDeliveryDate: FieldRef<"Order", 'DateTime'>
+    readonly createdAt: FieldRef<"Order", 'DateTime'>
+    readonly updatedAt: FieldRef<"Order", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Order findUnique
+   */
+  export type OrderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order findUniqueOrThrow
+   */
+  export type OrderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order findFirst
+   */
+  export type OrderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Orders.
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Orders.
+     */
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Order findFirstOrThrow
+   */
+  export type OrderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Orders.
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Orders.
+     */
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Order findMany
+   */
+  export type OrderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter, which Orders to fetch.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Orders.
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Orders.
+     */
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Order create
+   */
+  export type OrderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Order.
+     */
+    data: XOR<OrderCreateInput, OrderUncheckedCreateInput>
+  }
+
+  /**
+   * Order createMany
+   */
+  export type OrderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Orders.
+     */
+    data: OrderCreateManyInput | OrderCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Order createManyAndReturn
+   */
+  export type OrderCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * The data used to create many Orders.
+     */
+    data: OrderCreateManyInput | OrderCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Order update
+   */
+  export type OrderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Order.
+     */
+    data: XOR<OrderUpdateInput, OrderUncheckedUpdateInput>
+    /**
+     * Choose, which Order to update.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order updateMany
+   */
+  export type OrderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Orders.
+     */
+    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyInput>
+    /**
+     * Filter which Orders to update
+     */
+    where?: OrderWhereInput
+    /**
+     * Limit how many Orders to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Order updateManyAndReturn
+   */
+  export type OrderUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * The data used to update Orders.
+     */
+    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyInput>
+    /**
+     * Filter which Orders to update
+     */
+    where?: OrderWhereInput
+    /**
+     * Limit how many Orders to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Order upsert
+   */
+  export type OrderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Order to update in case it exists.
+     */
+    where: OrderWhereUniqueInput
+    /**
+     * In case the Order found by the `where` argument doesn't exist, create a new Order with this data.
+     */
+    create: XOR<OrderCreateInput, OrderUncheckedCreateInput>
+    /**
+     * In case the Order was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OrderUpdateInput, OrderUncheckedUpdateInput>
+  }
+
+  /**
+   * Order delete
+   */
+  export type OrderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter which Order to delete.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order deleteMany
+   */
+  export type OrderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Orders to delete
+     */
+    where?: OrderWhereInput
+    /**
+     * Limit how many Orders to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Order.quotation
+   */
+  export type Order$quotationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Quotation
+     */
+    select?: QuotationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Quotation
+     */
+    omit?: QuotationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: QuotationInclude<ExtArgs> | null
+    where?: QuotationWhereInput
+  }
+
+  /**
+   * Order.salesperson
+   */
+  export type Order$salespersonArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * Order.statusLogs
+   */
+  export type Order$statusLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+    where?: OrderStatusLogWhereInput
+    orderBy?: OrderStatusLogOrderByWithRelationInput | OrderStatusLogOrderByWithRelationInput[]
+    cursor?: OrderStatusLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OrderStatusLogScalarFieldEnum | OrderStatusLogScalarFieldEnum[]
+  }
+
+  /**
+   * Order without action
+   */
+  export type OrderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OrderStatusLog
+   */
+
+  export type AggregateOrderStatusLog = {
+    _count: OrderStatusLogCountAggregateOutputType | null
+    _min: OrderStatusLogMinAggregateOutputType | null
+    _max: OrderStatusLogMaxAggregateOutputType | null
+  }
+
+  export type OrderStatusLogMinAggregateOutputType = {
+    id: string | null
+    orderId: string | null
+    userId: string | null
+    fromStatus: string | null
+    toStatus: string | null
+    createdAt: Date | null
+  }
+
+  export type OrderStatusLogMaxAggregateOutputType = {
+    id: string | null
+    orderId: string | null
+    userId: string | null
+    fromStatus: string | null
+    toStatus: string | null
+    createdAt: Date | null
+  }
+
+  export type OrderStatusLogCountAggregateOutputType = {
+    id: number
+    orderId: number
+    userId: number
+    fromStatus: number
+    toStatus: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type OrderStatusLogMinAggregateInputType = {
+    id?: true
+    orderId?: true
+    userId?: true
+    fromStatus?: true
+    toStatus?: true
+    createdAt?: true
+  }
+
+  export type OrderStatusLogMaxAggregateInputType = {
+    id?: true
+    orderId?: true
+    userId?: true
+    fromStatus?: true
+    toStatus?: true
+    createdAt?: true
+  }
+
+  export type OrderStatusLogCountAggregateInputType = {
+    id?: true
+    orderId?: true
+    userId?: true
+    fromStatus?: true
+    toStatus?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type OrderStatusLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OrderStatusLog to aggregate.
+     */
+    where?: OrderStatusLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrderStatusLogs to fetch.
+     */
+    orderBy?: OrderStatusLogOrderByWithRelationInput | OrderStatusLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OrderStatusLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrderStatusLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrderStatusLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OrderStatusLogs
+    **/
+    _count?: true | OrderStatusLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OrderStatusLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OrderStatusLogMaxAggregateInputType
+  }
+
+  export type GetOrderStatusLogAggregateType<T extends OrderStatusLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrderStatusLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOrderStatusLog[P]>
+      : GetScalarType<T[P], AggregateOrderStatusLog[P]>
+  }
+
+
+
+
+  export type OrderStatusLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderStatusLogWhereInput
+    orderBy?: OrderStatusLogOrderByWithAggregationInput | OrderStatusLogOrderByWithAggregationInput[]
+    by: OrderStatusLogScalarFieldEnum[] | OrderStatusLogScalarFieldEnum
+    having?: OrderStatusLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OrderStatusLogCountAggregateInputType | true
+    _min?: OrderStatusLogMinAggregateInputType
+    _max?: OrderStatusLogMaxAggregateInputType
+  }
+
+  export type OrderStatusLogGroupByOutputType = {
+    id: string
+    orderId: string
+    userId: string | null
+    fromStatus: string
+    toStatus: string
+    createdAt: Date
+    _count: OrderStatusLogCountAggregateOutputType | null
+    _min: OrderStatusLogMinAggregateOutputType | null
+    _max: OrderStatusLogMaxAggregateOutputType | null
+  }
+
+  type GetOrderStatusLogGroupByPayload<T extends OrderStatusLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OrderStatusLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OrderStatusLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OrderStatusLogGroupByOutputType[P]>
+            : GetScalarType<T[P], OrderStatusLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OrderStatusLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    userId?: boolean
+    fromStatus?: boolean
+    toStatus?: boolean
+    createdAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["orderStatusLog"]>
+
+  export type OrderStatusLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    userId?: boolean
+    fromStatus?: boolean
+    toStatus?: boolean
+    createdAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["orderStatusLog"]>
+
+  export type OrderStatusLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    userId?: boolean
+    fromStatus?: boolean
+    toStatus?: boolean
+    createdAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["orderStatusLog"]>
+
+  export type OrderStatusLogSelectScalar = {
+    id?: boolean
+    orderId?: boolean
+    userId?: boolean
+    fromStatus?: boolean
+    toStatus?: boolean
+    createdAt?: boolean
+  }
+
+  export type OrderStatusLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "userId" | "fromStatus" | "toStatus" | "createdAt", ExtArgs["result"]["orderStatusLog"]>
+  export type OrderStatusLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }
+  export type OrderStatusLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }
+  export type OrderStatusLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }
+
+  export type $OrderStatusLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OrderStatusLog"
+    objects: {
+      order: Prisma.$OrderPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      orderId: string
+      userId: string | null
+      fromStatus: string
+      toStatus: string
+      createdAt: Date
+    }, ExtArgs["result"]["orderStatusLog"]>
+    composites: {}
+  }
+
+  type OrderStatusLogGetPayload<S extends boolean | null | undefined | OrderStatusLogDefaultArgs> = $Result.GetResult<Prisma.$OrderStatusLogPayload, S>
+
+  type OrderStatusLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OrderStatusLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OrderStatusLogCountAggregateInputType | true
+    }
+
+  export interface OrderStatusLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OrderStatusLog'], meta: { name: 'OrderStatusLog' } }
+    /**
+     * Find zero or one OrderStatusLog that matches the filter.
+     * @param {OrderStatusLogFindUniqueArgs} args - Arguments to find a OrderStatusLog
+     * @example
+     * // Get one OrderStatusLog
+     * const orderStatusLog = await prisma.orderStatusLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OrderStatusLogFindUniqueArgs>(args: SelectSubset<T, OrderStatusLogFindUniqueArgs<ExtArgs>>): Prisma__OrderStatusLogClient<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OrderStatusLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OrderStatusLogFindUniqueOrThrowArgs} args - Arguments to find a OrderStatusLog
+     * @example
+     * // Get one OrderStatusLog
+     * const orderStatusLog = await prisma.orderStatusLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OrderStatusLogFindUniqueOrThrowArgs>(args: SelectSubset<T, OrderStatusLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrderStatusLogClient<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OrderStatusLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderStatusLogFindFirstArgs} args - Arguments to find a OrderStatusLog
+     * @example
+     * // Get one OrderStatusLog
+     * const orderStatusLog = await prisma.orderStatusLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OrderStatusLogFindFirstArgs>(args?: SelectSubset<T, OrderStatusLogFindFirstArgs<ExtArgs>>): Prisma__OrderStatusLogClient<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OrderStatusLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderStatusLogFindFirstOrThrowArgs} args - Arguments to find a OrderStatusLog
+     * @example
+     * // Get one OrderStatusLog
+     * const orderStatusLog = await prisma.orderStatusLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OrderStatusLogFindFirstOrThrowArgs>(args?: SelectSubset<T, OrderStatusLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrderStatusLogClient<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OrderStatusLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderStatusLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OrderStatusLogs
+     * const orderStatusLogs = await prisma.orderStatusLog.findMany()
+     * 
+     * // Get first 10 OrderStatusLogs
+     * const orderStatusLogs = await prisma.orderStatusLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const orderStatusLogWithIdOnly = await prisma.orderStatusLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OrderStatusLogFindManyArgs>(args?: SelectSubset<T, OrderStatusLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OrderStatusLog.
+     * @param {OrderStatusLogCreateArgs} args - Arguments to create a OrderStatusLog.
+     * @example
+     * // Create one OrderStatusLog
+     * const OrderStatusLog = await prisma.orderStatusLog.create({
+     *   data: {
+     *     // ... data to create a OrderStatusLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends OrderStatusLogCreateArgs>(args: SelectSubset<T, OrderStatusLogCreateArgs<ExtArgs>>): Prisma__OrderStatusLogClient<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OrderStatusLogs.
+     * @param {OrderStatusLogCreateManyArgs} args - Arguments to create many OrderStatusLogs.
+     * @example
+     * // Create many OrderStatusLogs
+     * const orderStatusLog = await prisma.orderStatusLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OrderStatusLogCreateManyArgs>(args?: SelectSubset<T, OrderStatusLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OrderStatusLogs and returns the data saved in the database.
+     * @param {OrderStatusLogCreateManyAndReturnArgs} args - Arguments to create many OrderStatusLogs.
+     * @example
+     * // Create many OrderStatusLogs
+     * const orderStatusLog = await prisma.orderStatusLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OrderStatusLogs and only return the `id`
+     * const orderStatusLogWithIdOnly = await prisma.orderStatusLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OrderStatusLogCreateManyAndReturnArgs>(args?: SelectSubset<T, OrderStatusLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OrderStatusLog.
+     * @param {OrderStatusLogDeleteArgs} args - Arguments to delete one OrderStatusLog.
+     * @example
+     * // Delete one OrderStatusLog
+     * const OrderStatusLog = await prisma.orderStatusLog.delete({
+     *   where: {
+     *     // ... filter to delete one OrderStatusLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OrderStatusLogDeleteArgs>(args: SelectSubset<T, OrderStatusLogDeleteArgs<ExtArgs>>): Prisma__OrderStatusLogClient<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OrderStatusLog.
+     * @param {OrderStatusLogUpdateArgs} args - Arguments to update one OrderStatusLog.
+     * @example
+     * // Update one OrderStatusLog
+     * const orderStatusLog = await prisma.orderStatusLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OrderStatusLogUpdateArgs>(args: SelectSubset<T, OrderStatusLogUpdateArgs<ExtArgs>>): Prisma__OrderStatusLogClient<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OrderStatusLogs.
+     * @param {OrderStatusLogDeleteManyArgs} args - Arguments to filter OrderStatusLogs to delete.
+     * @example
+     * // Delete a few OrderStatusLogs
+     * const { count } = await prisma.orderStatusLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OrderStatusLogDeleteManyArgs>(args?: SelectSubset<T, OrderStatusLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OrderStatusLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderStatusLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OrderStatusLogs
+     * const orderStatusLog = await prisma.orderStatusLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OrderStatusLogUpdateManyArgs>(args: SelectSubset<T, OrderStatusLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OrderStatusLogs and returns the data updated in the database.
+     * @param {OrderStatusLogUpdateManyAndReturnArgs} args - Arguments to update many OrderStatusLogs.
+     * @example
+     * // Update many OrderStatusLogs
+     * const orderStatusLog = await prisma.orderStatusLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OrderStatusLogs and only return the `id`
+     * const orderStatusLogWithIdOnly = await prisma.orderStatusLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OrderStatusLogUpdateManyAndReturnArgs>(args: SelectSubset<T, OrderStatusLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OrderStatusLog.
+     * @param {OrderStatusLogUpsertArgs} args - Arguments to update or create a OrderStatusLog.
+     * @example
+     * // Update or create a OrderStatusLog
+     * const orderStatusLog = await prisma.orderStatusLog.upsert({
+     *   create: {
+     *     // ... data to create a OrderStatusLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OrderStatusLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OrderStatusLogUpsertArgs>(args: SelectSubset<T, OrderStatusLogUpsertArgs<ExtArgs>>): Prisma__OrderStatusLogClient<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OrderStatusLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderStatusLogCountArgs} args - Arguments to filter OrderStatusLogs to count.
+     * @example
+     * // Count the number of OrderStatusLogs
+     * const count = await prisma.orderStatusLog.count({
+     *   where: {
+     *     // ... the filter for the OrderStatusLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends OrderStatusLogCountArgs>(
+      args?: Subset<T, OrderStatusLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OrderStatusLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OrderStatusLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderStatusLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OrderStatusLogAggregateArgs>(args: Subset<T, OrderStatusLogAggregateArgs>): Prisma.PrismaPromise<GetOrderStatusLogAggregateType<T>>
+
+    /**
+     * Group by OrderStatusLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderStatusLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OrderStatusLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OrderStatusLogGroupByArgs['orderBy'] }
+        : { orderBy?: OrderStatusLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OrderStatusLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrderStatusLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OrderStatusLog model
+   */
+  readonly fields: OrderStatusLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OrderStatusLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OrderStatusLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    order<T extends OrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrderDefaultArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OrderStatusLog model
+   */
+  interface OrderStatusLogFieldRefs {
+    readonly id: FieldRef<"OrderStatusLog", 'String'>
+    readonly orderId: FieldRef<"OrderStatusLog", 'String'>
+    readonly userId: FieldRef<"OrderStatusLog", 'String'>
+    readonly fromStatus: FieldRef<"OrderStatusLog", 'String'>
+    readonly toStatus: FieldRef<"OrderStatusLog", 'String'>
+    readonly createdAt: FieldRef<"OrderStatusLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OrderStatusLog findUnique
+   */
+  export type OrderStatusLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+    /**
+     * Filter, which OrderStatusLog to fetch.
+     */
+    where: OrderStatusLogWhereUniqueInput
+  }
+
+  /**
+   * OrderStatusLog findUniqueOrThrow
+   */
+  export type OrderStatusLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+    /**
+     * Filter, which OrderStatusLog to fetch.
+     */
+    where: OrderStatusLogWhereUniqueInput
+  }
+
+  /**
+   * OrderStatusLog findFirst
+   */
+  export type OrderStatusLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+    /**
+     * Filter, which OrderStatusLog to fetch.
+     */
+    where?: OrderStatusLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrderStatusLogs to fetch.
+     */
+    orderBy?: OrderStatusLogOrderByWithRelationInput | OrderStatusLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OrderStatusLogs.
+     */
+    cursor?: OrderStatusLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrderStatusLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrderStatusLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrderStatusLogs.
+     */
+    distinct?: OrderStatusLogScalarFieldEnum | OrderStatusLogScalarFieldEnum[]
+  }
+
+  /**
+   * OrderStatusLog findFirstOrThrow
+   */
+  export type OrderStatusLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+    /**
+     * Filter, which OrderStatusLog to fetch.
+     */
+    where?: OrderStatusLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrderStatusLogs to fetch.
+     */
+    orderBy?: OrderStatusLogOrderByWithRelationInput | OrderStatusLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OrderStatusLogs.
+     */
+    cursor?: OrderStatusLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrderStatusLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrderStatusLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrderStatusLogs.
+     */
+    distinct?: OrderStatusLogScalarFieldEnum | OrderStatusLogScalarFieldEnum[]
+  }
+
+  /**
+   * OrderStatusLog findMany
+   */
+  export type OrderStatusLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+    /**
+     * Filter, which OrderStatusLogs to fetch.
+     */
+    where?: OrderStatusLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrderStatusLogs to fetch.
+     */
+    orderBy?: OrderStatusLogOrderByWithRelationInput | OrderStatusLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OrderStatusLogs.
+     */
+    cursor?: OrderStatusLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrderStatusLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrderStatusLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrderStatusLogs.
+     */
+    distinct?: OrderStatusLogScalarFieldEnum | OrderStatusLogScalarFieldEnum[]
+  }
+
+  /**
+   * OrderStatusLog create
+   */
+  export type OrderStatusLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OrderStatusLog.
+     */
+    data: XOR<OrderStatusLogCreateInput, OrderStatusLogUncheckedCreateInput>
+  }
+
+  /**
+   * OrderStatusLog createMany
+   */
+  export type OrderStatusLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OrderStatusLogs.
+     */
+    data: OrderStatusLogCreateManyInput | OrderStatusLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OrderStatusLog createManyAndReturn
+   */
+  export type OrderStatusLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many OrderStatusLogs.
+     */
+    data: OrderStatusLogCreateManyInput | OrderStatusLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OrderStatusLog update
+   */
+  export type OrderStatusLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OrderStatusLog.
+     */
+    data: XOR<OrderStatusLogUpdateInput, OrderStatusLogUncheckedUpdateInput>
+    /**
+     * Choose, which OrderStatusLog to update.
+     */
+    where: OrderStatusLogWhereUniqueInput
+  }
+
+  /**
+   * OrderStatusLog updateMany
+   */
+  export type OrderStatusLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OrderStatusLogs.
+     */
+    data: XOR<OrderStatusLogUpdateManyMutationInput, OrderStatusLogUncheckedUpdateManyInput>
+    /**
+     * Filter which OrderStatusLogs to update
+     */
+    where?: OrderStatusLogWhereInput
+    /**
+     * Limit how many OrderStatusLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrderStatusLog updateManyAndReturn
+   */
+  export type OrderStatusLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * The data used to update OrderStatusLogs.
+     */
+    data: XOR<OrderStatusLogUpdateManyMutationInput, OrderStatusLogUncheckedUpdateManyInput>
+    /**
+     * Filter which OrderStatusLogs to update
+     */
+    where?: OrderStatusLogWhereInput
+    /**
+     * Limit how many OrderStatusLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OrderStatusLog upsert
+   */
+  export type OrderStatusLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OrderStatusLog to update in case it exists.
+     */
+    where: OrderStatusLogWhereUniqueInput
+    /**
+     * In case the OrderStatusLog found by the `where` argument doesn't exist, create a new OrderStatusLog with this data.
+     */
+    create: XOR<OrderStatusLogCreateInput, OrderStatusLogUncheckedCreateInput>
+    /**
+     * In case the OrderStatusLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OrderStatusLogUpdateInput, OrderStatusLogUncheckedUpdateInput>
+  }
+
+  /**
+   * OrderStatusLog delete
+   */
+  export type OrderStatusLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+    /**
+     * Filter which OrderStatusLog to delete.
+     */
+    where: OrderStatusLogWhereUniqueInput
+  }
+
+  /**
+   * OrderStatusLog deleteMany
+   */
+  export type OrderStatusLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OrderStatusLogs to delete
+     */
+    where?: OrderStatusLogWhereInput
+    /**
+     * Limit how many OrderStatusLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrderStatusLog without action
+   */
+  export type OrderStatusLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderStatusLog
+     */
+    select?: OrderStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderStatusLog
+     */
+    omit?: OrderStatusLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderStatusLogInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Job
+   */
+
+  export type AggregateJob = {
+    _count: JobCountAggregateOutputType | null
+    _avg: JobAvgAggregateOutputType | null
+    _sum: JobSumAggregateOutputType | null
+    _min: JobMinAggregateOutputType | null
+    _max: JobMaxAggregateOutputType | null
+  }
+
+  export type JobAvgAggregateOutputType = {
+    month: number | null
+    yearBe: number | null
+  }
+
+  export type JobSumAggregateOutputType = {
+    month: number | null
+    yearBe: number | null
+  }
+
+  export type JobMinAggregateOutputType = {
+    id: string | null
+    jobNumber: string | null
+    companyCode: string | null
+    jobType: string | null
+    month: number | null
+    yearBe: number | null
+    dateClosed: Date | null
+    customerName: string | null
+    item: string | null
+    quotationNumber: string | null
+    poNumber: string | null
+    sellerName: string | null
+    quotationId: string | null
+    currentStep: string | null
+    flowVariant: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type JobMaxAggregateOutputType = {
+    id: string | null
+    jobNumber: string | null
+    companyCode: string | null
+    jobType: string | null
+    month: number | null
+    yearBe: number | null
+    dateClosed: Date | null
+    customerName: string | null
+    item: string | null
+    quotationNumber: string | null
+    poNumber: string | null
+    sellerName: string | null
+    quotationId: string | null
+    currentStep: string | null
+    flowVariant: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type JobCountAggregateOutputType = {
+    id: number
+    jobNumber: number
+    companyCode: number
+    jobType: number
+    month: number
+    yearBe: number
+    dateClosed: number
+    customerName: number
+    item: number
+    quotationNumber: number
+    poNumber: number
+    sellerName: number
+    quotationId: number
+    currentStep: number
+    flowVariant: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type JobAvgAggregateInputType = {
+    month?: true
+    yearBe?: true
+  }
+
+  export type JobSumAggregateInputType = {
+    month?: true
+    yearBe?: true
+  }
+
+  export type JobMinAggregateInputType = {
+    id?: true
+    jobNumber?: true
+    companyCode?: true
+    jobType?: true
+    month?: true
+    yearBe?: true
+    dateClosed?: true
+    customerName?: true
+    item?: true
+    quotationNumber?: true
+    poNumber?: true
+    sellerName?: true
+    quotationId?: true
+    currentStep?: true
+    flowVariant?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type JobMaxAggregateInputType = {
+    id?: true
+    jobNumber?: true
+    companyCode?: true
+    jobType?: true
+    month?: true
+    yearBe?: true
+    dateClosed?: true
+    customerName?: true
+    item?: true
+    quotationNumber?: true
+    poNumber?: true
+    sellerName?: true
+    quotationId?: true
+    currentStep?: true
+    flowVariant?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type JobCountAggregateInputType = {
+    id?: true
+    jobNumber?: true
+    companyCode?: true
+    jobType?: true
+    month?: true
+    yearBe?: true
+    dateClosed?: true
+    customerName?: true
+    item?: true
+    quotationNumber?: true
+    poNumber?: true
+    sellerName?: true
+    quotationId?: true
+    currentStep?: true
+    flowVariant?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type JobAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Job to aggregate.
+     */
+    where?: JobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Jobs to fetch.
+     */
+    orderBy?: JobOrderByWithRelationInput | JobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: JobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Jobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Jobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Jobs
+    **/
+    _count?: true | JobCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: JobAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: JobSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: JobMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: JobMaxAggregateInputType
+  }
+
+  export type GetJobAggregateType<T extends JobAggregateArgs> = {
+        [P in keyof T & keyof AggregateJob]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateJob[P]>
+      : GetScalarType<T[P], AggregateJob[P]>
+  }
+
+
+
+
+  export type JobGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobWhereInput
+    orderBy?: JobOrderByWithAggregationInput | JobOrderByWithAggregationInput[]
+    by: JobScalarFieldEnum[] | JobScalarFieldEnum
+    having?: JobScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: JobCountAggregateInputType | true
+    _avg?: JobAvgAggregateInputType
+    _sum?: JobSumAggregateInputType
+    _min?: JobMinAggregateInputType
+    _max?: JobMaxAggregateInputType
+  }
+
+  export type JobGroupByOutputType = {
+    id: string
+    jobNumber: string
+    companyCode: string
+    jobType: string
+    month: number
+    yearBe: number
+    dateClosed: Date
+    customerName: string
+    item: string | null
+    quotationNumber: string | null
+    poNumber: string | null
+    sellerName: string | null
+    quotationId: string | null
+    currentStep: string
+    flowVariant: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: JobCountAggregateOutputType | null
+    _avg: JobAvgAggregateOutputType | null
+    _sum: JobSumAggregateOutputType | null
+    _min: JobMinAggregateOutputType | null
+    _max: JobMaxAggregateOutputType | null
+  }
+
+  type GetJobGroupByPayload<T extends JobGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<JobGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof JobGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], JobGroupByOutputType[P]>
+            : GetScalarType<T[P], JobGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type JobSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobNumber?: boolean
+    companyCode?: boolean
+    jobType?: boolean
+    month?: boolean
+    yearBe?: boolean
+    dateClosed?: boolean
+    customerName?: boolean
+    item?: boolean
+    quotationNumber?: boolean
+    poNumber?: boolean
+    sellerName?: boolean
+    quotationId?: boolean
+    currentStep?: boolean
+    flowVariant?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    quotation?: boolean | Job$quotationArgs<ExtArgs>
+    stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
+    _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["job"]>
+
+  export type JobSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobNumber?: boolean
+    companyCode?: boolean
+    jobType?: boolean
+    month?: boolean
+    yearBe?: boolean
+    dateClosed?: boolean
+    customerName?: boolean
+    item?: boolean
+    quotationNumber?: boolean
+    poNumber?: boolean
+    sellerName?: boolean
+    quotationId?: boolean
+    currentStep?: boolean
+    flowVariant?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    quotation?: boolean | Job$quotationArgs<ExtArgs>
+  }, ExtArgs["result"]["job"]>
+
+  export type JobSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobNumber?: boolean
+    companyCode?: boolean
+    jobType?: boolean
+    month?: boolean
+    yearBe?: boolean
+    dateClosed?: boolean
+    customerName?: boolean
+    item?: boolean
+    quotationNumber?: boolean
+    poNumber?: boolean
+    sellerName?: boolean
+    quotationId?: boolean
+    currentStep?: boolean
+    flowVariant?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    quotation?: boolean | Job$quotationArgs<ExtArgs>
+  }, ExtArgs["result"]["job"]>
+
+  export type JobSelectScalar = {
+    id?: boolean
+    jobNumber?: boolean
+    companyCode?: boolean
+    jobType?: boolean
+    month?: boolean
+    yearBe?: boolean
+    dateClosed?: boolean
+    customerName?: boolean
+    item?: boolean
+    quotationNumber?: boolean
+    poNumber?: boolean
+    sellerName?: boolean
+    quotationId?: boolean
+    currentStep?: boolean
+    flowVariant?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobNumber" | "companyCode" | "jobType" | "month" | "yearBe" | "dateClosed" | "customerName" | "item" | "quotationNumber" | "poNumber" | "sellerName" | "quotationId" | "currentStep" | "flowVariant" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+  export type JobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    quotation?: boolean | Job$quotationArgs<ExtArgs>
+    stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
+    _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type JobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    quotation?: boolean | Job$quotationArgs<ExtArgs>
+  }
+  export type JobIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    quotation?: boolean | Job$quotationArgs<ExtArgs>
+  }
+
+  export type $JobPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Job"
+    objects: {
+      quotation: Prisma.$QuotationPayload<ExtArgs> | null
+      stepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      jobNumber: string
+      companyCode: string
+      jobType: string
+      month: number
+      yearBe: number
+      dateClosed: Date
+      customerName: string
+      item: string | null
+      quotationNumber: string | null
+      poNumber: string | null
+      sellerName: string | null
+      quotationId: string | null
+      currentStep: string
+      flowVariant: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["job"]>
+    composites: {}
+  }
+
+  type JobGetPayload<S extends boolean | null | undefined | JobDefaultArgs> = $Result.GetResult<Prisma.$JobPayload, S>
+
+  type JobCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<JobFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: JobCountAggregateInputType | true
+    }
+
+  export interface JobDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Job'], meta: { name: 'Job' } }
+    /**
+     * Find zero or one Job that matches the filter.
+     * @param {JobFindUniqueArgs} args - Arguments to find a Job
+     * @example
+     * // Get one Job
+     * const job = await prisma.job.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends JobFindUniqueArgs>(args: SelectSubset<T, JobFindUniqueArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Job that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {JobFindUniqueOrThrowArgs} args - Arguments to find a Job
+     * @example
+     * // Get one Job
+     * const job = await prisma.job.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends JobFindUniqueOrThrowArgs>(args: SelectSubset<T, JobFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Job that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobFindFirstArgs} args - Arguments to find a Job
+     * @example
+     * // Get one Job
+     * const job = await prisma.job.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends JobFindFirstArgs>(args?: SelectSubset<T, JobFindFirstArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Job that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobFindFirstOrThrowArgs} args - Arguments to find a Job
+     * @example
+     * // Get one Job
+     * const job = await prisma.job.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends JobFindFirstOrThrowArgs>(args?: SelectSubset<T, JobFindFirstOrThrowArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Jobs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Jobs
+     * const jobs = await prisma.job.findMany()
+     * 
+     * // Get first 10 Jobs
+     * const jobs = await prisma.job.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const jobWithIdOnly = await prisma.job.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends JobFindManyArgs>(args?: SelectSubset<T, JobFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Job.
+     * @param {JobCreateArgs} args - Arguments to create a Job.
+     * @example
+     * // Create one Job
+     * const Job = await prisma.job.create({
+     *   data: {
+     *     // ... data to create a Job
+     *   }
+     * })
+     * 
+     */
+    create<T extends JobCreateArgs>(args: SelectSubset<T, JobCreateArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Jobs.
+     * @param {JobCreateManyArgs} args - Arguments to create many Jobs.
+     * @example
+     * // Create many Jobs
+     * const job = await prisma.job.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends JobCreateManyArgs>(args?: SelectSubset<T, JobCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Jobs and returns the data saved in the database.
+     * @param {JobCreateManyAndReturnArgs} args - Arguments to create many Jobs.
+     * @example
+     * // Create many Jobs
+     * const job = await prisma.job.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Jobs and only return the `id`
+     * const jobWithIdOnly = await prisma.job.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends JobCreateManyAndReturnArgs>(args?: SelectSubset<T, JobCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Job.
+     * @param {JobDeleteArgs} args - Arguments to delete one Job.
+     * @example
+     * // Delete one Job
+     * const Job = await prisma.job.delete({
+     *   where: {
+     *     // ... filter to delete one Job
+     *   }
+     * })
+     * 
+     */
+    delete<T extends JobDeleteArgs>(args: SelectSubset<T, JobDeleteArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Job.
+     * @param {JobUpdateArgs} args - Arguments to update one Job.
+     * @example
+     * // Update one Job
+     * const job = await prisma.job.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends JobUpdateArgs>(args: SelectSubset<T, JobUpdateArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Jobs.
+     * @param {JobDeleteManyArgs} args - Arguments to filter Jobs to delete.
+     * @example
+     * // Delete a few Jobs
+     * const { count } = await prisma.job.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends JobDeleteManyArgs>(args?: SelectSubset<T, JobDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Jobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Jobs
+     * const job = await prisma.job.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends JobUpdateManyArgs>(args: SelectSubset<T, JobUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Jobs and returns the data updated in the database.
+     * @param {JobUpdateManyAndReturnArgs} args - Arguments to update many Jobs.
+     * @example
+     * // Update many Jobs
+     * const job = await prisma.job.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Jobs and only return the `id`
+     * const jobWithIdOnly = await prisma.job.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends JobUpdateManyAndReturnArgs>(args: SelectSubset<T, JobUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Job.
+     * @param {JobUpsertArgs} args - Arguments to update or create a Job.
+     * @example
+     * // Update or create a Job
+     * const job = await prisma.job.upsert({
+     *   create: {
+     *     // ... data to create a Job
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Job we want to update
+     *   }
+     * })
+     */
+    upsert<T extends JobUpsertArgs>(args: SelectSubset<T, JobUpsertArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Jobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobCountArgs} args - Arguments to filter Jobs to count.
+     * @example
+     * // Count the number of Jobs
+     * const count = await prisma.job.count({
+     *   where: {
+     *     // ... the filter for the Jobs we want to count
+     *   }
+     * })
+    **/
+    count<T extends JobCountArgs>(
+      args?: Subset<T, JobCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], JobCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Job.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends JobAggregateArgs>(args: Subset<T, JobAggregateArgs>): Prisma.PrismaPromise<GetJobAggregateType<T>>
+
+    /**
+     * Group by Job.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends JobGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: JobGroupByArgs['orderBy'] }
+        : { orderBy?: JobGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, JobGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJobGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Job model
+   */
+  readonly fields: JobFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Job.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__JobClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    quotation<T extends Job$quotationArgs<ExtArgs> = {}>(args?: Subset<T, Job$quotationArgs<ExtArgs>>): Prisma__QuotationClient<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    stepLogs<T extends Job$stepLogsArgs<ExtArgs> = {}>(args?: Subset<T, Job$stepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Job model
+   */
+  interface JobFieldRefs {
+    readonly id: FieldRef<"Job", 'String'>
+    readonly jobNumber: FieldRef<"Job", 'String'>
+    readonly companyCode: FieldRef<"Job", 'String'>
+    readonly jobType: FieldRef<"Job", 'String'>
+    readonly month: FieldRef<"Job", 'Int'>
+    readonly yearBe: FieldRef<"Job", 'Int'>
+    readonly dateClosed: FieldRef<"Job", 'DateTime'>
+    readonly customerName: FieldRef<"Job", 'String'>
+    readonly item: FieldRef<"Job", 'String'>
+    readonly quotationNumber: FieldRef<"Job", 'String'>
+    readonly poNumber: FieldRef<"Job", 'String'>
+    readonly sellerName: FieldRef<"Job", 'String'>
+    readonly quotationId: FieldRef<"Job", 'String'>
+    readonly currentStep: FieldRef<"Job", 'String'>
+    readonly flowVariant: FieldRef<"Job", 'String'>
+    readonly createdAt: FieldRef<"Job", 'DateTime'>
+    readonly updatedAt: FieldRef<"Job", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Job findUnique
+   */
+  export type JobFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    /**
+     * Filter, which Job to fetch.
+     */
+    where: JobWhereUniqueInput
+  }
+
+  /**
+   * Job findUniqueOrThrow
+   */
+  export type JobFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    /**
+     * Filter, which Job to fetch.
+     */
+    where: JobWhereUniqueInput
+  }
+
+  /**
+   * Job findFirst
+   */
+  export type JobFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    /**
+     * Filter, which Job to fetch.
+     */
+    where?: JobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Jobs to fetch.
+     */
+    orderBy?: JobOrderByWithRelationInput | JobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Jobs.
+     */
+    cursor?: JobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Jobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Jobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Jobs.
+     */
+    distinct?: JobScalarFieldEnum | JobScalarFieldEnum[]
+  }
+
+  /**
+   * Job findFirstOrThrow
+   */
+  export type JobFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    /**
+     * Filter, which Job to fetch.
+     */
+    where?: JobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Jobs to fetch.
+     */
+    orderBy?: JobOrderByWithRelationInput | JobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Jobs.
+     */
+    cursor?: JobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Jobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Jobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Jobs.
+     */
+    distinct?: JobScalarFieldEnum | JobScalarFieldEnum[]
+  }
+
+  /**
+   * Job findMany
+   */
+  export type JobFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    /**
+     * Filter, which Jobs to fetch.
+     */
+    where?: JobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Jobs to fetch.
+     */
+    orderBy?: JobOrderByWithRelationInput | JobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Jobs.
+     */
+    cursor?: JobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Jobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Jobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Jobs.
+     */
+    distinct?: JobScalarFieldEnum | JobScalarFieldEnum[]
+  }
+
+  /**
+   * Job create
+   */
+  export type JobCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Job.
+     */
+    data: XOR<JobCreateInput, JobUncheckedCreateInput>
+  }
+
+  /**
+   * Job createMany
+   */
+  export type JobCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Jobs.
+     */
+    data: JobCreateManyInput | JobCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Job createManyAndReturn
+   */
+  export type JobCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * The data used to create many Jobs.
+     */
+    data: JobCreateManyInput | JobCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Job update
+   */
+  export type JobUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Job.
+     */
+    data: XOR<JobUpdateInput, JobUncheckedUpdateInput>
+    /**
+     * Choose, which Job to update.
+     */
+    where: JobWhereUniqueInput
+  }
+
+  /**
+   * Job updateMany
+   */
+  export type JobUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Jobs.
+     */
+    data: XOR<JobUpdateManyMutationInput, JobUncheckedUpdateManyInput>
+    /**
+     * Filter which Jobs to update
+     */
+    where?: JobWhereInput
+    /**
+     * Limit how many Jobs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Job updateManyAndReturn
+   */
+  export type JobUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * The data used to update Jobs.
+     */
+    data: XOR<JobUpdateManyMutationInput, JobUncheckedUpdateManyInput>
+    /**
+     * Filter which Jobs to update
+     */
+    where?: JobWhereInput
+    /**
+     * Limit how many Jobs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Job upsert
+   */
+  export type JobUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Job to update in case it exists.
+     */
+    where: JobWhereUniqueInput
+    /**
+     * In case the Job found by the `where` argument doesn't exist, create a new Job with this data.
+     */
+    create: XOR<JobCreateInput, JobUncheckedCreateInput>
+    /**
+     * In case the Job was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<JobUpdateInput, JobUncheckedUpdateInput>
+  }
+
+  /**
+   * Job delete
+   */
+  export type JobDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    /**
+     * Filter which Job to delete.
+     */
+    where: JobWhereUniqueInput
+  }
+
+  /**
+   * Job deleteMany
+   */
+  export type JobDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Jobs to delete
+     */
+    where?: JobWhereInput
+    /**
+     * Limit how many Jobs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Job.quotation
+   */
+  export type Job$quotationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Quotation
+     */
+    select?: QuotationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Quotation
+     */
+    omit?: QuotationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: QuotationInclude<ExtArgs> | null
+    where?: QuotationWhereInput
+  }
+
+  /**
+   * Job.stepLogs
+   */
+  export type Job$stepLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    where?: JobStepLogWhereInput
+    orderBy?: JobStepLogOrderByWithRelationInput | JobStepLogOrderByWithRelationInput[]
+    cursor?: JobStepLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JobStepLogScalarFieldEnum | JobStepLogScalarFieldEnum[]
+  }
+
+  /**
+   * Job without action
+   */
+  export type JobDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model JobRunningNumber
+   */
+
+  export type AggregateJobRunningNumber = {
+    _count: JobRunningNumberCountAggregateOutputType | null
+    _avg: JobRunningNumberAvgAggregateOutputType | null
+    _sum: JobRunningNumberSumAggregateOutputType | null
+    _min: JobRunningNumberMinAggregateOutputType | null
+    _max: JobRunningNumberMaxAggregateOutputType | null
+  }
+
+  export type JobRunningNumberAvgAggregateOutputType = {
+    yearBe: number | null
+    month: number | null
+    lastNumber: number | null
+  }
+
+  export type JobRunningNumberSumAggregateOutputType = {
+    yearBe: number | null
+    month: number | null
+    lastNumber: number | null
+  }
+
+  export type JobRunningNumberMinAggregateOutputType = {
+    id: string | null
+    yearBe: number | null
+    month: number | null
+    lastNumber: number | null
+  }
+
+  export type JobRunningNumberMaxAggregateOutputType = {
+    id: string | null
+    yearBe: number | null
+    month: number | null
+    lastNumber: number | null
+  }
+
+  export type JobRunningNumberCountAggregateOutputType = {
+    id: number
+    yearBe: number
+    month: number
+    lastNumber: number
+    _all: number
+  }
+
+
+  export type JobRunningNumberAvgAggregateInputType = {
+    yearBe?: true
+    month?: true
+    lastNumber?: true
+  }
+
+  export type JobRunningNumberSumAggregateInputType = {
+    yearBe?: true
+    month?: true
+    lastNumber?: true
+  }
+
+  export type JobRunningNumberMinAggregateInputType = {
+    id?: true
+    yearBe?: true
+    month?: true
+    lastNumber?: true
+  }
+
+  export type JobRunningNumberMaxAggregateInputType = {
+    id?: true
+    yearBe?: true
+    month?: true
+    lastNumber?: true
+  }
+
+  export type JobRunningNumberCountAggregateInputType = {
+    id?: true
+    yearBe?: true
+    month?: true
+    lastNumber?: true
+    _all?: true
+  }
+
+  export type JobRunningNumberAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JobRunningNumber to aggregate.
+     */
+    where?: JobRunningNumberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobRunningNumbers to fetch.
+     */
+    orderBy?: JobRunningNumberOrderByWithRelationInput | JobRunningNumberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: JobRunningNumberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobRunningNumbers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobRunningNumbers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned JobRunningNumbers
+    **/
+    _count?: true | JobRunningNumberCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: JobRunningNumberAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: JobRunningNumberSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: JobRunningNumberMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: JobRunningNumberMaxAggregateInputType
+  }
+
+  export type GetJobRunningNumberAggregateType<T extends JobRunningNumberAggregateArgs> = {
+        [P in keyof T & keyof AggregateJobRunningNumber]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateJobRunningNumber[P]>
+      : GetScalarType<T[P], AggregateJobRunningNumber[P]>
+  }
+
+
+
+
+  export type JobRunningNumberGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobRunningNumberWhereInput
+    orderBy?: JobRunningNumberOrderByWithAggregationInput | JobRunningNumberOrderByWithAggregationInput[]
+    by: JobRunningNumberScalarFieldEnum[] | JobRunningNumberScalarFieldEnum
+    having?: JobRunningNumberScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: JobRunningNumberCountAggregateInputType | true
+    _avg?: JobRunningNumberAvgAggregateInputType
+    _sum?: JobRunningNumberSumAggregateInputType
+    _min?: JobRunningNumberMinAggregateInputType
+    _max?: JobRunningNumberMaxAggregateInputType
+  }
+
+  export type JobRunningNumberGroupByOutputType = {
+    id: string
+    yearBe: number
+    month: number
+    lastNumber: number
+    _count: JobRunningNumberCountAggregateOutputType | null
+    _avg: JobRunningNumberAvgAggregateOutputType | null
+    _sum: JobRunningNumberSumAggregateOutputType | null
+    _min: JobRunningNumberMinAggregateOutputType | null
+    _max: JobRunningNumberMaxAggregateOutputType | null
+  }
+
+  type GetJobRunningNumberGroupByPayload<T extends JobRunningNumberGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<JobRunningNumberGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof JobRunningNumberGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], JobRunningNumberGroupByOutputType[P]>
+            : GetScalarType<T[P], JobRunningNumberGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type JobRunningNumberSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    yearBe?: boolean
+    month?: boolean
+    lastNumber?: boolean
+  }, ExtArgs["result"]["jobRunningNumber"]>
+
+  export type JobRunningNumberSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    yearBe?: boolean
+    month?: boolean
+    lastNumber?: boolean
+  }, ExtArgs["result"]["jobRunningNumber"]>
+
+  export type JobRunningNumberSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    yearBe?: boolean
+    month?: boolean
+    lastNumber?: boolean
+  }, ExtArgs["result"]["jobRunningNumber"]>
+
+  export type JobRunningNumberSelectScalar = {
+    id?: boolean
+    yearBe?: boolean
+    month?: boolean
+    lastNumber?: boolean
+  }
+
+  export type JobRunningNumberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "yearBe" | "month" | "lastNumber", ExtArgs["result"]["jobRunningNumber"]>
+
+  export type $JobRunningNumberPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "JobRunningNumber"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      yearBe: number
+      month: number
+      lastNumber: number
+    }, ExtArgs["result"]["jobRunningNumber"]>
+    composites: {}
+  }
+
+  type JobRunningNumberGetPayload<S extends boolean | null | undefined | JobRunningNumberDefaultArgs> = $Result.GetResult<Prisma.$JobRunningNumberPayload, S>
+
+  type JobRunningNumberCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<JobRunningNumberFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: JobRunningNumberCountAggregateInputType | true
+    }
+
+  export interface JobRunningNumberDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['JobRunningNumber'], meta: { name: 'JobRunningNumber' } }
+    /**
+     * Find zero or one JobRunningNumber that matches the filter.
+     * @param {JobRunningNumberFindUniqueArgs} args - Arguments to find a JobRunningNumber
+     * @example
+     * // Get one JobRunningNumber
+     * const jobRunningNumber = await prisma.jobRunningNumber.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends JobRunningNumberFindUniqueArgs>(args: SelectSubset<T, JobRunningNumberFindUniqueArgs<ExtArgs>>): Prisma__JobRunningNumberClient<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one JobRunningNumber that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {JobRunningNumberFindUniqueOrThrowArgs} args - Arguments to find a JobRunningNumber
+     * @example
+     * // Get one JobRunningNumber
+     * const jobRunningNumber = await prisma.jobRunningNumber.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends JobRunningNumberFindUniqueOrThrowArgs>(args: SelectSubset<T, JobRunningNumberFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JobRunningNumberClient<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JobRunningNumber that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobRunningNumberFindFirstArgs} args - Arguments to find a JobRunningNumber
+     * @example
+     * // Get one JobRunningNumber
+     * const jobRunningNumber = await prisma.jobRunningNumber.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends JobRunningNumberFindFirstArgs>(args?: SelectSubset<T, JobRunningNumberFindFirstArgs<ExtArgs>>): Prisma__JobRunningNumberClient<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JobRunningNumber that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobRunningNumberFindFirstOrThrowArgs} args - Arguments to find a JobRunningNumber
+     * @example
+     * // Get one JobRunningNumber
+     * const jobRunningNumber = await prisma.jobRunningNumber.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends JobRunningNumberFindFirstOrThrowArgs>(args?: SelectSubset<T, JobRunningNumberFindFirstOrThrowArgs<ExtArgs>>): Prisma__JobRunningNumberClient<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more JobRunningNumbers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobRunningNumberFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all JobRunningNumbers
+     * const jobRunningNumbers = await prisma.jobRunningNumber.findMany()
+     * 
+     * // Get first 10 JobRunningNumbers
+     * const jobRunningNumbers = await prisma.jobRunningNumber.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const jobRunningNumberWithIdOnly = await prisma.jobRunningNumber.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends JobRunningNumberFindManyArgs>(args?: SelectSubset<T, JobRunningNumberFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a JobRunningNumber.
+     * @param {JobRunningNumberCreateArgs} args - Arguments to create a JobRunningNumber.
+     * @example
+     * // Create one JobRunningNumber
+     * const JobRunningNumber = await prisma.jobRunningNumber.create({
+     *   data: {
+     *     // ... data to create a JobRunningNumber
+     *   }
+     * })
+     * 
+     */
+    create<T extends JobRunningNumberCreateArgs>(args: SelectSubset<T, JobRunningNumberCreateArgs<ExtArgs>>): Prisma__JobRunningNumberClient<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many JobRunningNumbers.
+     * @param {JobRunningNumberCreateManyArgs} args - Arguments to create many JobRunningNumbers.
+     * @example
+     * // Create many JobRunningNumbers
+     * const jobRunningNumber = await prisma.jobRunningNumber.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends JobRunningNumberCreateManyArgs>(args?: SelectSubset<T, JobRunningNumberCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many JobRunningNumbers and returns the data saved in the database.
+     * @param {JobRunningNumberCreateManyAndReturnArgs} args - Arguments to create many JobRunningNumbers.
+     * @example
+     * // Create many JobRunningNumbers
+     * const jobRunningNumber = await prisma.jobRunningNumber.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many JobRunningNumbers and only return the `id`
+     * const jobRunningNumberWithIdOnly = await prisma.jobRunningNumber.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends JobRunningNumberCreateManyAndReturnArgs>(args?: SelectSubset<T, JobRunningNumberCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a JobRunningNumber.
+     * @param {JobRunningNumberDeleteArgs} args - Arguments to delete one JobRunningNumber.
+     * @example
+     * // Delete one JobRunningNumber
+     * const JobRunningNumber = await prisma.jobRunningNumber.delete({
+     *   where: {
+     *     // ... filter to delete one JobRunningNumber
+     *   }
+     * })
+     * 
+     */
+    delete<T extends JobRunningNumberDeleteArgs>(args: SelectSubset<T, JobRunningNumberDeleteArgs<ExtArgs>>): Prisma__JobRunningNumberClient<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one JobRunningNumber.
+     * @param {JobRunningNumberUpdateArgs} args - Arguments to update one JobRunningNumber.
+     * @example
+     * // Update one JobRunningNumber
+     * const jobRunningNumber = await prisma.jobRunningNumber.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends JobRunningNumberUpdateArgs>(args: SelectSubset<T, JobRunningNumberUpdateArgs<ExtArgs>>): Prisma__JobRunningNumberClient<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more JobRunningNumbers.
+     * @param {JobRunningNumberDeleteManyArgs} args - Arguments to filter JobRunningNumbers to delete.
+     * @example
+     * // Delete a few JobRunningNumbers
+     * const { count } = await prisma.jobRunningNumber.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends JobRunningNumberDeleteManyArgs>(args?: SelectSubset<T, JobRunningNumberDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JobRunningNumbers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobRunningNumberUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many JobRunningNumbers
+     * const jobRunningNumber = await prisma.jobRunningNumber.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends JobRunningNumberUpdateManyArgs>(args: SelectSubset<T, JobRunningNumberUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JobRunningNumbers and returns the data updated in the database.
+     * @param {JobRunningNumberUpdateManyAndReturnArgs} args - Arguments to update many JobRunningNumbers.
+     * @example
+     * // Update many JobRunningNumbers
+     * const jobRunningNumber = await prisma.jobRunningNumber.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more JobRunningNumbers and only return the `id`
+     * const jobRunningNumberWithIdOnly = await prisma.jobRunningNumber.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends JobRunningNumberUpdateManyAndReturnArgs>(args: SelectSubset<T, JobRunningNumberUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one JobRunningNumber.
+     * @param {JobRunningNumberUpsertArgs} args - Arguments to update or create a JobRunningNumber.
+     * @example
+     * // Update or create a JobRunningNumber
+     * const jobRunningNumber = await prisma.jobRunningNumber.upsert({
+     *   create: {
+     *     // ... data to create a JobRunningNumber
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the JobRunningNumber we want to update
+     *   }
+     * })
+     */
+    upsert<T extends JobRunningNumberUpsertArgs>(args: SelectSubset<T, JobRunningNumberUpsertArgs<ExtArgs>>): Prisma__JobRunningNumberClient<$Result.GetResult<Prisma.$JobRunningNumberPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of JobRunningNumbers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobRunningNumberCountArgs} args - Arguments to filter JobRunningNumbers to count.
+     * @example
+     * // Count the number of JobRunningNumbers
+     * const count = await prisma.jobRunningNumber.count({
+     *   where: {
+     *     // ... the filter for the JobRunningNumbers we want to count
+     *   }
+     * })
+    **/
+    count<T extends JobRunningNumberCountArgs>(
+      args?: Subset<T, JobRunningNumberCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], JobRunningNumberCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a JobRunningNumber.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobRunningNumberAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends JobRunningNumberAggregateArgs>(args: Subset<T, JobRunningNumberAggregateArgs>): Prisma.PrismaPromise<GetJobRunningNumberAggregateType<T>>
+
+    /**
+     * Group by JobRunningNumber.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobRunningNumberGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends JobRunningNumberGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: JobRunningNumberGroupByArgs['orderBy'] }
+        : { orderBy?: JobRunningNumberGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, JobRunningNumberGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJobRunningNumberGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the JobRunningNumber model
+   */
+  readonly fields: JobRunningNumberFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for JobRunningNumber.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__JobRunningNumberClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the JobRunningNumber model
+   */
+  interface JobRunningNumberFieldRefs {
+    readonly id: FieldRef<"JobRunningNumber", 'String'>
+    readonly yearBe: FieldRef<"JobRunningNumber", 'Int'>
+    readonly month: FieldRef<"JobRunningNumber", 'Int'>
+    readonly lastNumber: FieldRef<"JobRunningNumber", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * JobRunningNumber findUnique
+   */
+  export type JobRunningNumberFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter, which JobRunningNumber to fetch.
+     */
+    where: JobRunningNumberWhereUniqueInput
+  }
+
+  /**
+   * JobRunningNumber findUniqueOrThrow
+   */
+  export type JobRunningNumberFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter, which JobRunningNumber to fetch.
+     */
+    where: JobRunningNumberWhereUniqueInput
+  }
+
+  /**
+   * JobRunningNumber findFirst
+   */
+  export type JobRunningNumberFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter, which JobRunningNumber to fetch.
+     */
+    where?: JobRunningNumberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobRunningNumbers to fetch.
+     */
+    orderBy?: JobRunningNumberOrderByWithRelationInput | JobRunningNumberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JobRunningNumbers.
+     */
+    cursor?: JobRunningNumberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobRunningNumbers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobRunningNumbers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobRunningNumbers.
+     */
+    distinct?: JobRunningNumberScalarFieldEnum | JobRunningNumberScalarFieldEnum[]
+  }
+
+  /**
+   * JobRunningNumber findFirstOrThrow
+   */
+  export type JobRunningNumberFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter, which JobRunningNumber to fetch.
+     */
+    where?: JobRunningNumberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobRunningNumbers to fetch.
+     */
+    orderBy?: JobRunningNumberOrderByWithRelationInput | JobRunningNumberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JobRunningNumbers.
+     */
+    cursor?: JobRunningNumberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobRunningNumbers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobRunningNumbers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobRunningNumbers.
+     */
+    distinct?: JobRunningNumberScalarFieldEnum | JobRunningNumberScalarFieldEnum[]
+  }
+
+  /**
+   * JobRunningNumber findMany
+   */
+  export type JobRunningNumberFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter, which JobRunningNumbers to fetch.
+     */
+    where?: JobRunningNumberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobRunningNumbers to fetch.
+     */
+    orderBy?: JobRunningNumberOrderByWithRelationInput | JobRunningNumberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing JobRunningNumbers.
+     */
+    cursor?: JobRunningNumberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobRunningNumbers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobRunningNumbers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobRunningNumbers.
+     */
+    distinct?: JobRunningNumberScalarFieldEnum | JobRunningNumberScalarFieldEnum[]
+  }
+
+  /**
+   * JobRunningNumber create
+   */
+  export type JobRunningNumberCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * The data needed to create a JobRunningNumber.
+     */
+    data: XOR<JobRunningNumberCreateInput, JobRunningNumberUncheckedCreateInput>
+  }
+
+  /**
+   * JobRunningNumber createMany
+   */
+  export type JobRunningNumberCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many JobRunningNumbers.
+     */
+    data: JobRunningNumberCreateManyInput | JobRunningNumberCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * JobRunningNumber createManyAndReturn
+   */
+  export type JobRunningNumberCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * The data used to create many JobRunningNumbers.
+     */
+    data: JobRunningNumberCreateManyInput | JobRunningNumberCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * JobRunningNumber update
+   */
+  export type JobRunningNumberUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * The data needed to update a JobRunningNumber.
+     */
+    data: XOR<JobRunningNumberUpdateInput, JobRunningNumberUncheckedUpdateInput>
+    /**
+     * Choose, which JobRunningNumber to update.
+     */
+    where: JobRunningNumberWhereUniqueInput
+  }
+
+  /**
+   * JobRunningNumber updateMany
+   */
+  export type JobRunningNumberUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update JobRunningNumbers.
+     */
+    data: XOR<JobRunningNumberUpdateManyMutationInput, JobRunningNumberUncheckedUpdateManyInput>
+    /**
+     * Filter which JobRunningNumbers to update
+     */
+    where?: JobRunningNumberWhereInput
+    /**
+     * Limit how many JobRunningNumbers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * JobRunningNumber updateManyAndReturn
+   */
+  export type JobRunningNumberUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * The data used to update JobRunningNumbers.
+     */
+    data: XOR<JobRunningNumberUpdateManyMutationInput, JobRunningNumberUncheckedUpdateManyInput>
+    /**
+     * Filter which JobRunningNumbers to update
+     */
+    where?: JobRunningNumberWhereInput
+    /**
+     * Limit how many JobRunningNumbers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * JobRunningNumber upsert
+   */
+  export type JobRunningNumberUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * The filter to search for the JobRunningNumber to update in case it exists.
+     */
+    where: JobRunningNumberWhereUniqueInput
+    /**
+     * In case the JobRunningNumber found by the `where` argument doesn't exist, create a new JobRunningNumber with this data.
+     */
+    create: XOR<JobRunningNumberCreateInput, JobRunningNumberUncheckedCreateInput>
+    /**
+     * In case the JobRunningNumber was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<JobRunningNumberUpdateInput, JobRunningNumberUncheckedUpdateInput>
+  }
+
+  /**
+   * JobRunningNumber delete
+   */
+  export type JobRunningNumberDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter which JobRunningNumber to delete.
+     */
+    where: JobRunningNumberWhereUniqueInput
+  }
+
+  /**
+   * JobRunningNumber deleteMany
+   */
+  export type JobRunningNumberDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JobRunningNumbers to delete
+     */
+    where?: JobRunningNumberWhereInput
+    /**
+     * Limit how many JobRunningNumbers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * JobRunningNumber without action
+   */
+  export type JobRunningNumberDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobRunningNumber
+     */
+    select?: JobRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobRunningNumber
+     */
+    omit?: JobRunningNumberOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model JobStepLog
+   */
+
+  export type AggregateJobStepLog = {
+    _count: JobStepLogCountAggregateOutputType | null
+    _min: JobStepLogMinAggregateOutputType | null
+    _max: JobStepLogMaxAggregateOutputType | null
+  }
+
+  export type JobStepLogMinAggregateOutputType = {
+    id: string | null
+    jobId: string | null
+    step: string | null
+    completedBy: string | null
+    department: string | null
+    note: string | null
+    completedAt: Date | null
+  }
+
+  export type JobStepLogMaxAggregateOutputType = {
+    id: string | null
+    jobId: string | null
+    step: string | null
+    completedBy: string | null
+    department: string | null
+    note: string | null
+    completedAt: Date | null
+  }
+
+  export type JobStepLogCountAggregateOutputType = {
+    id: number
+    jobId: number
+    step: number
+    completedBy: number
+    department: number
+    note: number
+    completedAt: number
+    _all: number
+  }
+
+
+  export type JobStepLogMinAggregateInputType = {
+    id?: true
+    jobId?: true
+    step?: true
+    completedBy?: true
+    department?: true
+    note?: true
+    completedAt?: true
+  }
+
+  export type JobStepLogMaxAggregateInputType = {
+    id?: true
+    jobId?: true
+    step?: true
+    completedBy?: true
+    department?: true
+    note?: true
+    completedAt?: true
+  }
+
+  export type JobStepLogCountAggregateInputType = {
+    id?: true
+    jobId?: true
+    step?: true
+    completedBy?: true
+    department?: true
+    note?: true
+    completedAt?: true
+    _all?: true
+  }
+
+  export type JobStepLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JobStepLog to aggregate.
+     */
+    where?: JobStepLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobStepLogs to fetch.
+     */
+    orderBy?: JobStepLogOrderByWithRelationInput | JobStepLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: JobStepLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobStepLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobStepLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned JobStepLogs
+    **/
+    _count?: true | JobStepLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: JobStepLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: JobStepLogMaxAggregateInputType
+  }
+
+  export type GetJobStepLogAggregateType<T extends JobStepLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateJobStepLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateJobStepLog[P]>
+      : GetScalarType<T[P], AggregateJobStepLog[P]>
+  }
+
+
+
+
+  export type JobStepLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobStepLogWhereInput
+    orderBy?: JobStepLogOrderByWithAggregationInput | JobStepLogOrderByWithAggregationInput[]
+    by: JobStepLogScalarFieldEnum[] | JobStepLogScalarFieldEnum
+    having?: JobStepLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: JobStepLogCountAggregateInputType | true
+    _min?: JobStepLogMinAggregateInputType
+    _max?: JobStepLogMaxAggregateInputType
+  }
+
+  export type JobStepLogGroupByOutputType = {
+    id: string
+    jobId: string
+    step: string
+    completedBy: string
+    department: string
+    note: string | null
+    completedAt: Date
+    _count: JobStepLogCountAggregateOutputType | null
+    _min: JobStepLogMinAggregateOutputType | null
+    _max: JobStepLogMaxAggregateOutputType | null
+  }
+
+  type GetJobStepLogGroupByPayload<T extends JobStepLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<JobStepLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof JobStepLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], JobStepLogGroupByOutputType[P]>
+            : GetScalarType<T[P], JobStepLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type JobStepLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobId?: boolean
+    step?: boolean
+    completedBy?: boolean
+    department?: boolean
+    note?: boolean
+    completedAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["jobStepLog"]>
+
+  export type JobStepLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobId?: boolean
+    step?: boolean
+    completedBy?: boolean
+    department?: boolean
+    note?: boolean
+    completedAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["jobStepLog"]>
+
+  export type JobStepLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobId?: boolean
+    step?: boolean
+    completedBy?: boolean
+    department?: boolean
+    note?: boolean
+    completedAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["jobStepLog"]>
+
+  export type JobStepLogSelectScalar = {
+    id?: boolean
+    jobId?: boolean
+    step?: boolean
+    completedBy?: boolean
+    department?: boolean
+    note?: boolean
+    completedAt?: boolean
+  }
+
+  export type JobStepLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "step" | "completedBy" | "department" | "note" | "completedAt", ExtArgs["result"]["jobStepLog"]>
+  export type JobStepLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }
+  export type JobStepLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }
+  export type JobStepLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }
+
+  export type $JobStepLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "JobStepLog"
+    objects: {
+      job: Prisma.$JobPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      jobId: string
+      step: string
+      completedBy: string
+      department: string
+      note: string | null
+      completedAt: Date
+    }, ExtArgs["result"]["jobStepLog"]>
+    composites: {}
+  }
+
+  type JobStepLogGetPayload<S extends boolean | null | undefined | JobStepLogDefaultArgs> = $Result.GetResult<Prisma.$JobStepLogPayload, S>
+
+  type JobStepLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<JobStepLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: JobStepLogCountAggregateInputType | true
+    }
+
+  export interface JobStepLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['JobStepLog'], meta: { name: 'JobStepLog' } }
+    /**
+     * Find zero or one JobStepLog that matches the filter.
+     * @param {JobStepLogFindUniqueArgs} args - Arguments to find a JobStepLog
+     * @example
+     * // Get one JobStepLog
+     * const jobStepLog = await prisma.jobStepLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends JobStepLogFindUniqueArgs>(args: SelectSubset<T, JobStepLogFindUniqueArgs<ExtArgs>>): Prisma__JobStepLogClient<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one JobStepLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {JobStepLogFindUniqueOrThrowArgs} args - Arguments to find a JobStepLog
+     * @example
+     * // Get one JobStepLog
+     * const jobStepLog = await prisma.jobStepLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends JobStepLogFindUniqueOrThrowArgs>(args: SelectSubset<T, JobStepLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JobStepLogClient<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JobStepLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobStepLogFindFirstArgs} args - Arguments to find a JobStepLog
+     * @example
+     * // Get one JobStepLog
+     * const jobStepLog = await prisma.jobStepLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends JobStepLogFindFirstArgs>(args?: SelectSubset<T, JobStepLogFindFirstArgs<ExtArgs>>): Prisma__JobStepLogClient<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JobStepLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobStepLogFindFirstOrThrowArgs} args - Arguments to find a JobStepLog
+     * @example
+     * // Get one JobStepLog
+     * const jobStepLog = await prisma.jobStepLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends JobStepLogFindFirstOrThrowArgs>(args?: SelectSubset<T, JobStepLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__JobStepLogClient<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more JobStepLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobStepLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all JobStepLogs
+     * const jobStepLogs = await prisma.jobStepLog.findMany()
+     * 
+     * // Get first 10 JobStepLogs
+     * const jobStepLogs = await prisma.jobStepLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const jobStepLogWithIdOnly = await prisma.jobStepLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends JobStepLogFindManyArgs>(args?: SelectSubset<T, JobStepLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a JobStepLog.
+     * @param {JobStepLogCreateArgs} args - Arguments to create a JobStepLog.
+     * @example
+     * // Create one JobStepLog
+     * const JobStepLog = await prisma.jobStepLog.create({
+     *   data: {
+     *     // ... data to create a JobStepLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends JobStepLogCreateArgs>(args: SelectSubset<T, JobStepLogCreateArgs<ExtArgs>>): Prisma__JobStepLogClient<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many JobStepLogs.
+     * @param {JobStepLogCreateManyArgs} args - Arguments to create many JobStepLogs.
+     * @example
+     * // Create many JobStepLogs
+     * const jobStepLog = await prisma.jobStepLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends JobStepLogCreateManyArgs>(args?: SelectSubset<T, JobStepLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many JobStepLogs and returns the data saved in the database.
+     * @param {JobStepLogCreateManyAndReturnArgs} args - Arguments to create many JobStepLogs.
+     * @example
+     * // Create many JobStepLogs
+     * const jobStepLog = await prisma.jobStepLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many JobStepLogs and only return the `id`
+     * const jobStepLogWithIdOnly = await prisma.jobStepLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends JobStepLogCreateManyAndReturnArgs>(args?: SelectSubset<T, JobStepLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a JobStepLog.
+     * @param {JobStepLogDeleteArgs} args - Arguments to delete one JobStepLog.
+     * @example
+     * // Delete one JobStepLog
+     * const JobStepLog = await prisma.jobStepLog.delete({
+     *   where: {
+     *     // ... filter to delete one JobStepLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends JobStepLogDeleteArgs>(args: SelectSubset<T, JobStepLogDeleteArgs<ExtArgs>>): Prisma__JobStepLogClient<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one JobStepLog.
+     * @param {JobStepLogUpdateArgs} args - Arguments to update one JobStepLog.
+     * @example
+     * // Update one JobStepLog
+     * const jobStepLog = await prisma.jobStepLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends JobStepLogUpdateArgs>(args: SelectSubset<T, JobStepLogUpdateArgs<ExtArgs>>): Prisma__JobStepLogClient<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more JobStepLogs.
+     * @param {JobStepLogDeleteManyArgs} args - Arguments to filter JobStepLogs to delete.
+     * @example
+     * // Delete a few JobStepLogs
+     * const { count } = await prisma.jobStepLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends JobStepLogDeleteManyArgs>(args?: SelectSubset<T, JobStepLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JobStepLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobStepLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many JobStepLogs
+     * const jobStepLog = await prisma.jobStepLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends JobStepLogUpdateManyArgs>(args: SelectSubset<T, JobStepLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JobStepLogs and returns the data updated in the database.
+     * @param {JobStepLogUpdateManyAndReturnArgs} args - Arguments to update many JobStepLogs.
+     * @example
+     * // Update many JobStepLogs
+     * const jobStepLog = await prisma.jobStepLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more JobStepLogs and only return the `id`
+     * const jobStepLogWithIdOnly = await prisma.jobStepLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends JobStepLogUpdateManyAndReturnArgs>(args: SelectSubset<T, JobStepLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one JobStepLog.
+     * @param {JobStepLogUpsertArgs} args - Arguments to update or create a JobStepLog.
+     * @example
+     * // Update or create a JobStepLog
+     * const jobStepLog = await prisma.jobStepLog.upsert({
+     *   create: {
+     *     // ... data to create a JobStepLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the JobStepLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends JobStepLogUpsertArgs>(args: SelectSubset<T, JobStepLogUpsertArgs<ExtArgs>>): Prisma__JobStepLogClient<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of JobStepLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobStepLogCountArgs} args - Arguments to filter JobStepLogs to count.
+     * @example
+     * // Count the number of JobStepLogs
+     * const count = await prisma.jobStepLog.count({
+     *   where: {
+     *     // ... the filter for the JobStepLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends JobStepLogCountArgs>(
+      args?: Subset<T, JobStepLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], JobStepLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a JobStepLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobStepLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends JobStepLogAggregateArgs>(args: Subset<T, JobStepLogAggregateArgs>): Prisma.PrismaPromise<GetJobStepLogAggregateType<T>>
+
+    /**
+     * Group by JobStepLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobStepLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends JobStepLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: JobStepLogGroupByArgs['orderBy'] }
+        : { orderBy?: JobStepLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, JobStepLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJobStepLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the JobStepLog model
+   */
+  readonly fields: JobStepLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for JobStepLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__JobStepLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    job<T extends JobDefaultArgs<ExtArgs> = {}>(args?: Subset<T, JobDefaultArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the JobStepLog model
+   */
+  interface JobStepLogFieldRefs {
+    readonly id: FieldRef<"JobStepLog", 'String'>
+    readonly jobId: FieldRef<"JobStepLog", 'String'>
+    readonly step: FieldRef<"JobStepLog", 'String'>
+    readonly completedBy: FieldRef<"JobStepLog", 'String'>
+    readonly department: FieldRef<"JobStepLog", 'String'>
+    readonly note: FieldRef<"JobStepLog", 'String'>
+    readonly completedAt: FieldRef<"JobStepLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * JobStepLog findUnique
+   */
+  export type JobStepLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    /**
+     * Filter, which JobStepLog to fetch.
+     */
+    where: JobStepLogWhereUniqueInput
+  }
+
+  /**
+   * JobStepLog findUniqueOrThrow
+   */
+  export type JobStepLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    /**
+     * Filter, which JobStepLog to fetch.
+     */
+    where: JobStepLogWhereUniqueInput
+  }
+
+  /**
+   * JobStepLog findFirst
+   */
+  export type JobStepLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    /**
+     * Filter, which JobStepLog to fetch.
+     */
+    where?: JobStepLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobStepLogs to fetch.
+     */
+    orderBy?: JobStepLogOrderByWithRelationInput | JobStepLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JobStepLogs.
+     */
+    cursor?: JobStepLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobStepLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobStepLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobStepLogs.
+     */
+    distinct?: JobStepLogScalarFieldEnum | JobStepLogScalarFieldEnum[]
+  }
+
+  /**
+   * JobStepLog findFirstOrThrow
+   */
+  export type JobStepLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    /**
+     * Filter, which JobStepLog to fetch.
+     */
+    where?: JobStepLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobStepLogs to fetch.
+     */
+    orderBy?: JobStepLogOrderByWithRelationInput | JobStepLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JobStepLogs.
+     */
+    cursor?: JobStepLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobStepLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobStepLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobStepLogs.
+     */
+    distinct?: JobStepLogScalarFieldEnum | JobStepLogScalarFieldEnum[]
+  }
+
+  /**
+   * JobStepLog findMany
+   */
+  export type JobStepLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    /**
+     * Filter, which JobStepLogs to fetch.
+     */
+    where?: JobStepLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobStepLogs to fetch.
+     */
+    orderBy?: JobStepLogOrderByWithRelationInput | JobStepLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing JobStepLogs.
+     */
+    cursor?: JobStepLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobStepLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobStepLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobStepLogs.
+     */
+    distinct?: JobStepLogScalarFieldEnum | JobStepLogScalarFieldEnum[]
+  }
+
+  /**
+   * JobStepLog create
+   */
+  export type JobStepLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a JobStepLog.
+     */
+    data: XOR<JobStepLogCreateInput, JobStepLogUncheckedCreateInput>
+  }
+
+  /**
+   * JobStepLog createMany
+   */
+  export type JobStepLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many JobStepLogs.
+     */
+    data: JobStepLogCreateManyInput | JobStepLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * JobStepLog createManyAndReturn
+   */
+  export type JobStepLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many JobStepLogs.
+     */
+    data: JobStepLogCreateManyInput | JobStepLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * JobStepLog update
+   */
+  export type JobStepLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a JobStepLog.
+     */
+    data: XOR<JobStepLogUpdateInput, JobStepLogUncheckedUpdateInput>
+    /**
+     * Choose, which JobStepLog to update.
+     */
+    where: JobStepLogWhereUniqueInput
+  }
+
+  /**
+   * JobStepLog updateMany
+   */
+  export type JobStepLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update JobStepLogs.
+     */
+    data: XOR<JobStepLogUpdateManyMutationInput, JobStepLogUncheckedUpdateManyInput>
+    /**
+     * Filter which JobStepLogs to update
+     */
+    where?: JobStepLogWhereInput
+    /**
+     * Limit how many JobStepLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * JobStepLog updateManyAndReturn
+   */
+  export type JobStepLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * The data used to update JobStepLogs.
+     */
+    data: XOR<JobStepLogUpdateManyMutationInput, JobStepLogUncheckedUpdateManyInput>
+    /**
+     * Filter which JobStepLogs to update
+     */
+    where?: JobStepLogWhereInput
+    /**
+     * Limit how many JobStepLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * JobStepLog upsert
+   */
+  export type JobStepLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the JobStepLog to update in case it exists.
+     */
+    where: JobStepLogWhereUniqueInput
+    /**
+     * In case the JobStepLog found by the `where` argument doesn't exist, create a new JobStepLog with this data.
+     */
+    create: XOR<JobStepLogCreateInput, JobStepLogUncheckedCreateInput>
+    /**
+     * In case the JobStepLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<JobStepLogUpdateInput, JobStepLogUncheckedUpdateInput>
+  }
+
+  /**
+   * JobStepLog delete
+   */
+  export type JobStepLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    /**
+     * Filter which JobStepLog to delete.
+     */
+    where: JobStepLogWhereUniqueInput
+  }
+
+  /**
+   * JobStepLog deleteMany
+   */
+  export type JobStepLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JobStepLogs to delete
+     */
+    where?: JobStepLogWhereInput
+    /**
+     * Limit how many JobStepLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * JobStepLog without action
+   */
+  export type JobStepLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -16825,6 +23312,8 @@ export namespace Prisma {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     billingDate: 'billingDate',
+    appointmentDate: 'appointmentDate',
+    appointmentNote: 'appointmentNote',
     contactId: 'contactId',
     followUp1: 'followUp1',
     followUp2: 'followUp2',
@@ -16832,6 +23321,7 @@ export namespace Prisma {
     followUp4: 'followUp4',
     invoiceNumber: 'invoiceNumber',
     poDate: 'poDate',
+    poNumber: 'poNumber',
     productType: 'productType',
     quotationDate: 'quotationDate',
     quotationNumber: 'quotationNumber',
@@ -16923,6 +23413,81 @@ export namespace Prisma {
   };
 
   export type TelesalesKPIScalarFieldEnum = (typeof TelesalesKPIScalarFieldEnum)[keyof typeof TelesalesKPIScalarFieldEnum]
+
+
+  export const OrderScalarFieldEnum: {
+    id: 'id',
+    orderNumber: 'orderNumber',
+    companyId: 'companyId',
+    quotationId: 'quotationId',
+    salespersonId: 'salespersonId',
+    status: 'status',
+    value: 'value',
+    priority: 'priority',
+    targetDeliveryDate: 'targetDeliveryDate',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+  export const OrderStatusLogScalarFieldEnum: {
+    id: 'id',
+    orderId: 'orderId',
+    userId: 'userId',
+    fromStatus: 'fromStatus',
+    toStatus: 'toStatus',
+    createdAt: 'createdAt'
+  };
+
+  export type OrderStatusLogScalarFieldEnum = (typeof OrderStatusLogScalarFieldEnum)[keyof typeof OrderStatusLogScalarFieldEnum]
+
+
+  export const JobScalarFieldEnum: {
+    id: 'id',
+    jobNumber: 'jobNumber',
+    companyCode: 'companyCode',
+    jobType: 'jobType',
+    month: 'month',
+    yearBe: 'yearBe',
+    dateClosed: 'dateClosed',
+    customerName: 'customerName',
+    item: 'item',
+    quotationNumber: 'quotationNumber',
+    poNumber: 'poNumber',
+    sellerName: 'sellerName',
+    quotationId: 'quotationId',
+    currentStep: 'currentStep',
+    flowVariant: 'flowVariant',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
+
+
+  export const JobRunningNumberScalarFieldEnum: {
+    id: 'id',
+    yearBe: 'yearBe',
+    month: 'month',
+    lastNumber: 'lastNumber'
+  };
+
+  export type JobRunningNumberScalarFieldEnum = (typeof JobRunningNumberScalarFieldEnum)[keyof typeof JobRunningNumberScalarFieldEnum]
+
+
+  export const JobStepLogScalarFieldEnum: {
+    id: 'id',
+    jobId: 'jobId',
+    step: 'step',
+    completedBy: 'completedBy',
+    department: 'department',
+    note: 'note',
+    completedAt: 'completedAt'
+  };
+
+  export type JobStepLogScalarFieldEnum = (typeof JobStepLogScalarFieldEnum)[keyof typeof JobStepLogScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -17038,6 +23603,7 @@ export namespace Prisma {
     otpExpiresAt?: DateTimeNullableFilter<"User"> | Date | string | null
     isActive?: BoolFilter<"User"> | boolean
     quotations?: QuotationListRelationFilter
+    orders?: OrderListRelationFilter
     schedules?: ScheduleListRelationFilter
     telesales?: TelesaleListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
@@ -17061,6 +23627,7 @@ export namespace Prisma {
     otpExpiresAt?: SortOrderInput | SortOrder
     isActive?: SortOrder
     quotations?: QuotationOrderByRelationAggregateInput
+    orders?: OrderOrderByRelationAggregateInput
     schedules?: ScheduleOrderByRelationAggregateInput
     telesales?: TelesaleOrderByRelationAggregateInput
     employeeSale?: EmployeeSaleOrderByWithRelationInput
@@ -17087,6 +23654,7 @@ export namespace Prisma {
     otpExpiresAt?: DateTimeNullableFilter<"User"> | Date | string | null
     isActive?: BoolFilter<"User"> | boolean
     quotations?: QuotationListRelationFilter
+    orders?: OrderListRelationFilter
     schedules?: ScheduleListRelationFilter
     telesales?: TelesaleListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
@@ -17441,6 +24009,7 @@ export namespace Prisma {
     paymentMethod?: StringNullableFilter<"Company"> | string | null
     contacts?: ContactListRelationFilter
     quotations?: QuotationListRelationFilter
+    orders?: OrderListRelationFilter
     telesales?: TelesaleListRelationFilter
     schedules?: ScheduleListRelationFilter
     assignedUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -17477,6 +24046,7 @@ export namespace Prisma {
     paymentMethod?: SortOrderInput | SortOrder
     contacts?: ContactOrderByRelationAggregateInput
     quotations?: QuotationOrderByRelationAggregateInput
+    orders?: OrderOrderByRelationAggregateInput
     telesales?: TelesaleOrderByRelationAggregateInput
     schedules?: ScheduleOrderByRelationAggregateInput
     assignedUser?: UserOrderByWithRelationInput
@@ -17516,6 +24086,7 @@ export namespace Prisma {
     paymentMethod?: StringNullableFilter<"Company"> | string | null
     contacts?: ContactListRelationFilter
     quotations?: QuotationListRelationFilter
+    orders?: OrderListRelationFilter
     telesales?: TelesaleListRelationFilter
     schedules?: ScheduleListRelationFilter
     assignedUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -17682,6 +24253,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Quotation"> | Date | string
     updatedAt?: DateTimeFilter<"Quotation"> | Date | string
     billingDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
+    appointmentDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
+    appointmentNote?: StringNullableFilter<"Quotation"> | string | null
     contactId?: StringNullableFilter<"Quotation"> | string | null
     followUp1?: DateTimeNullableFilter<"Quotation"> | Date | string | null
     followUp2?: DateTimeNullableFilter<"Quotation"> | Date | string | null
@@ -17689,6 +24262,7 @@ export namespace Prisma {
     followUp4?: DateTimeNullableFilter<"Quotation"> | Date | string | null
     invoiceNumber?: StringNullableFilter<"Quotation"> | string | null
     poDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
+    poNumber?: StringNullableFilter<"Quotation"> | string | null
     productType?: StringNullableFilter<"Quotation"> | string | null
     quotationDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
     quotationNumber?: StringNullableFilter<"Quotation"> | string | null
@@ -17704,6 +24278,8 @@ export namespace Prisma {
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     contact?: XOR<ContactNullableScalarRelationFilter, ContactWhereInput> | null
     salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    orders?: OrderListRelationFilter
+    jobs?: JobListRelationFilter
   }
 
   export type QuotationOrderByWithRelationInput = {
@@ -17718,6 +24294,8 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     billingDate?: SortOrderInput | SortOrder
+    appointmentDate?: SortOrderInput | SortOrder
+    appointmentNote?: SortOrderInput | SortOrder
     contactId?: SortOrderInput | SortOrder
     followUp1?: SortOrderInput | SortOrder
     followUp2?: SortOrderInput | SortOrder
@@ -17725,6 +24303,7 @@ export namespace Prisma {
     followUp4?: SortOrderInput | SortOrder
     invoiceNumber?: SortOrderInput | SortOrder
     poDate?: SortOrderInput | SortOrder
+    poNumber?: SortOrderInput | SortOrder
     productType?: SortOrderInput | SortOrder
     quotationDate?: SortOrderInput | SortOrder
     quotationNumber?: SortOrderInput | SortOrder
@@ -17740,6 +24319,8 @@ export namespace Prisma {
     company?: CompanyOrderByWithRelationInput
     contact?: ContactOrderByWithRelationInput
     salesperson?: UserOrderByWithRelationInput
+    orders?: OrderOrderByRelationAggregateInput
+    jobs?: JobOrderByRelationAggregateInput
   }
 
   export type QuotationWhereUniqueInput = Prisma.AtLeast<{
@@ -17757,6 +24338,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Quotation"> | Date | string
     updatedAt?: DateTimeFilter<"Quotation"> | Date | string
     billingDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
+    appointmentDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
+    appointmentNote?: StringNullableFilter<"Quotation"> | string | null
     contactId?: StringNullableFilter<"Quotation"> | string | null
     followUp1?: DateTimeNullableFilter<"Quotation"> | Date | string | null
     followUp2?: DateTimeNullableFilter<"Quotation"> | Date | string | null
@@ -17764,6 +24347,7 @@ export namespace Prisma {
     followUp4?: DateTimeNullableFilter<"Quotation"> | Date | string | null
     invoiceNumber?: StringNullableFilter<"Quotation"> | string | null
     poDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
+    poNumber?: StringNullableFilter<"Quotation"> | string | null
     productType?: StringNullableFilter<"Quotation"> | string | null
     quotationDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
     quotationNumber?: StringNullableFilter<"Quotation"> | string | null
@@ -17779,6 +24363,8 @@ export namespace Prisma {
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     contact?: XOR<ContactNullableScalarRelationFilter, ContactWhereInput> | null
     salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    orders?: OrderListRelationFilter
+    jobs?: JobListRelationFilter
   }, "id">
 
   export type QuotationOrderByWithAggregationInput = {
@@ -17793,6 +24379,8 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     billingDate?: SortOrderInput | SortOrder
+    appointmentDate?: SortOrderInput | SortOrder
+    appointmentNote?: SortOrderInput | SortOrder
     contactId?: SortOrderInput | SortOrder
     followUp1?: SortOrderInput | SortOrder
     followUp2?: SortOrderInput | SortOrder
@@ -17800,6 +24388,7 @@ export namespace Prisma {
     followUp4?: SortOrderInput | SortOrder
     invoiceNumber?: SortOrderInput | SortOrder
     poDate?: SortOrderInput | SortOrder
+    poNumber?: SortOrderInput | SortOrder
     productType?: SortOrderInput | SortOrder
     quotationDate?: SortOrderInput | SortOrder
     quotationNumber?: SortOrderInput | SortOrder
@@ -17834,6 +24423,8 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Quotation"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Quotation"> | Date | string
     billingDate?: DateTimeNullableWithAggregatesFilter<"Quotation"> | Date | string | null
+    appointmentDate?: DateTimeNullableWithAggregatesFilter<"Quotation"> | Date | string | null
+    appointmentNote?: StringNullableWithAggregatesFilter<"Quotation"> | string | null
     contactId?: StringNullableWithAggregatesFilter<"Quotation"> | string | null
     followUp1?: DateTimeNullableWithAggregatesFilter<"Quotation"> | Date | string | null
     followUp2?: DateTimeNullableWithAggregatesFilter<"Quotation"> | Date | string | null
@@ -17841,6 +24432,7 @@ export namespace Prisma {
     followUp4?: DateTimeNullableWithAggregatesFilter<"Quotation"> | Date | string | null
     invoiceNumber?: StringNullableWithAggregatesFilter<"Quotation"> | string | null
     poDate?: DateTimeNullableWithAggregatesFilter<"Quotation"> | Date | string | null
+    poNumber?: StringNullableWithAggregatesFilter<"Quotation"> | string | null
     productType?: StringNullableWithAggregatesFilter<"Quotation"> | string | null
     quotationDate?: DateTimeNullableWithAggregatesFilter<"Quotation"> | Date | string | null
     quotationNumber?: StringNullableWithAggregatesFilter<"Quotation"> | string | null
@@ -18239,6 +24831,397 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"TelesalesKPI"> | Date | string
   }
 
+  export type OrderWhereInput = {
+    AND?: OrderWhereInput | OrderWhereInput[]
+    OR?: OrderWhereInput[]
+    NOT?: OrderWhereInput | OrderWhereInput[]
+    id?: StringFilter<"Order"> | string
+    orderNumber?: StringFilter<"Order"> | string
+    companyId?: StringFilter<"Order"> | string
+    quotationId?: StringNullableFilter<"Order"> | string | null
+    salespersonId?: StringNullableFilter<"Order"> | string | null
+    status?: StringFilter<"Order"> | string
+    value?: FloatFilter<"Order"> | number
+    priority?: StringFilter<"Order"> | string
+    targetDeliveryDate?: DateTimeNullableFilter<"Order"> | Date | string | null
+    createdAt?: DateTimeFilter<"Order"> | Date | string
+    updatedAt?: DateTimeFilter<"Order"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
+    salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    statusLogs?: OrderStatusLogListRelationFilter
+  }
+
+  export type OrderOrderByWithRelationInput = {
+    id?: SortOrder
+    orderNumber?: SortOrder
+    companyId?: SortOrder
+    quotationId?: SortOrderInput | SortOrder
+    salespersonId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    value?: SortOrder
+    priority?: SortOrder
+    targetDeliveryDate?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    quotation?: QuotationOrderByWithRelationInput
+    salesperson?: UserOrderByWithRelationInput
+    statusLogs?: OrderStatusLogOrderByRelationAggregateInput
+  }
+
+  export type OrderWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    orderNumber?: string
+    AND?: OrderWhereInput | OrderWhereInput[]
+    OR?: OrderWhereInput[]
+    NOT?: OrderWhereInput | OrderWhereInput[]
+    companyId?: StringFilter<"Order"> | string
+    quotationId?: StringNullableFilter<"Order"> | string | null
+    salespersonId?: StringNullableFilter<"Order"> | string | null
+    status?: StringFilter<"Order"> | string
+    value?: FloatFilter<"Order"> | number
+    priority?: StringFilter<"Order"> | string
+    targetDeliveryDate?: DateTimeNullableFilter<"Order"> | Date | string | null
+    createdAt?: DateTimeFilter<"Order"> | Date | string
+    updatedAt?: DateTimeFilter<"Order"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
+    salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    statusLogs?: OrderStatusLogListRelationFilter
+  }, "id" | "orderNumber">
+
+  export type OrderOrderByWithAggregationInput = {
+    id?: SortOrder
+    orderNumber?: SortOrder
+    companyId?: SortOrder
+    quotationId?: SortOrderInput | SortOrder
+    salespersonId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    value?: SortOrder
+    priority?: SortOrder
+    targetDeliveryDate?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OrderCountOrderByAggregateInput
+    _avg?: OrderAvgOrderByAggregateInput
+    _max?: OrderMaxOrderByAggregateInput
+    _min?: OrderMinOrderByAggregateInput
+    _sum?: OrderSumOrderByAggregateInput
+  }
+
+  export type OrderScalarWhereWithAggregatesInput = {
+    AND?: OrderScalarWhereWithAggregatesInput | OrderScalarWhereWithAggregatesInput[]
+    OR?: OrderScalarWhereWithAggregatesInput[]
+    NOT?: OrderScalarWhereWithAggregatesInput | OrderScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Order"> | string
+    orderNumber?: StringWithAggregatesFilter<"Order"> | string
+    companyId?: StringWithAggregatesFilter<"Order"> | string
+    quotationId?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    salespersonId?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    status?: StringWithAggregatesFilter<"Order"> | string
+    value?: FloatWithAggregatesFilter<"Order"> | number
+    priority?: StringWithAggregatesFilter<"Order"> | string
+    targetDeliveryDate?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+  }
+
+  export type OrderStatusLogWhereInput = {
+    AND?: OrderStatusLogWhereInput | OrderStatusLogWhereInput[]
+    OR?: OrderStatusLogWhereInput[]
+    NOT?: OrderStatusLogWhereInput | OrderStatusLogWhereInput[]
+    id?: StringFilter<"OrderStatusLog"> | string
+    orderId?: StringFilter<"OrderStatusLog"> | string
+    userId?: StringNullableFilter<"OrderStatusLog"> | string | null
+    fromStatus?: StringFilter<"OrderStatusLog"> | string
+    toStatus?: StringFilter<"OrderStatusLog"> | string
+    createdAt?: DateTimeFilter<"OrderStatusLog"> | Date | string
+    order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+  }
+
+  export type OrderStatusLogOrderByWithRelationInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    fromStatus?: SortOrder
+    toStatus?: SortOrder
+    createdAt?: SortOrder
+    order?: OrderOrderByWithRelationInput
+  }
+
+  export type OrderStatusLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OrderStatusLogWhereInput | OrderStatusLogWhereInput[]
+    OR?: OrderStatusLogWhereInput[]
+    NOT?: OrderStatusLogWhereInput | OrderStatusLogWhereInput[]
+    orderId?: StringFilter<"OrderStatusLog"> | string
+    userId?: StringNullableFilter<"OrderStatusLog"> | string | null
+    fromStatus?: StringFilter<"OrderStatusLog"> | string
+    toStatus?: StringFilter<"OrderStatusLog"> | string
+    createdAt?: DateTimeFilter<"OrderStatusLog"> | Date | string
+    order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+  }, "id">
+
+  export type OrderStatusLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    fromStatus?: SortOrder
+    toStatus?: SortOrder
+    createdAt?: SortOrder
+    _count?: OrderStatusLogCountOrderByAggregateInput
+    _max?: OrderStatusLogMaxOrderByAggregateInput
+    _min?: OrderStatusLogMinOrderByAggregateInput
+  }
+
+  export type OrderStatusLogScalarWhereWithAggregatesInput = {
+    AND?: OrderStatusLogScalarWhereWithAggregatesInput | OrderStatusLogScalarWhereWithAggregatesInput[]
+    OR?: OrderStatusLogScalarWhereWithAggregatesInput[]
+    NOT?: OrderStatusLogScalarWhereWithAggregatesInput | OrderStatusLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OrderStatusLog"> | string
+    orderId?: StringWithAggregatesFilter<"OrderStatusLog"> | string
+    userId?: StringNullableWithAggregatesFilter<"OrderStatusLog"> | string | null
+    fromStatus?: StringWithAggregatesFilter<"OrderStatusLog"> | string
+    toStatus?: StringWithAggregatesFilter<"OrderStatusLog"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"OrderStatusLog"> | Date | string
+  }
+
+  export type JobWhereInput = {
+    AND?: JobWhereInput | JobWhereInput[]
+    OR?: JobWhereInput[]
+    NOT?: JobWhereInput | JobWhereInput[]
+    id?: StringFilter<"Job"> | string
+    jobNumber?: StringFilter<"Job"> | string
+    companyCode?: StringFilter<"Job"> | string
+    jobType?: StringFilter<"Job"> | string
+    month?: IntFilter<"Job"> | number
+    yearBe?: IntFilter<"Job"> | number
+    dateClosed?: DateTimeFilter<"Job"> | Date | string
+    customerName?: StringFilter<"Job"> | string
+    item?: StringNullableFilter<"Job"> | string | null
+    quotationNumber?: StringNullableFilter<"Job"> | string | null
+    poNumber?: StringNullableFilter<"Job"> | string | null
+    sellerName?: StringNullableFilter<"Job"> | string | null
+    quotationId?: StringNullableFilter<"Job"> | string | null
+    currentStep?: StringFilter<"Job"> | string
+    flowVariant?: StringNullableFilter<"Job"> | string | null
+    createdAt?: DateTimeFilter<"Job"> | Date | string
+    updatedAt?: DateTimeFilter<"Job"> | Date | string
+    quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
+    stepLogs?: JobStepLogListRelationFilter
+  }
+
+  export type JobOrderByWithRelationInput = {
+    id?: SortOrder
+    jobNumber?: SortOrder
+    companyCode?: SortOrder
+    jobType?: SortOrder
+    month?: SortOrder
+    yearBe?: SortOrder
+    dateClosed?: SortOrder
+    customerName?: SortOrder
+    item?: SortOrderInput | SortOrder
+    quotationNumber?: SortOrderInput | SortOrder
+    poNumber?: SortOrderInput | SortOrder
+    sellerName?: SortOrderInput | SortOrder
+    quotationId?: SortOrderInput | SortOrder
+    currentStep?: SortOrder
+    flowVariant?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    quotation?: QuotationOrderByWithRelationInput
+    stepLogs?: JobStepLogOrderByRelationAggregateInput
+  }
+
+  export type JobWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    jobNumber?: string
+    AND?: JobWhereInput | JobWhereInput[]
+    OR?: JobWhereInput[]
+    NOT?: JobWhereInput | JobWhereInput[]
+    companyCode?: StringFilter<"Job"> | string
+    jobType?: StringFilter<"Job"> | string
+    month?: IntFilter<"Job"> | number
+    yearBe?: IntFilter<"Job"> | number
+    dateClosed?: DateTimeFilter<"Job"> | Date | string
+    customerName?: StringFilter<"Job"> | string
+    item?: StringNullableFilter<"Job"> | string | null
+    quotationNumber?: StringNullableFilter<"Job"> | string | null
+    poNumber?: StringNullableFilter<"Job"> | string | null
+    sellerName?: StringNullableFilter<"Job"> | string | null
+    quotationId?: StringNullableFilter<"Job"> | string | null
+    currentStep?: StringFilter<"Job"> | string
+    flowVariant?: StringNullableFilter<"Job"> | string | null
+    createdAt?: DateTimeFilter<"Job"> | Date | string
+    updatedAt?: DateTimeFilter<"Job"> | Date | string
+    quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
+    stepLogs?: JobStepLogListRelationFilter
+  }, "id" | "jobNumber">
+
+  export type JobOrderByWithAggregationInput = {
+    id?: SortOrder
+    jobNumber?: SortOrder
+    companyCode?: SortOrder
+    jobType?: SortOrder
+    month?: SortOrder
+    yearBe?: SortOrder
+    dateClosed?: SortOrder
+    customerName?: SortOrder
+    item?: SortOrderInput | SortOrder
+    quotationNumber?: SortOrderInput | SortOrder
+    poNumber?: SortOrderInput | SortOrder
+    sellerName?: SortOrderInput | SortOrder
+    quotationId?: SortOrderInput | SortOrder
+    currentStep?: SortOrder
+    flowVariant?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: JobCountOrderByAggregateInput
+    _avg?: JobAvgOrderByAggregateInput
+    _max?: JobMaxOrderByAggregateInput
+    _min?: JobMinOrderByAggregateInput
+    _sum?: JobSumOrderByAggregateInput
+  }
+
+  export type JobScalarWhereWithAggregatesInput = {
+    AND?: JobScalarWhereWithAggregatesInput | JobScalarWhereWithAggregatesInput[]
+    OR?: JobScalarWhereWithAggregatesInput[]
+    NOT?: JobScalarWhereWithAggregatesInput | JobScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Job"> | string
+    jobNumber?: StringWithAggregatesFilter<"Job"> | string
+    companyCode?: StringWithAggregatesFilter<"Job"> | string
+    jobType?: StringWithAggregatesFilter<"Job"> | string
+    month?: IntWithAggregatesFilter<"Job"> | number
+    yearBe?: IntWithAggregatesFilter<"Job"> | number
+    dateClosed?: DateTimeWithAggregatesFilter<"Job"> | Date | string
+    customerName?: StringWithAggregatesFilter<"Job"> | string
+    item?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    quotationNumber?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    poNumber?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    sellerName?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    quotationId?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    currentStep?: StringWithAggregatesFilter<"Job"> | string
+    flowVariant?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Job"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Job"> | Date | string
+  }
+
+  export type JobRunningNumberWhereInput = {
+    AND?: JobRunningNumberWhereInput | JobRunningNumberWhereInput[]
+    OR?: JobRunningNumberWhereInput[]
+    NOT?: JobRunningNumberWhereInput | JobRunningNumberWhereInput[]
+    id?: StringFilter<"JobRunningNumber"> | string
+    yearBe?: IntFilter<"JobRunningNumber"> | number
+    month?: IntFilter<"JobRunningNumber"> | number
+    lastNumber?: IntFilter<"JobRunningNumber"> | number
+  }
+
+  export type JobRunningNumberOrderByWithRelationInput = {
+    id?: SortOrder
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type JobRunningNumberWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    yearBe_month?: JobRunningNumberYearBeMonthCompoundUniqueInput
+    AND?: JobRunningNumberWhereInput | JobRunningNumberWhereInput[]
+    OR?: JobRunningNumberWhereInput[]
+    NOT?: JobRunningNumberWhereInput | JobRunningNumberWhereInput[]
+    yearBe?: IntFilter<"JobRunningNumber"> | number
+    month?: IntFilter<"JobRunningNumber"> | number
+    lastNumber?: IntFilter<"JobRunningNumber"> | number
+  }, "id" | "yearBe_month">
+
+  export type JobRunningNumberOrderByWithAggregationInput = {
+    id?: SortOrder
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+    _count?: JobRunningNumberCountOrderByAggregateInput
+    _avg?: JobRunningNumberAvgOrderByAggregateInput
+    _max?: JobRunningNumberMaxOrderByAggregateInput
+    _min?: JobRunningNumberMinOrderByAggregateInput
+    _sum?: JobRunningNumberSumOrderByAggregateInput
+  }
+
+  export type JobRunningNumberScalarWhereWithAggregatesInput = {
+    AND?: JobRunningNumberScalarWhereWithAggregatesInput | JobRunningNumberScalarWhereWithAggregatesInput[]
+    OR?: JobRunningNumberScalarWhereWithAggregatesInput[]
+    NOT?: JobRunningNumberScalarWhereWithAggregatesInput | JobRunningNumberScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"JobRunningNumber"> | string
+    yearBe?: IntWithAggregatesFilter<"JobRunningNumber"> | number
+    month?: IntWithAggregatesFilter<"JobRunningNumber"> | number
+    lastNumber?: IntWithAggregatesFilter<"JobRunningNumber"> | number
+  }
+
+  export type JobStepLogWhereInput = {
+    AND?: JobStepLogWhereInput | JobStepLogWhereInput[]
+    OR?: JobStepLogWhereInput[]
+    NOT?: JobStepLogWhereInput | JobStepLogWhereInput[]
+    id?: StringFilter<"JobStepLog"> | string
+    jobId?: StringFilter<"JobStepLog"> | string
+    step?: StringFilter<"JobStepLog"> | string
+    completedBy?: StringFilter<"JobStepLog"> | string
+    department?: StringFilter<"JobStepLog"> | string
+    note?: StringNullableFilter<"JobStepLog"> | string | null
+    completedAt?: DateTimeFilter<"JobStepLog"> | Date | string
+    job?: XOR<JobScalarRelationFilter, JobWhereInput>
+  }
+
+  export type JobStepLogOrderByWithRelationInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    step?: SortOrder
+    completedBy?: SortOrder
+    department?: SortOrder
+    note?: SortOrderInput | SortOrder
+    completedAt?: SortOrder
+    job?: JobOrderByWithRelationInput
+  }
+
+  export type JobStepLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: JobStepLogWhereInput | JobStepLogWhereInput[]
+    OR?: JobStepLogWhereInput[]
+    NOT?: JobStepLogWhereInput | JobStepLogWhereInput[]
+    jobId?: StringFilter<"JobStepLog"> | string
+    step?: StringFilter<"JobStepLog"> | string
+    completedBy?: StringFilter<"JobStepLog"> | string
+    department?: StringFilter<"JobStepLog"> | string
+    note?: StringNullableFilter<"JobStepLog"> | string | null
+    completedAt?: DateTimeFilter<"JobStepLog"> | Date | string
+    job?: XOR<JobScalarRelationFilter, JobWhereInput>
+  }, "id">
+
+  export type JobStepLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    step?: SortOrder
+    completedBy?: SortOrder
+    department?: SortOrder
+    note?: SortOrderInput | SortOrder
+    completedAt?: SortOrder
+    _count?: JobStepLogCountOrderByAggregateInput
+    _max?: JobStepLogMaxOrderByAggregateInput
+    _min?: JobStepLogMinOrderByAggregateInput
+  }
+
+  export type JobStepLogScalarWhereWithAggregatesInput = {
+    AND?: JobStepLogScalarWhereWithAggregatesInput | JobStepLogScalarWhereWithAggregatesInput[]
+    OR?: JobStepLogScalarWhereWithAggregatesInput[]
+    NOT?: JobStepLogScalarWhereWithAggregatesInput | JobStepLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"JobStepLog"> | string
+    jobId?: StringWithAggregatesFilter<"JobStepLog"> | string
+    step?: StringWithAggregatesFilter<"JobStepLog"> | string
+    completedBy?: StringWithAggregatesFilter<"JobStepLog"> | string
+    department?: StringWithAggregatesFilter<"JobStepLog"> | string
+    note?: StringNullableWithAggregatesFilter<"JobStepLog"> | string | null
+    completedAt?: DateTimeWithAggregatesFilter<"JobStepLog"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     employeeId: string
@@ -18254,6 +25237,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
@@ -18277,6 +25261,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
@@ -18300,6 +25285,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
@@ -18323,6 +25309,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
@@ -18712,6 +25699,7 @@ export namespace Prisma {
     paymentMethod?: string | null
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
+    orders?: OrderCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
@@ -18748,6 +25736,7 @@ export namespace Prisma {
     paymentMethod?: string | null
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
+    orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
   }
@@ -18782,6 +25771,7 @@ export namespace Prisma {
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
@@ -18818,6 +25808,7 @@ export namespace Prisma {
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
   }
@@ -19012,12 +26003,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
     followUp3?: Date | string | null
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -19032,6 +26026,8 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutQuotationsInput
     contact?: ContactCreateNestedOneWithoutQuotationsInput
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
+    orders?: OrderCreateNestedManyWithoutQuotationInput
+    jobs?: JobCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateInput = {
@@ -19046,6 +26042,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     contactId?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
@@ -19053,6 +26051,7 @@ export namespace Prisma {
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -19065,6 +26064,8 @@ export namespace Prisma {
     salespersonId?: string | null
     subject?: string | null
     winLossReason?: string | null
+    orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
+    jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUpdateInput = {
@@ -19078,12 +26079,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19098,6 +26102,8 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
+    orders?: OrderUpdateManyWithoutQuotationNestedInput
+    jobs?: JobUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateInput = {
@@ -19112,6 +26118,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     contactId?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19119,6 +26127,7 @@ export namespace Prisma {
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19131,6 +26140,8 @@ export namespace Prisma {
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
+    jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationCreateManyInput = {
@@ -19145,6 +26156,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     contactId?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
@@ -19152,6 +26165,7 @@ export namespace Prisma {
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -19177,12 +26191,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19208,6 +26225,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     contactId?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -19215,6 +26234,7 @@ export namespace Prisma {
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19657,6 +26677,428 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type OrderCreateInput = {
+    id?: string
+    orderNumber: string
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutOrdersInput
+    quotation?: QuotationCreateNestedOneWithoutOrdersInput
+    salesperson?: UserCreateNestedOneWithoutOrdersInput
+    statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUncheckedCreateInput = {
+    id?: string
+    orderNumber: string
+    companyId: string
+    quotationId?: string | null
+    salespersonId?: string | null
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutOrdersNestedInput
+    quotation?: QuotationUpdateOneWithoutOrdersNestedInput
+    salesperson?: UserUpdateOneWithoutOrdersNestedInput
+    statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderCreateManyInput = {
+    id?: string
+    orderNumber: string
+    companyId: string
+    quotationId?: string | null
+    salespersonId?: string | null
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderStatusLogCreateInput = {
+    id?: string
+    userId?: string | null
+    fromStatus: string
+    toStatus: string
+    createdAt?: Date | string
+    order: OrderCreateNestedOneWithoutStatusLogsInput
+  }
+
+  export type OrderStatusLogUncheckedCreateInput = {
+    id?: string
+    orderId: string
+    userId?: string | null
+    fromStatus: string
+    toStatus: string
+    createdAt?: Date | string
+  }
+
+  export type OrderStatusLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fromStatus?: StringFieldUpdateOperationsInput | string
+    toStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUpdateOneRequiredWithoutStatusLogsNestedInput
+  }
+
+  export type OrderStatusLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fromStatus?: StringFieldUpdateOperationsInput | string
+    toStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderStatusLogCreateManyInput = {
+    id?: string
+    orderId: string
+    userId?: string | null
+    fromStatus: string
+    toStatus: string
+    createdAt?: Date | string
+  }
+
+  export type OrderStatusLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fromStatus?: StringFieldUpdateOperationsInput | string
+    toStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderStatusLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fromStatus?: StringFieldUpdateOperationsInput | string
+    toStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobCreateInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    quotation?: QuotationCreateNestedOneWithoutJobsInput
+    stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    quotationId?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobCreateManyInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    quotationId?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type JobUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobRunningNumberCreateInput = {
+    id?: string
+    yearBe: number
+    month: number
+    lastNumber?: number
+  }
+
+  export type JobRunningNumberUncheckedCreateInput = {
+    id?: string
+    yearBe: number
+    month: number
+    lastNumber?: number
+  }
+
+  export type JobRunningNumberUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    yearBe?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    lastNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type JobRunningNumberUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    yearBe?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    lastNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type JobRunningNumberCreateManyInput = {
+    id?: string
+    yearBe: number
+    month: number
+    lastNumber?: number
+  }
+
+  export type JobRunningNumberUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    yearBe?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    lastNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type JobRunningNumberUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    yearBe?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    lastNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type JobStepLogCreateInput = {
+    id?: string
+    step: string
+    completedBy: string
+    department: string
+    note?: string | null
+    completedAt?: Date | string
+    job: JobCreateNestedOneWithoutStepLogsInput
+  }
+
+  export type JobStepLogUncheckedCreateInput = {
+    id?: string
+    jobId: string
+    step: string
+    completedBy: string
+    department: string
+    note?: string | null
+    completedAt?: Date | string
+  }
+
+  export type JobStepLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    step?: StringFieldUpdateOperationsInput | string
+    completedBy?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneRequiredWithoutStepLogsNestedInput
+  }
+
+  export type JobStepLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    step?: StringFieldUpdateOperationsInput | string
+    completedBy?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobStepLogCreateManyInput = {
+    id?: string
+    jobId: string
+    step: string
+    completedBy: string
+    department: string
+    note?: string | null
+    completedAt?: Date | string
+  }
+
+  export type JobStepLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    step?: StringFieldUpdateOperationsInput | string
+    completedBy?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobStepLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    step?: StringFieldUpdateOperationsInput | string
+    completedBy?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -19720,6 +27162,12 @@ export namespace Prisma {
     none?: QuotationWhereInput
   }
 
+  export type OrderListRelationFilter = {
+    every?: OrderWhereInput
+    some?: OrderWhereInput
+    none?: OrderWhereInput
+  }
+
   export type ScheduleListRelationFilter = {
     every?: ScheduleWhereInput
     some?: ScheduleWhereInput
@@ -19761,6 +27209,10 @@ export namespace Prisma {
   }
 
   export type QuotationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OrderOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -20288,6 +27740,16 @@ export namespace Prisma {
     isNot?: ContactWhereInput | null
   }
 
+  export type JobListRelationFilter = {
+    every?: JobWhereInput
+    some?: JobWhereInput
+    none?: JobWhereInput
+  }
+
+  export type JobOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type QuotationCountOrderByAggregateInput = {
     id?: SortOrder
     companyId?: SortOrder
@@ -20300,6 +27762,8 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     billingDate?: SortOrder
+    appointmentDate?: SortOrder
+    appointmentNote?: SortOrder
     contactId?: SortOrder
     followUp1?: SortOrder
     followUp2?: SortOrder
@@ -20307,6 +27771,7 @@ export namespace Prisma {
     followUp4?: SortOrder
     invoiceNumber?: SortOrder
     poDate?: SortOrder
+    poNumber?: SortOrder
     productType?: SortOrder
     quotationDate?: SortOrder
     quotationNumber?: SortOrder
@@ -20341,6 +27806,8 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     billingDate?: SortOrder
+    appointmentDate?: SortOrder
+    appointmentNote?: SortOrder
     contactId?: SortOrder
     followUp1?: SortOrder
     followUp2?: SortOrder
@@ -20348,6 +27815,7 @@ export namespace Prisma {
     followUp4?: SortOrder
     invoiceNumber?: SortOrder
     poDate?: SortOrder
+    poNumber?: SortOrder
     productType?: SortOrder
     quotationDate?: SortOrder
     quotationNumber?: SortOrder
@@ -20374,6 +27842,8 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     billingDate?: SortOrder
+    appointmentDate?: SortOrder
+    appointmentNote?: SortOrder
     contactId?: SortOrder
     followUp1?: SortOrder
     followUp2?: SortOrder
@@ -20381,6 +27851,7 @@ export namespace Prisma {
     followUp4?: SortOrder
     invoiceNumber?: SortOrder
     poDate?: SortOrder
+    poNumber?: SortOrder
     productType?: SortOrder
     quotationDate?: SortOrder
     quotationNumber?: SortOrder
@@ -20647,11 +28118,268 @@ export namespace Prisma {
     connectionRateMin?: SortOrder
   }
 
+  export type QuotationNullableScalarRelationFilter = {
+    is?: QuotationWhereInput | null
+    isNot?: QuotationWhereInput | null
+  }
+
+  export type OrderStatusLogListRelationFilter = {
+    every?: OrderStatusLogWhereInput
+    some?: OrderStatusLogWhereInput
+    none?: OrderStatusLogWhereInput
+  }
+
+  export type OrderStatusLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OrderCountOrderByAggregateInput = {
+    id?: SortOrder
+    orderNumber?: SortOrder
+    companyId?: SortOrder
+    quotationId?: SortOrder
+    salespersonId?: SortOrder
+    status?: SortOrder
+    value?: SortOrder
+    priority?: SortOrder
+    targetDeliveryDate?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrderAvgOrderByAggregateInput = {
+    value?: SortOrder
+  }
+
+  export type OrderMaxOrderByAggregateInput = {
+    id?: SortOrder
+    orderNumber?: SortOrder
+    companyId?: SortOrder
+    quotationId?: SortOrder
+    salespersonId?: SortOrder
+    status?: SortOrder
+    value?: SortOrder
+    priority?: SortOrder
+    targetDeliveryDate?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrderMinOrderByAggregateInput = {
+    id?: SortOrder
+    orderNumber?: SortOrder
+    companyId?: SortOrder
+    quotationId?: SortOrder
+    salespersonId?: SortOrder
+    status?: SortOrder
+    value?: SortOrder
+    priority?: SortOrder
+    targetDeliveryDate?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrderSumOrderByAggregateInput = {
+    value?: SortOrder
+  }
+
+  export type OrderScalarRelationFilter = {
+    is?: OrderWhereInput
+    isNot?: OrderWhereInput
+  }
+
+  export type OrderStatusLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    userId?: SortOrder
+    fromStatus?: SortOrder
+    toStatus?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OrderStatusLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    userId?: SortOrder
+    fromStatus?: SortOrder
+    toStatus?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OrderStatusLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    userId?: SortOrder
+    fromStatus?: SortOrder
+    toStatus?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JobStepLogListRelationFilter = {
+    every?: JobStepLogWhereInput
+    some?: JobStepLogWhereInput
+    none?: JobStepLogWhereInput
+  }
+
+  export type JobStepLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type JobCountOrderByAggregateInput = {
+    id?: SortOrder
+    jobNumber?: SortOrder
+    companyCode?: SortOrder
+    jobType?: SortOrder
+    month?: SortOrder
+    yearBe?: SortOrder
+    dateClosed?: SortOrder
+    customerName?: SortOrder
+    item?: SortOrder
+    quotationNumber?: SortOrder
+    poNumber?: SortOrder
+    sellerName?: SortOrder
+    quotationId?: SortOrder
+    currentStep?: SortOrder
+    flowVariant?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type JobAvgOrderByAggregateInput = {
+    month?: SortOrder
+    yearBe?: SortOrder
+  }
+
+  export type JobMaxOrderByAggregateInput = {
+    id?: SortOrder
+    jobNumber?: SortOrder
+    companyCode?: SortOrder
+    jobType?: SortOrder
+    month?: SortOrder
+    yearBe?: SortOrder
+    dateClosed?: SortOrder
+    customerName?: SortOrder
+    item?: SortOrder
+    quotationNumber?: SortOrder
+    poNumber?: SortOrder
+    sellerName?: SortOrder
+    quotationId?: SortOrder
+    currentStep?: SortOrder
+    flowVariant?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type JobMinOrderByAggregateInput = {
+    id?: SortOrder
+    jobNumber?: SortOrder
+    companyCode?: SortOrder
+    jobType?: SortOrder
+    month?: SortOrder
+    yearBe?: SortOrder
+    dateClosed?: SortOrder
+    customerName?: SortOrder
+    item?: SortOrder
+    quotationNumber?: SortOrder
+    poNumber?: SortOrder
+    sellerName?: SortOrder
+    quotationId?: SortOrder
+    currentStep?: SortOrder
+    flowVariant?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type JobSumOrderByAggregateInput = {
+    month?: SortOrder
+    yearBe?: SortOrder
+  }
+
+  export type JobRunningNumberYearBeMonthCompoundUniqueInput = {
+    yearBe: number
+    month: number
+  }
+
+  export type JobRunningNumberCountOrderByAggregateInput = {
+    id?: SortOrder
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type JobRunningNumberAvgOrderByAggregateInput = {
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type JobRunningNumberMaxOrderByAggregateInput = {
+    id?: SortOrder
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type JobRunningNumberMinOrderByAggregateInput = {
+    id?: SortOrder
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type JobRunningNumberSumOrderByAggregateInput = {
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type JobScalarRelationFilter = {
+    is?: JobWhereInput
+    isNot?: JobWhereInput
+  }
+
+  export type JobStepLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    step?: SortOrder
+    completedBy?: SortOrder
+    department?: SortOrder
+    note?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type JobStepLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    step?: SortOrder
+    completedBy?: SortOrder
+    department?: SortOrder
+    note?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type JobStepLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    step?: SortOrder
+    completedBy?: SortOrder
+    department?: SortOrder
+    note?: SortOrder
+    completedAt?: SortOrder
+  }
+
   export type QuotationCreateNestedManyWithoutSalespersonInput = {
     create?: XOR<QuotationCreateWithoutSalespersonInput, QuotationUncheckedCreateWithoutSalespersonInput> | QuotationCreateWithoutSalespersonInput[] | QuotationUncheckedCreateWithoutSalespersonInput[]
     connectOrCreate?: QuotationCreateOrConnectWithoutSalespersonInput | QuotationCreateOrConnectWithoutSalespersonInput[]
     createMany?: QuotationCreateManySalespersonInputEnvelope
     connect?: QuotationWhereUniqueInput | QuotationWhereUniqueInput[]
+  }
+
+  export type OrderCreateNestedManyWithoutSalespersonInput = {
+    create?: XOR<OrderCreateWithoutSalespersonInput, OrderUncheckedCreateWithoutSalespersonInput> | OrderCreateWithoutSalespersonInput[] | OrderUncheckedCreateWithoutSalespersonInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutSalespersonInput | OrderCreateOrConnectWithoutSalespersonInput[]
+    createMany?: OrderCreateManySalespersonInputEnvelope
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
   }
 
   export type ScheduleCreateNestedManyWithoutUserInput = {
@@ -20700,6 +28428,13 @@ export namespace Prisma {
     connectOrCreate?: QuotationCreateOrConnectWithoutSalespersonInput | QuotationCreateOrConnectWithoutSalespersonInput[]
     createMany?: QuotationCreateManySalespersonInputEnvelope
     connect?: QuotationWhereUniqueInput | QuotationWhereUniqueInput[]
+  }
+
+  export type OrderUncheckedCreateNestedManyWithoutSalespersonInput = {
+    create?: XOR<OrderCreateWithoutSalespersonInput, OrderUncheckedCreateWithoutSalespersonInput> | OrderCreateWithoutSalespersonInput[] | OrderUncheckedCreateWithoutSalespersonInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutSalespersonInput | OrderCreateOrConnectWithoutSalespersonInput[]
+    createMany?: OrderCreateManySalespersonInputEnvelope
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
   }
 
   export type ScheduleUncheckedCreateNestedManyWithoutUserInput = {
@@ -20775,6 +28510,20 @@ export namespace Prisma {
     update?: QuotationUpdateWithWhereUniqueWithoutSalespersonInput | QuotationUpdateWithWhereUniqueWithoutSalespersonInput[]
     updateMany?: QuotationUpdateManyWithWhereWithoutSalespersonInput | QuotationUpdateManyWithWhereWithoutSalespersonInput[]
     deleteMany?: QuotationScalarWhereInput | QuotationScalarWhereInput[]
+  }
+
+  export type OrderUpdateManyWithoutSalespersonNestedInput = {
+    create?: XOR<OrderCreateWithoutSalespersonInput, OrderUncheckedCreateWithoutSalespersonInput> | OrderCreateWithoutSalespersonInput[] | OrderUncheckedCreateWithoutSalespersonInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutSalespersonInput | OrderCreateOrConnectWithoutSalespersonInput[]
+    upsert?: OrderUpsertWithWhereUniqueWithoutSalespersonInput | OrderUpsertWithWhereUniqueWithoutSalespersonInput[]
+    createMany?: OrderCreateManySalespersonInputEnvelope
+    set?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    disconnect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    delete?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    update?: OrderUpdateWithWhereUniqueWithoutSalespersonInput | OrderUpdateWithWhereUniqueWithoutSalespersonInput[]
+    updateMany?: OrderUpdateManyWithWhereWithoutSalespersonInput | OrderUpdateManyWithWhereWithoutSalespersonInput[]
+    deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
   }
 
   export type ScheduleUpdateManyWithoutUserNestedInput = {
@@ -20869,6 +28618,20 @@ export namespace Prisma {
     update?: QuotationUpdateWithWhereUniqueWithoutSalespersonInput | QuotationUpdateWithWhereUniqueWithoutSalespersonInput[]
     updateMany?: QuotationUpdateManyWithWhereWithoutSalespersonInput | QuotationUpdateManyWithWhereWithoutSalespersonInput[]
     deleteMany?: QuotationScalarWhereInput | QuotationScalarWhereInput[]
+  }
+
+  export type OrderUncheckedUpdateManyWithoutSalespersonNestedInput = {
+    create?: XOR<OrderCreateWithoutSalespersonInput, OrderUncheckedCreateWithoutSalespersonInput> | OrderCreateWithoutSalespersonInput[] | OrderUncheckedCreateWithoutSalespersonInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutSalespersonInput | OrderCreateOrConnectWithoutSalespersonInput[]
+    upsert?: OrderUpsertWithWhereUniqueWithoutSalespersonInput | OrderUpsertWithWhereUniqueWithoutSalespersonInput[]
+    createMany?: OrderCreateManySalespersonInputEnvelope
+    set?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    disconnect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    delete?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    update?: OrderUpdateWithWhereUniqueWithoutSalespersonInput | OrderUpdateWithWhereUniqueWithoutSalespersonInput[]
+    updateMany?: OrderUpdateManyWithWhereWithoutSalespersonInput | OrderUpdateManyWithWhereWithoutSalespersonInput[]
+    deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
   }
 
   export type ScheduleUncheckedUpdateManyWithoutUserNestedInput = {
@@ -21059,6 +28822,13 @@ export namespace Prisma {
     connect?: QuotationWhereUniqueInput | QuotationWhereUniqueInput[]
   }
 
+  export type OrderCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<OrderCreateWithoutCompanyInput, OrderUncheckedCreateWithoutCompanyInput> | OrderCreateWithoutCompanyInput[] | OrderUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutCompanyInput | OrderCreateOrConnectWithoutCompanyInput[]
+    createMany?: OrderCreateManyCompanyInputEnvelope
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+  }
+
   export type TelesaleCreateNestedManyWithoutCompanyInput = {
     create?: XOR<TelesaleCreateWithoutCompanyInput, TelesaleUncheckedCreateWithoutCompanyInput> | TelesaleCreateWithoutCompanyInput[] | TelesaleUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: TelesaleCreateOrConnectWithoutCompanyInput | TelesaleCreateOrConnectWithoutCompanyInput[]
@@ -21091,6 +28861,13 @@ export namespace Prisma {
     connectOrCreate?: QuotationCreateOrConnectWithoutCompanyInput | QuotationCreateOrConnectWithoutCompanyInput[]
     createMany?: QuotationCreateManyCompanyInputEnvelope
     connect?: QuotationWhereUniqueInput | QuotationWhereUniqueInput[]
+  }
+
+  export type OrderUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<OrderCreateWithoutCompanyInput, OrderUncheckedCreateWithoutCompanyInput> | OrderCreateWithoutCompanyInput[] | OrderUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutCompanyInput | OrderCreateOrConnectWithoutCompanyInput[]
+    createMany?: OrderCreateManyCompanyInputEnvelope
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
   }
 
   export type TelesaleUncheckedCreateNestedManyWithoutCompanyInput = {
@@ -21133,6 +28910,20 @@ export namespace Prisma {
     update?: QuotationUpdateWithWhereUniqueWithoutCompanyInput | QuotationUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: QuotationUpdateManyWithWhereWithoutCompanyInput | QuotationUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: QuotationScalarWhereInput | QuotationScalarWhereInput[]
+  }
+
+  export type OrderUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<OrderCreateWithoutCompanyInput, OrderUncheckedCreateWithoutCompanyInput> | OrderCreateWithoutCompanyInput[] | OrderUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutCompanyInput | OrderCreateOrConnectWithoutCompanyInput[]
+    upsert?: OrderUpsertWithWhereUniqueWithoutCompanyInput | OrderUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: OrderCreateManyCompanyInputEnvelope
+    set?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    disconnect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    delete?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    update?: OrderUpdateWithWhereUniqueWithoutCompanyInput | OrderUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: OrderUpdateManyWithWhereWithoutCompanyInput | OrderUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
   }
 
   export type TelesaleUpdateManyWithoutCompanyNestedInput = {
@@ -21199,6 +28990,20 @@ export namespace Prisma {
     update?: QuotationUpdateWithWhereUniqueWithoutCompanyInput | QuotationUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: QuotationUpdateManyWithWhereWithoutCompanyInput | QuotationUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: QuotationScalarWhereInput | QuotationScalarWhereInput[]
+  }
+
+  export type OrderUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<OrderCreateWithoutCompanyInput, OrderUncheckedCreateWithoutCompanyInput> | OrderCreateWithoutCompanyInput[] | OrderUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutCompanyInput | OrderCreateOrConnectWithoutCompanyInput[]
+    upsert?: OrderUpsertWithWhereUniqueWithoutCompanyInput | OrderUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: OrderCreateManyCompanyInputEnvelope
+    set?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    disconnect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    delete?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    update?: OrderUpdateWithWhereUniqueWithoutCompanyInput | OrderUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: OrderUpdateManyWithWhereWithoutCompanyInput | OrderUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
   }
 
   export type TelesaleUncheckedUpdateManyWithoutCompanyNestedInput = {
@@ -21303,6 +29108,34 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type OrderCreateNestedManyWithoutQuotationInput = {
+    create?: XOR<OrderCreateWithoutQuotationInput, OrderUncheckedCreateWithoutQuotationInput> | OrderCreateWithoutQuotationInput[] | OrderUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutQuotationInput | OrderCreateOrConnectWithoutQuotationInput[]
+    createMany?: OrderCreateManyQuotationInputEnvelope
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+  }
+
+  export type JobCreateNestedManyWithoutQuotationInput = {
+    create?: XOR<JobCreateWithoutQuotationInput, JobUncheckedCreateWithoutQuotationInput> | JobCreateWithoutQuotationInput[] | JobUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: JobCreateOrConnectWithoutQuotationInput | JobCreateOrConnectWithoutQuotationInput[]
+    createMany?: JobCreateManyQuotationInputEnvelope
+    connect?: JobWhereUniqueInput | JobWhereUniqueInput[]
+  }
+
+  export type OrderUncheckedCreateNestedManyWithoutQuotationInput = {
+    create?: XOR<OrderCreateWithoutQuotationInput, OrderUncheckedCreateWithoutQuotationInput> | OrderCreateWithoutQuotationInput[] | OrderUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutQuotationInput | OrderCreateOrConnectWithoutQuotationInput[]
+    createMany?: OrderCreateManyQuotationInputEnvelope
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+  }
+
+  export type JobUncheckedCreateNestedManyWithoutQuotationInput = {
+    create?: XOR<JobCreateWithoutQuotationInput, JobUncheckedCreateWithoutQuotationInput> | JobCreateWithoutQuotationInput[] | JobUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: JobCreateOrConnectWithoutQuotationInput | JobCreateOrConnectWithoutQuotationInput[]
+    createMany?: JobCreateManyQuotationInputEnvelope
+    connect?: JobWhereUniqueInput | JobWhereUniqueInput[]
+  }
+
   export type NullableFloatFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -21337,6 +29170,62 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutQuotationsInput, UserUpdateWithoutQuotationsInput>, UserUncheckedUpdateWithoutQuotationsInput>
+  }
+
+  export type OrderUpdateManyWithoutQuotationNestedInput = {
+    create?: XOR<OrderCreateWithoutQuotationInput, OrderUncheckedCreateWithoutQuotationInput> | OrderCreateWithoutQuotationInput[] | OrderUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutQuotationInput | OrderCreateOrConnectWithoutQuotationInput[]
+    upsert?: OrderUpsertWithWhereUniqueWithoutQuotationInput | OrderUpsertWithWhereUniqueWithoutQuotationInput[]
+    createMany?: OrderCreateManyQuotationInputEnvelope
+    set?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    disconnect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    delete?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    update?: OrderUpdateWithWhereUniqueWithoutQuotationInput | OrderUpdateWithWhereUniqueWithoutQuotationInput[]
+    updateMany?: OrderUpdateManyWithWhereWithoutQuotationInput | OrderUpdateManyWithWhereWithoutQuotationInput[]
+    deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
+  }
+
+  export type JobUpdateManyWithoutQuotationNestedInput = {
+    create?: XOR<JobCreateWithoutQuotationInput, JobUncheckedCreateWithoutQuotationInput> | JobCreateWithoutQuotationInput[] | JobUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: JobCreateOrConnectWithoutQuotationInput | JobCreateOrConnectWithoutQuotationInput[]
+    upsert?: JobUpsertWithWhereUniqueWithoutQuotationInput | JobUpsertWithWhereUniqueWithoutQuotationInput[]
+    createMany?: JobCreateManyQuotationInputEnvelope
+    set?: JobWhereUniqueInput | JobWhereUniqueInput[]
+    disconnect?: JobWhereUniqueInput | JobWhereUniqueInput[]
+    delete?: JobWhereUniqueInput | JobWhereUniqueInput[]
+    connect?: JobWhereUniqueInput | JobWhereUniqueInput[]
+    update?: JobUpdateWithWhereUniqueWithoutQuotationInput | JobUpdateWithWhereUniqueWithoutQuotationInput[]
+    updateMany?: JobUpdateManyWithWhereWithoutQuotationInput | JobUpdateManyWithWhereWithoutQuotationInput[]
+    deleteMany?: JobScalarWhereInput | JobScalarWhereInput[]
+  }
+
+  export type OrderUncheckedUpdateManyWithoutQuotationNestedInput = {
+    create?: XOR<OrderCreateWithoutQuotationInput, OrderUncheckedCreateWithoutQuotationInput> | OrderCreateWithoutQuotationInput[] | OrderUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutQuotationInput | OrderCreateOrConnectWithoutQuotationInput[]
+    upsert?: OrderUpsertWithWhereUniqueWithoutQuotationInput | OrderUpsertWithWhereUniqueWithoutQuotationInput[]
+    createMany?: OrderCreateManyQuotationInputEnvelope
+    set?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    disconnect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    delete?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    update?: OrderUpdateWithWhereUniqueWithoutQuotationInput | OrderUpdateWithWhereUniqueWithoutQuotationInput[]
+    updateMany?: OrderUpdateManyWithWhereWithoutQuotationInput | OrderUpdateManyWithWhereWithoutQuotationInput[]
+    deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
+  }
+
+  export type JobUncheckedUpdateManyWithoutQuotationNestedInput = {
+    create?: XOR<JobCreateWithoutQuotationInput, JobUncheckedCreateWithoutQuotationInput> | JobCreateWithoutQuotationInput[] | JobUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: JobCreateOrConnectWithoutQuotationInput | JobCreateOrConnectWithoutQuotationInput[]
+    upsert?: JobUpsertWithWhereUniqueWithoutQuotationInput | JobUpsertWithWhereUniqueWithoutQuotationInput[]
+    createMany?: JobCreateManyQuotationInputEnvelope
+    set?: JobWhereUniqueInput | JobWhereUniqueInput[]
+    disconnect?: JobWhereUniqueInput | JobWhereUniqueInput[]
+    delete?: JobWhereUniqueInput | JobWhereUniqueInput[]
+    connect?: JobWhereUniqueInput | JobWhereUniqueInput[]
+    update?: JobUpdateWithWhereUniqueWithoutQuotationInput | JobUpdateWithWhereUniqueWithoutQuotationInput[]
+    updateMany?: JobUpdateManyWithWhereWithoutQuotationInput | JobUpdateManyWithWhereWithoutQuotationInput[]
+    deleteMany?: JobScalarWhereInput | JobScalarWhereInput[]
   }
 
   export type ScheduleCreateNestedOneWithoutTelesaleInput = {
@@ -21415,6 +29304,180 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTelesalesKPIsInput, UserUpdateWithoutTelesalesKPIsInput>, UserUncheckedUpdateWithoutTelesalesKPIsInput>
+  }
+
+  export type CompanyCreateNestedOneWithoutOrdersInput = {
+    create?: XOR<CompanyCreateWithoutOrdersInput, CompanyUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutOrdersInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type QuotationCreateNestedOneWithoutOrdersInput = {
+    create?: XOR<QuotationCreateWithoutOrdersInput, QuotationUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: QuotationCreateOrConnectWithoutOrdersInput
+    connect?: QuotationWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutOrdersInput = {
+    create?: XOR<UserCreateWithoutOrdersInput, UserUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutOrdersInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type OrderStatusLogCreateNestedManyWithoutOrderInput = {
+    create?: XOR<OrderStatusLogCreateWithoutOrderInput, OrderStatusLogUncheckedCreateWithoutOrderInput> | OrderStatusLogCreateWithoutOrderInput[] | OrderStatusLogUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: OrderStatusLogCreateOrConnectWithoutOrderInput | OrderStatusLogCreateOrConnectWithoutOrderInput[]
+    createMany?: OrderStatusLogCreateManyOrderInputEnvelope
+    connect?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
+  }
+
+  export type OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput = {
+    create?: XOR<OrderStatusLogCreateWithoutOrderInput, OrderStatusLogUncheckedCreateWithoutOrderInput> | OrderStatusLogCreateWithoutOrderInput[] | OrderStatusLogUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: OrderStatusLogCreateOrConnectWithoutOrderInput | OrderStatusLogCreateOrConnectWithoutOrderInput[]
+    createMany?: OrderStatusLogCreateManyOrderInputEnvelope
+    connect?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
+  }
+
+  export type CompanyUpdateOneRequiredWithoutOrdersNestedInput = {
+    create?: XOR<CompanyCreateWithoutOrdersInput, CompanyUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutOrdersInput
+    upsert?: CompanyUpsertWithoutOrdersInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutOrdersInput, CompanyUpdateWithoutOrdersInput>, CompanyUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type QuotationUpdateOneWithoutOrdersNestedInput = {
+    create?: XOR<QuotationCreateWithoutOrdersInput, QuotationUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: QuotationCreateOrConnectWithoutOrdersInput
+    upsert?: QuotationUpsertWithoutOrdersInput
+    disconnect?: QuotationWhereInput | boolean
+    delete?: QuotationWhereInput | boolean
+    connect?: QuotationWhereUniqueInput
+    update?: XOR<XOR<QuotationUpdateToOneWithWhereWithoutOrdersInput, QuotationUpdateWithoutOrdersInput>, QuotationUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type UserUpdateOneWithoutOrdersNestedInput = {
+    create?: XOR<UserCreateWithoutOrdersInput, UserUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutOrdersInput
+    upsert?: UserUpsertWithoutOrdersInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutOrdersInput, UserUpdateWithoutOrdersInput>, UserUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type OrderStatusLogUpdateManyWithoutOrderNestedInput = {
+    create?: XOR<OrderStatusLogCreateWithoutOrderInput, OrderStatusLogUncheckedCreateWithoutOrderInput> | OrderStatusLogCreateWithoutOrderInput[] | OrderStatusLogUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: OrderStatusLogCreateOrConnectWithoutOrderInput | OrderStatusLogCreateOrConnectWithoutOrderInput[]
+    upsert?: OrderStatusLogUpsertWithWhereUniqueWithoutOrderInput | OrderStatusLogUpsertWithWhereUniqueWithoutOrderInput[]
+    createMany?: OrderStatusLogCreateManyOrderInputEnvelope
+    set?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
+    disconnect?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
+    delete?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
+    connect?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
+    update?: OrderStatusLogUpdateWithWhereUniqueWithoutOrderInput | OrderStatusLogUpdateWithWhereUniqueWithoutOrderInput[]
+    updateMany?: OrderStatusLogUpdateManyWithWhereWithoutOrderInput | OrderStatusLogUpdateManyWithWhereWithoutOrderInput[]
+    deleteMany?: OrderStatusLogScalarWhereInput | OrderStatusLogScalarWhereInput[]
+  }
+
+  export type OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput = {
+    create?: XOR<OrderStatusLogCreateWithoutOrderInput, OrderStatusLogUncheckedCreateWithoutOrderInput> | OrderStatusLogCreateWithoutOrderInput[] | OrderStatusLogUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: OrderStatusLogCreateOrConnectWithoutOrderInput | OrderStatusLogCreateOrConnectWithoutOrderInput[]
+    upsert?: OrderStatusLogUpsertWithWhereUniqueWithoutOrderInput | OrderStatusLogUpsertWithWhereUniqueWithoutOrderInput[]
+    createMany?: OrderStatusLogCreateManyOrderInputEnvelope
+    set?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
+    disconnect?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
+    delete?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
+    connect?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
+    update?: OrderStatusLogUpdateWithWhereUniqueWithoutOrderInput | OrderStatusLogUpdateWithWhereUniqueWithoutOrderInput[]
+    updateMany?: OrderStatusLogUpdateManyWithWhereWithoutOrderInput | OrderStatusLogUpdateManyWithWhereWithoutOrderInput[]
+    deleteMany?: OrderStatusLogScalarWhereInput | OrderStatusLogScalarWhereInput[]
+  }
+
+  export type OrderCreateNestedOneWithoutStatusLogsInput = {
+    create?: XOR<OrderCreateWithoutStatusLogsInput, OrderUncheckedCreateWithoutStatusLogsInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutStatusLogsInput
+    connect?: OrderWhereUniqueInput
+  }
+
+  export type OrderUpdateOneRequiredWithoutStatusLogsNestedInput = {
+    create?: XOR<OrderCreateWithoutStatusLogsInput, OrderUncheckedCreateWithoutStatusLogsInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutStatusLogsInput
+    upsert?: OrderUpsertWithoutStatusLogsInput
+    connect?: OrderWhereUniqueInput
+    update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutStatusLogsInput, OrderUpdateWithoutStatusLogsInput>, OrderUncheckedUpdateWithoutStatusLogsInput>
+  }
+
+  export type QuotationCreateNestedOneWithoutJobsInput = {
+    create?: XOR<QuotationCreateWithoutJobsInput, QuotationUncheckedCreateWithoutJobsInput>
+    connectOrCreate?: QuotationCreateOrConnectWithoutJobsInput
+    connect?: QuotationWhereUniqueInput
+  }
+
+  export type JobStepLogCreateNestedManyWithoutJobInput = {
+    create?: XOR<JobStepLogCreateWithoutJobInput, JobStepLogUncheckedCreateWithoutJobInput> | JobStepLogCreateWithoutJobInput[] | JobStepLogUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobStepLogCreateOrConnectWithoutJobInput | JobStepLogCreateOrConnectWithoutJobInput[]
+    createMany?: JobStepLogCreateManyJobInputEnvelope
+    connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+  }
+
+  export type JobStepLogUncheckedCreateNestedManyWithoutJobInput = {
+    create?: XOR<JobStepLogCreateWithoutJobInput, JobStepLogUncheckedCreateWithoutJobInput> | JobStepLogCreateWithoutJobInput[] | JobStepLogUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobStepLogCreateOrConnectWithoutJobInput | JobStepLogCreateOrConnectWithoutJobInput[]
+    createMany?: JobStepLogCreateManyJobInputEnvelope
+    connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+  }
+
+  export type QuotationUpdateOneWithoutJobsNestedInput = {
+    create?: XOR<QuotationCreateWithoutJobsInput, QuotationUncheckedCreateWithoutJobsInput>
+    connectOrCreate?: QuotationCreateOrConnectWithoutJobsInput
+    upsert?: QuotationUpsertWithoutJobsInput
+    disconnect?: QuotationWhereInput | boolean
+    delete?: QuotationWhereInput | boolean
+    connect?: QuotationWhereUniqueInput
+    update?: XOR<XOR<QuotationUpdateToOneWithWhereWithoutJobsInput, QuotationUpdateWithoutJobsInput>, QuotationUncheckedUpdateWithoutJobsInput>
+  }
+
+  export type JobStepLogUpdateManyWithoutJobNestedInput = {
+    create?: XOR<JobStepLogCreateWithoutJobInput, JobStepLogUncheckedCreateWithoutJobInput> | JobStepLogCreateWithoutJobInput[] | JobStepLogUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobStepLogCreateOrConnectWithoutJobInput | JobStepLogCreateOrConnectWithoutJobInput[]
+    upsert?: JobStepLogUpsertWithWhereUniqueWithoutJobInput | JobStepLogUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: JobStepLogCreateManyJobInputEnvelope
+    set?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    disconnect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    delete?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    update?: JobStepLogUpdateWithWhereUniqueWithoutJobInput | JobStepLogUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: JobStepLogUpdateManyWithWhereWithoutJobInput | JobStepLogUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
+  }
+
+  export type JobStepLogUncheckedUpdateManyWithoutJobNestedInput = {
+    create?: XOR<JobStepLogCreateWithoutJobInput, JobStepLogUncheckedCreateWithoutJobInput> | JobStepLogCreateWithoutJobInput[] | JobStepLogUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobStepLogCreateOrConnectWithoutJobInput | JobStepLogCreateOrConnectWithoutJobInput[]
+    upsert?: JobStepLogUpsertWithWhereUniqueWithoutJobInput | JobStepLogUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: JobStepLogCreateManyJobInputEnvelope
+    set?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    disconnect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    delete?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    update?: JobStepLogUpdateWithWhereUniqueWithoutJobInput | JobStepLogUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: JobStepLogUpdateManyWithWhereWithoutJobInput | JobStepLogUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
+  }
+
+  export type JobCreateNestedOneWithoutStepLogsInput = {
+    create?: XOR<JobCreateWithoutStepLogsInput, JobUncheckedCreateWithoutStepLogsInput>
+    connectOrCreate?: JobCreateOrConnectWithoutStepLogsInput
+    connect?: JobWhereUniqueInput
+  }
+
+  export type JobUpdateOneRequiredWithoutStepLogsNestedInput = {
+    create?: XOR<JobCreateWithoutStepLogsInput, JobUncheckedCreateWithoutStepLogsInput>
+    connectOrCreate?: JobCreateOrConnectWithoutStepLogsInput
+    upsert?: JobUpsertWithoutStepLogsInput
+    connect?: JobWhereUniqueInput
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutStepLogsInput, JobUpdateWithoutStepLogsInput>, JobUncheckedUpdateWithoutStepLogsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -21645,12 +29708,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
     followUp3?: Date | string | null
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -21664,6 +29730,8 @@ export namespace Prisma {
     winLossReason?: string | null
     company: CompanyCreateNestedOneWithoutQuotationsInput
     contact?: ContactCreateNestedOneWithoutQuotationsInput
+    orders?: OrderCreateNestedManyWithoutQuotationInput
+    jobs?: JobCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateWithoutSalespersonInput = {
@@ -21678,6 +29746,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     contactId?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
@@ -21685,6 +29755,7 @@ export namespace Prisma {
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -21696,6 +29767,8 @@ export namespace Prisma {
     salesTeamLeader?: string | null
     subject?: string | null
     winLossReason?: string | null
+    orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
+    jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationCreateOrConnectWithoutSalespersonInput = {
@@ -21705,6 +29778,44 @@ export namespace Prisma {
 
   export type QuotationCreateManySalespersonInputEnvelope = {
     data: QuotationCreateManySalespersonInput | QuotationCreateManySalespersonInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OrderCreateWithoutSalespersonInput = {
+    id?: string
+    orderNumber: string
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutOrdersInput
+    quotation?: QuotationCreateNestedOneWithoutOrdersInput
+    statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUncheckedCreateWithoutSalespersonInput = {
+    id?: string
+    orderNumber: string
+    companyId: string
+    quotationId?: string | null
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderCreateOrConnectWithoutSalespersonInput = {
+    where: OrderWhereUniqueInput
+    create: XOR<OrderCreateWithoutSalespersonInput, OrderUncheckedCreateWithoutSalespersonInput>
+  }
+
+  export type OrderCreateManySalespersonInputEnvelope = {
+    data: OrderCreateManySalespersonInput | OrderCreateManySalespersonInput[]
     skipDuplicates?: boolean
   }
 
@@ -21933,6 +30044,7 @@ export namespace Prisma {
     paymentMethod?: string | null
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
+    orders?: OrderCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
   }
@@ -21967,6 +30079,7 @@ export namespace Prisma {
     paymentMethod?: string | null
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
+    orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
   }
@@ -22012,6 +30125,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Quotation"> | Date | string
     updatedAt?: DateTimeFilter<"Quotation"> | Date | string
     billingDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
+    appointmentDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
+    appointmentNote?: StringNullableFilter<"Quotation"> | string | null
     contactId?: StringNullableFilter<"Quotation"> | string | null
     followUp1?: DateTimeNullableFilter<"Quotation"> | Date | string | null
     followUp2?: DateTimeNullableFilter<"Quotation"> | Date | string | null
@@ -22019,6 +30134,7 @@ export namespace Prisma {
     followUp4?: DateTimeNullableFilter<"Quotation"> | Date | string | null
     invoiceNumber?: StringNullableFilter<"Quotation"> | string | null
     poDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
+    poNumber?: StringNullableFilter<"Quotation"> | string | null
     productType?: StringNullableFilter<"Quotation"> | string | null
     quotationDate?: DateTimeNullableFilter<"Quotation"> | Date | string | null
     quotationNumber?: StringNullableFilter<"Quotation"> | string | null
@@ -22031,6 +30147,39 @@ export namespace Prisma {
     salespersonId?: StringNullableFilter<"Quotation"> | string | null
     subject?: StringNullableFilter<"Quotation"> | string | null
     winLossReason?: StringNullableFilter<"Quotation"> | string | null
+  }
+
+  export type OrderUpsertWithWhereUniqueWithoutSalespersonInput = {
+    where: OrderWhereUniqueInput
+    update: XOR<OrderUpdateWithoutSalespersonInput, OrderUncheckedUpdateWithoutSalespersonInput>
+    create: XOR<OrderCreateWithoutSalespersonInput, OrderUncheckedCreateWithoutSalespersonInput>
+  }
+
+  export type OrderUpdateWithWhereUniqueWithoutSalespersonInput = {
+    where: OrderWhereUniqueInput
+    data: XOR<OrderUpdateWithoutSalespersonInput, OrderUncheckedUpdateWithoutSalespersonInput>
+  }
+
+  export type OrderUpdateManyWithWhereWithoutSalespersonInput = {
+    where: OrderScalarWhereInput
+    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyWithoutSalespersonInput>
+  }
+
+  export type OrderScalarWhereInput = {
+    AND?: OrderScalarWhereInput | OrderScalarWhereInput[]
+    OR?: OrderScalarWhereInput[]
+    NOT?: OrderScalarWhereInput | OrderScalarWhereInput[]
+    id?: StringFilter<"Order"> | string
+    orderNumber?: StringFilter<"Order"> | string
+    companyId?: StringFilter<"Order"> | string
+    quotationId?: StringNullableFilter<"Order"> | string | null
+    salespersonId?: StringNullableFilter<"Order"> | string | null
+    status?: StringFilter<"Order"> | string
+    value?: FloatFilter<"Order"> | number
+    priority?: StringFilter<"Order"> | string
+    targetDeliveryDate?: DateTimeNullableFilter<"Order"> | Date | string | null
+    createdAt?: DateTimeFilter<"Order"> | Date | string
+    updatedAt?: DateTimeFilter<"Order"> | Date | string
   }
 
   export type ScheduleUpsertWithWhereUniqueWithoutUserInput = {
@@ -22277,6 +30426,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
@@ -22299,6 +30449,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
@@ -22337,6 +30488,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
@@ -22359,6 +30511,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
@@ -22381,6 +30534,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -22403,6 +30557,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -22445,6 +30600,7 @@ export namespace Prisma {
     paymentMethod?: string | null
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
+    orders?: OrderCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
   }
@@ -22480,6 +30636,7 @@ export namespace Prisma {
     paymentMethod?: string | null
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
+    orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
   }
 
@@ -22563,6 +30720,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -22585,6 +30743,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -22633,6 +30792,7 @@ export namespace Prisma {
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
   }
@@ -22668,6 +30828,7 @@ export namespace Prisma {
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
@@ -22741,6 +30902,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -22763,6 +30925,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -22801,6 +30964,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -22823,6 +30987,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -22875,12 +31040,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
     followUp3?: Date | string | null
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -22894,6 +31062,8 @@ export namespace Prisma {
     winLossReason?: string | null
     contact?: ContactCreateNestedOneWithoutQuotationsInput
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
+    orders?: OrderCreateNestedManyWithoutQuotationInput
+    jobs?: JobCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateWithoutCompanyInput = {
@@ -22907,6 +31077,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     contactId?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
@@ -22914,6 +31086,7 @@ export namespace Prisma {
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -22926,6 +31099,8 @@ export namespace Prisma {
     salespersonId?: string | null
     subject?: string | null
     winLossReason?: string | null
+    orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
+    jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationCreateOrConnectWithoutCompanyInput = {
@@ -22935,6 +31110,44 @@ export namespace Prisma {
 
   export type QuotationCreateManyCompanyInputEnvelope = {
     data: QuotationCreateManyCompanyInput | QuotationCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OrderCreateWithoutCompanyInput = {
+    id?: string
+    orderNumber: string
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    quotation?: QuotationCreateNestedOneWithoutOrdersInput
+    salesperson?: UserCreateNestedOneWithoutOrdersInput
+    statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    orderNumber: string
+    quotationId?: string | null
+    salespersonId?: string | null
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderCreateOrConnectWithoutCompanyInput = {
+    where: OrderWhereUniqueInput
+    create: XOR<OrderCreateWithoutCompanyInput, OrderUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type OrderCreateManyCompanyInputEnvelope = {
+    data: OrderCreateManyCompanyInput | OrderCreateManyCompanyInput[]
     skipDuplicates?: boolean
   }
 
@@ -23053,6 +31266,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
@@ -23075,6 +31289,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
@@ -23132,6 +31347,22 @@ export namespace Prisma {
   export type QuotationUpdateManyWithWhereWithoutCompanyInput = {
     where: QuotationScalarWhereInput
     data: XOR<QuotationUpdateManyMutationInput, QuotationUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type OrderUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: OrderWhereUniqueInput
+    update: XOR<OrderUpdateWithoutCompanyInput, OrderUncheckedUpdateWithoutCompanyInput>
+    create: XOR<OrderCreateWithoutCompanyInput, OrderUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type OrderUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: OrderWhereUniqueInput
+    data: XOR<OrderUpdateWithoutCompanyInput, OrderUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type OrderUpdateManyWithWhereWithoutCompanyInput = {
+    where: OrderScalarWhereInput
+    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyWithoutCompanyInput>
   }
 
   export type TelesaleUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -23192,6 +31423,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
@@ -23214,6 +31446,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
@@ -23250,6 +31483,7 @@ export namespace Prisma {
     shippingPostalCode?: string | null
     paymentMethod?: string | null
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
+    orders?: OrderCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
@@ -23285,6 +31519,7 @@ export namespace Prisma {
     shippingPostalCode?: string | null
     paymentMethod?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
+    orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
   }
@@ -23305,12 +31540,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
     followUp3?: Date | string | null
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -23324,6 +31562,8 @@ export namespace Prisma {
     winLossReason?: string | null
     company: CompanyCreateNestedOneWithoutQuotationsInput
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
+    orders?: OrderCreateNestedManyWithoutQuotationInput
+    jobs?: JobCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateWithoutContactInput = {
@@ -23338,12 +31578,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
     followUp3?: Date | string | null
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -23356,6 +31599,8 @@ export namespace Prisma {
     salespersonId?: string | null
     subject?: string | null
     winLossReason?: string | null
+    orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
+    jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationCreateOrConnectWithoutContactInput = {
@@ -23408,6 +31653,7 @@ export namespace Prisma {
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
@@ -23443,6 +31689,7 @@ export namespace Prisma {
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
   }
@@ -23492,6 +31739,7 @@ export namespace Prisma {
     shippingPostalCode?: string | null
     paymentMethod?: string | null
     contacts?: ContactCreateNestedManyWithoutCompanyInput
+    orders?: OrderCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
@@ -23527,6 +31775,7 @@ export namespace Prisma {
     shippingPostalCode?: string | null
     paymentMethod?: string | null
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
   }
@@ -23579,6 +31828,7 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
@@ -23601,6 +31851,7 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
@@ -23612,6 +31863,94 @@ export namespace Prisma {
   export type UserCreateOrConnectWithoutQuotationsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutQuotationsInput, UserUncheckedCreateWithoutQuotationsInput>
+  }
+
+  export type OrderCreateWithoutQuotationInput = {
+    id?: string
+    orderNumber: string
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutOrdersInput
+    salesperson?: UserCreateNestedOneWithoutOrdersInput
+    statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUncheckedCreateWithoutQuotationInput = {
+    id?: string
+    orderNumber: string
+    companyId: string
+    salespersonId?: string | null
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderCreateOrConnectWithoutQuotationInput = {
+    where: OrderWhereUniqueInput
+    create: XOR<OrderCreateWithoutQuotationInput, OrderUncheckedCreateWithoutQuotationInput>
+  }
+
+  export type OrderCreateManyQuotationInputEnvelope = {
+    data: OrderCreateManyQuotationInput | OrderCreateManyQuotationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type JobCreateWithoutQuotationInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateWithoutQuotationInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobCreateOrConnectWithoutQuotationInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutQuotationInput, JobUncheckedCreateWithoutQuotationInput>
+  }
+
+  export type JobCreateManyQuotationInputEnvelope = {
+    data: JobCreateManyQuotationInput | JobCreateManyQuotationInput[]
+    skipDuplicates?: boolean
   }
 
   export type CompanyUpsertWithoutQuotationsInput = {
@@ -23654,6 +31993,7 @@ export namespace Prisma {
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
@@ -23689,6 +32029,7 @@ export namespace Prisma {
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
   }
@@ -23753,6 +32094,7 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
@@ -23775,12 +32117,68 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+  }
+
+  export type OrderUpsertWithWhereUniqueWithoutQuotationInput = {
+    where: OrderWhereUniqueInput
+    update: XOR<OrderUpdateWithoutQuotationInput, OrderUncheckedUpdateWithoutQuotationInput>
+    create: XOR<OrderCreateWithoutQuotationInput, OrderUncheckedCreateWithoutQuotationInput>
+  }
+
+  export type OrderUpdateWithWhereUniqueWithoutQuotationInput = {
+    where: OrderWhereUniqueInput
+    data: XOR<OrderUpdateWithoutQuotationInput, OrderUncheckedUpdateWithoutQuotationInput>
+  }
+
+  export type OrderUpdateManyWithWhereWithoutQuotationInput = {
+    where: OrderScalarWhereInput
+    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyWithoutQuotationInput>
+  }
+
+  export type JobUpsertWithWhereUniqueWithoutQuotationInput = {
+    where: JobWhereUniqueInput
+    update: XOR<JobUpdateWithoutQuotationInput, JobUncheckedUpdateWithoutQuotationInput>
+    create: XOR<JobCreateWithoutQuotationInput, JobUncheckedCreateWithoutQuotationInput>
+  }
+
+  export type JobUpdateWithWhereUniqueWithoutQuotationInput = {
+    where: JobWhereUniqueInput
+    data: XOR<JobUpdateWithoutQuotationInput, JobUncheckedUpdateWithoutQuotationInput>
+  }
+
+  export type JobUpdateManyWithWhereWithoutQuotationInput = {
+    where: JobScalarWhereInput
+    data: XOR<JobUpdateManyMutationInput, JobUncheckedUpdateManyWithoutQuotationInput>
+  }
+
+  export type JobScalarWhereInput = {
+    AND?: JobScalarWhereInput | JobScalarWhereInput[]
+    OR?: JobScalarWhereInput[]
+    NOT?: JobScalarWhereInput | JobScalarWhereInput[]
+    id?: StringFilter<"Job"> | string
+    jobNumber?: StringFilter<"Job"> | string
+    companyCode?: StringFilter<"Job"> | string
+    jobType?: StringFilter<"Job"> | string
+    month?: IntFilter<"Job"> | number
+    yearBe?: IntFilter<"Job"> | number
+    dateClosed?: DateTimeFilter<"Job"> | Date | string
+    customerName?: StringFilter<"Job"> | string
+    item?: StringNullableFilter<"Job"> | string | null
+    quotationNumber?: StringNullableFilter<"Job"> | string | null
+    poNumber?: StringNullableFilter<"Job"> | string | null
+    sellerName?: StringNullableFilter<"Job"> | string | null
+    quotationId?: StringNullableFilter<"Job"> | string | null
+    currentStep?: StringFilter<"Job"> | string
+    flowVariant?: StringNullableFilter<"Job"> | string | null
+    createdAt?: DateTimeFilter<"Job"> | Date | string
+    updatedAt?: DateTimeFilter<"Job"> | Date | string
   }
 
   export type ScheduleCreateWithoutTelesaleInput = {
@@ -23854,6 +32252,7 @@ export namespace Prisma {
     paymentMethod?: string | null
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
+    orders?: OrderCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
   }
@@ -23889,6 +32288,7 @@ export namespace Prisma {
     paymentMethod?: string | null
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
+    orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
   }
 
@@ -23912,6 +32312,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -23934,6 +32335,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -24034,6 +32436,7 @@ export namespace Prisma {
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
   }
@@ -24069,6 +32472,7 @@ export namespace Prisma {
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
@@ -24098,6 +32502,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -24120,6 +32525,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -24142,6 +32548,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
@@ -24164,6 +32571,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
@@ -24202,6 +32610,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
@@ -24224,11 +32633,883 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+  }
+
+  export type CompanyCreateWithoutOrdersInput = {
+    id?: string
+    companyName: string
+    taxId?: string | null
+    address?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    area?: string | null
+    branchOrHeadOffice?: string | null
+    businessType?: string | null
+    customerAccessChannel?: string | null
+    customerStatus?: string | null
+    customerType?: string | null
+    district?: string | null
+    postalCode?: string | null
+    province?: string | null
+    subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
+    contacts?: ContactCreateNestedManyWithoutCompanyInput
+    quotations?: QuotationCreateNestedManyWithoutCompanyInput
+    telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+    schedules?: ScheduleCreateNestedManyWithoutCompanyInput
+    assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+  }
+
+  export type CompanyUncheckedCreateWithoutOrdersInput = {
+    id?: string
+    companyName: string
+    taxId?: string | null
+    address?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    area?: string | null
+    branchOrHeadOffice?: string | null
+    businessType?: string | null
+    customerAccessChannel?: string | null
+    customerStatus?: string | null
+    customerType?: string | null
+    district?: string | null
+    postalCode?: string | null
+    province?: string | null
+    subDistrict?: string | null
+    assignedUserId?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
+    contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutOrdersInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutOrdersInput, CompanyUncheckedCreateWithoutOrdersInput>
+  }
+
+  export type QuotationCreateWithoutOrdersInput = {
+    id?: string
+    status?: string
+    salesBeforeVat?: number | null
+    transportationFee?: number | null
+    installationFee?: number | null
+    totalAmountBeforeVat?: number | null
+    actualClosingAmount?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
+    followUp1?: Date | string | null
+    followUp2?: Date | string | null
+    followUp3?: Date | string | null
+    followUp4?: Date | string | null
+    invoiceNumber?: string | null
+    poDate?: Date | string | null
+    poNumber?: string | null
+    productType?: string | null
+    quotationDate?: Date | string | null
+    quotationNumber?: string | null
+    rejectReason?: string | null
+    remarks?: string | null
+    requirementDate?: Date | string | null
+    requirementNumber?: string | null
+    salesBranch?: string | null
+    salesTeamLeader?: string | null
+    subject?: string | null
+    winLossReason?: string | null
+    company: CompanyCreateNestedOneWithoutQuotationsInput
+    contact?: ContactCreateNestedOneWithoutQuotationsInput
+    salesperson?: UserCreateNestedOneWithoutQuotationsInput
+    jobs?: JobCreateNestedManyWithoutQuotationInput
+  }
+
+  export type QuotationUncheckedCreateWithoutOrdersInput = {
+    id?: string
+    companyId: string
+    status?: string
+    salesBeforeVat?: number | null
+    transportationFee?: number | null
+    installationFee?: number | null
+    totalAmountBeforeVat?: number | null
+    actualClosingAmount?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
+    contactId?: string | null
+    followUp1?: Date | string | null
+    followUp2?: Date | string | null
+    followUp3?: Date | string | null
+    followUp4?: Date | string | null
+    invoiceNumber?: string | null
+    poDate?: Date | string | null
+    poNumber?: string | null
+    productType?: string | null
+    quotationDate?: Date | string | null
+    quotationNumber?: string | null
+    rejectReason?: string | null
+    remarks?: string | null
+    requirementDate?: Date | string | null
+    requirementNumber?: string | null
+    salesBranch?: string | null
+    salesTeamLeader?: string | null
+    salespersonId?: string | null
+    subject?: string | null
+    winLossReason?: string | null
+    jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
+  }
+
+  export type QuotationCreateOrConnectWithoutOrdersInput = {
+    where: QuotationWhereUniqueInput
+    create: XOR<QuotationCreateWithoutOrdersInput, QuotationUncheckedCreateWithoutOrdersInput>
+  }
+
+  export type UserCreateWithoutOrdersInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+  }
+
+  export type UserUncheckedCreateWithoutOrdersInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+  }
+
+  export type UserCreateOrConnectWithoutOrdersInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutOrdersInput, UserUncheckedCreateWithoutOrdersInput>
+  }
+
+  export type OrderStatusLogCreateWithoutOrderInput = {
+    id?: string
+    userId?: string | null
+    fromStatus: string
+    toStatus: string
+    createdAt?: Date | string
+  }
+
+  export type OrderStatusLogUncheckedCreateWithoutOrderInput = {
+    id?: string
+    userId?: string | null
+    fromStatus: string
+    toStatus: string
+    createdAt?: Date | string
+  }
+
+  export type OrderStatusLogCreateOrConnectWithoutOrderInput = {
+    where: OrderStatusLogWhereUniqueInput
+    create: XOR<OrderStatusLogCreateWithoutOrderInput, OrderStatusLogUncheckedCreateWithoutOrderInput>
+  }
+
+  export type OrderStatusLogCreateManyOrderInputEnvelope = {
+    data: OrderStatusLogCreateManyOrderInput | OrderStatusLogCreateManyOrderInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyUpsertWithoutOrdersInput = {
+    update: XOR<CompanyUpdateWithoutOrdersInput, CompanyUncheckedUpdateWithoutOrdersInput>
+    create: XOR<CompanyCreateWithoutOrdersInput, CompanyUncheckedCreateWithoutOrdersInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutOrdersInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutOrdersInput, CompanyUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type CompanyUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    area?: NullableStringFieldUpdateOperationsInput | string | null
+    branchOrHeadOffice?: NullableStringFieldUpdateOperationsInput | string | null
+    businessType?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAccessChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    customerType?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    quotations?: QuotationUpdateManyWithoutCompanyNestedInput
+    telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+    schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
+    assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    area?: NullableStringFieldUpdateOperationsInput | string | null
+    branchOrHeadOffice?: NullableStringFieldUpdateOperationsInput | string | null
+    businessType?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAccessChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    customerType?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type QuotationUpsertWithoutOrdersInput = {
+    update: XOR<QuotationUpdateWithoutOrdersInput, QuotationUncheckedUpdateWithoutOrdersInput>
+    create: XOR<QuotationCreateWithoutOrdersInput, QuotationUncheckedCreateWithoutOrdersInput>
+    where?: QuotationWhereInput
+  }
+
+  export type QuotationUpdateToOneWithWhereWithoutOrdersInput = {
+    where?: QuotationWhereInput
+    data: XOR<QuotationUpdateWithoutOrdersInput, QuotationUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type QuotationUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    salesBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    transportationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    installationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalAmountBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    actualClosingAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
+    followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    requirementDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    salesBranch?: NullableStringFieldUpdateOperationsInput | string | null
+    salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
+    contact?: ContactUpdateOneWithoutQuotationsNestedInput
+    salesperson?: UserUpdateOneWithoutQuotationsNestedInput
+    jobs?: JobUpdateManyWithoutQuotationNestedInput
+  }
+
+  export type QuotationUncheckedUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    salesBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    transportationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    installationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalAmountBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    actualClosingAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    requirementDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    salesBranch?: NullableStringFieldUpdateOperationsInput | string | null
+    salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+  }
+
+  export type UserUpsertWithoutOrdersInput = {
+    update: XOR<UserUpdateWithoutOrdersInput, UserUncheckedUpdateWithoutOrdersInput>
+    create: XOR<UserCreateWithoutOrdersInput, UserUncheckedCreateWithoutOrdersInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutOrdersInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutOrdersInput, UserUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type UserUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+  }
+
+  export type OrderStatusLogUpsertWithWhereUniqueWithoutOrderInput = {
+    where: OrderStatusLogWhereUniqueInput
+    update: XOR<OrderStatusLogUpdateWithoutOrderInput, OrderStatusLogUncheckedUpdateWithoutOrderInput>
+    create: XOR<OrderStatusLogCreateWithoutOrderInput, OrderStatusLogUncheckedCreateWithoutOrderInput>
+  }
+
+  export type OrderStatusLogUpdateWithWhereUniqueWithoutOrderInput = {
+    where: OrderStatusLogWhereUniqueInput
+    data: XOR<OrderStatusLogUpdateWithoutOrderInput, OrderStatusLogUncheckedUpdateWithoutOrderInput>
+  }
+
+  export type OrderStatusLogUpdateManyWithWhereWithoutOrderInput = {
+    where: OrderStatusLogScalarWhereInput
+    data: XOR<OrderStatusLogUpdateManyMutationInput, OrderStatusLogUncheckedUpdateManyWithoutOrderInput>
+  }
+
+  export type OrderStatusLogScalarWhereInput = {
+    AND?: OrderStatusLogScalarWhereInput | OrderStatusLogScalarWhereInput[]
+    OR?: OrderStatusLogScalarWhereInput[]
+    NOT?: OrderStatusLogScalarWhereInput | OrderStatusLogScalarWhereInput[]
+    id?: StringFilter<"OrderStatusLog"> | string
+    orderId?: StringFilter<"OrderStatusLog"> | string
+    userId?: StringNullableFilter<"OrderStatusLog"> | string | null
+    fromStatus?: StringFilter<"OrderStatusLog"> | string
+    toStatus?: StringFilter<"OrderStatusLog"> | string
+    createdAt?: DateTimeFilter<"OrderStatusLog"> | Date | string
+  }
+
+  export type OrderCreateWithoutStatusLogsInput = {
+    id?: string
+    orderNumber: string
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutOrdersInput
+    quotation?: QuotationCreateNestedOneWithoutOrdersInput
+    salesperson?: UserCreateNestedOneWithoutOrdersInput
+  }
+
+  export type OrderUncheckedCreateWithoutStatusLogsInput = {
+    id?: string
+    orderNumber: string
+    companyId: string
+    quotationId?: string | null
+    salespersonId?: string | null
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrderCreateOrConnectWithoutStatusLogsInput = {
+    where: OrderWhereUniqueInput
+    create: XOR<OrderCreateWithoutStatusLogsInput, OrderUncheckedCreateWithoutStatusLogsInput>
+  }
+
+  export type OrderUpsertWithoutStatusLogsInput = {
+    update: XOR<OrderUpdateWithoutStatusLogsInput, OrderUncheckedUpdateWithoutStatusLogsInput>
+    create: XOR<OrderCreateWithoutStatusLogsInput, OrderUncheckedCreateWithoutStatusLogsInput>
+    where?: OrderWhereInput
+  }
+
+  export type OrderUpdateToOneWithWhereWithoutStatusLogsInput = {
+    where?: OrderWhereInput
+    data: XOR<OrderUpdateWithoutStatusLogsInput, OrderUncheckedUpdateWithoutStatusLogsInput>
+  }
+
+  export type OrderUpdateWithoutStatusLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutOrdersNestedInput
+    quotation?: QuotationUpdateOneWithoutOrdersNestedInput
+    salesperson?: UserUpdateOneWithoutOrdersNestedInput
+  }
+
+  export type OrderUncheckedUpdateWithoutStatusLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type QuotationCreateWithoutJobsInput = {
+    id?: string
+    status?: string
+    salesBeforeVat?: number | null
+    transportationFee?: number | null
+    installationFee?: number | null
+    totalAmountBeforeVat?: number | null
+    actualClosingAmount?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
+    followUp1?: Date | string | null
+    followUp2?: Date | string | null
+    followUp3?: Date | string | null
+    followUp4?: Date | string | null
+    invoiceNumber?: string | null
+    poDate?: Date | string | null
+    poNumber?: string | null
+    productType?: string | null
+    quotationDate?: Date | string | null
+    quotationNumber?: string | null
+    rejectReason?: string | null
+    remarks?: string | null
+    requirementDate?: Date | string | null
+    requirementNumber?: string | null
+    salesBranch?: string | null
+    salesTeamLeader?: string | null
+    subject?: string | null
+    winLossReason?: string | null
+    company: CompanyCreateNestedOneWithoutQuotationsInput
+    contact?: ContactCreateNestedOneWithoutQuotationsInput
+    salesperson?: UserCreateNestedOneWithoutQuotationsInput
+    orders?: OrderCreateNestedManyWithoutQuotationInput
+  }
+
+  export type QuotationUncheckedCreateWithoutJobsInput = {
+    id?: string
+    companyId: string
+    status?: string
+    salesBeforeVat?: number | null
+    transportationFee?: number | null
+    installationFee?: number | null
+    totalAmountBeforeVat?: number | null
+    actualClosingAmount?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
+    contactId?: string | null
+    followUp1?: Date | string | null
+    followUp2?: Date | string | null
+    followUp3?: Date | string | null
+    followUp4?: Date | string | null
+    invoiceNumber?: string | null
+    poDate?: Date | string | null
+    poNumber?: string | null
+    productType?: string | null
+    quotationDate?: Date | string | null
+    quotationNumber?: string | null
+    rejectReason?: string | null
+    remarks?: string | null
+    requirementDate?: Date | string | null
+    requirementNumber?: string | null
+    salesBranch?: string | null
+    salesTeamLeader?: string | null
+    salespersonId?: string | null
+    subject?: string | null
+    winLossReason?: string | null
+    orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
+  }
+
+  export type QuotationCreateOrConnectWithoutJobsInput = {
+    where: QuotationWhereUniqueInput
+    create: XOR<QuotationCreateWithoutJobsInput, QuotationUncheckedCreateWithoutJobsInput>
+  }
+
+  export type JobStepLogCreateWithoutJobInput = {
+    id?: string
+    step: string
+    completedBy: string
+    department: string
+    note?: string | null
+    completedAt?: Date | string
+  }
+
+  export type JobStepLogUncheckedCreateWithoutJobInput = {
+    id?: string
+    step: string
+    completedBy: string
+    department: string
+    note?: string | null
+    completedAt?: Date | string
+  }
+
+  export type JobStepLogCreateOrConnectWithoutJobInput = {
+    where: JobStepLogWhereUniqueInput
+    create: XOR<JobStepLogCreateWithoutJobInput, JobStepLogUncheckedCreateWithoutJobInput>
+  }
+
+  export type JobStepLogCreateManyJobInputEnvelope = {
+    data: JobStepLogCreateManyJobInput | JobStepLogCreateManyJobInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type QuotationUpsertWithoutJobsInput = {
+    update: XOR<QuotationUpdateWithoutJobsInput, QuotationUncheckedUpdateWithoutJobsInput>
+    create: XOR<QuotationCreateWithoutJobsInput, QuotationUncheckedCreateWithoutJobsInput>
+    where?: QuotationWhereInput
+  }
+
+  export type QuotationUpdateToOneWithWhereWithoutJobsInput = {
+    where?: QuotationWhereInput
+    data: XOR<QuotationUpdateWithoutJobsInput, QuotationUncheckedUpdateWithoutJobsInput>
+  }
+
+  export type QuotationUpdateWithoutJobsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    salesBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    transportationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    installationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalAmountBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    actualClosingAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
+    followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    requirementDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    salesBranch?: NullableStringFieldUpdateOperationsInput | string | null
+    salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
+    contact?: ContactUpdateOneWithoutQuotationsNestedInput
+    salesperson?: UserUpdateOneWithoutQuotationsNestedInput
+    orders?: OrderUpdateManyWithoutQuotationNestedInput
+  }
+
+  export type QuotationUncheckedUpdateWithoutJobsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    salesBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    transportationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    installationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalAmountBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    actualClosingAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    requirementDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    salesBranch?: NullableStringFieldUpdateOperationsInput | string | null
+    salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
+  }
+
+  export type JobStepLogUpsertWithWhereUniqueWithoutJobInput = {
+    where: JobStepLogWhereUniqueInput
+    update: XOR<JobStepLogUpdateWithoutJobInput, JobStepLogUncheckedUpdateWithoutJobInput>
+    create: XOR<JobStepLogCreateWithoutJobInput, JobStepLogUncheckedCreateWithoutJobInput>
+  }
+
+  export type JobStepLogUpdateWithWhereUniqueWithoutJobInput = {
+    where: JobStepLogWhereUniqueInput
+    data: XOR<JobStepLogUpdateWithoutJobInput, JobStepLogUncheckedUpdateWithoutJobInput>
+  }
+
+  export type JobStepLogUpdateManyWithWhereWithoutJobInput = {
+    where: JobStepLogScalarWhereInput
+    data: XOR<JobStepLogUpdateManyMutationInput, JobStepLogUncheckedUpdateManyWithoutJobInput>
+  }
+
+  export type JobStepLogScalarWhereInput = {
+    AND?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
+    OR?: JobStepLogScalarWhereInput[]
+    NOT?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
+    id?: StringFilter<"JobStepLog"> | string
+    jobId?: StringFilter<"JobStepLog"> | string
+    step?: StringFilter<"JobStepLog"> | string
+    completedBy?: StringFilter<"JobStepLog"> | string
+    department?: StringFilter<"JobStepLog"> | string
+    note?: StringNullableFilter<"JobStepLog"> | string | null
+    completedAt?: DateTimeFilter<"JobStepLog"> | Date | string
+  }
+
+  export type JobCreateWithoutStepLogsInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    quotation?: QuotationCreateNestedOneWithoutJobsInput
+  }
+
+  export type JobUncheckedCreateWithoutStepLogsInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    quotationId?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type JobCreateOrConnectWithoutStepLogsInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutStepLogsInput, JobUncheckedCreateWithoutStepLogsInput>
+  }
+
+  export type JobUpsertWithoutStepLogsInput = {
+    update: XOR<JobUpdateWithoutStepLogsInput, JobUncheckedUpdateWithoutStepLogsInput>
+    create: XOR<JobCreateWithoutStepLogsInput, JobUncheckedCreateWithoutStepLogsInput>
+    where?: JobWhereInput
+  }
+
+  export type JobUpdateToOneWithWhereWithoutStepLogsInput = {
+    where?: JobWhereInput
+    data: XOR<JobUpdateWithoutStepLogsInput, JobUncheckedUpdateWithoutStepLogsInput>
+  }
+
+  export type JobUpdateWithoutStepLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    quotation?: QuotationUpdateOneWithoutJobsNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutStepLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type QuotationCreateManySalespersonInput = {
@@ -24243,6 +33524,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     contactId?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
@@ -24250,6 +33533,7 @@ export namespace Prisma {
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -24261,6 +33545,19 @@ export namespace Prisma {
     salesTeamLeader?: string | null
     subject?: string | null
     winLossReason?: string | null
+  }
+
+  export type OrderCreateManySalespersonInput = {
+    id?: string
+    orderNumber: string
+    companyId: string
+    quotationId?: string | null
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ScheduleCreateManyUserInput = {
@@ -24364,12 +33661,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24383,6 +33683,8 @@ export namespace Prisma {
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
+    orders?: OrderUpdateManyWithoutQuotationNestedInput
+    jobs?: JobUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateWithoutSalespersonInput = {
@@ -24397,6 +33699,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     contactId?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24404,6 +33708,7 @@ export namespace Prisma {
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24415,6 +33720,8 @@ export namespace Prisma {
     salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
+    jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateManyWithoutSalespersonInput = {
@@ -24429,6 +33736,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     contactId?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24436,6 +33745,7 @@ export namespace Prisma {
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24447,6 +33757,47 @@ export namespace Prisma {
     salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OrderUpdateWithoutSalespersonInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutOrdersNestedInput
+    quotation?: QuotationUpdateOneWithoutOrdersNestedInput
+    statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateWithoutSalespersonInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateManyWithoutSalespersonInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ScheduleUpdateWithoutUserInput = {
@@ -24661,6 +34012,7 @@ export namespace Prisma {
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
   }
@@ -24695,6 +34047,7 @@ export namespace Prisma {
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
   }
@@ -24751,6 +34104,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     contactId?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
@@ -24758,6 +34113,7 @@ export namespace Prisma {
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -24770,6 +34126,19 @@ export namespace Prisma {
     salespersonId?: string | null
     subject?: string | null
     winLossReason?: string | null
+  }
+
+  export type OrderCreateManyCompanyInput = {
+    id?: string
+    orderNumber: string
+    quotationId?: string | null
+    salespersonId?: string | null
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type TelesaleCreateManyCompanyInput = {
@@ -24857,12 +34226,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24876,6 +34248,8 @@ export namespace Prisma {
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
+    orders?: OrderUpdateManyWithoutQuotationNestedInput
+    jobs?: JobUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateWithoutCompanyInput = {
@@ -24889,6 +34263,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     contactId?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24896,6 +34272,44 @@ export namespace Prisma {
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    requirementDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    salesBranch?: NullableStringFieldUpdateOperationsInput | string | null
+    salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
+    jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+  }
+
+  export type QuotationUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    salesBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    transportationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    installationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalAmountBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    actualClosingAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24910,36 +34324,45 @@ export namespace Prisma {
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type QuotationUncheckedUpdateManyWithoutCompanyInput = {
+  export type OrderUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    salesBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
-    transportationFee?: NullableFloatFieldUpdateOperationsInput | number | null
-    installationFee?: NullableFloatFieldUpdateOperationsInput | number | null
-    totalAmountBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
-    actualClosingAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    contactId?: NullableStringFieldUpdateOperationsInput | string | null
-    followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    productType?: NullableStringFieldUpdateOperationsInput | string | null
-    quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
-    remarks?: NullableStringFieldUpdateOperationsInput | string | null
-    requirementDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    salesBranch?: NullableStringFieldUpdateOperationsInput | string | null
-    salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
+    quotation?: QuotationUpdateOneWithoutOrdersNestedInput
+    salesperson?: UserUpdateOneWithoutOrdersNestedInput
+    statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TelesaleUpdateWithoutCompanyInput = {
@@ -25073,12 +34496,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
     followUp1?: Date | string | null
     followUp2?: Date | string | null
     followUp3?: Date | string | null
     followUp4?: Date | string | null
     invoiceNumber?: string | null
     poDate?: Date | string | null
+    poNumber?: string | null
     productType?: string | null
     quotationDate?: Date | string | null
     quotationNumber?: string | null
@@ -25104,12 +34530,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25123,6 +34552,8 @@ export namespace Prisma {
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
+    orders?: OrderUpdateManyWithoutQuotationNestedInput
+    jobs?: JobUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateWithoutContactInput = {
@@ -25137,12 +34568,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25155,6 +34589,8 @@ export namespace Prisma {
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
+    jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateManyWithoutContactInput = {
@@ -25169,12 +34605,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
     followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
     productType?: NullableStringFieldUpdateOperationsInput | string | null
     quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25187,6 +34626,206 @@ export namespace Prisma {
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OrderCreateManyQuotationInput = {
+    id?: string
+    orderNumber: string
+    companyId: string
+    salespersonId?: string | null
+    status?: string
+    value?: number
+    priority?: string
+    targetDeliveryDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type JobCreateManyQuotationInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrderUpdateWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutOrdersNestedInput
+    salesperson?: UserUpdateOneWithoutOrdersNestedInput
+    statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateManyWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    priority?: StringFieldUpdateOperationsInput | string
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobUpdateWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateManyWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderStatusLogCreateManyOrderInput = {
+    id?: string
+    userId?: string | null
+    fromStatus: string
+    toStatus: string
+    createdAt?: Date | string
+  }
+
+  export type OrderStatusLogUpdateWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fromStatus?: StringFieldUpdateOperationsInput | string
+    toStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderStatusLogUncheckedUpdateWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fromStatus?: StringFieldUpdateOperationsInput | string
+    toStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderStatusLogUncheckedUpdateManyWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fromStatus?: StringFieldUpdateOperationsInput | string
+    toStatus?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobStepLogCreateManyJobInput = {
+    id?: string
+    step: string
+    completedBy: string
+    department: string
+    note?: string | null
+    completedAt?: Date | string
+  }
+
+  export type JobStepLogUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    step?: StringFieldUpdateOperationsInput | string
+    completedBy?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobStepLogUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    step?: StringFieldUpdateOperationsInput | string
+    completedBy?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobStepLogUncheckedUpdateManyWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    step?: StringFieldUpdateOperationsInput | string
+    completedBy?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

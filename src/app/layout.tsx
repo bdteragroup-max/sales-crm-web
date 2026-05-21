@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   description: "Modern CRM for tracking sales and quotations",
 };
 
+import { GlobalProgressBar } from "./components/GlobalProgressBar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="th">
       <body className={`${prompt.variable} ${prompt.className} antialiased`}>
+        <GlobalProgressBar />
         {children}
       </body>
     </html>

@@ -235,6 +235,8 @@ exports.Prisma.QuotationScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   billingDate: 'billingDate',
+  appointmentDate: 'appointmentDate',
+  appointmentNote: 'appointmentNote',
   contactId: 'contactId',
   followUp1: 'followUp1',
   followUp2: 'followUp2',
@@ -242,6 +244,7 @@ exports.Prisma.QuotationScalarFieldEnum = {
   followUp4: 'followUp4',
   invoiceNumber: 'invoiceNumber',
   poDate: 'poDate',
+  poNumber: 'poNumber',
   productType: 'productType',
   quotationDate: 'quotationDate',
   quotationNumber: 'quotationNumber',
@@ -317,6 +320,66 @@ exports.Prisma.TelesalesKPIScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  orderNumber: 'orderNumber',
+  companyId: 'companyId',
+  quotationId: 'quotationId',
+  salespersonId: 'salespersonId',
+  status: 'status',
+  value: 'value',
+  priority: 'priority',
+  targetDeliveryDate: 'targetDeliveryDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderStatusLogScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  userId: 'userId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.JobScalarFieldEnum = {
+  id: 'id',
+  jobNumber: 'jobNumber',
+  companyCode: 'companyCode',
+  jobType: 'jobType',
+  month: 'month',
+  yearBe: 'yearBe',
+  dateClosed: 'dateClosed',
+  customerName: 'customerName',
+  item: 'item',
+  quotationNumber: 'quotationNumber',
+  poNumber: 'poNumber',
+  sellerName: 'sellerName',
+  quotationId: 'quotationId',
+  currentStep: 'currentStep',
+  flowVariant: 'flowVariant',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.JobRunningNumberScalarFieldEnum = {
+  id: 'id',
+  yearBe: 'yearBe',
+  month: 'month',
+  lastNumber: 'lastNumber'
+};
+
+exports.Prisma.JobStepLogScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  step: 'step',
+  completedBy: 'completedBy',
+  department: 'department',
+  note: 'note',
+  completedAt: 'completedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -345,7 +408,12 @@ exports.Prisma.ModelName = {
   BusinessType: 'BusinessType',
   PostalData: 'PostalData',
   Competitor: 'Competitor',
-  TelesalesKPI: 'TelesalesKPI'
+  TelesalesKPI: 'TelesalesKPI',
+  Order: 'Order',
+  OrderStatusLog: 'OrderStatusLog',
+  Job: 'Job',
+  JobRunningNumber: 'JobRunningNumber',
+  JobStepLog: 'JobStepLog'
 };
 
 /**

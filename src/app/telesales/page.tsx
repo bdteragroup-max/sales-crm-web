@@ -1,8 +1,6 @@
 import React from 'react';
-import Sidebar from '@/app/components/Sidebar';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
-
 import TelesalesClientPage from './TelesalesClientPage';
 
 export const dynamic = 'force-dynamic';
@@ -102,20 +100,17 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   ]);
 
   return (
-    <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
-      <Sidebar activeRoute="/telesales" userFullName={user?.fullName} userId={user?.id} userRole={user?.role} />
-      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
-        <TelesalesClientPage 
-          userFullName={user?.fullName} 
-          initialRecords={JSON.parse(JSON.stringify(telesales))}
-          totalCount={totalCount}
-          currentPage={page}
-          limit={limit}
-          todayCallsCount={todayCallsCount}
-          todayInterestedCount={todayInterestedCount}
-          todayCallbacksCount={todayCallbacksCount}
-        />
-      </main>
-    </div>
+    <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
+      <TelesalesClientPage 
+        userFullName={user?.fullName} 
+        initialRecords={JSON.parse(JSON.stringify(telesales))}
+        totalCount={totalCount}
+        currentPage={page}
+        limit={limit}
+        todayCallsCount={todayCallsCount}
+        todayInterestedCount={todayInterestedCount}
+        todayCallbacksCount={todayCallbacksCount}
+      />
+    </main>
   );
 }

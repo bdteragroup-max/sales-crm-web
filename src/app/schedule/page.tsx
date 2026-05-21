@@ -2,7 +2,6 @@ import { decrypt } from '@/app/lib/session'
 import { cookies } from 'next/headers'
 import prisma from '@/app/lib/db'
 import { redirect } from 'next/navigation'
-import Sidebar from '@/app/components/Sidebar'
 import ScheduleClientPage from './ScheduleClientPage'
 import { getStaffSchedules } from '@/app/actions/schedule'
 
@@ -44,17 +43,14 @@ export default async function SchedulePage() {
   const businessTypes = businessTypesData.map((bt: any) => bt.name);
 
   return (
-    <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
-      <Sidebar activeRoute="/schedule" userFullName={user.fullName} userId={user.employeeId} userRole={user.role} />
-      <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 md:p-6 bg-white pb-24 md:pb-6">
-        <ScheduleClientPage
-          initialSchedules={initialSchedules}
-          staffList={staff}
-          businessTypes={businessTypes}
-          userRole={user.role}
-          currentUserId={user.id}
-        />
-      </main>
-    </div>
-  )
+    <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 md:p-6 bg-white pb-24 md:pb-6">
+      <ScheduleClientPage
+        initialSchedules={initialSchedules}
+        staffList={staff}
+        businessTypes={businessTypes}
+        userRole={user.role}
+        currentUserId={user.id}
+      />
+    </main>
+  );
 }

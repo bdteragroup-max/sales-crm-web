@@ -64,6 +64,7 @@ interface DashboardUIProps {
       appointmentGoal: number;
       connectionRateMin: number;
     };
+    orderMetrics?: any[];
   };
   recentActivities: any[];
   nextMeetings: any[];
@@ -449,6 +450,31 @@ export default function DashboardUI({
             />
           </section>
 
+          {/* 1.1 ORDER FULFILLMENT METRICS */}
+          {metrics.orderMetrics && metrics.orderMetrics.length > 0 && (
+            <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
+              <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                <Package size={16} className="text-blue-600" />
+                สถานะการจัดส่งออเดอร์ (Post-Sales Order Fulfillment)
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {['รอยืนยัน', 'กำลังผลิต', 'กำลังจัดส่ง', 'เสร็จสิ้น'].map(status => {
+                  const data = metrics.orderMetrics?.find((m: any) => m.status === status);
+                  const count = data?._count?.id || 0;
+                  const value = data?._sum?.value || 0;
+                  return (
+                    <div key={status} className="bg-gray-50 rounded-2xl p-4 flex flex-col gap-1 border border-gray-100">
+                      <span className="text-[11px] font-black text-gray-500 uppercase tracking-wider">{status}</span>
+                      <span className="text-xl font-black text-gray-900">{count} ออเดอร์</span>
+                      <span className="text-[10px] font-bold text-gray-400">มูลค่า ฿{(value / 1000000).toFixed(2)}M</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+
           {/* 1.5 PRIORITIZED ALERTS BANNER */}
           {alerts.length > 0 && (
             <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
@@ -566,8 +592,8 @@ export default function DashboardUI({
                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">ดีลใหม่เข้าท่อ (New)</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-black text-gray-900">{metrics.pipelineFlow.current.newDeals} ดีล</span>
-                  <span className={`text-[10px] font-black ${metrics.pipelineFlow.mom.newPct >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {metrics.pipelineFlow.mom.newPct >= 0 ? '▲' : '▼'} {Math.abs(metrics.pipelineFlow.mom.newPct).toFixed(1)}%
+                  <span className={`flex items-center gap-0.5 text-[10px] font-black ${metrics.pipelineFlow.mom.newPct >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {metrics.pipelineFlow.mom.newPct >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {Math.abs(metrics.pipelineFlow.mom.newPct).toFixed(1)}%
                   </span>
                 </div>
                 <span className="text-[9px] font-bold text-gray-400">เดือนก่อน: {metrics.pipelineFlow.previous.newDeals} ดีล</span>
@@ -588,8 +614,8 @@ export default function DashboardUI({
                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">ปิดการขายสำเร็จ (Won)</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-black text-green-600">{metrics.pipelineFlow.current.wonDeals} ดีล</span>
-                  <span className={`text-[10px] font-black ${metrics.pipelineFlow.mom.wonPct >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {metrics.pipelineFlow.mom.wonPct >= 0 ? '▲' : '▼'} {Math.abs(metrics.pipelineFlow.mom.wonPct).toFixed(1)}%
+                  <span className={`flex items-center gap-0.5 text-[10px] font-black ${metrics.pipelineFlow.mom.wonPct >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {metrics.pipelineFlow.mom.wonPct >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {Math.abs(metrics.pipelineFlow.mom.wonPct).toFixed(1)}%
                   </span>
                 </div>
                 <span className="text-[9px] font-bold text-gray-400">เดือนก่อน: {metrics.pipelineFlow.previous.wonDeals} ดีล</span>
@@ -600,8 +626,8 @@ export default function DashboardUI({
                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">ปิดไม่สำเร็จ (Lost)</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-black text-red-500">{metrics.pipelineFlow.current.lostDeals} ดีล</span>
-                  <span className={`text-[10px] font-black ${metrics.pipelineFlow.mom.lostPct >= 0 ? 'text-red-500' : 'text-green-500'}`}>
-                    {metrics.pipelineFlow.mom.lostPct >= 0 ? '▲' : '▼'} {Math.abs(metrics.pipelineFlow.mom.lostPct).toFixed(1)}%
+                  <span className={`flex items-center gap-0.5 text-[10px] font-black ${metrics.pipelineFlow.mom.lostPct >= 0 ? 'text-red-500' : 'text-green-500'}`}>
+                    {metrics.pipelineFlow.mom.lostPct >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {Math.abs(metrics.pipelineFlow.mom.lostPct).toFixed(1)}%
                   </span>
                 </div>
                 <span className="text-[9px] font-bold text-gray-400">เดือนก่อน: {metrics.pipelineFlow.previous.lostDeals} ดีล</span>
@@ -614,8 +640,8 @@ export default function DashboardUI({
                   <span className={`text-2xl font-black ${metrics.pipelineFlow.current.netChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {metrics.pipelineFlow.current.netChange >= 0 ? '+' : ''}{metrics.pipelineFlow.current.netChange} ดีล
                   </span>
-                  <span className={`text-[10px] font-black ${metrics.pipelineFlow.mom.netPct >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {metrics.pipelineFlow.mom.netPct >= 0 ? '▲' : '▼'} {Math.abs(metrics.pipelineFlow.mom.netPct).toFixed(1)}%
+                  <span className={`flex items-center gap-0.5 text-[10px] font-black ${metrics.pipelineFlow.mom.netPct >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {metrics.pipelineFlow.mom.netPct >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {Math.abs(metrics.pipelineFlow.mom.netPct).toFixed(1)}%
                   </span>
                 </div>
                 <span className="text-[9px] font-bold text-gray-400">เดือนก่อน: {metrics.pipelineFlow.previous.netChange >= 0 ? '+' : ''}{metrics.pipelineFlow.previous.netChange} ดีล</span>
@@ -777,7 +803,7 @@ export default function DashboardUI({
                 {metrics.funnelStages.map((stage, idx) => {
                   if (idx === 0) return null; // First stage doesn't have a transition from prev
                   const prevStage = metrics.funnelStages[idx - 1];
-                  const transName = `${prevStage.name} ➔ ${stage.name}`;
+                  const transName = `${prevStage.name} → ${stage.name}`;
                   const rate = stage.conversionRate;
                   const colorClass = getConversionRateColor(rate);
                   
@@ -1436,7 +1462,8 @@ export default function DashboardUI({
                             <td className="p-4 text-[11px] font-bold text-slate-900">
                               {log.forwardTo ? (
                                 <div className="flex items-center gap-1 text-brand-red">
-                                  <span>➜ {log.forwardTo}</span>
+                                  <ArrowRight size={12} />
+                                  <span>{log.forwardTo}</span>
                                 </div>
                               ) : (
                                 <span className="text-slate-400">-</span>
@@ -1478,8 +1505,8 @@ function KPICard({ label, value, subValue, statusColor = '#4B5563', icon, trend,
       <div className="flex items-baseline gap-2">
         <h4 className="text-3xl font-black text-gray-900 tracking-tighter number" style={{ color: statusColor === '#4B5563' ? '#111827' : statusColor }}>{value}</h4>
         {trend !== undefined && (
-          <span className={`text-[10px] font-black number ${trend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {trend >= 0 ? '▲' : '▼'} {Math.abs(trend).toFixed(1)}%
+          <span className={`flex items-center gap-0.5 text-[10px] font-black number ${trend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {trend >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {Math.abs(trend).toFixed(1)}%
           </span>
         )}
       </div>

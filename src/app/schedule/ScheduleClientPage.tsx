@@ -256,7 +256,7 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
                             <p className="text-[10px] text-gray-400 font-medium mt-0.5 line-clamp-1">{schedule.description}</p>
                           )}
                           {schedule.presentationStatus && (
-                            <p className="text-[10px] font-bold text-brand-red mt-1">● {schedule.presentationStatus}</p>
+                            <p className="flex items-center gap-1.5 text-[10px] font-bold text-brand-red mt-1"><span className="w-1.5 h-1.5 rounded-full bg-brand-red shrink-0 inline-block" /> {schedule.presentationStatus}</p>
                           )}
                           {(schedule.quotationNumber || schedule.poNumber || schedule.invoiceNumber) && (
                             <div className="flex flex-wrap gap-1.5 mt-1.5">

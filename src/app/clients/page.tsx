@@ -1,6 +1,5 @@
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
-import Sidebar from '@/app/components/Sidebar';
 import ClientsClientPage from '@/app/clients/ClientsClientPage';
 import { unstable_cache } from 'next/cache';
 
@@ -225,23 +224,20 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
-      <Sidebar activeRoute="/clients" userFullName={user?.fullName} userId={user?.id} userRole={user?.role} />
-      <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
-        <ClientsClientPage
-          initialCompanies={JSON.parse(JSON.stringify(companies))}
-          initialContacts={JSON.parse(JSON.stringify(contacts))}
-          companiesCount={companiesCount}
-          contactsCount={contactsCount}
-          allCompanies={JSON.parse(JSON.stringify(allCompaniesMinimal))}
-          salesReps={JSON.parse(JSON.stringify(salesReps))}
-          businessTypes={JSON.parse(JSON.stringify(businessTypes))}
-          provinces={provinces}
-          currentPage={page}
-          limit={limit}
-          currentUser={user ? { id: user.id, fullName: user.fullName, role: user.role } : null}
-        />
-      </main>
-    </div>
+    <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
+      <ClientsClientPage
+        initialCompanies={JSON.parse(JSON.stringify(companies))}
+        initialContacts={JSON.parse(JSON.stringify(contacts))}
+        companiesCount={companiesCount}
+        contactsCount={contactsCount}
+        allCompanies={JSON.parse(JSON.stringify(allCompaniesMinimal))}
+        salesReps={JSON.parse(JSON.stringify(salesReps))}
+        businessTypes={JSON.parse(JSON.stringify(businessTypes))}
+        provinces={provinces}
+        currentPage={page}
+        limit={limit}
+        currentUser={user ? { id: user.id, fullName: user.fullName, role: user.role } : null}
+      />
+    </main>
   );
 }

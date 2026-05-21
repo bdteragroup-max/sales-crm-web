@@ -1162,9 +1162,9 @@ export function TelesalesFunnelChart({
                 ค่าเฉลี่ยทีม (Team Benchmark): <strong className="text-slate-500">{stage.benchmark.toFixed(1)}%</strong>
               </span>
               {stage.pct >= stage.benchmark ? (
-                <span className="text-emerald-600 font-black">▲ สูงกว่าค่าเฉลี่ย (+{(stage.pct - stage.benchmark).toFixed(1)}%)</span>
+                <span className="text-emerald-600 font-black">&#8593; สูงกว่าค่าเฉลี่ย (+{(stage.pct - stage.benchmark).toFixed(1)}%)</span>
               ) : (
-                <span className="text-rose-500 font-black">▼ ต่ำกว่าค่าเฉลี่ย ({(stage.pct - stage.benchmark).toFixed(1)}%)</span>
+                <span className="text-rose-500 font-black">&#8595; ต่ำกว่าค่าเฉลี่ย ({(stage.pct - stage.benchmark).toFixed(1)}%)</span>
               )}
             </div>
           )}
