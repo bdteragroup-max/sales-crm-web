@@ -251,7 +251,7 @@ export default function JobsClientPage({
       setJobs((prev) => 
         prev.map((j) => 
           j.id === id 
-            ? { ...j, ...data, ...(data.dateClosed ? { dateClosed: new Date(data.dateClosed) } : {}) } 
+            ? { ...j, ...data, ...(data.dateClosed ? { dateClosed: new Date(data.dateClosed) } : {}) } as any
             : j 
         ) 
       ); 
