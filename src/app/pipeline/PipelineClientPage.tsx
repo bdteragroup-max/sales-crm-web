@@ -269,7 +269,7 @@ export default function PipelineClientPage({
     await executeMove(id, nextDbStatus)
   }
 
-  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string }) => {
+  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string }) => {
     const oldQuotations = [...quotations]
     setQuotations(prev => {
       const updated = prev.map(q => q.id === id ? { 
