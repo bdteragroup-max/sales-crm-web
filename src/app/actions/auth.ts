@@ -7,6 +7,7 @@ import { createSession, deleteSession } from '@/app/lib/session'
 import { redirect } from 'next/navigation'
 import bcrypt from 'bcryptjs'
 import prisma from '@/app/lib/db'
+import { teraDb } from '@/app/lib/teraDb'
 import { getUser } from '@/app/lib/dal'
 
 
@@ -23,33 +24,92 @@ export async function login(state: FormState, formData: FormData) {
     }
   }
 
-  const { employeeId, password } = validatedFields.data
+  const { employeeId: rawEmployeeId, password } = validatedFields.data
+  const employeeId = rawEmployeeId.trim().toUpperCase();
 
-  // Find user
-  const user = await prisma.user.findUnique({
-    where: { employeeId }
-  })
+  let redirectPath = '/dashboard';
 
-  if (!user || !user.isActive) {
+  try {
+    // 1. Retrieve data from TERA_db. 
+    const employee = await teraDb.employees.findUnique({
+      where: { emp_id: employeeId },
+      include: {
+        departments: true,
+        job_positions: true,
+      }
+    })
+
+    if (!employee || !employee.is_active) {
+      console.log(`Failed login: emp_id '${employeeId}' not found or inactive. DB Result:`, employee ? 'Found but inactive' : 'Not found');
+      return {
+        message: 'รหัสพนักงานไม่ถูกต้อง หรือบัญชีของท่านถูกระงับการใช้งาน'
+      }
+    }
+
+    // 2. verify pin_hash
+    const passwordMatch = await bcrypt.compare(password, employee.pin_hash || '')
+
+    if (!passwordMatch) {
+      console.log(`Failed login: Password mismatch for ${employeeId}`);
+      return {
+        message: 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง'
+      }
+    }
+
+    // 3. Map department/job_position → CRM role
+    const title = employee.job_positions?.title || ''
+    const deptName = employee.departments?.name || ''
+    
+    let crmRole = 'ตัวแทนฝ่ายขาย'
+    
+    const salesDepts = ['sales', 'automation', 'telesales', 'solar pump', 'solar roof', 'support', 'business development', 'บริหาร']
+    const isSalesDept = deptName ? salesDepts.some(d => deptName.toLowerCase().includes(d)) : false
+    
+    if (deptName && !isSalesDept) {
+      crmRole = 'อื่นๆ'
+    } else {
+      if (/(MGR|Mgr|Sup|Manager|MD|Director|Executive|บริหาร)/i.test(title)) {
+        crmRole = 'ผู้จัดการ'
+      }
+    }
+
+    // 4. Upsert user in CRM DB
+    const crmUser = await prisma.user.upsert({
+      where: { employeeId },
+      update: {
+        fullName: employee.name,
+        phoneNumber: employee.phone_number || null,
+        role: crmRole,
+        password: employee.pin_hash || '',
+        isActive: true,
+      },
+      create: {
+        employeeId,
+        fullName: employee.name,
+        phoneNumber: employee.phone_number || null,
+        role: crmRole,
+        password: employee.pin_hash || '',
+        isActive: true,
+      }
+    })
+
+    // 5. Create session
+    await createSession(crmUser.id)
+
+    // 6. Set redirect path for non-sales roles
+    if (crmRole === 'อื่นๆ') {
+      redirectPath = '/department';
+    }
+
+  } catch (error) {
+    console.error('Login error:', error)
     return {
-      message: 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง หรือบัญชีของท่านถูกระงับการใช้งาน'
+      message: 'เกิดข้อผิดพลาดในการเชื่อมต่อระบบ กรุณาลองใหม่อีกครั้ง'
     }
   }
-
-  // Check password
-  const passwordMatch = await bcrypt.compare(password, user.password)
-
-  if (!passwordMatch) {
-    return {
-      message: 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง'
-    }
-  }
-
-  // Create session
-  await createSession(user.id)
 
   // Redirect
-  redirect('/dashboard')
+  redirect(redirectPath)
 }
 
 export async function logout() {

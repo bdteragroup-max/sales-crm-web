@@ -1,6 +1,7 @@
 import React from 'react';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
+import { teraDb } from '@/app/lib/teraDb';
 import DashboardUI from '@/app/components/DashboardUI';
 import { redirect } from 'next/navigation';
 
@@ -74,26 +75,35 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   const yoyEnd = new Date(filterEnd); yoyEnd.setFullYear(yoyEnd.getFullYear() - 1);
 
   // 0. Fetch subordinates and the manager themselves to allow managers to view and select their own sales
-  const salesReps = isManager ? await prisma.user.findMany({
-    select: { 
-      id: true, 
-      fullName: true, 
-      role: true,
-      employeeSale: {
-        select: {
-          branch: true,
-          position: true
+  let salesReps: any[] = [];
+  if (isManager) {
+    const subordinates = await teraDb.employees.findMany({
+      where: { supervisor_id: user.employeeId, is_active: true },
+      select: { emp_id: true }
+    });
+    const subEmpIds = subordinates.map(s => s.emp_id);
+
+    salesReps = await prisma.user.findMany({
+      select: { 
+        id: true, 
+        fullName: true, 
+        role: true,
+        employeeSale: {
+          select: {
+            branch: true,
+            position: true
+          }
         }
+      },
+      where: {
+        OR: [
+          { employeeId: { in: subEmpIds } },
+          { id: user.id }
+        ],
+        isActive: true
       }
-    },
-    where: {
-      OR: [
-        { employeeSale: { teamLeader: user.fullName } },
-        { id: user.id }
-      ],
-      isActive: true
-    }
-  }) : [];
+    });
+  }
 
   const subordinateIds = salesReps.map((r: { id: string }) => r.id);
   const filterIds = isManager 

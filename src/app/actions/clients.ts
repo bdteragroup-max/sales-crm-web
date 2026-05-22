@@ -1,16 +1,18 @@
 'use server'
 
 import prisma from '@/app/lib/db'
+import { teraDb } from '@/app/lib/teraDb'
 import { revalidatePath } from 'next/cache'
 
 export async function getLocationsByPostalCode(postalCode: string) {
   try {
-    return await prisma.postalData.findMany({
-      where: { postalCode },
-      select: { subDistrict: true, district: true, province: true },
-      distinct: ['subDistrict', 'district', 'province'],
-      orderBy: [{ province: 'asc' }, { district: 'asc' }, { subDistrict: 'asc' }]
-    });
+    const results = await teraDb.$queryRaw<any[]>`
+      SELECT DISTINCT "subDistrict", "district", "province"
+      FROM "PostalData"
+      WHERE "postalCode" = ${postalCode}
+      ORDER BY "province" ASC, "district" ASC, "subDistrict" ASC
+    `;
+    return results;
   } catch (error) {
     console.error('Error fetching locations by postal code:', error);
     return [];
@@ -165,21 +167,23 @@ export async function createContact(formData: any) {
 }
 
 export async function getDistricts(province: string) {
-  return await prisma.postalData.findMany({
-    where: { province },
-    select: { district: true },
-    distinct: ['district'],
-    orderBy: { district: 'asc' }
-  });
+  const results = await teraDb.$queryRaw<any[]>`
+    SELECT DISTINCT "district"
+    FROM "PostalData"
+    WHERE "province" = ${province}
+    ORDER BY "district" ASC
+  `;
+  return results;
 }
 
 export async function getSubDistricts(province: string, district: string) {
-  return await prisma.postalData.findMany({
-    where: { province, district },
-    select: { subDistrict: true, postalCode: true },
-    distinct: ['subDistrict'],
-    orderBy: { subDistrict: 'asc' }
-  });
+  const results = await teraDb.$queryRaw<any[]>`
+    SELECT DISTINCT "subDistrict", "postalCode"
+    FROM "PostalData"
+    WHERE "province" = ${province} AND "district" = ${district}
+    ORDER BY "subDistrict" ASC
+  `;
+  return results;
 }
 
 export async function searchPostalData(query: string) {

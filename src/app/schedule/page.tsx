@@ -1,6 +1,7 @@
 import { decrypt } from '@/app/lib/session'
 import { cookies } from 'next/headers'
 import prisma from '@/app/lib/db'
+import { teraDb } from '@/app/lib/teraDb'
 import { redirect } from 'next/navigation'
 import ScheduleClientPage from './ScheduleClientPage'
 import { getStaffSchedules } from '@/app/actions/schedule'
@@ -21,21 +22,33 @@ export default async function SchedulePage() {
     redirect('/')
   }
 
+  let staffPromise;
+  if (user.role === 'ผู้จัดการ') {
+    staffPromise = teraDb.employees.findMany({
+      where: { supervisor_id: user.employeeId, is_active: true },
+      select: { emp_id: true }
+    }).then(async (subordinates) => {
+      const subEmpIds = subordinates.map(s => s.emp_id);
+      return prisma.user.findMany({
+        where: {
+          isActive: true,
+          OR: [
+            { employeeId: { in: subEmpIds } },
+            { id: user.id }
+          ]
+        },
+        select: { id: true, fullName: true },
+        orderBy: { fullName: 'asc' }
+      });
+    });
+  } else {
+    staffPromise = Promise.resolve([{ id: user.id, fullName: user.fullName }]);
+  }
+
   // Parallel fetch staff list and schedules
   const [schedulesResponse, staff, businessTypesData] = await Promise.all([
     getStaffSchedules(user),
-    user.role === 'ผู้จัดการ' 
-      ? prisma.user.findMany({
-          where: { 
-            isActive: true,
-            OR: [
-              { employeeSale: { teamLeader: user.fullName } },
-              { id: user.id }
-            ]
-          },
-          select: { id: true, fullName: true }
-        })
-      : Promise.resolve([{ id: user.id, fullName: user.fullName }]),
+    staffPromise,
     prisma.businessType.findMany({ orderBy: { name: 'asc' } })
   ]);
 

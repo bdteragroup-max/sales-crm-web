@@ -274,7 +274,7 @@ export default function OrdersClientPage({
                               {fmtMoney(order.value)}
                             </p>
                             
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 notranslate" translate="no">
                               <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-black">
                                 {initials.toUpperCase()}
                               </div>

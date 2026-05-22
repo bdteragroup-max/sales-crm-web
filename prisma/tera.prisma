@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/tera-client"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model employees {
+  emp_id                  String         @id @db.VarChar(20)
+  name                    String
+  nickname                String?        @db.VarChar(50)
+  pin_hash                String?
+  is_active               Boolean
+  department_id           Int?
+  job_position_id         Int?
+  supervisor_id           String?        @db.VarChar(20)
+  secondary_supervisor_id String?        @db.VarChar(20)
+  phone_number            String?        @db.VarChar(20)
+  email                   String?        @db.VarChar(100)
+  branch_id               String?        @db.VarChar(10)
+  gender                  String?        @db.VarChar(1)
+  hire_date               DateTime?      @db.Date
+  birth_date              DateTime?      @db.Date
+  base_salary             Decimal?       @db.Decimal(12, 2)
+  otp_code                String?        @db.VarChar(6)
+  otp_expires_at          DateTime?      @db.Timestamptz(6)
+  bank_account_no         String?        @db.VarChar(50)
+  bank_name               String?        @db.VarChar(100)
+  is_on_trial             Boolean?       @default(false)
+  has_telephone_allowance Boolean?       @default(false)
+  position_allowance      Decimal?       @default(0) @db.Decimal(12, 2)
+  address                 String?
+  national_id_card        String?        @db.VarChar(20)
+  salary_type             String?        @default("monthly") @db.VarChar(20)
+  line_user_id            String?        @unique @db.VarChar(50)
+  is_checkin_exempt       Boolean?       @default(false)
+  probation_end_date      DateTime?      @db.Date
+  resignation_date        DateTime?      @db.Date
+  created_at              DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime?      @default(now()) @db.Timestamptz(6)
+
+  departments             departments?   @relation(fields: [department_id], references: [id])
+  job_positions           job_positions? @relation(fields: [job_position_id], references: [id])
+  supervisor              employees?     @relation("Supervisor", fields: [supervisor_id], references: [emp_id], onDelete: NoAction, onUpdate: NoAction)
+  subordinates            employees[]    @relation("Supervisor")
+  secondary_supervisor    employees?     @relation("SecSupervisor", fields: [secondary_supervisor_id], references: [emp_id], onDelete: NoAction, onUpdate: NoAction)
+  secondary_subordinates  employees[]    @relation("SecSupervisor")
+}
+
+model departments {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(100)
+  created_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  employees     employees[]
+  job_positions job_positions[]
+}
+
+model job_positions {
+  id             Int             @id @default(autoincrement())
+  department_id  Int?
+  parent_id      Int?
+  title          String          @db.VarChar(100)
+  node_type      String?         @default("staff") @db.VarChar(20)
+  order_index    Int?            @default(0)
+  is_ot_eligible Boolean         @default(true)
+  created_at     DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime?       @default(now()) @db.Timestamptz(6)
+  employees      employees[]
+  departments    departments?    @relation(fields: [department_id], references: [id])
+  parent         job_positions?  @relation("PositionHierarchy", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children       job_positions[] @relation("PositionHierarchy")
+}

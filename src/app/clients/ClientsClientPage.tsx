@@ -197,6 +197,7 @@ export default function ClientsClientPage({
 
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
+  const [defaultCompanyIdForNewContact, setDefaultCompanyIdForNewContact] = useState<string>('');
 
   // Address Cascading State for Editing Company
   const [editDistricts, setEditDistricts] = useState<string[]>([]);
@@ -551,7 +552,10 @@ export default function ClientsClientPage({
             เพิ่มบริษัทใหม่
           </button>
           <button 
-            onClick={() => setIsContactModalOpen(true)}
+            onClick={() => {
+              setDefaultCompanyIdForNewContact('');
+              setIsContactModalOpen(true);
+            }}
             className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-all shadow-sm active:scale-95 text-sm"
           >
             <Plus size={18} className="text-red-500" />
@@ -765,16 +769,29 @@ export default function ClientsClientPage({
                         <Users size={12} className="text-red-500" />
                         <span>ผู้ติดต่อ ({company.contacts.length} คน)</span>
                       </p>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditCompany(company);
-                        }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs rounded-xl shadow-sm transition-all"
-                      >
-                        <Building2 size={12} /> แก้ไขข้อมูลบริษัท/ลูกค้า
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDefaultCompanyIdForNewContact(company.id);
+                            setIsContactModalOpen(true);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-black text-xs rounded-xl shadow-sm transition-all border border-blue-100"
+                        >
+                          <Plus size={12} /> เพิ่มผู้ติดต่อ
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditCompany(company);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs rounded-xl shadow-sm transition-all"
+                        >
+                          <Building2 size={12} /> แก้ไขข้อมูลบริษัท/ลูกค้า
+                        </button>
+                      </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {company.contacts.map((contact) => (
@@ -827,16 +844,29 @@ export default function ClientsClientPage({
                     <span className="flex items-center gap-2">
                       <Plus size={14} /> ยังไม่มีผู้ติดต่อในบริษัทนี้
                     </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditCompany(company);
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs rounded-xl shadow-sm transition-all"
-                    >
-                      <Building2 size={12} /> แก้ไขข้อมูลบริษัท/ลูกค้า
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDefaultCompanyIdForNewContact(company.id);
+                          setIsContactModalOpen(true);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-black text-xs rounded-xl shadow-sm transition-all border border-blue-100"
+                      >
+                        <Plus size={12} /> เพิ่มผู้ติดต่อ
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditCompany(company);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs rounded-xl shadow-sm transition-all"
+                      >
+                        <Building2 size={12} /> แก้ไขข้อมูลบริษัท/ลูกค้า
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1377,7 +1407,7 @@ export default function ClientsClientPage({
             }} className="p-8 space-y-5">
               <div className="space-y-2">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สังกัดบริษัท *</label>
-                <select required name="companyId" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
+                <select required name="companyId" defaultValue={defaultCompanyIdForNewContact} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
                   <option value="">-- เลือกบริษัท --</option>
                   {allCompanies.map(comp => (
                     <option key={comp.id} value={comp.id}>{comp.companyName}</option>

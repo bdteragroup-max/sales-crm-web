@@ -9,7 +9,8 @@ export type StepDef = {
 
 export type FlowVariantQuestion = {
   question: string
-  options:  { label: string; value: string }[]
+  askedAtStep: string
+  options:  { label: string; value: string; icon?: string }[]
 }
 
 export type WorkflowDef = {
@@ -31,9 +32,10 @@ export const WORKFLOWS: WorkflowDef[] = [
     jobType: "งานขาย",
     variantQuestion: {
       question: "มีสินค้าในสต๊อกหรือไม่?",
+      askedAtStep: "store",
       options: [
-        { label: "✅ มีของในสต๊อก",  value: "has_stock" },
-        { label: "❌ ไม่มีของ ต้องสั่งซื้อ", value: "no_stock" },
+        { label: "มีของในสต๊อก",  value: "has_stock", icon: "CheckCircle2" },
+        { label: "ไม่มีของ ต้องสั่งซื้อ", value: "no_stock", icon: "XCircle" },
       ],
     },
     flows: {
@@ -58,9 +60,10 @@ export const WORKFLOWS: WorkflowDef[] = [
     jobType: "งานซ่อม",
     variantQuestion: {
       question: "ซ่อมได้เองหรือต้องส่งนอก?",
+      askedAtStep: "service_issue",
       options: [
-        { label: "🔧 ซ่อมเองได้",       value: "self_repair" },
-        { label: "🏭 ต้องส่งซ่อมนอก",   value: "outsource" },
+        { label: "ซ่อมเองได้",       value: "self_repair", icon: "Wrench" },
+        { label: "ต้องส่งซ่อมนอก",   value: "outsource", icon: "Factory" },
       ],
     },
     flows: {
@@ -74,7 +77,7 @@ export const WORKFLOWS: WorkflowDef[] = [
       outsource: [
         { key: "sales",           label: "Sales",              department: ["sales"] },
         { key: "service_issue",   label: "Service (ออกใบรับซ่อม)", department: ["service"], note: "ref. QT ใบรับซ่อม" },
-        { key: "outsource",       label: "ซ่อมนอกบริษัท",      department: ["service", "purchase"] },
+        { key: "outsource",       label: "ซ่อมนอกบริษัท",      department: ["service"] },
         { key: "purchase",        label: "Purchase",           department: ["purchase"] },
         { key: "service_done",    label: "Service (รับกลับ)",   department: ["service"] },
         { key: "accounting",      label: "บัญชี",               department: ["accounting"] },
@@ -97,12 +100,13 @@ export const WORKFLOWS: WorkflowDef[] = [
 
   // 4. งานขาย+ติดตั้ง
   {
-    jobType: "งานขาย+ติดตั้ง",
+    jobType: "งานขาย + ติดตั้ง",
     variantQuestion: {
       question: "มีสินค้า/อุปกรณ์ในสต๊อกหรือไม่?",
+      askedAtStep: "store",
       options: [
-        { label: "✅ มีของในสต๊อก",       value: "has_stock" },
-        { label: "❌ ไม่มีของ ต้องสั่ง/ผลิต", value: "no_stock" },
+        { label: "มีของในสต๊อก",       value: "has_stock", icon: "CheckCircle2" },
+        { label: "ไม่มีของ ต้องสั่ง/ผลิต", value: "no_stock", icon: "XCircle" },
       ],
     },
     flows: {
@@ -129,9 +133,10 @@ export const WORKFLOWS: WorkflowDef[] = [
     jobType: "งานตู้",
     variantQuestion: {
       question: "มีอุปกรณ์พร้อมหรือไม่?",
+      askedAtStep: "store",
       options: [
-        { label: "✅ มีอุปกรณ์พร้อม",     value: "has_stock" },
-        { label: "❌ ไม่มี ต้องผลิต/สั่ง", value: "no_stock" },
+        { label: "มีอุปกรณ์พร้อม",     value: "has_stock", icon: "CheckCircle2" },
+        { label: "ไม่มี ต้องผลิต/สั่ง", value: "no_stock", icon: "XCircle" },
       ],
     },
     flows: {
@@ -205,9 +210,10 @@ export const WORKFLOWS: WorkflowDef[] = [
     jobType: "งานเคลม",
     variantQuestion: {
       question: "มีของสำหรับซ่อมหรือไม่?",
+      askedAtStep: "service",
       options: [
-        { label: "✅ มีของ ซ่อมได้",          value: "has_stock" },
-        { label: "❌ ไม่มีของ ต้องตรวจราคา", value: "no_stock" },
+        { label: "มีของ ซ่อมได้",          value: "has_stock", icon: "CheckCircle2" },
+        { label: "ไม่มีของ ต้องตรวจราคา", value: "no_stock", icon: "XCircle" },
       ],
     },
     flows: {
@@ -238,7 +244,7 @@ export function getSteps(jobType: string, variant?: string | null): StepDef[] {
   const wf = getWorkflow(jobType)
   if (!wf) return []
   const key = variant ?? "default"
-  return wf.flows[key] ?? wf.flows["default"] ?? []
+  return wf.flows[key] ?? wf.flows["default"] ?? Object.values(wf.flows)[0] ?? []
 }
 
 export function getCurrentStepDef(jobType: string, currentStep: string, variant?: string | null): StepDef | undefined {

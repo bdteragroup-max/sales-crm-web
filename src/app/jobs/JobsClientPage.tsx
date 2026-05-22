@@ -172,6 +172,25 @@ function ExpandedRow({
             userDept={userDept}
             isManager={isManager}
           />
+          
+          {isManager && (
+            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
+              <span className="text-xs text-brand-red font-medium flex items-center gap-1">
+                <Edit2 size={10} /> 
+                แก้ไขสถานะแบบ Manual (สำหรับผู้จัดการ):
+              </span>
+              <select 
+                value={job.currentStep} 
+                onChange={(e) => onUpdate(job.id, { currentStep: e.target.value } as any)}
+                className="text-xs border rounded px-2 py-1 bg-white text-gray-600 focus:outline-none focus:border-brand-red"
+              >
+                <option value={job.currentStep}>-- เลือกสถานะใหม่ --</option>
+                {getCurrentStepDef(job.jobType, job.flowVariant)?.map(s => (
+                  <option key={s.key} value={s.key}>{s.label}</option>
+                )) || <option value={job.currentStep}>{job.currentStep}</option>}
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4 mb-4"> 
@@ -223,6 +242,25 @@ export default function JobsClientPage({
   const [filterMonth, setFilterMonth] = useState(""); 
   const [isPending, startTransition] = useTransition(); 
 
+  const normalizedDept = useMemo(() => {
+    const d = userDept.toLowerCase().trim()
+    const depts: string[] = []
+    if (d.includes('sale') || d.includes('ขาย') || d.includes('marketing') || d.includes('business development') || d.includes('การตลาด')) depts.push("sales")
+    if (d.includes('account') || d.includes('finance') || d.includes('บัญชี') || d.includes('การเงิน') || d.includes('ap ') || d.includes('ar ')) depts.push("accounting")
+    if (d.includes('store') || d.includes('warehouse') || d.includes('สโตร์') || d.includes('คลัง')) depts.push("store")
+    if (d.includes('service') || d.includes('บริการ') || d.includes('ซ่อม')) depts.push("service")
+    if (d.includes('purchase') || d.includes('จัดซื้อ')) depts.push("purchase")
+    if (d.includes('delivery') || d.includes('transport') || d.includes('จัดส่ง') || d.includes('ขนส่ง') || d.includes('driver') || d.includes('คนขับ')) depts.push("delivery")
+    if (d.includes('production') || d.includes('ผลิต')) depts.push("production")
+    
+    if (depts.length === 0) depts.push(d)
+    return depts
+  }, [userDept])
+
+  const [filterStatus, setFilterStatus] = useState<"all" | "pending">(
+    normalizedDept.includes("sales") ? "all" : "pending"
+  );
+
   // ── Unique months from data ── 
   const months = useMemo(() => { 
     const s = new Set(jobs.map((j) => `${j.yearBe}-${String(j.month).padStart(2, "0")}`)); 
@@ -240,9 +278,14 @@ export default function JobsClientPage({
         const [y, m] = filterMonth.split("-"); 
         if (j.yearBe !== +y || j.month !== +m) return false; 
       } 
+      if (filterStatus === "pending") {
+        if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)) return false;
+        const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant);
+        if (!stepDef?.department.some(dept => normalizedDept.includes(dept))) return false;
+      }
       return true; 
     }); 
-  }, [jobs, search, filterCo, filterType, filterMonth]); 
+  }, [jobs, search, filterCo, filterType, filterMonth, filterStatus, normalizedDept]); 
 
   // ── Handlers ── 
   function handleUpdate(id: string, data: UpdateJobPayload) { 
@@ -276,6 +319,36 @@ export default function JobsClientPage({
 
   const withPO = jobs.filter((j) => j.poNumber).length; 
 
+  const pendingActionCount = useMemo(() => {
+    return jobs.filter((j) => {
+      if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)) return false;
+      const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant);
+      return stepDef?.department.some(dept => normalizedDept.includes(dept));
+    }).length;
+  }, [jobs, normalizedDept]);
+
+  const completedOverallCount = useMemo(() => {
+    return jobs.filter((j) => isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)).length;
+  }, [jobs]);
+
+  const kpis = useMemo(() => {
+    if (normalizedDept.includes('sales')) {
+      return [
+        { label: 'งานทั้งหมด', value: jobs.length, color: 'text-gray-400', bg: 'bg-gray-50' },
+        { label: 'เดือนนี้', value: thisMonthCount, color: 'text-sky-500', bg: 'bg-sky-50' },
+        { label: 'มี PO แล้ว', value: withPO, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'ยังไม่มี PO', value: jobs.length - withPO, color: 'text-amber-500', bg: 'bg-amber-50' },
+      ];
+    } else {
+      return [
+        { label: 'งานทั้งหมด', value: jobs.length, color: 'text-gray-400', bg: 'bg-gray-50' },
+        { label: 'รอฉันดำเนินการ', value: pendingActionCount, color: 'text-amber-500', bg: 'bg-amber-50' },
+        { label: 'รอแผนกอื่น', value: jobs.length - pendingActionCount - completedOverallCount, color: 'text-sky-500', bg: 'bg-sky-50' },
+        { label: 'เสร็จสมบูรณ์', value: completedOverallCount, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+      ];
+    }
+  }, [normalizedDept, jobs.length, thisMonthCount, withPO, pendingActionCount, completedOverallCount]);
+
   return ( 
     <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm md:overflow-hidden overflow-visible"> 
 
@@ -296,12 +369,7 @@ export default function JobsClientPage({
 
       {/* ── KPI Summary Strip ── */}
       <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 border-b border-gray-100 divide-x divide-y md:divide-y-0 divide-gray-100">
-        {[
-          { label: 'งานทั้งหมด', value: jobs.length, color: 'text-gray-400', bg: 'bg-gray-50' },
-          { label: 'เดือนนี้', value: thisMonthCount, color: 'text-sky-500', bg: 'bg-sky-50' },
-          { label: 'มี PO แล้ว', value: withPO, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'ยังไม่มี PO', value: jobs.length - withPO, color: 'text-amber-500', bg: 'bg-amber-50' },
-        ].map(k => (
+        {kpis.map(k => (
           <div key={k.label} className={`flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 ${k.bg}`}>
             <div>
               <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{k.label}</p>
@@ -350,9 +418,17 @@ export default function JobsClientPage({
             return <option key={m} value={m}>{MONTH_NAMES[+mo]} 25{y}</option>; 
           })} 
         </select> 
-        {(search || filterCo || filterType || filterMonth) && ( 
+        <select 
+          value={filterStatus} 
+          onChange={(e) => setFilterStatus(e.target.value as "all" | "pending")} 
+          className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
+        > 
+          <option value="all">สถานะทั้งหมด</option> 
+          <option value="pending">รอฉันดำเนินการ</option> 
+        </select>
+        {(search || filterCo || filterType || filterMonth || filterStatus !== (normalizedDept === "sales" ? "all" : "pending")) && ( 
           <button 
-            onClick={() => { setSearch(""); setFilterCo(""); setFilterType(""); setFilterMonth(""); }} 
+            onClick={() => { setSearch(""); setFilterCo(""); setFilterType(""); setFilterMonth(""); setFilterStatus(normalizedDept === "sales" ? "all" : "pending"); }} 
             className="text-xs font-bold text-gray-400 hover:text-gray-700 transition-colors" 
           > 
             ล้างตัวกรอง

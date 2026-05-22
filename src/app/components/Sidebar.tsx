@@ -38,7 +38,12 @@ const repNav = [
 ];
 
 export default function Sidebar(props: SidebarProps) {
-  const nav = props.userRole === 'ผู้จัดการ' ? managerNav : repNav;
+  let nav = repNav;
+  if (props.userRole === 'ผู้จัดการ') {
+    nav = managerNav;
+  } else if (props.userRole === 'อื่นๆ') {
+    nav = []; // No top navigation for non-sales departments
+  }
   return <ResponsiveSidebar {...props} nav={nav} />;
 }
 
@@ -90,7 +95,7 @@ function ResponsiveSidebar({
         {/* Top brand logo and navigation */}
         <div className="flex flex-col items-center w-full shrink-0">
           {/* Logo mark */}
-          <Link href="/dashboard" className="w-12 h-12 bg-[#ff2301] rounded-2xl flex items-center justify-center shadow-lg shadow-red-100 hover:scale-105 transition-all duration-300">
+          <Link href={userRole === 'อื่นๆ' ? '/department' : '/dashboard'} className="w-12 h-12 bg-[#ff2301] rounded-2xl flex items-center justify-center shadow-lg shadow-red-100 hover:scale-105 transition-all duration-300">
             <TrendingUp size={22} className="text-white" strokeWidth={2.5} />
           </Link>
 
@@ -141,42 +146,45 @@ function ResponsiveSidebar({
           <div className="w-8 h-px bg-gray-100 my-1 shrink-0" />
 
           <Link
-            href="/jobs"
+            href={userRole === 'อื่นๆ' ? '/department' : '/jobs'}
             prefetch={true}
-            onMouseEnter={(e) => showTooltip('ระบบลงทะเบียนงาน (Jobs)', e)}
+            onMouseEnter={(e) => showTooltip(userRole === 'อื่นๆ' ? 'ระบบจัดการคิวงาน (Department)' : 'ระบบลงทะเบียนงาน (Jobs)', e)}
             onMouseLeave={hideTooltip}
             onClick={() => {
-              if (activeRoute !== '/jobs') {
-                setLoadingHref('/jobs');
+              const target = userRole === 'อื่นๆ' ? '/department' : '/jobs';
+              if (activeRoute !== target) {
+                setLoadingHref(target);
               }
             }}
             className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative group ${
-              activeRoute === '/jobs'
+              (activeRoute === '/jobs' || activeRoute === '/department')
                 ? 'bg-red-50 text-[#ff2301] shadow-sm border border-red-100'
                 : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
-            {loadingHref === '/jobs' ? (
+            {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
               <Loader2 size={20} className="animate-spin text-[#ff2301]" />
             ) : (
-              <Briefcase size={20} strokeWidth={activeRoute === '/jobs' ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
+              <Briefcase size={20} strokeWidth={(activeRoute === '/jobs' || activeRoute === '/department') ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
             )}
-            {activeRoute === '/jobs' && loadingHref !== '/jobs' && (
+            {(activeRoute === '/jobs' || activeRoute === '/department') && loadingHref !== (userRole === 'อื่นๆ' ? '/department' : '/jobs') && (
               <span className="absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full bg-[#ff2301] border border-white animate-pulse" />
             )}
           </Link>
 
-          <Link
-            href="/dashboard"
-            onMouseEnter={(e) => showTooltip('การแจ้งเตือน', e)}
-            onMouseLeave={hideTooltip}
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 relative group"
-          >
-            <Bell size={20} strokeWidth={2} className="transition-transform duration-200 group-hover:scale-105" />
-            <span
-              className="absolute top-3.5 right-3.5 w-1.5 h-1.5 rounded-full bg-red-500 border border-white"
-            />
-          </Link>
+          {userRole !== 'อื่นๆ' && (
+            <Link
+              href="/dashboard"
+              onMouseEnter={(e) => showTooltip('การแจ้งเตือน', e)}
+              onMouseLeave={hideTooltip}
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 relative group"
+            >
+              <Bell size={20} strokeWidth={2} className="transition-transform duration-200 group-hover:scale-105" />
+              <span
+                className="absolute top-3.5 right-3.5 w-1.5 h-1.5 rounded-full bg-red-500 border border-white"
+              />
+            </Link>
+          )}
 
           <Link
             href="/settings"
@@ -242,7 +250,7 @@ function ResponsiveSidebar({
       >
         {/* Brand header */}
         <div className="flex flex-col w-full">
-          <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3">
+          <Link href={userRole === 'อื่นๆ' ? '/department' : '/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#ff2301] rounded-xl flex items-center justify-center shadow-lg shadow-red-100">
               <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
             </div>
@@ -296,28 +304,29 @@ function ResponsiveSidebar({
           <div className="h-px bg-gray-100 w-full" />
 
           <Link
-            href="/jobs"
+            href={userRole === 'อื่นๆ' ? '/department' : '/jobs'}
             prefetch={true}
             onClick={() => {
-              if (activeRoute !== '/jobs') {
-                setLoadingHref('/jobs');
+              const target = userRole === 'อื่นๆ' ? '/department' : '/jobs';
+              if (activeRoute !== target) {
+                setLoadingHref(target);
               }
               setIsMobileMenuOpen(false);
             }}
             className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 transition-all duration-200 border ${
-              activeRoute === '/jobs'
+              (activeRoute === '/jobs' || activeRoute === '/department')
                 ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
                 : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
             }`}
           >
             <div className="shrink-0">
-              {loadingHref === '/jobs' ? (
+              {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
                 <Loader2 size={18} className="animate-spin text-[#ff2301]" />
               ) : (
-                <Briefcase size={18} strokeWidth={activeRoute === '/jobs' ? 2.5 : 2} />
+                <Briefcase size={18} strokeWidth={(activeRoute === '/jobs' || activeRoute === '/department') ? 2.5 : 2} />
               )}
             </div>
-            <span className="text-[14px] font-sans font-semibold tracking-wide">ระบบลงทะเบียนงาน (Jobs)</span>
+            <span className="text-[14px] font-sans font-semibold tracking-wide">{userRole === 'อื่นๆ' ? 'ระบบจัดการคิวงาน (Department)' : 'ระบบลงทะเบียนงาน (Jobs)'}</span>
           </Link>
 
           {/* Profile Card / Settings Link */}

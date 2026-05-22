@@ -1,6 +1,7 @@
 import React from 'react';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
+import { teraDb } from '@/app/lib/teraDb';
 import TelesalesClientPage from './TelesalesClientPage';
 
 export const dynamic = 'force-dynamic';
@@ -21,7 +22,28 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   const skip = (page - 1) * limit;
 
   // Base where clause based on role
-  const roleWhere = user?.role === 'ผู้จัดการ' ? {} : { userId: user?.id };
+  let roleWhere: any = { OR: [{ userId: user?.id }, { userId: null }] };
+  if (user?.role === 'ผู้จัดการ') {
+    const subordinates = await teraDb.employees.findMany({
+      where: { supervisor_id: user.employeeId, is_active: true },
+      select: { emp_id: true }
+    });
+    const subEmpIds = subordinates.map(s => s.emp_id);
+
+    const teamUsers = await prisma.user.findMany({
+      where: { employeeId: { in: subEmpIds }, isActive: true },
+      select: { id: true }
+    });
+    const subUserIds = teamUsers.map(u => u.id);
+
+    roleWhere = {
+      OR: [
+        { userId: { in: subUserIds } },
+        { userId: user.id },
+        { userId: null }
+      ]
+    };
+  }
 
   // Calculate timezone-safe "Today" boundaries for Bangkok timezone
   const nowBkk = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));

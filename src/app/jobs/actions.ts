@@ -12,6 +12,7 @@ export type UpdateJobPayload = {
   sellerName?: string;
   companyCode?: string;
   quotationNumber?: string;
+  currentStep?: string;
 };
 
 export async function updateJob(jobId: string, data: UpdateJobPayload) { 

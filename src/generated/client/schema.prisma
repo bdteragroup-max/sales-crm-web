@@ -90,7 +90,7 @@ model EmployeeSale {
   startDate  DateTime? @db.Timestamptz(6)
   user       User?     @relation(fields: [userId], references: [id])
 
-  @@map("Employee Sale")
+  @@map("employee_sales")
 }
 
 model Company {

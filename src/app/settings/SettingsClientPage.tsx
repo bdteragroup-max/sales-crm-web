@@ -228,30 +228,30 @@ export default function SettingsClientPage({
             <div className="space-y-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
               {staffList.map((staff) => (
                 <div key={staff.id} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-between gap-4 group hover:bg-white hover:shadow-md transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-50 text-brand-red font-black flex items-center justify-center border border-red-100 group-hover:bg-brand-red group-hover:text-white transition-all">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 text-brand-red font-black flex items-center justify-center shrink-0 border border-red-100 group-hover:bg-brand-red group-hover:text-white transition-all">
                       {staff.fullName.charAt(0)}
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-black text-gray-900 truncate">{staff.fullName}</p>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{staff.position || 'ตัวแทนฝ่ายขาย'}</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter truncate">{staff.position || 'ตัวแทนฝ่ายขาย'}</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3 shrink-0">
-                    <div className="relative w-32">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="relative w-28 sm:w-32">
                       <input 
                         type="number" 
                         value={targets[staff.id] || ''}
                         onChange={(e) => handleAmountChange(staff.id, e.target.value)}
                         placeholder="0"
-                        className="w-full bg-white border border-gray-200 rounded-xl py-2 px-3 text-sm font-black text-gray-900 outline-none focus:ring-2 focus:ring-red-100 focus:border-brand-red transition-all"
+                        className="w-full bg-white border border-gray-200 rounded-xl py-2.5 px-3 text-sm font-black text-gray-900 outline-none focus:ring-2 focus:ring-red-100 focus:border-brand-red transition-all"
                       />
                     </div>
                     <button 
                       onClick={() => handleSaveSales(staff.id)}
                       disabled={isSubmitting}
-                      className="p-2 text-brand-red hover:bg-red-50 rounded-lg transition-all"
+                      className="flex items-center justify-center bg-brand-red/10 text-brand-red hover:bg-brand-red hover:text-white rounded-xl w-10 h-10 transition-all shrink-0"
                       title="บันทึก"
                     >
                       <Save size={18} />

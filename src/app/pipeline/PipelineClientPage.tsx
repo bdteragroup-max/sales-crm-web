@@ -551,13 +551,7 @@ export default function PipelineClientPage({
           )
         })}
 
-        <div className="ml-auto shrink-0 flex items-center gap-2 border-l border-gray-100 pl-6">
-          <TrendingUp size={14} className="text-brand-red" />
-          <div>
-            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">มูลค่ารวม</p>
-            <p className="text-sm font-black text-brand-red">{fmtMoney(allActiveValue)}</p>
-          </div>
-        </div>
+
       </div>
 
       {/* ── Kanban Board ── */}
@@ -620,7 +614,8 @@ export default function PipelineClientPage({
                       const isLost = quotation.status?.startsWith('ปฏิเสธ') || quotation.status?.startsWith('ยกเลิก')
                       const isDragging = draggingId === quotation.id
                       const amount = Number(quotation.actualClosingAmount) || Number(quotation.totalAmountBeforeVat) || 0
-                      const salespersonName = quotation.salesperson?.fullName || ''
+                      const rawName = quotation.salesperson?.fullName || ''
+                      const salespersonName = rawName.replace(/u?undefined/ig, '').trim()
                       const initials = getInitials(salespersonName)
 
                       // Avatar color based on first char
@@ -751,13 +746,10 @@ export default function PipelineClientPage({
                                 </p>
                               </div>
 
-                              {/* Salesperson avatar */}
-                              <div className="flex items-center gap-1.5">
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black shrink-0 ${avatarColor}`}>
-                                  {initials.toUpperCase()}
-                                </div>
-                                <span className="text-[9px] font-bold text-gray-500 truncate max-w-[56px]" title={salespersonName}>
-                                  {salespersonName.split(' ')[0] || '—'}
+                              {/* Salesperson */}
+                              <div className="flex items-center gap-1.5 notranslate text-right" translate="no">
+                                <span className="text-[9px] font-bold text-gray-500 max-w-[100px] leading-tight break-words" title={salespersonName}>
+                                  {salespersonName || '—'}
                                 </span>
                               </div>
                             </div>

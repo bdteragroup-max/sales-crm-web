@@ -1,16 +1,19 @@
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
+import { teraDb } from '@/app/lib/teraDb';
 import ClientsClientPage from '@/app/clients/ClientsClientPage';
 import { unstable_cache } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
 
 async function getProvincesFromDb() {
-  return await prisma.postalData.findMany({
-    select: { province: true },
-    distinct: ['province'],
-    orderBy: { province: 'asc' }
-  });
+  const result = await teraDb.$queryRaw<{ province: string | null }[]>`
+    SELECT DISTINCT "province" 
+    FROM "PostalData" 
+    WHERE "province" IS NOT NULL 
+    ORDER BY "province" ASC
+  `;
+  return result.filter(r => r.province).map(r => ({ province: r.province as string }));
 }
 
 // Resilient caching wrapper for provinces
@@ -50,17 +53,42 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   const limit = 10;
   const skip = (page - 1) * limit;
 
+  let roleWhere: any = { OR: [{ assignedUserId: user?.id }, { assignedUserId: null }] };
+  if (user?.role === 'ผู้จัดการ') {
+    const subordinates = await teraDb.employees.findMany({
+      where: { supervisor_id: user.employeeId, is_active: true },
+      select: { emp_id: true }
+    });
+    const subEmpIds = subordinates.map(s => s.emp_id);
+    const teamUsers = await prisma.user.findMany({
+      where: { employeeId: { in: subEmpIds }, isActive: true },
+      select: { id: true }
+    });
+    const subUserIds = teamUsers.map(u => u.id);
+    
+    roleWhere = {
+      OR: [
+        { assignedUserId: { in: subUserIds } },
+        { assignedUserId: user.id },
+        { assignedUserId: null }
+      ]
+    };
+  }
+
   // Build database search filters
-  const companySearchFilter = search
-    ? {
+  const companySearchFilter = {
+    AND: [
+      roleWhere,
+      ...(search ? [{
         OR: [
           { companyName: { contains: search, mode: 'insensitive' as const } },
           { taxId: { contains: search, mode: 'insensitive' as const } },
           { businessType: { contains: search, mode: 'insensitive' as const } },
           { province: { contains: search, mode: 'insensitive' as const } },
         ],
-      }
-    : {};
+      }] : [])
+    ]
+  };
 
   const contactSearchFilter = search
     ? {
@@ -83,6 +111,24 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   let businessTypes: unknown[] = [];
   let provinces: string[] = [];
   let allCompaniesMinimal: unknown[] = [];
+
+  let salesRepsWhere: any = { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ'] }, isActive: true };
+  if (user?.role === 'ผู้จัดการ') {
+    const subordinates = await teraDb.employees.findMany({
+      where: { supervisor_id: user.employeeId, is_active: true },
+      select: { emp_id: true }
+    });
+    const subEmpIds = subordinates.map(s => s.emp_id);
+    salesRepsWhere = {
+      isActive: true,
+      OR: [
+        { employeeId: { in: subEmpIds } },
+        { id: user.id }
+      ]
+    };
+  } else if (user?.role === 'ตัวแทนฝ่ายขาย') {
+    salesRepsWhere = { id: user.id, isActive: true };
+  }
 
   try {
     // 0. Auto-unassign resigned/inactive administrators from companies
@@ -129,11 +175,21 @@ export default async function ClientsPage({ searchParams }: PageProps) {
           select: { createdAt: true, callDate: true }
         },
         quotations: {
+          where: {
+            NOT: {
+              OR: [
+                { status: { startsWith: 'ปิดการขาย' } },
+                { status: { startsWith: 'ยกเลิก' } },
+                { status: { startsWith: 'ปฏิเสธ' } }
+              ]
+            }
+          },
           orderBy: { createdAt: 'desc' },
           take: 1,
           select: {
             createdAt: true,
             quotationDate: true,
+            status: true,
             salesperson: {
               select: {
                 id: true,
@@ -168,7 +224,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
 
     // 5. Active Sales Representatives & Managers for dropdown
     prisma.user.findMany({
-      where: { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ'] }, isActive: true },
+      where: salesRepsWhere,
       select: { id: true, fullName: true, role: true, employeeSale: { select: { position: true } } }
     }),
 

@@ -41,7 +41,7 @@ export default function LoginPage() {
                   id="employeeId"
                   name="employeeId"
                   type="text"
-                  placeholder="EMP-001"
+                  placeholder="TG001"
                   className={`w-full bg-gray-50 border ${state?.errors?.employeeId ? 'border-brand-red' : 'border-gray-200'} group-hover:border-gray-300 focus:border-brand-red rounded-xl pl-12 pr-4 py-3 text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:ring-4 focus:ring-brand-red/10`}
                 />
               </div>
@@ -61,7 +61,7 @@ export default function LoginPage() {
                   id="password"
                   name="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="PIN / Password"
                   className={`w-full bg-gray-50 border ${state?.errors?.password ? 'border-brand-red' : 'border-gray-200'} group-hover:border-gray-300 focus:border-brand-red rounded-xl pl-12 pr-4 py-3 text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:ring-4 focus:ring-brand-red/10`}
                 />
               </div>

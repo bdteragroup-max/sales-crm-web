@@ -1,6 +1,7 @@
 import { decrypt } from '@/app/lib/session'
 import { cookies } from 'next/headers'
 import prisma from '@/app/lib/db'
+import { teraDb } from '@/app/lib/teraDb'
 import { redirect } from 'next/navigation'
 import PipelineClientPage from './PipelineClientPage'
 
@@ -29,41 +30,33 @@ export default async function PipelinePage({
 
   const isManager = user.role === 'ผู้จัดการ'
 
-  // Managers see everything; Reps see their own + any unassigned (salespersonId = null)
-  // Unassigned records occur from bulk-import or legacy entries without a salesperson linked
-  const whereClause = isManager
-    ? {}
-    : { OR: [{ salespersonId: user.id }, { salespersonId: null }] }
-
-  // For managers: first try to get team members via EmployeeSale.teamLeader relationship.
-  // If that returns only 1 record (just the manager themselves) the EmployeeSale table may
-  // not be fully configured — fall back to ALL active users so the pipeline is never empty.
   let teamMembers: { id: string; fullName: string }[] = []
   if (isManager) {
-    const teamViaRelation = await prisma.user.findMany({
+    const subordinates = await teraDb.employees.findMany({
+      where: { supervisor_id: user.employeeId, is_active: true },
+      select: { emp_id: true }
+    })
+    const subEmpIds = subordinates.map(s => s.emp_id)
+
+    teamMembers = await prisma.user.findMany({
       where: {
         isActive: true,
         OR: [
-          { employeeSale: { teamLeader: user.fullName } },
+          { employeeId: { in: subEmpIds } },
           { id: user.id }
         ]
       },
-      select: { id: true, fullName: true }
+      select: { id: true, fullName: true },
+      orderBy: { fullName: 'asc' }
     })
-
-    if (teamViaRelation.length <= 1) {
-      // Fallback: show all active users in the filter dropdown
-      teamMembers = await prisma.user.findMany({
-        where: { isActive: true },
-        select: { id: true, fullName: true },
-        orderBy: { fullName: 'asc' }
-      })
-    } else {
-      teamMembers = teamViaRelation
-    }
   } else {
     teamMembers = [{ id: user.id, fullName: user.fullName }]
   }
+
+  // Managers see their team's records + unassigned; Reps see their own + any unassigned
+  const whereClause = isManager
+    ? { OR: [{ salespersonId: { in: teamMembers.map(t => t.id) } }, { salespersonId: null }] }
+    : { OR: [{ salespersonId: user.id }, { salespersonId: null }] }
 
   // Parse Date Filters
   const dateField = (resolvedParams.dateField as string) || 'quotationDate'
@@ -97,15 +90,27 @@ export default async function PipelinePage({
     where: finalWhereClause,
     orderBy: { updatedAt: 'desc' },
     include: {
-      company: true,
-      contact: true,
       salesperson: {
         select: {
           id: true,
           fullName: true,
           role: true
         }
+      },
+      company: {
+        select: {
+          id: true,
+          companyName: true,
+          businessType: true
+        }
       }
+    }
+  })
+
+  // Sanitize bad salesperson names from legacy data
+  quotations.forEach(q => {
+    if (q.salesperson?.fullName) {
+      q.salesperson.fullName = q.salesperson.fullName.replace(/u?undefined/ig, '').trim()
     }
   })
 

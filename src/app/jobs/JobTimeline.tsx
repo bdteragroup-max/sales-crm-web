@@ -58,37 +58,52 @@ export default function JobTimeline({
   }
 
   // ตรวจว่า user กด confirm step นี้ได้มั้ย
-  // Normalize department name to handle cases like "Sales", "ฝ่ายขาย", etc.
-  const deptMap: Record<string, string> = {
-    "ฝ่ายขาย": "sales", "sales": "sales", "business development": "sales",
-    "สโตร์": "store", "store": "store",
-    "บริการ": "service", "service": "service",
-    "จัดซื้อ": "purchase", "purchase": "purchase",
-    "บัญชี": "accounting", "accounting": "accounting",
-    "จัดส่ง": "delivery", "delivery": "delivery",
-    "ผลิต": "production", "production": "production"
-  }
-  const normalizedDept = deptMap[userDept.toLowerCase().trim()] || userDept.toLowerCase().trim()
-  const canConfirm = activeStep?.department.includes(normalizedDept as any) ?? false
+  const normalizedDept = (() => {
+    const d = userDept.toLowerCase().trim()
+    const depts: string[] = []
+    if (d.includes('sale') || d.includes('ขาย') || d.includes('marketing') || d.includes('business development') || d.includes('การตลาด')) depts.push("sales")
+    if (d.includes('account') || d.includes('finance') || d.includes('บัญชี') || d.includes('การเงิน') || d.includes('ap ') || d.includes('ar ')) depts.push("accounting")
+    if (d.includes('store') || d.includes('warehouse') || d.includes('สโตร์') || d.includes('คลัง')) depts.push("store")
+    if (d.includes('service') || d.includes('บริการ') || d.includes('ซ่อม')) depts.push("service")
+    if (d.includes('purchase') || d.includes('จัดซื้อ')) depts.push("purchase")
+    if (d.includes('delivery') || d.includes('transport') || d.includes('จัดส่ง') || d.includes('ขนส่ง') || d.includes('driver') || d.includes('คนขับ')) depts.push("delivery")
+    if (d.includes('production') || d.includes('ผลิต')) depts.push("production")
+    
+    if (depts.length === 0) depts.push(d)
+    return depts
+  })()
+
+  // ผู้จัดการ หรือพนักงานแผนกนั้นๆ กดยืนยันได้
+  // แต่ manager ของ sales ก็กดได้เฉพาะ step sales เท่านั้น
+  const canConfirm = activeStep?.department.some(dept => normalizedDept.includes(dept)) ?? false
 
   // ── Variant Modal ──
   function VariantModal() {
     if (!wf?.variantQuestion) return null
+    
+    // Import icons dynamically for rendering
+    const { CheckCircle2, XCircle, Wrench, Factory } = require("lucide-react")
+    const ICON_MAP: Record<string, any> = { CheckCircle2, XCircle, Wrench, Factory }
+
     return (
       <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
         <div className="bg-white rounded-xl shadow-xl p-6 w-80">
           <p className="font-medium text-gray-800 mb-4">{wf.variantQuestion.question}</p>
           <div className="flex flex-col gap-2">
-            {wf.variantQuestion.options.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => handleConfirm(opt.value)}
-                disabled={isPending}
-                className="text-left px-4 py-2.5 rounded-lg border border-gray-200 hover:border-brand-red hover:bg-red-50 text-sm transition-colors"
-              >
-                {opt.label}
-              </button>
-            ))}
+            {wf.variantQuestion.options.map((opt) => {
+              const Icon = opt.icon ? ICON_MAP[opt.icon] : null;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => handleConfirm(opt.value)}
+                  disabled={isPending}
+                  className="text-left px-4 py-2.5 rounded-lg border border-gray-200 hover:border-brand-red hover:bg-red-50 text-sm transition-colors flex items-center gap-2"
+                >
+                  {Icon && <Icon size={16} />}
+                  <span>{opt.label}</span>
+                </button>
+              )
+            })}
           </div>
           <button
             onClick={() => setShowVariantModal(false)}
@@ -166,9 +181,9 @@ export default function JobTimeline({
           <button
             disabled={isPending}
             onClick={() => {
-              // step แรก + มี variantQuestion → เปิด modal ก่อน
-              const isFirstStep = steps.findIndex((s) => s.key === activeStep.key) === 0
-              if (isFirstStep && wf?.variantQuestion && !flowVariant) {
+              // ตรวจสอบว่า step นี้คือ step ที่ต้องตอบคำถาม variant หรือไม่
+              const isVariantStep = wf?.variantQuestion?.askedAtStep === activeStep.key;
+              if (isVariantStep && !flowVariant) {
                 setShowVariantModal(true)
               } else {
                 handleConfirm()

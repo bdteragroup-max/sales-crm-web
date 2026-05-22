@@ -1,6 +1,7 @@
 'use server'
 
 import prisma from '@/app/lib/db'
+import { teraDb } from '@/app/lib/teraDb'
 import { decrypt } from '@/app/lib/session'
 import { cookies } from 'next/headers'
 
@@ -21,20 +22,27 @@ export async function getStaffSchedules(preFetchedUser?: any) {
       return { success: false, error: 'User not found' }
     }
 
-    const whereClause = user.role === 'ผู้จัดการ' 
-      ? { 
-          OR: [
-            { 
-              user: { 
-                employeeSale: { 
-                  teamLeader: user.fullName 
-                } 
-              } 
-            },
-            { userId: user.id }
-          ]
-        } 
-      : { userId: user.id }
+    let whereClause: any = { userId: user.id }
+    if (user.role === 'ผู้จัดการ') {
+      const subordinates = await teraDb.employees.findMany({
+        where: { supervisor_id: user.employeeId, is_active: true },
+        select: { emp_id: true }
+      })
+      const subEmpIds = subordinates.map(s => s.emp_id)
+
+      const teamUsers = await prisma.user.findMany({
+        where: { employeeId: { in: subEmpIds }, isActive: true },
+        select: { id: true }
+      })
+      const subUserIds = teamUsers.map(u => u.id)
+
+      whereClause = {
+        OR: [
+          { userId: { in: subUserIds } },
+          { userId: user.id }
+        ]
+      }
+    }
 
     const schedules = await prisma.schedule.findMany({
       where: whereClause,
@@ -91,12 +99,17 @@ export async function createSchedule(data: { userId: string, title: string, desc
     } else {
       // Manager check: is targetUserId a subordinate or self?
       if (targetUserId !== user.id) {
+        // Fetch subordinates from TERA_db to verify
+        const subordinates = await teraDb.employees.findMany({
+          where: { supervisor_id: user.employeeId, is_active: true },
+          select: { emp_id: true }
+        });
+        const subEmpIds = subordinates.map(s => s.emp_id);
+        
         const subordinate = await prisma.user.findFirst({
           where: {
             id: targetUserId,
-            employeeSale: {
-              teamLeader: user.fullName
-            }
+            employeeId: { in: subEmpIds }
           }
         })
         if (!subordinate) {

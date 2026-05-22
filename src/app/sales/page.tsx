@@ -2,6 +2,7 @@ import React from 'react';
 import SalesClientPage from './SalesClientPage';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
+import { teraDb } from '@/app/lib/teraDb';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -22,8 +23,33 @@ export default async function SalesPage({ searchParams }: PageProps) {
 
   const isManager = user.role === 'ผู้จัดการ';
 
-  // Manager sees all; rep sees only their own
-  const whereClause = isManager ? {} : { salespersonId: user.id };
+  let teamMembers: { id: string; fullName: string }[] = [];
+  if (isManager) {
+    const subordinates = await teraDb.employees.findMany({
+      where: { supervisor_id: user.employeeId, is_active: true },
+      select: { emp_id: true }
+    });
+    const subEmpIds = subordinates.map(s => s.emp_id);
+
+    teamMembers = await prisma.user.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { employeeId: { in: subEmpIds } },
+          { id: user.id }
+        ]
+      },
+      select: { id: true, fullName: true },
+      orderBy: { fullName: 'asc' }
+    });
+  } else {
+    teamMembers = [{ id: user.id, fullName: user.fullName }];
+  }
+
+  // Managers see their team's records + unassigned; Reps see their own + any unassigned
+  const whereClause = isManager
+    ? { OR: [{ salespersonId: { in: teamMembers.map(t => t.id) } }, { salespersonId: null }] }
+    : { OR: [{ salespersonId: user.id }, { salespersonId: null }] };
 
   // ── Handle editId: load a specific quotation for editing (from pipeline click) ──
   let editingData: any = null;
@@ -71,7 +97,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
     }
   }
 
-  const [quotations, currentUserWithSale, businessTypesData] = await Promise.all([
+  const [quotations, currentUserWithSale, businessTypesData, teraEmployee] = await Promise.all([
     prisma.quotation.findMany({
       where: whereClause,
       orderBy: { createdAt: 'desc' },
@@ -86,6 +112,10 @@ export default async function SalesPage({ searchParams }: PageProps) {
       include: { employeeSale: true },
     }),
     prisma.businessType.findMany({ orderBy: { name: 'asc' } }),
+    user.employeeId ? teraDb.employees.findUnique({
+      where: { emp_id: user.employeeId },
+      include: { supervisor: true },
+    }) : Promise.resolve(null),
   ]);
 
   const businessTypes = businessTypesData.map(bt => bt.name);
@@ -95,7 +125,10 @@ export default async function SalesPage({ searchParams }: PageProps) {
       <SalesClientPage
         initialQuotations={JSON.parse(JSON.stringify(quotations))}
         businessTypes={businessTypes}
-        currentUserSale={currentUserWithSale?.employeeSale}
+        currentUserSale={{
+          branch: teraEmployee?.branch_id || currentUserWithSale?.employeeSale?.branch || '',
+          teamLeader: teraEmployee?.supervisor?.name || currentUserWithSale?.employeeSale?.teamLeader || '',
+        }}
         prefillData={prefillData}
         editingQuotation={editingData}
       />
