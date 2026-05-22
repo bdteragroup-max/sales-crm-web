@@ -5,7 +5,7 @@ import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight } from "lucide-
 import { updateJob, deleteJob, UpdateJobPayload } from "./actions";
 import { JOB_TYPES } from "@/constants/job-types";
 import JobTimeline from "./JobTimeline";
-import { isCompleted, getCurrentStepDef } from "@/app/lib/job-workflow";
+import { isCompleted, getCurrentStepDef, getSteps } from "@/app/lib/job-workflow";
 
 type StepLog = {
   step:        string
@@ -185,7 +185,7 @@ function ExpandedRow({
                 className="text-xs border rounded px-2 py-1 bg-white text-gray-600 focus:outline-none focus:border-brand-red"
               >
                 <option value={job.currentStep}>-- เลือกสถานะใหม่ --</option>
-                {getCurrentStepDef(job.jobType, job.flowVariant)?.map(s => (
+                {getSteps(job.jobType, job.flowVariant)?.map(s => (
                   <option key={s.key} value={s.key}>{s.label}</option>
                 )) || <option value={job.currentStep}>{job.currentStep}</option>}
               </select>
