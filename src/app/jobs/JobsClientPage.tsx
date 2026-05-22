@@ -426,9 +426,9 @@ export default function JobsClientPage({
           <option value="all">สถานะทั้งหมด</option> 
           <option value="pending">รอฉันดำเนินการ</option> 
         </select>
-        {(search || filterCo || filterType || filterMonth || filterStatus !== (normalizedDept === "sales" ? "all" : "pending")) && ( 
+        {(search || filterCo || filterType || filterMonth || filterStatus !== (normalizedDept.includes("sales") ? "all" : "pending")) && ( 
           <button 
-            onClick={() => { setSearch(""); setFilterCo(""); setFilterType(""); setFilterMonth(""); setFilterStatus(normalizedDept === "sales" ? "all" : "pending"); }} 
+            onClick={() => { setSearch(""); setFilterCo(""); setFilterType(""); setFilterMonth(""); setFilterStatus(normalizedDept.includes("sales") ? "all" : "pending"); }} 
             className="text-xs font-bold text-gray-400 hover:text-gray-700 transition-colors" 
           > 
             ล้างตัวกรอง
