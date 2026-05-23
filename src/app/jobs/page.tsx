@@ -33,8 +33,8 @@ export default async function JobsPage() {
   });
   
   const resolvedDept = user.employeeSale?.department || teraEmployee?.departments?.name || "sales";
-  const isSalesDept = resolvedDept.toLowerCase().includes('sale') || resolvedDept.toLowerCase().includes('ขาย');
-  const isSalesRole = user.role.toLowerCase().includes('sale') || user.role.toLowerCase().includes('ขาย');
+  const isSalesDept = resolvedDept.toLowerCase().includes('sale') || resolvedDept.toLowerCase().includes('ขาย') || resolvedDept.includes('เซลส์') || resolvedDept.includes('เซลล์');
+  const isSalesRole = user.role.toLowerCase().includes('sale') || user.role.toLowerCase().includes('ขาย') || user.role.includes('เซลส์') || user.role.includes('เซลล์');
   const isSales = isSalesDept || isSalesRole;
 
   let whereClause: any = {}; // Default to all jobs for non-sales (like Store, Accounting)
@@ -85,7 +85,7 @@ export default async function JobsPage() {
           jobs={JSON.parse(JSON.stringify(jobs))} 
           isManager={isManager} 
           currentUser={user.fullName ?? ""}
-          userDept={resolvedDept} 
+          userDept={`${resolvedDept} ${user.role}`} 
         />
       </main>
     </div>

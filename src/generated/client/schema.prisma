@@ -339,6 +339,7 @@ model Job {
   currentStep String       @default("sales") @map("current_step")
   flowVariant String?      @map("flow_variant")
   stepLogs    JobStepLog[]
+  repairOrder RepairOrder?
 
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
@@ -368,4 +369,36 @@ model JobStepLog {
   job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@map("job_step_logs")
+}
+
+model RepairOrder {
+  id    String @id @default(cuid())
+  jobId String @unique
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  // Header fields
+  invoiceNo      String?
+  deliveryMethod String?
+  deliveryNoteNo String?
+  receiverName   String? // ผู้รับซ่อม
+  senderName     String? // ผู้ส่งซ่อม
+  handoverRef    String? // เลขส่งที่รับมอบซ่อม
+  phoneNumber    String?
+  workType       String? // รูปแบบงาน เช่น ซ่อม
+  forwardedBy    String? // ส่งต่อโดย
+
+  // Items & symptoms
+  items    Json // Array of repair items
+  symptoms String? // อาการเสีย
+  settings String? // การตั้งค่า
+
+  // Checklist
+  checklist Json // { frontPanel, topPanel, leftSide, rightSide, inside, nameplate, bottom, terminalNut, termCover, cover, video }
+
+  // Signature dates
+  receivedDate DateTime? @db.Timestamptz(6)
+  sentDate     DateTime? @db.Timestamptz(6)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
 }

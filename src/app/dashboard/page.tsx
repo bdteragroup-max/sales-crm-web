@@ -88,6 +88,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         id: true, 
         fullName: true, 
         role: true,
+        employeeId: true,
         employeeSale: {
           select: {
             branch: true,
@@ -196,7 +197,8 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     teamTelesalesBenchmark,
     companyClosedQuotations,
     telesalesKPIsResult,
-    ordersAgg
+    ordersAgg,
+    jobsAgg
   ] = await Promise.all([
     // 1. Grouped Quotation Metrics (Filtered Range)
     prisma.quotation.groupBy({
@@ -554,8 +556,20 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
       where: {
         company: province ? { province } : undefined,
         OR: [
-          { salespersonId: { in: filterIds } },
-          { salespersonId: null }
+        ]
+      }
+    }),
+    
+    // 24. Jobs tracking metrics
+    prisma.job.groupBy({
+      by: ['currentStep'],
+      _count: { id: true },
+      where: {
+        OR: [
+          { sellerName: { in: salesReps.map((r: any) => r.fullName).filter(Boolean) } },
+          { sellerName: user.fullName ?? "" },
+          { sellerName: null },
+          { sellerName: "" }
         ]
       }
     })
@@ -1304,6 +1318,17 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
   // Employee Performance Mapping (Enriched with win rates, sample sizes, and weekly activity trends)
   const todayBkkStr = toBkkDateStr(new Date());
+
+  // Fetch Tera Employees for Job Positions
+  const salesRepsEmpIds = salesReps.map((r: any) => r.employeeId).filter(Boolean);
+  const teraEmployees = salesRepsEmpIds.length > 0 ? await teraDb.employees.findMany({
+    where: { emp_id: { in: salesRepsEmpIds } },
+    include: {
+      departments: true,
+      job_positions: true
+    }
+  }) : [];
+
   const employeePerformance = isManager ? salesReps.map((rep: any) => {
     const repQuotes = (historyQuotations as any[]).filter(q => q.salespersonId === rep.id);
     const repWon = repQuotes.filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).reduce((s, q) => s + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
@@ -1326,14 +1351,16 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
       ? repWonDeals.reduce((sum, q) => sum + (q.cycleDays as number), 0) / repWonDeals.length 
       : 0;
 
+    const tEmp = teraEmployees.find((t: any) => t.emp_id === rep.employeeId);
+
     return { 
       id: rep.id, 
       fullName: rep.fullName, 
       won: repWon, 
       target: repTarget, 
       achievementPct: repTarget > 0 ? (repWon / repTarget) * 100 : 0,
-      branch: rep.employeeSale?.branch || 'ไม่ระบุ',
-      position: rep.employeeSale?.position || rep.role || 'ไม่ระบุ',
+      branch: tEmp?.departments?.name || rep.employeeSale?.branch || 'ไม่ระบุ',
+      position: tEmp?.job_positions?.title || rep.employeeSale?.position || rep.role || 'ไม่ระบุ',
       wonCount: repWinningCount,
       lostCount: repLostCount,
       winRate: repWinRate,
@@ -1403,7 +1430,8 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
             appointmentGoal,
             connectionRateMin
           },
-          orderMetrics: ordersAgg
+          orderMetrics: ordersAgg,
+          jobMetrics: jobsAgg
         } as any}
         recentActivities={recentQ}
         nextMeetings={nextM}

@@ -380,9 +380,35 @@ exports.Prisma.JobStepLogScalarFieldEnum = {
   completedAt: 'completedAt'
 };
 
+exports.Prisma.RepairOrderScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  invoiceNo: 'invoiceNo',
+  deliveryMethod: 'deliveryMethod',
+  deliveryNoteNo: 'deliveryNoteNo',
+  receiverName: 'receiverName',
+  senderName: 'senderName',
+  handoverRef: 'handoverRef',
+  phoneNumber: 'phoneNumber',
+  workType: 'workType',
+  forwardedBy: 'forwardedBy',
+  items: 'items',
+  symptoms: 'symptoms',
+  settings: 'settings',
+  checklist: 'checklist',
+  receivedDate: 'receivedDate',
+  sentDate: 'sentDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -393,6 +419,12 @@ exports.Prisma.QueryMode = {
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 
 
@@ -413,7 +445,8 @@ exports.Prisma.ModelName = {
   OrderStatusLog: 'OrderStatusLog',
   Job: 'Job',
   JobRunningNumber: 'JobRunningNumber',
-  JobStepLog: 'JobStepLog'
+  JobStepLog: 'JobStepLog',
+  RepairOrder: 'RepairOrder'
 };
 
 /**

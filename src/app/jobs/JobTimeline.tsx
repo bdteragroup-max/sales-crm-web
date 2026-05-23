@@ -3,7 +3,10 @@
 import { useState, useTransition } from "react"
 import { getSteps, getWorkflow, type StepDef } from "@/app/lib/job-workflow"
 import { confirmJobStep } from "@/app/actions/jobs"
-
+import { useReactToPrint } from "react-to-print"
+import { useRef } from "react"
+import RepairOrderFormModal from "./RepairOrderFormModal"
+import RepairOrderDocument from "./RepairOrderDocument"
 type StepLog = {
   step:        string
   completedBy: string
@@ -21,15 +24,35 @@ type Props = {
   userName:     string
   userDept:     string   // department ของ user ที่ login อยู่
   isManager?:   boolean
+  jobNumber?:    string
+  customerName?: string
+  sellerName?:   string
 }
 
 export default function JobTimeline({
   jobId, jobType, currentStep, flowVariant, stepLogs, userName, userDept, isManager,
+  jobNumber, customerName, sellerName
 }: Props) {
   const [isPending, startTransition] = useTransition()
   const [showVariantModal, setShowVariantModal] = useState(false)
   const [pendingConfirm, setPendingConfirm]     = useState(false)
   const [noteInput, setNoteInput]               = useState("")
+  
+  const [showRepairModal, setShowRepairModal]   = useState(false)
+  const [repairDataForPrint, setRepairDataForPrint] = useState<any>(null)
+  const printDocRef = useRef<HTMLDivElement>(null)
+
+  const printFn = useReactToPrint({
+    contentRef: printDocRef,
+    documentTitle: `Repair_Order_${jobId}`,
+  })
+
+  const handlePrint = (data: any) => {
+    setRepairDataForPrint(data)
+    setTimeout(() => {
+      printFn()
+    }, 500)
+  }
 
   const wf        = getWorkflow(jobType)
   const steps     = getSteps(jobType, flowVariant)
@@ -61,7 +84,7 @@ export default function JobTimeline({
   const normalizedDept = (() => {
     const d = userDept.toLowerCase().trim()
     const depts: string[] = []
-    if (d.includes('sale') || d.includes('ขาย') || d.includes('marketing') || d.includes('business development') || d.includes('การตลาด')) depts.push("sales")
+    if (d.includes('sale') || d.includes('ขาย') || d.includes('เซลส์') || d.includes('เซลล์') || d.includes('marketing') || d.includes('business development') || d.includes('การตลาด')) depts.push("sales")
     if (d.includes('account') || d.includes('finance') || d.includes('บัญชี') || d.includes('การเงิน') || d.includes('ap ') || d.includes('ar ')) depts.push("accounting")
     if (d.includes('store') || d.includes('warehouse') || d.includes('สโตร์') || d.includes('คลัง')) depts.push("store")
     if (d.includes('service') || d.includes('บริการ') || d.includes('ซ่อม')) depts.push("service")
@@ -119,49 +142,74 @@ export default function JobTimeline({
   return (
     <div className="py-2">
       {showVariantModal && <VariantModal />}
+      {showRepairModal && (
+        <RepairOrderFormModal 
+          jobId={jobId} 
+          jobData={{ jobNumber: jobNumber || jobId, jobType, currentStep, flowVariant, customerName, sellerName }} 
+          onClose={() => setShowRepairModal(false)}
+          onPrint={handlePrint}
+        />
+      )}
+      
+      {/* Hidden Print Document */}
+      <RepairOrderDocument ref={printDocRef} data={repairDataForPrint} jobData={{ jobNumber: jobNumber || jobId, customerName: customerName || "", sellerName: sellerName || "" }} />
 
       {/* Timeline steps */}
-      <ol className="flex flex-wrap gap-0 items-start">
-        {steps.map((step, idx) => {
-          const log      = stepLogs.find((l) => l.step === step.key)
-          const isDone   = !!log
-          const isActive = !isDone && idx === currentIdx
-          const isFuture = idx > currentIdx && !isDone
+      <div className="relative w-full overflow-x-auto pb-4 scrollbar-hide">
+        <ol className="flex items-start justify-between min-w-[500px] w-full relative pt-2">
+          {steps.map((step, idx) => {
+            const log      = stepLogs.find((l) => l.step === step.key)
+            const isDone   = !!log
+            const isActive = !isDone && idx === currentIdx
+            const isFuture = idx > currentIdx && !isDone
 
-          return (
-            <li key={step.key} className="flex items-center">
-              {/* Step node */}
-              <div className="flex flex-col items-center">
+            return (
+              <li key={step.key} className="flex flex-col items-center relative z-10 flex-1 px-1">
+                {/* Connector line to next step */}
+                {idx < steps.length - 1 && (
+                  <div 
+                    className={`absolute top-[15px] left-[50%] w-full h-[3px] z-[-1] transition-colors duration-500
+                      ${isDone && currentIdx > idx ? "bg-emerald-500" : "bg-gray-200"}
+                    `} 
+                  />
+                )}
+
+                {/* Step node */}
                 <div
                   className={`
-                    w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium border-2 transition-all
-                    ${isDone   ? "bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-200" : ""}
-                    ${isActive ? "bg-brand-red   border-brand-red   text-white animate-pulse shadow-md shadow-red-200" : ""}
-                    ${isFuture ? "bg-gray-100   border-gray-300   text-gray-400" : ""}
+                    w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-[3px] bg-white transition-all duration-300 shadow-sm
+                    ${isDone   ? "border-emerald-500 text-emerald-500 ring-4 ring-emerald-50" : ""}
+                    ${isActive ? "border-brand-red bg-brand-red text-white ring-4 ring-red-100 animate-pulse" : ""}
+                    ${isFuture ? "border-gray-200 text-gray-400" : ""}
                   `}
                 >
-                  {isDone ? "✓" : idx + 1}
+                  {isDone ? (
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : idx + 1}
                 </div>
-                <span className={`text-xs mt-1 whitespace-nowrap max-w-[72px] text-center leading-tight
-                  ${isDone   ? "text-emerald-600 font-bold" : ""}
-                  ${isActive ? "text-brand-red font-bold" : ""}
-                  ${isFuture ? "text-gray-400" : ""}
-                `}>
-                  {step.label}
-                </span>
-                {isDone && log && (
-                  <span className="text-[10px] text-gray-400 mt-0.5">{log.completedBy}</span>
-                )}
-              </div>
-
-              {/* Connector line */}
-              {idx < steps.length - 1 && (
-                <div className={`h-0.5 w-8 mx-1 mt-[-16px] ${isDone ? "bg-emerald-400" : "bg-gray-200"}`} />
-              )}
-            </li>
-          )
-        })}
-      </ol>
+                
+                {/* Text Label */}
+                <div className="flex flex-col items-center mt-3">
+                  <span className={`text-[11px] md:text-xs font-semibold text-center leading-tight break-words max-w-[80px]
+                    ${isDone   ? "text-emerald-700" : ""}
+                    ${isActive ? "text-brand-red" : ""}
+                    ${isFuture ? "text-gray-400" : ""}
+                  `}>
+                    {step.label}
+                  </span>
+                  {isDone && log && (
+                    <span className="text-[10px] text-gray-500 mt-1 font-medium bg-gray-50 px-1.5 py-0.5 rounded-md border border-gray-100">
+                      {log.completedBy.split(' ')[0]}
+                    </span>
+                  )}
+                </div>
+              </li>
+            )
+          })}
+        </ol>
+      </div>
 
       {/* Confirm area */}
       {!isFinished && canConfirm && activeStep && (
@@ -194,6 +242,17 @@ export default function JobTimeline({
             {isPending ? "กำลังบันทึก..." : "✓ ยืนยัน step นี้"}
           </button>
         </div>
+      )}
+
+      {/* Add Repair Order button if user is service */}
+      {normalizedDept.includes("service") && (
+        <button
+          onClick={() => setShowRepairModal(true)}
+          className="mt-4 w-full bg-white border border-gray-200 text-gray-700 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-all shadow-sm flex justify-center items-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+          ออกใบรับซ่อม (PDF)
+        </button>
       )}
 
       {/* ไม่มีสิทธิ์ */}

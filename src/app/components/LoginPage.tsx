@@ -22,7 +22,6 @@ export default function LoginPage() {
             S
           </div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">เข้าสู่ระบบ</h1>
-          <p className="text-gray-500 mt-2">จัดการยอดขายและลูกค้าของคุณอย่างมืออาชีพ</p>
         </div>
 
         <div className="bg-white border border-slate-200 p-8 rounded-3xl shadow-xl shadow-slate-200/50">
@@ -86,14 +85,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 text-center pt-6 border-t border-gray-100">
-            <p className="text-gray-500 text-sm">
-              ยังไม่มีบัญชีผู้ใช้?{' '}
-              <Link href="/signup" className="text-brand-red font-medium hover:text-red-700 transition-colors">
-                สมัครสมาชิกที่นี่
-              </Link>
-            </p>
-          </div>
+
         </div>
         
         {/* Footer info */}

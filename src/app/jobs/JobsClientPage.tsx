@@ -171,6 +171,9 @@ function ExpandedRow({
             userName={userName}
             userDept={userDept}
             isManager={isManager}
+            jobNumber={job.jobNumber}
+            customerName={job.customerName}
+            sellerName={job.sellerName || undefined}
           />
           
           {isManager && (

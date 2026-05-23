@@ -65,6 +65,7 @@ interface DashboardUIProps {
       connectionRateMin: number;
     };
     orderMetrics?: any[];
+    jobMetrics?: any[];
   };
   recentActivities: any[];
   nextMeetings: any[];
@@ -467,6 +468,37 @@ export default function DashboardUI({
                       <span className="text-[11px] font-black text-gray-500 uppercase tracking-wider">{status}</span>
                       <span className="text-xl font-black text-gray-900">{count} ออเดอร์</span>
                       <span className="text-[10px] font-bold text-gray-400">มูลค่า ฿{(value / 1000000).toFixed(2)}M</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* 1.2 JOB CONNECTION METRICS */}
+          {metrics.jobMetrics && metrics.jobMetrics.length > 0 && (
+            <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 mt-2">
+              <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                <Briefcase size={16} className="text-indigo-600" />
+                สถานะการเชื่อมต่องาน (Job Connection Status)
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                {[
+                  { key: 'sales', label: 'เซลส์' },
+                  { key: 'store', label: 'คลังสินค้า' },
+                  { key: 'purchase', label: 'จัดซื้อ' },
+                  { key: 'accounting', label: 'บัญชี' },
+                  { key: 'shipping', label: 'จัดส่ง' },
+                  { key: 'service', label: 'บริการ' },
+                  { key: 'production', label: 'ฝ่ายผลิต' },
+                  { key: 'complete', label: 'เสร็จสิ้น' }
+                ].map(step => {
+                  const data = metrics.jobMetrics?.find((m: any) => m.currentStep === step.key);
+                  const count = data?._count?.id || 0;
+                  return (
+                    <div key={step.key} className="bg-gray-50 rounded-2xl p-4 flex flex-col gap-1 border border-gray-100">
+                      <span className="text-[11px] font-black text-gray-500 uppercase tracking-wider">{step.label}</span>
+                      <span className="text-xl font-black text-gray-900">{count} งาน</span>
                     </div>
                   );
                 })}
