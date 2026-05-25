@@ -31,3 +31,25 @@ export async function deleteJob(jobId: string) {
   await prisma.job.delete({ where: { id: jobId } }); 
   revalidatePath("/jobs");
 }
+
+export async function createStandaloneJob(data: { customerName: string; item: string; companyCode: string; jobType: string }) {
+  const { generateJobNumber } = await import("@/app/lib/job-utils");
+  const closedDate = new Date();
+  const jobNumber = await generateJobNumber(closedDate);
+
+  const job = await prisma.job.create({
+    data: {
+      jobNumber,
+      companyCode: data.companyCode,
+      jobType: data.jobType,
+      month: closedDate.getMonth() + 1,
+      yearBe: (closedDate.getFullYear() + 543) % 100,
+      dateClosed: closedDate,
+      customerName: data.customerName,
+      item: data.item,
+      currentStep: "service_receive", // Default to service step so they can confirm it
+    }
+  });
+  revalidatePath("/jobs");
+  return job;
+}

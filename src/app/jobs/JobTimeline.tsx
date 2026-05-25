@@ -3,10 +3,7 @@
 import { useState, useTransition } from "react"
 import { getSteps, getWorkflow, type StepDef } from "@/app/lib/job-workflow"
 import { confirmJobStep } from "@/app/actions/jobs"
-import { useReactToPrint } from "react-to-print"
-import { useRef } from "react"
-import RepairOrderFormModal from "./RepairOrderFormModal"
-import RepairOrderDocument from "./RepairOrderDocument"
+import Link from "next/link"
 type StepLog = {
   step:        string
   completedBy: string
@@ -38,26 +35,20 @@ export default function JobTimeline({
   const [pendingConfirm, setPendingConfirm]     = useState(false)
   const [noteInput, setNoteInput]               = useState("")
   
-  const [showRepairModal, setShowRepairModal]   = useState(false)
-  const [repairDataForPrint, setRepairDataForPrint] = useState<any>(null)
-  const printDocRef = useRef<HTMLDivElement>(null)
 
-  const printFn = useReactToPrint({
-    contentRef: printDocRef,
-    documentTitle: `Repair_Order_${jobId}`,
-  })
-
-  const handlePrint = (data: any) => {
-    setRepairDataForPrint(data)
-    setTimeout(() => {
-      printFn()
-    }, 500)
-  }
 
   const wf        = getWorkflow(jobType)
   const steps     = getSteps(jobType, flowVariant)
-  const currentIdx = steps.findIndex((s) => s.key === currentStep)
-  const isFinished = currentIdx === steps.length - 1 && stepLogs.some((l) => l.step === currentStep)
+  let currentIdx = steps.findIndex((s) => s.key === currentStep)
+  
+  // Self-heal logic for legacy or invalid states (like SERVICE_ISSUE)
+  if (currentIdx === -1) {
+    const firstUnfinished = steps.findIndex(s => !stepLogs.some(l => l.step === s.key))
+    currentIdx = firstUnfinished === -1 ? Math.max(0, steps.length - 1) : firstUnfinished
+  }
+  
+  const actualCurrentKey = steps[currentIdx]?.key || currentStep;
+  const isFinished = currentIdx === steps.length - 1 && stepLogs.some((l) => l.step === actualCurrentKey)
 
   // step ที่ active (รอ confirm อยู่)
   const activeStep = isFinished ? null : steps[currentIdx]
@@ -96,9 +87,8 @@ export default function JobTimeline({
     return depts
   })()
 
-  // ผู้จัดการ หรือพนักงานแผนกนั้นๆ กดยืนยันได้
-  // แต่ manager ของ sales ก็กดได้เฉพาะ step sales เท่านั้น
-  const canConfirm = activeStep?.department.some(dept => normalizedDept.includes(dept)) ?? false
+  // ผู้จัดการสามารถกดยืนยันได้ทุก step หรือพนักงานแผนกนั้นๆ กดยืนยันได้
+  const canConfirm = isManager || (activeStep?.department.some(dept => normalizedDept.includes(dept)) ?? false)
 
   // ── Variant Modal ──
   function VariantModal() {
@@ -142,17 +132,6 @@ export default function JobTimeline({
   return (
     <div className="py-2">
       {showVariantModal && <VariantModal />}
-      {showRepairModal && (
-        <RepairOrderFormModal 
-          jobId={jobId} 
-          jobData={{ jobNumber: jobNumber || jobId, jobType, currentStep, flowVariant, customerName, sellerName }} 
-          onClose={() => setShowRepairModal(false)}
-          onPrint={handlePrint}
-        />
-      )}
-      
-      {/* Hidden Print Document */}
-      <RepairOrderDocument ref={printDocRef} data={repairDataForPrint} jobData={{ jobNumber: jobNumber || jobId, customerName: customerName || "", sellerName: sellerName || "" }} />
 
       {/* Timeline steps */}
       <div className="relative w-full overflow-x-auto pb-4 scrollbar-hide">
@@ -246,13 +225,13 @@ export default function JobTimeline({
 
       {/* Add Repair Order button if user is service */}
       {normalizedDept.includes("service") && (
-        <button
-          onClick={() => setShowRepairModal(true)}
+        <Link
+          href={`/jobs/${jobId}/repair-order`}
           className="mt-4 w-full bg-white border border-gray-200 text-gray-700 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-all shadow-sm flex justify-center items-center gap-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
           ออกใบรับซ่อม (PDF)
-        </button>
+        </Link>
       )}
 
       {/* ไม่มีสิทธิ์ */}

@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useMemo, useTransition, useEffect } from "react";
-import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight } from "lucide-react";
-import { updateJob, deleteJob, UpdateJobPayload } from "./actions";
+import React, { useState, useMemo, useTransition, useEffect, useRef } from "react";
+import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight, X, Wrench } from "lucide-react";
+import { updateJob, deleteJob, UpdateJobPayload, createStandaloneJob } from "./actions";
 import { JOB_TYPES } from "@/constants/job-types";
+import { useRouter } from "next/navigation";
+
 import JobTimeline from "./JobTimeline";
 import { isCompleted, getCurrentStepDef, getSteps } from "@/app/lib/job-workflow";
 
@@ -228,12 +230,25 @@ export default function JobsClientPage({
   isManager, 
   currentUser,
   userDept,
+  actionParam,
 }: { 
   jobs: Job[]; 
   isManager: boolean; 
   currentUser: string;
   userDept: string;
+  actionParam?: string;
 }) { 
+  const router = useRouter();
+  const [showQuickRepair, setShowQuickRepair] = useState(actionParam === "new-repair");
+  const [quickRepairLoading, setQuickRepairLoading] = useState(false);
+
+  useEffect(() => {
+    if (actionParam === "new-repair") {
+      setShowQuickRepair(true);
+      router.replace("/jobs", { scroll: false });
+    }
+  }, [actionParam, router]);
+
   const [jobs, setJobs] = useState(initialJobs); 
   useEffect(() => {
     setJobs(initialJobs);
@@ -283,7 +298,7 @@ export default function JobsClientPage({
       } 
       if (filterStatus === "pending") {
         if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)) return false;
-        const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant);
+        const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant, j.stepLogs);
         if (!stepDef?.department.some(dept => normalizedDept.includes(dept))) return false;
       }
       return true; 
@@ -325,7 +340,7 @@ export default function JobsClientPage({
   const pendingActionCount = useMemo(() => {
     return jobs.filter((j) => {
       if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)) return false;
-      const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant);
+      const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant, j.stepLogs);
       return stepDef?.department.some(dept => normalizedDept.includes(dept));
     }).length;
   }, [jobs, normalizedDept]);
@@ -352,8 +367,68 @@ export default function JobsClientPage({
     }
   }, [normalizedDept, jobs.length, thisMonthCount, withPO, pendingActionCount, completedOverallCount]);
 
+  function QuickRepairModal() {
+    const [customerName, setCustomerName] = useState("");
+    const [item, setItem] = useState("");
+    const [companyCode, setCompanyCode] = useState("TP");
+
+    async function handleCreate(e: React.FormEvent) {
+      e.preventDefault();
+      if (!customerName || !item) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      setQuickRepairLoading(true);
+      try {
+        const newJob = await createStandaloneJob({ customerName, item, companyCode, jobType: "งานซ่อม" });
+        setJobs(prev => [newJob as any, ...prev]);
+        setShowQuickRepair(false);
+        router.push(`/jobs/${newJob.id}/repair-order`);
+      } catch (err) {
+        alert("เกิดข้อผิดพลาด");
+      } finally {
+        setQuickRepairLoading(false);
+      }
+    }
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+          <div className="p-4 border-b border-gray-100 flex justify-between items-center">
+            <h2 className="font-bold text-gray-800 flex items-center gap-2">
+              <Wrench size={18} className="text-brand-red" />
+              ออกใบรับซ่อมด่วน (Quick Repair Order)
+            </h2>
+            <button onClick={() => setShowQuickRepair(false)} className="text-gray-400 hover:text-gray-600">
+              <X size={20} />
+            </button>
+          </div>
+          <form onSubmit={handleCreate} className="p-5 space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">ชื่อลูกค้า</label>
+              <input autoFocus required type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">รายการ/สินค้าที่จะซ่อม</label>
+              <input required type="text" value={item} onChange={e => setItem(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">บริษัท</label>
+              <select value={companyCode} onChange={e => setCompanyCode(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red">
+                <option value="TP">TP</option>
+                <option value="TG">TG</option>
+                <option value="TE">TE</option>
+              </select>
+            </div>
+            <button disabled={quickRepairLoading} type="submit" className="w-full mt-2 bg-brand-red text-white py-2.5 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-red-700 transition-colors shadow-md shadow-red-200 flex items-center justify-center gap-2">
+              {quickRepairLoading ? "กำลังสร้าง..." : "สร้างใบรับซ่อม"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return ( 
     <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm md:overflow-hidden overflow-visible"> 
+      {showQuickRepair && <QuickRepairModal />}
 
       {/* ── Top Header Bar ── */}
       <header className="shrink-0 md:h-20 py-4 md:py-0 border-b border-gray-100 px-6 md:px-8 flex flex-col md:flex-row gap-4 items-center justify-between bg-white w-full">
@@ -489,7 +564,7 @@ export default function JobsClientPage({
                       `}>
                         {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
                           ? "✅ เสร็จแล้ว"
-                          : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant)?.label ?? job.currentStep
+                          : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
                         }
                       </span>
                     </td>

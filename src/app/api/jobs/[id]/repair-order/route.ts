@@ -51,8 +51,13 @@ export async function POST(
         symptoms: data.symptoms,
         settings: data.settings,
         checklist: data.checklist || {},
+        checklistImages: data.checklistImages || null,
         receivedDate: data.receivedDate ? new Date(data.receivedDate) : null,
         sentDate: data.sentDate ? new Date(data.sentDate) : null,
+        company: data.company,
+        customerCompany: data.customerCompany,
+        customerAddress: data.customerAddress,
+        salesPerson: data.salesPerson,
       },
       create: {
         jobId: id,
@@ -69,8 +74,13 @@ export async function POST(
         symptoms: data.symptoms,
         settings: data.settings,
         checklist: data.checklist || {},
+        checklistImages: data.checklistImages || null,
         receivedDate: data.receivedDate ? new Date(data.receivedDate) : null,
         sentDate: data.sentDate ? new Date(data.sentDate) : null,
+        company: data.company,
+        customerCompany: data.customerCompany,
+        customerAddress: data.customerAddress,
+        salesPerson: data.salesPerson,
       }
     });
 

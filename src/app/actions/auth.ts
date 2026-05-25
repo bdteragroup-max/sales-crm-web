@@ -205,4 +205,14 @@ export async function verifyOtpAndResetPassword(state: FormState, formData: Form
   }
 }
 
+export async function getMyDepartment() {
+  const user = await getUser();
+  if (!user) return null;
+  const teraEmployee = await teraDb.employees.findUnique({
+    where: { emp_id: user.employeeId },
+    include: { departments: true }
+  });
+  return teraEmployee?.departments?.name || null;
+}
+
 

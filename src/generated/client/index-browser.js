@@ -392,14 +392,543 @@ exports.Prisma.RepairOrderScalarFieldEnum = {
   phoneNumber: 'phoneNumber',
   workType: 'workType',
   forwardedBy: 'forwardedBy',
+  company: 'company',
+  customerCompany: 'customerCompany',
+  customerAddress: 'customerAddress',
+  salesPerson: 'salesPerson',
   items: 'items',
   symptoms: 'symptoms',
   settings: 'settings',
   checklist: 'checklist',
+  checklistImages: 'checklistImages',
   receivedDate: 'receivedDate',
   sentDate: 'sentDate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.Admin_login_attemptsScalarFieldEnum = {
+  id: 'id',
+  username: 'username',
+  ip: 'ip',
+  created_at: 'created_at'
+};
+
+exports.Prisma.AdminsScalarFieldEnum = {
+  id: 'id',
+  username: 'username',
+  password_hash: 'password_hash',
+  full_name: 'full_name',
+  last_login: 'last_login',
+  created_at: 'created_at',
+  role: 'role'
+};
+
+exports.Prisma.Asset_borrowingsScalarFieldEnum = {
+  id: 'id',
+  asset_id: 'asset_id',
+  emp_id: 'emp_id',
+  borrow_date: 'borrow_date',
+  expected_return_date: 'expected_return_date',
+  actual_return_date: 'actual_return_date',
+  location: 'location',
+  condition_at_borrow: 'condition_at_borrow',
+  condition_at_return: 'condition_at_return',
+  is_damaged: 'is_damaged',
+  photo_url_borrow: 'photo_url_borrow',
+  photo_url_return: 'photo_url_return',
+  status: 'status',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  borrow_inspection_remark: 'borrow_inspection_remark',
+  borrow_is_body_ok: 'borrow_is_body_ok',
+  borrow_is_clean: 'borrow_is_clean',
+  borrow_is_insurance_ok: 'borrow_is_insurance_ok',
+  borrow_is_lights_ok: 'borrow_is_lights_ok',
+  borrow_is_tires_ok: 'borrow_is_tires_ok',
+  borrow_vehicle_status: 'borrow_vehicle_status',
+  quantity: 'quantity'
+};
+
+exports.Prisma.AssetsScalarFieldEnum = {
+  id: 'id',
+  asset_id: 'asset_id',
+  name: 'name',
+  category: 'category',
+  status: 'status',
+  description: 'description',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  brand: 'brand',
+  company_owner: 'company_owner',
+  main_user: 'main_user',
+  usage_remark: 'usage_remark',
+  vehicle_model: 'vehicle_model',
+  vehicle_type: 'vehicle_type',
+  image_url: 'image_url',
+  stock: 'stock'
+};
+
+exports.Prisma.Birthday_claimsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  name: 'name',
+  amount_cash: 'amount_cash',
+  amount_meal: 'amount_meal',
+  receipt_url: 'receipt_url',
+  transfer_slip_url: 'transfer_slip_url',
+  celebration_photo_url: 'celebration_photo_url',
+  status: 'status',
+  created_at: 'created_at',
+  approved_by: 'approved_by',
+  approved_at: 'approved_at',
+  substitute_date: 'substitute_date',
+  is_sales: 'is_sales'
+};
+
+exports.Prisma.BranchesScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  center_lat: 'center_lat',
+  center_lon: 'center_lon',
+  radius_m: 'radius_m',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.CheckinsScalarFieldEnum = {
+  id: 'id',
+  timestamp: 'timestamp',
+  date_key: 'date_key',
+  time_key: 'time_key',
+  emp_id: 'emp_id',
+  name: 'name',
+  type: 'type',
+  branch_name: 'branch_name',
+  lat: 'lat',
+  lon: 'lon',
+  accuracy: 'accuracy',
+  distance: 'distance',
+  capture_mode: 'capture_mode',
+  late_status: 'late_status',
+  late_min: 'late_min',
+  photo_url: 'photo_url',
+  project_name: 'project_name',
+  remark: 'remark',
+  customer_id: 'customer_id',
+  is_trip: 'is_trip'
+};
+
+exports.Prisma.Commission_claimsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  date: 'date',
+  customer_name: 'customer_name',
+  companion_ids: 'companion_ids',
+  selling_price: 'selling_price',
+  commission_rate: 'commission_rate',
+  total_commission: 'total_commission',
+  per_person_commission: 'per_person_commission',
+  status: 'status',
+  supervisor_id: 'supervisor_id',
+  supervisor_approved_at: 'supervisor_approved_at',
+  approved_by: 'approved_by',
+  approved_at: 'approved_at',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Daily_work_plansScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  date: 'date',
+  morning_plan: 'morning_plan',
+  morning_location: 'morning_location',
+  afternoon_plan: 'afternoon_plan',
+  afternoon_location: 'afternoon_location',
+  ot_plan: 'ot_plan',
+  ot_location: 'ot_location',
+  ot_attendant: 'ot_attendant',
+  created_at: 'created_at',
+  notified_at: 'notified_at'
+};
+
+exports.Prisma.DepartmentsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  division_id: 'division_id'
+};
+
+exports.Prisma.DivisionsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Employee_warningsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  date: 'date',
+  reason: 'reason',
+  created_at: 'created_at'
+};
+
+exports.Prisma.EmployeesScalarFieldEnum = {
+  emp_id: 'emp_id',
+  name: 'name',
+  branch_id: 'branch_id',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  pin_hash: 'pin_hash',
+  gender: 'gender',
+  hire_date: 'hire_date',
+  birth_date: 'birth_date',
+  phone_number: 'phone_number',
+  base_salary: 'base_salary',
+  department_id: 'department_id',
+  job_position_id: 'job_position_id',
+  otp_code: 'otp_code',
+  otp_expires_at: 'otp_expires_at',
+  supervisor_id: 'supervisor_id',
+  bank_account_no: 'bank_account_no',
+  bank_name: 'bank_name',
+  is_on_trial: 'is_on_trial',
+  has_telephone_allowance: 'has_telephone_allowance',
+  position_allowance: 'position_allowance',
+  address: 'address',
+  national_id_card: 'national_id_card',
+  salary_type: 'salary_type',
+  line_user_id: 'line_user_id',
+  is_checkin_exempt: 'is_checkin_exempt',
+  probation_end_date: 'probation_end_date',
+  resignation_date: 'resignation_date',
+  secondary_supervisor_id: 'secondary_supervisor_id',
+  nickname: 'nickname',
+  email: 'email'
+};
+
+exports.Prisma.General_welfare_claimsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  welfare_type: 'welfare_type',
+  amount: 'amount',
+  attachment_url: 'attachment_url',
+  remark: 'remark',
+  status: 'status',
+  created_at: 'created_at',
+  approved_by: 'approved_by',
+  approved_at: 'approved_at',
+  admin_comment: 'admin_comment',
+  metadata: 'metadata',
+  supervisor_approved_at: 'supervisor_approved_at',
+  supervisor_approved_by: 'supervisor_approved_by',
+  supervisor_status: 'supervisor_status'
+};
+
+exports.Prisma.HolidaysScalarFieldEnum = {
+  date: 'date',
+  name: 'name',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Job_positionsScalarFieldEnum = {
+  id: 'id',
+  department_id: 'department_id',
+  title: 'title',
+  is_ot_eligible: 'is_ot_eligible',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  node_type: 'node_type',
+  order_index: 'order_index',
+  parent_id: 'parent_id'
+};
+
+exports.Prisma.Kpi_evaluationsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  supervisor_id: 'supervisor_id',
+  evaluation_no: 'evaluation_no',
+  evaluation_date: 'evaluation_date',
+  period_start: 'period_start',
+  period_end: 'period_end',
+  status: 'status',
+  employee_comment: 'employee_comment',
+  supervisor_comment: 'supervisor_comment',
+  total_employee_score: 'total_employee_score',
+  total_supervisor_score: 'total_supervisor_score',
+  grade: 'grade',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  category: 'category',
+  session_name: 'session_name',
+  year: 'year',
+  is_passing: 'is_passing',
+  recommend_salary: 'recommend_salary'
+};
+
+exports.Prisma.Kpi_itemsScalarFieldEnum = {
+  id: 'id',
+  kpi_evaluation_id: 'kpi_evaluation_id',
+  objective: 'objective',
+  indicator: 'indicator',
+  weight: 'weight',
+  result_description: 'result_description',
+  employee_score: 'employee_score',
+  supervisor_score: 'supervisor_score',
+  target_1: 'target_1',
+  target_2: 'target_2',
+  target_3: 'target_3',
+  target_4: 'target_4',
+  target_5: 'target_5',
+  section: 'section'
+};
+
+exports.Prisma.Leave_entitlementsScalarFieldEnum = {
+  id: 'id',
+  leave_type_id: 'leave_type_id',
+  min_years: 'min_years',
+  days: 'days'
+};
+
+exports.Prisma.Leave_requestsScalarFieldEnum = {
+  id: 'id',
+  timestamp: 'timestamp',
+  emp_id: 'emp_id',
+  name: 'name',
+  leave_type_id: 'leave_type_id',
+  leave_type: 'leave_type',
+  start_date: 'start_date',
+  end_date: 'end_date',
+  days: 'days',
+  reason: 'reason',
+  status: 'status',
+  approved_by: 'approved_by',
+  approved_at: 'approved_at',
+  start_at: 'start_at',
+  end_at: 'end_at',
+  minutes: 'minutes',
+  attachment_url: 'attachment_url',
+  supervisor_approved_at: 'supervisor_approved_at',
+  supervisor_id: 'supervisor_id',
+  handover_person: 'handover_person'
+};
+
+exports.Prisma.Leave_typesScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  gender_rule: 'gender_rule',
+  max_days: 'max_days',
+  count_mode: 'count_mode',
+  require_attachment: 'require_attachment',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Meeting_roomsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  floor: 'floor',
+  capacity: 'capacity',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Monthly_payroll_dataScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  cycle_month: 'cycle_month',
+  cycle_year: 'cycle_year',
+  social_security: 'social_security',
+  student_loan: 'student_loan',
+  other_deductions: 'other_deductions',
+  other_benefits: 'other_benefits',
+  override_salary: 'override_salary',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  accommodation_allowance_override: 'accommodation_allowance_override',
+  diligence_allowance_override: 'diligence_allowance_override',
+  holiday_1_x_hours_override: 'holiday_1_x_hours_override',
+  holiday_3_x_hours_override: 'holiday_3_x_hours_override',
+  meal_allowance_override: 'meal_allowance_override',
+  normal_1_5x_hours_override: 'normal_1_5x_hours_override',
+  phone_allowance_override: 'phone_allowance_override',
+  position_allowance_override: 'position_allowance_override',
+  travel_accommodation_override: 'travel_accommodation_override',
+  travel_allowance_override: 'travel_allowance_override',
+  travel_site_allowance_override: 'travel_site_allowance_override',
+  tax: 'tax',
+  unpaid_absenteeism: 'unpaid_absenteeism',
+  bonus: 'bonus',
+  commissions: 'commissions',
+  is_published: 'is_published',
+  insurance: 'insurance',
+  insurance_income: 'insurance_income'
+};
+
+exports.Prisma.Ot_requestsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  date_for: 'date_for',
+  start_time: 'start_time',
+  end_time: 'end_time',
+  total_hours: 'total_hours',
+  reason: 'reason',
+  status: 'status',
+  supervisor_id: 'supervisor_id',
+  approved_at: 'approved_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  approved_hours: 'approved_hours',
+  supervisor_remark: 'supervisor_remark',
+  actual_end_at: 'actual_end_at',
+  actual_start_at: 'actual_start_at',
+  has_discrepancy: 'has_discrepancy'
+};
+
+exports.Prisma.Probation_evaluationsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  supervisor_id: 'supervisor_id',
+  evaluation_no: 'evaluation_no',
+  evaluation_date: 'evaluation_date',
+  period_start: 'period_start',
+  period_end: 'period_end',
+  score_work_quality: 'score_work_quality',
+  score_work_quantity: 'score_work_quantity',
+  score_dedication: 'score_dedication',
+  score_knowledge: 'score_knowledge',
+  score_learning: 'score_learning',
+  score_obedience: 'score_obedience',
+  score_responsibility: 'score_responsibility',
+  score_creativity: 'score_creativity',
+  score_teamwork: 'score_teamwork',
+  score_discipline: 'score_discipline',
+  score_tool_maintenance: 'score_tool_maintenance',
+  score_participation: 'score_participation',
+  score_late: 'score_late',
+  score_sick_leave: 'score_sick_leave',
+  score_personal_leave: 'score_personal_leave',
+  count_late: 'count_late',
+  count_sick_leave: 'count_sick_leave',
+  count_personal_leave: 'count_personal_leave',
+  count_activity: 'count_activity',
+  total_score: 'total_score',
+  grade: 'grade',
+  comment_supervisor: 'comment_supervisor',
+  comment_improvement: 'comment_improvement',
+  comment_praise: 'comment_praise',
+  decision: 'decision',
+  salary_adjust_from: 'salary_adjust_from',
+  salary_adjust_to: 'salary_adjust_to',
+  status: 'status',
+  hr_remark: 'hr_remark',
+  is_sent_to_management: 'is_sent_to_management',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  score_comments: 'score_comments'
+};
+
+exports.Prisma.Product_borrowingsScalarFieldEnum = {
+  id: 'id',
+  product_id: 'product_id',
+  emp_id: 'emp_id',
+  borrow_date: 'borrow_date',
+  expected_return_date: 'expected_return_date',
+  actual_return_date: 'actual_return_date',
+  location: 'location',
+  condition_at_borrow: 'condition_at_borrow',
+  condition_at_return: 'condition_at_return',
+  is_damaged: 'is_damaged',
+  photo_url_borrow: 'photo_url_borrow',
+  photo_url_return: 'photo_url_return',
+  status: 'status',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  quantity: 'quantity'
+};
+
+exports.Prisma.ProductsScalarFieldEnum = {
+  id: 'id',
+  product_code: 'product_code',
+  product_name: 'product_name',
+  category: 'category',
+  company_name: 'company_name',
+  description: 'description',
+  status: 'status',
+  image_url: 'image_url',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  stock: 'stock'
+};
+
+exports.Prisma.ProjectsScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  client_name: 'client_name',
+  address: 'address',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  contact: 'contact',
+  lat: 'lat',
+  lng: 'lng',
+  phone: 'phone',
+  radius_m: 'radius_m',
+  status: 'status'
+};
+
+exports.Prisma.Room_booking_attendeesScalarFieldEnum = {
+  id: 'id',
+  booking_id: 'booking_id',
+  emp_id: 'emp_id'
+};
+
+exports.Prisma.Room_bookingsScalarFieldEnum = {
+  id: 'id',
+  room_id: 'room_id',
+  emp_id: 'emp_id',
+  start_time: 'start_time',
+  end_time: 'end_time',
+  purpose: 'purpose',
+  status: 'status',
+  created_at: 'created_at',
+  minutes: 'minutes'
+};
+
+exports.Prisma.SessionsScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  token: 'token',
+  expires_at: 'expires_at',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Travel_claimsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  date: 'date',
+  claim_type: 'claim_type',
+  site_name: 'site_name',
+  is_overnight: 'is_overnight',
+  accommodation_amount: 'accommodation_amount',
+  accommodation_receipt_url: 'accommodation_receipt_url',
+  report_url: 'report_url',
+  status: 'status',
+  has_pre_approval: 'has_pre_approval',
+  is_supervisor_shared: 'is_supervisor_shared',
+  supervisor_id: 'supervisor_id',
+  supervisor_approved_at: 'supervisor_approved_at',
+  supervisor_remark: 'supervisor_remark',
+  approved_by: 'approved_by',
+  approved_at: 'approved_at',
+  created_at: 'created_at',
+  remark: 'remark',
+  end_date: 'end_date'
 };
 
 exports.Prisma.SortOrder = {
@@ -408,6 +937,11 @@ exports.Prisma.SortOrder = {
 };
 
 exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -446,7 +980,39 @@ exports.Prisma.ModelName = {
   Job: 'Job',
   JobRunningNumber: 'JobRunningNumber',
   JobStepLog: 'JobStepLog',
-  RepairOrder: 'RepairOrder'
+  RepairOrder: 'RepairOrder',
+  admin_login_attempts: 'admin_login_attempts',
+  admins: 'admins',
+  asset_borrowings: 'asset_borrowings',
+  assets: 'assets',
+  birthday_claims: 'birthday_claims',
+  branches: 'branches',
+  checkins: 'checkins',
+  commission_claims: 'commission_claims',
+  daily_work_plans: 'daily_work_plans',
+  departments: 'departments',
+  divisions: 'divisions',
+  employee_warnings: 'employee_warnings',
+  employees: 'employees',
+  general_welfare_claims: 'general_welfare_claims',
+  holidays: 'holidays',
+  job_positions: 'job_positions',
+  kpi_evaluations: 'kpi_evaluations',
+  kpi_items: 'kpi_items',
+  leave_entitlements: 'leave_entitlements',
+  leave_requests: 'leave_requests',
+  leave_types: 'leave_types',
+  meeting_rooms: 'meeting_rooms',
+  monthly_payroll_data: 'monthly_payroll_data',
+  ot_requests: 'ot_requests',
+  probation_evaluations: 'probation_evaluations',
+  product_borrowings: 'product_borrowings',
+  products: 'products',
+  projects: 'projects',
+  room_booking_attendees: 'room_booking_attendees',
+  room_bookings: 'room_bookings',
+  sessions: 'sessions',
+  travel_claims: 'travel_claims'
 };
 
 /**

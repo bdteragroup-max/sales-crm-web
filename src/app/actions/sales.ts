@@ -147,6 +147,15 @@ export async function saveSalesData(formData: FormData) {
     const quotationNumber = formData.get("quotationNumber") as string;
     const quotationDateRaw = formData.get("quotationDate") as string;
     const status = formData.get("status") as string;
+    
+    if (quotationNumber && quotationNumber.trim() !== '') {
+      const existing = await prisma.quotation.findFirst({
+        where: { quotationNumber: quotationNumber.trim() }
+      });
+      if (existing) {
+        return { success: false, error: `เลขที่ใบเสนอราคา ${quotationNumber} มีอยู่ในระบบแล้ว (Quotation number already exists)` };
+      }
+    }
     const rejectReason = formData.get("rejectReason") as string;
     const jobType = formData.get("jobType") as string;
     
@@ -367,6 +376,15 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
     const quotationNumber = formData.get("quotationNumber") as string;
     const quotationDateRaw = formData.get("quotationDate") as string;
     const status = formData.get("status") as string;
+
+    if (quotationNumber && quotationNumber.trim() !== '') {
+      const existing = await prisma.quotation.findFirst({
+        where: { quotationNumber: quotationNumber.trim() }
+      });
+      if (existing && existing.id !== quotationId) {
+        return { success: false, error: `เลขที่ใบเสนอราคา ${quotationNumber} มีอยู่ในระบบแล้ว (Quotation number already exists)` };
+      }
+    }
     const rejectReason = formData.get("rejectReason") as string;
     const jobType = formData.get("jobType") as string;
     

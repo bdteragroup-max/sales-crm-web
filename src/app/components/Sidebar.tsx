@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, PhoneCall,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench
 } from 'lucide-react';
-import { logout } from '@/app/actions/auth';
+import { logout, getMyDepartment } from '@/app/actions/auth';
 
 type SidebarProps = {
   activeRoute?: string;
@@ -37,13 +37,20 @@ const repNav = [
   { icon: Settings, label: 'ตั้งค่าระบบ', href: '/settings' },
 ];
 
+const serviceNav = [
+  { icon: Wrench, label: 'ใบรับซ่อม', href: '/repair-orders' },
+];
+
 export default function Sidebar(props: SidebarProps) {
   let nav = repNav;
-  if (props.userRole === 'ผู้จัดการ') {
+  const roleStr = (props.userRole || '').toLowerCase();
+  
+  if (roleStr === 'ผู้จัดการ') {
     nav = managerNav;
-  } else if (props.userRole === 'อื่นๆ') {
-    nav = []; // No top navigation for non-sales departments
+  } else if (roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง')) {
+    nav = serviceNav; // Service / non-sales departments see repair orders
   }
+  
   return <ResponsiveSidebar {...props} nav={nav} />;
 }
 
@@ -60,6 +67,7 @@ function ResponsiveSidebar({
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isService, setIsService] = useState(false);
   
   const [tooltip, setTooltip] = useState<{ label: string; y: number } | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -70,6 +78,14 @@ function ResponsiveSidebar({
       router.prefetch(href);
     });
     router.prefetch('/settings');
+    router.prefetch('/repair-orders');
+
+    getMyDepartment().then(dept => {
+      const d = (dept || '').toLowerCase();
+      if (d.includes('service') || d.includes('บริการ') || d.includes('ซ่อม')) {
+        setIsService(true);
+      }
+    });
   }, [router, nav]);
 
   const showTooltip = useCallback((label: string, e: React.MouseEvent) => {
@@ -90,7 +106,7 @@ function ResponsiveSidebar({
     <>
       {/* ─── DESKTOP SIDEBAR (Inline, in-flow) ─── */}
       <aside
-        className="hidden md:flex w-[76px] h-screen bg-white flex-col items-center py-6 shrink-0 justify-between border-r border-gray-100 relative z-40 select-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        className="hidden md:flex w-[76px] h-screen bg-white flex-col items-center py-6 shrink-0 justify-between border-r border-gray-100 relative z-40 select-none overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] print:hidden"
       >
         {/* Top brand logo and navigation */}
         <div className="flex flex-col items-center w-full shrink-0">
@@ -144,6 +160,8 @@ function ResponsiveSidebar({
         {/* Bottom items */}
         <div className="flex flex-col items-center gap-3 w-full px-2 shrink-0">
           <div className="w-8 h-px bg-gray-100 my-1 shrink-0" />
+
+
 
           <Link
             href={userRole === 'อื่นๆ' ? '/department' : '/jobs'}
@@ -229,7 +247,7 @@ function ResponsiveSidebar({
       {/* ─── MOBILE FLOATING TRIGGER BUTTON ─── */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="md:hidden fixed left-4 bottom-4 z-50 bg-[#ff2301] text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-red-200 hover:scale-105 active:scale-95 transition-all outline-none"
+        className="md:hidden fixed left-4 bottom-4 z-50 bg-[#ff2301] text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-red-200 hover:scale-105 active:scale-95 transition-all outline-none print:hidden"
       >
         {isMobileMenuOpen ? <X size={26} strokeWidth={2.5} /> : <Menu size={26} strokeWidth={2.5} />}
       </button>
@@ -302,6 +320,8 @@ function ResponsiveSidebar({
         {/* User profile & Action buttons */}
         <div className="flex flex-col gap-4 w-full">
           <div className="h-px bg-gray-100 w-full" />
+
+
 
           <Link
             href={userRole === 'อื่นๆ' ? '/department' : '/jobs'}

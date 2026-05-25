@@ -92,7 +92,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
   const handleContactSearch = async (query: string) => {
     setFormData((prev: any) => ({ ...prev, contactName: query }));
     if (query.length >= 1) {
-      const results = await searchContacts(query, selectedCompanyId || undefined);
+      const results = await searchContacts(query);
       setContactSuggestions(results);
       setShowContactSuggestions(results.length > 0 || query.length >= 1);
     } else {

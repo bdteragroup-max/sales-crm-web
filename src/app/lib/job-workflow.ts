@@ -39,6 +39,11 @@ export const WORKFLOWS: WorkflowDef[] = [
       ],
     },
     flows: {
+      default: [
+        { key: "sales",      label: "Sales",   department: ["sales"] },
+        { key: "store",      label: "Store",   department: ["store"] },
+        { key: "pending_variant", label: "รอเช็คสต๊อก...", department: [] },
+      ],
       has_stock: [
         { key: "sales",      label: "Sales",   department: ["sales"] },
         { key: "store",      label: "Store",   department: ["store"] },
@@ -59,30 +64,43 @@ export const WORKFLOWS: WorkflowDef[] = [
   {
     jobType: "งานซ่อม",
     variantQuestion: {
-      question: "ซ่อมได้เองหรือต้องส่งนอก?",
-      askedAtStep: "service_issue",
+      question: "อยู่ในประกัน หรือ นอกประกัน (ส่งซ่อม/ซ่อมเอง)?",
+      askedAtStep: "service_receive",
       options: [
-        { label: "ซ่อมเองได้",       value: "self_repair", icon: "Wrench" },
-        { label: "ต้องส่งซ่อมนอก",   value: "outsource", icon: "Factory" },
+        { label: "ในประกัน (ซ่อมเอง)", value: "in_house_warranty", icon: "ShieldCheck" },
+        { label: "นอกประกัน (ซ่อมเอง)", value: "in_house_charged", icon: "Wrench" },
+        { label: "ส่งซ่อมนอก (Outsource)", value: "outsource", icon: "Factory" },
       ],
     },
     flows: {
-      self_repair: [
-        { key: "sales",           label: "Sales",              department: ["sales"] },
-        { key: "service_issue",   label: "Service (ออกใบรับซ่อม)", department: ["service"], note: "ref. QT ใบรับซ่อม" },
-        { key: "service_repair",  label: "Service (ซ่อม)",     department: ["service"] },
-        { key: "accounting",      label: "บัญชี",               department: ["accounting"] },
-        { key: "delivery",        label: "จัดส่ง",              department: ["delivery"] },
+      default: [
+        { key: "service_receive", label: "Service (รับซ่อม)", department: ["service", "sales"], note: "ออกใบรับซ่อม" },
+        { key: "pending_variant", label: "รอระบุประเภทซ่อม...", department: [] },
+      ],
+      in_house_warranty: [
+        { key: "service_receive", label: "Service (รับซ่อม)", department: ["service", "sales"] },
+        { key: "service_repair",  label: "Service (กำลังซ่อม)", department: ["service"] },
+        { key: "service_qc",      label: "Service (QC)",        department: ["service"] },
+        { key: "service_return",  label: "ส่งมอบ (คืนสินค้าซ่อม)", department: ["service"] },
+      ],
+      in_house_charged: [
+        { key: "service_receive",  label: "Service (รับซ่อม)", department: ["service", "sales"] },
+        { key: "sales_quote",      label: "Sales (เสนอราคา)",  department: ["sales"] },
+        { key: "customer_approval",label: "รอลูกค้าอนุมัติ",     department: ["sales"] },
+        { key: "service_repair",   label: "Service (กำลังซ่อม)", department: ["service"] },
+        { key: "service_qc",       label: "Service (QC)",        department: ["service"] },
+        { key: "service_return",   label: "ส่งมอบ (คืนสินค้าซ่อม)", department: ["service"] },
+        { key: "accounting",       label: "บัญชี",               department: ["accounting"] },
       ],
       outsource: [
-        { key: "sales",           label: "Sales",              department: ["sales"] },
-        { key: "service_issue",   label: "Service (ออกใบรับซ่อม)", department: ["service"], note: "ref. QT ใบรับซ่อม" },
-        { key: "outsource",       label: "ซ่อมนอกบริษัท",      department: ["service"] },
-        { key: "purchase",        label: "Purchase",           department: ["purchase"] },
-        { key: "service_done",    label: "Service (รับกลับ)",   department: ["service"] },
-        { key: "accounting",      label: "บัญชี",               department: ["accounting"] },
-        { key: "delivery",        label: "จัดส่ง",              department: ["delivery"] },
-      ],
+        { key: "service_receive",      label: "Service (รับซ่อม)", department: ["service", "sales"] },
+        { key: "service_outsource",    label: "Service (ส่งซ่อมนอก)", department: ["service"] },
+        { key: "purchase_followup",    label: "Purchase (ติดตาม)", department: ["purchase"] },
+        { key: "service_receive_back", label: "Service (รับกลับ)", department: ["service"] },
+        { key: "service_qc",           label: "Service (QC)",      department: ["service"] },
+        { key: "service_return",       label: "ส่งมอบ (คืนสินค้าซ่อม)", department: ["service"] },
+        { key: "accounting",           label: "บัญชี",               department: ["accounting"] },
+      ]
     },
   },
 
@@ -247,8 +265,14 @@ export function getSteps(jobType: string, variant?: string | null): StepDef[] {
   return wf.flows[key] ?? wf.flows["default"] ?? Object.values(wf.flows)[0] ?? []
 }
 
-export function getCurrentStepDef(jobType: string, currentStep: string, variant?: string | null): StepDef | undefined {
-  return getSteps(jobType, variant).find((s) => s.key === currentStep)
+export function getCurrentStepDef(jobType: string, currentStep: string, variant?: string | null, stepLogs?: any[]): StepDef | undefined {
+  const steps = getSteps(jobType, variant)
+  let idx = steps.findIndex((s) => s.key === currentStep)
+  if (idx === -1 && stepLogs) {
+    const firstUnfinished = steps.findIndex(s => !stepLogs.some(l => l.step === s.key))
+    idx = firstUnfinished === -1 ? Math.max(0, steps.length - 1) : firstUnfinished
+  }
+  return steps[idx]
 }
 
 export function getNextStep(jobType: string, currentStep: string, variant?: string | null): StepDef | undefined {

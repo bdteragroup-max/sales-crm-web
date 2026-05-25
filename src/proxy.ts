@@ -48,10 +48,12 @@ export default async function proxy(req: NextRequest) {
     console.log('[proxy] session state', { hasCookie: !!cookie, userId: session?.userId })
   } catch (e) {}
 
-  // 4. Redirect to / if the user is not authenticated
-  if (isProtectedRoute && !session?.userId) {
-    console.log('[proxy] redirecting to / (unauthenticated) for', { path })
-    return NextResponse.redirect(new URL('/', req.nextUrl))
+  // 4. Redirect to /login if the user is not authenticated and accessing protected routes or root
+  if (!session?.userId) {
+    if (isProtectedRoute || path === '/') {
+      console.log('[proxy] redirecting to /login (unauthenticated) for', { path })
+      return NextResponse.redirect(new URL('/login', req.nextUrl))
+    }
   }
 
   // 5. Redirect to /dashboard if the user is authenticated and trying to access public auth routes
@@ -69,5 +71,5 @@ export default async function proxy(req: NextRequest) {
 
 // Routes Middleware should not run on
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|.*\\.(?:png|jpg|jpeg|svg|ico|gif)$).*)'],
 }

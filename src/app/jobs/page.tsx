@@ -8,7 +8,9 @@ import JobsClientPage from "./JobsClientPage";
 
 export const dynamic = 'force-dynamic';
 
-export default async function JobsPage() { 
+export default async function JobsPage(props: { searchParams?: Promise<any> | any }) { 
+  const searchParams = props.searchParams ? await props.searchParams : {};
+  const actionParam = searchParams.action;
   const session = (await cookies()).get('session')?.value
   const payload = await decrypt(session)
   
@@ -86,6 +88,7 @@ export default async function JobsPage() {
           isManager={isManager} 
           currentUser={user.fullName ?? ""}
           userDept={`${resolvedDept} ${user.role}`} 
+          actionParam={actionParam}
         />
       </main>
     </div>
