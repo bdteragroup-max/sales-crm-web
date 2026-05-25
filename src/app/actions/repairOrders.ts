@@ -2,7 +2,6 @@
 
 import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
-import { Prisma } from "@prisma/client";
 
 export interface RepairOrderItem {
   type?: string;
@@ -86,11 +85,11 @@ export async function createRepairOrder(formData: RepairOrderFormData) {
       customerCompany: formData.customerCompany,
       customerAddress: formData.customerAddress,
       salesPerson: formData.salesPerson,
-      items: (formData.items || []) as unknown as Prisma.InputJsonArray,
+      items: (formData.items || []) as any,
       symptoms: formData.symptoms,
       settings: formData.settings,
-      checklist: (formData.checklist || {}) as unknown as Prisma.InputJsonObject,
-      checklistImages: (formData.checklistImages || {}) as unknown as Prisma.InputJsonObject,
+      checklist: (formData.checklist || {}) as any,
+      checklistImages: (formData.checklistImages || {}) as any,
       receivedDate: formData.receivedDate ? new Date(formData.receivedDate) : null,
       sentDate: formData.sentDate ? new Date(formData.sentDate) : null,
     };
