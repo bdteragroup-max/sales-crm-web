@@ -18,11 +18,11 @@ const prismaClientSingleton = () => {
   }
 
   if (!dbUrl) {
-    throw new Error("DATABASE_URL is not defined in environment or .env file!");
+    console.error("DATABASE_URL is not defined in environment or .env file! Database connections will fail.");
   }
 
   const pool = new Pool({ 
-    connectionString: dbUrl,
+    connectionString: dbUrl || undefined,
     max: 2, // Reduced to 2 to prevent EMAXCONNSESSION in highly concurrent serverless environments
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,

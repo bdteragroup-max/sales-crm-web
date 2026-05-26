@@ -18,11 +18,11 @@ const prismaClientSingleton = () => {
   }
 
   if (!dbUrl) {
-    throw new Error("TERA_DB_URL is not defined in environment or .env file!");
+    console.error("TERA_DB_URL is not defined in environment or .env file! Database connections will fail.");
   }
 
   const pool = new Pool({ 
-    connectionString: dbUrl,
+    connectionString: dbUrl || undefined,
     max: 2,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
