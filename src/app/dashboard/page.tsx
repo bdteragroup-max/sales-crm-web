@@ -10,6 +10,7 @@ export const dynamic = 'force-dynamic';
 export default async function Dashboard(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const user = await getUser();
   if (!user) redirect('/');
+  if (user.role === 'อื่นๆ') redirect('/department');
 
   const searchParams = await props.searchParams;
   const rawSalespersonId = typeof searchParams.salespersonId === 'string' ? searchParams.salespersonId : undefined;
