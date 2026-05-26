@@ -145,12 +145,6 @@ export default function DashboardUI({
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-gray-400 font-bold animate-pulse">กำลังโหลดแดชบอร์ด...</div>
-    </div>;
-  }
-
   const handleFilterChange = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
@@ -177,6 +171,12 @@ export default function DashboardUI({
   const [showAllAlerts, setShowAllAlerts] = React.useState(false);
   const [advancedTab, setAdvancedTab] = React.useState<'customer' | 'forecast'>('customer');
   const [activeDashboardTab, setActiveDashboardTab] = React.useState<'sales' | 'telesales'>('sales');
+
+  if (!isMounted) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-gray-400 font-bold animate-pulse">กำลังโหลดแดชบอร์ด...</div>
+    </div>;
+  }
 
   const todayStr = new Date().toLocaleDateString('th-TH', {
     day: 'numeric', month: 'long', year: 'numeric'
