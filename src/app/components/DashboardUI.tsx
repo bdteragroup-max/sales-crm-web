@@ -138,12 +138,7 @@ export default function DashboardUI({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [isMounted, setIsMounted] = React.useState(false);
   const [isSalespersonDropdownOpen, setIsSalespersonDropdownOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const handleFilterChange = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -171,12 +166,6 @@ export default function DashboardUI({
   const [showAllAlerts, setShowAllAlerts] = React.useState(false);
   const [advancedTab, setAdvancedTab] = React.useState<'customer' | 'forecast'>('customer');
   const [activeDashboardTab, setActiveDashboardTab] = React.useState<'sales' | 'telesales'>('sales');
-
-  if (!isMounted) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-gray-400 font-bold animate-pulse">กำลังโหลดแดชบอร์ด...</div>
-    </div>;
-  }
 
   const todayStr = new Date().toLocaleDateString('th-TH', {
     day: 'numeric', month: 'long', year: 'numeric'
