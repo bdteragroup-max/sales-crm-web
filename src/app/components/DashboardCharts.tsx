@@ -11,7 +11,7 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
   return (
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart
+        <ComposedChart key={data?.length || 0}
           data={data}
           margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
         >
@@ -234,7 +234,7 @@ export function ProductMixPieChart({ data }: { data: any[] }) {
   return (
     <div className="h-72 w-full flex flex-col items-center justify-center relative">
       <ResponsiveContainer width="100%" height="80%">
-        <PieChart>
+        <PieChart key={chartData.length}>
           <Pie
             data={chartData}
             cx="50%"
@@ -272,7 +272,7 @@ export function ProductMixPieChart({ data }: { data: any[] }) {
 export function PipelineFunnelChart({ data }: { data: any[] }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart
+      <BarChart key={data?.length || 0}
         layout="vertical"
         data={data}
         margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
@@ -305,7 +305,7 @@ export function LostReasonPieChart({ data }: { data: any[] }) {
   
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <PieChart>
+      <PieChart key={data.length}>
         <Pie
           data={data}
           cx="50%"
@@ -333,7 +333,7 @@ export function LostReasonPieChart({ data }: { data: any[] }) {
 export function RegionalBarChart({ data }: { data: any[] }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart
+      <BarChart key={data?.length || 0}
         layout="vertical"
         data={data}
         margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
@@ -364,7 +364,7 @@ export function RegionalBarChart({ data }: { data: any[] }) {
 export function GrowthComparisonChart({ data }: { data: any[] }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+      <BarChart key={data?.length || 0} data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
         <YAxis hide />
@@ -388,7 +388,7 @@ export function AnalyticalDonutChart({ data, label }: { data: any[], label?: str
   return (
     <div className="h-full w-full flex flex-col relative">
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
+        <PieChart key={data.length}>
           <Pie
             data={data}
             cx="50%"
@@ -421,7 +421,7 @@ export function AnalyticalDonutChart({ data, label }: { data: any[], label?: str
 export function WinRateBarChart({ data }: { data: any[] }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+      <BarChart key={data?.length || 0} data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
         <XAxis 
           dataKey="name" 
@@ -450,7 +450,7 @@ export function WinRateBarChart({ data }: { data: any[] }) {
 export function ClosingTimeChart({ data }: { data: any[] }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+      <BarChart key={data?.length || 0} data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 9 }} />
         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 9 }} />
@@ -467,7 +467,7 @@ export function ClosingTimeChart({ data }: { data: any[] }) {
 export function DecisionMakerChart({ data }: { data: any[] }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+      <BarChart key={data?.length || 0} data={data} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
         <XAxis type="number" hide />
         <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} width={80} />
         <RechartsTooltip 
@@ -489,7 +489,7 @@ export function ProductPerformanceChart({ data }: { data: any[] }) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart data={data} margin={{ top: 20, right: 20, left: 20, bottom: 0 }}>
+      <ComposedChart key={data?.length || 0} data={data} margin={{ top: 20, right: 20, left: 20, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
         <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(val) => `฿${(val / 1000).toFixed(0)}k`} />
@@ -513,7 +513,7 @@ export function HorizontalLeaderboardChart({ data }: { data: any[] }) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart
+      <BarChart key={data?.length || 0}
         layout="vertical"
         data={data}
         margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
@@ -556,7 +556,7 @@ export function ComposedActivityCorrelationChart({ data }: { data: any[] }) {
   return (
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart
+        <ComposedChart key={data?.length || 0}
           data={data}
           margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
         >
@@ -654,7 +654,7 @@ export function PipelineComposedStageChart({ data }: { data: any[] }) {
   return (
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart
+        <ComposedChart key={data?.length || 0}
           data={data}
           margin={{ top: 20, right: 10, left: 10, bottom: 10 }}
         >
@@ -751,7 +751,7 @@ export function ProductPerformanceComposedChart({ data }: { data: any[] }) {
   return (
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart
+        <ComposedChart key={data?.length || 0}
           data={data}
           margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
         >
@@ -806,7 +806,7 @@ export function RegionalComposedChart({ data }: { data: any[] }) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart
+      <ComposedChart key={data?.length || 0}
         data={data}
         margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
       >
@@ -860,7 +860,7 @@ export function LostReasonSummaryChart({ data }: { data: any[] }) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart
+      <ComposedChart key={data.slice(0, 5)?.length || 0}
         layout="vertical"
         data={data.slice(0, 5)}
         margin={{ top: 10, right: 30, left: 40, bottom: 5 }}
@@ -914,6 +914,7 @@ export function LostReasonByProductChart({ data }: { data: any }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
+        key={categories.join(',')}
         data={chartData}
         margin={{ top: 20, right: 30, left: 10, bottom: 5 }}
       >
@@ -956,7 +957,7 @@ export function ForecastAccuracyChart({ data }: { data: any[] }) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart
+      <ComposedChart key={data?.length || 0}
         data={data}
         margin={{ top: 10, right: 20, left: 10, bottom: 5 }}
       >
@@ -1011,7 +1012,7 @@ export function TelesalesComposedChart({ data }: { data: any[] }) {
   return (
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart
+        <ComposedChart key={data?.length || 0}
           data={data}
           margin={{ top: 15, right: 10, left: 10, bottom: 5 }}
         >
