@@ -1,10 +1,28 @@
 import { PrismaClient } from '../../generated/client'
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
+import fs from 'fs'
+import path from 'path'
 
 const prismaClientSingleton = () => {
+  let dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    try {
+      const envPath = path.join(process.cwd(), '.env');
+      const envFile = fs.readFileSync(envPath, 'utf-8');
+      const match = envFile.match(/DATABASE_URL="?([^"\n]+)"?/);
+      if (match) dbUrl = match[1];
+    } catch (e) {
+      console.warn("Failed to load DATABASE_URL from .env file");
+    }
+  }
+
+  if (!dbUrl) {
+    throw new Error("DATABASE_URL is not defined in environment or .env file!");
+  }
+
   const pool = new Pool({ 
-    connectionString: process.env.DATABASE_URL,
+    connectionString: dbUrl,
     max: 2, // Reduced to 2 to prevent EMAXCONNSESSION in highly concurrent serverless environments
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,

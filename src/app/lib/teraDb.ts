@@ -1,10 +1,28 @@
 import { PrismaClient } from '../../generated/tera-client'
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
+import fs from 'fs'
+import path from 'path'
 
 const prismaClientSingleton = () => {
+  let dbUrl = process.env.TERA_DB_URL;
+  if (!dbUrl) {
+    try {
+      const envPath = path.join(process.cwd(), '.env');
+      const envFile = fs.readFileSync(envPath, 'utf-8');
+      const match = envFile.match(/TERA_DB_URL="?([^"\n]+)"?/);
+      if (match) dbUrl = match[1];
+    } catch (e) {
+      console.warn("Failed to load TERA_DB_URL from .env file");
+    }
+  }
+
+  if (!dbUrl) {
+    throw new Error("TERA_DB_URL is not defined in environment or .env file!");
+  }
+
   const pool = new Pool({ 
-    connectionString: process.env.TERA_DB_URL,
+    connectionString: dbUrl,
     max: 2,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
