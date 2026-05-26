@@ -5,13 +5,19 @@ import fs from 'fs'
 import path from 'path'
 
 const prismaClientSingleton = () => {
-  let dbUrl = process.env.TERA_DB_URL;
+  let dbUrl = process.env.TERA_DB_URL || process.env.DATABASE_URL;
   if (!dbUrl) {
     try {
       const envPath = path.join(process.cwd(), '.env');
       const envFile = fs.readFileSync(envPath, 'utf-8');
       const match = envFile.match(/TERA_DB_URL="?([^"\n]+)"?/);
-      if (match) dbUrl = match[1];
+      if (match) {
+        dbUrl = match[1];
+      } else {
+        // Fallback to DATABASE_URL in .env if TERA_DB_URL is missing
+        const dbMatch = envFile.match(/DATABASE_URL="?([^"\n]+)"?/);
+        if (dbMatch) dbUrl = dbMatch[1];
+      }
     } catch (e) {
       console.warn("Failed to load TERA_DB_URL from .env file");
     }
