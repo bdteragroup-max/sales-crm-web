@@ -4,6 +4,7 @@ import { decrypt } from '@/app/lib/session'
 import { cache } from 'react'
 import prisma from '@/app/lib/db'
 import { SessionPayload } from '@/app/lib/definitions'
+import { redirect } from 'next/navigation'
 
 export const verifySession = cache(async () => {
   let cookie: string | undefined
@@ -47,7 +48,8 @@ export const getUser = cache(async () => {
 
     if (!user || !user.isActive) {
       console.log('[dal] getUser not found or inactive', { userId: session.userId })
-      return null
+      // Clear invalid session cookie to prevent infinite redirect loop
+      redirect('/api/auth/logout')
     }
 
     console.log('[dal] getUser found', { id: user.id, email: user.email })
