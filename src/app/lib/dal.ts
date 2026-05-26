@@ -31,8 +31,9 @@ export const getUser = cache(async () => {
   const session = await verifySession()
   if (!session.isAuth) return null
 
+  let user = null;
   try {
-    const user = await prisma.user.findUnique({
+    user = await prisma.user.findUnique({
       where: {
         id: session.userId as string,
       },
@@ -45,17 +46,17 @@ export const getUser = cache(async () => {
         isActive: true,
       },
     })
-
-    if (!user || !user.isActive) {
-      console.log('[dal] getUser not found or inactive', { userId: session.userId })
-      // Clear invalid session cookie to prevent infinite redirect loop
-      redirect('/api/auth/logout')
-    }
-
-    console.log('[dal] getUser found', { id: user.id, email: user.email })
-    return user
   } catch (error) {
     console.error('[dal] getUser error', error)
     return null
   }
+
+  if (!user || !user.isActive) {
+    console.log('[dal] getUser not found or inactive', { userId: session.userId })
+    // Clear invalid session cookie to prevent infinite redirect loop
+    redirect('/api/auth/logout')
+  }
+
+  console.log('[dal] getUser found', { id: user.id, email: user.email })
+  return user
 })
