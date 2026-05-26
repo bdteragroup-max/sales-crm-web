@@ -18,16 +18,21 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   const province = typeof searchParams.province === 'string' ? searchParams.province : undefined;
   const atRiskDays = typeof searchParams.atRiskDays === 'string' ? parseInt(searchParams.atRiskDays) : 60;
 
+  // Get today's date in Bangkok timezone (Asia/Bangkok) to avoid server-local timezone morning cuts
   const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
 
+  // Bangkok timezone offset helper (UTC+7)
   const BKK_OFFSET_MS = 7 * 60 * 60 * 1000;
+  // Converts a YYYY-MM-DD string to Bangkok midnight in UTC
   const bkkStartOfDay = (dateStr: string) => new Date(`${dateStr}T00:00:00+07:00`);
   const bkkEndOfDay = (dateStr: string) => new Date(`${dateStr}T23:59:59.999+07:00`);
+  // Converts a UTC Date to YYYY-MM-DD in Bangkok timezone (for display)
   const toBkkDateStr = (d: Date) => {
     const bkk = new Date(d.getTime() + BKK_OFFSET_MS);
     return bkk.toISOString().split('T')[0];
   };
 
+  // Date Filtering Logic (Range or Month/Year)
   let filterStart: Date;
   let filterEnd: Date;
 
@@ -39,6 +44,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     const year = typeof searchParams.year === 'string' ? parseInt(searchParams.year) : today.getFullYear();
     const pad = (n: number) => String(n).padStart(2, '0');
     
+    // Default to Month-To-Date (MTD) if viewing current month/year
     const isCurrentMonth = month === (today.getMonth() + 1) && year === today.getFullYear();
     const lastDay = isCurrentMonth ? today.getDate() : new Date(year, month, 0).getDate();
     
@@ -49,21 +55,27 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   const isManager = user.role === 'ผู้จัดการ';
   const thirtyDaysAgoFilter = new Date(filterEnd.getTime() - (30 * 24 * 60 * 60 * 1000));
   
+  // 1. Calculate relative date ranges
   const refDate = filterEnd;
   const refYear = refDate.getFullYear();
   const refMonth = refDate.getMonth();
   
+  // QTD
   const qStartMonth = Math.floor(refMonth / 3) * 3;
   const qtdStart = new Date(refYear, qStartMonth, 1);
+  // YTD
   const ytdStart = new Date(refYear, 0, 1);
   
+  // Previous Period (MoM or based on current filter duration)
   const durationMs = filterEnd.getTime() - filterStart.getTime();
   const prevPeriodStart = new Date(filterStart.getTime() - durationMs - 1);
   const prevPeriodEnd = new Date(filterEnd.getTime() - durationMs - 1);
   
+  // Same Period Last Year (YoY)
   const yoyStart = new Date(filterStart); yoyStart.setFullYear(yoyStart.getFullYear() - 1);
   const yoyEnd = new Date(filterEnd); yoyEnd.setFullYear(yoyEnd.getFullYear() - 1);
 
+  // 0. Fetch subordinates and the manager themselves to allow managers to view and select their own sales
   let salesReps: any[] = [];
   if (isManager) {
     let subEmpIds: string[] = [];
@@ -75,6 +87,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
       subEmpIds = subordinates.map(s => s.emp_id);
     } catch (err) {
       console.warn("Failed to fetch subordinates from HR database:", err);
+      // Fallback: Manager will only see their own data if HR db fails
     }
 
     salesReps = await prisma.user.findMany({
@@ -105,21 +118,27 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     ? (salespersonIds.length > 0 ? salespersonIds : subordinateIds) 
     : [user.id];
 
+  // Centralized Probabilities Configuration for Pipeline Stages
   const PIPELINE_PROBABILITIES = {
-    target: 0.1,
-    quotation: 0.2,
-    negotiation: 0.6,
-    closing: 1.0
+    target: 0.1,       // ความสนใจ
+    quotation: 0.2,    // ใบเสนอราคา
+    negotiation: 0.6,  // เจรจาต่อรอง
+    closing: 1.0       // ปิดการขาย
   };
 
+  // TODO: Change to actual data when the accounting system is ready.
   const PRODUCT_MARGINS: Record<string, number> = {
-    'Solar Roof': 15,
-    'Inverter Veichi': 38,
-    'Motor': 30,
-    'Pump': 22,
-    'อื่นๆ': 25,
+    'Solar Roof': 15,       // Solar Roof has low margin e.g. 15% due to hardware/panel costs
+    'Inverter Veichi': 38,   // Veichi Inverter has high margin e.g. 38%
+    'Motor': 30,             // Motor has 30%
+    'Pump': 22,              // Pump has moderate margin e.g. 22%
+    'อื่นๆ': 25,              // Others default is 25%
   };
 
+  // getQuotationWhereClause filters quotations by date using robust fallbacks for null billing/PO dates.
+  // Note: Billed/PO transactions with null billing/PO dates fall back to quotationDate and createdAt.
+  // This means that if a quotation was created in a previous month and recently updated to won/PO,
+  // it is counted in its original period of creation/quotation (for data integrity and consistency).
   const getQuotationWhereClause = (start: Date, end: Date) => ({
     salespersonId: { in: filterIds }, 
     company: province ? { province } : undefined,
@@ -161,6 +180,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     ]
   });
 
+  // Parallel data fetching for all metrics
   const [
     quotationSummary,
     pendingAgg,
@@ -187,12 +207,14 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     ordersAgg,
     jobsAgg
   ] = await Promise.all([
+    // 1. Grouped Quotation Metrics (Filtered Range)
     prisma.quotation.groupBy({
       by: ['status'],
       _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
       _count: { id: true },
       where: getQuotationWhereClause(filterStart, filterEnd)
     }),
+    // 2. Pending > 30 days
     prisma.quotation.aggregate({
       _sum: { totalAmountBeforeVat: true },
       _count: { id: true },
@@ -206,32 +228,38 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         company: province ? { province } : undefined
       },
     }),
+    // 3. Previous Period aggregate
     prisma.quotation.aggregate({
       _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
       _count: { id: true },
       where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd)
     }),
+    // 4. YoY Period aggregate
     prisma.quotation.aggregate({
       _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
       _count: { id: true },
       where: getQuotationWhereClause(yoyStart, yoyEnd)
     }),
+    // 5. QTD aggregate
     prisma.quotation.aggregate({
       _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
       _count: { id: true },
       where: getQuotationWhereClause(qtdStart, filterEnd)
     }),
+    // 6. YTD aggregate
     prisma.quotation.aggregate({
       _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
       _count: { id: true },
       where: getQuotationWhereClause(ytdStart, filterEnd)
     }),
+    // 7. Recent activities
     prisma.quotation.findMany({
       take: 5,
       orderBy: { createdAt: 'desc' },
       where: getQuotationWhereClause(filterStart, filterEnd),
       include: { company: true },
     }),
+    // 8. Next meetings
     prisma.telesale.findMany({
       where: { 
         userId: { in: filterIds }, 
@@ -242,7 +270,9 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
       orderBy: { lastMeetingDate: 'asc' },
       include: { company: true },
     }),
+    // 9. Users count
     isManager ? prisma.user.count({ where: { employeeSale: { teamLeader: user.fullName }, id: { not: user.id } } }) : Promise.resolve(1),
+    // 10. Monthly Targets (Fetch for entire year to calculate QTD/YTD targets)
     (prisma as any)['monthlyTarget'] ? (prisma as any)['monthlyTarget'].findMany({
       where: { 
         year: refYear,
@@ -252,6 +282,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         ]
       }
     }) : Promise.resolve([]),
+    // 11. History Quotations
     prisma.quotation.findMany({
       where: getQuotationWhereClause(filterStart, filterEnd),
       select: { 
@@ -265,12 +296,18 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         quotationDate: true
       }
     }),
+    // 12. History Telesales
     prisma.telesale.findMany({
       where: { 
         userId: { in: filterIds }, 
         OR: [
-          { callDate: { gte: filterStart, lte: filterEnd } },
-          { callDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+          {
+            callDate: { gte: filterStart, lte: filterEnd }
+          },
+          {
+            callDate: null,
+            createdAt: { gte: filterStart, lte: filterEnd }
+          }
         ],
         company: province ? { province } : undefined
       },
@@ -286,6 +323,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         companyId: true
       }
     }),
+    // 13. Product Mix (supporting fallbacks for null billing/PO dates)
     prisma.quotation.groupBy({
       by: ['productType'],
       _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
@@ -297,20 +335,33 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
             status: 'เปิดบิลแล้ว',
             OR: [
               { billingDate: { gte: filterStart, lte: filterEnd } },
-              { billingDate: null, OR: [{ quotationDate: { gte: filterStart, lte: filterEnd } }, { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }] }
+              { 
+                billingDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
             ]
           },
           {
             status: { startsWith: 'PO' },
             OR: [
               { poDate: { gte: filterStart, lte: filterEnd } },
-              { poDate: null, OR: [{ quotationDate: { gte: filterStart, lte: filterEnd } }, { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }] }
+              { 
+                poDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
             ]
           }
         ],
         company: province ? { province } : undefined
       }
     }),
+    // 14. Detailed Analytical Data (supporting fallbacks for null billing/PO dates)
     prisma.quotation.findMany({
       where: { 
         salespersonId: { in: filterIds }, 
@@ -319,19 +370,34 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
             status: 'เปิดบิลแล้ว',
             OR: [
               { billingDate: { gte: filterStart, lte: filterEnd } },
-              { billingDate: null, OR: [{ quotationDate: { gte: filterStart, lte: filterEnd } }, { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }] }
+              { 
+                billingDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
             ]
           },
           {
             status: { startsWith: 'PO' },
             OR: [
               { poDate: { gte: filterStart, lte: filterEnd } },
-              { poDate: null, OR: [{ quotationDate: { gte: filterStart, lte: filterEnd } }, { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }] }
+              { 
+                poDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
             ]
           },
           {
             status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
-            OR: [{ quotationDate: { gte: filterStart, lte: filterEnd } }, { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }]
+            OR: [
+              { quotationDate: { gte: filterStart, lte: filterEnd } },
+              { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+            ]
           },
           {
             status: { notIn: ['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] }
@@ -349,19 +415,25 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         }
       }
     }),
+    // 15. Count of companies grouped by province for potential and filter list
     prisma.company.groupBy({
       by: ['province'],
       _count: { id: true },
       where: { province: { not: null } }
     }),
+    // 16. Previous Period Quotations for Sales Cycle & Flow Benchmarks
     prisma.quotation.findMany({
       where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd),
       select: { createdAt: true, status: true, billingDate: true, poDate: true, updatedAt: true, totalAmountBeforeVat: true, quotationDate: true }
     }),
+    // 17. All-time Won Quotations for Customer Lifetime Analytics (CLV, At-Risk, New vs Existing)
     prisma.quotation.findMany({
       where: {
         salespersonId: { in: filterIds },
-        OR: [{ status: 'เปิดบิลแล้ว' }, { status: { startsWith: 'PO' } }],
+        OR: [
+          { status: 'เปิดบิลแล้ว' },
+          { status: { startsWith: 'PO' } }
+        ],
       },
       select: {
         id: true,
@@ -376,12 +448,17 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
       },
       orderBy: { createdAt: 'asc' }
     }),
+    // 18. MonthlyTargets for last 6 months (Forecast Accuracy)
     (prisma as any)['monthlyTarget'] ? (prisma as any)['monthlyTarget'].findMany({
       where: {
         year: { in: [refYear, refYear - 1] },
-        OR: [{ userId: { in: filterIds } }, { userId: null }]
+        OR: [
+          { userId: { in: filterIds } },
+          { userId: null }
+        ]
       }
     }) : Promise.resolve([]),
+    // 19. Previous Period daily quotations for MoM overlay
     prisma.quotation.findMany({
       where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd),
       select: { 
@@ -394,11 +471,17 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         quotationDate: true
       }
     }),
+    // 20. Team-wide Telesales Benchmarks
     prisma.telesale.findMany({
       where: {
         OR: [
-          { callDate: { gte: filterStart, lte: filterEnd } },
-          { callDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+          {
+            callDate: { gte: filterStart, lte: filterEnd }
+          },
+          {
+            callDate: null,
+            createdAt: { gte: filterStart, lte: filterEnd }
+          }
         ],
         company: province ? { province } : undefined
       },
@@ -411,6 +494,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         callDate: true
       }
     }),
+    // 21. Company-wide Closed Quotations (for sales cycle fallbacks & Win Rate benchmarks, supporting null date fallbacks)
     prisma.quotation.findMany({
       where: {
         OR: [
@@ -418,19 +502,34 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
             status: 'เปิดบิลแล้ว',
             OR: [
               { billingDate: { gte: filterStart, lte: filterEnd } },
-              { billingDate: null, OR: [{ quotationDate: { gte: filterStart, lte: filterEnd } }, { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }] }
+              { 
+                billingDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
             ]
           },
           {
             status: { startsWith: 'PO' },
             OR: [
               { poDate: { gte: filterStart, lte: filterEnd } },
-              { poDate: null, OR: [{ quotationDate: { gte: filterStart, lte: filterEnd } }, { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }] }
+              { 
+                poDate: null, 
+                OR: [
+                  { quotationDate: { gte: filterStart, lte: filterEnd } },
+                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+                ]
+              }
             ]
           },
           {
             status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
-            OR: [{ quotationDate: { gte: filterStart, lte: filterEnd } }, { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }]
+            OR: [
+              { quotationDate: { gte: filterStart, lte: filterEnd } },
+              { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+            ]
           }
         ],
         company: province ? { province } : undefined
@@ -445,22 +544,30 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         productType: true
       }
     }),
+    // 22. Telesales KPIs
     prisma.telesalesKPI.findMany({
       where: {
         month: refMonth + 1,
         year: refYear,
-        OR: [{ userId: { in: filterIds } }, { userId: null }]
+        OR: [
+          { userId: { in: filterIds } },
+          { userId: null }
+        ]
       }
     }),
+    // 23. Orders tracking metrics
     prisma.order.groupBy({
       by: ['status'],
       _sum: { value: true },
       _count: { id: true },
       where: {
         company: province ? { province } : undefined,
-        OR: []
+        OR: [
+        ]
       }
     }),
+    
+    // 24. Jobs tracking metrics
     prisma.job.groupBy({
       by: ['currentStep'],
       _count: { id: true },
@@ -475,6 +582,8 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     })
   ]);
 
+  // --- Processing Logic ---
+  
   const wonGroup = (quotationSummary as any[]).find(g => g.status === 'เปิดบิลแล้ว');
   const wonVal = wonGroup?._sum.actualClosingAmount ?? wonGroup?._sum.totalAmountBeforeVat ?? 0;
   const wonCount = wonGroup?._count.id ?? 0;
@@ -489,14 +598,18 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   const lostVal = lostGroups.reduce((acc, g) => acc + (g._sum.totalAmountBeforeVat ?? 0), 0);
   const lostCount = lostGroups.reduce((acc, g) => acc + (g._count.id ?? 0), 0);
 
+  // Growth Calculations
   const prevVal = prevPeriodAgg._sum.actualClosingAmount ?? prevPeriodAgg._sum.totalAmountBeforeVat ?? 0;
   const momGrowth = prevVal > 0 ? ((wonVal - prevVal) / prevVal) * 100 : 0;
+
   const yoyVal = yoyPeriodAgg._sum.actualClosingAmount ?? yoyPeriodAgg._sum.totalAmountBeforeVat ?? 0;
   const yoyGrowth = yoyVal > 0 ? ((wonVal - yoyVal) / yoyVal) * 100 : 0;
 
+  // QTD/YTD Revenue
   const qtdRevenue = qtdAgg._sum.actualClosingAmount ?? qtdAgg._sum.totalAmountBeforeVat ?? 0;
   const ytdRevenue = ytdAgg._sum.actualClosingAmount ?? ytdAgg._sum.totalAmountBeforeVat ?? 0;
 
+  // Target Achievement
   const currentMonth = refMonth + 1;
   const currentQuarterMonths = [qStartMonth + 1, qStartMonth + 2, qStartMonth + 3];
   
@@ -504,16 +617,20 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   let targetQTD = 0;
 
   if (isManager && salespersonIds.length === 0) {
+    // Manager looking at whole team: sum the targets of active subordinates who have targets assigned
     targetMTD = (monthlyTargetResult as any[])
       .filter(t => t.month === currentMonth && t.userId !== null && subordinateIds.includes(t.userId))
       .reduce((sum, t) => sum + (t.amount || 0), 0);
+
     targetQTD = (monthlyTargetResult as any[])
       .filter(t => currentQuarterMonths.includes(t.month) && t.userId !== null && subordinateIds.includes(t.userId))
       .reduce((sum, t) => sum + (t.amount || 0), 0);
   } else {
+    // Single salesperson or specific filtered salespeople: sum their individual targets
     targetMTD = (monthlyTargetResult as any[])
       .filter(t => t.month === currentMonth && t.userId !== null && filterIds.includes(t.userId))
       .reduce((sum, t) => sum + (t.amount || 0), 0);
+
     targetQTD = (monthlyTargetResult as any[])
       .filter(t => currentQuarterMonths.includes(t.month) && t.userId !== null && filterIds.includes(t.userId))
       .reduce((sum, t) => sum + (t.amount || 0), 0);
@@ -522,11 +639,12 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   const achMTD = targetMTD > 0 ? (wonVal / targetMTD) * 100 : 0;
   const achQTD = targetQTD > 0 ? (qtdRevenue / targetQTD) * 100 : 0;
 
+  // Funnel & Conversion Rates
   const totalLeads = historyTelesales.length;
-  const connectedPct = totalLeads > 0 ? (historyTelesales.filter((t: any) => t.callStatus === 'รับสาย').length / totalLeads) * 100 : 0;
   const conversionRate = totalLeads > 0 ? (wonCount / totalLeads) * 100 : 0;
   const avgTicketSize = wonCount > 0 ? wonVal / wonCount : 0;
 
+  // Dynamic Telesales KPIs Calculation
   let weeklyCallGoal = 0;
   let monthlyCallGoal = 0;
   let appointmentGoal = 0;
@@ -534,6 +652,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   let repCountForKPI = 0;
 
   const teamKPI = (telesalesKPIsResult as any[]).find(k => k.userId === null);
+
   filterIds.forEach(uId => {
     const userKPI = (telesalesKPIsResult as any[]).find(k => k.userId === uId);
     weeklyCallGoal += userKPI?.weeklyCallGoal ?? teamKPI?.weeklyCallGoal ?? 300;
@@ -542,8 +661,10 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     connectionRateMinSum += userKPI?.connectionRateMin ?? teamKPI?.connectionRateMin ?? 0.6;
     repCountForKPI++;
   });
+
   const connectionRateMin = repCountForKPI > 0 ? (connectionRateMinSum / repCountForKPI) : 0.6;
 
+  // Categorical Data Processing & Enriched Aggregations
   const lostReasonMap: Record<string, { name: string, value: number, lostValue: number }> = {};
   const regionalMetrics: Record<string, { name: string, value: number, activeCompanies: Set<string> }> = {};
   const bizTypePipelineMap: Record<string, number> = {};
@@ -551,9 +672,11 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   const segmentMap: Record<string, number> = {};
   let lostDealsWithoutReasonCount = 0;
 
+  // Loss Reason Breakdowns
   const lostReasonsByProduct: Record<string, Record<string, number>> = {};
   const lostReasonsBySalesperson: Record<string, Record<string, number>> = {};
 
+  // Initialize all known provinces from allProvinces with 0 active customer stats
   allProvinces.forEach(p => {
     if (p.province) {
       regionalMetrics[p.province] = { name: p.province, value: 0, activeCompanies: new Set() };
@@ -562,28 +685,42 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
   analyticalData.forEach((q: any) => {
     const isLost = q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก');
+    
     if (isLost) {
       const reasonCategory = q.winLossReason || 'ไม่ระบุเหตุผล';
-      if (!q.winLossReason || !q.winLossReason.trim()) lostDealsWithoutReasonCount += 1;
-      if (!lostReasonMap[reasonCategory]) lostReasonMap[reasonCategory] = { name: reasonCategory, value: 0, lostValue: 0 };
+      if (!q.winLossReason || !q.winLossReason.trim()) {
+        lostDealsWithoutReasonCount += 1;
+      }
+      
+      // Top Lost Reasons
+      if (!lostReasonMap[reasonCategory]) {
+        lostReasonMap[reasonCategory] = { name: reasonCategory, value: 0, lostValue: 0 };
+      }
       lostReasonMap[reasonCategory].value += 1;
       lostReasonMap[reasonCategory].lostValue += (q.totalAmountBeforeVat || 0);
 
+      // By Product
       const pType = q.productType || 'อื่นๆ';
       if (!lostReasonsByProduct[pType]) lostReasonsByProduct[pType] = {};
       lostReasonsByProduct[pType][reasonCategory] = (lostReasonsByProduct[pType][reasonCategory] || 0) + 1;
 
+      // By Salesperson
       const seller = salesReps.find(r => r.id === q.salespersonId)?.fullName || user.fullName;
       if (!lostReasonsBySalesperson[seller]) lostReasonsBySalesperson[seller] = {};
       lostReasonsBySalesperson[seller][reasonCategory] = (lostReasonsBySalesperson[seller][reasonCategory] || 0) + 1;
     }
 
     const region = q.company?.province;
-    if (region) {
-      if (!regionalMetrics[region]) regionalMetrics[region] = { name: region, value: 0, activeCompanies: new Set() };
+    if (region) { // Filter province !== null
+      if (!regionalMetrics[region]) {
+        regionalMetrics[region] = { name: region, value: 0, activeCompanies: new Set() };
+      }
+      
       if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) {
         regionalMetrics[region].value += (q.actualClosingAmount || q.totalAmountBeforeVat || 0);
-        if (q.companyId) regionalMetrics[region].activeCompanies.add(q.companyId);
+        if (q.companyId) {
+          regionalMetrics[region].activeCompanies.add(q.companyId);
+        }
       }
     }
     
@@ -595,24 +732,37 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     else bizTypePipelineMap[biz] = (bizTypePipelineMap[biz] || 0) + (q.totalAmountBeforeVat || 0);
   });
 
-  const totalCompaniesMap = Object.fromEntries(allProvinces.map(c => [c.province || 'ไม่ระบุ', c._count.id]));
+  const totalCompaniesMap = Object.fromEntries(
+    allProvinces.map(c => [c.province || 'ไม่ระบุ', c._count.id])
+  );
 
   const enrichedRegions = Object.entries(regionalMetrics).map(([name, data]) => {
     const activeCusts = data.activeCompanies.size;
     const totalCusts = totalCompaniesMap[name] || activeCusts;
     const penetrationRate = totalCusts > 0 ? (activeCusts / totalCusts) * 100 : 0;
     const salesPerCustomer = activeCusts > 0 ? data.value / activeCusts : 0;
-    return { name, value: data.value, activeCustomers: activeCusts, potentialCustomers: totalCusts, penetrationRate, salesPerCustomer };
+
+    return {
+      name,
+      value: data.value, // Total Sales (Performance)
+      activeCustomers: activeCusts,
+      potentialCustomers: totalCusts,
+      penetrationRate,
+      salesPerCustomer,
+    };
   }).sort((a, b) => b.value - a.value).slice(0, 10);
 
+  // Daily Trend & Activity Rate calculations + Previous Period Overlay
   const dailyTrend: any[] = [];
   const diffDays = Math.max(1, Math.ceil((filterEnd.getTime() - filterStart.getTime()) / (1000 * 60 * 60 * 24)));
   
   let cumSales = 0;
   let prevCumSales = 0;
 
+  // Pre-calculate previous period monthly target
   const prevMonthIdx = refMonth === 0 ? 11 : refMonth - 1;
   const prevMonthYear = refMonth === 0 ? refYear - 1 : refYear;
+  
   let prevTargetMTD = 0;
   if (isManager && salespersonIds.length === 0) {
     prevTargetMTD = (monthlyTargetResult as any[])
@@ -638,21 +788,20 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     const dDate = new Date(filterStart.getTime() + i * 24 * 60 * 60 * 1000);
     const dStr = toBkkDateStr(dDate);
     
+    // Constant daily target based on the calendar month's total days
     const dayOfMonth = dDate.getDate();
     const lastDay = new Date(dDate.getFullYear(), dDate.getMonth() + 1, 0).getDate();
     const rollingTarget = targetMTD > 0 ? targetMTD / lastDay : 0;
 
-    if (dStr === todayStr) todayDailyTarget = rollingTarget;
+    if (dStr === todayStr) {
+      todayDailyTarget = rollingTarget;
+    }
 
     const dayQuotes = (historyQuotations as any[]).filter(q => toBkkDateStr(new Date(getQuotationDateHelper(q))) === dStr);
-    const daySales = dayQuotes.reduce((acc, q) => {
-      if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) return acc + (q.actualClosingAmount || q.totalAmountBeforeVat || 0);
-      return acc;
-    }, 0);
-    const dayQuotesCount = dayQuotes.length;
-    const dayCalls = (historyTelesales as any[]).filter(t => toBkkDateStr(new Date(t.callDate || t.createdAt)) === dStr).length;
-    const dayMeetings = (historyTelesales as any[]).filter(t => t.lastMeetingDate && toBkkDateStr(new Date(t.lastMeetingDate)) === dStr).length;
-
+    const dayTelesales = (historyTelesales as any[]).filter(t => toBkkDateStr(new Date(t.callDate || t.createdAt)) === dStr);
+    const dayMeetings = (historyTelesales as any[]).filter(t => t.lastMeetingDate && toBkkDateStr(new Date(t.lastMeetingDate)) === dStr);
+    
+    const daySales = dayQuotes.filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).reduce((s, q) => s + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
     cumSales += daySales;
 
     // Previous period overlay: map day i of previous period
@@ -1260,7 +1409,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
   return (
     <>
-      <DashboardUI
+      <DashboardClientWrapper
         userFullName={user.fullName}
         userRole={user.role}
         metrics={{
