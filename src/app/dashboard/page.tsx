@@ -2,8 +2,7 @@ import React from 'react';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
-import nextDynamic from 'next/dynamic';
-const DashboardUI = nextDynamic(() => import('@/app/components/DashboardUI'), { ssr: false });
+import DashboardUI from '@/app/components/DashboardUI';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';

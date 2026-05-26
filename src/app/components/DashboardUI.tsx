@@ -138,7 +138,18 @@ export default function DashboardUI({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isMounted, setIsMounted] = React.useState(false);
   const [isSalespersonDropdownOpen, setIsSalespersonDropdownOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-gray-400 font-bold animate-pulse">กำลังโหลดแดชบอร์ด...</div>
+    </div>;
+  }
 
   const handleFilterChange = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
