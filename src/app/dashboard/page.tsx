@@ -1328,13 +1328,20 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
   // Fetch Tera Employees for Job Positions
   const salesRepsEmpIds = salesReps.map((r: any) => r.employeeId).filter(Boolean);
-  const teraEmployees = salesRepsEmpIds.length > 0 ? await teraDb.employees.findMany({
-    where: { emp_id: { in: salesRepsEmpIds } },
-    include: {
-      departments: true,
-      job_positions: true
+  let teraEmployees: any[] = [];
+  if (salesRepsEmpIds.length > 0) {
+    try {
+      teraEmployees = await teraDb.employees.findMany({
+        where: { emp_id: { in: salesRepsEmpIds } },
+        include: {
+          departments: true,
+          job_positions: true
+        }
+      });
+    } catch (err) {
+      console.warn("Failed to fetch employees from HR database:", err);
     }
-  }) : [];
+  }
 
   const employeePerformance = isManager ? salesReps.map((rep: any) => {
     const repQuotes = (historyQuotations as any[]).filter(q => q.salespersonId === rep.id);
