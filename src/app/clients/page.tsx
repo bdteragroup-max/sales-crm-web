@@ -55,11 +55,16 @@ export default async function ClientsPage({ searchParams }: PageProps) {
 
   let roleWhere: any = { OR: [{ assignedUserId: user?.id }, { assignedUserId: null }] };
   if (user?.role === 'ผู้จัดการ') {
-    const subordinates = await teraDb.employees.findMany({
-      where: { supervisor_id: user.employeeId, is_active: true },
-      select: { emp_id: true }
-    });
-    const subEmpIds = subordinates.map(s => s.emp_id);
+    let subEmpIds: string[] = [];
+    try {
+      const subordinates = await teraDb.employees.findMany({
+        where: { supervisor_id: user.employeeId, is_active: true },
+        select: { emp_id: true }
+      });
+      subEmpIds = subordinates.map(s => s.emp_id);
+    } catch (err) {
+      console.warn("Failed to fetch subordinates from HR database:", err);
+    }
     const teamUsers = await prisma.user.findMany({
       where: { employeeId: { in: subEmpIds }, isActive: true },
       select: { id: true }
@@ -114,11 +119,16 @@ export default async function ClientsPage({ searchParams }: PageProps) {
 
   let salesRepsWhere: any = { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ'] }, isActive: true };
   if (user?.role === 'ผู้จัดการ') {
-    const subordinates = await teraDb.employees.findMany({
-      where: { supervisor_id: user.employeeId, is_active: true },
-      select: { emp_id: true }
-    });
-    const subEmpIds = subordinates.map(s => s.emp_id);
+    let subEmpIds: string[] = [];
+    try {
+      const subordinates = await teraDb.employees.findMany({
+        where: { supervisor_id: user.employeeId, is_active: true },
+        select: { emp_id: true }
+      });
+      subEmpIds = subordinates.map(s => s.emp_id);
+    } catch (err) {
+      console.warn("Failed to fetch subordinates from HR database:", err);
+    }
     salesRepsWhere = {
       isActive: true,
       OR: [

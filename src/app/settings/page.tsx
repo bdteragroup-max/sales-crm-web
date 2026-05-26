@@ -19,15 +19,20 @@ export default async function SettingsPage() {
 
   if (isManager) {
     // 1. Fetch subordinates from TERA HR DB
-    const subordinates = await teraDb.employees.findMany({
-      where: {
-        supervisor_id: user.employeeId,
-        is_active: true
-      },
-      include: {
-        job_positions: true
-      }
-    });
+    let subordinates: any[] = [];
+    try {
+      subordinates = await teraDb.employees.findMany({
+        where: {
+          supervisor_id: user.employeeId,
+          is_active: true
+        },
+        include: {
+          job_positions: true
+        }
+      });
+    } catch (err) {
+      console.warn("Failed to fetch subordinates from HR database:", err);
+    }
     
     const subordinateEmpIds = subordinates.map(s => s.emp_id);
     
