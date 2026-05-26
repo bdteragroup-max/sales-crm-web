@@ -81,22 +81,22 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
           />
 
           {/* Daily target reference line */}
-          {hasDailyTarget && (
-            <ReferenceLine
-              yAxisId="left"
-              y={dailyTarget}
-              stroke="#10b981"
-              strokeDasharray="6 3"
-              strokeWidth={2}
-              label={{
-                value: `เป้า/วัน ฿${Math.round(dailyTarget).toLocaleString()}`,
-                fill: '#10b981',
-                fontSize: 10,
-                fontWeight: 'bold',
-                position: 'insideTopRight',
-              }}
-            />
-          )}
+          <ReferenceLine
+            yAxisId="left"
+            y={dailyTarget}
+            stroke="#10b981"
+            strokeDasharray="6 3"
+            strokeWidth={2}
+            strokeOpacity={hasDailyTarget ? 1 : 0}
+            label={{
+              value: `เป้า/วัน ฿${Math.round(dailyTarget || 0).toLocaleString()}`,
+              fill: '#10b981',
+              fontSize: 10,
+              fontWeight: 'bold',
+              position: 'insideTopRight',
+              fillOpacity: hasDailyTarget ? 1 : 0
+            }}
+          />
 
           {/* Daily sales bars */}
           <Bar
@@ -121,22 +121,20 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
           </Bar>
 
           {/* Cumulative target dashed line */}
-          {hasDailyTarget && (
-            <Line
-              yAxisId="left"
-              type="monotone"
-              dataKey="cumulativeTarget"
-              name="เป้าหมายสะสม"
-              stroke="#3b82f6"
-              strokeWidth={1.5}
-              strokeDasharray="6 3"
-              dot={false}
-              legendType="none"
-            />
-          )}
+          <Line
+    hide={!hasDailyTarget}
+    yAxisId="left"
+    type="monotone"
+    dataKey="cumulativeTarget"
+    name="เป้าหมายสะสม"
+    stroke="#3b82f6"
+    strokeWidth={1.5}
+    strokeDasharray="6 3"
+    dot={false}
+    legendType="none"
+  />
           
-          {visibleSeries.cumulativeSales && (
-            <Area 
+          <Area hide={!visibleSeries.cumulativeSales} 
               yAxisId="left"
               type="monotone" 
               dataKey="cumulativeSales" 
@@ -150,10 +148,8 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
               animationDuration={1500}
               animationEasing="ease-in-out"
             />
-          )}
           
-          {visibleSeries.calls && (
-            <Area 
+          <Area hide={!visibleSeries.calls} 
               yAxisId="right"
               type="monotone" 
               dataKey="calls" 
@@ -165,10 +161,8 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
               animationDuration={1500}
               animationEasing="ease-in-out"
             />
-          )}
           
-          {visibleSeries.meetings && (
-            <Area 
+          <Area hide={!visibleSeries.meetings} 
               yAxisId="right"
               type="monotone" 
               dataKey="meetings" 
@@ -178,10 +172,8 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
               fillOpacity={1} 
               fill="url(#colorMeetings)"
             />
-          )}
           
-          {visibleSeries.quotes && (
-            <Line 
+          <Line hide={!visibleSeries.quotes} 
               yAxisId="right"
               type="monotone" 
               dataKey="quotes" 
@@ -190,11 +182,9 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
               strokeWidth={2} 
               dot={false}
             />
-          )}
 
           {/* MoM Overlay: Previous Period Cumulative Sales */}
-          {showMoMOverlay && (
-            <Line
+          <Line hide={!showMoMOverlay}
               yAxisId="left"
               type="monotone"
               dataKey="prevCumulativeSales"
@@ -205,9 +195,7 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
               dot={false}
               legendType="line"
             />
-          )}
-          {showMoMOverlay && (
-            <Line
+          <Line hide={!showMoMOverlay}
               yAxisId="left"
               type="monotone"
               dataKey="prevCumulativeTarget"
@@ -218,7 +206,6 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
               dot={false}
               legendType="none"
             />
-          )}
         </ComposedChart>
       </ResponsiveContainer>
     </div>
