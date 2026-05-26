@@ -24,11 +24,17 @@ export default async function SchedulePage() {
 
   let staffPromise;
   if (user.role === 'ผู้จัดการ') {
-    staffPromise = teraDb.employees.findMany({
-      where: { supervisor_id: user.employeeId, is_active: true },
-      select: { emp_id: true }
-    }).then(async (subordinates) => {
-      const subEmpIds = subordinates.map(s => s.emp_id);
+    staffPromise = async () => {
+      let subEmpIds: string[] = [];
+      try {
+        const subordinates = await teraDb.employees.findMany({
+          where: { supervisor_id: user.employeeId, is_active: true },
+          select: { emp_id: true }
+        });
+        subEmpIds = subordinates.map(s => s.emp_id);
+      } catch (err) {
+        console.warn("Failed to fetch subordinates from HR database:", err);
+      }
       return prisma.user.findMany({
         where: {
           isActive: true,
@@ -40,7 +46,8 @@ export default async function SchedulePage() {
         select: { id: true, fullName: true },
         orderBy: { fullName: 'asc' }
       });
-    });
+    };
+    staffPromise = staffPromise();
   } else {
     staffPromise = Promise.resolve([{ id: user.id, fullName: user.fullName }]);
   }

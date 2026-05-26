@@ -14,19 +14,24 @@ export default async function TeamPage() {
   }
 
   // Fetch subordinates from TERA HR DB directly
-  const subordinates = await teraDb.employees.findMany({
-    where: {
-      supervisor_id: user.employeeId,
-      is_active: true,
-    },
-    include: {
-      departments: true,
-      job_positions: true,
-    },
-    orderBy: {
-      name: 'asc',
-    },
-  });
+  let subordinates: any[] = [];
+  try {
+    subordinates = await teraDb.employees.findMany({
+      where: {
+        supervisor_id: user.employeeId,
+        is_active: true,
+      },
+      include: {
+        departments: true,
+        job_positions: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  } catch (err) {
+    console.warn("Failed to fetch subordinates from HR database:", err);
+  }
 
   return (
     <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">

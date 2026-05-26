@@ -27,10 +27,15 @@ export default async function DepartmentPage() {
 
   const isManager = user.role === 'ผู้จัดการ'; 
   
-  const teraEmployee = await teraDb.employees.findUnique({
-    where: { emp_id: user.employeeId },
-    include: { departments: true }
-  });
+  let teraEmployee = null;
+  try {
+    teraEmployee = await teraDb.employees.findUnique({
+      where: { emp_id: user.employeeId },
+      include: { departments: true }
+    });
+  } catch (err) {
+    console.warn("Failed to fetch employee from HR database:", err);
+  }
   
   const resolvedDept = user.employeeSale?.department || teraEmployee?.departments?.name || "sales";
   const isSalesDept = resolvedDept.toLowerCase().includes('sale') || resolvedDept.toLowerCase().includes('ขาย');
@@ -40,11 +45,17 @@ export default async function DepartmentPage() {
   let whereClause: any = {}; // Default to all jobs for non-sales (like Store, Accounting)
   
   if (isManager) {
-    const subordinates = await teraDb.employees.findMany({
-      where: { supervisor_id: user.employeeId, is_active: true },
-      select: { emp_id: true }
-    });
-    const subEmpIds = subordinates.map(s => s.emp_id);
+    let subEmpIds: string[] = [];
+    try {
+      const subordinates = await teraDb.employees.findMany({
+        where: { supervisor_id: user.employeeId, is_active: true },
+        select: { emp_id: true }
+      });
+      subEmpIds = subordinates.map(s => s.emp_id);
+    } catch (err) {
+      console.warn("Failed to fetch subordinates from HR database:", err);
+    }
+    
     const teamUsers = await prisma.user.findMany({
       where: { employeeId: { in: subEmpIds }, isActive: true },
       select: { fullName: true }

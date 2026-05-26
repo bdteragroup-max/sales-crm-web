@@ -78,11 +78,17 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   // 0. Fetch subordinates and the manager themselves to allow managers to view and select their own sales
   let salesReps: any[] = [];
   if (isManager) {
-    const subordinates = await teraDb.employees.findMany({
-      where: { supervisor_id: user.employeeId, is_active: true },
-      select: { emp_id: true }
-    });
-    const subEmpIds = subordinates.map(s => s.emp_id);
+    let subEmpIds: string[] = [];
+    try {
+      const subordinates = await teraDb.employees.findMany({
+        where: { supervisor_id: user.employeeId, is_active: true },
+        select: { emp_id: true }
+      });
+      subEmpIds = subordinates.map(s => s.emp_id);
+    } catch (err) {
+      console.warn("Failed to fetch subordinates from HR database:", err);
+      // Fallback: Manager will only see their own data if HR db fails
+    }
 
     salesReps = await prisma.user.findMany({
       select: { 
