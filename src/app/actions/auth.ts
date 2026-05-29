@@ -94,7 +94,7 @@ export async function login(state: FormState, formData: FormData) {
       if (deptName && !isSalesDept) {
         crmRole = 'อื่นๆ';
       } else {
-        if (/(MGR|Mgr|Sup|Manager|MD|Director|Executive|บริหาร)/i.test(title)) {
+        if (/(MGR|Mgr|Sup|Manager|MD|Director|บริหาร)/i.test(title)) {
           crmRole = 'ผู้จัดการ';
         }
       }

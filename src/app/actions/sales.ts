@@ -273,6 +273,15 @@ export async function saveSalesData(formData: FormData) {
       }
     }
 
+    let finalBillingDate = parseDate(billingDateRaw);
+    if (status === 'เปิดบิลแล้ว' && !finalBillingDate) {
+      finalBillingDate = new Date();
+    }
+    let finalPoDate = parseDate(poDateRaw);
+    if (status?.startsWith('PO') && !finalPoDate) {
+      finalPoDate = new Date();
+    }
+
     const newQuotation = await prisma.quotation.create({
       data: {
         companyId: company.id,
@@ -291,9 +300,9 @@ export async function saveSalesData(formData: FormData) {
         installationFee,
         totalAmountBeforeVat,
         actualClosingAmount,
-        poDate: parseDate(poDateRaw),
+        poDate: finalPoDate,
         poNumber: poNumber || null,
-        billingDate: parseDate(billingDateRaw),
+        billingDate: finalBillingDate,
         invoiceNumber,
         winLossReason,
         remarks,
@@ -501,6 +510,15 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       }
     }
 
+    let finalBillingDate = parseDate(billingDateRaw);
+    if (status === 'เปิดบิลแล้ว' && !finalBillingDate) {
+      finalBillingDate = new Date();
+    }
+    let finalPoDate = parseDate(poDateRaw);
+    if (status?.startsWith('PO') && !finalPoDate) {
+      finalPoDate = new Date();
+    }
+
     const updatedQuotation = await prisma.quotation.update({
       where: { id: quotationId },
       data: {
@@ -520,9 +538,9 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
         installationFee,
         totalAmountBeforeVat,
         actualClosingAmount,
-        poDate: parseDate(poDateRaw),
+        poDate: finalPoDate,
         poNumber: poNumber || null,
-        billingDate: parseDate(billingDateRaw),
+        billingDate: finalBillingDate,
         invoiceNumber,
         winLossReason,
         remarks,

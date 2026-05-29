@@ -57,13 +57,28 @@ export async function saveBulkSalesData(records: any[]) {
       const status = getRowVal(["สถานะ", "สถานะใบเสนอราคา"])?.toString() || "Pending";
       const rejectReason = getRowVal(["เหตุผลที่ปฏิเสธ"])?.toString();
       
-      const salesBeforeVat = parseFloat(getRowVal(["ยอดขายก่อน VAT", "ยอดขายก่อนภาษีมูลค่าเพิ่ม"])?.toString()) || 0;
-      const transportationFee = parseFloat(getRowVal(["ค่าขนส่ง"])?.toString()) || 0;
-      const installationFee = parseFloat(getRowVal(["ค่าติดตั้ง", "ค่าติดตั้ง/ค่าบริการ", "ค่าติดตั้งบริการ"])?.toString()) || 0;
+      const parseAmount = (val: any) => {
+        if (!val) return 0;
+        if (typeof val === 'number') return val;
+        const num = parseFloat(val.toString().replace(/,/g, '').trim());
+        return isNaN(num) ? 0 : num;
+      };
+
+      const parseAmountOrNull = (val: any) => {
+        if (!val) return null;
+        if (typeof val === 'number') return val;
+        const num = parseFloat(val.toString().replace(/,/g, '').trim());
+        return isNaN(num) ? null : num;
+      };
+
+      const salesBeforeVat = parseAmount(getRowVal(["ยอดขายก่อน VAT", "ยอดขายก่อนภาษีมูลค่าเพิ่ม"]));
+      const transportationFee = parseAmount(getRowVal(["ค่าขนส่ง"]));
+      const installationFee = parseAmount(getRowVal(["ค่าติดตั้ง", "ค่าติดตั้ง/ค่าบริการ", "ค่าติดตั้งบริการ"]));
       const totalAmountBeforeVat = salesBeforeVat + transportationFee + installationFee;
 
-      const actualClosingAmount = parseFloat(getRowVal(["ยอดปิดการขายจริง", "ยอดปิดจริง(บาท)", "ยอดปิดจริง"])?.toString()) || null;
+      const actualClosingAmount = parseAmountOrNull(getRowVal(["ยอดปิดการขายจริง", "ยอดปิดจริง(บาท)", "ยอดปิดจริง"]));
       const poDateRaw = getRowVal(["วันที่ PO", "วันที่เปิด PO จากลูกค้า", "วันที่เปิดPOจากลูกค้า"])?.toString();
+      const poNumber = getRowVal(["เลขที่ PO", "PO Number", "เลขที่เอกสาร PO"])?.toString() || null;
       const billingDateRaw = getRowVal(["วันที่วางบิล", "วันที่เปิดบิล"])?.toString();
       const invoiceNumber = getRowVal(["เลขที่ใบแจ้งหนี้", "เลขที่บิลขาย"])?.toString();
       const winLossReason = getRowVal(["เหตุผลที่ชนะ/แพ้", "เหตุผลที่ลูกค้าซื้อ/ไม่ซื้อสินค้ากับบริษัทฯ", "เหตุผลที่ลูกค้าซื้อไม่ซื้อสินค้ากับบริษัทฯ"])?.toString();
@@ -160,6 +175,16 @@ export async function saveBulkSalesData(records: any[]) {
         return null;
       };
 
+      let finalBillingDate = parseDate(billingDateRaw);
+      if (status === 'เปิดบิลแล้ว' && !finalBillingDate) {
+        finalBillingDate = parseDate(createdAtRaw) || parseDate(poDateRaw) || parseDate(quotationDateRaw) || new Date();
+      }
+
+      let finalPoDate = parseDate(poDateRaw);
+      if (status?.startsWith('PO') && !finalPoDate) {
+        finalPoDate = parseDate(createdAtRaw) || parseDate(quotationDateRaw) || new Date();
+      }
+
       // Find or create company
       let company = await prisma.company.findFirst({
         where: { companyName }
@@ -222,38 +247,54 @@ export async function saveBulkSalesData(records: any[]) {
 
       const createdAtParsed = parseDate(createdAtRaw) || parseDate(quotationDateRaw) || parseDate(requirementDateRaw);
 
-      await prisma.quotation.create({
-        data: {
-          companyId: company.id,
-          contactId: contact?.id,
-          salespersonId: user.id,
-          requirementNumber,
-          requirementDate: parseDate(requirementDateRaw),
-          quotationNumber,
-          quotationDate: parseDate(quotationDateRaw),
-          status,
-          rejectReason,
-          subject: productInterest,
-          productType,
-          salesBeforeVat,
-          transportationFee,
-          installationFee,
-          totalAmountBeforeVat,
-          actualClosingAmount,
-          poDate: parseDate(poDateRaw),
-          billingDate: parseDate(billingDateRaw),
-          invoiceNumber,
-          winLossReason,
-          remarks,
-          salesBranch,
-          salesTeamLeader,
-          followUp1: parseDate(followUp1Raw),
-          followUp2: parseDate(followUp2Raw),
-          followUp3: parseDate(followUp3Raw),
-          followUp4: parseDate(followUp4Raw),
-          ...(createdAtParsed ? { createdAt: createdAtParsed } : {})
+      const quotationData = {
+        companyId: company.id,
+        contactId: contact?.id,
+        salespersonId: user.id,
+        requirementNumber,
+        requirementDate: parseDate(requirementDateRaw),
+        quotationNumber,
+        quotationDate: parseDate(quotationDateRaw),
+        status,
+        rejectReason,
+        subject: productInterest,
+        productType,
+        salesBeforeVat,
+        transportationFee,
+        installationFee,
+        totalAmountBeforeVat,
+        actualClosingAmount,
+        poDate: finalPoDate,
+        poNumber: poNumber || null,
+        billingDate: finalBillingDate,
+        invoiceNumber,
+        winLossReason,
+        remarks,
+        salesBranch,
+        salesTeamLeader,
+        followUp1: parseDate(followUp1Raw),
+        followUp2: parseDate(followUp2Raw),
+        followUp3: parseDate(followUp3Raw),
+        followUp4: parseDate(followUp4Raw),
+        ...(createdAtParsed ? { createdAt: createdAtParsed } : {})
+      };
+
+      if (quotationNumber) {
+        const existingQuote = await prisma.quotation.findFirst({
+          where: { quotationNumber }
+        });
+        
+        if (existingQuote) {
+          await prisma.quotation.update({
+            where: { id: existingQuote.id },
+            data: quotationData
+          });
+        } else {
+          await prisma.quotation.create({ data: quotationData });
         }
-      });
+      } else {
+        await prisma.quotation.create({ data: quotationData });
+      }
 
       successCount++;
     } catch (error: any) {
