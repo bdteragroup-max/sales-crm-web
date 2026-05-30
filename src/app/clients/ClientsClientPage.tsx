@@ -804,22 +804,27 @@ export default function ClientsClientPage({
                               <p className="text-sm font-semibold text-gray-800 truncate">{contact.contactName.trim()}</p>
                               <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500 mt-0.5">
                                 {contact.position && <span className="text-gray-400 font-medium">{contact.position}</span>}
-                                {contact.mobilePhone && (
-                                  <a
-                                    href={`tel:${contact.mobilePhone}`}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      window.location.href = `tel:${contact.mobilePhone}`;
-                                      setTimeout(() => {
-                                        router.push(`/telesales/log?contactId=${contact.id}&companyId=${company.id}&returnTo=/clients`);
-                                      }, 1200);
-                                    }}
-                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 hover:bg-red-500 text-brand-red hover:text-white rounded font-bold text-[10px] transition-all cursor-pointer"
-                                  >
-                                    <Phone size={10} className="shrink-0" /> {contact.mobilePhone}
-                                  </a>
-                                )}
+                                {contact.mobilePhone && contact.mobilePhone.split(/[,/]/).map((phone, idx) => {
+                                  const cleanPhone = phone.trim();
+                                  if (!cleanPhone) return null;
+                                  return (
+                                    <a
+                                      key={idx}
+                                      href={`tel:${cleanPhone}`}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        window.location.href = `tel:${cleanPhone}`;
+                                        setTimeout(() => {
+                                          router.push(`/telesales/log?contactId=${contact.id}&companyId=${company.id}&returnTo=/clients`);
+                                        }, 1200);
+                                      }}
+                                      className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 hover:bg-red-500 text-brand-red hover:text-white rounded font-bold text-[10px] transition-all cursor-pointer"
+                                    >
+                                      <Phone size={10} className="shrink-0" /> {cleanPhone}
+                                    </a>
+                                  );
+                                })}
                               </div>
                             </div>
                           </div>
