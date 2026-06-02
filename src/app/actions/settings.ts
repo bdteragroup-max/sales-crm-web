@@ -3,6 +3,7 @@
 import prisma from '@/app/lib/db'
 import { getUser } from '@/app/lib/dal'
 import { revalidatePath } from 'next/cache'
+import { teraDb } from '@/app/lib/teraDb'
 
 export async function upsertMonthlyTarget(data: {
   userId?: string | null
@@ -21,13 +22,17 @@ export async function upsertMonthlyTarget(data: {
     if (isManager) {
       // Security check: Ensure userId belongs to manager's team
       if (data.userId) {
-        const isTeamMember = await prisma.user.findFirst({
-          where: {
-            id: data.userId,
-            employeeSale: { teamLeader: user.fullName },
-            isActive: true
+        const targetUser = await prisma.user.findUnique({ where: { id: data.userId } });
+        if (!targetUser) return { success: false, error: 'User not found' };
+        
+        let isTeamMember = false;
+        try {
+          const hrEmployee = await teraDb.employees.findUnique({ where: { emp_id: targetUser.employeeId } });
+          if (hrEmployee && hrEmployee.supervisor_id === user.employeeId) {
+            isTeamMember = true;
           }
-        })
+        } catch (e) { console.warn(e) }
+
         if (!isTeamMember) {
           return { success: false, error: 'Unauthorized. This user is not in your team or is inactive.' }
         }
@@ -80,19 +85,23 @@ export async function getMonthlyTargets(month: number, year: number) {
 
   const isManager = user.role === 'ผู้จัดการ'
 
-  // Get active user IDs to fetch targets for
-  const targetUsers = await prisma.user.findMany({
-    where: isManager ? { 
-      employeeSale: { teamLeader: user.fullName },
-      id: { not: user.id },
-      isActive: true
-    } : {
-      id: user.id,
-      isActive: true
-    },
-    select: { id: true }
-  })
-  const targetUserIds = targetUsers.map((s: { id: any }) => s.id)
+  let targetUserIds: string[] = [user.id];
+
+  if (isManager) {
+    try {
+      const subordinates = await teraDb.employees.findMany({
+        where: { supervisor_id: user.employeeId, is_active: true }
+      });
+      const empIds = subordinates.map((s: any) => s.emp_id);
+      const targetUsers = await prisma.user.findMany({
+        where: { employeeId: { in: empIds }, isActive: true },
+        select: { id: true }
+      });
+      targetUserIds = targetUsers.map((u: any) => u.id);
+    } catch(err) {
+      console.warn(err);
+    }
+  }
 
   return prisma.monthlyTarget.findMany({
     where: { 
@@ -126,13 +135,17 @@ export async function upsertTelesalesKPI(data: {
   try {
     if (isManager) {
       if (data.userId) {
-        const isTeamMember = await prisma.user.findFirst({
-          where: {
-            id: data.userId,
-            employeeSale: { teamLeader: user.fullName },
-            isActive: true
+        const targetUser = await prisma.user.findUnique({ where: { id: data.userId } });
+        if (!targetUser) return { success: false, error: 'User not found' };
+        
+        let isTeamMember = false;
+        try {
+          const hrEmployee = await teraDb.employees.findUnique({ where: { emp_id: targetUser.employeeId } });
+          if (hrEmployee && hrEmployee.supervisor_id === user.employeeId) {
+            isTeamMember = true;
           }
-        })
+        } catch (e) { console.warn(e) }
+
         if (!isTeamMember) {
           return { success: false, error: 'Unauthorized. This user is not in your team or is inactive.' }
         }
@@ -192,19 +205,23 @@ export async function getTelesalesKPIs(month: number, year: number) {
 
   const isManager = user.role === 'ผู้จัดการ'
 
-  // Get active user IDs to fetch KPIs for
-  const targetUsers = await prisma.user.findMany({
-    where: isManager ? { 
-      employeeSale: { teamLeader: user.fullName },
-      id: { not: user.id },
-      isActive: true
-    } : {
-      id: user.id,
-      isActive: true
-    },
-    select: { id: true }
-  })
-  const targetUserIds = targetUsers.map((s: { id: any }) => s.id)
+  let targetUserIds: string[] = [user.id];
+
+  if (isManager) {
+    try {
+      const subordinates = await teraDb.employees.findMany({
+        where: { supervisor_id: user.employeeId, is_active: true }
+      });
+      const empIds = subordinates.map((s: any) => s.emp_id);
+      const targetUsers = await prisma.user.findMany({
+        where: { employeeId: { in: empIds }, isActive: true },
+        select: { id: true }
+      });
+      targetUserIds = targetUsers.map((u: any) => u.id);
+    } catch(err) {
+      console.warn(err);
+    }
+  }
 
   return prisma.telesalesKPI.findMany({
     where: { 
