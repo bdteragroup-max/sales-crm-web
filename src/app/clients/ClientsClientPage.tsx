@@ -45,6 +45,7 @@ interface Company {
       id: string;
       fullName: string;
       employeeSale?: { position: string | null } | null;
+      isActive?: boolean | null;
     } | null;
   }[];
   quotations: {
