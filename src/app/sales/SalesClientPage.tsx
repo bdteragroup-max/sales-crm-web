@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FileText, FileSpreadsheet, Plus, Search, Edit2, TrendingUp, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { FileText, FileSpreadsheet, Plus, Search, Edit2, Trash2, TrendingUp, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import NewQuotationForm from './components/NewQuotationForm';
 import BulkUploadModal from './components/BulkUploadModal';
+import { deleteQuotation } from '@/app/actions/sales';
 
 interface SalesClientPageProps {
   initialQuotations?: any[];
@@ -84,6 +85,15 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
 
   const handleEdit = (q: any) => { setEditingData(q); setActiveTab('new'); };
   const handleCreateNew = () => { setEditingData(null); setActiveTab('new'); };
+
+  const handleDelete = async (q: any) => {
+    if (window.confirm(`คุณต้องการลบข้อมูล ${q.quotationNumber || q.company?.companyName || 'นี้'} ใช่หรือไม่?`)) {
+      const res = await deleteQuotation(q.id);
+      if (!res.success) {
+        alert(res.error || 'ลบข้อมูลไม่สำเร็จ');
+      }
+    }
+  };
 
   return (
     <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm md:overflow-hidden overflow-visible">
@@ -255,13 +265,22 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
                           <p className="text-[11px] font-bold text-gray-600">{record.contact?.contactName || '—'}</p>
                         </td>
                         <td className="py-4 px-5 text-center">
-                          <button
-                            onClick={() => handleEdit(record)}
-                            className="p-2 text-gray-300 hover:text-brand-red hover:bg-red-50 rounded-xl transition-all group-hover:text-gray-500"
-                            title="แก้ไข"
-                          >
-                            <Edit2 size={15} />
-                          </button>
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => handleEdit(record)}
+                              className="p-2 text-gray-300 hover:text-brand-red hover:bg-red-50 rounded-xl transition-all group-hover:text-gray-500"
+                              title="แก้ไข"
+                            >
+                              <Edit2 size={15} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(record)}
+                              className="p-2 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all group-hover:text-gray-500"
+                              title="ลบ"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

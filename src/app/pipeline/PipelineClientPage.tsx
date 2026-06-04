@@ -119,7 +119,7 @@ const LOST_COLUMN = {
 
 export default function PipelineClientPage({ 
   initialQuotations, teamMembers, userRole, currentUserId, 
-  initialDateField = 'quotationDate', initialPreset = '', initialDateFrom = '', initialDateTo = ''
+  initialDateField = 'updatedAt', initialPreset = '', initialDateFrom = '', initialDateTo = ''
 }: PipelineClientPageProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -179,7 +179,7 @@ export default function PipelineClientPage({
   }
 
   const clearFilters = () => {
-    updateFilters({ df: 'quotationDate', pr: '', dFrom: '', dTo: '' })
+    updateFilters({ df: 'updatedAt', pr: '', dFrom: '', dTo: '' })
   }
 
   const isManager = userRole === 'ผู้จัดการ'
@@ -511,7 +511,7 @@ export default function PipelineClientPage({
           )}
 
           {/* Clear Filter */}
-          {(preset !== '' || dateField !== 'quotationDate') && (
+          {(preset !== '' || dateField !== 'updatedAt') && (
             <button
               onClick={clearFilters}
               className="ml-auto flex items-center gap-1 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all"

@@ -127,6 +127,18 @@ export default function SignupForm({ managerName }: { managerName?: string }) {
                   className={`w-full bg-gray-50 border ${state?.errors?.role ? 'border-brand-red' : 'border-gray-200'} group-hover:border-gray-300 focus:border-brand-red rounded-xl pl-12 pr-10 py-3 text-gray-900 appearance-none outline-none transition-all focus:ring-4 focus:ring-brand-red/10`}
                 >
                   <option value="">เลือกตำแหน่ง</option>
+                  <option value="Sales Manager">Sales Manager</option>
+                  <option value="Sales Representative">Sales Representative</option>
+                  <option value="Business Development">Business Development</option>
+                  <option value="Purchasing Manager">Purchasing Manager</option>
+                  <option value="Warehouse Manager">Warehouse Manager</option>
+                  <option value="Purchasing">Purchasing</option>
+                  <option value="Accounting Manager">Accounting Manager</option>
+                  <option value="Accounting">Accounting</option>
+                  <option value="Service Engineer">Service Engineer</option>
+                  <option value="Service">Service</option>
+                  <option value="Warehouse">Warehouse</option>
+                  <option value="Marketing Manager">Marketing Manager</option>
                   <option value="ตัวแทนฝ่ายขาย">ตัวแทนฝ่ายขาย</option>
                   <option value="ผู้จัดการ">ผู้จัดการ</option>
                 </select>

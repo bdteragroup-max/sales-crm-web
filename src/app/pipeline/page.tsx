@@ -28,7 +28,8 @@ export default async function PipelinePage({
     redirect('/')
   }
 
-  const isManager = user.role === 'ผู้จัดการ'
+  const isMarketingManager = (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
+  const isManager = user.role === 'ผู้จัดการ' || isMarketingManager;
 
   let teamMembers: { id: string; fullName: string }[] = []
   if (isManager) {
@@ -39,10 +40,25 @@ export default async function PipelinePage({
     const subEmpIds = subordinates.map(s => s.emp_id)
 
     teamMembers = await prisma.user.findMany({
-      where: {
+      where: isMarketingManager ? {
         isActive: true,
+        NOT: {
+          OR: [
+            { role: 'อื่นๆ' },
+            { role: { contains: 'accounting' } },
+            { role: { contains: 'บัญชี' } },
+            { role: { contains: 'purchasing' } },
+            { role: { contains: 'จัดซื้อ' } },
+            { role: { contains: 'warehouse' } },
+            { role: { contains: 'คลังสินค้า' } },
+            { role: { contains: 'service' } },
+            { role: { contains: 'บริการ' } }
+          ]
+        }
+      } : {
         OR: [
           { employeeId: { in: subEmpIds } },
+          { employeeSale: { teamLeader: user.fullName } },
           { id: user.id }
         ]
       },
@@ -59,7 +75,7 @@ export default async function PipelinePage({
     : { OR: [{ salespersonId: user.id }, { salespersonId: null }] }
 
   // Parse Date Filters
-  const dateField = (resolvedParams.dateField as string) || 'quotationDate'
+  const dateField = (resolvedParams.dateField as string) || 'updatedAt'
   const preset = resolvedParams.preset as string | undefined
   const dateFromParam = resolvedParams.dateFrom as string | undefined
   const dateToParam = resolvedParams.dateTo as string | undefined

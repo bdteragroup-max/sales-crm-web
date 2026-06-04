@@ -40,7 +40,7 @@ export async function getProvinces() {
 }
 
 interface PageProps {
-  searchParams: Promise<{ page?: string; search?: string; tab?: string }>;
+  searchParams: Promise<{ page?: string; search?: string; tab?: string; handler?: string }>;
 }
 
 export default async function ClientsPage({ searchParams }: PageProps) {
@@ -49,39 +49,18 @@ export default async function ClientsPage({ searchParams }: PageProps) {
 
   const page = parseInt(params.page || '1', 10);
   const search = (params.search || '').trim();
+  const handler = (params.handler || '').trim();
   
   const limit = 10;
   const skip = (page - 1) * limit;
 
   let roleWhere: any = { OR: [{ assignedUserId: user?.id }, { assignedUserId: null }] };
-  if (user?.role === 'ผู้จัดการ') {
-    let subEmpIds: string[] = [];
-    try {
-      const subordinates = await teraDb.employees.findMany({
-        where: { supervisor_id: user.employeeId, is_active: true },
-        select: { emp_id: true }
-      });
-      subEmpIds = subordinates.map(s => s.emp_id);
-    } catch (err) {
-      console.warn("Failed to fetch subordinates from HR database:", err);
-    }
-    const teamUsers = await prisma.user.findMany({
-      where: { employeeId: { in: subEmpIds }, isActive: true },
-      select: { id: true }
-    });
-    const subUserIds = teamUsers.map(u => u.id);
-    
-    roleWhere = {
-      OR: [
-        { assignedUserId: { in: subUserIds } },
-        { assignedUserId: user.id },
-        { assignedUserId: null }
-      ]
-    };
+  if (user?.role === 'ผู้จัดการ' || (user?.role || '').toLowerCase() === 'marketing manager' || (user?.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user?.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user?.role || '').toLowerCase() === 'ผู้การจัดการตลาด') {
+    roleWhere = {}; // Managers can see all clients
   }
 
   // Build database search filters
-  const companySearchFilter = {
+  const companySearchFilter: any = {
     AND: [
       roleWhere,
       ...(search ? [{
@@ -91,7 +70,22 @@ export default async function ClientsPage({ searchParams }: PageProps) {
           { businessType: { contains: search, mode: 'insensitive' as const } },
           { province: { contains: search, mode: 'insensitive' as const } },
         ],
-      }] : [])
+      }] : []),
+      ...(handler === 'unassigned' 
+        ? [{
+            assignedUserId: null,
+            quotations: { none: { salesperson: { isActive: true } } },
+            telesales: { none: { userId: { not: null } } }
+          }] 
+        : handler 
+          ? [{
+              OR: [
+                { assignedUserId: handler },
+                { quotations: { some: { salespersonId: handler, salesperson: { isActive: true } } } },
+                { telesales: { some: { userId: handler } } }
+              ]
+            }] 
+          : [])
     ]
   };
 
@@ -119,28 +113,29 @@ export default async function ClientsPage({ searchParams }: PageProps) {
 
   let salesRepsWhere: any = { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ'] }, isActive: true };
   if (user?.role === 'ผู้จัดการ') {
-    let subEmpIds: string[] = [];
-    try {
-      const subordinates = await teraDb.employees.findMany({
-        where: { supervisor_id: user.employeeId, is_active: true },
-        select: { emp_id: true }
-      });
-      subEmpIds = subordinates.map(s => s.emp_id);
-    } catch (err) {
-      console.warn("Failed to fetch subordinates from HR database:", err);
-    }
-    salesRepsWhere = {
-      isActive: true,
-      OR: [
-        { employeeId: { in: subEmpIds } },
-        { id: user.id }
-      ]
-    };
+    salesRepsWhere = { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ'] }, isActive: true };
   } else if (user?.role === 'ตัวแทนฝ่ายขาย') {
     salesRepsWhere = { id: user.id, isActive: true };
   }
 
   try {
+    // -1. Sync active status from HR database
+    try {
+      const resignedInHr = await teraDb.employees.findMany({
+        where: { is_active: false },
+        select: { emp_id: true }
+      });
+      const resignedEmpIds = resignedInHr.map((e: any) => e.emp_id).filter(Boolean);
+      if (resignedEmpIds.length > 0) {
+        await prisma.user.updateMany({
+          where: { employeeId: { in: resignedEmpIds }, isActive: true },
+          data: { isActive: false }
+        });
+      }
+    } catch (e) {
+      console.warn('Failed to sync inactive users from HR DB', e);
+    }
+
     // 0. Auto-unassign resigned/inactive administrators from companies
     const inactiveUsers = await prisma.user.findMany({
       where: { isActive: false },
@@ -171,7 +166,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
     // 1. Paginated Companies
     prisma.company.findMany({
       where: companySearchFilter,
-      orderBy: { createdAt: 'desc' as const },
+      orderBy: { updatedAt: 'desc' as const },
       take: limit,
       skip: skip,
       include: {
@@ -182,18 +177,20 @@ export default async function ClientsPage({ searchParams }: PageProps) {
         telesales: {
           orderBy: { createdAt: 'desc' },
           take: 1,
-          select: { createdAt: true, callDate: true }
+          select: { 
+            createdAt: true, 
+            callDate: true,
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                isActive: true,
+                employeeSale: { select: { position: true } }
+              }
+            }
+          }
         },
         quotations: {
-          where: {
-            NOT: {
-              OR: [
-                { status: { startsWith: 'ปิดการขาย' } },
-                { status: { startsWith: 'ยกเลิก' } },
-                { status: { startsWith: 'ปฏิเสธ' } }
-              ]
-            }
-          },
           orderBy: { createdAt: 'desc' },
           take: 1,
           select: {
@@ -224,7 +221,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
     // 3. Paginated Contacts
     prisma.contact.findMany({
       where: contactSearchFilter,
-      orderBy: { createdAt: 'desc' as const },
+      orderBy: { updatedAt: 'desc' as const },
       take: limit,
       skip: skip,
       include: { company: true },

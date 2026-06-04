@@ -97,25 +97,30 @@ export async function saveTelesaleLog(data: {
     const parseDate = (d?: string) => (d ? new Date(d) : null);
 
     // 1. Create a Telesale log entry
-    // Formulate a clean checklist result summary based on status and outcome
     let outcomeSummary = data.callOutcome;
     if (data.callStatus !== "รับสาย") {
-      outcomeSummary = data.callStatus; // Missed / Busy / Message left
+      outcomeSummary = data.callStatus;
     }
 
-    await prisma.telesale.create({
-      data: {
-        companyId: data.companyId,
-        userId: currentUser.id,
-        callDate: new Date(), // Stamped automatically with server timezone (which resolves correctly under pg dates)
-        callStatus: data.callStatus,
-        callOutcome: data.callStatus === "รับสาย" ? data.callOutcome : null,
-        conversationSummary: data.callStatus === "รับสาย" ? data.conversationSummary : `สายโทรแบบ: ${data.callStatus}`,
-        callbackAt: data.callStatus !== "รับสาย" ? parseDate(data.callbackAt) : null,
-        forwardTo: data.callStatus === "รับสาย" ? data.forwardTo : null,
-        result: outcomeSummary,
-      },
-    });
+    await prisma.$transaction([
+      prisma.telesale.create({
+        data: {
+          companyId: data.companyId,
+          userId: currentUser.id,
+          callDate: new Date(),
+          callStatus: data.callStatus,
+          callOutcome: data.callStatus === "รับสาย" ? data.callOutcome : null,
+          conversationSummary: data.callStatus === "รับสาย" ? data.conversationSummary : `สายโทรแบบ: ${data.callStatus}`,
+          callbackAt: data.callStatus !== "รับสาย" ? parseDate(data.callbackAt) : null,
+          forwardTo: data.callStatus === "รับสาย" ? data.forwardTo : null,
+          result: outcomeSummary,
+        },
+      }),
+      prisma.company.update({
+        where: { id: data.companyId },
+        data: { updatedAt: new Date() }
+      })
+    ]);
 
     // 2. Update the Contact row if name or phone changed in the form
     await prisma.contact.update({

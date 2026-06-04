@@ -36,7 +36,12 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
     }
 
     const teamUsers = await prisma.user.findMany({
-      where: { employeeId: { in: subEmpIds }, isActive: true },
+      where: { 
+        OR: [
+          { employeeId: { in: subEmpIds } },
+          { employeeSale: { teamLeader: user.fullName } }
+        ]
+      },
       select: { id: true }
     });
     const subUserIds = teamUsers.map(u => u.id);

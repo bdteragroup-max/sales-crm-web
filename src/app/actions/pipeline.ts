@@ -124,7 +124,7 @@ export async function updateQuotationStatus(
         quotationId: quotation.id,
         poNumber: updateData.poNumber,
         jobType: extra?.jobType,
-        closedDate: new Date(),
+        closedDate: updated.billingDate || updated.poDate || new Date(),
       });
     }
 

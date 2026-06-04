@@ -9,11 +9,16 @@ import { getMonthlyTargets, getTelesalesKPIs } from '@/app/actions/settings'
 export default async function SettingsPage() {
   const user = await getUser()
   if (!user) redirect('/login')
+  const userRoleStr = (user.role || '').toLowerCase();
+  const isMarketingManager = userRoleStr === 'marketing manager' || userRoleStr === 'ผู้จัดการฝ่ายการตลาด' || userRoleStr === 'ผู้จัดการการตลาด' || userRoleStr === 'ผู้การจัดการตลาด';
+  if (user.role === 'อื่นๆ' || (!isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin'].some(r => userRoleStr.includes(r)))) {
+    redirect('/department');
+  }
   
   const currentMonth = new Date().getMonth() + 1
   const currentYear = new Date().getFullYear()
 
-  const isManager = user.role === 'ผู้จัดการ'
+  const isManager = user.role === 'ผู้จัดการ' || isMarketingManager
 
   let staffList: { id: string; fullName: string; position: string | null }[] = [];
 
@@ -66,8 +71,24 @@ export default async function SettingsPage() {
     // 4. Fetch the complete list
     staffList = await prisma.user.findMany({
       where: {
-        employeeId: { in: subordinateEmpIds },
-        isActive: true
+        ...(isMarketingManager ? {} : { employeeId: { in: subordinateEmpIds } }),
+        isActive: true,
+        NOT: {
+          OR: [
+            { role: 'อื่นๆ' },
+            { role: { contains: 'accounting' } },
+            { role: { contains: 'บัญชี' } },
+            { role: { contains: 'purchasing' } },
+            { role: { contains: 'จัดซื้อ' } },
+            { role: { contains: 'warehouse' } },
+            { role: { contains: 'คลังสินค้า' } },
+            { role: { contains: 'marketing' } },
+            { role: { contains: 'การตลาด' } },
+            { role: { contains: 'admin' } },
+            { role: { contains: 'service' } },
+            { role: { contains: 'บริการ' } }
+          ]
+        }
       },
       select: { id: true, fullName: true, position: true }
     });
@@ -76,7 +97,23 @@ export default async function SettingsPage() {
     staffList = await prisma.user.findMany({
       where: {
         id: user.id,
-        isActive: true
+        isActive: true,
+        NOT: {
+          OR: [
+            { role: 'อื่นๆ' },
+            { role: { contains: 'accounting' } },
+            { role: { contains: 'บัญชี' } },
+            { role: { contains: 'purchasing' } },
+            { role: { contains: 'จัดซื้อ' } },
+            { role: { contains: 'warehouse' } },
+            { role: { contains: 'คลังสินค้า' } },
+            { role: { contains: 'marketing' } },
+            { role: { contains: 'การตลาด' } },
+            { role: { contains: 'admin' } },
+            { role: { contains: 'service' } },
+            { role: { contains: 'บริการ' } }
+          ]
+        }
       },
       select: { id: true, fullName: true, position: true }
     });

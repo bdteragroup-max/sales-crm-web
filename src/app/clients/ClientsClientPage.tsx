@@ -38,7 +38,15 @@ interface Company {
     employeeSale?: { position: string | null } | null;
     isActive?: boolean | null;
   } | null;
-  telesales: { createdAt: string; callDate?: string | null }[];
+  telesales: { 
+    createdAt: string; 
+    callDate?: string | null;
+    user?: {
+      id: string;
+      fullName: string;
+      employeeSale?: { position: string | null } | null;
+    } | null;
+  }[];
   quotations: {
     createdAt: string;
     quotationDate?: string | null;
@@ -564,18 +572,43 @@ export default function ClientsClientPage({
         </div>
       </div>
 
-      {/* ─── Search bar ──────────────────────────────────────────────────── */}
-      <div className="relative max-w-md mb-6">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search size={17} className="text-gray-400" />
+      {/* ─── Search bar & Filters ──────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="relative flex-1 max-w-md">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search size={17} className="text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="ค้นหาตามชื่อบริษัท, เลขภาษี, จังหวัด..."
+            className="block w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 transition-all"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+          />
         </div>
-        <input
-          type="text"
-          placeholder="ค้นหาตามชื่อบริษัท, เลขภาษี, จังหวัด..."
-          className="block w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 transition-all"
-          value={localSearch}
-          onChange={(e) => setLocalSearch(e.target.value)}
-        />
+        
+        {salesReps.length > 0 && (
+          <select
+            className="border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 max-w-[250px] shadow-sm"
+            value={searchParams.get('handler') || ''}
+            onChange={(e) => {
+              const params = new URLSearchParams(searchParams.toString());
+              if (e.target.value) {
+                params.set('handler', e.target.value);
+              } else {
+                params.delete('handler');
+              }
+              params.set('page', '1');
+              router.push(`${pathname}?${params.toString()}`);
+            }}
+          >
+            <option value="">-- ผู้ดูแลทั้งหมด --</option>
+            <option value="unassigned">-- ยังไม่มีผู้ดูแล --</option>
+            {salesReps.map(rep => (
+              <option key={rep.id} value={rep.id}>{rep.fullName}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* ─── Companies Tab ───────────────────────────────────────────────── */}
@@ -590,7 +623,9 @@ export default function ClientsClientPage({
                   ? company.quotations?.[0]?.salesperson 
                   : (company.assignedUser && company.assignedUser.isActive === true)
                     ? company.assignedUser
-                    : null;
+                    : (company.telesales?.[0]?.user && company.telesales[0].user.isActive === true)
+                      ? company.telesales[0].user
+                      : null;
               return (
                 <div
                 key={company.id}

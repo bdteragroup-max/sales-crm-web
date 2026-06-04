@@ -10,7 +10,12 @@ export const dynamic = 'force-dynamic';
 export default async function Dashboard(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const user = await getUser();
   if (!user) redirect('/');
-  if (user.role === 'อื่นๆ') redirect('/department');
+  const userRoleStr = (user.role || '').toLowerCase();
+  const isMarketingManager = userRoleStr === 'marketing manager' || userRoleStr === 'ผู้จัดการฝ่ายการตลาด' || userRoleStr === 'ผู้จัดการการตลาด' || userRoleStr === 'ผู้การจัดการตลาด';
+  
+  if (user.role === 'อื่นๆ' || (!isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin'].some(r => userRoleStr.includes(r)))) {
+    redirect('/department');
+  }
 
   const searchParams = await props.searchParams;
   const rawSalespersonId = typeof searchParams.salespersonId === 'string' ? searchParams.salespersonId : undefined;
@@ -52,7 +57,8 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     filterEnd = bkkEndOfDay(`${year}-${pad(month)}-${pad(lastDay)}`);
   }
 
-  const isManager = user.role === 'ผู้จัดการ';
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
+  
   const thirtyDaysAgoFilter = new Date(filterEnd.getTime() - (30 * 24 * 60 * 60 * 1000));
   
   // 1. Calculate relative date ranges
@@ -103,7 +109,22 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
           }
         }
       },
-      where: {
+      where: isMarketingManager ? {
+        isActive: true,
+        NOT: {
+          OR: [
+            { role: 'อื่นๆ' },
+            { role: { contains: 'accounting' } },
+            { role: { contains: 'บัญชี' } },
+            { role: { contains: 'purchasing' } },
+            { role: { contains: 'จัดซื้อ' } },
+            { role: { contains: 'warehouse' } },
+            { role: { contains: 'คลังสินค้า' } },
+            { role: { contains: 'service' } },
+            { role: { contains: 'บริการ' } }
+          ]
+        }
+      } : {
         OR: [
           { employeeId: { in: subEmpIds } },
           { id: user.id }
@@ -145,29 +166,11 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     OR: [
       {
         status: 'เปิดบิลแล้ว',
-        OR: [
-          { billingDate: { gte: start, lte: end } },
-          { 
-            billingDate: null, 
-            OR: [
-              { quotationDate: { gte: start, lte: end } },
-              { quotationDate: null, createdAt: { gte: start, lte: end } }
-            ]
-          }
-        ]
+        billingDate: { gte: start, lte: end }
       },
       {
         status: { startsWith: 'PO' },
-        OR: [
-          { poDate: { gte: start, lte: end } },
-          { 
-            poDate: null, 
-            OR: [
-              { quotationDate: { gte: start, lte: end } },
-              { quotationDate: null, createdAt: { gte: start, lte: end } }
-            ]
-          }
-        ]
+        poDate: { gte: start, lte: end }
       },
       {
         status: { notIn: ['เปิดบิลแล้ว'] },
@@ -333,29 +336,11 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         OR: [
           {
             status: 'เปิดบิลแล้ว',
-            OR: [
-              { billingDate: { gte: filterStart, lte: filterEnd } },
-              { 
-                billingDate: null, 
-                OR: [
-                  { quotationDate: { gte: filterStart, lte: filterEnd } },
-                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
-                ]
-              }
-            ]
+            billingDate: { gte: filterStart, lte: filterEnd }
           },
           {
             status: { startsWith: 'PO' },
-            OR: [
-              { poDate: { gte: filterStart, lte: filterEnd } },
-              { 
-                poDate: null, 
-                OR: [
-                  { quotationDate: { gte: filterStart, lte: filterEnd } },
-                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
-                ]
-              }
-            ]
+            poDate: { gte: filterStart, lte: filterEnd }
           }
         ],
         company: province ? { province } : undefined
@@ -368,29 +353,11 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         OR: [
           {
             status: 'เปิดบิลแล้ว',
-            OR: [
-              { billingDate: { gte: filterStart, lte: filterEnd } },
-              { 
-                billingDate: null, 
-                OR: [
-                  { quotationDate: { gte: filterStart, lte: filterEnd } },
-                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
-                ]
-              }
-            ]
+            billingDate: { gte: filterStart, lte: filterEnd }
           },
           {
             status: { startsWith: 'PO' },
-            OR: [
-              { poDate: { gte: filterStart, lte: filterEnd } },
-              { 
-                poDate: null, 
-                OR: [
-                  { quotationDate: { gte: filterStart, lte: filterEnd } },
-                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
-                ]
-              }
-            ]
+            poDate: { gte: filterStart, lte: filterEnd }
           },
           {
             status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
@@ -500,29 +467,11 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         OR: [
           {
             status: 'เปิดบิลแล้ว',
-            OR: [
-              { billingDate: { gte: filterStart, lte: filterEnd } },
-              { 
-                billingDate: null, 
-                OR: [
-                  { quotationDate: { gte: filterStart, lte: filterEnd } },
-                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
-                ]
-              }
-            ]
+            billingDate: { gte: filterStart, lte: filterEnd }
           },
           {
             status: { startsWith: 'PO' },
-            OR: [
-              { poDate: { gte: filterStart, lte: filterEnd } },
-              { 
-                poDate: null, 
-                OR: [
-                  { quotationDate: { gte: filterStart, lte: filterEnd } },
-                  { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
-                ]
-              }
-            ]
+            poDate: { gte: filterStart, lte: filterEnd }
           },
           {
             status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },

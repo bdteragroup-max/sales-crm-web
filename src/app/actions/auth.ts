@@ -105,7 +105,6 @@ export async function login(state: FormState, formData: FormData) {
         update: {
           fullName: employee.name,
           phoneNumber: employee.phone_number || null,
-          role: crmRole,
           password: employee.pin_hash || '',
           isActive: true,
         },
@@ -123,7 +122,9 @@ export async function login(state: FormState, formData: FormData) {
       await createSession(crmUser.id);
 
       // 6. Set redirect path for non-sales roles
-      if (crmRole === 'อื่นๆ') {
+      const isMarketingManager = crmRole.toLowerCase() === 'marketing manager' || crmRole.toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || crmRole.toLowerCase() === 'ผู้จัดการการตลาด' || crmRole.toLowerCase() === 'ผู้การจัดการตลาด';
+      const isBackofficeRole = !isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin'].some(r => crmRole.toLowerCase().includes(r));
+      if (crmRole === 'อื่นๆ' || isBackofficeRole) {
         redirectPath = '/department';
       }
     }
