@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { getSteps, getWorkflow, type StepDef } from "@/app/lib/job-workflow"
 import { confirmJobStep } from "@/app/actions/jobs"
+import { Check, CheckCircle2, Loader2 } from "lucide-react"
 import Link from "next/link"
 type StepLog = {
   step:        string
@@ -25,11 +26,12 @@ type Props = {
   jobNumber?:    string
   customerName?: string
   sellerName?:   string
+  paymentTask?:  any
 }
 
 export default function JobTimeline({
   jobId, jobType, currentStep, flowVariant, stepLogs, userName, userDept, userRole, isManager,
-  jobNumber, customerName, sellerName
+  jobNumber, customerName, sellerName, paymentTask
 }: Props) {
   const [isPending, startTransition] = useTransition()
   const [showVariantModal, setShowVariantModal] = useState(false)
@@ -162,6 +164,18 @@ export default function JobTimeline({
   // ผู้จัดการสามารถกดยืนยันได้ทุก step หรือพนักงานแผนกนั้นๆ กดยืนยันได้
   const canConfirm = isManager || (activeStep?.department.some(dept => normalizedDept.includes(dept)) ?? false)
 
+  // Message แจ้งเตือนสาเหตุที่กดไม่ได้
+  const blockReasonMessage = (() => {
+    if (activeStep && ['store_send', 'accounting', 'complete'].includes(activeStep.key)) {
+      if (paymentTask && paymentTask.status !== 'ตรวจสอบและบันทึกแล้ว') {
+        return `ระงับการดำเนินการชั่วคราว: รอฝ่ายบัญชีตรวจสอบการชำระเงิน (สถานะ: ${paymentTask.status})`;
+      }
+    }
+    return null;
+  })();
+
+  const isBlocked = !!blockReasonMessage;
+
   // ── Variant Modal ──
   function VariantModal() {
     if (!wf?.variantQuestion) return null
@@ -255,6 +269,11 @@ export default function JobTimeline({
                       {log.completedBy.split(' ')[0]}
                     </span>
                   )}
+                  {isActive && blockReasonMessage && (
+                    <p className="text-[10px] text-red-500 mt-1 font-bold animate-pulse text-center">
+                      {blockReasonMessage}
+                    </p>
+                  )}
                 </div>
               </li>
             )
@@ -319,7 +338,7 @@ export default function JobTimeline({
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
           />
           <button
-            disabled={isPending || isUploading}
+            disabled={isPending || isUploading || isBlocked}
             onClick={() => {
               if (activeStep.key === "delivery") {
                 handleConfirmDelivery();
@@ -335,7 +354,7 @@ export default function JobTimeline({
             }}
             className="bg-brand-red text-white text-xs font-black uppercase tracking-widest px-5 py-2.5 rounded-xl hover:bg-red-700 disabled:opacity-50 transition-all shadow-md shadow-red-200"
           >
-            {isUploading ? "กำลังอัปโหลดรูป..." : isPending ? "กำลังบันทึก..." : "✓ ยืนยัน step นี้"}
+            {isUploading ? <span className="flex items-center gap-2 justify-center"><Loader2 className="w-4 h-4 animate-spin"/> กำลังอัปโหลดรูป...</span> : isPending ? <span className="flex items-center gap-2 justify-center"><Loader2 className="w-4 h-4 animate-spin"/> กำลังบันทึก...</span> : <span className="flex items-center gap-2 justify-center"><Check className="w-4 h-4"/> ยืนยัน step นี้</span>}
           </button>
         </div>
       )}
@@ -360,7 +379,7 @@ export default function JobTimeline({
 
       {/* เสร็จแล้ว */}
       {isFinished && (
-        <p className="mt-3 text-xs text-green-600 font-medium">✅ Job นี้เสร็จสมบูรณ์แล้ว</p>
+        <p className="mt-3 text-xs text-green-600 font-medium flex items-center gap-1"><CheckCircle2 className="w-4 h-4"/> Job นี้เสร็จสมบูรณ์แล้ว</p>
       )}
     </div>
   )

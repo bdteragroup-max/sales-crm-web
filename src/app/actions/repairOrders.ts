@@ -39,7 +39,10 @@ export interface RepairOrderFormData {
 }
 
 async function generateRepairOrderNumber() {
-  const beYear = (new Date().getFullYear() + 543).toString().slice(-2);
+  const now = new Date(
+    new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })
+  );
+  const beYear = (now.getFullYear() + 543).toString().slice(-2);
   const count = await prisma.repairOrder.count();
   return `RO${beYear}-${String(count + 1).padStart(4, '0')}`;
 }

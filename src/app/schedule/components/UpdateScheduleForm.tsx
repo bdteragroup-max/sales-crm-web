@@ -20,6 +20,9 @@ export default function UpdateScheduleForm({ schedule, onClose, onSuccess, onDel
   // Extract date and time
   const initialDate = new Date(schedule.date).toISOString().split('T')[0]
   const initialTime = new Date(schedule.date).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  
+  const [selectedHour, setSelectedHour] = useState(initialTime.split(':')[0] || '09');
+  const [selectedMinute, setSelectedMinute] = useState(initialTime.split(':')[1] || '00');
 
   // Company Search & Info States
   const [companySuggestions, setCompanySuggestions] = useState<any[]>([])
@@ -204,12 +207,34 @@ export default function UpdateScheduleForm({ schedule, onClose, onSuccess, onDel
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700 ml-1">เวลา</label>
-                    <input 
-                      type="time" 
-                      name="time" 
-                      defaultValue={initialTime}
-                      className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red outline-none transition-all" 
-                    />
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <select 
+                          value={selectedHour}
+                          onChange={(e) => setSelectedHour(e.target.value)}
+                          className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red outline-none transition-all text-center"
+                        >
+                          {Array.from({length: 24}).map((_, i) => {
+                            const val = i.toString().padStart(2, '0');
+                            return <option key={val} value={val}>{val}</option>;
+                          })}
+                        </select>
+                      </div>
+                      <span className="font-bold text-gray-500">:</span>
+                      <div className="flex-1">
+                        <select 
+                          value={selectedMinute}
+                          onChange={(e) => setSelectedMinute(e.target.value)}
+                          className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-4 focus:ring-brand-red/10 focus:border-brand-red outline-none transition-all text-center"
+                        >
+                          {Array.from({length: 60}).map((_, i) => {
+                            const val = i.toString().padStart(2, '0');
+                            return <option key={val} value={val}>{val}</option>;
+                          })}
+                        </select>
+                      </div>
+                      <input type="hidden" name="time" value={`${selectedHour}:${selectedMinute}`} />
+                    </div>
                   </div>
                 </div>
 

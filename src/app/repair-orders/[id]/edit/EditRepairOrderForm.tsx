@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Save, X, Plus, Trash2, Camera, Printer, ArrowLeft } from 'lucide-react';
 import { LoadingButton } from '@/app/components/LoadingButton';
 import { createRepairOrder } from '@/app/actions/repairOrders';
+import { searchContacts } from '@/app/actions/sales';
 import InputField from '@/app/sales/components/InputField';
 import SelectField from '@/app/sales/components/SelectField';
 import Card from '@/app/sales/components/Card';
@@ -31,6 +32,11 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
   
   const [companySuggestions, setCompanySuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [contactSearchQuery, setContactSearchQuery] = useState('');
+  const [contactSuggestions, setContactSuggestions] = useState<any[]>([]);
+  const [showContactSuggestions, setShowContactSuggestions] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadTarget, setUploadTarget] = useState<{key: string, index: number} | null>(null);
@@ -95,6 +101,7 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
   };
 
   const handleCompanySelect = (company: any) => {
+    setSelectedCompanyId(company.id);
     setFormData((prev: any) => ({
       ...prev,
       customerCompany: company.companyName,
@@ -104,8 +111,40 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
     setShowSuggestions(false);
   };
 
+  useEffect(() => {
+    const fetchContacts = async () => {
+      if (contactSearchQuery.length >= 2) {
+        const results = await searchContacts(contactSearchQuery, selectedCompanyId || undefined);
+        setContactSuggestions(results);
+        setShowContactSuggestions(true);
+      } else {
+        setContactSuggestions([]);
+        setShowContactSuggestions(false);
+      }
+    };
+    const timeoutId = setTimeout(fetchContacts, 500);
+    return () => clearTimeout(timeoutId);
+  }, [contactSearchQuery, selectedCompanyId]);
+
+  const handleContactSelect = (contact: any) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      senderName: contact.contactName || '',
+      customerPhoneNumber: contact.phone || contact.mobile || prev.customerPhoneNumber,
+    }));
+    setContactSearchQuery(contact.contactName || '');
+    setShowContactSuggestions(false);
+
+    if (contact.company && !selectedCompanyId) {
+      handleCompanySelect(contact.company);
+    }
+  };
+
   const handleBlur = () => {
-    setTimeout(() => setShowSuggestions(false), 200);
+    setTimeout(() => {
+      setShowSuggestions(false);
+      setShowContactSuggestions(false);
+    }, 200);
   };
 
   const handleItemChange = (index: number, field: string, value: string | number) => {
@@ -282,6 +321,44 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
                       ))
                     ) : (
                       <div className="px-5 py-8 text-center text-xs font-bold text-gray-400">ไม่พบข้อมูล</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 relative">
+              <label className="w-1/3 text-sm font-medium text-slate-500 text-right">ผู้ติดต่อ (Contact Person) :</label>
+              <div className="flex-1 relative">
+                <input 
+                  name="contactSearch"
+                  type="text"
+                  autoComplete="off"
+                  value={contactSearchQuery}
+                  onChange={(e) => {
+                    setContactSearchQuery(e.target.value);
+                    setFormData((prev: any) => ({ ...prev, senderName: e.target.value }));
+                  }}
+                  className="w-full border border-slate-200 rounded-xl p-3 text-sm outline-none transition-all duration-200 bg-white hover:border-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10"
+                  placeholder="ค้นหาชื่อผู้ติดต่อ..."
+                  onBlur={handleBlur}
+                />
+                {showContactSuggestions && (
+                  <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl overflow-hidden">
+                    {contactSuggestions.length > 0 ? (
+                      contactSuggestions.map((contact) => (
+                        <button
+                          key={contact.id}
+                          type="button"
+                          onMouseDown={() => handleContactSelect(contact)}
+                          className="w-full text-left px-5 py-4 text-sm hover:bg-red-50 transition-colors border-b border-slate-50 last:border-0 flex flex-col"
+                        >
+                          <span className="font-bold text-slate-900">{contact.contactName}</span>
+                          <span className="text-[10px] text-gray-500">{contact.phone || contact.mobile}</span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-5 py-8 text-center text-xs font-bold text-gray-400">ไม่พบข้อมูลผู้ติดต่อ</div>
                     )}
                   </div>
                 )}

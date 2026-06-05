@@ -269,7 +269,7 @@ export default function PipelineClientPage({
     await executeMove(id, nextDbStatus)
   }
 
-  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string }) => {
+  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string, paymentMethod?: string }) => {
     const oldQuotations = [...quotations]
     setQuotations(prev => {
       const updated = prev.map(q => q.id === id ? { 
@@ -943,7 +943,7 @@ function QuotationTransitionModal({ quotation, onConfirm, onCancel }: { quotatio
 function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCancel }: { 
   quotation: any, 
   isClosedStatus?: boolean,
-  onConfirm: (data: { poNumber: string, poDate: string, subStatus: string, jobType: string }) => void, 
+  onConfirm: (data: { poNumber: string, poDate: string, subStatus: string, jobType: string, paymentMethod?: string }) => void, 
   onCancel: () => void 
 }) {
   const [poNumber, setPoNumber] = useState(quotation.poNumber || '')
@@ -956,6 +956,7 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
   const [poDate, setPoDate] = useState(defaultDate)
   const [subStatus, setSubStatus] = useState('รอจัดทำ PO')
   const [jobType, setJobType] = useState<string>(JOB_TYPES[0])
+  const [paymentMethod, setPaymentMethod] = useState<string>('เครดิต 30 วัน')
 
   const PO_SUB_STATUSES = [
     'รอจัดทำ PO',
@@ -1051,6 +1052,28 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
               </div>
             )}
           </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+              วิธีการชำระเงิน <span className="text-red-500">*</span>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {['จ่ายแล้ว', 'เครดิต 30 วัน', 'เครดิต 60 วัน', 'เก็บเงินหน้างาน', 'ผ่อนชำระ'].map(method => (
+                <button
+                  key={method}
+                  type="button"
+                  onClick={() => setPaymentMethod(method)}
+                  className={`py-2 px-3 text-xs font-bold rounded-xl border transition-all ${
+                    paymentMethod === method 
+                      ? 'bg-brand-red text-white border-brand-red shadow-md shadow-red-200' 
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-brand-red hover:text-brand-red'
+                  }`}
+                >
+                  {method}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-2">
@@ -1061,7 +1084,7 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
             ยกเลิก
           </button>
           <button
-            onClick={() => onConfirm({ poNumber, poDate, subStatus, jobType })}
+            onClick={() => onConfirm({ poNumber, poDate, subStatus, jobType, paymentMethod })}
             className={`px-4 py-2 text-xs font-black text-white ${isClosedStatus ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20' : 'bg-violet-600 hover:bg-violet-700 shadow-violet-500/20'} rounded-xl transition-all uppercase tracking-widest shadow-md`}
           >
             {isClosedStatus ? 'บันทึกการปิดการขาย' : 'บันทึก PO'}

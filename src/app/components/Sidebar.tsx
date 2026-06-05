@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, PhoneCall,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink
 } from 'lucide-react';
 import { logout, getMyDepartment } from '@/app/actions/auth';
+import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
 
 type SidebarProps = {
   activeRoute?: string;
@@ -38,7 +39,9 @@ const repNav = [
 ];
 
 const serviceNav = [
-  { icon: Wrench, label: 'ใบรับซ่อม', href: '/repair-orders' },
+  { icon: Wrench, label: 'ใบรับซ่อม (ซ่อมใน)', href: '/repair-orders' },
+  { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },
+  { icon: FileSignature, label: 'ใบส่งมอบงาน', href: '/repair-deliveries' },
 ];
 
 const backofficeNav = [
@@ -53,7 +56,14 @@ export default function Sidebar(props: SidebarProps) {
     nav = managerNav;
   } else if (roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง')) {
     nav = serviceNav; // Service / non-sales departments see repair orders
-  } else if (['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin', 'ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
+  } else if (['accounting', 'บัญชี', 'finance', 'การเงิน'].some(r => roleStr.includes(r))) {
+    nav = [
+      { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+      { icon: DollarSign, label: 'งานการเงิน/บัญชี', href: '/accounting' },
+    ];
+  } else if (['project', 'โปรเจค', 'โปรเจกต์'].some(r => roleStr.includes(r))) {
+    nav = []; // Project users only need the Jobs Directory at the bottom
+  } else if (['purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin', 'ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
     nav = backofficeNav; // Back-office non-sales see their own department queue
   }
   
@@ -74,6 +84,7 @@ function ResponsiveSidebar({
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isService, setIsService] = useState(false);
+  const [unpaidCount, setUnpaidCount] = useState(0);
   
   const [tooltip, setTooltip] = useState<{ label: string; y: number } | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -92,7 +103,13 @@ function ResponsiveSidebar({
         setIsService(true);
       }
     });
-  }, [router, nav]);
+
+    const roleStr = (userRole || '').toLowerCase();
+    const isAccounting = ['accounting', 'บัญชี', 'finance', 'การเงิน', 'ผู้จัดการ'].some(r => roleStr.includes(r));
+    if (isAccounting) {
+      getPendingPaymentTaskCount().then(setUnpaidCount).catch(() => {});
+    }
+  }, [router, nav, userRole]);
 
   const showTooltip = useCallback((label: string, e: React.MouseEvent) => {
     if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
@@ -117,7 +134,7 @@ function ResponsiveSidebar({
         {/* Top brand logo and navigation */}
         <div className="flex flex-col items-center w-full shrink-0">
           {/* Logo mark */}
-          <Link href={userRole === 'อื่นๆ' ? '/department' : '/dashboard'} className="w-12 h-12 bg-[#ff2301] rounded-2xl flex items-center justify-center shadow-lg shadow-red-100 hover:scale-105 transition-all duration-300">
+          <Link href={userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} className="w-12 h-12 bg-[#ff2301] rounded-2xl flex items-center justify-center shadow-lg shadow-red-100 hover:scale-105 transition-all duration-300">
             <TrendingUp size={22} className="text-white" strokeWidth={2.5} />
           </Link>
 
@@ -156,6 +173,11 @@ function ResponsiveSidebar({
                     <span
                       className="absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full bg-[#ff2301] border border-white animate-pulse"
                     />
+                  )}
+                  {href === '/accounting' && unpaidCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
+                      {unpaidCount > 99 ? '99+' : unpaidCount}
+                    </span>
                   )}
                 </Link>
               );
@@ -274,7 +296,7 @@ function ResponsiveSidebar({
       >
         {/* Brand header */}
         <div className="flex flex-col w-full">
-          <Link href={userRole === 'อื่นๆ' ? '/department' : '/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3">
+          <Link href={userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#ff2301] rounded-xl flex items-center justify-center shadow-lg shadow-red-100">
               <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
             </div>
@@ -309,14 +331,19 @@ function ResponsiveSidebar({
                       : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
                   }`}
                 >
-                  <div className="shrink-0">
+                  <div className="shrink-0 relative">
                     {isLoading ? (
                       <Loader2 size={18} className="animate-spin text-[#ff2301]" />
                     ) : (
                       <Icon size={18} strokeWidth={active ? 2.5 : 2} />
                     )}
+                    {href === '/accounting' && unpaidCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {unpaidCount > 99 ? '99+' : unpaidCount}
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[14px] font-sans font-semibold tracking-wide">{label}</span>
+                  <span className="text-[14px] font-sans font-semibold tracking-wide flex-1">{label}</span>
                 </Link>
               );
             })}

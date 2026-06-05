@@ -20,7 +20,7 @@ export default function VisitReportClient({ schedule, currentUserId, userRole }:
   useEffect(() => {
     setMounted(true)
   }, [])
-  
+
   // Form states
   const [visitReport, setVisitReport] = useState(schedule.visitReport || '')
   const [outcome, setOutcome] = useState('medium') // Default neutral — user must actively select high interest
@@ -34,17 +34,17 @@ export default function VisitReportClient({ schedule, currentUserId, userRole }:
 
   const formattedDate = mounted
     ? new Date(schedule.date).toLocaleDateString('th-TH', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
     : ''
   const formattedTime = mounted
     ? new Date(schedule.date).toLocaleTimeString('th-TH', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }) + ' น.'
+      hour: '2-digit',
+      minute: '2-digit',
+    }) + ' น.'
     : ''
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,7 +106,7 @@ export default function VisitReportClient({ schedule, currentUserId, userRole }:
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 relative">
-      
+
       {/* ── Header Back Navigation ── */}
       <div className="mb-6">
         <button
@@ -119,7 +119,7 @@ export default function VisitReportClient({ schedule, currentUserId, userRole }:
 
       <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden relative">
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-red via-red-500 to-amber-500" />
-        
+
         {/* ── Visit Header ── */}
         <div className="p-8 border-b border-gray-50 bg-gradient-to-b from-gray-50/50 to-white">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -147,7 +147,7 @@ export default function VisitReportClient({ schedule, currentUserId, userRole }:
                 )}
               </div>
             </div>
-            
+
             <div className="bg-white border border-gray-200/80 rounded-2xl p-4 flex flex-col items-start md:items-end gap-1 shrink-0 shadow-sm">
               <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">กำหนดการนัดหมาย</p>
               <p className="text-xs font-black text-gray-800">{formattedDate}</p>
@@ -209,10 +209,10 @@ export default function VisitReportClient({ schedule, currentUserId, userRole }:
                   }}
                   className="w-full text-xs font-bold border border-gray-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
                 >
-                  <option value="excellent">🔥 สนใจระดับสูง / ต้องการสร้างใบเสนอราคาทันที</option>
-                  <option value="good">👍 สนใจ / ขอดูข้อมูลใบเสนอราคาเพื่อพิจารณา</option>
-                  <option value="medium">😐 ปานกลาง / ยังไม่พร้อมตัดสินใจ รอการติดตามผล</option>
-                  <option value="low">👎 ความสนใจน้อย / ปฏิเสธเสนอราคา</option>
+                  <option value="excellent">สนใจระดับสูง / ต้องการสร้างใบเสนอราคาทันที</option>
+                  <option value="good">สนใจ / ขอดูข้อมูลใบเสนอราคาเพื่อพิจารณา</option>
+                  <option value="medium">ปานกลาง / ยังไม่พร้อมตัดสินใจ รอการติดตามผล</option>
+                  <option value="low">ความสนใจน้อย / ปฏิเสธเสนอราคา</option>
                 </select>
               </div>
 
@@ -313,11 +313,11 @@ export default function VisitReportClient({ schedule, currentUserId, userRole }:
       {showQuotationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Glass backdrop blur */}
-          <div 
+          <div
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
             onClick={handleSkipQuotation}
           />
-          
+
           <div className="bg-white/95 backdrop-blur-md rounded-[32px] border border-white/20 p-8 max-w-md w-full relative z-10 shadow-2xl text-center flex flex-col items-center animate-in zoom-in-95 duration-300">
             <div className="w-16 h-16 rounded-[24px] bg-gradient-to-br from-amber-400 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-200 mb-6 relative">
               <Sparkles size={28} className="animate-pulse" />
@@ -332,9 +332,9 @@ export default function VisitReportClient({ schedule, currentUserId, userRole }:
             <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-1">
               Want to create a quotation?
             </p>
-            
+
             <p className="text-xs font-bold text-gray-500 mt-4 leading-relaxed max-w-sm">
-              เราประเมินว่า <span className="text-brand-red font-black">"{schedule.company?.companyName || 'ลูกค้า'}"</span> มีความสนใจและโอกาสดีลสำเร็จสูงมาก 
+              เราประเมินว่า <span className="text-brand-red font-black">"{schedule.company?.companyName || 'ลูกค้า'}"</span> มีความสนใจและโอกาสดีลสำเร็จสูงมาก
               ต้องการสร้างเอกสารใบเสนอราคาที่กรอกข้อมูลบริษัทล่วงหน้าทันทีเลยหรือไม่?
             </p>
 

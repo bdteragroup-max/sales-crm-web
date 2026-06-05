@@ -364,6 +364,21 @@ exports.Prisma.JobScalarFieldEnum = {
   courierCompany: 'courierCompany',
   trackingNumber: 'trackingNumber',
   trackingPhotoUrl: 'trackingPhotoUrl',
+  paymentMethod: 'paymentMethod',
+  paymentStatus: 'paymentStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PaymentTaskScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  status: 'status',
+  assignedTo: 'assignedTo',
+  dueDate: 'dueDate',
+  paidAmount: 'paidAmount',
+  paidDate: 'paidDate',
+  note: 'note',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -410,6 +425,60 @@ exports.Prisma.RepairOrderScalarFieldEnum = {
   customerAddress: 'customerAddress',
   customerCompany: 'customerCompany',
   salesPerson: 'salesPerson'
+};
+
+exports.Prisma.RepairDeliveryScalarFieldEnum = {
+  id: 'id',
+  deliveryNumber: 'deliveryNumber',
+  jobId: 'jobId',
+  deliveryDate: 'deliveryDate',
+  company: 'company',
+  jobName: 'jobName',
+  customer: 'customer',
+  customerPosition: 'customerPosition',
+  address: 'address',
+  siteAddress: 'siteAddress',
+  quotationNo: 'quotationNo',
+  sender: 'sender',
+  senderPhone: 'senderPhone',
+  technician: 'technician',
+  technicianPhone: 'technicianPhone',
+  workInspect: 'workInspect',
+  workInstall: 'workInstall',
+  workRepair: 'workRepair',
+  workTraining: 'workTraining',
+  workOther: 'workOther',
+  note: 'note',
+  sigSenderUrl: 'sigSenderUrl',
+  nameSender: 'nameSender',
+  sigReceiverUrl: 'sigReceiverUrl',
+  nameReceiver: 'nameReceiver',
+  status: 'status',
+  pdfUrl: 'pdfUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OutsourceRepairScalarFieldEnum = {
+  id: 'id',
+  outsourceNumber: 'outsourceNumber',
+  jobId: 'jobId',
+  vendorName: 'vendorName',
+  vendorPhone: 'vendorPhone',
+  vendorAddress: 'vendorAddress',
+  customerName: 'customerName',
+  customerPhone: 'customerPhone',
+  customerAddress: 'customerAddress',
+  sentDate: 'sentDate',
+  expectedReturnDate: 'expectedReturnDate',
+  items: 'items',
+  symptoms: 'symptoms',
+  settings: 'settings',
+  remark: 'remark',
+  sender: 'sender',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.Admin_login_attemptsScalarFieldEnum = {
@@ -1008,9 +1077,12 @@ exports.Prisma.ModelName = {
   Order: 'Order',
   OrderStatusLog: 'OrderStatusLog',
   Job: 'Job',
+  PaymentTask: 'PaymentTask',
   JobRunningNumber: 'JobRunningNumber',
   JobStepLog: 'JobStepLog',
   RepairOrder: 'RepairOrder',
+  RepairDelivery: 'RepairDelivery',
+  OutsourceRepair: 'OutsourceRepair',
   admin_login_attempts: 'admin_login_attempts',
   admins: 'admins',
   asset_borrowings: 'asset_borrowings',

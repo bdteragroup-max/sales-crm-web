@@ -139,6 +139,10 @@ export default function SignupForm({ managerName }: { managerName?: string }) {
                   <option value="Service">Service</option>
                   <option value="Warehouse">Warehouse</option>
                   <option value="Marketing Manager">Marketing Manager</option>
+                  <option value="Project">Project</option>
+                  <option value="Project Manager">Project Manager</option>
+                  <option value="Project Engineer">Project Engineer</option>
+                  <option value="Admin Project">Admin Project</option>
                   <option value="ตัวแทนฝ่ายขาย">ตัวแทนฝ่ายขาย</option>
                   <option value="ผู้จัดการ">ผู้จัดการ</option>
                 </select>

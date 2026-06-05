@@ -69,7 +69,8 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
     where: whereClause, 
     include: { 
       quotation: true,
-      stepLogs: { orderBy: { completedAt: "asc" } }
+      stepLogs: { orderBy: { completedAt: "asc" } },
+      paymentTask: true,
     }, 
     orderBy: { dateClosed: "desc" }, 
   }); 

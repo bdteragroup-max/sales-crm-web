@@ -15,8 +15,11 @@ import {
   PhoneCall,
   X,
   Loader2,
+  GitMerge,
+  Trash2,
 } from 'lucide-react';
-import { createCompany, createContact, getDistricts, getSubDistricts, getLocationsByPostalCode, updateCompany, updateContact, reassignCompanyAdministrator, checkTaxIdExists } from '@/app/actions/clients';
+import MergeCompanyModal from './MergeCompanyModal';
+import { createCompany, createContact, getDistricts, getSubDistricts, getLocationsByPostalCode, updateCompany, updateContact, reassignCompanyAdministrator, checkTaxIdExists, deleteCompany } from '@/app/actions/clients';
 
 interface Company {
   id: string;
@@ -126,6 +129,34 @@ const statusColors: Record<string, string> = {
   ไม่ใช่ลูกค้า: 'bg-gray-100 text-gray-400',
 };
 
+const getUniqueContacts = (contacts: any[]) => {
+  if (!contacts) return [];
+  const unique: any[] = [];
+  const seenPhones = new Set<string>();
+  const seenNames = new Set<string>();
+
+  contacts.forEach(c => {
+    const phone = (c.mobilePhone || '').replace(/\D/g, '');
+    const name = (c.contactName || '').replace(/\s+/g, '').toLowerCase();
+    
+    let isDuplicate = false;
+    
+    if (phone && phone.length >= 8) {
+      if (seenPhones.has(phone)) isDuplicate = true;
+      seenPhones.add(phone);
+    } else if (name) {
+      if (seenNames.has(name)) isDuplicate = true;
+      seenNames.add(name);
+    }
+
+    if (!isDuplicate) {
+      unique.push(c);
+    }
+  });
+  
+  return unique;
+};
+
 export default function ClientsClientPage({
   initialCompanies,
   initialContacts,
@@ -192,6 +223,7 @@ export default function ClientsClientPage({
   const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
   const [showNewBusinessTypeInput, setShowNewBusinessTypeInput] = useState(false);
 
   // ─── Inline Reassignment State ─────────────────────────────────────────
@@ -206,9 +238,20 @@ export default function ClientsClientPage({
 
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
-  const [defaultCompanyIdForNewContact, setDefaultCompanyIdForNewContact] = useState<string>('');
+  const [defaultCompanyIdForNewContact, setDefaultCompanyIdForNewContact] = useState<string | null>(null);
 
-  // Address Cascading State for Editing Company
+  const handleDeleteCompany = async (company: Company) => {
+    if (window.confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบบริษัท/ลูกค้า "${company.companyName}" ?\nข้อมูลที่เกี่ยวข้องอาจถูกลบไปด้วย`)) {
+      const res = await deleteCompany(company.id);
+      if (res.success) {
+        setCompanies(prev => prev.filter(c => c.id !== company.id));
+        showAlert('ลบข้อมูลบริษัทเรียบร้อยแล้ว');
+      } else {
+        showAlert(res.message || 'ไม่สามารถลบข้อมูลบริษัทได้');
+      }
+    }
+  };
+
   const [editDistricts, setEditDistricts] = useState<string[]>([]);
   const [editSubDistricts, setEditSubDistricts] = useState<{ subDistrict: string, postalCode: string }[]>([]);
   const [editSelectedProvince, setEditSelectedProvince] = useState('');
@@ -537,6 +580,12 @@ export default function ClientsClientPage({
 
   return (
     <div className="w-full">
+      {isMergeModalOpen && (
+        <MergeCompanyModal 
+          onClose={() => setIsMergeModalOpen(false)} 
+          allCompanies={allCompanies} 
+        />
+      )}
       {/* ─── Page Header ─────────────────────────────────────────────────── */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -553,6 +602,15 @@ export default function ClientsClientPage({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
+          {currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager')) && (
+            <button
+              onClick={() => setIsMergeModalOpen(true)}
+              className="hidden sm:flex items-center gap-2 bg-white border border-red-200 text-red-600 px-5 py-2.5 rounded-xl font-bold hover:bg-red-50 transition-all shadow-sm active:scale-95 text-sm"
+            >
+              <GitMerge size={18} />
+              ผสานบริษัท
+            </button>
+          )}
           <button 
             onClick={openCompanyModal}
             className="flex items-center gap-2 bg-brand-red text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95 text-sm"
@@ -785,7 +843,7 @@ export default function ClientsClientPage({
                     <div className="text-center">
                       <div className="flex items-center gap-1 text-gray-700 font-bold text-sm">
                         <Users size={13} className="text-gray-400" />
-                        {company.contacts.length}
+                        {getUniqueContacts(company.contacts).length}
                       </div>
                       <p className="text-[10px] text-gray-400">ผู้ติดต่อ</p>
                     </div>
@@ -798,12 +856,12 @@ export default function ClientsClientPage({
                 </div>
 
                 {/* Expanded contacts section */}
-                {expandedCompany === company.id && company.contacts.length > 0 && (
+                {expandedCompany === company.id && getUniqueContacts(company.contacts).length > 0 && (
                   <div className="border-t border-gray-100 bg-gray-50/60 px-5 py-4 space-y-4">
                     <div className="flex justify-between items-center pb-2 border-b border-gray-200/50 flex-wrap gap-2">
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
                         <Users size={12} className="text-red-500" />
-                        <span>ผู้ติดต่อ ({company.contacts.length} คน)</span>
+                        <span>ผู้ติดต่อ ({getUniqueContacts(company.contacts).length} คน)</span>
                       </p>
                       <div className="flex gap-2">
                         <button
@@ -827,10 +885,20 @@ export default function ClientsClientPage({
                         >
                           <Building2 size={12} /> แก้ไขข้อมูลบริษัท/ลูกค้า
                         </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteCompany(company);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-black text-xs rounded-xl shadow-sm transition-all border border-red-100"
+                        >
+                          <Trash2 size={12} /> ลบ
+                        </button>
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {company.contacts.map((contact) => (
+                      {getUniqueContacts(company.contacts).map((contact) => (
                         <div key={contact.id} className="flex items-center justify-between gap-3 bg-white rounded-xl px-3 py-2.5 border border-gray-100">
                           <div className="flex items-center gap-3 min-w-0">
                             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-sm shrink-0">
@@ -906,6 +974,16 @@ export default function ClientsClientPage({
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs rounded-xl shadow-sm transition-all"
                       >
                         <Building2 size={12} /> แก้ไขข้อมูลบริษัท/ลูกค้า
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCompany(company);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-black text-xs rounded-xl shadow-sm transition-all border border-red-100"
+                      >
+                        <Trash2 size={12} /> ลบ
                       </button>
                     </div>
                   </div>

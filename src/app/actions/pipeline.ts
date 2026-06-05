@@ -19,7 +19,8 @@ export async function updateQuotationStatus(
     poDate?: string,
     appointmentDate?: string,
     appointmentNote?: string,
-    jobType?: string
+    jobType?: string,
+    paymentMethod?: string
   }
 ) {
   const user = await getUser();
@@ -125,6 +126,7 @@ export async function updateQuotationStatus(
         poNumber: updateData.poNumber,
         jobType: extra?.jobType,
         closedDate: updated.billingDate || updated.poDate || new Date(),
+        paymentMethod: extra?.paymentMethod,
       });
     }
 

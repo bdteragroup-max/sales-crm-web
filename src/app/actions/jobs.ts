@@ -13,6 +13,7 @@ export type CreateJobInput = {
   jobType?: string; // If not submitted → use default from QT
   poNumber?: string;
   closedDate?: Date; // If not submitted → use now()
+  paymentMethod?: string; // e.g. "จ่ายแล้ว", "เครดิต", "ผ่อน", "เก็บเงินหน้างาน"
 };
 
 // ================================================
@@ -65,11 +66,34 @@ export async function createJobFromQuotation(input: CreateJobInput) {
       quotationNumber: quotation.quotationNumber ?? "", 
       poNumber: poNumber ?? null, 
       sellerName: quotation.salesperson?.fullName ?? "", 
-      quotationId, 
+      quotationId,
+      paymentMethod: input.paymentMethod,
+      paymentStatus: input.paymentMethod === 'จ่ายแล้ว' ? 'paid' : 'pending',
     }, 
   }); 
 
+  // Auto-create PaymentTask if not paid
+  if (input.paymentMethod && input.paymentMethod !== 'จ่ายแล้ว') {
+    let dueDate = new Date(closedDate);
+    if (input.paymentMethod.includes('เครดิต 30 วัน') || input.paymentMethod === 'เครดิต') {
+      dueDate.setDate(dueDate.getDate() + 30);
+    } else if (input.paymentMethod.includes('เครดิต 60 วัน')) {
+      dueDate.setDate(dueDate.getDate() + 60);
+    } else if (input.paymentMethod === 'เก็บเงินหน้างาน') {
+      dueDate.setDate(dueDate.getDate() + 7);
+    }
+    
+    await prisma.paymentTask.create({
+      data: {
+        jobId: job.id,
+        status: 'รอดำเนินการ',
+        dueDate,
+      }
+    });
+  }
+
   revalidatePath("/jobs"); 
+  revalidatePath("/accounting");
   return job;
 }
 
@@ -128,6 +152,38 @@ export async function confirmJobStep(payload: {
       ...(trackingNumber ? { trackingNumber } : {}),
       ...(trackingPhotoUrl ? { trackingPhotoUrl } : {}),
     },
+  })
+
+  // Trigger: Automatically create Delivery Note if the job moved to 'service_return'
+  if (nextStep?.key === 'service_return') {
+    const { createRepairDelivery } = await import("@/app/actions/repairDeliveries")
+    await createRepairDelivery(jobId)
+  }
+
+  revalidatePath("/jobs")
+}
+
+// ── บัญชีตีกลับ (Reject Step) ──────────────────────────────────────────
+export async function rejectJobStep(jobId: string, targetStep: string, note: string, rejectedBy: string) {
+  const job = await prisma.job.findUnique({ where: { id: jobId } })
+  if (!job) throw new Error("Job not found")
+
+  // Delete logs that happened after or at the target step
+  // Wait, we don't have a strict linear ordering in stepLogs if we just use string.
+  // Easiest way: just update the job's currentStep, and log a note.
+  await prisma.jobStepLog.create({
+    data: {
+      jobId,
+      step: job.currentStep,
+      completedBy: rejectedBy,
+      department: "accounting",
+      note: `ตีกลับไปที่ ${targetStep}: ${note}`,
+    }
+  })
+
+  await prisma.job.update({
+    where: { id: jobId },
+    data: { currentStep: targetStep }
   })
 
   revalidatePath("/jobs")

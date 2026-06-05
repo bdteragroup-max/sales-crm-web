@@ -354,3 +354,33 @@ export async function checkTaxIdExists(taxId: string, excludeCompanyId?: string)
     return { exists: false };
   }
 }
+
+export async function deleteCompany(companyId: string) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Prevent deletion if there are Quotations or Orders to avoid data loss
+      const quoteCount = await tx.quotation.count({ where: { companyId } });
+      const orderCount = await tx.order.count({ where: { companyId } });
+      
+      if (quoteCount > 0 || orderCount > 0) {
+        throw new Error('ไม่สามารถลบได้เนื่องจากมีข้อมูลใบเสนอราคาหรือใบสั่งซื้อผูกอยู่');
+      }
+
+      // Safely delete associated records that do not block deletion
+      await tx.schedule.deleteMany({ where: { companyId } });
+      await tx.telesale.deleteMany({ where: { companyId } });
+      await tx.contact.deleteMany({ where: { companyId } });
+
+      // Finally delete the company
+      await tx.company.delete({
+        where: { id: companyId },
+      });
+    });
+
+    revalidatePath('/clients');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Delete company error:', error);
+    return { success: false, message: error.message || 'ไม่สามารถลบข้อมูลบริษัทได้ อาจมีข้อมูลที่ผูกอยู่' };
+  }
+}

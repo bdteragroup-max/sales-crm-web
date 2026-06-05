@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FileText, FileSpreadsheet, Plus, Search, Edit2, Trash2, TrendingUp, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { FileText, FileSpreadsheet, Plus, Search, Edit2, Trash2, TrendingUp, CheckCircle2, Clock, XCircle, ArrowUpDown } from 'lucide-react';
 import NewQuotationForm from './components/NewQuotationForm';
 import BulkUploadModal from './components/BulkUploadModal';
 import { deleteQuotation } from '@/app/actions/sales';
@@ -65,6 +65,7 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
     return null;
   });
   const [statusFilter, setStatusFilter] = useState('');
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
 
   const filteredQuotations = initialQuotations.filter(q => {
@@ -74,6 +75,39 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
       (q.contact?.contactName?.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchStatus = !statusFilter || q.status === statusFilter;
     return matchSearch && matchStatus;
+  });
+
+  const sortedQuotations = [...filteredQuotations].sort((a, b) => {
+    if (!sortConfig) return 0;
+    
+    let aValue: any;
+    let bValue: any;
+
+    if (sortConfig.key === 'date') {
+      aValue = a.billingDate || a.poDate || a.quotationDate || a.updatedAt || a.createdAt;
+      bValue = b.billingDate || b.poDate || b.quotationDate || b.updatedAt || b.createdAt;
+      aValue = aValue ? new Date(aValue).getTime() : 0;
+      bValue = bValue ? new Date(bValue).getTime() : 0;
+    } else if (sortConfig.key === 'quotationNumber') {
+      aValue = a.quotationNumber || '';
+      bValue = b.quotationNumber || '';
+    } else if (sortConfig.key === 'company') {
+      aValue = a.company?.companyName || '';
+      bValue = b.company?.companyName || '';
+    } else if (sortConfig.key === 'totalAmount') {
+      aValue = Number(a.totalAmountBeforeVat) || 0;
+      bValue = Number(b.totalAmountBeforeVat) || 0;
+    } else if (sortConfig.key === 'closingAmount') {
+      aValue = Number(a.actualClosingAmount) || 0;
+      bValue = Number(b.actualClosingAmount) || 0;
+    } else if (sortConfig.key === 'status') {
+      aValue = a.status || '';
+      bValue = b.status || '';
+    }
+
+    if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+    return 0;
   });
 
   const wonCount   = initialQuotations.filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).length;
@@ -226,19 +260,43 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
               <table className="w-full text-left text-sm min-w-[800px]">
                 <thead>
                   <tr className="border-b border-gray-100">
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่</th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">เลขที่ใบเสนอราคา</th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">บริษัท</th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">ยอดเสนอราคา</th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">ยอดปิดจริง</th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">สถานะ</th>
+                    <th className="py-4 px-5">
+                      <button onClick={() => setSortConfig({ key: 'date', direction: sortConfig?.key === 'date' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })} className="flex items-center gap-1 text-[9px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-700 transition-colors">
+                        วันที่ <ArrowUpDown size={12} className={sortConfig?.key === 'date' ? 'text-brand-red' : ''} />
+                      </button>
+                    </th>
+                    <th className="py-4 px-5">
+                      <button onClick={() => setSortConfig({ key: 'quotationNumber', direction: sortConfig?.key === 'quotationNumber' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })} className="flex items-center gap-1 text-[9px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-700 transition-colors">
+                        เลขที่ใบเสนอราคา <ArrowUpDown size={12} className={sortConfig?.key === 'quotationNumber' ? 'text-brand-red' : ''} />
+                      </button>
+                    </th>
+                    <th className="py-4 px-5">
+                      <button onClick={() => setSortConfig({ key: 'company', direction: sortConfig?.key === 'company' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })} className="flex items-center gap-1 text-[9px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-700 transition-colors">
+                        บริษัท <ArrowUpDown size={12} className={sortConfig?.key === 'company' ? 'text-brand-red' : ''} />
+                      </button>
+                    </th>
+                    <th className="py-4 px-5">
+                      <button onClick={() => setSortConfig({ key: 'totalAmount', direction: sortConfig?.key === 'totalAmount' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })} className="flex items-center justify-end w-full gap-1 text-[9px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-700 transition-colors">
+                        ยอดเสนอราคา <ArrowUpDown size={12} className={sortConfig?.key === 'totalAmount' ? 'text-brand-red' : ''} />
+                      </button>
+                    </th>
+                    <th className="py-4 px-5">
+                      <button onClick={() => setSortConfig({ key: 'closingAmount', direction: sortConfig?.key === 'closingAmount' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })} className="flex items-center justify-end w-full gap-1 text-[9px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-700 transition-colors">
+                        ยอดปิดจริง <ArrowUpDown size={12} className={sortConfig?.key === 'closingAmount' ? 'text-brand-red' : ''} />
+                      </button>
+                    </th>
+                    <th className="py-4 px-5">
+                      <button onClick={() => setSortConfig({ key: 'status', direction: sortConfig?.key === 'status' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })} className="flex items-center gap-1 text-[9px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-700 transition-colors">
+                        สถานะ <ArrowUpDown size={12} className={sortConfig?.key === 'status' ? 'text-brand-red' : ''} />
+                      </button>
+                    </th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ผู้ติดต่อ</th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">จัดการ</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {filteredQuotations.length > 0 ? (
-                    filteredQuotations.map((record: any) => (
+                  {sortedQuotations.length > 0 ? (
+                    sortedQuotations.map((record: any) => (
                       <tr key={record.id} className="group hover:bg-gray-50/60 transition-colors">
                         <td className="py-4 px-5 text-[11px] font-bold text-gray-400 whitespace-nowrap">
                           {(() => {

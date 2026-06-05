@@ -327,13 +327,34 @@ model Job {
   courierCompany  String?
   trackingNumber  String?
   trackingPhotoUrl String?
+  paymentMethod   String?
+  paymentStatus   String?      @default("pending")
   createdAt       DateTime     @default(now()) @db.Timestamptz(6)
   updatedAt       DateTime     @updatedAt @db.Timestamptz(6)
   repairOrder     RepairOrder?
   stepLogs        JobStepLog[]
+  paymentTask     PaymentTask?
   quotation       Quotation?   @relation(fields: [quotationId], references: [id])
+  repairDeliveries RepairDelivery[]
+  outsourceRepairs OutsourceRepair[]
 
   @@map("jobs")
+}
+
+model PaymentTask {
+  id          String    @id @default(cuid())
+  jobId       String    @unique
+  job         Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status      String    @default("รอดำเนินการ")
+  assignedTo  String?
+  dueDate     DateTime? @db.Timestamptz(6)
+  paidAmount  Float?
+  paidDate    DateTime? @db.Timestamptz(6)
+  note        String?
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@map("payment_tasks")
 }
 
 model JobRunningNumber {
@@ -385,6 +406,79 @@ model RepairOrder {
   customerCompany String?
   salesPerson     String?
   job             Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model RepairDelivery {
+  id              String   @id @default(cuid())
+  deliveryNumber  String   @unique // e.g., DN69-0001
+  
+  // Link to Job
+  jobId           String?
+  job             Job?     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  deliveryDate    DateTime? @db.Timestamptz(6)
+  company         String?
+  jobName         String?
+  customer        String?
+  customerPosition String?
+  address         String?
+  siteAddress     String?
+  quotationNo     String?
+
+  sender          String?
+  senderPhone     String?
+  technician      String?
+  technicianPhone String?
+
+  workInspect     Boolean @default(false)
+  workInstall     Boolean @default(false)
+  workRepair      Boolean @default(false)
+  workTraining    Boolean @default(false)
+  workOther       String?
+
+  note            String?
+
+  sigSenderUrl    String?
+  nameSender      String?
+  sigReceiverUrl  String?
+  nameReceiver    String?
+  
+  status          String   @default("Draft")
+  pdfUrl          String?
+  
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+}
+
+model OutsourceRepair {
+  id                 String    @id @default(cuid())
+  outsourceNumber    String?   @unique // e.g. EXT-2405-001
+  jobId              String?
+  job                Job?      @relation(fields: [jobId], references: [id])
+  
+  // Vendor Info
+  vendorName         String?   // Name of the external repair company
+  vendorPhone        String?   // Phone of the vendor
+  vendorAddress      String?   // Address of the vendor
+  
+  // Customer Info
+  customerName       String?
+  customerPhone      String?
+  customerAddress    String?
+
+  sentDate           DateTime? @db.Timestamptz(6)
+  expectedReturnDate DateTime? @db.Timestamptz(6)
+  
+  items              Json      // List of items sent (type, brand, serial, etc)
+  symptoms           String?   // Description of the problem
+  settings           String?
+  remark             String?
+  
+  sender             String?   // Our staff who sent it
+  status             String    @default("SENT") // SENT, RETURNED, CANCELLED
+  
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(6)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.

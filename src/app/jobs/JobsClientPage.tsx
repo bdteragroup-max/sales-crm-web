@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useTransition, useEffect, useRef } from "react";
-import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight, X, Wrench } from "lucide-react";
+import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight, X, Wrench, CheckCircle2 } from "lucide-react";
 import { updateJob, deleteJob, UpdateJobPayload, createStandaloneJob } from "./actions";
 import { JOB_TYPES } from "@/constants/job-types";
 import { useRouter } from "next/navigation";
@@ -38,6 +38,8 @@ type Job = {
   trackingNumber?: string | null;
   trackingPhotoUrl?: string | null;
   stepLogs: StepLog[];
+  paymentMethod?: string | null;
+  paymentTask?: any;
 };
 
 const COMPANY_CODES = ["TP", "TG", "TE"];
@@ -184,6 +186,7 @@ function ExpandedRow({
             jobNumber={job.jobNumber}
             customerName={job.customerName}
             sellerName={job.sellerName || undefined}
+            paymentTask={job.paymentTask}
           />
 
           {job.deliveryMethod && (
@@ -626,7 +629,7 @@ export default function JobsClientPage({
                         }
                       `}>
                         {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
-                          ? "✅ เสร็จแล้ว"
+                          ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span>
                           : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
                         }
                       </span>

@@ -89,6 +89,11 @@ export type OrderStatusLog = $Result.DefaultSelection<Prisma.$OrderStatusLogPayl
  */
 export type Job = $Result.DefaultSelection<Prisma.$JobPayload>
 /**
+ * Model PaymentTask
+ * 
+ */
+export type PaymentTask = $Result.DefaultSelection<Prisma.$PaymentTaskPayload>
+/**
  * Model JobRunningNumber
  * 
  */
@@ -103,6 +108,16 @@ export type JobStepLog = $Result.DefaultSelection<Prisma.$JobStepLogPayload>
  * 
  */
 export type RepairOrder = $Result.DefaultSelection<Prisma.$RepairOrderPayload>
+/**
+ * Model RepairDelivery
+ * 
+ */
+export type RepairDelivery = $Result.DefaultSelection<Prisma.$RepairDeliveryPayload>
+/**
+ * Model OutsourceRepair
+ * 
+ */
+export type OutsourceRepair = $Result.DefaultSelection<Prisma.$OutsourceRepairPayload>
 /**
  * Model admin_login_attempts
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -541,6 +556,16 @@ export class PrismaClient<
   get job(): Prisma.JobDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.paymentTask`: Exposes CRUD operations for the **PaymentTask** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaymentTasks
+    * const paymentTasks = await prisma.paymentTask.findMany()
+    * ```
+    */
+  get paymentTask(): Prisma.PaymentTaskDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.jobRunningNumber`: Exposes CRUD operations for the **JobRunningNumber** model.
     * Example usage:
     * ```ts
@@ -569,6 +594,26 @@ export class PrismaClient<
     * ```
     */
   get repairOrder(): Prisma.RepairOrderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.repairDelivery`: Exposes CRUD operations for the **RepairDelivery** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more RepairDeliveries
+    * const repairDeliveries = await prisma.repairDelivery.findMany()
+    * ```
+    */
+  get repairDelivery(): Prisma.RepairDeliveryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.outsourceRepair`: Exposes CRUD operations for the **OutsourceRepair** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OutsourceRepairs
+    * const outsourceRepairs = await prisma.outsourceRepair.findMany()
+    * ```
+    */
+  get outsourceRepair(): Prisma.OutsourceRepairDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.admin_login_attempts`: Exposes CRUD operations for the **admin_login_attempts** model.
@@ -1348,9 +1393,12 @@ export namespace Prisma {
     Order: 'Order',
     OrderStatusLog: 'OrderStatusLog',
     Job: 'Job',
+    PaymentTask: 'PaymentTask',
     JobRunningNumber: 'JobRunningNumber',
     JobStepLog: 'JobStepLog',
     RepairOrder: 'RepairOrder',
+    RepairDelivery: 'RepairDelivery',
+    OutsourceRepair: 'OutsourceRepair',
     admin_login_attempts: 'admin_login_attempts',
     admins: 'admins',
     asset_borrowings: 'asset_borrowings',
@@ -1399,7 +1447,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "outsourceRepair" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2513,6 +2561,80 @@ export namespace Prisma {
           }
         }
       }
+      PaymentTask: {
+        payload: Prisma.$PaymentTaskPayload<ExtArgs>
+        fields: Prisma.PaymentTaskFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaymentTaskFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaymentTaskFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload>
+          }
+          findFirst: {
+            args: Prisma.PaymentTaskFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaymentTaskFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload>
+          }
+          findMany: {
+            args: Prisma.PaymentTaskFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload>[]
+          }
+          create: {
+            args: Prisma.PaymentTaskCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload>
+          }
+          createMany: {
+            args: Prisma.PaymentTaskCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaymentTaskCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload>[]
+          }
+          delete: {
+            args: Prisma.PaymentTaskDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload>
+          }
+          update: {
+            args: Prisma.PaymentTaskUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaymentTaskDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaymentTaskUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaymentTaskUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaymentTaskUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentTaskPayload>
+          }
+          aggregate: {
+            args: Prisma.PaymentTaskAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaymentTask>
+          }
+          groupBy: {
+            args: Prisma.PaymentTaskGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaymentTaskGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaymentTaskCountArgs<ExtArgs>
+            result: $Utils.Optional<PaymentTaskCountAggregateOutputType> | number
+          }
+        }
+      }
       JobRunningNumber: {
         payload: Prisma.$JobRunningNumberPayload<ExtArgs>
         fields: Prisma.JobRunningNumberFieldRefs
@@ -2732,6 +2854,154 @@ export namespace Prisma {
           count: {
             args: Prisma.RepairOrderCountArgs<ExtArgs>
             result: $Utils.Optional<RepairOrderCountAggregateOutputType> | number
+          }
+        }
+      }
+      RepairDelivery: {
+        payload: Prisma.$RepairDeliveryPayload<ExtArgs>
+        fields: Prisma.RepairDeliveryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.RepairDeliveryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.RepairDeliveryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload>
+          }
+          findFirst: {
+            args: Prisma.RepairDeliveryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.RepairDeliveryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload>
+          }
+          findMany: {
+            args: Prisma.RepairDeliveryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload>[]
+          }
+          create: {
+            args: Prisma.RepairDeliveryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload>
+          }
+          createMany: {
+            args: Prisma.RepairDeliveryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.RepairDeliveryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload>[]
+          }
+          delete: {
+            args: Prisma.RepairDeliveryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload>
+          }
+          update: {
+            args: Prisma.RepairDeliveryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload>
+          }
+          deleteMany: {
+            args: Prisma.RepairDeliveryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.RepairDeliveryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.RepairDeliveryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload>[]
+          }
+          upsert: {
+            args: Prisma.RepairDeliveryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RepairDeliveryPayload>
+          }
+          aggregate: {
+            args: Prisma.RepairDeliveryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRepairDelivery>
+          }
+          groupBy: {
+            args: Prisma.RepairDeliveryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RepairDeliveryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.RepairDeliveryCountArgs<ExtArgs>
+            result: $Utils.Optional<RepairDeliveryCountAggregateOutputType> | number
+          }
+        }
+      }
+      OutsourceRepair: {
+        payload: Prisma.$OutsourceRepairPayload<ExtArgs>
+        fields: Prisma.OutsourceRepairFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OutsourceRepairFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OutsourceRepairFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload>
+          }
+          findFirst: {
+            args: Prisma.OutsourceRepairFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OutsourceRepairFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload>
+          }
+          findMany: {
+            args: Prisma.OutsourceRepairFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload>[]
+          }
+          create: {
+            args: Prisma.OutsourceRepairCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload>
+          }
+          createMany: {
+            args: Prisma.OutsourceRepairCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OutsourceRepairCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload>[]
+          }
+          delete: {
+            args: Prisma.OutsourceRepairDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload>
+          }
+          update: {
+            args: Prisma.OutsourceRepairUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload>
+          }
+          deleteMany: {
+            args: Prisma.OutsourceRepairDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OutsourceRepairUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OutsourceRepairUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload>[]
+          }
+          upsert: {
+            args: Prisma.OutsourceRepairUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutsourceRepairPayload>
+          }
+          aggregate: {
+            args: Prisma.OutsourceRepairAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOutsourceRepair>
+          }
+          groupBy: {
+            args: Prisma.OutsourceRepairGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OutsourceRepairGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OutsourceRepairCountArgs<ExtArgs>
+            result: $Utils.Optional<OutsourceRepairCountAggregateOutputType> | number
           }
         }
       }
@@ -5300,9 +5570,12 @@ export namespace Prisma {
     order?: OrderOmit
     orderStatusLog?: OrderStatusLogOmit
     job?: JobOmit
+    paymentTask?: PaymentTaskOmit
     jobRunningNumber?: JobRunningNumberOmit
     jobStepLog?: JobStepLogOmit
     repairOrder?: RepairOrderOmit
+    repairDelivery?: RepairDeliveryOmit
+    outsourceRepair?: OutsourceRepairOmit
     admin_login_attempts?: admin_login_attemptsOmit
     admins?: adminsOmit
     asset_borrowings?: asset_borrowingsOmit
@@ -5671,10 +5944,14 @@ export namespace Prisma {
 
   export type JobCountOutputType = {
     stepLogs: number
+    repairDeliveries: number
+    outsourceRepairs: number
   }
 
   export type JobCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     stepLogs?: boolean | JobCountOutputTypeCountStepLogsArgs
+    repairDeliveries?: boolean | JobCountOutputTypeCountRepairDeliveriesArgs
+    outsourceRepairs?: boolean | JobCountOutputTypeCountOutsourceRepairsArgs
   }
 
   // Custom InputTypes
@@ -5693,6 +5970,20 @@ export namespace Prisma {
    */
   export type JobCountOutputTypeCountStepLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: JobStepLogWhereInput
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeCountRepairDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RepairDeliveryWhereInput
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeCountOutsourceRepairsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OutsourceRepairWhereInput
   }
 
 
@@ -23448,6 +23739,8 @@ export namespace Prisma {
     courierCompany: string | null
     trackingNumber: string | null
     trackingPhotoUrl: string | null
+    paymentMethod: string | null
+    paymentStatus: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -23473,6 +23766,8 @@ export namespace Prisma {
     courierCompany: string | null
     trackingNumber: string | null
     trackingPhotoUrl: string | null
+    paymentMethod: string | null
+    paymentStatus: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -23498,6 +23793,8 @@ export namespace Prisma {
     courierCompany: number
     trackingNumber: number
     trackingPhotoUrl: number
+    paymentMethod: number
+    paymentStatus: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -23535,6 +23832,8 @@ export namespace Prisma {
     courierCompany?: true
     trackingNumber?: true
     trackingPhotoUrl?: true
+    paymentMethod?: true
+    paymentStatus?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -23560,6 +23859,8 @@ export namespace Prisma {
     courierCompany?: true
     trackingNumber?: true
     trackingPhotoUrl?: true
+    paymentMethod?: true
+    paymentStatus?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -23585,6 +23886,8 @@ export namespace Prisma {
     courierCompany?: true
     trackingNumber?: true
     trackingPhotoUrl?: true
+    paymentMethod?: true
+    paymentStatus?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -23697,6 +24000,8 @@ export namespace Prisma {
     courierCompany: string | null
     trackingNumber: string | null
     trackingPhotoUrl: string | null
+    paymentMethod: string | null
+    paymentStatus: string | null
     createdAt: Date
     updatedAt: Date
     _count: JobCountAggregateOutputType | null
@@ -23741,11 +24046,16 @@ export namespace Prisma {
     courierCompany?: boolean
     trackingNumber?: boolean
     trackingPhotoUrl?: boolean
+    paymentMethod?: boolean
+    paymentStatus?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     repairOrder?: boolean | Job$repairOrderArgs<ExtArgs>
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
+    paymentTask?: boolean | Job$paymentTaskArgs<ExtArgs>
     quotation?: boolean | Job$quotationArgs<ExtArgs>
+    repairDeliveries?: boolean | Job$repairDeliveriesArgs<ExtArgs>
+    outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["job"]>
 
@@ -23770,6 +24080,8 @@ export namespace Prisma {
     courierCompany?: boolean
     trackingNumber?: boolean
     trackingPhotoUrl?: boolean
+    paymentMethod?: boolean
+    paymentStatus?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     quotation?: boolean | Job$quotationArgs<ExtArgs>
@@ -23796,6 +24108,8 @@ export namespace Prisma {
     courierCompany?: boolean
     trackingNumber?: boolean
     trackingPhotoUrl?: boolean
+    paymentMethod?: boolean
+    paymentStatus?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     quotation?: boolean | Job$quotationArgs<ExtArgs>
@@ -23822,15 +24136,20 @@ export namespace Prisma {
     courierCompany?: boolean
     trackingNumber?: boolean
     trackingPhotoUrl?: boolean
+    paymentMethod?: boolean
+    paymentStatus?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobNumber" | "companyCode" | "jobType" | "month" | "yearBe" | "dateClosed" | "customerName" | "item" | "quotationNumber" | "poNumber" | "sellerName" | "quotationId" | "currentStep" | "flowVariant" | "deliveryMethod" | "deliveryDate" | "courierCompany" | "trackingNumber" | "trackingPhotoUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobNumber" | "companyCode" | "jobType" | "month" | "yearBe" | "dateClosed" | "customerName" | "item" | "quotationNumber" | "poNumber" | "sellerName" | "quotationId" | "currentStep" | "flowVariant" | "deliveryMethod" | "deliveryDate" | "courierCompany" | "trackingNumber" | "trackingPhotoUrl" | "paymentMethod" | "paymentStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
   export type JobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     repairOrder?: boolean | Job$repairOrderArgs<ExtArgs>
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
+    paymentTask?: boolean | Job$paymentTaskArgs<ExtArgs>
     quotation?: boolean | Job$quotationArgs<ExtArgs>
+    repairDeliveries?: boolean | Job$repairDeliveriesArgs<ExtArgs>
+    outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type JobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -23845,7 +24164,10 @@ export namespace Prisma {
     objects: {
       repairOrder: Prisma.$RepairOrderPayload<ExtArgs> | null
       stepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
+      paymentTask: Prisma.$PaymentTaskPayload<ExtArgs> | null
       quotation: Prisma.$QuotationPayload<ExtArgs> | null
+      repairDeliveries: Prisma.$RepairDeliveryPayload<ExtArgs>[]
+      outsourceRepairs: Prisma.$OutsourceRepairPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -23868,6 +24190,8 @@ export namespace Prisma {
       courierCompany: string | null
       trackingNumber: string | null
       trackingPhotoUrl: string | null
+      paymentMethod: string | null
+      paymentStatus: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["job"]>
@@ -24266,7 +24590,10 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     repairOrder<T extends Job$repairOrderArgs<ExtArgs> = {}>(args?: Subset<T, Job$repairOrderArgs<ExtArgs>>): Prisma__RepairOrderClient<$Result.GetResult<Prisma.$RepairOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     stepLogs<T extends Job$stepLogsArgs<ExtArgs> = {}>(args?: Subset<T, Job$stepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    paymentTask<T extends Job$paymentTaskArgs<ExtArgs> = {}>(args?: Subset<T, Job$paymentTaskArgs<ExtArgs>>): Prisma__PaymentTaskClient<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     quotation<T extends Job$quotationArgs<ExtArgs> = {}>(args?: Subset<T, Job$quotationArgs<ExtArgs>>): Prisma__QuotationClient<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    repairDeliveries<T extends Job$repairDeliveriesArgs<ExtArgs> = {}>(args?: Subset<T, Job$repairDeliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    outsourceRepairs<T extends Job$outsourceRepairsArgs<ExtArgs> = {}>(args?: Subset<T, Job$outsourceRepairsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -24316,6 +24643,8 @@ export namespace Prisma {
     readonly courierCompany: FieldRef<"Job", 'String'>
     readonly trackingNumber: FieldRef<"Job", 'String'>
     readonly trackingPhotoUrl: FieldRef<"Job", 'String'>
+    readonly paymentMethod: FieldRef<"Job", 'String'>
+    readonly paymentStatus: FieldRef<"Job", 'String'>
     readonly createdAt: FieldRef<"Job", 'DateTime'>
     readonly updatedAt: FieldRef<"Job", 'DateTime'>
   }
@@ -24762,6 +25091,25 @@ export namespace Prisma {
   }
 
   /**
+   * Job.paymentTask
+   */
+  export type Job$paymentTaskArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
+    where?: PaymentTaskWhereInput
+  }
+
+  /**
    * Job.quotation
    */
   export type Job$quotationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -24781,6 +25129,54 @@ export namespace Prisma {
   }
 
   /**
+   * Job.repairDeliveries
+   */
+  export type Job$repairDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+    where?: RepairDeliveryWhereInput
+    orderBy?: RepairDeliveryOrderByWithRelationInput | RepairDeliveryOrderByWithRelationInput[]
+    cursor?: RepairDeliveryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: RepairDeliveryScalarFieldEnum | RepairDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * Job.outsourceRepairs
+   */
+  export type Job$outsourceRepairsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
+    where?: OutsourceRepairWhereInput
+    orderBy?: OutsourceRepairOrderByWithRelationInput | OutsourceRepairOrderByWithRelationInput[]
+    cursor?: OutsourceRepairWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OutsourceRepairScalarFieldEnum | OutsourceRepairScalarFieldEnum[]
+  }
+
+  /**
    * Job without action
    */
   export type JobDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -24796,6 +25192,1168 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: JobInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PaymentTask
+   */
+
+  export type AggregatePaymentTask = {
+    _count: PaymentTaskCountAggregateOutputType | null
+    _avg: PaymentTaskAvgAggregateOutputType | null
+    _sum: PaymentTaskSumAggregateOutputType | null
+    _min: PaymentTaskMinAggregateOutputType | null
+    _max: PaymentTaskMaxAggregateOutputType | null
+  }
+
+  export type PaymentTaskAvgAggregateOutputType = {
+    paidAmount: number | null
+  }
+
+  export type PaymentTaskSumAggregateOutputType = {
+    paidAmount: number | null
+  }
+
+  export type PaymentTaskMinAggregateOutputType = {
+    id: string | null
+    jobId: string | null
+    status: string | null
+    assignedTo: string | null
+    dueDate: Date | null
+    paidAmount: number | null
+    paidDate: Date | null
+    note: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentTaskMaxAggregateOutputType = {
+    id: string | null
+    jobId: string | null
+    status: string | null
+    assignedTo: string | null
+    dueDate: Date | null
+    paidAmount: number | null
+    paidDate: Date | null
+    note: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentTaskCountAggregateOutputType = {
+    id: number
+    jobId: number
+    status: number
+    assignedTo: number
+    dueDate: number
+    paidAmount: number
+    paidDate: number
+    note: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PaymentTaskAvgAggregateInputType = {
+    paidAmount?: true
+  }
+
+  export type PaymentTaskSumAggregateInputType = {
+    paidAmount?: true
+  }
+
+  export type PaymentTaskMinAggregateInputType = {
+    id?: true
+    jobId?: true
+    status?: true
+    assignedTo?: true
+    dueDate?: true
+    paidAmount?: true
+    paidDate?: true
+    note?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentTaskMaxAggregateInputType = {
+    id?: true
+    jobId?: true
+    status?: true
+    assignedTo?: true
+    dueDate?: true
+    paidAmount?: true
+    paidDate?: true
+    note?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentTaskCountAggregateInputType = {
+    id?: true
+    jobId?: true
+    status?: true
+    assignedTo?: true
+    dueDate?: true
+    paidAmount?: true
+    paidDate?: true
+    note?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PaymentTaskAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentTask to aggregate.
+     */
+    where?: PaymentTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentTasks to fetch.
+     */
+    orderBy?: PaymentTaskOrderByWithRelationInput | PaymentTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaymentTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaymentTasks
+    **/
+    _count?: true | PaymentTaskCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PaymentTaskAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PaymentTaskSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaymentTaskMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaymentTaskMaxAggregateInputType
+  }
+
+  export type GetPaymentTaskAggregateType<T extends PaymentTaskAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaymentTask]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaymentTask[P]>
+      : GetScalarType<T[P], AggregatePaymentTask[P]>
+  }
+
+
+
+
+  export type PaymentTaskGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentTaskWhereInput
+    orderBy?: PaymentTaskOrderByWithAggregationInput | PaymentTaskOrderByWithAggregationInput[]
+    by: PaymentTaskScalarFieldEnum[] | PaymentTaskScalarFieldEnum
+    having?: PaymentTaskScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaymentTaskCountAggregateInputType | true
+    _avg?: PaymentTaskAvgAggregateInputType
+    _sum?: PaymentTaskSumAggregateInputType
+    _min?: PaymentTaskMinAggregateInputType
+    _max?: PaymentTaskMaxAggregateInputType
+  }
+
+  export type PaymentTaskGroupByOutputType = {
+    id: string
+    jobId: string
+    status: string
+    assignedTo: string | null
+    dueDate: Date | null
+    paidAmount: number | null
+    paidDate: Date | null
+    note: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: PaymentTaskCountAggregateOutputType | null
+    _avg: PaymentTaskAvgAggregateOutputType | null
+    _sum: PaymentTaskSumAggregateOutputType | null
+    _min: PaymentTaskMinAggregateOutputType | null
+    _max: PaymentTaskMaxAggregateOutputType | null
+  }
+
+  type GetPaymentTaskGroupByPayload<T extends PaymentTaskGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaymentTaskGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaymentTaskGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaymentTaskGroupByOutputType[P]>
+            : GetScalarType<T[P], PaymentTaskGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaymentTaskSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobId?: boolean
+    status?: boolean
+    assignedTo?: boolean
+    dueDate?: boolean
+    paidAmount?: boolean
+    paidDate?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentTask"]>
+
+  export type PaymentTaskSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobId?: boolean
+    status?: boolean
+    assignedTo?: boolean
+    dueDate?: boolean
+    paidAmount?: boolean
+    paidDate?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentTask"]>
+
+  export type PaymentTaskSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobId?: boolean
+    status?: boolean
+    assignedTo?: boolean
+    dueDate?: boolean
+    paidAmount?: boolean
+    paidDate?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentTask"]>
+
+  export type PaymentTaskSelectScalar = {
+    id?: boolean
+    jobId?: boolean
+    status?: boolean
+    assignedTo?: boolean
+    dueDate?: boolean
+    paidAmount?: boolean
+    paidDate?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PaymentTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "status" | "assignedTo" | "dueDate" | "paidAmount" | "paidDate" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentTask"]>
+  export type PaymentTaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }
+  export type PaymentTaskIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }
+  export type PaymentTaskIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }
+
+  export type $PaymentTaskPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaymentTask"
+    objects: {
+      job: Prisma.$JobPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      jobId: string
+      status: string
+      assignedTo: string | null
+      dueDate: Date | null
+      paidAmount: number | null
+      paidDate: Date | null
+      note: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["paymentTask"]>
+    composites: {}
+  }
+
+  type PaymentTaskGetPayload<S extends boolean | null | undefined | PaymentTaskDefaultArgs> = $Result.GetResult<Prisma.$PaymentTaskPayload, S>
+
+  type PaymentTaskCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaymentTaskFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaymentTaskCountAggregateInputType | true
+    }
+
+  export interface PaymentTaskDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaymentTask'], meta: { name: 'PaymentTask' } }
+    /**
+     * Find zero or one PaymentTask that matches the filter.
+     * @param {PaymentTaskFindUniqueArgs} args - Arguments to find a PaymentTask
+     * @example
+     * // Get one PaymentTask
+     * const paymentTask = await prisma.paymentTask.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaymentTaskFindUniqueArgs>(args: SelectSubset<T, PaymentTaskFindUniqueArgs<ExtArgs>>): Prisma__PaymentTaskClient<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaymentTask that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaymentTaskFindUniqueOrThrowArgs} args - Arguments to find a PaymentTask
+     * @example
+     * // Get one PaymentTask
+     * const paymentTask = await prisma.paymentTask.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaymentTaskFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentTaskFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentTaskClient<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentTask that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentTaskFindFirstArgs} args - Arguments to find a PaymentTask
+     * @example
+     * // Get one PaymentTask
+     * const paymentTask = await prisma.paymentTask.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaymentTaskFindFirstArgs>(args?: SelectSubset<T, PaymentTaskFindFirstArgs<ExtArgs>>): Prisma__PaymentTaskClient<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentTask that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentTaskFindFirstOrThrowArgs} args - Arguments to find a PaymentTask
+     * @example
+     * // Get one PaymentTask
+     * const paymentTask = await prisma.paymentTask.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaymentTaskFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentTaskFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentTaskClient<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaymentTasks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentTaskFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaymentTasks
+     * const paymentTasks = await prisma.paymentTask.findMany()
+     * 
+     * // Get first 10 PaymentTasks
+     * const paymentTasks = await prisma.paymentTask.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const paymentTaskWithIdOnly = await prisma.paymentTask.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PaymentTaskFindManyArgs>(args?: SelectSubset<T, PaymentTaskFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaymentTask.
+     * @param {PaymentTaskCreateArgs} args - Arguments to create a PaymentTask.
+     * @example
+     * // Create one PaymentTask
+     * const PaymentTask = await prisma.paymentTask.create({
+     *   data: {
+     *     // ... data to create a PaymentTask
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaymentTaskCreateArgs>(args: SelectSubset<T, PaymentTaskCreateArgs<ExtArgs>>): Prisma__PaymentTaskClient<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaymentTasks.
+     * @param {PaymentTaskCreateManyArgs} args - Arguments to create many PaymentTasks.
+     * @example
+     * // Create many PaymentTasks
+     * const paymentTask = await prisma.paymentTask.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaymentTaskCreateManyArgs>(args?: SelectSubset<T, PaymentTaskCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaymentTasks and returns the data saved in the database.
+     * @param {PaymentTaskCreateManyAndReturnArgs} args - Arguments to create many PaymentTasks.
+     * @example
+     * // Create many PaymentTasks
+     * const paymentTask = await prisma.paymentTask.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaymentTasks and only return the `id`
+     * const paymentTaskWithIdOnly = await prisma.paymentTask.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaymentTaskCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentTaskCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaymentTask.
+     * @param {PaymentTaskDeleteArgs} args - Arguments to delete one PaymentTask.
+     * @example
+     * // Delete one PaymentTask
+     * const PaymentTask = await prisma.paymentTask.delete({
+     *   where: {
+     *     // ... filter to delete one PaymentTask
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaymentTaskDeleteArgs>(args: SelectSubset<T, PaymentTaskDeleteArgs<ExtArgs>>): Prisma__PaymentTaskClient<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaymentTask.
+     * @param {PaymentTaskUpdateArgs} args - Arguments to update one PaymentTask.
+     * @example
+     * // Update one PaymentTask
+     * const paymentTask = await prisma.paymentTask.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaymentTaskUpdateArgs>(args: SelectSubset<T, PaymentTaskUpdateArgs<ExtArgs>>): Prisma__PaymentTaskClient<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaymentTasks.
+     * @param {PaymentTaskDeleteManyArgs} args - Arguments to filter PaymentTasks to delete.
+     * @example
+     * // Delete a few PaymentTasks
+     * const { count } = await prisma.paymentTask.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaymentTaskDeleteManyArgs>(args?: SelectSubset<T, PaymentTaskDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentTasks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentTaskUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaymentTasks
+     * const paymentTask = await prisma.paymentTask.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaymentTaskUpdateManyArgs>(args: SelectSubset<T, PaymentTaskUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentTasks and returns the data updated in the database.
+     * @param {PaymentTaskUpdateManyAndReturnArgs} args - Arguments to update many PaymentTasks.
+     * @example
+     * // Update many PaymentTasks
+     * const paymentTask = await prisma.paymentTask.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaymentTasks and only return the `id`
+     * const paymentTaskWithIdOnly = await prisma.paymentTask.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaymentTaskUpdateManyAndReturnArgs>(args: SelectSubset<T, PaymentTaskUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaymentTask.
+     * @param {PaymentTaskUpsertArgs} args - Arguments to update or create a PaymentTask.
+     * @example
+     * // Update or create a PaymentTask
+     * const paymentTask = await prisma.paymentTask.upsert({
+     *   create: {
+     *     // ... data to create a PaymentTask
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaymentTask we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaymentTaskUpsertArgs>(args: SelectSubset<T, PaymentTaskUpsertArgs<ExtArgs>>): Prisma__PaymentTaskClient<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaymentTasks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentTaskCountArgs} args - Arguments to filter PaymentTasks to count.
+     * @example
+     * // Count the number of PaymentTasks
+     * const count = await prisma.paymentTask.count({
+     *   where: {
+     *     // ... the filter for the PaymentTasks we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaymentTaskCountArgs>(
+      args?: Subset<T, PaymentTaskCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaymentTaskCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaymentTask.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentTaskAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaymentTaskAggregateArgs>(args: Subset<T, PaymentTaskAggregateArgs>): Prisma.PrismaPromise<GetPaymentTaskAggregateType<T>>
+
+    /**
+     * Group by PaymentTask.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentTaskGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaymentTaskGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaymentTaskGroupByArgs['orderBy'] }
+        : { orderBy?: PaymentTaskGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaymentTaskGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaymentTaskGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaymentTask model
+   */
+  readonly fields: PaymentTaskFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaymentTask.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaymentTaskClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    job<T extends JobDefaultArgs<ExtArgs> = {}>(args?: Subset<T, JobDefaultArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaymentTask model
+   */
+  interface PaymentTaskFieldRefs {
+    readonly id: FieldRef<"PaymentTask", 'String'>
+    readonly jobId: FieldRef<"PaymentTask", 'String'>
+    readonly status: FieldRef<"PaymentTask", 'String'>
+    readonly assignedTo: FieldRef<"PaymentTask", 'String'>
+    readonly dueDate: FieldRef<"PaymentTask", 'DateTime'>
+    readonly paidAmount: FieldRef<"PaymentTask", 'Float'>
+    readonly paidDate: FieldRef<"PaymentTask", 'DateTime'>
+    readonly note: FieldRef<"PaymentTask", 'String'>
+    readonly createdAt: FieldRef<"PaymentTask", 'DateTime'>
+    readonly updatedAt: FieldRef<"PaymentTask", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaymentTask findUnique
+   */
+  export type PaymentTaskFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentTask to fetch.
+     */
+    where: PaymentTaskWhereUniqueInput
+  }
+
+  /**
+   * PaymentTask findUniqueOrThrow
+   */
+  export type PaymentTaskFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentTask to fetch.
+     */
+    where: PaymentTaskWhereUniqueInput
+  }
+
+  /**
+   * PaymentTask findFirst
+   */
+  export type PaymentTaskFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentTask to fetch.
+     */
+    where?: PaymentTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentTasks to fetch.
+     */
+    orderBy?: PaymentTaskOrderByWithRelationInput | PaymentTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentTasks.
+     */
+    cursor?: PaymentTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentTasks.
+     */
+    distinct?: PaymentTaskScalarFieldEnum | PaymentTaskScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentTask findFirstOrThrow
+   */
+  export type PaymentTaskFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentTask to fetch.
+     */
+    where?: PaymentTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentTasks to fetch.
+     */
+    orderBy?: PaymentTaskOrderByWithRelationInput | PaymentTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentTasks.
+     */
+    cursor?: PaymentTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentTasks.
+     */
+    distinct?: PaymentTaskScalarFieldEnum | PaymentTaskScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentTask findMany
+   */
+  export type PaymentTaskFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentTasks to fetch.
+     */
+    where?: PaymentTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentTasks to fetch.
+     */
+    orderBy?: PaymentTaskOrderByWithRelationInput | PaymentTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaymentTasks.
+     */
+    cursor?: PaymentTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentTasks.
+     */
+    distinct?: PaymentTaskScalarFieldEnum | PaymentTaskScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentTask create
+   */
+  export type PaymentTaskCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaymentTask.
+     */
+    data: XOR<PaymentTaskCreateInput, PaymentTaskUncheckedCreateInput>
+  }
+
+  /**
+   * PaymentTask createMany
+   */
+  export type PaymentTaskCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaymentTasks.
+     */
+    data: PaymentTaskCreateManyInput | PaymentTaskCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaymentTask createManyAndReturn
+   */
+  export type PaymentTaskCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaymentTasks.
+     */
+    data: PaymentTaskCreateManyInput | PaymentTaskCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentTask update
+   */
+  export type PaymentTaskUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaymentTask.
+     */
+    data: XOR<PaymentTaskUpdateInput, PaymentTaskUncheckedUpdateInput>
+    /**
+     * Choose, which PaymentTask to update.
+     */
+    where: PaymentTaskWhereUniqueInput
+  }
+
+  /**
+   * PaymentTask updateMany
+   */
+  export type PaymentTaskUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaymentTasks.
+     */
+    data: XOR<PaymentTaskUpdateManyMutationInput, PaymentTaskUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentTasks to update
+     */
+    where?: PaymentTaskWhereInput
+    /**
+     * Limit how many PaymentTasks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentTask updateManyAndReturn
+   */
+  export type PaymentTaskUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * The data used to update PaymentTasks.
+     */
+    data: XOR<PaymentTaskUpdateManyMutationInput, PaymentTaskUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentTasks to update
+     */
+    where?: PaymentTaskWhereInput
+    /**
+     * Limit how many PaymentTasks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentTask upsert
+   */
+  export type PaymentTaskUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaymentTask to update in case it exists.
+     */
+    where: PaymentTaskWhereUniqueInput
+    /**
+     * In case the PaymentTask found by the `where` argument doesn't exist, create a new PaymentTask with this data.
+     */
+    create: XOR<PaymentTaskCreateInput, PaymentTaskUncheckedCreateInput>
+    /**
+     * In case the PaymentTask was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaymentTaskUpdateInput, PaymentTaskUncheckedUpdateInput>
+  }
+
+  /**
+   * PaymentTask delete
+   */
+  export type PaymentTaskDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
+    /**
+     * Filter which PaymentTask to delete.
+     */
+    where: PaymentTaskWhereUniqueInput
+  }
+
+  /**
+   * PaymentTask deleteMany
+   */
+  export type PaymentTaskDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentTasks to delete
+     */
+    where?: PaymentTaskWhereInput
+    /**
+     * Limit how many PaymentTasks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentTask without action
+   */
+  export type PaymentTaskDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentTask
+     */
+    select?: PaymentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentTask
+     */
+    omit?: PaymentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentTaskInclude<ExtArgs> | null
   }
 
 
@@ -28212,6 +29770,2660 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: RepairOrderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model RepairDelivery
+   */
+
+  export type AggregateRepairDelivery = {
+    _count: RepairDeliveryCountAggregateOutputType | null
+    _min: RepairDeliveryMinAggregateOutputType | null
+    _max: RepairDeliveryMaxAggregateOutputType | null
+  }
+
+  export type RepairDeliveryMinAggregateOutputType = {
+    id: string | null
+    deliveryNumber: string | null
+    jobId: string | null
+    deliveryDate: Date | null
+    company: string | null
+    jobName: string | null
+    customer: string | null
+    customerPosition: string | null
+    address: string | null
+    siteAddress: string | null
+    quotationNo: string | null
+    sender: string | null
+    senderPhone: string | null
+    technician: string | null
+    technicianPhone: string | null
+    workInspect: boolean | null
+    workInstall: boolean | null
+    workRepair: boolean | null
+    workTraining: boolean | null
+    workOther: string | null
+    note: string | null
+    sigSenderUrl: string | null
+    nameSender: string | null
+    sigReceiverUrl: string | null
+    nameReceiver: string | null
+    status: string | null
+    pdfUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RepairDeliveryMaxAggregateOutputType = {
+    id: string | null
+    deliveryNumber: string | null
+    jobId: string | null
+    deliveryDate: Date | null
+    company: string | null
+    jobName: string | null
+    customer: string | null
+    customerPosition: string | null
+    address: string | null
+    siteAddress: string | null
+    quotationNo: string | null
+    sender: string | null
+    senderPhone: string | null
+    technician: string | null
+    technicianPhone: string | null
+    workInspect: boolean | null
+    workInstall: boolean | null
+    workRepair: boolean | null
+    workTraining: boolean | null
+    workOther: string | null
+    note: string | null
+    sigSenderUrl: string | null
+    nameSender: string | null
+    sigReceiverUrl: string | null
+    nameReceiver: string | null
+    status: string | null
+    pdfUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RepairDeliveryCountAggregateOutputType = {
+    id: number
+    deliveryNumber: number
+    jobId: number
+    deliveryDate: number
+    company: number
+    jobName: number
+    customer: number
+    customerPosition: number
+    address: number
+    siteAddress: number
+    quotationNo: number
+    sender: number
+    senderPhone: number
+    technician: number
+    technicianPhone: number
+    workInspect: number
+    workInstall: number
+    workRepair: number
+    workTraining: number
+    workOther: number
+    note: number
+    sigSenderUrl: number
+    nameSender: number
+    sigReceiverUrl: number
+    nameReceiver: number
+    status: number
+    pdfUrl: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type RepairDeliveryMinAggregateInputType = {
+    id?: true
+    deliveryNumber?: true
+    jobId?: true
+    deliveryDate?: true
+    company?: true
+    jobName?: true
+    customer?: true
+    customerPosition?: true
+    address?: true
+    siteAddress?: true
+    quotationNo?: true
+    sender?: true
+    senderPhone?: true
+    technician?: true
+    technicianPhone?: true
+    workInspect?: true
+    workInstall?: true
+    workRepair?: true
+    workTraining?: true
+    workOther?: true
+    note?: true
+    sigSenderUrl?: true
+    nameSender?: true
+    sigReceiverUrl?: true
+    nameReceiver?: true
+    status?: true
+    pdfUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type RepairDeliveryMaxAggregateInputType = {
+    id?: true
+    deliveryNumber?: true
+    jobId?: true
+    deliveryDate?: true
+    company?: true
+    jobName?: true
+    customer?: true
+    customerPosition?: true
+    address?: true
+    siteAddress?: true
+    quotationNo?: true
+    sender?: true
+    senderPhone?: true
+    technician?: true
+    technicianPhone?: true
+    workInspect?: true
+    workInstall?: true
+    workRepair?: true
+    workTraining?: true
+    workOther?: true
+    note?: true
+    sigSenderUrl?: true
+    nameSender?: true
+    sigReceiverUrl?: true
+    nameReceiver?: true
+    status?: true
+    pdfUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type RepairDeliveryCountAggregateInputType = {
+    id?: true
+    deliveryNumber?: true
+    jobId?: true
+    deliveryDate?: true
+    company?: true
+    jobName?: true
+    customer?: true
+    customerPosition?: true
+    address?: true
+    siteAddress?: true
+    quotationNo?: true
+    sender?: true
+    senderPhone?: true
+    technician?: true
+    technicianPhone?: true
+    workInspect?: true
+    workInstall?: true
+    workRepair?: true
+    workTraining?: true
+    workOther?: true
+    note?: true
+    sigSenderUrl?: true
+    nameSender?: true
+    sigReceiverUrl?: true
+    nameReceiver?: true
+    status?: true
+    pdfUrl?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type RepairDeliveryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RepairDelivery to aggregate.
+     */
+    where?: RepairDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RepairDeliveries to fetch.
+     */
+    orderBy?: RepairDeliveryOrderByWithRelationInput | RepairDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: RepairDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RepairDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RepairDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned RepairDeliveries
+    **/
+    _count?: true | RepairDeliveryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: RepairDeliveryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: RepairDeliveryMaxAggregateInputType
+  }
+
+  export type GetRepairDeliveryAggregateType<T extends RepairDeliveryAggregateArgs> = {
+        [P in keyof T & keyof AggregateRepairDelivery]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateRepairDelivery[P]>
+      : GetScalarType<T[P], AggregateRepairDelivery[P]>
+  }
+
+
+
+
+  export type RepairDeliveryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RepairDeliveryWhereInput
+    orderBy?: RepairDeliveryOrderByWithAggregationInput | RepairDeliveryOrderByWithAggregationInput[]
+    by: RepairDeliveryScalarFieldEnum[] | RepairDeliveryScalarFieldEnum
+    having?: RepairDeliveryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: RepairDeliveryCountAggregateInputType | true
+    _min?: RepairDeliveryMinAggregateInputType
+    _max?: RepairDeliveryMaxAggregateInputType
+  }
+
+  export type RepairDeliveryGroupByOutputType = {
+    id: string
+    deliveryNumber: string
+    jobId: string | null
+    deliveryDate: Date | null
+    company: string | null
+    jobName: string | null
+    customer: string | null
+    customerPosition: string | null
+    address: string | null
+    siteAddress: string | null
+    quotationNo: string | null
+    sender: string | null
+    senderPhone: string | null
+    technician: string | null
+    technicianPhone: string | null
+    workInspect: boolean
+    workInstall: boolean
+    workRepair: boolean
+    workTraining: boolean
+    workOther: string | null
+    note: string | null
+    sigSenderUrl: string | null
+    nameSender: string | null
+    sigReceiverUrl: string | null
+    nameReceiver: string | null
+    status: string
+    pdfUrl: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: RepairDeliveryCountAggregateOutputType | null
+    _min: RepairDeliveryMinAggregateOutputType | null
+    _max: RepairDeliveryMaxAggregateOutputType | null
+  }
+
+  type GetRepairDeliveryGroupByPayload<T extends RepairDeliveryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<RepairDeliveryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof RepairDeliveryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], RepairDeliveryGroupByOutputType[P]>
+            : GetScalarType<T[P], RepairDeliveryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type RepairDeliverySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    deliveryNumber?: boolean
+    jobId?: boolean
+    deliveryDate?: boolean
+    company?: boolean
+    jobName?: boolean
+    customer?: boolean
+    customerPosition?: boolean
+    address?: boolean
+    siteAddress?: boolean
+    quotationNo?: boolean
+    sender?: boolean
+    senderPhone?: boolean
+    technician?: boolean
+    technicianPhone?: boolean
+    workInspect?: boolean
+    workInstall?: boolean
+    workRepair?: boolean
+    workTraining?: boolean
+    workOther?: boolean
+    note?: boolean
+    sigSenderUrl?: boolean
+    nameSender?: boolean
+    sigReceiverUrl?: boolean
+    nameReceiver?: boolean
+    status?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | RepairDelivery$jobArgs<ExtArgs>
+  }, ExtArgs["result"]["repairDelivery"]>
+
+  export type RepairDeliverySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    deliveryNumber?: boolean
+    jobId?: boolean
+    deliveryDate?: boolean
+    company?: boolean
+    jobName?: boolean
+    customer?: boolean
+    customerPosition?: boolean
+    address?: boolean
+    siteAddress?: boolean
+    quotationNo?: boolean
+    sender?: boolean
+    senderPhone?: boolean
+    technician?: boolean
+    technicianPhone?: boolean
+    workInspect?: boolean
+    workInstall?: boolean
+    workRepair?: boolean
+    workTraining?: boolean
+    workOther?: boolean
+    note?: boolean
+    sigSenderUrl?: boolean
+    nameSender?: boolean
+    sigReceiverUrl?: boolean
+    nameReceiver?: boolean
+    status?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | RepairDelivery$jobArgs<ExtArgs>
+  }, ExtArgs["result"]["repairDelivery"]>
+
+  export type RepairDeliverySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    deliveryNumber?: boolean
+    jobId?: boolean
+    deliveryDate?: boolean
+    company?: boolean
+    jobName?: boolean
+    customer?: boolean
+    customerPosition?: boolean
+    address?: boolean
+    siteAddress?: boolean
+    quotationNo?: boolean
+    sender?: boolean
+    senderPhone?: boolean
+    technician?: boolean
+    technicianPhone?: boolean
+    workInspect?: boolean
+    workInstall?: boolean
+    workRepair?: boolean
+    workTraining?: boolean
+    workOther?: boolean
+    note?: boolean
+    sigSenderUrl?: boolean
+    nameSender?: boolean
+    sigReceiverUrl?: boolean
+    nameReceiver?: boolean
+    status?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | RepairDelivery$jobArgs<ExtArgs>
+  }, ExtArgs["result"]["repairDelivery"]>
+
+  export type RepairDeliverySelectScalar = {
+    id?: boolean
+    deliveryNumber?: boolean
+    jobId?: boolean
+    deliveryDate?: boolean
+    company?: boolean
+    jobName?: boolean
+    customer?: boolean
+    customerPosition?: boolean
+    address?: boolean
+    siteAddress?: boolean
+    quotationNo?: boolean
+    sender?: boolean
+    senderPhone?: boolean
+    technician?: boolean
+    technicianPhone?: boolean
+    workInspect?: boolean
+    workInstall?: boolean
+    workRepair?: boolean
+    workTraining?: boolean
+    workOther?: boolean
+    note?: boolean
+    sigSenderUrl?: boolean
+    nameSender?: boolean
+    sigReceiverUrl?: boolean
+    nameReceiver?: boolean
+    status?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type RepairDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "deliveryNumber" | "jobId" | "deliveryDate" | "company" | "jobName" | "customer" | "customerPosition" | "address" | "siteAddress" | "quotationNo" | "sender" | "senderPhone" | "technician" | "technicianPhone" | "workInspect" | "workInstall" | "workRepair" | "workTraining" | "workOther" | "note" | "sigSenderUrl" | "nameSender" | "sigReceiverUrl" | "nameReceiver" | "status" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["repairDelivery"]>
+  export type RepairDeliveryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | RepairDelivery$jobArgs<ExtArgs>
+  }
+  export type RepairDeliveryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | RepairDelivery$jobArgs<ExtArgs>
+  }
+  export type RepairDeliveryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | RepairDelivery$jobArgs<ExtArgs>
+  }
+
+  export type $RepairDeliveryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RepairDelivery"
+    objects: {
+      job: Prisma.$JobPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      deliveryNumber: string
+      jobId: string | null
+      deliveryDate: Date | null
+      company: string | null
+      jobName: string | null
+      customer: string | null
+      customerPosition: string | null
+      address: string | null
+      siteAddress: string | null
+      quotationNo: string | null
+      sender: string | null
+      senderPhone: string | null
+      technician: string | null
+      technicianPhone: string | null
+      workInspect: boolean
+      workInstall: boolean
+      workRepair: boolean
+      workTraining: boolean
+      workOther: string | null
+      note: string | null
+      sigSenderUrl: string | null
+      nameSender: string | null
+      sigReceiverUrl: string | null
+      nameReceiver: string | null
+      status: string
+      pdfUrl: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["repairDelivery"]>
+    composites: {}
+  }
+
+  type RepairDeliveryGetPayload<S extends boolean | null | undefined | RepairDeliveryDefaultArgs> = $Result.GetResult<Prisma.$RepairDeliveryPayload, S>
+
+  type RepairDeliveryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RepairDeliveryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RepairDeliveryCountAggregateInputType | true
+    }
+
+  export interface RepairDeliveryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RepairDelivery'], meta: { name: 'RepairDelivery' } }
+    /**
+     * Find zero or one RepairDelivery that matches the filter.
+     * @param {RepairDeliveryFindUniqueArgs} args - Arguments to find a RepairDelivery
+     * @example
+     * // Get one RepairDelivery
+     * const repairDelivery = await prisma.repairDelivery.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends RepairDeliveryFindUniqueArgs>(args: SelectSubset<T, RepairDeliveryFindUniqueArgs<ExtArgs>>): Prisma__RepairDeliveryClient<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one RepairDelivery that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {RepairDeliveryFindUniqueOrThrowArgs} args - Arguments to find a RepairDelivery
+     * @example
+     * // Get one RepairDelivery
+     * const repairDelivery = await prisma.repairDelivery.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends RepairDeliveryFindUniqueOrThrowArgs>(args: SelectSubset<T, RepairDeliveryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RepairDeliveryClient<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RepairDelivery that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RepairDeliveryFindFirstArgs} args - Arguments to find a RepairDelivery
+     * @example
+     * // Get one RepairDelivery
+     * const repairDelivery = await prisma.repairDelivery.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends RepairDeliveryFindFirstArgs>(args?: SelectSubset<T, RepairDeliveryFindFirstArgs<ExtArgs>>): Prisma__RepairDeliveryClient<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RepairDelivery that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RepairDeliveryFindFirstOrThrowArgs} args - Arguments to find a RepairDelivery
+     * @example
+     * // Get one RepairDelivery
+     * const repairDelivery = await prisma.repairDelivery.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends RepairDeliveryFindFirstOrThrowArgs>(args?: SelectSubset<T, RepairDeliveryFindFirstOrThrowArgs<ExtArgs>>): Prisma__RepairDeliveryClient<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more RepairDeliveries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RepairDeliveryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all RepairDeliveries
+     * const repairDeliveries = await prisma.repairDelivery.findMany()
+     * 
+     * // Get first 10 RepairDeliveries
+     * const repairDeliveries = await prisma.repairDelivery.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const repairDeliveryWithIdOnly = await prisma.repairDelivery.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends RepairDeliveryFindManyArgs>(args?: SelectSubset<T, RepairDeliveryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a RepairDelivery.
+     * @param {RepairDeliveryCreateArgs} args - Arguments to create a RepairDelivery.
+     * @example
+     * // Create one RepairDelivery
+     * const RepairDelivery = await prisma.repairDelivery.create({
+     *   data: {
+     *     // ... data to create a RepairDelivery
+     *   }
+     * })
+     * 
+     */
+    create<T extends RepairDeliveryCreateArgs>(args: SelectSubset<T, RepairDeliveryCreateArgs<ExtArgs>>): Prisma__RepairDeliveryClient<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many RepairDeliveries.
+     * @param {RepairDeliveryCreateManyArgs} args - Arguments to create many RepairDeliveries.
+     * @example
+     * // Create many RepairDeliveries
+     * const repairDelivery = await prisma.repairDelivery.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends RepairDeliveryCreateManyArgs>(args?: SelectSubset<T, RepairDeliveryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many RepairDeliveries and returns the data saved in the database.
+     * @param {RepairDeliveryCreateManyAndReturnArgs} args - Arguments to create many RepairDeliveries.
+     * @example
+     * // Create many RepairDeliveries
+     * const repairDelivery = await prisma.repairDelivery.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many RepairDeliveries and only return the `id`
+     * const repairDeliveryWithIdOnly = await prisma.repairDelivery.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends RepairDeliveryCreateManyAndReturnArgs>(args?: SelectSubset<T, RepairDeliveryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a RepairDelivery.
+     * @param {RepairDeliveryDeleteArgs} args - Arguments to delete one RepairDelivery.
+     * @example
+     * // Delete one RepairDelivery
+     * const RepairDelivery = await prisma.repairDelivery.delete({
+     *   where: {
+     *     // ... filter to delete one RepairDelivery
+     *   }
+     * })
+     * 
+     */
+    delete<T extends RepairDeliveryDeleteArgs>(args: SelectSubset<T, RepairDeliveryDeleteArgs<ExtArgs>>): Prisma__RepairDeliveryClient<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one RepairDelivery.
+     * @param {RepairDeliveryUpdateArgs} args - Arguments to update one RepairDelivery.
+     * @example
+     * // Update one RepairDelivery
+     * const repairDelivery = await prisma.repairDelivery.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends RepairDeliveryUpdateArgs>(args: SelectSubset<T, RepairDeliveryUpdateArgs<ExtArgs>>): Prisma__RepairDeliveryClient<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more RepairDeliveries.
+     * @param {RepairDeliveryDeleteManyArgs} args - Arguments to filter RepairDeliveries to delete.
+     * @example
+     * // Delete a few RepairDeliveries
+     * const { count } = await prisma.repairDelivery.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends RepairDeliveryDeleteManyArgs>(args?: SelectSubset<T, RepairDeliveryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RepairDeliveries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RepairDeliveryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many RepairDeliveries
+     * const repairDelivery = await prisma.repairDelivery.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends RepairDeliveryUpdateManyArgs>(args: SelectSubset<T, RepairDeliveryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RepairDeliveries and returns the data updated in the database.
+     * @param {RepairDeliveryUpdateManyAndReturnArgs} args - Arguments to update many RepairDeliveries.
+     * @example
+     * // Update many RepairDeliveries
+     * const repairDelivery = await prisma.repairDelivery.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more RepairDeliveries and only return the `id`
+     * const repairDeliveryWithIdOnly = await prisma.repairDelivery.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends RepairDeliveryUpdateManyAndReturnArgs>(args: SelectSubset<T, RepairDeliveryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one RepairDelivery.
+     * @param {RepairDeliveryUpsertArgs} args - Arguments to update or create a RepairDelivery.
+     * @example
+     * // Update or create a RepairDelivery
+     * const repairDelivery = await prisma.repairDelivery.upsert({
+     *   create: {
+     *     // ... data to create a RepairDelivery
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the RepairDelivery we want to update
+     *   }
+     * })
+     */
+    upsert<T extends RepairDeliveryUpsertArgs>(args: SelectSubset<T, RepairDeliveryUpsertArgs<ExtArgs>>): Prisma__RepairDeliveryClient<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of RepairDeliveries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RepairDeliveryCountArgs} args - Arguments to filter RepairDeliveries to count.
+     * @example
+     * // Count the number of RepairDeliveries
+     * const count = await prisma.repairDelivery.count({
+     *   where: {
+     *     // ... the filter for the RepairDeliveries we want to count
+     *   }
+     * })
+    **/
+    count<T extends RepairDeliveryCountArgs>(
+      args?: Subset<T, RepairDeliveryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], RepairDeliveryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a RepairDelivery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RepairDeliveryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends RepairDeliveryAggregateArgs>(args: Subset<T, RepairDeliveryAggregateArgs>): Prisma.PrismaPromise<GetRepairDeliveryAggregateType<T>>
+
+    /**
+     * Group by RepairDelivery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RepairDeliveryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends RepairDeliveryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: RepairDeliveryGroupByArgs['orderBy'] }
+        : { orderBy?: RepairDeliveryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, RepairDeliveryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRepairDeliveryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the RepairDelivery model
+   */
+  readonly fields: RepairDeliveryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for RepairDelivery.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__RepairDeliveryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    job<T extends RepairDelivery$jobArgs<ExtArgs> = {}>(args?: Subset<T, RepairDelivery$jobArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the RepairDelivery model
+   */
+  interface RepairDeliveryFieldRefs {
+    readonly id: FieldRef<"RepairDelivery", 'String'>
+    readonly deliveryNumber: FieldRef<"RepairDelivery", 'String'>
+    readonly jobId: FieldRef<"RepairDelivery", 'String'>
+    readonly deliveryDate: FieldRef<"RepairDelivery", 'DateTime'>
+    readonly company: FieldRef<"RepairDelivery", 'String'>
+    readonly jobName: FieldRef<"RepairDelivery", 'String'>
+    readonly customer: FieldRef<"RepairDelivery", 'String'>
+    readonly customerPosition: FieldRef<"RepairDelivery", 'String'>
+    readonly address: FieldRef<"RepairDelivery", 'String'>
+    readonly siteAddress: FieldRef<"RepairDelivery", 'String'>
+    readonly quotationNo: FieldRef<"RepairDelivery", 'String'>
+    readonly sender: FieldRef<"RepairDelivery", 'String'>
+    readonly senderPhone: FieldRef<"RepairDelivery", 'String'>
+    readonly technician: FieldRef<"RepairDelivery", 'String'>
+    readonly technicianPhone: FieldRef<"RepairDelivery", 'String'>
+    readonly workInspect: FieldRef<"RepairDelivery", 'Boolean'>
+    readonly workInstall: FieldRef<"RepairDelivery", 'Boolean'>
+    readonly workRepair: FieldRef<"RepairDelivery", 'Boolean'>
+    readonly workTraining: FieldRef<"RepairDelivery", 'Boolean'>
+    readonly workOther: FieldRef<"RepairDelivery", 'String'>
+    readonly note: FieldRef<"RepairDelivery", 'String'>
+    readonly sigSenderUrl: FieldRef<"RepairDelivery", 'String'>
+    readonly nameSender: FieldRef<"RepairDelivery", 'String'>
+    readonly sigReceiverUrl: FieldRef<"RepairDelivery", 'String'>
+    readonly nameReceiver: FieldRef<"RepairDelivery", 'String'>
+    readonly status: FieldRef<"RepairDelivery", 'String'>
+    readonly pdfUrl: FieldRef<"RepairDelivery", 'String'>
+    readonly createdAt: FieldRef<"RepairDelivery", 'DateTime'>
+    readonly updatedAt: FieldRef<"RepairDelivery", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * RepairDelivery findUnique
+   */
+  export type RepairDeliveryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which RepairDelivery to fetch.
+     */
+    where: RepairDeliveryWhereUniqueInput
+  }
+
+  /**
+   * RepairDelivery findUniqueOrThrow
+   */
+  export type RepairDeliveryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which RepairDelivery to fetch.
+     */
+    where: RepairDeliveryWhereUniqueInput
+  }
+
+  /**
+   * RepairDelivery findFirst
+   */
+  export type RepairDeliveryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which RepairDelivery to fetch.
+     */
+    where?: RepairDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RepairDeliveries to fetch.
+     */
+    orderBy?: RepairDeliveryOrderByWithRelationInput | RepairDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RepairDeliveries.
+     */
+    cursor?: RepairDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RepairDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RepairDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RepairDeliveries.
+     */
+    distinct?: RepairDeliveryScalarFieldEnum | RepairDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * RepairDelivery findFirstOrThrow
+   */
+  export type RepairDeliveryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which RepairDelivery to fetch.
+     */
+    where?: RepairDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RepairDeliveries to fetch.
+     */
+    orderBy?: RepairDeliveryOrderByWithRelationInput | RepairDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RepairDeliveries.
+     */
+    cursor?: RepairDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RepairDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RepairDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RepairDeliveries.
+     */
+    distinct?: RepairDeliveryScalarFieldEnum | RepairDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * RepairDelivery findMany
+   */
+  export type RepairDeliveryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which RepairDeliveries to fetch.
+     */
+    where?: RepairDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RepairDeliveries to fetch.
+     */
+    orderBy?: RepairDeliveryOrderByWithRelationInput | RepairDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing RepairDeliveries.
+     */
+    cursor?: RepairDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RepairDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RepairDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RepairDeliveries.
+     */
+    distinct?: RepairDeliveryScalarFieldEnum | RepairDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * RepairDelivery create
+   */
+  export type RepairDeliveryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a RepairDelivery.
+     */
+    data: XOR<RepairDeliveryCreateInput, RepairDeliveryUncheckedCreateInput>
+  }
+
+  /**
+   * RepairDelivery createMany
+   */
+  export type RepairDeliveryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many RepairDeliveries.
+     */
+    data: RepairDeliveryCreateManyInput | RepairDeliveryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * RepairDelivery createManyAndReturn
+   */
+  export type RepairDeliveryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * The data used to create many RepairDeliveries.
+     */
+    data: RepairDeliveryCreateManyInput | RepairDeliveryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * RepairDelivery update
+   */
+  export type RepairDeliveryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a RepairDelivery.
+     */
+    data: XOR<RepairDeliveryUpdateInput, RepairDeliveryUncheckedUpdateInput>
+    /**
+     * Choose, which RepairDelivery to update.
+     */
+    where: RepairDeliveryWhereUniqueInput
+  }
+
+  /**
+   * RepairDelivery updateMany
+   */
+  export type RepairDeliveryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update RepairDeliveries.
+     */
+    data: XOR<RepairDeliveryUpdateManyMutationInput, RepairDeliveryUncheckedUpdateManyInput>
+    /**
+     * Filter which RepairDeliveries to update
+     */
+    where?: RepairDeliveryWhereInput
+    /**
+     * Limit how many RepairDeliveries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * RepairDelivery updateManyAndReturn
+   */
+  export type RepairDeliveryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * The data used to update RepairDeliveries.
+     */
+    data: XOR<RepairDeliveryUpdateManyMutationInput, RepairDeliveryUncheckedUpdateManyInput>
+    /**
+     * Filter which RepairDeliveries to update
+     */
+    where?: RepairDeliveryWhereInput
+    /**
+     * Limit how many RepairDeliveries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * RepairDelivery upsert
+   */
+  export type RepairDeliveryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the RepairDelivery to update in case it exists.
+     */
+    where: RepairDeliveryWhereUniqueInput
+    /**
+     * In case the RepairDelivery found by the `where` argument doesn't exist, create a new RepairDelivery with this data.
+     */
+    create: XOR<RepairDeliveryCreateInput, RepairDeliveryUncheckedCreateInput>
+    /**
+     * In case the RepairDelivery was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<RepairDeliveryUpdateInput, RepairDeliveryUncheckedUpdateInput>
+  }
+
+  /**
+   * RepairDelivery delete
+   */
+  export type RepairDeliveryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter which RepairDelivery to delete.
+     */
+    where: RepairDeliveryWhereUniqueInput
+  }
+
+  /**
+   * RepairDelivery deleteMany
+   */
+  export type RepairDeliveryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RepairDeliveries to delete
+     */
+    where?: RepairDeliveryWhereInput
+    /**
+     * Limit how many RepairDeliveries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * RepairDelivery.job
+   */
+  export type RepairDelivery$jobArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    where?: JobWhereInput
+  }
+
+  /**
+   * RepairDelivery without action
+   */
+  export type RepairDeliveryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RepairDelivery
+     */
+    select?: RepairDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RepairDelivery
+     */
+    omit?: RepairDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RepairDeliveryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OutsourceRepair
+   */
+
+  export type AggregateOutsourceRepair = {
+    _count: OutsourceRepairCountAggregateOutputType | null
+    _min: OutsourceRepairMinAggregateOutputType | null
+    _max: OutsourceRepairMaxAggregateOutputType | null
+  }
+
+  export type OutsourceRepairMinAggregateOutputType = {
+    id: string | null
+    outsourceNumber: string | null
+    jobId: string | null
+    vendorName: string | null
+    vendorPhone: string | null
+    vendorAddress: string | null
+    customerName: string | null
+    customerPhone: string | null
+    customerAddress: string | null
+    sentDate: Date | null
+    expectedReturnDate: Date | null
+    symptoms: string | null
+    settings: string | null
+    remark: string | null
+    sender: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OutsourceRepairMaxAggregateOutputType = {
+    id: string | null
+    outsourceNumber: string | null
+    jobId: string | null
+    vendorName: string | null
+    vendorPhone: string | null
+    vendorAddress: string | null
+    customerName: string | null
+    customerPhone: string | null
+    customerAddress: string | null
+    sentDate: Date | null
+    expectedReturnDate: Date | null
+    symptoms: string | null
+    settings: string | null
+    remark: string | null
+    sender: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OutsourceRepairCountAggregateOutputType = {
+    id: number
+    outsourceNumber: number
+    jobId: number
+    vendorName: number
+    vendorPhone: number
+    vendorAddress: number
+    customerName: number
+    customerPhone: number
+    customerAddress: number
+    sentDate: number
+    expectedReturnDate: number
+    items: number
+    symptoms: number
+    settings: number
+    remark: number
+    sender: number
+    status: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OutsourceRepairMinAggregateInputType = {
+    id?: true
+    outsourceNumber?: true
+    jobId?: true
+    vendorName?: true
+    vendorPhone?: true
+    vendorAddress?: true
+    customerName?: true
+    customerPhone?: true
+    customerAddress?: true
+    sentDate?: true
+    expectedReturnDate?: true
+    symptoms?: true
+    settings?: true
+    remark?: true
+    sender?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OutsourceRepairMaxAggregateInputType = {
+    id?: true
+    outsourceNumber?: true
+    jobId?: true
+    vendorName?: true
+    vendorPhone?: true
+    vendorAddress?: true
+    customerName?: true
+    customerPhone?: true
+    customerAddress?: true
+    sentDate?: true
+    expectedReturnDate?: true
+    symptoms?: true
+    settings?: true
+    remark?: true
+    sender?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OutsourceRepairCountAggregateInputType = {
+    id?: true
+    outsourceNumber?: true
+    jobId?: true
+    vendorName?: true
+    vendorPhone?: true
+    vendorAddress?: true
+    customerName?: true
+    customerPhone?: true
+    customerAddress?: true
+    sentDate?: true
+    expectedReturnDate?: true
+    items?: true
+    symptoms?: true
+    settings?: true
+    remark?: true
+    sender?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OutsourceRepairAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OutsourceRepair to aggregate.
+     */
+    where?: OutsourceRepairWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OutsourceRepairs to fetch.
+     */
+    orderBy?: OutsourceRepairOrderByWithRelationInput | OutsourceRepairOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OutsourceRepairWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OutsourceRepairs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OutsourceRepairs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OutsourceRepairs
+    **/
+    _count?: true | OutsourceRepairCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OutsourceRepairMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OutsourceRepairMaxAggregateInputType
+  }
+
+  export type GetOutsourceRepairAggregateType<T extends OutsourceRepairAggregateArgs> = {
+        [P in keyof T & keyof AggregateOutsourceRepair]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOutsourceRepair[P]>
+      : GetScalarType<T[P], AggregateOutsourceRepair[P]>
+  }
+
+
+
+
+  export type OutsourceRepairGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OutsourceRepairWhereInput
+    orderBy?: OutsourceRepairOrderByWithAggregationInput | OutsourceRepairOrderByWithAggregationInput[]
+    by: OutsourceRepairScalarFieldEnum[] | OutsourceRepairScalarFieldEnum
+    having?: OutsourceRepairScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OutsourceRepairCountAggregateInputType | true
+    _min?: OutsourceRepairMinAggregateInputType
+    _max?: OutsourceRepairMaxAggregateInputType
+  }
+
+  export type OutsourceRepairGroupByOutputType = {
+    id: string
+    outsourceNumber: string | null
+    jobId: string | null
+    vendorName: string | null
+    vendorPhone: string | null
+    vendorAddress: string | null
+    customerName: string | null
+    customerPhone: string | null
+    customerAddress: string | null
+    sentDate: Date | null
+    expectedReturnDate: Date | null
+    items: JsonValue
+    symptoms: string | null
+    settings: string | null
+    remark: string | null
+    sender: string | null
+    status: string
+    createdAt: Date
+    updatedAt: Date
+    _count: OutsourceRepairCountAggregateOutputType | null
+    _min: OutsourceRepairMinAggregateOutputType | null
+    _max: OutsourceRepairMaxAggregateOutputType | null
+  }
+
+  type GetOutsourceRepairGroupByPayload<T extends OutsourceRepairGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OutsourceRepairGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OutsourceRepairGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OutsourceRepairGroupByOutputType[P]>
+            : GetScalarType<T[P], OutsourceRepairGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OutsourceRepairSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    outsourceNumber?: boolean
+    jobId?: boolean
+    vendorName?: boolean
+    vendorPhone?: boolean
+    vendorAddress?: boolean
+    customerName?: boolean
+    customerPhone?: boolean
+    customerAddress?: boolean
+    sentDate?: boolean
+    expectedReturnDate?: boolean
+    items?: boolean
+    symptoms?: boolean
+    settings?: boolean
+    remark?: boolean
+    sender?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | OutsourceRepair$jobArgs<ExtArgs>
+  }, ExtArgs["result"]["outsourceRepair"]>
+
+  export type OutsourceRepairSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    outsourceNumber?: boolean
+    jobId?: boolean
+    vendorName?: boolean
+    vendorPhone?: boolean
+    vendorAddress?: boolean
+    customerName?: boolean
+    customerPhone?: boolean
+    customerAddress?: boolean
+    sentDate?: boolean
+    expectedReturnDate?: boolean
+    items?: boolean
+    symptoms?: boolean
+    settings?: boolean
+    remark?: boolean
+    sender?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | OutsourceRepair$jobArgs<ExtArgs>
+  }, ExtArgs["result"]["outsourceRepair"]>
+
+  export type OutsourceRepairSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    outsourceNumber?: boolean
+    jobId?: boolean
+    vendorName?: boolean
+    vendorPhone?: boolean
+    vendorAddress?: boolean
+    customerName?: boolean
+    customerPhone?: boolean
+    customerAddress?: boolean
+    sentDate?: boolean
+    expectedReturnDate?: boolean
+    items?: boolean
+    symptoms?: boolean
+    settings?: boolean
+    remark?: boolean
+    sender?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | OutsourceRepair$jobArgs<ExtArgs>
+  }, ExtArgs["result"]["outsourceRepair"]>
+
+  export type OutsourceRepairSelectScalar = {
+    id?: boolean
+    outsourceNumber?: boolean
+    jobId?: boolean
+    vendorName?: boolean
+    vendorPhone?: boolean
+    vendorAddress?: boolean
+    customerName?: boolean
+    customerPhone?: boolean
+    customerAddress?: boolean
+    sentDate?: boolean
+    expectedReturnDate?: boolean
+    items?: boolean
+    symptoms?: boolean
+    settings?: boolean
+    remark?: boolean
+    sender?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OutsourceRepairOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "outsourceNumber" | "jobId" | "vendorName" | "vendorPhone" | "vendorAddress" | "customerName" | "customerPhone" | "customerAddress" | "sentDate" | "expectedReturnDate" | "items" | "symptoms" | "settings" | "remark" | "sender" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["outsourceRepair"]>
+  export type OutsourceRepairInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | OutsourceRepair$jobArgs<ExtArgs>
+  }
+  export type OutsourceRepairIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | OutsourceRepair$jobArgs<ExtArgs>
+  }
+  export type OutsourceRepairIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | OutsourceRepair$jobArgs<ExtArgs>
+  }
+
+  export type $OutsourceRepairPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OutsourceRepair"
+    objects: {
+      job: Prisma.$JobPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      outsourceNumber: string | null
+      jobId: string | null
+      vendorName: string | null
+      vendorPhone: string | null
+      vendorAddress: string | null
+      customerName: string | null
+      customerPhone: string | null
+      customerAddress: string | null
+      sentDate: Date | null
+      expectedReturnDate: Date | null
+      items: Prisma.JsonValue
+      symptoms: string | null
+      settings: string | null
+      remark: string | null
+      sender: string | null
+      status: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["outsourceRepair"]>
+    composites: {}
+  }
+
+  type OutsourceRepairGetPayload<S extends boolean | null | undefined | OutsourceRepairDefaultArgs> = $Result.GetResult<Prisma.$OutsourceRepairPayload, S>
+
+  type OutsourceRepairCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OutsourceRepairFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OutsourceRepairCountAggregateInputType | true
+    }
+
+  export interface OutsourceRepairDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OutsourceRepair'], meta: { name: 'OutsourceRepair' } }
+    /**
+     * Find zero or one OutsourceRepair that matches the filter.
+     * @param {OutsourceRepairFindUniqueArgs} args - Arguments to find a OutsourceRepair
+     * @example
+     * // Get one OutsourceRepair
+     * const outsourceRepair = await prisma.outsourceRepair.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OutsourceRepairFindUniqueArgs>(args: SelectSubset<T, OutsourceRepairFindUniqueArgs<ExtArgs>>): Prisma__OutsourceRepairClient<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OutsourceRepair that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OutsourceRepairFindUniqueOrThrowArgs} args - Arguments to find a OutsourceRepair
+     * @example
+     * // Get one OutsourceRepair
+     * const outsourceRepair = await prisma.outsourceRepair.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OutsourceRepairFindUniqueOrThrowArgs>(args: SelectSubset<T, OutsourceRepairFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OutsourceRepairClient<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OutsourceRepair that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutsourceRepairFindFirstArgs} args - Arguments to find a OutsourceRepair
+     * @example
+     * // Get one OutsourceRepair
+     * const outsourceRepair = await prisma.outsourceRepair.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OutsourceRepairFindFirstArgs>(args?: SelectSubset<T, OutsourceRepairFindFirstArgs<ExtArgs>>): Prisma__OutsourceRepairClient<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OutsourceRepair that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutsourceRepairFindFirstOrThrowArgs} args - Arguments to find a OutsourceRepair
+     * @example
+     * // Get one OutsourceRepair
+     * const outsourceRepair = await prisma.outsourceRepair.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OutsourceRepairFindFirstOrThrowArgs>(args?: SelectSubset<T, OutsourceRepairFindFirstOrThrowArgs<ExtArgs>>): Prisma__OutsourceRepairClient<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OutsourceRepairs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutsourceRepairFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OutsourceRepairs
+     * const outsourceRepairs = await prisma.outsourceRepair.findMany()
+     * 
+     * // Get first 10 OutsourceRepairs
+     * const outsourceRepairs = await prisma.outsourceRepair.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const outsourceRepairWithIdOnly = await prisma.outsourceRepair.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OutsourceRepairFindManyArgs>(args?: SelectSubset<T, OutsourceRepairFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OutsourceRepair.
+     * @param {OutsourceRepairCreateArgs} args - Arguments to create a OutsourceRepair.
+     * @example
+     * // Create one OutsourceRepair
+     * const OutsourceRepair = await prisma.outsourceRepair.create({
+     *   data: {
+     *     // ... data to create a OutsourceRepair
+     *   }
+     * })
+     * 
+     */
+    create<T extends OutsourceRepairCreateArgs>(args: SelectSubset<T, OutsourceRepairCreateArgs<ExtArgs>>): Prisma__OutsourceRepairClient<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OutsourceRepairs.
+     * @param {OutsourceRepairCreateManyArgs} args - Arguments to create many OutsourceRepairs.
+     * @example
+     * // Create many OutsourceRepairs
+     * const outsourceRepair = await prisma.outsourceRepair.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OutsourceRepairCreateManyArgs>(args?: SelectSubset<T, OutsourceRepairCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OutsourceRepairs and returns the data saved in the database.
+     * @param {OutsourceRepairCreateManyAndReturnArgs} args - Arguments to create many OutsourceRepairs.
+     * @example
+     * // Create many OutsourceRepairs
+     * const outsourceRepair = await prisma.outsourceRepair.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OutsourceRepairs and only return the `id`
+     * const outsourceRepairWithIdOnly = await prisma.outsourceRepair.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OutsourceRepairCreateManyAndReturnArgs>(args?: SelectSubset<T, OutsourceRepairCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OutsourceRepair.
+     * @param {OutsourceRepairDeleteArgs} args - Arguments to delete one OutsourceRepair.
+     * @example
+     * // Delete one OutsourceRepair
+     * const OutsourceRepair = await prisma.outsourceRepair.delete({
+     *   where: {
+     *     // ... filter to delete one OutsourceRepair
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OutsourceRepairDeleteArgs>(args: SelectSubset<T, OutsourceRepairDeleteArgs<ExtArgs>>): Prisma__OutsourceRepairClient<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OutsourceRepair.
+     * @param {OutsourceRepairUpdateArgs} args - Arguments to update one OutsourceRepair.
+     * @example
+     * // Update one OutsourceRepair
+     * const outsourceRepair = await prisma.outsourceRepair.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OutsourceRepairUpdateArgs>(args: SelectSubset<T, OutsourceRepairUpdateArgs<ExtArgs>>): Prisma__OutsourceRepairClient<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OutsourceRepairs.
+     * @param {OutsourceRepairDeleteManyArgs} args - Arguments to filter OutsourceRepairs to delete.
+     * @example
+     * // Delete a few OutsourceRepairs
+     * const { count } = await prisma.outsourceRepair.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OutsourceRepairDeleteManyArgs>(args?: SelectSubset<T, OutsourceRepairDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OutsourceRepairs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutsourceRepairUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OutsourceRepairs
+     * const outsourceRepair = await prisma.outsourceRepair.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OutsourceRepairUpdateManyArgs>(args: SelectSubset<T, OutsourceRepairUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OutsourceRepairs and returns the data updated in the database.
+     * @param {OutsourceRepairUpdateManyAndReturnArgs} args - Arguments to update many OutsourceRepairs.
+     * @example
+     * // Update many OutsourceRepairs
+     * const outsourceRepair = await prisma.outsourceRepair.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OutsourceRepairs and only return the `id`
+     * const outsourceRepairWithIdOnly = await prisma.outsourceRepair.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OutsourceRepairUpdateManyAndReturnArgs>(args: SelectSubset<T, OutsourceRepairUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OutsourceRepair.
+     * @param {OutsourceRepairUpsertArgs} args - Arguments to update or create a OutsourceRepair.
+     * @example
+     * // Update or create a OutsourceRepair
+     * const outsourceRepair = await prisma.outsourceRepair.upsert({
+     *   create: {
+     *     // ... data to create a OutsourceRepair
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OutsourceRepair we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OutsourceRepairUpsertArgs>(args: SelectSubset<T, OutsourceRepairUpsertArgs<ExtArgs>>): Prisma__OutsourceRepairClient<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OutsourceRepairs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutsourceRepairCountArgs} args - Arguments to filter OutsourceRepairs to count.
+     * @example
+     * // Count the number of OutsourceRepairs
+     * const count = await prisma.outsourceRepair.count({
+     *   where: {
+     *     // ... the filter for the OutsourceRepairs we want to count
+     *   }
+     * })
+    **/
+    count<T extends OutsourceRepairCountArgs>(
+      args?: Subset<T, OutsourceRepairCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OutsourceRepairCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OutsourceRepair.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutsourceRepairAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OutsourceRepairAggregateArgs>(args: Subset<T, OutsourceRepairAggregateArgs>): Prisma.PrismaPromise<GetOutsourceRepairAggregateType<T>>
+
+    /**
+     * Group by OutsourceRepair.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutsourceRepairGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OutsourceRepairGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OutsourceRepairGroupByArgs['orderBy'] }
+        : { orderBy?: OutsourceRepairGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OutsourceRepairGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOutsourceRepairGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OutsourceRepair model
+   */
+  readonly fields: OutsourceRepairFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OutsourceRepair.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OutsourceRepairClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    job<T extends OutsourceRepair$jobArgs<ExtArgs> = {}>(args?: Subset<T, OutsourceRepair$jobArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OutsourceRepair model
+   */
+  interface OutsourceRepairFieldRefs {
+    readonly id: FieldRef<"OutsourceRepair", 'String'>
+    readonly outsourceNumber: FieldRef<"OutsourceRepair", 'String'>
+    readonly jobId: FieldRef<"OutsourceRepair", 'String'>
+    readonly vendorName: FieldRef<"OutsourceRepair", 'String'>
+    readonly vendorPhone: FieldRef<"OutsourceRepair", 'String'>
+    readonly vendorAddress: FieldRef<"OutsourceRepair", 'String'>
+    readonly customerName: FieldRef<"OutsourceRepair", 'String'>
+    readonly customerPhone: FieldRef<"OutsourceRepair", 'String'>
+    readonly customerAddress: FieldRef<"OutsourceRepair", 'String'>
+    readonly sentDate: FieldRef<"OutsourceRepair", 'DateTime'>
+    readonly expectedReturnDate: FieldRef<"OutsourceRepair", 'DateTime'>
+    readonly items: FieldRef<"OutsourceRepair", 'Json'>
+    readonly symptoms: FieldRef<"OutsourceRepair", 'String'>
+    readonly settings: FieldRef<"OutsourceRepair", 'String'>
+    readonly remark: FieldRef<"OutsourceRepair", 'String'>
+    readonly sender: FieldRef<"OutsourceRepair", 'String'>
+    readonly status: FieldRef<"OutsourceRepair", 'String'>
+    readonly createdAt: FieldRef<"OutsourceRepair", 'DateTime'>
+    readonly updatedAt: FieldRef<"OutsourceRepair", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OutsourceRepair findUnique
+   */
+  export type OutsourceRepairFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
+    /**
+     * Filter, which OutsourceRepair to fetch.
+     */
+    where: OutsourceRepairWhereUniqueInput
+  }
+
+  /**
+   * OutsourceRepair findUniqueOrThrow
+   */
+  export type OutsourceRepairFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
+    /**
+     * Filter, which OutsourceRepair to fetch.
+     */
+    where: OutsourceRepairWhereUniqueInput
+  }
+
+  /**
+   * OutsourceRepair findFirst
+   */
+  export type OutsourceRepairFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
+    /**
+     * Filter, which OutsourceRepair to fetch.
+     */
+    where?: OutsourceRepairWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OutsourceRepairs to fetch.
+     */
+    orderBy?: OutsourceRepairOrderByWithRelationInput | OutsourceRepairOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OutsourceRepairs.
+     */
+    cursor?: OutsourceRepairWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OutsourceRepairs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OutsourceRepairs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OutsourceRepairs.
+     */
+    distinct?: OutsourceRepairScalarFieldEnum | OutsourceRepairScalarFieldEnum[]
+  }
+
+  /**
+   * OutsourceRepair findFirstOrThrow
+   */
+  export type OutsourceRepairFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
+    /**
+     * Filter, which OutsourceRepair to fetch.
+     */
+    where?: OutsourceRepairWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OutsourceRepairs to fetch.
+     */
+    orderBy?: OutsourceRepairOrderByWithRelationInput | OutsourceRepairOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OutsourceRepairs.
+     */
+    cursor?: OutsourceRepairWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OutsourceRepairs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OutsourceRepairs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OutsourceRepairs.
+     */
+    distinct?: OutsourceRepairScalarFieldEnum | OutsourceRepairScalarFieldEnum[]
+  }
+
+  /**
+   * OutsourceRepair findMany
+   */
+  export type OutsourceRepairFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
+    /**
+     * Filter, which OutsourceRepairs to fetch.
+     */
+    where?: OutsourceRepairWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OutsourceRepairs to fetch.
+     */
+    orderBy?: OutsourceRepairOrderByWithRelationInput | OutsourceRepairOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OutsourceRepairs.
+     */
+    cursor?: OutsourceRepairWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OutsourceRepairs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OutsourceRepairs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OutsourceRepairs.
+     */
+    distinct?: OutsourceRepairScalarFieldEnum | OutsourceRepairScalarFieldEnum[]
+  }
+
+  /**
+   * OutsourceRepair create
+   */
+  export type OutsourceRepairCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OutsourceRepair.
+     */
+    data: XOR<OutsourceRepairCreateInput, OutsourceRepairUncheckedCreateInput>
+  }
+
+  /**
+   * OutsourceRepair createMany
+   */
+  export type OutsourceRepairCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OutsourceRepairs.
+     */
+    data: OutsourceRepairCreateManyInput | OutsourceRepairCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OutsourceRepair createManyAndReturn
+   */
+  export type OutsourceRepairCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * The data used to create many OutsourceRepairs.
+     */
+    data: OutsourceRepairCreateManyInput | OutsourceRepairCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OutsourceRepair update
+   */
+  export type OutsourceRepairUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OutsourceRepair.
+     */
+    data: XOR<OutsourceRepairUpdateInput, OutsourceRepairUncheckedUpdateInput>
+    /**
+     * Choose, which OutsourceRepair to update.
+     */
+    where: OutsourceRepairWhereUniqueInput
+  }
+
+  /**
+   * OutsourceRepair updateMany
+   */
+  export type OutsourceRepairUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OutsourceRepairs.
+     */
+    data: XOR<OutsourceRepairUpdateManyMutationInput, OutsourceRepairUncheckedUpdateManyInput>
+    /**
+     * Filter which OutsourceRepairs to update
+     */
+    where?: OutsourceRepairWhereInput
+    /**
+     * Limit how many OutsourceRepairs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OutsourceRepair updateManyAndReturn
+   */
+  export type OutsourceRepairUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * The data used to update OutsourceRepairs.
+     */
+    data: XOR<OutsourceRepairUpdateManyMutationInput, OutsourceRepairUncheckedUpdateManyInput>
+    /**
+     * Filter which OutsourceRepairs to update
+     */
+    where?: OutsourceRepairWhereInput
+    /**
+     * Limit how many OutsourceRepairs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OutsourceRepair upsert
+   */
+  export type OutsourceRepairUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OutsourceRepair to update in case it exists.
+     */
+    where: OutsourceRepairWhereUniqueInput
+    /**
+     * In case the OutsourceRepair found by the `where` argument doesn't exist, create a new OutsourceRepair with this data.
+     */
+    create: XOR<OutsourceRepairCreateInput, OutsourceRepairUncheckedCreateInput>
+    /**
+     * In case the OutsourceRepair was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OutsourceRepairUpdateInput, OutsourceRepairUncheckedUpdateInput>
+  }
+
+  /**
+   * OutsourceRepair delete
+   */
+  export type OutsourceRepairDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
+    /**
+     * Filter which OutsourceRepair to delete.
+     */
+    where: OutsourceRepairWhereUniqueInput
+  }
+
+  /**
+   * OutsourceRepair deleteMany
+   */
+  export type OutsourceRepairDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OutsourceRepairs to delete
+     */
+    where?: OutsourceRepairWhereInput
+    /**
+     * Limit how many OutsourceRepairs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OutsourceRepair.job
+   */
+  export type OutsourceRepair$jobArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    where?: JobWhereInput
+  }
+
+  /**
+   * OutsourceRepair without action
+   */
+  export type OutsourceRepairDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutsourceRepair
+     */
+    select?: OutsourceRepairSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutsourceRepair
+     */
+    omit?: OutsourceRepairOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OutsourceRepairInclude<ExtArgs> | null
   }
 
 
@@ -69640,11 +73852,29 @@ export namespace Prisma {
     courierCompany: 'courierCompany',
     trackingNumber: 'trackingNumber',
     trackingPhotoUrl: 'trackingPhotoUrl',
+    paymentMethod: 'paymentMethod',
+    paymentStatus: 'paymentStatus',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
+
+
+  export const PaymentTaskScalarFieldEnum: {
+    id: 'id',
+    jobId: 'jobId',
+    status: 'status',
+    assignedTo: 'assignedTo',
+    dueDate: 'dueDate',
+    paidAmount: 'paidAmount',
+    paidDate: 'paidDate',
+    note: 'note',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PaymentTaskScalarFieldEnum = (typeof PaymentTaskScalarFieldEnum)[keyof typeof PaymentTaskScalarFieldEnum]
 
 
   export const JobRunningNumberScalarFieldEnum: {
@@ -69698,6 +73928,66 @@ export namespace Prisma {
   };
 
   export type RepairOrderScalarFieldEnum = (typeof RepairOrderScalarFieldEnum)[keyof typeof RepairOrderScalarFieldEnum]
+
+
+  export const RepairDeliveryScalarFieldEnum: {
+    id: 'id',
+    deliveryNumber: 'deliveryNumber',
+    jobId: 'jobId',
+    deliveryDate: 'deliveryDate',
+    company: 'company',
+    jobName: 'jobName',
+    customer: 'customer',
+    customerPosition: 'customerPosition',
+    address: 'address',
+    siteAddress: 'siteAddress',
+    quotationNo: 'quotationNo',
+    sender: 'sender',
+    senderPhone: 'senderPhone',
+    technician: 'technician',
+    technicianPhone: 'technicianPhone',
+    workInspect: 'workInspect',
+    workInstall: 'workInstall',
+    workRepair: 'workRepair',
+    workTraining: 'workTraining',
+    workOther: 'workOther',
+    note: 'note',
+    sigSenderUrl: 'sigSenderUrl',
+    nameSender: 'nameSender',
+    sigReceiverUrl: 'sigReceiverUrl',
+    nameReceiver: 'nameReceiver',
+    status: 'status',
+    pdfUrl: 'pdfUrl',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type RepairDeliveryScalarFieldEnum = (typeof RepairDeliveryScalarFieldEnum)[keyof typeof RepairDeliveryScalarFieldEnum]
+
+
+  export const OutsourceRepairScalarFieldEnum: {
+    id: 'id',
+    outsourceNumber: 'outsourceNumber',
+    jobId: 'jobId',
+    vendorName: 'vendorName',
+    vendorPhone: 'vendorPhone',
+    vendorAddress: 'vendorAddress',
+    customerName: 'customerName',
+    customerPhone: 'customerPhone',
+    customerAddress: 'customerAddress',
+    sentDate: 'sentDate',
+    expectedReturnDate: 'expectedReturnDate',
+    items: 'items',
+    symptoms: 'symptoms',
+    settings: 'settings',
+    remark: 'remark',
+    sender: 'sender',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OutsourceRepairScalarFieldEnum = (typeof OutsourceRepairScalarFieldEnum)[keyof typeof OutsourceRepairScalarFieldEnum]
 
 
   export const Admin_login_attemptsScalarFieldEnum: {
@@ -71935,11 +76225,16 @@ export namespace Prisma {
     courierCompany?: StringNullableFilter<"Job"> | string | null
     trackingNumber?: StringNullableFilter<"Job"> | string | null
     trackingPhotoUrl?: StringNullableFilter<"Job"> | string | null
+    paymentMethod?: StringNullableFilter<"Job"> | string | null
+    paymentStatus?: StringNullableFilter<"Job"> | string | null
     createdAt?: DateTimeFilter<"Job"> | Date | string
     updatedAt?: DateTimeFilter<"Job"> | Date | string
     repairOrder?: XOR<RepairOrderNullableScalarRelationFilter, RepairOrderWhereInput> | null
     stepLogs?: JobStepLogListRelationFilter
+    paymentTask?: XOR<PaymentTaskNullableScalarRelationFilter, PaymentTaskWhereInput> | null
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
+    repairDeliveries?: RepairDeliveryListRelationFilter
+    outsourceRepairs?: OutsourceRepairListRelationFilter
   }
 
   export type JobOrderByWithRelationInput = {
@@ -71963,11 +76258,16 @@ export namespace Prisma {
     courierCompany?: SortOrderInput | SortOrder
     trackingNumber?: SortOrderInput | SortOrder
     trackingPhotoUrl?: SortOrderInput | SortOrder
+    paymentMethod?: SortOrderInput | SortOrder
+    paymentStatus?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     repairOrder?: RepairOrderOrderByWithRelationInput
     stepLogs?: JobStepLogOrderByRelationAggregateInput
+    paymentTask?: PaymentTaskOrderByWithRelationInput
     quotation?: QuotationOrderByWithRelationInput
+    repairDeliveries?: RepairDeliveryOrderByRelationAggregateInput
+    outsourceRepairs?: OutsourceRepairOrderByRelationAggregateInput
   }
 
   export type JobWhereUniqueInput = Prisma.AtLeast<{
@@ -71994,11 +76294,16 @@ export namespace Prisma {
     courierCompany?: StringNullableFilter<"Job"> | string | null
     trackingNumber?: StringNullableFilter<"Job"> | string | null
     trackingPhotoUrl?: StringNullableFilter<"Job"> | string | null
+    paymentMethod?: StringNullableFilter<"Job"> | string | null
+    paymentStatus?: StringNullableFilter<"Job"> | string | null
     createdAt?: DateTimeFilter<"Job"> | Date | string
     updatedAt?: DateTimeFilter<"Job"> | Date | string
     repairOrder?: XOR<RepairOrderNullableScalarRelationFilter, RepairOrderWhereInput> | null
     stepLogs?: JobStepLogListRelationFilter
+    paymentTask?: XOR<PaymentTaskNullableScalarRelationFilter, PaymentTaskWhereInput> | null
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
+    repairDeliveries?: RepairDeliveryListRelationFilter
+    outsourceRepairs?: OutsourceRepairListRelationFilter
   }, "id" | "jobNumber">
 
   export type JobOrderByWithAggregationInput = {
@@ -72022,6 +76327,8 @@ export namespace Prisma {
     courierCompany?: SortOrderInput | SortOrder
     trackingNumber?: SortOrderInput | SortOrder
     trackingPhotoUrl?: SortOrderInput | SortOrder
+    paymentMethod?: SortOrderInput | SortOrder
+    paymentStatus?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: JobCountOrderByAggregateInput
@@ -72055,8 +76362,92 @@ export namespace Prisma {
     courierCompany?: StringNullableWithAggregatesFilter<"Job"> | string | null
     trackingNumber?: StringNullableWithAggregatesFilter<"Job"> | string | null
     trackingPhotoUrl?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    paymentMethod?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    paymentStatus?: StringNullableWithAggregatesFilter<"Job"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Job"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Job"> | Date | string
+  }
+
+  export type PaymentTaskWhereInput = {
+    AND?: PaymentTaskWhereInput | PaymentTaskWhereInput[]
+    OR?: PaymentTaskWhereInput[]
+    NOT?: PaymentTaskWhereInput | PaymentTaskWhereInput[]
+    id?: StringFilter<"PaymentTask"> | string
+    jobId?: StringFilter<"PaymentTask"> | string
+    status?: StringFilter<"PaymentTask"> | string
+    assignedTo?: StringNullableFilter<"PaymentTask"> | string | null
+    dueDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
+    paidAmount?: FloatNullableFilter<"PaymentTask"> | number | null
+    paidDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
+    note?: StringNullableFilter<"PaymentTask"> | string | null
+    createdAt?: DateTimeFilter<"PaymentTask"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentTask"> | Date | string
+    job?: XOR<JobScalarRelationFilter, JobWhereInput>
+  }
+
+  export type PaymentTaskOrderByWithRelationInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    status?: SortOrder
+    assignedTo?: SortOrderInput | SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    paidAmount?: SortOrderInput | SortOrder
+    paidDate?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    job?: JobOrderByWithRelationInput
+  }
+
+  export type PaymentTaskWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    jobId?: string
+    AND?: PaymentTaskWhereInput | PaymentTaskWhereInput[]
+    OR?: PaymentTaskWhereInput[]
+    NOT?: PaymentTaskWhereInput | PaymentTaskWhereInput[]
+    status?: StringFilter<"PaymentTask"> | string
+    assignedTo?: StringNullableFilter<"PaymentTask"> | string | null
+    dueDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
+    paidAmount?: FloatNullableFilter<"PaymentTask"> | number | null
+    paidDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
+    note?: StringNullableFilter<"PaymentTask"> | string | null
+    createdAt?: DateTimeFilter<"PaymentTask"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentTask"> | Date | string
+    job?: XOR<JobScalarRelationFilter, JobWhereInput>
+  }, "id" | "jobId">
+
+  export type PaymentTaskOrderByWithAggregationInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    status?: SortOrder
+    assignedTo?: SortOrderInput | SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    paidAmount?: SortOrderInput | SortOrder
+    paidDate?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PaymentTaskCountOrderByAggregateInput
+    _avg?: PaymentTaskAvgOrderByAggregateInput
+    _max?: PaymentTaskMaxOrderByAggregateInput
+    _min?: PaymentTaskMinOrderByAggregateInput
+    _sum?: PaymentTaskSumOrderByAggregateInput
+  }
+
+  export type PaymentTaskScalarWhereWithAggregatesInput = {
+    AND?: PaymentTaskScalarWhereWithAggregatesInput | PaymentTaskScalarWhereWithAggregatesInput[]
+    OR?: PaymentTaskScalarWhereWithAggregatesInput[]
+    NOT?: PaymentTaskScalarWhereWithAggregatesInput | PaymentTaskScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PaymentTask"> | string
+    jobId?: StringWithAggregatesFilter<"PaymentTask"> | string
+    status?: StringWithAggregatesFilter<"PaymentTask"> | string
+    assignedTo?: StringNullableWithAggregatesFilter<"PaymentTask"> | string | null
+    dueDate?: DateTimeNullableWithAggregatesFilter<"PaymentTask"> | Date | string | null
+    paidAmount?: FloatNullableWithAggregatesFilter<"PaymentTask"> | number | null
+    paidDate?: DateTimeNullableWithAggregatesFilter<"PaymentTask"> | Date | string | null
+    note?: StringNullableWithAggregatesFilter<"PaymentTask"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"PaymentTask"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PaymentTask"> | Date | string
   }
 
   export type JobRunningNumberWhereInput = {
@@ -72322,6 +76713,306 @@ export namespace Prisma {
     customerAddress?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     customerCompany?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     salesPerson?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
+  }
+
+  export type RepairDeliveryWhereInput = {
+    AND?: RepairDeliveryWhereInput | RepairDeliveryWhereInput[]
+    OR?: RepairDeliveryWhereInput[]
+    NOT?: RepairDeliveryWhereInput | RepairDeliveryWhereInput[]
+    id?: StringFilter<"RepairDelivery"> | string
+    deliveryNumber?: StringFilter<"RepairDelivery"> | string
+    jobId?: StringNullableFilter<"RepairDelivery"> | string | null
+    deliveryDate?: DateTimeNullableFilter<"RepairDelivery"> | Date | string | null
+    company?: StringNullableFilter<"RepairDelivery"> | string | null
+    jobName?: StringNullableFilter<"RepairDelivery"> | string | null
+    customer?: StringNullableFilter<"RepairDelivery"> | string | null
+    customerPosition?: StringNullableFilter<"RepairDelivery"> | string | null
+    address?: StringNullableFilter<"RepairDelivery"> | string | null
+    siteAddress?: StringNullableFilter<"RepairDelivery"> | string | null
+    quotationNo?: StringNullableFilter<"RepairDelivery"> | string | null
+    sender?: StringNullableFilter<"RepairDelivery"> | string | null
+    senderPhone?: StringNullableFilter<"RepairDelivery"> | string | null
+    technician?: StringNullableFilter<"RepairDelivery"> | string | null
+    technicianPhone?: StringNullableFilter<"RepairDelivery"> | string | null
+    workInspect?: BoolFilter<"RepairDelivery"> | boolean
+    workInstall?: BoolFilter<"RepairDelivery"> | boolean
+    workRepair?: BoolFilter<"RepairDelivery"> | boolean
+    workTraining?: BoolFilter<"RepairDelivery"> | boolean
+    workOther?: StringNullableFilter<"RepairDelivery"> | string | null
+    note?: StringNullableFilter<"RepairDelivery"> | string | null
+    sigSenderUrl?: StringNullableFilter<"RepairDelivery"> | string | null
+    nameSender?: StringNullableFilter<"RepairDelivery"> | string | null
+    sigReceiverUrl?: StringNullableFilter<"RepairDelivery"> | string | null
+    nameReceiver?: StringNullableFilter<"RepairDelivery"> | string | null
+    status?: StringFilter<"RepairDelivery"> | string
+    pdfUrl?: StringNullableFilter<"RepairDelivery"> | string | null
+    createdAt?: DateTimeFilter<"RepairDelivery"> | Date | string
+    updatedAt?: DateTimeFilter<"RepairDelivery"> | Date | string
+    job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
+  }
+
+  export type RepairDeliveryOrderByWithRelationInput = {
+    id?: SortOrder
+    deliveryNumber?: SortOrder
+    jobId?: SortOrderInput | SortOrder
+    deliveryDate?: SortOrderInput | SortOrder
+    company?: SortOrderInput | SortOrder
+    jobName?: SortOrderInput | SortOrder
+    customer?: SortOrderInput | SortOrder
+    customerPosition?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
+    siteAddress?: SortOrderInput | SortOrder
+    quotationNo?: SortOrderInput | SortOrder
+    sender?: SortOrderInput | SortOrder
+    senderPhone?: SortOrderInput | SortOrder
+    technician?: SortOrderInput | SortOrder
+    technicianPhone?: SortOrderInput | SortOrder
+    workInspect?: SortOrder
+    workInstall?: SortOrder
+    workRepair?: SortOrder
+    workTraining?: SortOrder
+    workOther?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    sigSenderUrl?: SortOrderInput | SortOrder
+    nameSender?: SortOrderInput | SortOrder
+    sigReceiverUrl?: SortOrderInput | SortOrder
+    nameReceiver?: SortOrderInput | SortOrder
+    status?: SortOrder
+    pdfUrl?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    job?: JobOrderByWithRelationInput
+  }
+
+  export type RepairDeliveryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    deliveryNumber?: string
+    AND?: RepairDeliveryWhereInput | RepairDeliveryWhereInput[]
+    OR?: RepairDeliveryWhereInput[]
+    NOT?: RepairDeliveryWhereInput | RepairDeliveryWhereInput[]
+    jobId?: StringNullableFilter<"RepairDelivery"> | string | null
+    deliveryDate?: DateTimeNullableFilter<"RepairDelivery"> | Date | string | null
+    company?: StringNullableFilter<"RepairDelivery"> | string | null
+    jobName?: StringNullableFilter<"RepairDelivery"> | string | null
+    customer?: StringNullableFilter<"RepairDelivery"> | string | null
+    customerPosition?: StringNullableFilter<"RepairDelivery"> | string | null
+    address?: StringNullableFilter<"RepairDelivery"> | string | null
+    siteAddress?: StringNullableFilter<"RepairDelivery"> | string | null
+    quotationNo?: StringNullableFilter<"RepairDelivery"> | string | null
+    sender?: StringNullableFilter<"RepairDelivery"> | string | null
+    senderPhone?: StringNullableFilter<"RepairDelivery"> | string | null
+    technician?: StringNullableFilter<"RepairDelivery"> | string | null
+    technicianPhone?: StringNullableFilter<"RepairDelivery"> | string | null
+    workInspect?: BoolFilter<"RepairDelivery"> | boolean
+    workInstall?: BoolFilter<"RepairDelivery"> | boolean
+    workRepair?: BoolFilter<"RepairDelivery"> | boolean
+    workTraining?: BoolFilter<"RepairDelivery"> | boolean
+    workOther?: StringNullableFilter<"RepairDelivery"> | string | null
+    note?: StringNullableFilter<"RepairDelivery"> | string | null
+    sigSenderUrl?: StringNullableFilter<"RepairDelivery"> | string | null
+    nameSender?: StringNullableFilter<"RepairDelivery"> | string | null
+    sigReceiverUrl?: StringNullableFilter<"RepairDelivery"> | string | null
+    nameReceiver?: StringNullableFilter<"RepairDelivery"> | string | null
+    status?: StringFilter<"RepairDelivery"> | string
+    pdfUrl?: StringNullableFilter<"RepairDelivery"> | string | null
+    createdAt?: DateTimeFilter<"RepairDelivery"> | Date | string
+    updatedAt?: DateTimeFilter<"RepairDelivery"> | Date | string
+    job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
+  }, "id" | "deliveryNumber">
+
+  export type RepairDeliveryOrderByWithAggregationInput = {
+    id?: SortOrder
+    deliveryNumber?: SortOrder
+    jobId?: SortOrderInput | SortOrder
+    deliveryDate?: SortOrderInput | SortOrder
+    company?: SortOrderInput | SortOrder
+    jobName?: SortOrderInput | SortOrder
+    customer?: SortOrderInput | SortOrder
+    customerPosition?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
+    siteAddress?: SortOrderInput | SortOrder
+    quotationNo?: SortOrderInput | SortOrder
+    sender?: SortOrderInput | SortOrder
+    senderPhone?: SortOrderInput | SortOrder
+    technician?: SortOrderInput | SortOrder
+    technicianPhone?: SortOrderInput | SortOrder
+    workInspect?: SortOrder
+    workInstall?: SortOrder
+    workRepair?: SortOrder
+    workTraining?: SortOrder
+    workOther?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    sigSenderUrl?: SortOrderInput | SortOrder
+    nameSender?: SortOrderInput | SortOrder
+    sigReceiverUrl?: SortOrderInput | SortOrder
+    nameReceiver?: SortOrderInput | SortOrder
+    status?: SortOrder
+    pdfUrl?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: RepairDeliveryCountOrderByAggregateInput
+    _max?: RepairDeliveryMaxOrderByAggregateInput
+    _min?: RepairDeliveryMinOrderByAggregateInput
+  }
+
+  export type RepairDeliveryScalarWhereWithAggregatesInput = {
+    AND?: RepairDeliveryScalarWhereWithAggregatesInput | RepairDeliveryScalarWhereWithAggregatesInput[]
+    OR?: RepairDeliveryScalarWhereWithAggregatesInput[]
+    NOT?: RepairDeliveryScalarWhereWithAggregatesInput | RepairDeliveryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"RepairDelivery"> | string
+    deliveryNumber?: StringWithAggregatesFilter<"RepairDelivery"> | string
+    jobId?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    deliveryDate?: DateTimeNullableWithAggregatesFilter<"RepairDelivery"> | Date | string | null
+    company?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    jobName?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    customer?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    customerPosition?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    address?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    siteAddress?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    quotationNo?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    sender?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    senderPhone?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    technician?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    technicianPhone?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    workInspect?: BoolWithAggregatesFilter<"RepairDelivery"> | boolean
+    workInstall?: BoolWithAggregatesFilter<"RepairDelivery"> | boolean
+    workRepair?: BoolWithAggregatesFilter<"RepairDelivery"> | boolean
+    workTraining?: BoolWithAggregatesFilter<"RepairDelivery"> | boolean
+    workOther?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    note?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    sigSenderUrl?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    nameSender?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    sigReceiverUrl?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    nameReceiver?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    status?: StringWithAggregatesFilter<"RepairDelivery"> | string
+    pdfUrl?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"RepairDelivery"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"RepairDelivery"> | Date | string
+  }
+
+  export type OutsourceRepairWhereInput = {
+    AND?: OutsourceRepairWhereInput | OutsourceRepairWhereInput[]
+    OR?: OutsourceRepairWhereInput[]
+    NOT?: OutsourceRepairWhereInput | OutsourceRepairWhereInput[]
+    id?: StringFilter<"OutsourceRepair"> | string
+    outsourceNumber?: StringNullableFilter<"OutsourceRepair"> | string | null
+    jobId?: StringNullableFilter<"OutsourceRepair"> | string | null
+    vendorName?: StringNullableFilter<"OutsourceRepair"> | string | null
+    vendorPhone?: StringNullableFilter<"OutsourceRepair"> | string | null
+    vendorAddress?: StringNullableFilter<"OutsourceRepair"> | string | null
+    customerName?: StringNullableFilter<"OutsourceRepair"> | string | null
+    customerPhone?: StringNullableFilter<"OutsourceRepair"> | string | null
+    customerAddress?: StringNullableFilter<"OutsourceRepair"> | string | null
+    sentDate?: DateTimeNullableFilter<"OutsourceRepair"> | Date | string | null
+    expectedReturnDate?: DateTimeNullableFilter<"OutsourceRepair"> | Date | string | null
+    items?: JsonFilter<"OutsourceRepair">
+    symptoms?: StringNullableFilter<"OutsourceRepair"> | string | null
+    settings?: StringNullableFilter<"OutsourceRepair"> | string | null
+    remark?: StringNullableFilter<"OutsourceRepair"> | string | null
+    sender?: StringNullableFilter<"OutsourceRepair"> | string | null
+    status?: StringFilter<"OutsourceRepair"> | string
+    createdAt?: DateTimeFilter<"OutsourceRepair"> | Date | string
+    updatedAt?: DateTimeFilter<"OutsourceRepair"> | Date | string
+    job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
+  }
+
+  export type OutsourceRepairOrderByWithRelationInput = {
+    id?: SortOrder
+    outsourceNumber?: SortOrderInput | SortOrder
+    jobId?: SortOrderInput | SortOrder
+    vendorName?: SortOrderInput | SortOrder
+    vendorPhone?: SortOrderInput | SortOrder
+    vendorAddress?: SortOrderInput | SortOrder
+    customerName?: SortOrderInput | SortOrder
+    customerPhone?: SortOrderInput | SortOrder
+    customerAddress?: SortOrderInput | SortOrder
+    sentDate?: SortOrderInput | SortOrder
+    expectedReturnDate?: SortOrderInput | SortOrder
+    items?: SortOrder
+    symptoms?: SortOrderInput | SortOrder
+    settings?: SortOrderInput | SortOrder
+    remark?: SortOrderInput | SortOrder
+    sender?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    job?: JobOrderByWithRelationInput
+  }
+
+  export type OutsourceRepairWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    outsourceNumber?: string
+    AND?: OutsourceRepairWhereInput | OutsourceRepairWhereInput[]
+    OR?: OutsourceRepairWhereInput[]
+    NOT?: OutsourceRepairWhereInput | OutsourceRepairWhereInput[]
+    jobId?: StringNullableFilter<"OutsourceRepair"> | string | null
+    vendorName?: StringNullableFilter<"OutsourceRepair"> | string | null
+    vendorPhone?: StringNullableFilter<"OutsourceRepair"> | string | null
+    vendorAddress?: StringNullableFilter<"OutsourceRepair"> | string | null
+    customerName?: StringNullableFilter<"OutsourceRepair"> | string | null
+    customerPhone?: StringNullableFilter<"OutsourceRepair"> | string | null
+    customerAddress?: StringNullableFilter<"OutsourceRepair"> | string | null
+    sentDate?: DateTimeNullableFilter<"OutsourceRepair"> | Date | string | null
+    expectedReturnDate?: DateTimeNullableFilter<"OutsourceRepair"> | Date | string | null
+    items?: JsonFilter<"OutsourceRepair">
+    symptoms?: StringNullableFilter<"OutsourceRepair"> | string | null
+    settings?: StringNullableFilter<"OutsourceRepair"> | string | null
+    remark?: StringNullableFilter<"OutsourceRepair"> | string | null
+    sender?: StringNullableFilter<"OutsourceRepair"> | string | null
+    status?: StringFilter<"OutsourceRepair"> | string
+    createdAt?: DateTimeFilter<"OutsourceRepair"> | Date | string
+    updatedAt?: DateTimeFilter<"OutsourceRepair"> | Date | string
+    job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
+  }, "id" | "outsourceNumber">
+
+  export type OutsourceRepairOrderByWithAggregationInput = {
+    id?: SortOrder
+    outsourceNumber?: SortOrderInput | SortOrder
+    jobId?: SortOrderInput | SortOrder
+    vendorName?: SortOrderInput | SortOrder
+    vendorPhone?: SortOrderInput | SortOrder
+    vendorAddress?: SortOrderInput | SortOrder
+    customerName?: SortOrderInput | SortOrder
+    customerPhone?: SortOrderInput | SortOrder
+    customerAddress?: SortOrderInput | SortOrder
+    sentDate?: SortOrderInput | SortOrder
+    expectedReturnDate?: SortOrderInput | SortOrder
+    items?: SortOrder
+    symptoms?: SortOrderInput | SortOrder
+    settings?: SortOrderInput | SortOrder
+    remark?: SortOrderInput | SortOrder
+    sender?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OutsourceRepairCountOrderByAggregateInput
+    _max?: OutsourceRepairMaxOrderByAggregateInput
+    _min?: OutsourceRepairMinOrderByAggregateInput
+  }
+
+  export type OutsourceRepairScalarWhereWithAggregatesInput = {
+    AND?: OutsourceRepairScalarWhereWithAggregatesInput | OutsourceRepairScalarWhereWithAggregatesInput[]
+    OR?: OutsourceRepairScalarWhereWithAggregatesInput[]
+    NOT?: OutsourceRepairScalarWhereWithAggregatesInput | OutsourceRepairScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OutsourceRepair"> | string
+    outsourceNumber?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    jobId?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    vendorName?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    vendorPhone?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    vendorAddress?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    customerName?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    customerPhone?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    customerAddress?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    sentDate?: DateTimeNullableWithAggregatesFilter<"OutsourceRepair"> | Date | string | null
+    expectedReturnDate?: DateTimeNullableWithAggregatesFilter<"OutsourceRepair"> | Date | string | null
+    items?: JsonWithAggregatesFilter<"OutsourceRepair">
+    symptoms?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    settings?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    remark?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    sender?: StringNullableWithAggregatesFilter<"OutsourceRepair"> | string | null
+    status?: StringWithAggregatesFilter<"OutsourceRepair"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"OutsourceRepair"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"OutsourceRepair"> | Date | string
   }
 
   export type admin_login_attemptsWhereInput = {
@@ -77373,11 +82064,16 @@ export namespace Prisma {
     courierCompany?: string | null
     trackingNumber?: string | null
     trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
+    repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateInput = {
@@ -77401,10 +82097,15 @@ export namespace Prisma {
     courierCompany?: string | null
     trackingNumber?: string | null
     trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobUpdateInput = {
@@ -77427,11 +82128,16 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateInput = {
@@ -77455,10 +82161,15 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateManyInput = {
@@ -77482,6 +82193,8 @@ export namespace Prisma {
     courierCompany?: string | null
     trackingNumber?: string | null
     trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -77506,6 +82219,8 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -77531,6 +82246,98 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentTaskCreateInput = {
+    id?: string
+    status?: string
+    assignedTo?: string | null
+    dueDate?: Date | string | null
+    paidAmount?: number | null
+    paidDate?: Date | string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    job: JobCreateNestedOneWithoutPaymentTaskInput
+  }
+
+  export type PaymentTaskUncheckedCreateInput = {
+    id?: string
+    jobId: string
+    status?: string
+    assignedTo?: string | null
+    dueDate?: Date | string | null
+    paidAmount?: number | null
+    paidDate?: Date | string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentTaskUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneRequiredWithoutPaymentTaskNestedInput
+  }
+
+  export type PaymentTaskUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentTaskCreateManyInput = {
+    id?: string
+    jobId: string
+    status?: string
+    assignedTo?: string | null
+    dueDate?: Date | string | null
+    paidAmount?: number | null
+    paidDate?: Date | string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentTaskUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentTaskUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -77839,6 +82646,382 @@ export namespace Prisma {
     customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
     customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
     salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type RepairDeliveryCreateInput = {
+    id?: string
+    deliveryNumber: string
+    deliveryDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    workInspect?: boolean
+    workInstall?: boolean
+    workRepair?: boolean
+    workTraining?: boolean
+    workOther?: string | null
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    job?: JobCreateNestedOneWithoutRepairDeliveriesInput
+  }
+
+  export type RepairDeliveryUncheckedCreateInput = {
+    id?: string
+    deliveryNumber: string
+    jobId?: string | null
+    deliveryDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    workInspect?: boolean
+    workInstall?: boolean
+    workRepair?: boolean
+    workTraining?: boolean
+    workOther?: string | null
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RepairDeliveryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryNumber?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workOther?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneWithoutRepairDeliveriesNestedInput
+  }
+
+  export type RepairDeliveryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryNumber?: StringFieldUpdateOperationsInput | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workOther?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RepairDeliveryCreateManyInput = {
+    id?: string
+    deliveryNumber: string
+    jobId?: string | null
+    deliveryDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    workInspect?: boolean
+    workInstall?: boolean
+    workRepair?: boolean
+    workTraining?: boolean
+    workOther?: string | null
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RepairDeliveryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryNumber?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workOther?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RepairDeliveryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryNumber?: StringFieldUpdateOperationsInput | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workOther?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OutsourceRepairCreateInput = {
+    id?: string
+    outsourceNumber?: string | null
+    vendorName?: string | null
+    vendorPhone?: string | null
+    vendorAddress?: string | null
+    customerName?: string | null
+    customerPhone?: string | null
+    customerAddress?: string | null
+    sentDate?: Date | string | null
+    expectedReturnDate?: Date | string | null
+    items: JsonNullValueInput | InputJsonValue
+    symptoms?: string | null
+    settings?: string | null
+    remark?: string | null
+    sender?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    job?: JobCreateNestedOneWithoutOutsourceRepairsInput
+  }
+
+  export type OutsourceRepairUncheckedCreateInput = {
+    id?: string
+    outsourceNumber?: string | null
+    jobId?: string | null
+    vendorName?: string | null
+    vendorPhone?: string | null
+    vendorAddress?: string | null
+    customerName?: string | null
+    customerPhone?: string | null
+    customerAddress?: string | null
+    sentDate?: Date | string | null
+    expectedReturnDate?: Date | string | null
+    items: JsonNullValueInput | InputJsonValue
+    symptoms?: string | null
+    settings?: string | null
+    remark?: string | null
+    sender?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OutsourceRepairUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    outsourceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorName?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedReturnDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    items?: JsonNullValueInput | InputJsonValue
+    symptoms?: NullableStringFieldUpdateOperationsInput | string | null
+    settings?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneWithoutOutsourceRepairsNestedInput
+  }
+
+  export type OutsourceRepairUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    outsourceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorName?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedReturnDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    items?: JsonNullValueInput | InputJsonValue
+    symptoms?: NullableStringFieldUpdateOperationsInput | string | null
+    settings?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OutsourceRepairCreateManyInput = {
+    id?: string
+    outsourceNumber?: string | null
+    jobId?: string | null
+    vendorName?: string | null
+    vendorPhone?: string | null
+    vendorAddress?: string | null
+    customerName?: string | null
+    customerPhone?: string | null
+    customerAddress?: string | null
+    sentDate?: Date | string | null
+    expectedReturnDate?: Date | string | null
+    items: JsonNullValueInput | InputJsonValue
+    symptoms?: string | null
+    settings?: string | null
+    remark?: string | null
+    sender?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OutsourceRepairUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    outsourceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorName?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedReturnDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    items?: JsonNullValueInput | InputJsonValue
+    symptoms?: NullableStringFieldUpdateOperationsInput | string | null
+    settings?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OutsourceRepairUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    outsourceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorName?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedReturnDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    items?: JsonNullValueInput | InputJsonValue
+    symptoms?: NullableStringFieldUpdateOperationsInput | string | null
+    settings?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type admin_login_attemptsCreateInput = {
@@ -82848,7 +88031,32 @@ export namespace Prisma {
     none?: JobStepLogWhereInput
   }
 
+  export type PaymentTaskNullableScalarRelationFilter = {
+    is?: PaymentTaskWhereInput | null
+    isNot?: PaymentTaskWhereInput | null
+  }
+
+  export type RepairDeliveryListRelationFilter = {
+    every?: RepairDeliveryWhereInput
+    some?: RepairDeliveryWhereInput
+    none?: RepairDeliveryWhereInput
+  }
+
+  export type OutsourceRepairListRelationFilter = {
+    every?: OutsourceRepairWhereInput
+    some?: OutsourceRepairWhereInput
+    none?: OutsourceRepairWhereInput
+  }
+
   export type JobStepLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type RepairDeliveryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OutsourceRepairOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -82873,6 +88081,8 @@ export namespace Prisma {
     courierCompany?: SortOrder
     trackingNumber?: SortOrder
     trackingPhotoUrl?: SortOrder
+    paymentMethod?: SortOrder
+    paymentStatus?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -82903,6 +88113,8 @@ export namespace Prisma {
     courierCompany?: SortOrder
     trackingNumber?: SortOrder
     trackingPhotoUrl?: SortOrder
+    paymentMethod?: SortOrder
+    paymentStatus?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -82928,6 +88140,8 @@ export namespace Prisma {
     courierCompany?: SortOrder
     trackingNumber?: SortOrder
     trackingPhotoUrl?: SortOrder
+    paymentMethod?: SortOrder
+    paymentStatus?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -82935,6 +88149,58 @@ export namespace Prisma {
   export type JobSumOrderByAggregateInput = {
     month?: SortOrder
     yearBe?: SortOrder
+  }
+
+  export type JobScalarRelationFilter = {
+    is?: JobWhereInput
+    isNot?: JobWhereInput
+  }
+
+  export type PaymentTaskCountOrderByAggregateInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    status?: SortOrder
+    assignedTo?: SortOrder
+    dueDate?: SortOrder
+    paidAmount?: SortOrder
+    paidDate?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentTaskAvgOrderByAggregateInput = {
+    paidAmount?: SortOrder
+  }
+
+  export type PaymentTaskMaxOrderByAggregateInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    status?: SortOrder
+    assignedTo?: SortOrder
+    dueDate?: SortOrder
+    paidAmount?: SortOrder
+    paidDate?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentTaskMinOrderByAggregateInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    status?: SortOrder
+    assignedTo?: SortOrder
+    dueDate?: SortOrder
+    paidAmount?: SortOrder
+    paidDate?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentTaskSumOrderByAggregateInput = {
+    paidAmount?: SortOrder
   }
 
   export type JobRunningNumberYearBeMonthCompoundUniqueInput = {
@@ -82973,11 +88239,6 @@ export namespace Prisma {
     yearBe?: SortOrder
     month?: SortOrder
     lastNumber?: SortOrder
-  }
-
-  export type JobScalarRelationFilter = {
-    is?: JobWhereInput
-    isNot?: JobWhereInput
   }
 
   export type JobStepLogCountOrderByAggregateInput = {
@@ -83181,6 +88442,171 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
     _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type JobNullableScalarRelationFilter = {
+    is?: JobWhereInput | null
+    isNot?: JobWhereInput | null
+  }
+
+  export type RepairDeliveryCountOrderByAggregateInput = {
+    id?: SortOrder
+    deliveryNumber?: SortOrder
+    jobId?: SortOrder
+    deliveryDate?: SortOrder
+    company?: SortOrder
+    jobName?: SortOrder
+    customer?: SortOrder
+    customerPosition?: SortOrder
+    address?: SortOrder
+    siteAddress?: SortOrder
+    quotationNo?: SortOrder
+    sender?: SortOrder
+    senderPhone?: SortOrder
+    technician?: SortOrder
+    technicianPhone?: SortOrder
+    workInspect?: SortOrder
+    workInstall?: SortOrder
+    workRepair?: SortOrder
+    workTraining?: SortOrder
+    workOther?: SortOrder
+    note?: SortOrder
+    sigSenderUrl?: SortOrder
+    nameSender?: SortOrder
+    sigReceiverUrl?: SortOrder
+    nameReceiver?: SortOrder
+    status?: SortOrder
+    pdfUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RepairDeliveryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    deliveryNumber?: SortOrder
+    jobId?: SortOrder
+    deliveryDate?: SortOrder
+    company?: SortOrder
+    jobName?: SortOrder
+    customer?: SortOrder
+    customerPosition?: SortOrder
+    address?: SortOrder
+    siteAddress?: SortOrder
+    quotationNo?: SortOrder
+    sender?: SortOrder
+    senderPhone?: SortOrder
+    technician?: SortOrder
+    technicianPhone?: SortOrder
+    workInspect?: SortOrder
+    workInstall?: SortOrder
+    workRepair?: SortOrder
+    workTraining?: SortOrder
+    workOther?: SortOrder
+    note?: SortOrder
+    sigSenderUrl?: SortOrder
+    nameSender?: SortOrder
+    sigReceiverUrl?: SortOrder
+    nameReceiver?: SortOrder
+    status?: SortOrder
+    pdfUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RepairDeliveryMinOrderByAggregateInput = {
+    id?: SortOrder
+    deliveryNumber?: SortOrder
+    jobId?: SortOrder
+    deliveryDate?: SortOrder
+    company?: SortOrder
+    jobName?: SortOrder
+    customer?: SortOrder
+    customerPosition?: SortOrder
+    address?: SortOrder
+    siteAddress?: SortOrder
+    quotationNo?: SortOrder
+    sender?: SortOrder
+    senderPhone?: SortOrder
+    technician?: SortOrder
+    technicianPhone?: SortOrder
+    workInspect?: SortOrder
+    workInstall?: SortOrder
+    workRepair?: SortOrder
+    workTraining?: SortOrder
+    workOther?: SortOrder
+    note?: SortOrder
+    sigSenderUrl?: SortOrder
+    nameSender?: SortOrder
+    sigReceiverUrl?: SortOrder
+    nameReceiver?: SortOrder
+    status?: SortOrder
+    pdfUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OutsourceRepairCountOrderByAggregateInput = {
+    id?: SortOrder
+    outsourceNumber?: SortOrder
+    jobId?: SortOrder
+    vendorName?: SortOrder
+    vendorPhone?: SortOrder
+    vendorAddress?: SortOrder
+    customerName?: SortOrder
+    customerPhone?: SortOrder
+    customerAddress?: SortOrder
+    sentDate?: SortOrder
+    expectedReturnDate?: SortOrder
+    items?: SortOrder
+    symptoms?: SortOrder
+    settings?: SortOrder
+    remark?: SortOrder
+    sender?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OutsourceRepairMaxOrderByAggregateInput = {
+    id?: SortOrder
+    outsourceNumber?: SortOrder
+    jobId?: SortOrder
+    vendorName?: SortOrder
+    vendorPhone?: SortOrder
+    vendorAddress?: SortOrder
+    customerName?: SortOrder
+    customerPhone?: SortOrder
+    customerAddress?: SortOrder
+    sentDate?: SortOrder
+    expectedReturnDate?: SortOrder
+    symptoms?: SortOrder
+    settings?: SortOrder
+    remark?: SortOrder
+    sender?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OutsourceRepairMinOrderByAggregateInput = {
+    id?: SortOrder
+    outsourceNumber?: SortOrder
+    jobId?: SortOrder
+    vendorName?: SortOrder
+    vendorPhone?: SortOrder
+    vendorAddress?: SortOrder
+    customerName?: SortOrder
+    customerPhone?: SortOrder
+    customerAddress?: SortOrder
+    sentDate?: SortOrder
+    expectedReturnDate?: SortOrder
+    symptoms?: SortOrder
+    settings?: SortOrder
+    remark?: SortOrder
+    sender?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type BigIntFilter<$PrismaModel = never> = {
@@ -86768,10 +92194,30 @@ export namespace Prisma {
     connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
   }
 
+  export type PaymentTaskCreateNestedOneWithoutJobInput = {
+    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
+    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput
+    connect?: PaymentTaskWhereUniqueInput
+  }
+
   export type QuotationCreateNestedOneWithoutJobsInput = {
     create?: XOR<QuotationCreateWithoutJobsInput, QuotationUncheckedCreateWithoutJobsInput>
     connectOrCreate?: QuotationCreateOrConnectWithoutJobsInput
     connect?: QuotationWhereUniqueInput
+  }
+
+  export type RepairDeliveryCreateNestedManyWithoutJobInput = {
+    create?: XOR<RepairDeliveryCreateWithoutJobInput, RepairDeliveryUncheckedCreateWithoutJobInput> | RepairDeliveryCreateWithoutJobInput[] | RepairDeliveryUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: RepairDeliveryCreateOrConnectWithoutJobInput | RepairDeliveryCreateOrConnectWithoutJobInput[]
+    createMany?: RepairDeliveryCreateManyJobInputEnvelope
+    connect?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+  }
+
+  export type OutsourceRepairCreateNestedManyWithoutJobInput = {
+    create?: XOR<OutsourceRepairCreateWithoutJobInput, OutsourceRepairUncheckedCreateWithoutJobInput> | OutsourceRepairCreateWithoutJobInput[] | OutsourceRepairUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: OutsourceRepairCreateOrConnectWithoutJobInput | OutsourceRepairCreateOrConnectWithoutJobInput[]
+    createMany?: OutsourceRepairCreateManyJobInputEnvelope
+    connect?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
   }
 
   export type RepairOrderUncheckedCreateNestedOneWithoutJobInput = {
@@ -86785,6 +92231,26 @@ export namespace Prisma {
     connectOrCreate?: JobStepLogCreateOrConnectWithoutJobInput | JobStepLogCreateOrConnectWithoutJobInput[]
     createMany?: JobStepLogCreateManyJobInputEnvelope
     connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+  }
+
+  export type PaymentTaskUncheckedCreateNestedOneWithoutJobInput = {
+    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
+    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput
+    connect?: PaymentTaskWhereUniqueInput
+  }
+
+  export type RepairDeliveryUncheckedCreateNestedManyWithoutJobInput = {
+    create?: XOR<RepairDeliveryCreateWithoutJobInput, RepairDeliveryUncheckedCreateWithoutJobInput> | RepairDeliveryCreateWithoutJobInput[] | RepairDeliveryUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: RepairDeliveryCreateOrConnectWithoutJobInput | RepairDeliveryCreateOrConnectWithoutJobInput[]
+    createMany?: RepairDeliveryCreateManyJobInputEnvelope
+    connect?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+  }
+
+  export type OutsourceRepairUncheckedCreateNestedManyWithoutJobInput = {
+    create?: XOR<OutsourceRepairCreateWithoutJobInput, OutsourceRepairUncheckedCreateWithoutJobInput> | OutsourceRepairCreateWithoutJobInput[] | OutsourceRepairUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: OutsourceRepairCreateOrConnectWithoutJobInput | OutsourceRepairCreateOrConnectWithoutJobInput[]
+    createMany?: OutsourceRepairCreateManyJobInputEnvelope
+    connect?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
   }
 
   export type RepairOrderUpdateOneWithoutJobNestedInput = {
@@ -86811,6 +92277,16 @@ export namespace Prisma {
     deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
   }
 
+  export type PaymentTaskUpdateOneWithoutJobNestedInput = {
+    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
+    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput
+    upsert?: PaymentTaskUpsertWithoutJobInput
+    disconnect?: PaymentTaskWhereInput | boolean
+    delete?: PaymentTaskWhereInput | boolean
+    connect?: PaymentTaskWhereUniqueInput
+    update?: XOR<XOR<PaymentTaskUpdateToOneWithWhereWithoutJobInput, PaymentTaskUpdateWithoutJobInput>, PaymentTaskUncheckedUpdateWithoutJobInput>
+  }
+
   export type QuotationUpdateOneWithoutJobsNestedInput = {
     create?: XOR<QuotationCreateWithoutJobsInput, QuotationUncheckedCreateWithoutJobsInput>
     connectOrCreate?: QuotationCreateOrConnectWithoutJobsInput
@@ -86819,6 +92295,34 @@ export namespace Prisma {
     delete?: QuotationWhereInput | boolean
     connect?: QuotationWhereUniqueInput
     update?: XOR<XOR<QuotationUpdateToOneWithWhereWithoutJobsInput, QuotationUpdateWithoutJobsInput>, QuotationUncheckedUpdateWithoutJobsInput>
+  }
+
+  export type RepairDeliveryUpdateManyWithoutJobNestedInput = {
+    create?: XOR<RepairDeliveryCreateWithoutJobInput, RepairDeliveryUncheckedCreateWithoutJobInput> | RepairDeliveryCreateWithoutJobInput[] | RepairDeliveryUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: RepairDeliveryCreateOrConnectWithoutJobInput | RepairDeliveryCreateOrConnectWithoutJobInput[]
+    upsert?: RepairDeliveryUpsertWithWhereUniqueWithoutJobInput | RepairDeliveryUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: RepairDeliveryCreateManyJobInputEnvelope
+    set?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+    disconnect?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+    delete?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+    connect?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+    update?: RepairDeliveryUpdateWithWhereUniqueWithoutJobInput | RepairDeliveryUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: RepairDeliveryUpdateManyWithWhereWithoutJobInput | RepairDeliveryUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: RepairDeliveryScalarWhereInput | RepairDeliveryScalarWhereInput[]
+  }
+
+  export type OutsourceRepairUpdateManyWithoutJobNestedInput = {
+    create?: XOR<OutsourceRepairCreateWithoutJobInput, OutsourceRepairUncheckedCreateWithoutJobInput> | OutsourceRepairCreateWithoutJobInput[] | OutsourceRepairUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: OutsourceRepairCreateOrConnectWithoutJobInput | OutsourceRepairCreateOrConnectWithoutJobInput[]
+    upsert?: OutsourceRepairUpsertWithWhereUniqueWithoutJobInput | OutsourceRepairUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: OutsourceRepairCreateManyJobInputEnvelope
+    set?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
+    disconnect?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
+    delete?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
+    connect?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
+    update?: OutsourceRepairUpdateWithWhereUniqueWithoutJobInput | OutsourceRepairUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: OutsourceRepairUpdateManyWithWhereWithoutJobInput | OutsourceRepairUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: OutsourceRepairScalarWhereInput | OutsourceRepairScalarWhereInput[]
   }
 
   export type RepairOrderUncheckedUpdateOneWithoutJobNestedInput = {
@@ -86843,6 +92347,58 @@ export namespace Prisma {
     update?: JobStepLogUpdateWithWhereUniqueWithoutJobInput | JobStepLogUpdateWithWhereUniqueWithoutJobInput[]
     updateMany?: JobStepLogUpdateManyWithWhereWithoutJobInput | JobStepLogUpdateManyWithWhereWithoutJobInput[]
     deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
+  }
+
+  export type PaymentTaskUncheckedUpdateOneWithoutJobNestedInput = {
+    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
+    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput
+    upsert?: PaymentTaskUpsertWithoutJobInput
+    disconnect?: PaymentTaskWhereInput | boolean
+    delete?: PaymentTaskWhereInput | boolean
+    connect?: PaymentTaskWhereUniqueInput
+    update?: XOR<XOR<PaymentTaskUpdateToOneWithWhereWithoutJobInput, PaymentTaskUpdateWithoutJobInput>, PaymentTaskUncheckedUpdateWithoutJobInput>
+  }
+
+  export type RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput = {
+    create?: XOR<RepairDeliveryCreateWithoutJobInput, RepairDeliveryUncheckedCreateWithoutJobInput> | RepairDeliveryCreateWithoutJobInput[] | RepairDeliveryUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: RepairDeliveryCreateOrConnectWithoutJobInput | RepairDeliveryCreateOrConnectWithoutJobInput[]
+    upsert?: RepairDeliveryUpsertWithWhereUniqueWithoutJobInput | RepairDeliveryUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: RepairDeliveryCreateManyJobInputEnvelope
+    set?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+    disconnect?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+    delete?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+    connect?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+    update?: RepairDeliveryUpdateWithWhereUniqueWithoutJobInput | RepairDeliveryUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: RepairDeliveryUpdateManyWithWhereWithoutJobInput | RepairDeliveryUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: RepairDeliveryScalarWhereInput | RepairDeliveryScalarWhereInput[]
+  }
+
+  export type OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput = {
+    create?: XOR<OutsourceRepairCreateWithoutJobInput, OutsourceRepairUncheckedCreateWithoutJobInput> | OutsourceRepairCreateWithoutJobInput[] | OutsourceRepairUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: OutsourceRepairCreateOrConnectWithoutJobInput | OutsourceRepairCreateOrConnectWithoutJobInput[]
+    upsert?: OutsourceRepairUpsertWithWhereUniqueWithoutJobInput | OutsourceRepairUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: OutsourceRepairCreateManyJobInputEnvelope
+    set?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
+    disconnect?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
+    delete?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
+    connect?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
+    update?: OutsourceRepairUpdateWithWhereUniqueWithoutJobInput | OutsourceRepairUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: OutsourceRepairUpdateManyWithWhereWithoutJobInput | OutsourceRepairUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: OutsourceRepairScalarWhereInput | OutsourceRepairScalarWhereInput[]
+  }
+
+  export type JobCreateNestedOneWithoutPaymentTaskInput = {
+    create?: XOR<JobCreateWithoutPaymentTaskInput, JobUncheckedCreateWithoutPaymentTaskInput>
+    connectOrCreate?: JobCreateOrConnectWithoutPaymentTaskInput
+    connect?: JobWhereUniqueInput
+  }
+
+  export type JobUpdateOneRequiredWithoutPaymentTaskNestedInput = {
+    create?: XOR<JobCreateWithoutPaymentTaskInput, JobUncheckedCreateWithoutPaymentTaskInput>
+    connectOrCreate?: JobCreateOrConnectWithoutPaymentTaskInput
+    upsert?: JobUpsertWithoutPaymentTaskInput
+    connect?: JobWhereUniqueInput
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutPaymentTaskInput, JobUpdateWithoutPaymentTaskInput>, JobUncheckedUpdateWithoutPaymentTaskInput>
   }
 
   export type JobCreateNestedOneWithoutStepLogsInput = {
@@ -86871,6 +92427,38 @@ export namespace Prisma {
     upsert?: JobUpsertWithoutRepairOrderInput
     connect?: JobWhereUniqueInput
     update?: XOR<XOR<JobUpdateToOneWithWhereWithoutRepairOrderInput, JobUpdateWithoutRepairOrderInput>, JobUncheckedUpdateWithoutRepairOrderInput>
+  }
+
+  export type JobCreateNestedOneWithoutRepairDeliveriesInput = {
+    create?: XOR<JobCreateWithoutRepairDeliveriesInput, JobUncheckedCreateWithoutRepairDeliveriesInput>
+    connectOrCreate?: JobCreateOrConnectWithoutRepairDeliveriesInput
+    connect?: JobWhereUniqueInput
+  }
+
+  export type JobUpdateOneWithoutRepairDeliveriesNestedInput = {
+    create?: XOR<JobCreateWithoutRepairDeliveriesInput, JobUncheckedCreateWithoutRepairDeliveriesInput>
+    connectOrCreate?: JobCreateOrConnectWithoutRepairDeliveriesInput
+    upsert?: JobUpsertWithoutRepairDeliveriesInput
+    disconnect?: JobWhereInput | boolean
+    delete?: JobWhereInput | boolean
+    connect?: JobWhereUniqueInput
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutRepairDeliveriesInput, JobUpdateWithoutRepairDeliveriesInput>, JobUncheckedUpdateWithoutRepairDeliveriesInput>
+  }
+
+  export type JobCreateNestedOneWithoutOutsourceRepairsInput = {
+    create?: XOR<JobCreateWithoutOutsourceRepairsInput, JobUncheckedCreateWithoutOutsourceRepairsInput>
+    connectOrCreate?: JobCreateOrConnectWithoutOutsourceRepairsInput
+    connect?: JobWhereUniqueInput
+  }
+
+  export type JobUpdateOneWithoutOutsourceRepairsNestedInput = {
+    create?: XOR<JobCreateWithoutOutsourceRepairsInput, JobUncheckedCreateWithoutOutsourceRepairsInput>
+    connectOrCreate?: JobCreateOrConnectWithoutOutsourceRepairsInput
+    upsert?: JobUpsertWithoutOutsourceRepairsInput
+    disconnect?: JobWhereInput | boolean
+    delete?: JobWhereInput | boolean
+    connect?: JobWhereUniqueInput
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutOutsourceRepairsInput, JobUpdateWithoutOutsourceRepairsInput>, JobUncheckedUpdateWithoutOutsourceRepairsInput>
   }
 
   export type BigIntFieldUpdateOperationsInput = {
@@ -91439,10 +97027,15 @@ export namespace Prisma {
     courierCompany?: string | null
     trackingNumber?: string | null
     trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
+    repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutQuotationInput = {
@@ -91465,10 +97058,15 @@ export namespace Prisma {
     courierCompany?: string | null
     trackingNumber?: string | null
     trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutQuotationInput = {
@@ -91710,6 +97308,8 @@ export namespace Prisma {
     courierCompany?: StringNullableFilter<"Job"> | string | null
     trackingNumber?: StringNullableFilter<"Job"> | string | null
     trackingPhotoUrl?: StringNullableFilter<"Job"> | string | null
+    paymentMethod?: StringNullableFilter<"Job"> | string | null
+    paymentStatus?: StringNullableFilter<"Job"> | string | null
     createdAt?: DateTimeFilter<"Job"> | Date | string
     updatedAt?: DateTimeFilter<"Job"> | Date | string
   }
@@ -92813,6 +98413,35 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PaymentTaskCreateWithoutJobInput = {
+    id?: string
+    status?: string
+    assignedTo?: string | null
+    dueDate?: Date | string | null
+    paidAmount?: number | null
+    paidDate?: Date | string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentTaskUncheckedCreateWithoutJobInput = {
+    id?: string
+    status?: string
+    assignedTo?: string | null
+    dueDate?: Date | string | null
+    paidAmount?: number | null
+    paidDate?: Date | string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentTaskCreateOrConnectWithoutJobInput = {
+    where: PaymentTaskWhereUniqueInput
+    create: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
+  }
+
   export type QuotationCreateWithoutJobsInput = {
     id?: string
     status?: string
@@ -92890,6 +98519,130 @@ export namespace Prisma {
   export type QuotationCreateOrConnectWithoutJobsInput = {
     where: QuotationWhereUniqueInput
     create: XOR<QuotationCreateWithoutJobsInput, QuotationUncheckedCreateWithoutJobsInput>
+  }
+
+  export type RepairDeliveryCreateWithoutJobInput = {
+    id?: string
+    deliveryNumber: string
+    deliveryDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    workInspect?: boolean
+    workInstall?: boolean
+    workRepair?: boolean
+    workTraining?: boolean
+    workOther?: string | null
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RepairDeliveryUncheckedCreateWithoutJobInput = {
+    id?: string
+    deliveryNumber: string
+    deliveryDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    workInspect?: boolean
+    workInstall?: boolean
+    workRepair?: boolean
+    workTraining?: boolean
+    workOther?: string | null
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RepairDeliveryCreateOrConnectWithoutJobInput = {
+    where: RepairDeliveryWhereUniqueInput
+    create: XOR<RepairDeliveryCreateWithoutJobInput, RepairDeliveryUncheckedCreateWithoutJobInput>
+  }
+
+  export type RepairDeliveryCreateManyJobInputEnvelope = {
+    data: RepairDeliveryCreateManyJobInput | RepairDeliveryCreateManyJobInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OutsourceRepairCreateWithoutJobInput = {
+    id?: string
+    outsourceNumber?: string | null
+    vendorName?: string | null
+    vendorPhone?: string | null
+    vendorAddress?: string | null
+    customerName?: string | null
+    customerPhone?: string | null
+    customerAddress?: string | null
+    sentDate?: Date | string | null
+    expectedReturnDate?: Date | string | null
+    items: JsonNullValueInput | InputJsonValue
+    symptoms?: string | null
+    settings?: string | null
+    remark?: string | null
+    sender?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OutsourceRepairUncheckedCreateWithoutJobInput = {
+    id?: string
+    outsourceNumber?: string | null
+    vendorName?: string | null
+    vendorPhone?: string | null
+    vendorAddress?: string | null
+    customerName?: string | null
+    customerPhone?: string | null
+    customerAddress?: string | null
+    sentDate?: Date | string | null
+    expectedReturnDate?: Date | string | null
+    items: JsonNullValueInput | InputJsonValue
+    symptoms?: string | null
+    settings?: string | null
+    remark?: string | null
+    sender?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OutsourceRepairCreateOrConnectWithoutJobInput = {
+    where: OutsourceRepairWhereUniqueInput
+    create: XOR<OutsourceRepairCreateWithoutJobInput, OutsourceRepairUncheckedCreateWithoutJobInput>
+  }
+
+  export type OutsourceRepairCreateManyJobInputEnvelope = {
+    data: OutsourceRepairCreateManyJobInput | OutsourceRepairCreateManyJobInput[]
+    skipDuplicates?: boolean
   }
 
   export type RepairOrderUpsertWithoutJobInput = {
@@ -92984,6 +98737,41 @@ export namespace Prisma {
     completedAt?: DateTimeFilter<"JobStepLog"> | Date | string
   }
 
+  export type PaymentTaskUpsertWithoutJobInput = {
+    update: XOR<PaymentTaskUpdateWithoutJobInput, PaymentTaskUncheckedUpdateWithoutJobInput>
+    create: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
+    where?: PaymentTaskWhereInput
+  }
+
+  export type PaymentTaskUpdateToOneWithWhereWithoutJobInput = {
+    where?: PaymentTaskWhereInput
+    data: XOR<PaymentTaskUpdateWithoutJobInput, PaymentTaskUncheckedUpdateWithoutJobInput>
+  }
+
+  export type PaymentTaskUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentTaskUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type QuotationUpsertWithoutJobsInput = {
     update: XOR<QuotationUpdateWithoutJobsInput, QuotationUncheckedUpdateWithoutJobsInput>
     create: XOR<QuotationCreateWithoutJobsInput, QuotationUncheckedCreateWithoutJobsInput>
@@ -93069,6 +98857,238 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
+  export type RepairDeliveryUpsertWithWhereUniqueWithoutJobInput = {
+    where: RepairDeliveryWhereUniqueInput
+    update: XOR<RepairDeliveryUpdateWithoutJobInput, RepairDeliveryUncheckedUpdateWithoutJobInput>
+    create: XOR<RepairDeliveryCreateWithoutJobInput, RepairDeliveryUncheckedCreateWithoutJobInput>
+  }
+
+  export type RepairDeliveryUpdateWithWhereUniqueWithoutJobInput = {
+    where: RepairDeliveryWhereUniqueInput
+    data: XOR<RepairDeliveryUpdateWithoutJobInput, RepairDeliveryUncheckedUpdateWithoutJobInput>
+  }
+
+  export type RepairDeliveryUpdateManyWithWhereWithoutJobInput = {
+    where: RepairDeliveryScalarWhereInput
+    data: XOR<RepairDeliveryUpdateManyMutationInput, RepairDeliveryUncheckedUpdateManyWithoutJobInput>
+  }
+
+  export type RepairDeliveryScalarWhereInput = {
+    AND?: RepairDeliveryScalarWhereInput | RepairDeliveryScalarWhereInput[]
+    OR?: RepairDeliveryScalarWhereInput[]
+    NOT?: RepairDeliveryScalarWhereInput | RepairDeliveryScalarWhereInput[]
+    id?: StringFilter<"RepairDelivery"> | string
+    deliveryNumber?: StringFilter<"RepairDelivery"> | string
+    jobId?: StringNullableFilter<"RepairDelivery"> | string | null
+    deliveryDate?: DateTimeNullableFilter<"RepairDelivery"> | Date | string | null
+    company?: StringNullableFilter<"RepairDelivery"> | string | null
+    jobName?: StringNullableFilter<"RepairDelivery"> | string | null
+    customer?: StringNullableFilter<"RepairDelivery"> | string | null
+    customerPosition?: StringNullableFilter<"RepairDelivery"> | string | null
+    address?: StringNullableFilter<"RepairDelivery"> | string | null
+    siteAddress?: StringNullableFilter<"RepairDelivery"> | string | null
+    quotationNo?: StringNullableFilter<"RepairDelivery"> | string | null
+    sender?: StringNullableFilter<"RepairDelivery"> | string | null
+    senderPhone?: StringNullableFilter<"RepairDelivery"> | string | null
+    technician?: StringNullableFilter<"RepairDelivery"> | string | null
+    technicianPhone?: StringNullableFilter<"RepairDelivery"> | string | null
+    workInspect?: BoolFilter<"RepairDelivery"> | boolean
+    workInstall?: BoolFilter<"RepairDelivery"> | boolean
+    workRepair?: BoolFilter<"RepairDelivery"> | boolean
+    workTraining?: BoolFilter<"RepairDelivery"> | boolean
+    workOther?: StringNullableFilter<"RepairDelivery"> | string | null
+    note?: StringNullableFilter<"RepairDelivery"> | string | null
+    sigSenderUrl?: StringNullableFilter<"RepairDelivery"> | string | null
+    nameSender?: StringNullableFilter<"RepairDelivery"> | string | null
+    sigReceiverUrl?: StringNullableFilter<"RepairDelivery"> | string | null
+    nameReceiver?: StringNullableFilter<"RepairDelivery"> | string | null
+    status?: StringFilter<"RepairDelivery"> | string
+    pdfUrl?: StringNullableFilter<"RepairDelivery"> | string | null
+    createdAt?: DateTimeFilter<"RepairDelivery"> | Date | string
+    updatedAt?: DateTimeFilter<"RepairDelivery"> | Date | string
+  }
+
+  export type OutsourceRepairUpsertWithWhereUniqueWithoutJobInput = {
+    where: OutsourceRepairWhereUniqueInput
+    update: XOR<OutsourceRepairUpdateWithoutJobInput, OutsourceRepairUncheckedUpdateWithoutJobInput>
+    create: XOR<OutsourceRepairCreateWithoutJobInput, OutsourceRepairUncheckedCreateWithoutJobInput>
+  }
+
+  export type OutsourceRepairUpdateWithWhereUniqueWithoutJobInput = {
+    where: OutsourceRepairWhereUniqueInput
+    data: XOR<OutsourceRepairUpdateWithoutJobInput, OutsourceRepairUncheckedUpdateWithoutJobInput>
+  }
+
+  export type OutsourceRepairUpdateManyWithWhereWithoutJobInput = {
+    where: OutsourceRepairScalarWhereInput
+    data: XOR<OutsourceRepairUpdateManyMutationInput, OutsourceRepairUncheckedUpdateManyWithoutJobInput>
+  }
+
+  export type OutsourceRepairScalarWhereInput = {
+    AND?: OutsourceRepairScalarWhereInput | OutsourceRepairScalarWhereInput[]
+    OR?: OutsourceRepairScalarWhereInput[]
+    NOT?: OutsourceRepairScalarWhereInput | OutsourceRepairScalarWhereInput[]
+    id?: StringFilter<"OutsourceRepair"> | string
+    outsourceNumber?: StringNullableFilter<"OutsourceRepair"> | string | null
+    jobId?: StringNullableFilter<"OutsourceRepair"> | string | null
+    vendorName?: StringNullableFilter<"OutsourceRepair"> | string | null
+    vendorPhone?: StringNullableFilter<"OutsourceRepair"> | string | null
+    vendorAddress?: StringNullableFilter<"OutsourceRepair"> | string | null
+    customerName?: StringNullableFilter<"OutsourceRepair"> | string | null
+    customerPhone?: StringNullableFilter<"OutsourceRepair"> | string | null
+    customerAddress?: StringNullableFilter<"OutsourceRepair"> | string | null
+    sentDate?: DateTimeNullableFilter<"OutsourceRepair"> | Date | string | null
+    expectedReturnDate?: DateTimeNullableFilter<"OutsourceRepair"> | Date | string | null
+    items?: JsonFilter<"OutsourceRepair">
+    symptoms?: StringNullableFilter<"OutsourceRepair"> | string | null
+    settings?: StringNullableFilter<"OutsourceRepair"> | string | null
+    remark?: StringNullableFilter<"OutsourceRepair"> | string | null
+    sender?: StringNullableFilter<"OutsourceRepair"> | string | null
+    status?: StringFilter<"OutsourceRepair"> | string
+    createdAt?: DateTimeFilter<"OutsourceRepair"> | Date | string
+    updatedAt?: DateTimeFilter<"OutsourceRepair"> | Date | string
+  }
+
+  export type JobCreateWithoutPaymentTaskInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+    quotation?: QuotationCreateNestedOneWithoutJobsInput
+    repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateWithoutPaymentTaskInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    quotationId?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobCreateOrConnectWithoutPaymentTaskInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutPaymentTaskInput, JobUncheckedCreateWithoutPaymentTaskInput>
+  }
+
+  export type JobUpsertWithoutPaymentTaskInput = {
+    update: XOR<JobUpdateWithoutPaymentTaskInput, JobUncheckedUpdateWithoutPaymentTaskInput>
+    create: XOR<JobCreateWithoutPaymentTaskInput, JobUncheckedCreateWithoutPaymentTaskInput>
+    where?: JobWhereInput
+  }
+
+  export type JobUpdateToOneWithWhereWithoutPaymentTaskInput = {
+    where?: JobWhereInput
+    data: XOR<JobUpdateWithoutPaymentTaskInput, JobUncheckedUpdateWithoutPaymentTaskInput>
+  }
+
+  export type JobUpdateWithoutPaymentTaskInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+    quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutPaymentTaskInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+  }
+
   export type JobCreateWithoutStepLogsInput = {
     id?: string
     jobNumber: string
@@ -93089,10 +99109,15 @@ export namespace Prisma {
     courierCompany?: string | null
     trackingNumber?: string | null
     trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
+    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
+    repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutStepLogsInput = {
@@ -93116,9 +99141,14 @@ export namespace Prisma {
     courierCompany?: string | null
     trackingNumber?: string | null
     trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
+    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutStepLogsInput = {
@@ -93157,10 +99187,15 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
+    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutStepLogsInput = {
@@ -93184,9 +99219,14 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
+    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutRepairOrderInput = {
@@ -93209,10 +99249,15 @@ export namespace Prisma {
     courierCompany?: string | null
     trackingNumber?: string | null
     trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
+    repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutRepairOrderInput = {
@@ -93236,9 +99281,14 @@ export namespace Prisma {
     courierCompany?: string | null
     trackingNumber?: string | null
     trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutRepairOrderInput = {
@@ -93277,10 +99327,15 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutRepairOrderInput = {
@@ -93304,9 +99359,294 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobCreateWithoutRepairDeliveriesInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
+    quotation?: QuotationCreateNestedOneWithoutJobsInput
+    outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateWithoutRepairDeliveriesInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    quotationId?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobCreateOrConnectWithoutRepairDeliveriesInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutRepairDeliveriesInput, JobUncheckedCreateWithoutRepairDeliveriesInput>
+  }
+
+  export type JobUpsertWithoutRepairDeliveriesInput = {
+    update: XOR<JobUpdateWithoutRepairDeliveriesInput, JobUncheckedUpdateWithoutRepairDeliveriesInput>
+    create: XOR<JobCreateWithoutRepairDeliveriesInput, JobUncheckedCreateWithoutRepairDeliveriesInput>
+    where?: JobWhereInput
+  }
+
+  export type JobUpdateToOneWithWhereWithoutRepairDeliveriesInput = {
+    where?: JobWhereInput
+    data: XOR<JobUpdateWithoutRepairDeliveriesInput, JobUncheckedUpdateWithoutRepairDeliveriesInput>
+  }
+
+  export type JobUpdateWithoutRepairDeliveriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
+    quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutRepairDeliveriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobCreateWithoutOutsourceRepairsInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
+    quotation?: QuotationCreateNestedOneWithoutJobsInput
+    repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateWithoutOutsourceRepairsInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    quotationId?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobCreateOrConnectWithoutOutsourceRepairsInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutOutsourceRepairsInput, JobUncheckedCreateWithoutOutsourceRepairsInput>
+  }
+
+  export type JobUpsertWithoutOutsourceRepairsInput = {
+    update: XOR<JobUpdateWithoutOutsourceRepairsInput, JobUncheckedUpdateWithoutOutsourceRepairsInput>
+    create: XOR<JobCreateWithoutOutsourceRepairsInput, JobUncheckedCreateWithoutOutsourceRepairsInput>
+    where?: JobWhereInput
+  }
+
+  export type JobUpdateToOneWithWhereWithoutOutsourceRepairsInput = {
+    where?: JobWhereInput
+    data: XOR<JobUpdateWithoutOutsourceRepairsInput, JobUncheckedUpdateWithoutOutsourceRepairsInput>
+  }
+
+  export type JobUpdateWithoutOutsourceRepairsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
+    quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutOutsourceRepairsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type sessionsCreateWithoutAdminsInput = {
@@ -103907,6 +110247,8 @@ export namespace Prisma {
     courierCompany?: string | null
     trackingNumber?: string | null
     trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -103972,10 +110314,15 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutQuotationInput = {
@@ -103998,10 +110345,15 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateManyWithoutQuotationInput = {
@@ -104024,6 +110376,8 @@ export namespace Prisma {
     courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
     trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -104069,6 +110423,58 @@ export namespace Prisma {
     completedAt?: Date | string
   }
 
+  export type RepairDeliveryCreateManyJobInput = {
+    id?: string
+    deliveryNumber: string
+    deliveryDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    workInspect?: boolean
+    workInstall?: boolean
+    workRepair?: boolean
+    workTraining?: boolean
+    workOther?: string | null
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OutsourceRepairCreateManyJobInput = {
+    id?: string
+    outsourceNumber?: string | null
+    vendorName?: string | null
+    vendorPhone?: string | null
+    vendorAddress?: string | null
+    customerName?: string | null
+    customerPhone?: string | null
+    customerAddress?: string | null
+    sentDate?: Date | string | null
+    expectedReturnDate?: Date | string | null
+    items: JsonNullValueInput | InputJsonValue
+    symptoms?: string | null
+    settings?: string | null
+    remark?: string | null
+    sender?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type JobStepLogUpdateWithoutJobInput = {
     id?: StringFieldUpdateOperationsInput | string
     step?: StringFieldUpdateOperationsInput | string
@@ -104094,6 +110500,162 @@ export namespace Prisma {
     department?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RepairDeliveryUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryNumber?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workOther?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RepairDeliveryUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryNumber?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workOther?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RepairDeliveryUncheckedUpdateManyWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryNumber?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workOther?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OutsourceRepairUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    outsourceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorName?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedReturnDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    items?: JsonNullValueInput | InputJsonValue
+    symptoms?: NullableStringFieldUpdateOperationsInput | string | null
+    settings?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OutsourceRepairUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    outsourceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorName?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedReturnDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    items?: JsonNullValueInput | InputJsonValue
+    symptoms?: NullableStringFieldUpdateOperationsInput | string | null
+    settings?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OutsourceRepairUncheckedUpdateManyWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    outsourceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorName?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    vendorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedReturnDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    items?: JsonNullValueInput | InputJsonValue
+    symptoms?: NullableStringFieldUpdateOperationsInput | string | null
+    settings?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type sessionsCreateManyAdminsInput = {
