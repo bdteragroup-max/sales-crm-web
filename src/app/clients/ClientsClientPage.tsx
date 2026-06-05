@@ -244,7 +244,7 @@ export default function ClientsClientPage({
     if (window.confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบบริษัท/ลูกค้า "${company.companyName}" ?\nข้อมูลที่เกี่ยวข้องอาจถูกลบไปด้วย`)) {
       const res = await deleteCompany(company.id);
       if (res.success) {
-        setCompanies(prev => prev.filter(c => c.id !== company.id));
+        router.refresh();
         showAlert('ลบข้อมูลบริษัทเรียบร้อยแล้ว');
       } else {
         showAlert(res.message || 'ไม่สามารถลบข้อมูลบริษัทได้');
@@ -908,7 +908,7 @@ export default function ClientsClientPage({
                               <p className="text-sm font-semibold text-gray-800 truncate">{contact.contactName.trim()}</p>
                               <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500 mt-0.5">
                                 {contact.position && <span className="text-gray-400 font-medium">{contact.position}</span>}
-                                {contact.mobilePhone && contact.mobilePhone.split(/[,/]/).map((phone, idx) => {
+                                {contact.mobilePhone && contact.mobilePhone.split(/[,/]/).map((phone: string, idx: number) => {
                                   const cleanPhone = phone.trim();
                                   if (!cleanPhone) return null;
                                   return (
@@ -1526,7 +1526,7 @@ export default function ClientsClientPage({
             }} className="p-8 space-y-5">
               <div className="space-y-2">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สังกัดบริษัท *</label>
-                <select required name="companyId" defaultValue={defaultCompanyIdForNewContact} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
+                <select required name="companyId" defaultValue={defaultCompanyIdForNewContact || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
                   <option value="">-- เลือกบริษัท --</option>
                   {allCompanies.map(comp => (
                     <option key={comp.id} value={comp.id}>{comp.companyName}</option>
