@@ -32,6 +32,11 @@ type Job = {
   sellerName: string | null;
   currentStep: string;
   flowVariant: string | null;
+  deliveryMethod?: string | null;
+  deliveryDate?: Date | string | null;
+  courierCompany?: string | null;
+  trackingNumber?: string | null;
+  trackingPhotoUrl?: string | null;
   stepLogs: StepLog[];
 };
 
@@ -148,6 +153,7 @@ function ExpandedRow({
   isManager,
   userName,
   userDept,
+  userRole,
 }: { 
   job: Job; 
   onUpdate: (id: string, data: UpdateJobPayload) => void; 
@@ -155,6 +161,7 @@ function ExpandedRow({
   isManager: boolean;
   userName: string;
   userDept: string;
+  userRole: string;
 }) { 
   const save = (field: keyof UpdateJobPayload) => (value: string) => 
     onUpdate(job.id, { [field]: value }); 
@@ -172,11 +179,50 @@ function ExpandedRow({
             stepLogs={job.stepLogs}
             userName={userName}
             userDept={userDept}
+            userRole={userRole}
             isManager={isManager}
             jobNumber={job.jobNumber}
             customerName={job.customerName}
             sellerName={job.sellerName || undefined}
           />
+
+          {job.deliveryMethod && (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <p className="text-[10px] text-gray-400 mb-2 font-medium uppercase tracking-wide">ข้อมูลการจัดส่ง</p>
+              <div className="flex flex-wrap gap-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <div>
+                  <p className="text-[10px] text-gray-400 font-medium">รูปแบบ</p>
+                  <p className="text-xs font-bold text-gray-700">{job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' : 'บริษัทขนส่ง (Courier)'}</p>
+                </div>
+                {job.deliveryMethod === 'in-house' && job.deliveryDate && (
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">วันที่จัดส่ง</p>
+                    <p className="text-xs font-bold text-gray-700">{formatDate(job.deliveryDate)}</p>
+                  </div>
+                )}
+                {job.deliveryMethod === 'courier' && (
+                  <>
+                    <div>
+                      <p className="text-[10px] text-gray-400 font-medium">บริษัทขนส่ง</p>
+                      <p className="text-xs font-bold text-brand-red">{job.courierCompany}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400 font-medium">เลขพัสดุ</p>
+                      <p className="text-xs font-bold text-gray-700">{job.trackingNumber}</p>
+                    </div>
+                  </>
+                )}
+                {job.trackingPhotoUrl && (
+                  <div className="w-full mt-2">
+                    <p className="text-[10px] text-gray-400 font-medium mb-2">สลิป/ใบเสร็จ</p>
+                    <a href={job.trackingPhotoUrl} target="_blank" rel="noreferrer" className="inline-block border border-gray-200 rounded-lg overflow-hidden hover:border-brand-red transition-colors shadow-sm">
+                      <img src={job.trackingPhotoUrl} alt="Tracking slip" className="h-32 object-contain bg-gray-50" />
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           
           {isManager && (
             <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
@@ -230,12 +276,14 @@ export default function JobsClientPage({
   isManager, 
   currentUser,
   userDept,
+  userRole,
   actionParam,
 }: { 
   jobs: Job[]; 
   isManager: boolean; 
   currentUser: string;
   userDept: string;
+  userRole: string;
   actionParam?: string;
 }) { 
   const router = useRouter();
@@ -261,19 +309,34 @@ export default function JobsClientPage({
   const [isPending, startTransition] = useTransition(); 
 
   const normalizedDept = useMemo(() => {
+    const roleLower = String(userRole || "").toLowerCase().trim()
     const d = userDept.toLowerCase().trim()
     const depts: string[] = []
-    if (d.includes('sale') || d.includes('ขาย') || d.includes('marketing') || d.includes('business development') || d.includes('การตลาด')) depts.push("sales")
-    if (d.includes('account') || d.includes('finance') || d.includes('บัญชี') || d.includes('การเงิน') || d.includes('ap ') || d.includes('ar ')) depts.push("accounting")
-    if (d.includes('store') || d.includes('warehouse') || d.includes('สโตร์') || d.includes('คลัง')) depts.push("store")
-    if (d.includes('service') || d.includes('บริการ') || d.includes('ซ่อม')) depts.push("service")
-    if (d.includes('purchase') || d.includes('จัดซื้อ')) depts.push("purchase")
-    if (d.includes('delivery') || d.includes('transport') || d.includes('จัดส่ง') || d.includes('ขนส่ง') || d.includes('driver') || d.includes('คนขับ')) depts.push("delivery")
-    if (d.includes('production') || d.includes('ผลิต')) depts.push("production")
+    
+    const isSales = roleLower.includes('sale') || roleLower.includes('ขาย') || roleLower.includes('เซล') || roleLower.includes('marketing') || d.includes('sale') || d.includes('ขาย') || d.includes('เซล') || d.includes('marketing')
+    const isAccounting = roleLower.includes('account') || roleLower.includes('บัญชี') || roleLower.includes('finance') || d.includes('account') || d.includes('บัญชี') || d.includes('finance')
+    const isService = roleLower.includes('service') || roleLower.includes('ซ่อม') || roleLower.includes('บริการ') || d.includes('service') || d.includes('ซ่อม') || d.includes('บริการ')
+    const isPurchase = roleLower.includes('purchase') || roleLower.includes('จัดซื้อ') || d.includes('purchase') || d.includes('จัดซื้อ')
+    const isProduction = roleLower.includes('production') || roleLower.includes('ผลิต') || d.includes('production') || d.includes('ผลิต')
+    
+    const isDeliveryRole = roleLower.includes('delivery') || roleLower.includes('transport') || roleLower.includes('จัดส่ง') || roleLower.includes('ขนส่ง') || roleLower.includes('driver') || roleLower.includes('คนขับ')
+    const isStoreRole = roleLower.includes('store') || roleLower.includes('warehouse') || roleLower.includes('สโตร์') || roleLower.includes('คลัง')
+    
+    if (isDeliveryRole) {
+      depts.push("delivery")
+    } else if (isStoreRole || d.includes('store') || d.includes('สโตร์') || d.includes('คลัง')) {
+      depts.push("store")
+    }
+    
+    if (isSales) depts.push("sales")
+    if (isAccounting) depts.push("accounting")
+    if (isService) depts.push("service")
+    if (isPurchase) depts.push("purchase")
+    if (isProduction) depts.push("production")
     
     if (depts.length === 0) depts.push(d)
     return depts
-  }, [userDept])
+  }, [userDept, userRole])
 
   const [filterStatus, setFilterStatus] = useState<"all" | "pending">(
     normalizedDept.includes("sales") ? "all" : "pending"
@@ -605,6 +668,7 @@ export default function JobsClientPage({
                       isManager={isManager}
                       userName={currentUser}
                       userDept={userDept}
+                      userRole={userRole}
                     />
                   )}
                 </React.Fragment>

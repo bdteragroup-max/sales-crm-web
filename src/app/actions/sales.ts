@@ -275,11 +275,11 @@ export async function saveSalesData(formData: FormData) {
 
     let finalBillingDate = parseDate(billingDateRaw);
     if (status === 'เปิดบิลแล้ว' && !finalBillingDate) {
-      finalBillingDate = new Date();
+      return { success: false, error: "กรุณาระบุวันเปิดบิลขาย (Please enter Billing Date)" };
     }
     let finalPoDate = parseDate(poDateRaw);
     if (status?.startsWith('PO') && !finalPoDate) {
-      finalPoDate = new Date();
+      return { success: false, error: "กรุณาระบุวันเปิด P/O (Please enter PO Date)" };
     }
 
     const newQuotation = await prisma.quotation.create({
@@ -512,11 +512,11 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
 
     let finalBillingDate = parseDate(billingDateRaw);
     if (status === 'เปิดบิลแล้ว' && !finalBillingDate) {
-      finalBillingDate = new Date();
+      return { success: false, error: "กรุณาระบุวันเปิดบิลขาย (Please enter Billing Date)" };
     }
     let finalPoDate = parseDate(poDateRaw);
     if (status?.startsWith('PO') && !finalPoDate) {
-      finalPoDate = new Date();
+      return { success: false, error: "กรุณาระบุวันเปิด P/O (Please enter PO Date)" };
     }
 
     const updatedQuotation = await prisma.quotation.update({

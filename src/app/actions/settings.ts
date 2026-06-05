@@ -16,7 +16,7 @@ export async function upsertMonthlyTarget(data: {
     return { success: false, error: 'Unauthorized.' }
   }
 
-  const isManager = user.role === 'ผู้จัดการ'
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager'
 
   try {
     if (isManager) {
@@ -83,7 +83,7 @@ export async function getMonthlyTargets(month: number, year: number) {
   const user = await getUser()
   if (!user) return []
 
-  const isManager = user.role === 'ผู้จัดการ'
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager'
 
   let targetUserIds: string[] = [user.id];
 
@@ -130,7 +130,7 @@ export async function upsertTelesalesKPI(data: {
     return { success: false, error: 'Unauthorized.' }
   }
 
-  const isManager = user.role === 'ผู้จัดการ'
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager'
 
   try {
     if (isManager) {
@@ -203,7 +203,7 @@ export async function getTelesalesKPIs(month: number, year: number) {
   const user = await getUser()
   if (!user) return []
 
-  const isManager = user.role === 'ผู้จัดการ'
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager'
 
   let targetUserIds: string[] = [user.id];
 

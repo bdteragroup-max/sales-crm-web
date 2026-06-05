@@ -22,7 +22,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
   if (!user) redirect('/login');
 
   const isMarketingManager = (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
-  const isManager = user.role === 'ผู้จัดการ' || isMarketingManager;
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager' || isMarketingManager;
 
   let teamMembers: { id: string; fullName: string }[] = [];
   if (isManager) {

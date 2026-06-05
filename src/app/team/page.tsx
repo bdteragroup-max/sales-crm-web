@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic';
 
 export default async function TeamPage() {
   const user = await getUser();
-  if (!user || user.role !== 'ผู้จัดการ') {
+  
+  if (!user || (user.role !== 'ผู้จัดการ' && (user.role || '').toLowerCase() !== 'sales manager' && (user.role || '').toLowerCase() !== 'marketing manager' && (user.role || '').toLowerCase() !== 'ผู้จัดการฝ่ายการตลาด' && (user.role || '').toLowerCase() !== 'ผู้จัดการการตลาด' && (user.role || '').toLowerCase() !== 'ผู้การจัดการตลาด')) {
     redirect('/dashboard');
   }
 

@@ -23,7 +23,7 @@ export default async function SchedulePage() {
   }
 
   let staffPromise;
-  if (user.role === 'ผู้จัดการ') {
+  if (user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager') {
     staffPromise = async () => {
       let subEmpIds: string[] = [];
       try {

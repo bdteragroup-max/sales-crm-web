@@ -29,7 +29,7 @@ export default async function PipelinePage({
   }
 
   const isMarketingManager = (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
-  const isManager = user.role === 'ผู้จัดการ' || isMarketingManager;
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager' || isMarketingManager;
 
   let teamMembers: { id: string; fullName: string }[] = []
   if (isManager) {
@@ -91,9 +91,10 @@ export default async function PipelinePage({
     from = new Date(now.getFullYear(), now.getMonth() - 3, 1)
     to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
   } else if (preset === 'custom' && dateFromParam && dateToParam) {
-    from = new Date(dateFromParam)
-    to = new Date(dateToParam)
-    to.setHours(23, 59, 59, 999) // include end of day
+    const [fromYear, fromMonth, fromDay] = dateFromParam.split('-').map(Number)
+    const [toYear, toMonth, toDay] = dateToParam.split('-').map(Number)
+    from = new Date(fromYear, fromMonth - 1, fromDay)
+    to = new Date(toYear, toMonth - 1, toDay, 23, 59, 59, 999)
   }
 
   const dateFilter = from && to ? {
@@ -101,6 +102,8 @@ export default async function PipelinePage({
   } : {}
 
   const finalWhereClause = { ...whereClause, ...dateFilter }
+
+  console.log("PIPELINE PAGE FILTER:", JSON.stringify(finalWhereClause, null, 2))
 
   const quotations = await prisma.quotation.findMany({
     where: finalWhereClause,

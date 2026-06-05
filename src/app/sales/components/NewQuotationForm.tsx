@@ -215,8 +215,9 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           remarks: '',
         });
       } else {
+        const d = initialData.billingDate || initialData.poDate || initialData.quotationDate || initialData.updatedAt || new Date();
         setFormData({
-          updatedDate: formatDateForInput(new Date()),
+          updatedDate: formatDateForInput(d),
           requirementNumber: initialData.requirementNumber || '',
           requirementDate: formatDateForInput(initialData.requirementDate),
           quotationNumber: initialData.quotationNumber || '',
@@ -358,7 +359,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
         <div className="space-y-6">
           <Card title="ข้อมูลเอกสาร">
             <div className="space-y-4">
-              <InputField name="updatedDate" label="วันที่อัพเดท :" type="date" required value={formData.updatedDate || ''} onChange={handleInputChange} />
+              <InputField name="updatedDate" label="วันที่อ้างอิง (Reference Date) :" type="date" required value={formData.updatedDate || ''} readOnly />
               <InputField name="requirementNumber" label="เลขที่ใบความต้องการลูกค้า :" type="text" readOnly value={formData.requirementNumber || ''} />
               <InputField name="requirementDate" label="วันที่เอกสารใบความต้องการ :" type="date" value={formData.requirementDate || ''} onChange={handleInputChange} />
               <div className="flex items-center gap-4">
@@ -492,9 +493,9 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           <Card title="การปิดงาน / บิล">
             <div className="space-y-4">
               <InputField name="actualClosingAmount" label="ยอดปิดงานจริง (ก่อน VAT) :" type="number" rightAlign value={formData.actualClosingAmount || ''} onChange={handleInputChange} />
-              <InputField name="poDate" label="วันเปิด P/O :" type="date" value={formData.poDate || ''} onChange={handleInputChange} />
+              <InputField name="poDate" label="วันเปิด P/O :" type="date" value={formData.poDate || ''} onChange={handleInputChange} required={status?.startsWith('PO')} />
               <InputField name="poNumber" label="เลขที่ P/O (Purchase Order) :" type="text" placeholder="กรอกเลขที่ใบสั่งซื้อ..." value={formData.poNumber || ''} onChange={handleInputChange} />
-              <InputField name="billingDate" label="วันเปิดบิลขาย :" type="date" value={formData.billingDate || ''} onChange={handleInputChange} />
+              <InputField name="billingDate" label="วันเปิดบิลขาย :" type="date" value={formData.billingDate || ''} onChange={handleInputChange} required={status === 'เปิดบิลแล้ว'} />
               <InputField name="invoiceNumber" label="หมายเลขใบแจ้งหนี้ :" type="text" value={formData.invoiceNumber || ''} onChange={handleInputChange} />
               {(status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) && (
                 <div className="pt-2">

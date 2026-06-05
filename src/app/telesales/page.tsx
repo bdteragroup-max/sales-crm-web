@@ -23,23 +23,29 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
 
   // Base where clause based on role
   let roleWhere: any = { OR: [{ userId: user?.id }, { userId: null }] };
-  if (user?.role === 'ผู้จัดการ') {
+  let members: any[] = [];
+  const isManager = user?.role === 'ผู้จัดการ' || (user?.role || '').toLowerCase() === 'sales manager';
+  
+  if (isManager) {
+    // If manager, fetch team from TERA DB
     let subEmpIds: string[] = [];
-    try {
-      const subordinates = await teraDb.employees.findMany({
-        where: { supervisor_id: user.employeeId, is_active: true },
-        select: { emp_id: true }
-      });
-      subEmpIds = subordinates.map(s => s.emp_id);
-    } catch (err) {
-      console.warn("Failed to fetch subordinates from HR database:", err);
+    if (user && user.employeeId) {
+      try {
+        const subordinates = await teraDb.employees.findMany({
+          where: { supervisor_id: user.employeeId, is_active: true },
+          select: { emp_id: true }
+        });
+        subEmpIds = subordinates.map(s => s.emp_id);
+      } catch (err) {
+        console.warn("Failed to fetch subordinates from HR database:", err);
+      }
     }
 
     const teamUsers = await prisma.user.findMany({
       where: { 
         OR: [
           { employeeId: { in: subEmpIds } },
-          { employeeSale: { teamLeader: user.fullName } }
+          { employeeSale: { teamLeader: user?.fullName || '' } }
         ]
       },
       select: { id: true }
@@ -49,7 +55,7 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
     roleWhere = {
       OR: [
         { userId: { in: subUserIds } },
-        { userId: user.id },
+        { userId: user?.id || 'NO_USER' },
         { userId: null }
       ]
     };

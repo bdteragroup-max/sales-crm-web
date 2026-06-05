@@ -307,26 +307,31 @@ model OrderStatusLog {
 }
 
 model Job {
-  id              String       @id @default(cuid())
-  jobNumber       String       @unique
-  companyCode     String
-  jobType         String       @default("")
-  month           Int
-  yearBe          Int
-  dateClosed      DateTime     @db.Timestamptz(6)
-  customerName    String
-  item            String?
-  quotationNumber String?
-  poNumber        String?
-  sellerName      String?
-  quotationId     String?
-  currentStep     String       @default("sales") @map("current_step")
-  flowVariant     String?      @map("flow_variant")
-  createdAt       DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt       DateTime     @updatedAt @db.Timestamptz(6)
-  repairOrder     RepairOrder?
-  stepLogs        JobStepLog[]
-  quotation       Quotation?   @relation(fields: [quotationId], references: [id])
+  id               String       @id @default(cuid())
+  jobNumber        String       @unique
+  companyCode      String
+  jobType          String       @default("")
+  month            Int
+  yearBe           Int
+  dateClosed       DateTime     @db.Timestamptz(6)
+  customerName     String
+  item             String?
+  quotationNumber  String?
+  poNumber         String?
+  sellerName       String?
+  quotationId      String?
+  currentStep      String       @default("sales") @map("current_step")
+  flowVariant      String?      @map("flow_variant")
+  deliveryMethod   String?
+  deliveryDate     DateTime?    @db.Timestamptz(6)
+  courierCompany   String?
+  trackingNumber   String?
+  trackingPhotoUrl String?
+  createdAt        DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime     @updatedAt @db.Timestamptz(6)
+  repairOrder      RepairOrder?
+  stepLogs         JobStepLog[]
+  quotation        Quotation?   @relation(fields: [quotationId], references: [id])
 
   @@map("jobs")
 }
@@ -366,19 +371,19 @@ model RepairOrder {
   phoneNumber     String?
   workType        String?
   forwardedBy     String?
-  company         String?
-  customerCompany String?
-  customerAddress String?
-  salesPerson     String?
   items           Json
   symptoms        String?
   settings        String?
   checklist       Json
-  checklistImages Json?
   receivedDate    DateTime? @db.Timestamptz(6)
   sentDate        DateTime? @db.Timestamptz(6)
   createdAt       DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt       DateTime  @updatedAt @db.Timestamptz(6)
+  checklistImages Json?
+  company         String?
+  customerAddress String?
+  customerCompany String?
+  salesPerson     String?
   job             Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
 
@@ -626,10 +631,20 @@ model employees {
   secondary_supervisor_id                                              String?                  @db.VarChar(20)
   nickname                                                             String?                  @db.VarChar(50)
   email                                                                String?                  @db.VarChar(100)
+  general_allowance                                                    Decimal?                 @default(0) @db.Decimal(12, 2)
+  probation_accommodation_allowance                                    Boolean                  @default(false)
+  probation_meal_allowance                                             Boolean                  @default(false)
+  probation_travel_allowance                                           Boolean                  @default(false)
+  fixed_accommodation_allowance                                        Decimal?                 @default(0) @db.Decimal(12, 2)
+  fixed_meal_allowance                                                 Decimal?                 @default(0) @db.Decimal(12, 2)
+  fixed_travel_allowance                                               Decimal?                 @default(0) @db.Decimal(12, 2)
+  fixed_tax_deduction                                                  Decimal?                 @db.Decimal(10, 2)
   asset_borrowings                                                     asset_borrowings[]
   birthday_claims                                                      birthday_claims[]
   commission_claims                                                    commission_claims[]
   daily_work_plans                                                     daily_work_plans[]
+  employee_trainings_employee_trainings_assessor_idToemployees         employee_trainings[]     @relation("employee_trainings_assessor_idToemployees")
+  employee_trainings_employee_trainings_emp_idToemployees              employee_trainings[]     @relation("employee_trainings_emp_idToemployees")
   employee_warnings                                                    employee_warnings[]
   departments                                                          departments?             @relation(fields: [department_id], references: [id], onUpdate: NoAction)
   job_positions                                                        job_positions?           @relation(fields: [job_position_id], references: [id], onUpdate: NoAction)
@@ -850,6 +865,7 @@ model monthly_payroll_data {
   is_published                     Boolean   @default(false)
   insurance                        Decimal?  @default(0) @db.Decimal(10, 2)
   insurance_income                 Decimal?  @default(0) @db.Decimal(10, 2)
+  general_allowance_override       Decimal?  @db.Decimal(10, 2)
   employees                        employees @relation(fields: [emp_id], references: [emp_id], onDelete: Cascade)
 
   @@unique([emp_id, cycle_month, cycle_year], map: "idx_monthly_payroll_unique")
@@ -1011,6 +1027,7 @@ model room_bookings {
   status                 String                   @default("approved") @db.VarChar(20)
   created_at             DateTime                 @default(now()) @db.Timestamptz(6)
   minutes                String?
+  meeting_link           String?
   room_booking_attendees room_booking_attendees[]
   employees              employees                @relation(fields: [emp_id], references: [emp_id])
   meeting_rooms          meeting_rooms            @relation(fields: [room_id], references: [id])
@@ -1051,4 +1068,22 @@ model travel_claims {
   remark                    String?
   end_date                  DateTime? @db.Date
   employees                 employees @relation(fields: [emp_id], references: [emp_id], onDelete: Cascade)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model employee_trainings {
+  id                                                  Int        @id @default(autoincrement())
+  emp_id                                              String     @db.VarChar(20)
+  course_name                                         String     @db.VarChar(255)
+  institution_name                                    String?    @db.VarChar(255)
+  training_date_start                                 DateTime?  @db.Date
+  training_date_end                                   DateTime?  @db.Date
+  completion_percentage                               Decimal?   @db.Decimal(5, 2)
+  effectiveness_result                                String?
+  certificate_file_url                                String?
+  assessor_id                                         String?    @db.VarChar(20)
+  created_at                                          DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at                                          DateTime   @default(now()) @db.Timestamptz(6)
+  employees_employee_trainings_assessor_idToemployees employees? @relation("employee_trainings_assessor_idToemployees", fields: [assessor_id], references: [emp_id])
+  employees_employee_trainings_emp_idToemployees      employees  @relation("employee_trainings_emp_idToemployees", fields: [emp_id], references: [emp_id], onDelete: Cascade)
 }

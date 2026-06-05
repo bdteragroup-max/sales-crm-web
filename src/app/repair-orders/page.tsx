@@ -4,6 +4,8 @@ import { getUser } from "@/app/lib/dal";
 import prisma from "@/app/lib/db";
 import RepairOrdersClientPage from "./RepairOrdersClientPage";
 
+export const dynamic = "force-dynamic";
+
 export default async function RepairOrdersPage() {
   const session = await getUser();
   if (!session) {

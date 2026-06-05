@@ -166,7 +166,7 @@ export default function PipelineClientPage({
     if (updates.dTo !== undefined) setDateTo(newDTo)
 
     const params = new URLSearchParams()
-    if (newDf !== 'quotationDate') params.set('dateField', newDf)
+    if (newDf) params.set('dateField', newDf)
     if (newPr) params.set('preset', newPr)
     if (newPr === 'custom') {
       if (newDFrom) params.set('dateFrom', newDFrom)

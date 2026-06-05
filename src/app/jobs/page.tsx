@@ -88,6 +88,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
           isManager={isManager} 
           currentUser={user.fullName ?? ""}
           userDept={`${resolvedDept} ${user.role}`} 
+          userRole={user.role}
           actionParam={actionParam}
         />
       </main>

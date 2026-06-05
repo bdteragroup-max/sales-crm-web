@@ -4,6 +4,8 @@ import { Wrench, FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import { getUser } from "@/app/lib/dal";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewRepairOrderPage() {
   const currentUser = await getUser();
   const [users, companies] = await Promise.all([

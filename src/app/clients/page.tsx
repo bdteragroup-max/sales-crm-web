@@ -55,7 +55,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   const skip = (page - 1) * limit;
 
   let roleWhere: any = { OR: [{ assignedUserId: user?.id }, { assignedUserId: null }] };
-  if (user?.role === 'ผู้จัดการ' || (user?.role || '').toLowerCase() === 'marketing manager' || (user?.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user?.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user?.role || '').toLowerCase() === 'ผู้การจัดการตลาด') {
+  if (user?.role === 'ผู้จัดการ' || (user?.role || '').toLowerCase() === 'sales manager' || (user?.role || '').toLowerCase() === 'marketing manager' || (user?.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user?.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user?.role || '').toLowerCase() === 'ผู้การจัดการตลาด') {
     roleWhere = {}; // Managers can see all clients
   }
 
@@ -111,9 +111,9 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   let provinces: string[] = [];
   let allCompaniesMinimal: unknown[] = [];
 
-  let salesRepsWhere: any = { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ'] }, isActive: true };
-  if (user?.role === 'ผู้จัดการ') {
-    salesRepsWhere = { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ'] }, isActive: true };
+  let salesRepsWhere: any = { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'sales manager', 'Sales Manager'] }, isActive: true };
+  if (user?.role === 'ผู้จัดการ' || (user?.role || '').toLowerCase() === 'sales manager') {
+    salesRepsWhere = { role: { in: ['ตัวแทนฝ่ายขาย', 'ผู้จัดการ', 'sales manager', 'Sales Manager'] }, isActive: true };
   } else if (user?.role === 'ตัวแทนฝ่ายขาย') {
     salesRepsWhere = { id: user.id, isActive: true };
   }

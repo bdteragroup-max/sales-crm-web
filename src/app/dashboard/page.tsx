@@ -57,7 +57,7 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     filterEnd = bkkEndOfDay(`${year}-${pad(month)}-${pad(lastDay)}`);
   }
 
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager' || (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
   
   const thirtyDaysAgoFilter = new Date(filterEnd.getTime() - (30 * 24 * 60 * 60 * 1000));
   
@@ -166,18 +166,27 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     OR: [
       {
         status: 'เปิดบิลแล้ว',
-        billingDate: { gte: start, lte: end }
+        OR: [
+          { billingDate: { gte: start, lte: end } },
+          { billingDate: null, poDate: { gte: start, lte: end } },
+          { billingDate: null, poDate: null, quotationDate: { gte: start, lte: end } },
+          { billingDate: null, poDate: null, quotationDate: null, updatedAt: { gte: start, lte: end } }
+        ]
       },
       {
         status: { startsWith: 'PO' },
-        poDate: { gte: start, lte: end }
+        OR: [
+          { poDate: { gte: start, lte: end } },
+          { poDate: null, quotationDate: { gte: start, lte: end } },
+          { poDate: null, quotationDate: null, updatedAt: { gte: start, lte: end } }
+        ]
       },
       {
         status: { notIn: ['เปิดบิลแล้ว'] },
         NOT: { status: { startsWith: 'PO' } },
         OR: [
           { quotationDate: { gte: start, lte: end } },
-          { quotationDate: null, createdAt: { gte: start, lte: end } }
+          { quotationDate: null, updatedAt: { gte: start, lte: end } }
         ]
       }
     ]
@@ -208,7 +217,8 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     companyClosedQuotations,
     telesalesKPIsResult,
     ordersAgg,
-    jobsAgg
+    jobsAgg,
+    allActiveQuotations
   ] = await Promise.all([
     // 1. Grouped Quotation Metrics (Filtered Range)
     prisma.quotation.groupBy({
@@ -331,47 +341,11 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
       by: ['productType'],
       _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
       _count: { id: true },
-      where: { 
-        salespersonId: { in: filterIds }, 
-        OR: [
-          {
-            status: 'เปิดบิลแล้ว',
-            billingDate: { gte: filterStart, lte: filterEnd }
-          },
-          {
-            status: { startsWith: 'PO' },
-            poDate: { gte: filterStart, lte: filterEnd }
-          }
-        ],
-        company: province ? { province } : undefined
-      }
+      where: getQuotationWhereClause(filterStart, filterEnd)
     }),
     // 14. Detailed Analytical Data (supporting fallbacks for null billing/PO dates)
     prisma.quotation.findMany({
-      where: { 
-        salespersonId: { in: filterIds }, 
-        OR: [
-          {
-            status: 'เปิดบิลแล้ว',
-            billingDate: { gte: filterStart, lte: filterEnd }
-          },
-          {
-            status: { startsWith: 'PO' },
-            poDate: { gte: filterStart, lte: filterEnd }
-          },
-          {
-            status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
-            OR: [
-              { quotationDate: { gte: filterStart, lte: filterEnd } },
-              { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
-            ]
-          },
-          {
-            status: { notIn: ['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] }
-          }
-        ],
-        company: province ? { province } : undefined
-      },
+      where: getQuotationWhereClause(filterStart, filterEnd),
       include: { 
         company: true, 
         contact: true,
@@ -467,17 +441,26 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
         OR: [
           {
             status: 'เปิดบิลแล้ว',
-            billingDate: { gte: filterStart, lte: filterEnd }
+            OR: [
+              { billingDate: { gte: filterStart, lte: filterEnd } },
+              { billingDate: null, poDate: { gte: filterStart, lte: filterEnd } },
+              { billingDate: null, poDate: null, quotationDate: { gte: filterStart, lte: filterEnd } },
+              { billingDate: null, poDate: null, quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }
+            ]
           },
           {
             status: { startsWith: 'PO' },
-            poDate: { gte: filterStart, lte: filterEnd }
+            OR: [
+              { poDate: { gte: filterStart, lte: filterEnd } },
+              { poDate: null, quotationDate: { gte: filterStart, lte: filterEnd } },
+              { poDate: null, quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }
+            ]
           },
           {
             status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
             OR: [
               { quotationDate: { gte: filterStart, lte: filterEnd } },
-              { quotationDate: null, createdAt: { gte: filterStart, lte: filterEnd } }
+              { quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }
             ]
           }
         ],
@@ -527,6 +510,22 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
           { sellerName: null },
           { sellerName: "" }
         ]
+      }
+    }),
+    // 25. All Active Quotations (for Aging Deals, independent of date filter)
+    prisma.quotation.findMany({
+      where: {
+        salespersonId: { in: filterIds },
+        company: province ? { province } : undefined,
+        status: { in: ['เสนอราคา', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'] }
+      },
+      include: { 
+        company: true, 
+        salesperson: {
+          include: {
+            employeeSale: true
+          }
+        }
       }
     })
   ]);
@@ -724,9 +723,9 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   }
 
   const getQuotationDateHelper = (q: any) => {
-    if (q.status === 'เปิดบิลแล้ว') return q.billingDate || q.quotationDate || q.createdAt;
-    if (q.status?.startsWith('PO')) return q.poDate || q.quotationDate || q.createdAt;
-    return q.quotationDate || q.createdAt;
+    if (q.status === 'เปิดบิลแล้ว') return q.billingDate || q.poDate || q.quotationDate || q.updatedAt || q.createdAt;
+    if (q.status?.startsWith('PO')) return q.poDate || q.quotationDate || q.updatedAt || q.createdAt;
+    return q.quotationDate || q.updatedAt || q.createdAt;
   };
 
   const nowBkk = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
@@ -907,13 +906,13 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
   // Stale Pipeline / Aging Deals Identification (Two-Layer Dynamic Thresholds + 30-Day Absolute Hard Cap)
   const now = new Date();
-  const agingDeals = analyticalData.filter(q => 
-    ['เสนอราคา', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'].includes(q.status || '')
-  ).map(q => {
+  const agingDeals = allActiveQuotations.map(q => {
     const pType = q.productType || 'อื่นๆ';
     const pStats = productCycleTimes.find(pct => pct.productType === pType);
     
-    const daysStuck = getDiffDaysHelper(q.updatedAt, now) || 0;
+    // Calculate daysStuck based on poDate for PO statuses, otherwise quotationDate, avoiding updatedAt which resets on edit
+    const referenceDateForStuck = q.status?.startsWith('PO') ? (q.poDate || q.quotationDate || q.createdAt) : (q.quotationDate || q.createdAt);
+    const daysStuck = getDiffDaysHelper(referenceDateForStuck, now) || 0;
     const daysSinceBidding = q.quotationDate ? (getDiffDaysHelper(q.quotationDate, now) || 0) : (getDiffDaysHelper(q.createdAt, now) || 0);
     const isHardCapExceeded = daysSinceBidding > 30;
     

@@ -263,6 +263,11 @@ export type sessions = $Result.DefaultSelection<Prisma.$sessionsPayload>
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type travel_claims = $Result.DefaultSelection<Prisma.$travel_claimsPayload>
+/**
+ * Model employee_trainings
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type employee_trainings = $Result.DefaultSelection<Prisma.$employee_trainingsPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -884,6 +889,16 @@ export class PrismaClient<
     * ```
     */
   get travel_claims(): Prisma.travel_claimsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.employee_trainings`: Exposes CRUD operations for the **employee_trainings** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Employee_trainings
+    * const employee_trainings = await prisma.employee_trainings.findMany()
+    * ```
+    */
+  get employee_trainings(): Prisma.employee_trainingsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1367,7 +1382,8 @@ export namespace Prisma {
     room_booking_attendees: 'room_booking_attendees',
     room_bookings: 'room_bookings',
     sessions: 'sessions',
-    travel_claims: 'travel_claims'
+    travel_claims: 'travel_claims',
+    employee_trainings: 'employee_trainings'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1383,7 +1399,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5087,6 +5103,80 @@ export namespace Prisma {
           }
         }
       }
+      employee_trainings: {
+        payload: Prisma.$employee_trainingsPayload<ExtArgs>
+        fields: Prisma.employee_trainingsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.employee_trainingsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.employee_trainingsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload>
+          }
+          findFirst: {
+            args: Prisma.employee_trainingsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.employee_trainingsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload>
+          }
+          findMany: {
+            args: Prisma.employee_trainingsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload>[]
+          }
+          create: {
+            args: Prisma.employee_trainingsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload>
+          }
+          createMany: {
+            args: Prisma.employee_trainingsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.employee_trainingsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload>[]
+          }
+          delete: {
+            args: Prisma.employee_trainingsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload>
+          }
+          update: {
+            args: Prisma.employee_trainingsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload>
+          }
+          deleteMany: {
+            args: Prisma.employee_trainingsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.employee_trainingsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.employee_trainingsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload>[]
+          }
+          upsert: {
+            args: Prisma.employee_trainingsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employee_trainingsPayload>
+          }
+          aggregate: {
+            args: Prisma.Employee_trainingsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmployee_trainings>
+          }
+          groupBy: {
+            args: Prisma.employee_trainingsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Employee_trainingsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.employee_trainingsCountArgs<ExtArgs>
+            result: $Utils.Optional<Employee_trainingsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5245,6 +5335,7 @@ export namespace Prisma {
     room_bookings?: room_bookingsOmit
     sessions?: sessionsOmit
     travel_claims?: travel_claimsOmit
+    employee_trainings?: employee_trainingsOmit
   }
 
   /* Types for Logging */
@@ -5778,6 +5869,8 @@ export namespace Prisma {
     birthday_claims: number
     commission_claims: number
     daily_work_plans: number
+    employee_trainings_employee_trainings_assessor_idToemployees: number
+    employee_trainings_employee_trainings_emp_idToemployees: number
     employee_warnings: number
     other_employees_employees_secondary_supervisor_idToemployees: number
     other_employees_employees_supervisor_idToemployees: number
@@ -5800,6 +5893,8 @@ export namespace Prisma {
     birthday_claims?: boolean | EmployeesCountOutputTypeCountBirthday_claimsArgs
     commission_claims?: boolean | EmployeesCountOutputTypeCountCommission_claimsArgs
     daily_work_plans?: boolean | EmployeesCountOutputTypeCountDaily_work_plansArgs
+    employee_trainings_employee_trainings_assessor_idToemployees?: boolean | EmployeesCountOutputTypeCountEmployee_trainings_employee_trainings_assessor_idToemployeesArgs
+    employee_trainings_employee_trainings_emp_idToemployees?: boolean | EmployeesCountOutputTypeCountEmployee_trainings_employee_trainings_emp_idToemployeesArgs
     employee_warnings?: boolean | EmployeesCountOutputTypeCountEmployee_warningsArgs
     other_employees_employees_secondary_supervisor_idToemployees?: boolean | EmployeesCountOutputTypeCountOther_employees_employees_secondary_supervisor_idToemployeesArgs
     other_employees_employees_supervisor_idToemployees?: boolean | EmployeesCountOutputTypeCountOther_employees_employees_supervisor_idToemployeesArgs
@@ -5854,6 +5949,20 @@ export namespace Prisma {
    */
   export type EmployeesCountOutputTypeCountDaily_work_plansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: daily_work_plansWhereInput
+  }
+
+  /**
+   * EmployeesCountOutputType without action
+   */
+  export type EmployeesCountOutputTypeCountEmployee_trainings_employee_trainings_assessor_idToemployeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: employee_trainingsWhereInput
+  }
+
+  /**
+   * EmployeesCountOutputType without action
+   */
+  export type EmployeesCountOutputTypeCountEmployee_trainings_employee_trainings_emp_idToemployeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: employee_trainingsWhereInput
   }
 
   /**
@@ -23334,6 +23443,11 @@ export namespace Prisma {
     quotationId: string | null
     currentStep: string | null
     flowVariant: string | null
+    deliveryMethod: string | null
+    deliveryDate: Date | null
+    courierCompany: string | null
+    trackingNumber: string | null
+    trackingPhotoUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -23354,6 +23468,11 @@ export namespace Prisma {
     quotationId: string | null
     currentStep: string | null
     flowVariant: string | null
+    deliveryMethod: string | null
+    deliveryDate: Date | null
+    courierCompany: string | null
+    trackingNumber: string | null
+    trackingPhotoUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -23374,6 +23493,11 @@ export namespace Prisma {
     quotationId: number
     currentStep: number
     flowVariant: number
+    deliveryMethod: number
+    deliveryDate: number
+    courierCompany: number
+    trackingNumber: number
+    trackingPhotoUrl: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -23406,6 +23530,11 @@ export namespace Prisma {
     quotationId?: true
     currentStep?: true
     flowVariant?: true
+    deliveryMethod?: true
+    deliveryDate?: true
+    courierCompany?: true
+    trackingNumber?: true
+    trackingPhotoUrl?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -23426,6 +23555,11 @@ export namespace Prisma {
     quotationId?: true
     currentStep?: true
     flowVariant?: true
+    deliveryMethod?: true
+    deliveryDate?: true
+    courierCompany?: true
+    trackingNumber?: true
+    trackingPhotoUrl?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -23446,6 +23580,11 @@ export namespace Prisma {
     quotationId?: true
     currentStep?: true
     flowVariant?: true
+    deliveryMethod?: true
+    deliveryDate?: true
+    courierCompany?: true
+    trackingNumber?: true
+    trackingPhotoUrl?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -23553,6 +23692,11 @@ export namespace Prisma {
     quotationId: string | null
     currentStep: string
     flowVariant: string | null
+    deliveryMethod: string | null
+    deliveryDate: Date | null
+    courierCompany: string | null
+    trackingNumber: string | null
+    trackingPhotoUrl: string | null
     createdAt: Date
     updatedAt: Date
     _count: JobCountAggregateOutputType | null
@@ -23592,6 +23736,11 @@ export namespace Prisma {
     quotationId?: boolean
     currentStep?: boolean
     flowVariant?: boolean
+    deliveryMethod?: boolean
+    deliveryDate?: boolean
+    courierCompany?: boolean
+    trackingNumber?: boolean
+    trackingPhotoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     repairOrder?: boolean | Job$repairOrderArgs<ExtArgs>
@@ -23616,6 +23765,11 @@ export namespace Prisma {
     quotationId?: boolean
     currentStep?: boolean
     flowVariant?: boolean
+    deliveryMethod?: boolean
+    deliveryDate?: boolean
+    courierCompany?: boolean
+    trackingNumber?: boolean
+    trackingPhotoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     quotation?: boolean | Job$quotationArgs<ExtArgs>
@@ -23637,6 +23791,11 @@ export namespace Prisma {
     quotationId?: boolean
     currentStep?: boolean
     flowVariant?: boolean
+    deliveryMethod?: boolean
+    deliveryDate?: boolean
+    courierCompany?: boolean
+    trackingNumber?: boolean
+    trackingPhotoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     quotation?: boolean | Job$quotationArgs<ExtArgs>
@@ -23658,11 +23817,16 @@ export namespace Prisma {
     quotationId?: boolean
     currentStep?: boolean
     flowVariant?: boolean
+    deliveryMethod?: boolean
+    deliveryDate?: boolean
+    courierCompany?: boolean
+    trackingNumber?: boolean
+    trackingPhotoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobNumber" | "companyCode" | "jobType" | "month" | "yearBe" | "dateClosed" | "customerName" | "item" | "quotationNumber" | "poNumber" | "sellerName" | "quotationId" | "currentStep" | "flowVariant" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobNumber" | "companyCode" | "jobType" | "month" | "yearBe" | "dateClosed" | "customerName" | "item" | "quotationNumber" | "poNumber" | "sellerName" | "quotationId" | "currentStep" | "flowVariant" | "deliveryMethod" | "deliveryDate" | "courierCompany" | "trackingNumber" | "trackingPhotoUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
   export type JobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     repairOrder?: boolean | Job$repairOrderArgs<ExtArgs>
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
@@ -23699,6 +23863,11 @@ export namespace Prisma {
       quotationId: string | null
       currentStep: string
       flowVariant: string | null
+      deliveryMethod: string | null
+      deliveryDate: Date | null
+      courierCompany: string | null
+      trackingNumber: string | null
+      trackingPhotoUrl: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["job"]>
@@ -24142,6 +24311,11 @@ export namespace Prisma {
     readonly quotationId: FieldRef<"Job", 'String'>
     readonly currentStep: FieldRef<"Job", 'String'>
     readonly flowVariant: FieldRef<"Job", 'String'>
+    readonly deliveryMethod: FieldRef<"Job", 'String'>
+    readonly deliveryDate: FieldRef<"Job", 'DateTime'>
+    readonly courierCompany: FieldRef<"Job", 'String'>
+    readonly trackingNumber: FieldRef<"Job", 'String'>
+    readonly trackingPhotoUrl: FieldRef<"Job", 'String'>
     readonly createdAt: FieldRef<"Job", 'DateTime'>
     readonly updatedAt: FieldRef<"Job", 'DateTime'>
   }
@@ -26765,16 +26939,16 @@ export namespace Prisma {
     phoneNumber: string | null
     workType: string | null
     forwardedBy: string | null
-    company: string | null
-    customerCompany: string | null
-    customerAddress: string | null
-    salesPerson: string | null
     symptoms: string | null
     settings: string | null
     receivedDate: Date | null
     sentDate: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    company: string | null
+    customerAddress: string | null
+    customerCompany: string | null
+    salesPerson: string | null
   }
 
   export type RepairOrderMaxAggregateOutputType = {
@@ -26789,16 +26963,16 @@ export namespace Prisma {
     phoneNumber: string | null
     workType: string | null
     forwardedBy: string | null
-    company: string | null
-    customerCompany: string | null
-    customerAddress: string | null
-    salesPerson: string | null
     symptoms: string | null
     settings: string | null
     receivedDate: Date | null
     sentDate: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    company: string | null
+    customerAddress: string | null
+    customerCompany: string | null
+    salesPerson: string | null
   }
 
   export type RepairOrderCountAggregateOutputType = {
@@ -26813,19 +26987,19 @@ export namespace Prisma {
     phoneNumber: number
     workType: number
     forwardedBy: number
-    company: number
-    customerCompany: number
-    customerAddress: number
-    salesPerson: number
     items: number
     symptoms: number
     settings: number
     checklist: number
-    checklistImages: number
     receivedDate: number
     sentDate: number
     createdAt: number
     updatedAt: number
+    checklistImages: number
+    company: number
+    customerAddress: number
+    customerCompany: number
+    salesPerson: number
     _all: number
   }
 
@@ -26842,16 +27016,16 @@ export namespace Prisma {
     phoneNumber?: true
     workType?: true
     forwardedBy?: true
-    company?: true
-    customerCompany?: true
-    customerAddress?: true
-    salesPerson?: true
     symptoms?: true
     settings?: true
     receivedDate?: true
     sentDate?: true
     createdAt?: true
     updatedAt?: true
+    company?: true
+    customerAddress?: true
+    customerCompany?: true
+    salesPerson?: true
   }
 
   export type RepairOrderMaxAggregateInputType = {
@@ -26866,16 +27040,16 @@ export namespace Prisma {
     phoneNumber?: true
     workType?: true
     forwardedBy?: true
-    company?: true
-    customerCompany?: true
-    customerAddress?: true
-    salesPerson?: true
     symptoms?: true
     settings?: true
     receivedDate?: true
     sentDate?: true
     createdAt?: true
     updatedAt?: true
+    company?: true
+    customerAddress?: true
+    customerCompany?: true
+    salesPerson?: true
   }
 
   export type RepairOrderCountAggregateInputType = {
@@ -26890,19 +27064,19 @@ export namespace Prisma {
     phoneNumber?: true
     workType?: true
     forwardedBy?: true
-    company?: true
-    customerCompany?: true
-    customerAddress?: true
-    salesPerson?: true
     items?: true
     symptoms?: true
     settings?: true
     checklist?: true
-    checklistImages?: true
     receivedDate?: true
     sentDate?: true
     createdAt?: true
     updatedAt?: true
+    checklistImages?: true
+    company?: true
+    customerAddress?: true
+    customerCompany?: true
+    salesPerson?: true
     _all?: true
   }
 
@@ -26990,19 +27164,19 @@ export namespace Prisma {
     phoneNumber: string | null
     workType: string | null
     forwardedBy: string | null
-    company: string | null
-    customerCompany: string | null
-    customerAddress: string | null
-    salesPerson: string | null
     items: JsonValue
     symptoms: string | null
     settings: string | null
     checklist: JsonValue
-    checklistImages: JsonValue | null
     receivedDate: Date | null
     sentDate: Date | null
     createdAt: Date
     updatedAt: Date
+    checklistImages: JsonValue | null
+    company: string | null
+    customerAddress: string | null
+    customerCompany: string | null
+    salesPerson: string | null
     _count: RepairOrderCountAggregateOutputType | null
     _min: RepairOrderMinAggregateOutputType | null
     _max: RepairOrderMaxAggregateOutputType | null
@@ -27034,19 +27208,19 @@ export namespace Prisma {
     phoneNumber?: boolean
     workType?: boolean
     forwardedBy?: boolean
-    company?: boolean
-    customerCompany?: boolean
-    customerAddress?: boolean
-    salesPerson?: boolean
     items?: boolean
     symptoms?: boolean
     settings?: boolean
     checklist?: boolean
-    checklistImages?: boolean
     receivedDate?: boolean
     sentDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    checklistImages?: boolean
+    company?: boolean
+    customerAddress?: boolean
+    customerCompany?: boolean
+    salesPerson?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["repairOrder"]>
 
@@ -27062,19 +27236,19 @@ export namespace Prisma {
     phoneNumber?: boolean
     workType?: boolean
     forwardedBy?: boolean
-    company?: boolean
-    customerCompany?: boolean
-    customerAddress?: boolean
-    salesPerson?: boolean
     items?: boolean
     symptoms?: boolean
     settings?: boolean
     checklist?: boolean
-    checklistImages?: boolean
     receivedDate?: boolean
     sentDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    checklistImages?: boolean
+    company?: boolean
+    customerAddress?: boolean
+    customerCompany?: boolean
+    salesPerson?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["repairOrder"]>
 
@@ -27090,19 +27264,19 @@ export namespace Prisma {
     phoneNumber?: boolean
     workType?: boolean
     forwardedBy?: boolean
-    company?: boolean
-    customerCompany?: boolean
-    customerAddress?: boolean
-    salesPerson?: boolean
     items?: boolean
     symptoms?: boolean
     settings?: boolean
     checklist?: boolean
-    checklistImages?: boolean
     receivedDate?: boolean
     sentDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    checklistImages?: boolean
+    company?: boolean
+    customerAddress?: boolean
+    customerCompany?: boolean
+    salesPerson?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["repairOrder"]>
 
@@ -27118,22 +27292,22 @@ export namespace Prisma {
     phoneNumber?: boolean
     workType?: boolean
     forwardedBy?: boolean
-    company?: boolean
-    customerCompany?: boolean
-    customerAddress?: boolean
-    salesPerson?: boolean
     items?: boolean
     symptoms?: boolean
     settings?: boolean
     checklist?: boolean
-    checklistImages?: boolean
     receivedDate?: boolean
     sentDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    checklistImages?: boolean
+    company?: boolean
+    customerAddress?: boolean
+    customerCompany?: boolean
+    salesPerson?: boolean
   }
 
-  export type RepairOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "invoiceNo" | "deliveryMethod" | "deliveryNoteNo" | "receiverName" | "senderName" | "handoverRef" | "phoneNumber" | "workType" | "forwardedBy" | "company" | "customerCompany" | "customerAddress" | "salesPerson" | "items" | "symptoms" | "settings" | "checklist" | "checklistImages" | "receivedDate" | "sentDate" | "createdAt" | "updatedAt", ExtArgs["result"]["repairOrder"]>
+  export type RepairOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "invoiceNo" | "deliveryMethod" | "deliveryNoteNo" | "receiverName" | "senderName" | "handoverRef" | "phoneNumber" | "workType" | "forwardedBy" | "items" | "symptoms" | "settings" | "checklist" | "receivedDate" | "sentDate" | "createdAt" | "updatedAt" | "checklistImages" | "company" | "customerAddress" | "customerCompany" | "salesPerson", ExtArgs["result"]["repairOrder"]>
   export type RepairOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | JobDefaultArgs<ExtArgs>
   }
@@ -27161,19 +27335,19 @@ export namespace Prisma {
       phoneNumber: string | null
       workType: string | null
       forwardedBy: string | null
-      company: string | null
-      customerCompany: string | null
-      customerAddress: string | null
-      salesPerson: string | null
       items: Prisma.JsonValue
       symptoms: string | null
       settings: string | null
       checklist: Prisma.JsonValue
-      checklistImages: Prisma.JsonValue | null
       receivedDate: Date | null
       sentDate: Date | null
       createdAt: Date
       updatedAt: Date
+      checklistImages: Prisma.JsonValue | null
+      company: string | null
+      customerAddress: string | null
+      customerCompany: string | null
+      salesPerson: string | null
     }, ExtArgs["result"]["repairOrder"]>
     composites: {}
   }
@@ -27609,19 +27783,19 @@ export namespace Prisma {
     readonly phoneNumber: FieldRef<"RepairOrder", 'String'>
     readonly workType: FieldRef<"RepairOrder", 'String'>
     readonly forwardedBy: FieldRef<"RepairOrder", 'String'>
-    readonly company: FieldRef<"RepairOrder", 'String'>
-    readonly customerCompany: FieldRef<"RepairOrder", 'String'>
-    readonly customerAddress: FieldRef<"RepairOrder", 'String'>
-    readonly salesPerson: FieldRef<"RepairOrder", 'String'>
     readonly items: FieldRef<"RepairOrder", 'Json'>
     readonly symptoms: FieldRef<"RepairOrder", 'String'>
     readonly settings: FieldRef<"RepairOrder", 'String'>
     readonly checklist: FieldRef<"RepairOrder", 'Json'>
-    readonly checklistImages: FieldRef<"RepairOrder", 'Json'>
     readonly receivedDate: FieldRef<"RepairOrder", 'DateTime'>
     readonly sentDate: FieldRef<"RepairOrder", 'DateTime'>
     readonly createdAt: FieldRef<"RepairOrder", 'DateTime'>
     readonly updatedAt: FieldRef<"RepairOrder", 'DateTime'>
+    readonly checklistImages: FieldRef<"RepairOrder", 'Json'>
+    readonly company: FieldRef<"RepairOrder", 'String'>
+    readonly customerAddress: FieldRef<"RepairOrder", 'String'>
+    readonly customerCompany: FieldRef<"RepairOrder", 'String'>
+    readonly salesPerson: FieldRef<"RepairOrder", 'String'>
   }
     
 
@@ -42225,6 +42399,11 @@ export namespace Prisma {
     department_id: number | null
     job_position_id: number | null
     position_allowance: Decimal | null
+    general_allowance: Decimal | null
+    fixed_accommodation_allowance: Decimal | null
+    fixed_meal_allowance: Decimal | null
+    fixed_travel_allowance: Decimal | null
+    fixed_tax_deduction: Decimal | null
   }
 
   export type EmployeesSumAggregateOutputType = {
@@ -42232,6 +42411,11 @@ export namespace Prisma {
     department_id: number | null
     job_position_id: number | null
     position_allowance: Decimal | null
+    general_allowance: Decimal | null
+    fixed_accommodation_allowance: Decimal | null
+    fixed_meal_allowance: Decimal | null
+    fixed_travel_allowance: Decimal | null
+    fixed_tax_deduction: Decimal | null
   }
 
   export type EmployeesMinAggregateOutputType = {
@@ -42267,6 +42451,14 @@ export namespace Prisma {
     secondary_supervisor_id: string | null
     nickname: string | null
     email: string | null
+    general_allowance: Decimal | null
+    probation_accommodation_allowance: boolean | null
+    probation_meal_allowance: boolean | null
+    probation_travel_allowance: boolean | null
+    fixed_accommodation_allowance: Decimal | null
+    fixed_meal_allowance: Decimal | null
+    fixed_travel_allowance: Decimal | null
+    fixed_tax_deduction: Decimal | null
   }
 
   export type EmployeesMaxAggregateOutputType = {
@@ -42302,6 +42494,14 @@ export namespace Prisma {
     secondary_supervisor_id: string | null
     nickname: string | null
     email: string | null
+    general_allowance: Decimal | null
+    probation_accommodation_allowance: boolean | null
+    probation_meal_allowance: boolean | null
+    probation_travel_allowance: boolean | null
+    fixed_accommodation_allowance: Decimal | null
+    fixed_meal_allowance: Decimal | null
+    fixed_travel_allowance: Decimal | null
+    fixed_tax_deduction: Decimal | null
   }
 
   export type EmployeesCountAggregateOutputType = {
@@ -42337,6 +42537,14 @@ export namespace Prisma {
     secondary_supervisor_id: number
     nickname: number
     email: number
+    general_allowance: number
+    probation_accommodation_allowance: number
+    probation_meal_allowance: number
+    probation_travel_allowance: number
+    fixed_accommodation_allowance: number
+    fixed_meal_allowance: number
+    fixed_travel_allowance: number
+    fixed_tax_deduction: number
     _all: number
   }
 
@@ -42346,6 +42554,11 @@ export namespace Prisma {
     department_id?: true
     job_position_id?: true
     position_allowance?: true
+    general_allowance?: true
+    fixed_accommodation_allowance?: true
+    fixed_meal_allowance?: true
+    fixed_travel_allowance?: true
+    fixed_tax_deduction?: true
   }
 
   export type EmployeesSumAggregateInputType = {
@@ -42353,6 +42566,11 @@ export namespace Prisma {
     department_id?: true
     job_position_id?: true
     position_allowance?: true
+    general_allowance?: true
+    fixed_accommodation_allowance?: true
+    fixed_meal_allowance?: true
+    fixed_travel_allowance?: true
+    fixed_tax_deduction?: true
   }
 
   export type EmployeesMinAggregateInputType = {
@@ -42388,6 +42606,14 @@ export namespace Prisma {
     secondary_supervisor_id?: true
     nickname?: true
     email?: true
+    general_allowance?: true
+    probation_accommodation_allowance?: true
+    probation_meal_allowance?: true
+    probation_travel_allowance?: true
+    fixed_accommodation_allowance?: true
+    fixed_meal_allowance?: true
+    fixed_travel_allowance?: true
+    fixed_tax_deduction?: true
   }
 
   export type EmployeesMaxAggregateInputType = {
@@ -42423,6 +42649,14 @@ export namespace Prisma {
     secondary_supervisor_id?: true
     nickname?: true
     email?: true
+    general_allowance?: true
+    probation_accommodation_allowance?: true
+    probation_meal_allowance?: true
+    probation_travel_allowance?: true
+    fixed_accommodation_allowance?: true
+    fixed_meal_allowance?: true
+    fixed_travel_allowance?: true
+    fixed_tax_deduction?: true
   }
 
   export type EmployeesCountAggregateInputType = {
@@ -42458,6 +42692,14 @@ export namespace Prisma {
     secondary_supervisor_id?: true
     nickname?: true
     email?: true
+    general_allowance?: true
+    probation_accommodation_allowance?: true
+    probation_meal_allowance?: true
+    probation_travel_allowance?: true
+    fixed_accommodation_allowance?: true
+    fixed_meal_allowance?: true
+    fixed_travel_allowance?: true
+    fixed_tax_deduction?: true
     _all?: true
   }
 
@@ -42580,6 +42822,14 @@ export namespace Prisma {
     secondary_supervisor_id: string | null
     nickname: string | null
     email: string | null
+    general_allowance: Decimal | null
+    probation_accommodation_allowance: boolean
+    probation_meal_allowance: boolean
+    probation_travel_allowance: boolean
+    fixed_accommodation_allowance: Decimal | null
+    fixed_meal_allowance: Decimal | null
+    fixed_travel_allowance: Decimal | null
+    fixed_tax_deduction: Decimal | null
     _count: EmployeesCountAggregateOutputType | null
     _avg: EmployeesAvgAggregateOutputType | null
     _sum: EmployeesSumAggregateOutputType | null
@@ -42634,10 +42884,20 @@ export namespace Prisma {
     secondary_supervisor_id?: boolean
     nickname?: boolean
     email?: boolean
+    general_allowance?: boolean
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: boolean
+    fixed_meal_allowance?: boolean
+    fixed_travel_allowance?: boolean
+    fixed_tax_deduction?: boolean
     asset_borrowings?: boolean | employees$asset_borrowingsArgs<ExtArgs>
     birthday_claims?: boolean | employees$birthday_claimsArgs<ExtArgs>
     commission_claims?: boolean | employees$commission_claimsArgs<ExtArgs>
     daily_work_plans?: boolean | employees$daily_work_plansArgs<ExtArgs>
+    employee_trainings_employee_trainings_assessor_idToemployees?: boolean | employees$employee_trainings_employee_trainings_assessor_idToemployeesArgs<ExtArgs>
+    employee_trainings_employee_trainings_emp_idToemployees?: boolean | employees$employee_trainings_employee_trainings_emp_idToemployeesArgs<ExtArgs>
     employee_warnings?: boolean | employees$employee_warningsArgs<ExtArgs>
     departments?: boolean | employees$departmentsArgs<ExtArgs>
     job_positions?: boolean | employees$job_positionsArgs<ExtArgs>
@@ -42694,6 +42954,14 @@ export namespace Prisma {
     secondary_supervisor_id?: boolean
     nickname?: boolean
     email?: boolean
+    general_allowance?: boolean
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: boolean
+    fixed_meal_allowance?: boolean
+    fixed_travel_allowance?: boolean
+    fixed_tax_deduction?: boolean
     departments?: boolean | employees$departmentsArgs<ExtArgs>
     job_positions?: boolean | employees$job_positionsArgs<ExtArgs>
     employees_employees_secondary_supervisor_idToemployees?: boolean | employees$employees_employees_secondary_supervisor_idToemployeesArgs<ExtArgs>
@@ -42734,6 +43002,14 @@ export namespace Prisma {
     secondary_supervisor_id?: boolean
     nickname?: boolean
     email?: boolean
+    general_allowance?: boolean
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: boolean
+    fixed_meal_allowance?: boolean
+    fixed_travel_allowance?: boolean
+    fixed_tax_deduction?: boolean
     departments?: boolean | employees$departmentsArgs<ExtArgs>
     job_positions?: boolean | employees$job_positionsArgs<ExtArgs>
     employees_employees_secondary_supervisor_idToemployees?: boolean | employees$employees_employees_secondary_supervisor_idToemployeesArgs<ExtArgs>
@@ -42774,14 +43050,24 @@ export namespace Prisma {
     secondary_supervisor_id?: boolean
     nickname?: boolean
     email?: boolean
+    general_allowance?: boolean
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: boolean
+    fixed_meal_allowance?: boolean
+    fixed_travel_allowance?: boolean
+    fixed_tax_deduction?: boolean
   }
 
-  export type employeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"emp_id" | "name" | "branch_id" | "is_active" | "created_at" | "updated_at" | "pin_hash" | "gender" | "hire_date" | "birth_date" | "phone_number" | "base_salary" | "department_id" | "job_position_id" | "otp_code" | "otp_expires_at" | "supervisor_id" | "bank_account_no" | "bank_name" | "is_on_trial" | "has_telephone_allowance" | "position_allowance" | "address" | "national_id_card" | "salary_type" | "line_user_id" | "is_checkin_exempt" | "probation_end_date" | "resignation_date" | "secondary_supervisor_id" | "nickname" | "email", ExtArgs["result"]["employees"]>
+  export type employeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"emp_id" | "name" | "branch_id" | "is_active" | "created_at" | "updated_at" | "pin_hash" | "gender" | "hire_date" | "birth_date" | "phone_number" | "base_salary" | "department_id" | "job_position_id" | "otp_code" | "otp_expires_at" | "supervisor_id" | "bank_account_no" | "bank_name" | "is_on_trial" | "has_telephone_allowance" | "position_allowance" | "address" | "national_id_card" | "salary_type" | "line_user_id" | "is_checkin_exempt" | "probation_end_date" | "resignation_date" | "secondary_supervisor_id" | "nickname" | "email" | "general_allowance" | "probation_accommodation_allowance" | "probation_meal_allowance" | "probation_travel_allowance" | "fixed_accommodation_allowance" | "fixed_meal_allowance" | "fixed_travel_allowance" | "fixed_tax_deduction", ExtArgs["result"]["employees"]>
   export type employeesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     asset_borrowings?: boolean | employees$asset_borrowingsArgs<ExtArgs>
     birthday_claims?: boolean | employees$birthday_claimsArgs<ExtArgs>
     commission_claims?: boolean | employees$commission_claimsArgs<ExtArgs>
     daily_work_plans?: boolean | employees$daily_work_plansArgs<ExtArgs>
+    employee_trainings_employee_trainings_assessor_idToemployees?: boolean | employees$employee_trainings_employee_trainings_assessor_idToemployeesArgs<ExtArgs>
+    employee_trainings_employee_trainings_emp_idToemployees?: boolean | employees$employee_trainings_employee_trainings_emp_idToemployeesArgs<ExtArgs>
     employee_warnings?: boolean | employees$employee_warningsArgs<ExtArgs>
     departments?: boolean | employees$departmentsArgs<ExtArgs>
     job_positions?: boolean | employees$job_positionsArgs<ExtArgs>
@@ -42826,6 +43112,8 @@ export namespace Prisma {
       birthday_claims: Prisma.$birthday_claimsPayload<ExtArgs>[]
       commission_claims: Prisma.$commission_claimsPayload<ExtArgs>[]
       daily_work_plans: Prisma.$daily_work_plansPayload<ExtArgs>[]
+      employee_trainings_employee_trainings_assessor_idToemployees: Prisma.$employee_trainingsPayload<ExtArgs>[]
+      employee_trainings_employee_trainings_emp_idToemployees: Prisma.$employee_trainingsPayload<ExtArgs>[]
       employee_warnings: Prisma.$employee_warningsPayload<ExtArgs>[]
       departments: Prisma.$departmentsPayload<ExtArgs> | null
       job_positions: Prisma.$job_positionsPayload<ExtArgs> | null
@@ -42880,6 +43168,14 @@ export namespace Prisma {
       secondary_supervisor_id: string | null
       nickname: string | null
       email: string | null
+      general_allowance: Prisma.Decimal | null
+      probation_accommodation_allowance: boolean
+      probation_meal_allowance: boolean
+      probation_travel_allowance: boolean
+      fixed_accommodation_allowance: Prisma.Decimal | null
+      fixed_meal_allowance: Prisma.Decimal | null
+      fixed_travel_allowance: Prisma.Decimal | null
+      fixed_tax_deduction: Prisma.Decimal | null
     }, ExtArgs["result"]["employees"]>
     composites: {}
   }
@@ -43278,6 +43574,8 @@ export namespace Prisma {
     birthday_claims<T extends employees$birthday_claimsArgs<ExtArgs> = {}>(args?: Subset<T, employees$birthday_claimsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$birthday_claimsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     commission_claims<T extends employees$commission_claimsArgs<ExtArgs> = {}>(args?: Subset<T, employees$commission_claimsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$commission_claimsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     daily_work_plans<T extends employees$daily_work_plansArgs<ExtArgs> = {}>(args?: Subset<T, employees$daily_work_plansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$daily_work_plansPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    employee_trainings_employee_trainings_assessor_idToemployees<T extends employees$employee_trainings_employee_trainings_assessor_idToemployeesArgs<ExtArgs> = {}>(args?: Subset<T, employees$employee_trainings_employee_trainings_assessor_idToemployeesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    employee_trainings_employee_trainings_emp_idToemployees<T extends employees$employee_trainings_employee_trainings_emp_idToemployeesArgs<ExtArgs> = {}>(args?: Subset<T, employees$employee_trainings_employee_trainings_emp_idToemployeesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     employee_warnings<T extends employees$employee_warningsArgs<ExtArgs> = {}>(args?: Subset<T, employees$employee_warningsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$employee_warningsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     departments<T extends employees$departmentsArgs<ExtArgs> = {}>(args?: Subset<T, employees$departmentsArgs<ExtArgs>>): Prisma__departmentsClient<$Result.GetResult<Prisma.$departmentsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     job_positions<T extends employees$job_positionsArgs<ExtArgs> = {}>(args?: Subset<T, employees$job_positionsArgs<ExtArgs>>): Prisma__job_positionsClient<$Result.GetResult<Prisma.$job_positionsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -43359,6 +43657,14 @@ export namespace Prisma {
     readonly secondary_supervisor_id: FieldRef<"employees", 'String'>
     readonly nickname: FieldRef<"employees", 'String'>
     readonly email: FieldRef<"employees", 'String'>
+    readonly general_allowance: FieldRef<"employees", 'Decimal'>
+    readonly probation_accommodation_allowance: FieldRef<"employees", 'Boolean'>
+    readonly probation_meal_allowance: FieldRef<"employees", 'Boolean'>
+    readonly probation_travel_allowance: FieldRef<"employees", 'Boolean'>
+    readonly fixed_accommodation_allowance: FieldRef<"employees", 'Decimal'>
+    readonly fixed_meal_allowance: FieldRef<"employees", 'Decimal'>
+    readonly fixed_travel_allowance: FieldRef<"employees", 'Decimal'>
+    readonly fixed_tax_deduction: FieldRef<"employees", 'Decimal'>
   }
     
 
@@ -43853,6 +44159,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Daily_work_plansScalarFieldEnum | Daily_work_plansScalarFieldEnum[]
+  }
+
+  /**
+   * employees.employee_trainings_employee_trainings_assessor_idToemployees
+   */
+  export type employees$employee_trainings_employee_trainings_assessor_idToemployeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    where?: employee_trainingsWhereInput
+    orderBy?: employee_trainingsOrderByWithRelationInput | employee_trainingsOrderByWithRelationInput[]
+    cursor?: employee_trainingsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Employee_trainingsScalarFieldEnum | Employee_trainingsScalarFieldEnum[]
+  }
+
+  /**
+   * employees.employee_trainings_employee_trainings_emp_idToemployees
+   */
+  export type employees$employee_trainings_employee_trainings_emp_idToemployeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    where?: employee_trainingsWhereInput
+    orderBy?: employee_trainingsOrderByWithRelationInput | employee_trainingsOrderByWithRelationInput[]
+    cursor?: employee_trainingsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Employee_trainingsScalarFieldEnum | Employee_trainingsScalarFieldEnum[]
   }
 
   /**
@@ -55084,6 +55438,7 @@ export namespace Prisma {
     commissions: Decimal | null
     insurance: Decimal | null
     insurance_income: Decimal | null
+    general_allowance_override: Decimal | null
   }
 
   export type Monthly_payroll_dataSumAggregateOutputType = {
@@ -55112,6 +55467,7 @@ export namespace Prisma {
     commissions: Decimal | null
     insurance: Decimal | null
     insurance_income: Decimal | null
+    general_allowance_override: Decimal | null
   }
 
   export type Monthly_payroll_dataMinAggregateOutputType = {
@@ -55144,6 +55500,7 @@ export namespace Prisma {
     is_published: boolean | null
     insurance: Decimal | null
     insurance_income: Decimal | null
+    general_allowance_override: Decimal | null
   }
 
   export type Monthly_payroll_dataMaxAggregateOutputType = {
@@ -55176,6 +55533,7 @@ export namespace Prisma {
     is_published: boolean | null
     insurance: Decimal | null
     insurance_income: Decimal | null
+    general_allowance_override: Decimal | null
   }
 
   export type Monthly_payroll_dataCountAggregateOutputType = {
@@ -55208,6 +55566,7 @@ export namespace Prisma {
     is_published: number
     insurance: number
     insurance_income: number
+    general_allowance_override: number
     _all: number
   }
 
@@ -55238,6 +55597,7 @@ export namespace Prisma {
     commissions?: true
     insurance?: true
     insurance_income?: true
+    general_allowance_override?: true
   }
 
   export type Monthly_payroll_dataSumAggregateInputType = {
@@ -55266,6 +55626,7 @@ export namespace Prisma {
     commissions?: true
     insurance?: true
     insurance_income?: true
+    general_allowance_override?: true
   }
 
   export type Monthly_payroll_dataMinAggregateInputType = {
@@ -55298,6 +55659,7 @@ export namespace Prisma {
     is_published?: true
     insurance?: true
     insurance_income?: true
+    general_allowance_override?: true
   }
 
   export type Monthly_payroll_dataMaxAggregateInputType = {
@@ -55330,6 +55692,7 @@ export namespace Prisma {
     is_published?: true
     insurance?: true
     insurance_income?: true
+    general_allowance_override?: true
   }
 
   export type Monthly_payroll_dataCountAggregateInputType = {
@@ -55362,6 +55725,7 @@ export namespace Prisma {
     is_published?: true
     insurance?: true
     insurance_income?: true
+    general_allowance_override?: true
     _all?: true
   }
 
@@ -55481,6 +55845,7 @@ export namespace Prisma {
     is_published: boolean
     insurance: Decimal | null
     insurance_income: Decimal | null
+    general_allowance_override: Decimal | null
     _count: Monthly_payroll_dataCountAggregateOutputType | null
     _avg: Monthly_payroll_dataAvgAggregateOutputType | null
     _sum: Monthly_payroll_dataSumAggregateOutputType | null
@@ -55532,6 +55897,7 @@ export namespace Prisma {
     is_published?: boolean
     insurance?: boolean
     insurance_income?: boolean
+    general_allowance_override?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["monthly_payroll_data"]>
 
@@ -55565,6 +55931,7 @@ export namespace Prisma {
     is_published?: boolean
     insurance?: boolean
     insurance_income?: boolean
+    general_allowance_override?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["monthly_payroll_data"]>
 
@@ -55598,6 +55965,7 @@ export namespace Prisma {
     is_published?: boolean
     insurance?: boolean
     insurance_income?: boolean
+    general_allowance_override?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["monthly_payroll_data"]>
 
@@ -55631,9 +55999,10 @@ export namespace Prisma {
     is_published?: boolean
     insurance?: boolean
     insurance_income?: boolean
+    general_allowance_override?: boolean
   }
 
-  export type monthly_payroll_dataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emp_id" | "cycle_month" | "cycle_year" | "social_security" | "student_loan" | "other_deductions" | "other_benefits" | "override_salary" | "created_at" | "updated_at" | "accommodation_allowance_override" | "diligence_allowance_override" | "holiday_1_x_hours_override" | "holiday_3_x_hours_override" | "meal_allowance_override" | "normal_1_5x_hours_override" | "phone_allowance_override" | "position_allowance_override" | "travel_accommodation_override" | "travel_allowance_override" | "travel_site_allowance_override" | "tax" | "unpaid_absenteeism" | "bonus" | "commissions" | "is_published" | "insurance" | "insurance_income", ExtArgs["result"]["monthly_payroll_data"]>
+  export type monthly_payroll_dataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emp_id" | "cycle_month" | "cycle_year" | "social_security" | "student_loan" | "other_deductions" | "other_benefits" | "override_salary" | "created_at" | "updated_at" | "accommodation_allowance_override" | "diligence_allowance_override" | "holiday_1_x_hours_override" | "holiday_3_x_hours_override" | "meal_allowance_override" | "normal_1_5x_hours_override" | "phone_allowance_override" | "position_allowance_override" | "travel_accommodation_override" | "travel_allowance_override" | "travel_site_allowance_override" | "tax" | "unpaid_absenteeism" | "bonus" | "commissions" | "is_published" | "insurance" | "insurance_income" | "general_allowance_override", ExtArgs["result"]["monthly_payroll_data"]>
   export type monthly_payroll_dataInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }
@@ -55679,6 +56048,7 @@ export namespace Prisma {
       is_published: boolean
       insurance: Prisma.Decimal | null
       insurance_income: Prisma.Decimal | null
+      general_allowance_override: Prisma.Decimal | null
     }, ExtArgs["result"]["monthly_payroll_data"]>
     composites: {}
   }
@@ -56132,6 +56502,7 @@ export namespace Prisma {
     readonly is_published: FieldRef<"monthly_payroll_data", 'Boolean'>
     readonly insurance: FieldRef<"monthly_payroll_data", 'Decimal'>
     readonly insurance_income: FieldRef<"monthly_payroll_data", 'Decimal'>
+    readonly general_allowance_override: FieldRef<"monthly_payroll_data", 'Decimal'>
   }
     
 
@@ -64185,6 +64556,7 @@ export namespace Prisma {
     status: string | null
     created_at: Date | null
     minutes: string | null
+    meeting_link: string | null
   }
 
   export type Room_bookingsMaxAggregateOutputType = {
@@ -64197,6 +64569,7 @@ export namespace Prisma {
     status: string | null
     created_at: Date | null
     minutes: string | null
+    meeting_link: string | null
   }
 
   export type Room_bookingsCountAggregateOutputType = {
@@ -64209,6 +64582,7 @@ export namespace Prisma {
     status: number
     created_at: number
     minutes: number
+    meeting_link: number
     _all: number
   }
 
@@ -64233,6 +64607,7 @@ export namespace Prisma {
     status?: true
     created_at?: true
     minutes?: true
+    meeting_link?: true
   }
 
   export type Room_bookingsMaxAggregateInputType = {
@@ -64245,6 +64620,7 @@ export namespace Prisma {
     status?: true
     created_at?: true
     minutes?: true
+    meeting_link?: true
   }
 
   export type Room_bookingsCountAggregateInputType = {
@@ -64257,6 +64633,7 @@ export namespace Prisma {
     status?: true
     created_at?: true
     minutes?: true
+    meeting_link?: true
     _all?: true
   }
 
@@ -64356,6 +64733,7 @@ export namespace Prisma {
     status: string
     created_at: Date
     minutes: string | null
+    meeting_link: string | null
     _count: Room_bookingsCountAggregateOutputType | null
     _avg: Room_bookingsAvgAggregateOutputType | null
     _sum: Room_bookingsSumAggregateOutputType | null
@@ -64387,6 +64765,7 @@ export namespace Prisma {
     status?: boolean
     created_at?: boolean
     minutes?: boolean
+    meeting_link?: boolean
     room_booking_attendees?: boolean | room_bookings$room_booking_attendeesArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
     meeting_rooms?: boolean | meeting_roomsDefaultArgs<ExtArgs>
@@ -64403,6 +64782,7 @@ export namespace Prisma {
     status?: boolean
     created_at?: boolean
     minutes?: boolean
+    meeting_link?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
     meeting_rooms?: boolean | meeting_roomsDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["room_bookings"]>
@@ -64417,6 +64797,7 @@ export namespace Prisma {
     status?: boolean
     created_at?: boolean
     minutes?: boolean
+    meeting_link?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
     meeting_rooms?: boolean | meeting_roomsDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["room_bookings"]>
@@ -64431,9 +64812,10 @@ export namespace Prisma {
     status?: boolean
     created_at?: boolean
     minutes?: boolean
+    meeting_link?: boolean
   }
 
-  export type room_bookingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "room_id" | "emp_id" | "start_time" | "end_time" | "purpose" | "status" | "created_at" | "minutes", ExtArgs["result"]["room_bookings"]>
+  export type room_bookingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "room_id" | "emp_id" | "start_time" | "end_time" | "purpose" | "status" | "created_at" | "minutes" | "meeting_link", ExtArgs["result"]["room_bookings"]>
   export type room_bookingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room_booking_attendees?: boolean | room_bookings$room_booking_attendeesArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
@@ -64466,6 +64848,7 @@ export namespace Prisma {
       status: string
       created_at: Date
       minutes: string | null
+      meeting_link: string | null
     }, ExtArgs["result"]["room_bookings"]>
     composites: {}
   }
@@ -64901,6 +65284,7 @@ export namespace Prisma {
     readonly status: FieldRef<"room_bookings", 'String'>
     readonly created_at: FieldRef<"room_bookings", 'DateTime'>
     readonly minutes: FieldRef<"room_bookings", 'String'>
+    readonly meeting_link: FieldRef<"room_bookings", 'String'>
   }
     
 
@@ -67738,6 +68122,1225 @@ export namespace Prisma {
 
 
   /**
+   * Model employee_trainings
+   */
+
+  export type AggregateEmployee_trainings = {
+    _count: Employee_trainingsCountAggregateOutputType | null
+    _avg: Employee_trainingsAvgAggregateOutputType | null
+    _sum: Employee_trainingsSumAggregateOutputType | null
+    _min: Employee_trainingsMinAggregateOutputType | null
+    _max: Employee_trainingsMaxAggregateOutputType | null
+  }
+
+  export type Employee_trainingsAvgAggregateOutputType = {
+    id: number | null
+    completion_percentage: Decimal | null
+  }
+
+  export type Employee_trainingsSumAggregateOutputType = {
+    id: number | null
+    completion_percentage: Decimal | null
+  }
+
+  export type Employee_trainingsMinAggregateOutputType = {
+    id: number | null
+    emp_id: string | null
+    course_name: string | null
+    institution_name: string | null
+    training_date_start: Date | null
+    training_date_end: Date | null
+    completion_percentage: Decimal | null
+    effectiveness_result: string | null
+    certificate_file_url: string | null
+    assessor_id: string | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type Employee_trainingsMaxAggregateOutputType = {
+    id: number | null
+    emp_id: string | null
+    course_name: string | null
+    institution_name: string | null
+    training_date_start: Date | null
+    training_date_end: Date | null
+    completion_percentage: Decimal | null
+    effectiveness_result: string | null
+    certificate_file_url: string | null
+    assessor_id: string | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type Employee_trainingsCountAggregateOutputType = {
+    id: number
+    emp_id: number
+    course_name: number
+    institution_name: number
+    training_date_start: number
+    training_date_end: number
+    completion_percentage: number
+    effectiveness_result: number
+    certificate_file_url: number
+    assessor_id: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type Employee_trainingsAvgAggregateInputType = {
+    id?: true
+    completion_percentage?: true
+  }
+
+  export type Employee_trainingsSumAggregateInputType = {
+    id?: true
+    completion_percentage?: true
+  }
+
+  export type Employee_trainingsMinAggregateInputType = {
+    id?: true
+    emp_id?: true
+    course_name?: true
+    institution_name?: true
+    training_date_start?: true
+    training_date_end?: true
+    completion_percentage?: true
+    effectiveness_result?: true
+    certificate_file_url?: true
+    assessor_id?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type Employee_trainingsMaxAggregateInputType = {
+    id?: true
+    emp_id?: true
+    course_name?: true
+    institution_name?: true
+    training_date_start?: true
+    training_date_end?: true
+    completion_percentage?: true
+    effectiveness_result?: true
+    certificate_file_url?: true
+    assessor_id?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type Employee_trainingsCountAggregateInputType = {
+    id?: true
+    emp_id?: true
+    course_name?: true
+    institution_name?: true
+    training_date_start?: true
+    training_date_end?: true
+    completion_percentage?: true
+    effectiveness_result?: true
+    certificate_file_url?: true
+    assessor_id?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type Employee_trainingsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which employee_trainings to aggregate.
+     */
+    where?: employee_trainingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of employee_trainings to fetch.
+     */
+    orderBy?: employee_trainingsOrderByWithRelationInput | employee_trainingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: employee_trainingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` employee_trainings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` employee_trainings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned employee_trainings
+    **/
+    _count?: true | Employee_trainingsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Employee_trainingsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Employee_trainingsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Employee_trainingsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Employee_trainingsMaxAggregateInputType
+  }
+
+  export type GetEmployee_trainingsAggregateType<T extends Employee_trainingsAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmployee_trainings]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmployee_trainings[P]>
+      : GetScalarType<T[P], AggregateEmployee_trainings[P]>
+  }
+
+
+
+
+  export type employee_trainingsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: employee_trainingsWhereInput
+    orderBy?: employee_trainingsOrderByWithAggregationInput | employee_trainingsOrderByWithAggregationInput[]
+    by: Employee_trainingsScalarFieldEnum[] | Employee_trainingsScalarFieldEnum
+    having?: employee_trainingsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Employee_trainingsCountAggregateInputType | true
+    _avg?: Employee_trainingsAvgAggregateInputType
+    _sum?: Employee_trainingsSumAggregateInputType
+    _min?: Employee_trainingsMinAggregateInputType
+    _max?: Employee_trainingsMaxAggregateInputType
+  }
+
+  export type Employee_trainingsGroupByOutputType = {
+    id: number
+    emp_id: string
+    course_name: string
+    institution_name: string | null
+    training_date_start: Date | null
+    training_date_end: Date | null
+    completion_percentage: Decimal | null
+    effectiveness_result: string | null
+    certificate_file_url: string | null
+    assessor_id: string | null
+    created_at: Date
+    updated_at: Date
+    _count: Employee_trainingsCountAggregateOutputType | null
+    _avg: Employee_trainingsAvgAggregateOutputType | null
+    _sum: Employee_trainingsSumAggregateOutputType | null
+    _min: Employee_trainingsMinAggregateOutputType | null
+    _max: Employee_trainingsMaxAggregateOutputType | null
+  }
+
+  type GetEmployee_trainingsGroupByPayload<T extends employee_trainingsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Employee_trainingsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Employee_trainingsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Employee_trainingsGroupByOutputType[P]>
+            : GetScalarType<T[P], Employee_trainingsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type employee_trainingsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    course_name?: boolean
+    institution_name?: boolean
+    training_date_start?: boolean
+    training_date_end?: boolean
+    completion_percentage?: boolean
+    effectiveness_result?: boolean
+    certificate_file_url?: boolean
+    assessor_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    employees_employee_trainings_assessor_idToemployees?: boolean | employee_trainings$employees_employee_trainings_assessor_idToemployeesArgs<ExtArgs>
+    employees_employee_trainings_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employee_trainings"]>
+
+  export type employee_trainingsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    course_name?: boolean
+    institution_name?: boolean
+    training_date_start?: boolean
+    training_date_end?: boolean
+    completion_percentage?: boolean
+    effectiveness_result?: boolean
+    certificate_file_url?: boolean
+    assessor_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    employees_employee_trainings_assessor_idToemployees?: boolean | employee_trainings$employees_employee_trainings_assessor_idToemployeesArgs<ExtArgs>
+    employees_employee_trainings_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employee_trainings"]>
+
+  export type employee_trainingsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    course_name?: boolean
+    institution_name?: boolean
+    training_date_start?: boolean
+    training_date_end?: boolean
+    completion_percentage?: boolean
+    effectiveness_result?: boolean
+    certificate_file_url?: boolean
+    assessor_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    employees_employee_trainings_assessor_idToemployees?: boolean | employee_trainings$employees_employee_trainings_assessor_idToemployeesArgs<ExtArgs>
+    employees_employee_trainings_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employee_trainings"]>
+
+  export type employee_trainingsSelectScalar = {
+    id?: boolean
+    emp_id?: boolean
+    course_name?: boolean
+    institution_name?: boolean
+    training_date_start?: boolean
+    training_date_end?: boolean
+    completion_percentage?: boolean
+    effectiveness_result?: boolean
+    certificate_file_url?: boolean
+    assessor_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type employee_trainingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emp_id" | "course_name" | "institution_name" | "training_date_start" | "training_date_end" | "completion_percentage" | "effectiveness_result" | "certificate_file_url" | "assessor_id" | "created_at" | "updated_at", ExtArgs["result"]["employee_trainings"]>
+  export type employee_trainingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees_employee_trainings_assessor_idToemployees?: boolean | employee_trainings$employees_employee_trainings_assessor_idToemployeesArgs<ExtArgs>
+    employees_employee_trainings_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
+  }
+  export type employee_trainingsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees_employee_trainings_assessor_idToemployees?: boolean | employee_trainings$employees_employee_trainings_assessor_idToemployeesArgs<ExtArgs>
+    employees_employee_trainings_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
+  }
+  export type employee_trainingsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees_employee_trainings_assessor_idToemployees?: boolean | employee_trainings$employees_employee_trainings_assessor_idToemployeesArgs<ExtArgs>
+    employees_employee_trainings_emp_idToemployees?: boolean | employeesDefaultArgs<ExtArgs>
+  }
+
+  export type $employee_trainingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "employee_trainings"
+    objects: {
+      employees_employee_trainings_assessor_idToemployees: Prisma.$employeesPayload<ExtArgs> | null
+      employees_employee_trainings_emp_idToemployees: Prisma.$employeesPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      emp_id: string
+      course_name: string
+      institution_name: string | null
+      training_date_start: Date | null
+      training_date_end: Date | null
+      completion_percentage: Prisma.Decimal | null
+      effectiveness_result: string | null
+      certificate_file_url: string | null
+      assessor_id: string | null
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["employee_trainings"]>
+    composites: {}
+  }
+
+  type employee_trainingsGetPayload<S extends boolean | null | undefined | employee_trainingsDefaultArgs> = $Result.GetResult<Prisma.$employee_trainingsPayload, S>
+
+  type employee_trainingsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<employee_trainingsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Employee_trainingsCountAggregateInputType | true
+    }
+
+  export interface employee_trainingsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['employee_trainings'], meta: { name: 'employee_trainings' } }
+    /**
+     * Find zero or one Employee_trainings that matches the filter.
+     * @param {employee_trainingsFindUniqueArgs} args - Arguments to find a Employee_trainings
+     * @example
+     * // Get one Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends employee_trainingsFindUniqueArgs>(args: SelectSubset<T, employee_trainingsFindUniqueArgs<ExtArgs>>): Prisma__employee_trainingsClient<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Employee_trainings that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {employee_trainingsFindUniqueOrThrowArgs} args - Arguments to find a Employee_trainings
+     * @example
+     * // Get one Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends employee_trainingsFindUniqueOrThrowArgs>(args: SelectSubset<T, employee_trainingsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__employee_trainingsClient<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Employee_trainings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employee_trainingsFindFirstArgs} args - Arguments to find a Employee_trainings
+     * @example
+     * // Get one Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends employee_trainingsFindFirstArgs>(args?: SelectSubset<T, employee_trainingsFindFirstArgs<ExtArgs>>): Prisma__employee_trainingsClient<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Employee_trainings that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employee_trainingsFindFirstOrThrowArgs} args - Arguments to find a Employee_trainings
+     * @example
+     * // Get one Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends employee_trainingsFindFirstOrThrowArgs>(args?: SelectSubset<T, employee_trainingsFindFirstOrThrowArgs<ExtArgs>>): Prisma__employee_trainingsClient<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Employee_trainings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employee_trainingsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.findMany()
+     * 
+     * // Get first 10 Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const employee_trainingsWithIdOnly = await prisma.employee_trainings.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends employee_trainingsFindManyArgs>(args?: SelectSubset<T, employee_trainingsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Employee_trainings.
+     * @param {employee_trainingsCreateArgs} args - Arguments to create a Employee_trainings.
+     * @example
+     * // Create one Employee_trainings
+     * const Employee_trainings = await prisma.employee_trainings.create({
+     *   data: {
+     *     // ... data to create a Employee_trainings
+     *   }
+     * })
+     * 
+     */
+    create<T extends employee_trainingsCreateArgs>(args: SelectSubset<T, employee_trainingsCreateArgs<ExtArgs>>): Prisma__employee_trainingsClient<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Employee_trainings.
+     * @param {employee_trainingsCreateManyArgs} args - Arguments to create many Employee_trainings.
+     * @example
+     * // Create many Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends employee_trainingsCreateManyArgs>(args?: SelectSubset<T, employee_trainingsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Employee_trainings and returns the data saved in the database.
+     * @param {employee_trainingsCreateManyAndReturnArgs} args - Arguments to create many Employee_trainings.
+     * @example
+     * // Create many Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Employee_trainings and only return the `id`
+     * const employee_trainingsWithIdOnly = await prisma.employee_trainings.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends employee_trainingsCreateManyAndReturnArgs>(args?: SelectSubset<T, employee_trainingsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Employee_trainings.
+     * @param {employee_trainingsDeleteArgs} args - Arguments to delete one Employee_trainings.
+     * @example
+     * // Delete one Employee_trainings
+     * const Employee_trainings = await prisma.employee_trainings.delete({
+     *   where: {
+     *     // ... filter to delete one Employee_trainings
+     *   }
+     * })
+     * 
+     */
+    delete<T extends employee_trainingsDeleteArgs>(args: SelectSubset<T, employee_trainingsDeleteArgs<ExtArgs>>): Prisma__employee_trainingsClient<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Employee_trainings.
+     * @param {employee_trainingsUpdateArgs} args - Arguments to update one Employee_trainings.
+     * @example
+     * // Update one Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends employee_trainingsUpdateArgs>(args: SelectSubset<T, employee_trainingsUpdateArgs<ExtArgs>>): Prisma__employee_trainingsClient<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Employee_trainings.
+     * @param {employee_trainingsDeleteManyArgs} args - Arguments to filter Employee_trainings to delete.
+     * @example
+     * // Delete a few Employee_trainings
+     * const { count } = await prisma.employee_trainings.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends employee_trainingsDeleteManyArgs>(args?: SelectSubset<T, employee_trainingsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Employee_trainings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employee_trainingsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends employee_trainingsUpdateManyArgs>(args: SelectSubset<T, employee_trainingsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Employee_trainings and returns the data updated in the database.
+     * @param {employee_trainingsUpdateManyAndReturnArgs} args - Arguments to update many Employee_trainings.
+     * @example
+     * // Update many Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Employee_trainings and only return the `id`
+     * const employee_trainingsWithIdOnly = await prisma.employee_trainings.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends employee_trainingsUpdateManyAndReturnArgs>(args: SelectSubset<T, employee_trainingsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Employee_trainings.
+     * @param {employee_trainingsUpsertArgs} args - Arguments to update or create a Employee_trainings.
+     * @example
+     * // Update or create a Employee_trainings
+     * const employee_trainings = await prisma.employee_trainings.upsert({
+     *   create: {
+     *     // ... data to create a Employee_trainings
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Employee_trainings we want to update
+     *   }
+     * })
+     */
+    upsert<T extends employee_trainingsUpsertArgs>(args: SelectSubset<T, employee_trainingsUpsertArgs<ExtArgs>>): Prisma__employee_trainingsClient<$Result.GetResult<Prisma.$employee_trainingsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Employee_trainings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employee_trainingsCountArgs} args - Arguments to filter Employee_trainings to count.
+     * @example
+     * // Count the number of Employee_trainings
+     * const count = await prisma.employee_trainings.count({
+     *   where: {
+     *     // ... the filter for the Employee_trainings we want to count
+     *   }
+     * })
+    **/
+    count<T extends employee_trainingsCountArgs>(
+      args?: Subset<T, employee_trainingsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Employee_trainingsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Employee_trainings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Employee_trainingsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Employee_trainingsAggregateArgs>(args: Subset<T, Employee_trainingsAggregateArgs>): Prisma.PrismaPromise<GetEmployee_trainingsAggregateType<T>>
+
+    /**
+     * Group by Employee_trainings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employee_trainingsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends employee_trainingsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: employee_trainingsGroupByArgs['orderBy'] }
+        : { orderBy?: employee_trainingsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, employee_trainingsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmployee_trainingsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the employee_trainings model
+   */
+  readonly fields: employee_trainingsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for employee_trainings.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__employee_trainingsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employees_employee_trainings_assessor_idToemployees<T extends employee_trainings$employees_employee_trainings_assessor_idToemployeesArgs<ExtArgs> = {}>(args?: Subset<T, employee_trainings$employees_employee_trainings_assessor_idToemployeesArgs<ExtArgs>>): Prisma__employeesClient<$Result.GetResult<Prisma.$employeesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    employees_employee_trainings_emp_idToemployees<T extends employeesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, employeesDefaultArgs<ExtArgs>>): Prisma__employeesClient<$Result.GetResult<Prisma.$employeesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the employee_trainings model
+   */
+  interface employee_trainingsFieldRefs {
+    readonly id: FieldRef<"employee_trainings", 'Int'>
+    readonly emp_id: FieldRef<"employee_trainings", 'String'>
+    readonly course_name: FieldRef<"employee_trainings", 'String'>
+    readonly institution_name: FieldRef<"employee_trainings", 'String'>
+    readonly training_date_start: FieldRef<"employee_trainings", 'DateTime'>
+    readonly training_date_end: FieldRef<"employee_trainings", 'DateTime'>
+    readonly completion_percentage: FieldRef<"employee_trainings", 'Decimal'>
+    readonly effectiveness_result: FieldRef<"employee_trainings", 'String'>
+    readonly certificate_file_url: FieldRef<"employee_trainings", 'String'>
+    readonly assessor_id: FieldRef<"employee_trainings", 'String'>
+    readonly created_at: FieldRef<"employee_trainings", 'DateTime'>
+    readonly updated_at: FieldRef<"employee_trainings", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * employee_trainings findUnique
+   */
+  export type employee_trainingsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    /**
+     * Filter, which employee_trainings to fetch.
+     */
+    where: employee_trainingsWhereUniqueInput
+  }
+
+  /**
+   * employee_trainings findUniqueOrThrow
+   */
+  export type employee_trainingsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    /**
+     * Filter, which employee_trainings to fetch.
+     */
+    where: employee_trainingsWhereUniqueInput
+  }
+
+  /**
+   * employee_trainings findFirst
+   */
+  export type employee_trainingsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    /**
+     * Filter, which employee_trainings to fetch.
+     */
+    where?: employee_trainingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of employee_trainings to fetch.
+     */
+    orderBy?: employee_trainingsOrderByWithRelationInput | employee_trainingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for employee_trainings.
+     */
+    cursor?: employee_trainingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` employee_trainings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` employee_trainings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of employee_trainings.
+     */
+    distinct?: Employee_trainingsScalarFieldEnum | Employee_trainingsScalarFieldEnum[]
+  }
+
+  /**
+   * employee_trainings findFirstOrThrow
+   */
+  export type employee_trainingsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    /**
+     * Filter, which employee_trainings to fetch.
+     */
+    where?: employee_trainingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of employee_trainings to fetch.
+     */
+    orderBy?: employee_trainingsOrderByWithRelationInput | employee_trainingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for employee_trainings.
+     */
+    cursor?: employee_trainingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` employee_trainings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` employee_trainings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of employee_trainings.
+     */
+    distinct?: Employee_trainingsScalarFieldEnum | Employee_trainingsScalarFieldEnum[]
+  }
+
+  /**
+   * employee_trainings findMany
+   */
+  export type employee_trainingsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    /**
+     * Filter, which employee_trainings to fetch.
+     */
+    where?: employee_trainingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of employee_trainings to fetch.
+     */
+    orderBy?: employee_trainingsOrderByWithRelationInput | employee_trainingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing employee_trainings.
+     */
+    cursor?: employee_trainingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` employee_trainings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` employee_trainings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of employee_trainings.
+     */
+    distinct?: Employee_trainingsScalarFieldEnum | Employee_trainingsScalarFieldEnum[]
+  }
+
+  /**
+   * employee_trainings create
+   */
+  export type employee_trainingsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a employee_trainings.
+     */
+    data: XOR<employee_trainingsCreateInput, employee_trainingsUncheckedCreateInput>
+  }
+
+  /**
+   * employee_trainings createMany
+   */
+  export type employee_trainingsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many employee_trainings.
+     */
+    data: employee_trainingsCreateManyInput | employee_trainingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * employee_trainings createManyAndReturn
+   */
+  export type employee_trainingsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * The data used to create many employee_trainings.
+     */
+    data: employee_trainingsCreateManyInput | employee_trainingsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * employee_trainings update
+   */
+  export type employee_trainingsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a employee_trainings.
+     */
+    data: XOR<employee_trainingsUpdateInput, employee_trainingsUncheckedUpdateInput>
+    /**
+     * Choose, which employee_trainings to update.
+     */
+    where: employee_trainingsWhereUniqueInput
+  }
+
+  /**
+   * employee_trainings updateMany
+   */
+  export type employee_trainingsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update employee_trainings.
+     */
+    data: XOR<employee_trainingsUpdateManyMutationInput, employee_trainingsUncheckedUpdateManyInput>
+    /**
+     * Filter which employee_trainings to update
+     */
+    where?: employee_trainingsWhereInput
+    /**
+     * Limit how many employee_trainings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * employee_trainings updateManyAndReturn
+   */
+  export type employee_trainingsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * The data used to update employee_trainings.
+     */
+    data: XOR<employee_trainingsUpdateManyMutationInput, employee_trainingsUncheckedUpdateManyInput>
+    /**
+     * Filter which employee_trainings to update
+     */
+    where?: employee_trainingsWhereInput
+    /**
+     * Limit how many employee_trainings to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * employee_trainings upsert
+   */
+  export type employee_trainingsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the employee_trainings to update in case it exists.
+     */
+    where: employee_trainingsWhereUniqueInput
+    /**
+     * In case the employee_trainings found by the `where` argument doesn't exist, create a new employee_trainings with this data.
+     */
+    create: XOR<employee_trainingsCreateInput, employee_trainingsUncheckedCreateInput>
+    /**
+     * In case the employee_trainings was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<employee_trainingsUpdateInput, employee_trainingsUncheckedUpdateInput>
+  }
+
+  /**
+   * employee_trainings delete
+   */
+  export type employee_trainingsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+    /**
+     * Filter which employee_trainings to delete.
+     */
+    where: employee_trainingsWhereUniqueInput
+  }
+
+  /**
+   * employee_trainings deleteMany
+   */
+  export type employee_trainingsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which employee_trainings to delete
+     */
+    where?: employee_trainingsWhereInput
+    /**
+     * Limit how many employee_trainings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * employee_trainings.employees_employee_trainings_assessor_idToemployees
+   */
+  export type employee_trainings$employees_employee_trainings_assessor_idToemployeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employees
+     */
+    select?: employeesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employees
+     */
+    omit?: employeesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeesInclude<ExtArgs> | null
+    where?: employeesWhereInput
+  }
+
+  /**
+   * employee_trainings without action
+   */
+  export type employee_trainingsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employee_trainings
+     */
+    select?: employee_trainingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employee_trainings
+     */
+    omit?: employee_trainingsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employee_trainingsInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -68032,6 +69635,11 @@ export namespace Prisma {
     quotationId: 'quotationId',
     currentStep: 'currentStep',
     flowVariant: 'flowVariant',
+    deliveryMethod: 'deliveryMethod',
+    deliveryDate: 'deliveryDate',
+    courierCompany: 'courierCompany',
+    trackingNumber: 'trackingNumber',
+    trackingPhotoUrl: 'trackingPhotoUrl',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -68074,19 +69682,19 @@ export namespace Prisma {
     phoneNumber: 'phoneNumber',
     workType: 'workType',
     forwardedBy: 'forwardedBy',
-    company: 'company',
-    customerCompany: 'customerCompany',
-    customerAddress: 'customerAddress',
-    salesPerson: 'salesPerson',
     items: 'items',
     symptoms: 'symptoms',
     settings: 'settings',
     checklist: 'checklist',
-    checklistImages: 'checklistImages',
     receivedDate: 'receivedDate',
     sentDate: 'sentDate',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    checklistImages: 'checklistImages',
+    company: 'company',
+    customerAddress: 'customerAddress',
+    customerCompany: 'customerCompany',
+    salesPerson: 'salesPerson'
   };
 
   export type RepairOrderScalarFieldEnum = (typeof RepairOrderScalarFieldEnum)[keyof typeof RepairOrderScalarFieldEnum]
@@ -68328,7 +69936,15 @@ export namespace Prisma {
     resignation_date: 'resignation_date',
     secondary_supervisor_id: 'secondary_supervisor_id',
     nickname: 'nickname',
-    email: 'email'
+    email: 'email',
+    general_allowance: 'general_allowance',
+    probation_accommodation_allowance: 'probation_accommodation_allowance',
+    probation_meal_allowance: 'probation_meal_allowance',
+    probation_travel_allowance: 'probation_travel_allowance',
+    fixed_accommodation_allowance: 'fixed_accommodation_allowance',
+    fixed_meal_allowance: 'fixed_meal_allowance',
+    fixed_travel_allowance: 'fixed_travel_allowance',
+    fixed_tax_deduction: 'fixed_tax_deduction'
   };
 
   export type EmployeesScalarFieldEnum = (typeof EmployeesScalarFieldEnum)[keyof typeof EmployeesScalarFieldEnum]
@@ -68517,7 +70133,8 @@ export namespace Prisma {
     commissions: 'commissions',
     is_published: 'is_published',
     insurance: 'insurance',
-    insurance_income: 'insurance_income'
+    insurance_income: 'insurance_income',
+    general_allowance_override: 'general_allowance_override'
   };
 
   export type Monthly_payroll_dataScalarFieldEnum = (typeof Monthly_payroll_dataScalarFieldEnum)[keyof typeof Monthly_payroll_dataScalarFieldEnum]
@@ -68669,7 +70286,8 @@ export namespace Prisma {
     purpose: 'purpose',
     status: 'status',
     created_at: 'created_at',
-    minutes: 'minutes'
+    minutes: 'minutes',
+    meeting_link: 'meeting_link'
   };
 
   export type Room_bookingsScalarFieldEnum = (typeof Room_bookingsScalarFieldEnum)[keyof typeof Room_bookingsScalarFieldEnum]
@@ -68710,6 +70328,24 @@ export namespace Prisma {
   };
 
   export type Travel_claimsScalarFieldEnum = (typeof Travel_claimsScalarFieldEnum)[keyof typeof Travel_claimsScalarFieldEnum]
+
+
+  export const Employee_trainingsScalarFieldEnum: {
+    id: 'id',
+    emp_id: 'emp_id',
+    course_name: 'course_name',
+    institution_name: 'institution_name',
+    training_date_start: 'training_date_start',
+    training_date_end: 'training_date_end',
+    completion_percentage: 'completion_percentage',
+    effectiveness_result: 'effectiveness_result',
+    certificate_file_url: 'certificate_file_url',
+    assessor_id: 'assessor_id',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type Employee_trainingsScalarFieldEnum = (typeof Employee_trainingsScalarFieldEnum)[keyof typeof Employee_trainingsScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -70294,6 +71930,11 @@ export namespace Prisma {
     quotationId?: StringNullableFilter<"Job"> | string | null
     currentStep?: StringFilter<"Job"> | string
     flowVariant?: StringNullableFilter<"Job"> | string | null
+    deliveryMethod?: StringNullableFilter<"Job"> | string | null
+    deliveryDate?: DateTimeNullableFilter<"Job"> | Date | string | null
+    courierCompany?: StringNullableFilter<"Job"> | string | null
+    trackingNumber?: StringNullableFilter<"Job"> | string | null
+    trackingPhotoUrl?: StringNullableFilter<"Job"> | string | null
     createdAt?: DateTimeFilter<"Job"> | Date | string
     updatedAt?: DateTimeFilter<"Job"> | Date | string
     repairOrder?: XOR<RepairOrderNullableScalarRelationFilter, RepairOrderWhereInput> | null
@@ -70317,6 +71958,11 @@ export namespace Prisma {
     quotationId?: SortOrderInput | SortOrder
     currentStep?: SortOrder
     flowVariant?: SortOrderInput | SortOrder
+    deliveryMethod?: SortOrderInput | SortOrder
+    deliveryDate?: SortOrderInput | SortOrder
+    courierCompany?: SortOrderInput | SortOrder
+    trackingNumber?: SortOrderInput | SortOrder
+    trackingPhotoUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     repairOrder?: RepairOrderOrderByWithRelationInput
@@ -70343,6 +71989,11 @@ export namespace Prisma {
     quotationId?: StringNullableFilter<"Job"> | string | null
     currentStep?: StringFilter<"Job"> | string
     flowVariant?: StringNullableFilter<"Job"> | string | null
+    deliveryMethod?: StringNullableFilter<"Job"> | string | null
+    deliveryDate?: DateTimeNullableFilter<"Job"> | Date | string | null
+    courierCompany?: StringNullableFilter<"Job"> | string | null
+    trackingNumber?: StringNullableFilter<"Job"> | string | null
+    trackingPhotoUrl?: StringNullableFilter<"Job"> | string | null
     createdAt?: DateTimeFilter<"Job"> | Date | string
     updatedAt?: DateTimeFilter<"Job"> | Date | string
     repairOrder?: XOR<RepairOrderNullableScalarRelationFilter, RepairOrderWhereInput> | null
@@ -70366,6 +72017,11 @@ export namespace Prisma {
     quotationId?: SortOrderInput | SortOrder
     currentStep?: SortOrder
     flowVariant?: SortOrderInput | SortOrder
+    deliveryMethod?: SortOrderInput | SortOrder
+    deliveryDate?: SortOrderInput | SortOrder
+    courierCompany?: SortOrderInput | SortOrder
+    trackingNumber?: SortOrderInput | SortOrder
+    trackingPhotoUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: JobCountOrderByAggregateInput
@@ -70394,6 +72050,11 @@ export namespace Prisma {
     quotationId?: StringNullableWithAggregatesFilter<"Job"> | string | null
     currentStep?: StringWithAggregatesFilter<"Job"> | string
     flowVariant?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    deliveryMethod?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    deliveryDate?: DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+    courierCompany?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    trackingNumber?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    trackingPhotoUrl?: StringNullableWithAggregatesFilter<"Job"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Job"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Job"> | Date | string
   }
@@ -70528,19 +72189,19 @@ export namespace Prisma {
     phoneNumber?: StringNullableFilter<"RepairOrder"> | string | null
     workType?: StringNullableFilter<"RepairOrder"> | string | null
     forwardedBy?: StringNullableFilter<"RepairOrder"> | string | null
-    company?: StringNullableFilter<"RepairOrder"> | string | null
-    customerCompany?: StringNullableFilter<"RepairOrder"> | string | null
-    customerAddress?: StringNullableFilter<"RepairOrder"> | string | null
-    salesPerson?: StringNullableFilter<"RepairOrder"> | string | null
     items?: JsonFilter<"RepairOrder">
     symptoms?: StringNullableFilter<"RepairOrder"> | string | null
     settings?: StringNullableFilter<"RepairOrder"> | string | null
     checklist?: JsonFilter<"RepairOrder">
-    checklistImages?: JsonNullableFilter<"RepairOrder">
     receivedDate?: DateTimeNullableFilter<"RepairOrder"> | Date | string | null
     sentDate?: DateTimeNullableFilter<"RepairOrder"> | Date | string | null
     createdAt?: DateTimeFilter<"RepairOrder"> | Date | string
     updatedAt?: DateTimeFilter<"RepairOrder"> | Date | string
+    checklistImages?: JsonNullableFilter<"RepairOrder">
+    company?: StringNullableFilter<"RepairOrder"> | string | null
+    customerAddress?: StringNullableFilter<"RepairOrder"> | string | null
+    customerCompany?: StringNullableFilter<"RepairOrder"> | string | null
+    salesPerson?: StringNullableFilter<"RepairOrder"> | string | null
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
   }
 
@@ -70556,19 +72217,19 @@ export namespace Prisma {
     phoneNumber?: SortOrderInput | SortOrder
     workType?: SortOrderInput | SortOrder
     forwardedBy?: SortOrderInput | SortOrder
-    company?: SortOrderInput | SortOrder
-    customerCompany?: SortOrderInput | SortOrder
-    customerAddress?: SortOrderInput | SortOrder
-    salesPerson?: SortOrderInput | SortOrder
     items?: SortOrder
     symptoms?: SortOrderInput | SortOrder
     settings?: SortOrderInput | SortOrder
     checklist?: SortOrder
-    checklistImages?: SortOrderInput | SortOrder
     receivedDate?: SortOrderInput | SortOrder
     sentDate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    checklistImages?: SortOrderInput | SortOrder
+    company?: SortOrderInput | SortOrder
+    customerAddress?: SortOrderInput | SortOrder
+    customerCompany?: SortOrderInput | SortOrder
+    salesPerson?: SortOrderInput | SortOrder
     job?: JobOrderByWithRelationInput
   }
 
@@ -70587,19 +72248,19 @@ export namespace Prisma {
     phoneNumber?: StringNullableFilter<"RepairOrder"> | string | null
     workType?: StringNullableFilter<"RepairOrder"> | string | null
     forwardedBy?: StringNullableFilter<"RepairOrder"> | string | null
-    company?: StringNullableFilter<"RepairOrder"> | string | null
-    customerCompany?: StringNullableFilter<"RepairOrder"> | string | null
-    customerAddress?: StringNullableFilter<"RepairOrder"> | string | null
-    salesPerson?: StringNullableFilter<"RepairOrder"> | string | null
     items?: JsonFilter<"RepairOrder">
     symptoms?: StringNullableFilter<"RepairOrder"> | string | null
     settings?: StringNullableFilter<"RepairOrder"> | string | null
     checklist?: JsonFilter<"RepairOrder">
-    checklistImages?: JsonNullableFilter<"RepairOrder">
     receivedDate?: DateTimeNullableFilter<"RepairOrder"> | Date | string | null
     sentDate?: DateTimeNullableFilter<"RepairOrder"> | Date | string | null
     createdAt?: DateTimeFilter<"RepairOrder"> | Date | string
     updatedAt?: DateTimeFilter<"RepairOrder"> | Date | string
+    checklistImages?: JsonNullableFilter<"RepairOrder">
+    company?: StringNullableFilter<"RepairOrder"> | string | null
+    customerAddress?: StringNullableFilter<"RepairOrder"> | string | null
+    customerCompany?: StringNullableFilter<"RepairOrder"> | string | null
+    salesPerson?: StringNullableFilter<"RepairOrder"> | string | null
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
   }, "id" | "jobId">
 
@@ -70615,19 +72276,19 @@ export namespace Prisma {
     phoneNumber?: SortOrderInput | SortOrder
     workType?: SortOrderInput | SortOrder
     forwardedBy?: SortOrderInput | SortOrder
-    company?: SortOrderInput | SortOrder
-    customerCompany?: SortOrderInput | SortOrder
-    customerAddress?: SortOrderInput | SortOrder
-    salesPerson?: SortOrderInput | SortOrder
     items?: SortOrder
     symptoms?: SortOrderInput | SortOrder
     settings?: SortOrderInput | SortOrder
     checklist?: SortOrder
-    checklistImages?: SortOrderInput | SortOrder
     receivedDate?: SortOrderInput | SortOrder
     sentDate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    checklistImages?: SortOrderInput | SortOrder
+    company?: SortOrderInput | SortOrder
+    customerAddress?: SortOrderInput | SortOrder
+    customerCompany?: SortOrderInput | SortOrder
+    salesPerson?: SortOrderInput | SortOrder
     _count?: RepairOrderCountOrderByAggregateInput
     _max?: RepairOrderMaxOrderByAggregateInput
     _min?: RepairOrderMinOrderByAggregateInput
@@ -70648,19 +72309,19 @@ export namespace Prisma {
     phoneNumber?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     workType?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     forwardedBy?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
-    company?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
-    customerCompany?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
-    customerAddress?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
-    salesPerson?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     items?: JsonWithAggregatesFilter<"RepairOrder">
     symptoms?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     settings?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     checklist?: JsonWithAggregatesFilter<"RepairOrder">
-    checklistImages?: JsonNullableWithAggregatesFilter<"RepairOrder">
     receivedDate?: DateTimeNullableWithAggregatesFilter<"RepairOrder"> | Date | string | null
     sentDate?: DateTimeNullableWithAggregatesFilter<"RepairOrder"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"RepairOrder"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"RepairOrder"> | Date | string
+    checklistImages?: JsonNullableWithAggregatesFilter<"RepairOrder">
+    company?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
+    customerAddress?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
+    customerCompany?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
+    salesPerson?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
   }
 
   export type admin_login_attemptsWhereInput = {
@@ -71747,10 +73408,20 @@ export namespace Prisma {
     secondary_supervisor_id?: StringNullableFilter<"employees"> | string | null
     nickname?: StringNullableFilter<"employees"> | string | null
     email?: StringNullableFilter<"employees"> | string | null
+    general_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFilter<"employees"> | boolean
+    probation_meal_allowance?: BoolFilter<"employees"> | boolean
+    probation_travel_allowance?: BoolFilter<"employees"> | boolean
+    fixed_accommodation_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: Asset_borrowingsListRelationFilter
     birthday_claims?: Birthday_claimsListRelationFilter
     commission_claims?: Commission_claimsListRelationFilter
     daily_work_plans?: Daily_work_plansListRelationFilter
+    employee_trainings_employee_trainings_assessor_idToemployees?: Employee_trainingsListRelationFilter
+    employee_trainings_employee_trainings_emp_idToemployees?: Employee_trainingsListRelationFilter
     employee_warnings?: Employee_warningsListRelationFilter
     departments?: XOR<DepartmentsNullableScalarRelationFilter, departmentsWhereInput> | null
     job_positions?: XOR<Job_positionsNullableScalarRelationFilter, job_positionsWhereInput> | null
@@ -71806,10 +73477,20 @@ export namespace Prisma {
     secondary_supervisor_id?: SortOrderInput | SortOrder
     nickname?: SortOrderInput | SortOrder
     email?: SortOrderInput | SortOrder
+    general_allowance?: SortOrderInput | SortOrder
+    probation_accommodation_allowance?: SortOrder
+    probation_meal_allowance?: SortOrder
+    probation_travel_allowance?: SortOrder
+    fixed_accommodation_allowance?: SortOrderInput | SortOrder
+    fixed_meal_allowance?: SortOrderInput | SortOrder
+    fixed_travel_allowance?: SortOrderInput | SortOrder
+    fixed_tax_deduction?: SortOrderInput | SortOrder
     asset_borrowings?: asset_borrowingsOrderByRelationAggregateInput
     birthday_claims?: birthday_claimsOrderByRelationAggregateInput
     commission_claims?: commission_claimsOrderByRelationAggregateInput
     daily_work_plans?: daily_work_plansOrderByRelationAggregateInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsOrderByRelationAggregateInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsOrderByRelationAggregateInput
     employee_warnings?: employee_warningsOrderByRelationAggregateInput
     departments?: departmentsOrderByWithRelationInput
     job_positions?: job_positionsOrderByWithRelationInput
@@ -71868,10 +73549,20 @@ export namespace Prisma {
     secondary_supervisor_id?: StringNullableFilter<"employees"> | string | null
     nickname?: StringNullableFilter<"employees"> | string | null
     email?: StringNullableFilter<"employees"> | string | null
+    general_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFilter<"employees"> | boolean
+    probation_meal_allowance?: BoolFilter<"employees"> | boolean
+    probation_travel_allowance?: BoolFilter<"employees"> | boolean
+    fixed_accommodation_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: Asset_borrowingsListRelationFilter
     birthday_claims?: Birthday_claimsListRelationFilter
     commission_claims?: Commission_claimsListRelationFilter
     daily_work_plans?: Daily_work_plansListRelationFilter
+    employee_trainings_employee_trainings_assessor_idToemployees?: Employee_trainingsListRelationFilter
+    employee_trainings_employee_trainings_emp_idToemployees?: Employee_trainingsListRelationFilter
     employee_warnings?: Employee_warningsListRelationFilter
     departments?: XOR<DepartmentsNullableScalarRelationFilter, departmentsWhereInput> | null
     job_positions?: XOR<Job_positionsNullableScalarRelationFilter, job_positionsWhereInput> | null
@@ -71927,6 +73618,14 @@ export namespace Prisma {
     secondary_supervisor_id?: SortOrderInput | SortOrder
     nickname?: SortOrderInput | SortOrder
     email?: SortOrderInput | SortOrder
+    general_allowance?: SortOrderInput | SortOrder
+    probation_accommodation_allowance?: SortOrder
+    probation_meal_allowance?: SortOrder
+    probation_travel_allowance?: SortOrder
+    fixed_accommodation_allowance?: SortOrderInput | SortOrder
+    fixed_meal_allowance?: SortOrderInput | SortOrder
+    fixed_travel_allowance?: SortOrderInput | SortOrder
+    fixed_tax_deduction?: SortOrderInput | SortOrder
     _count?: employeesCountOrderByAggregateInput
     _avg?: employeesAvgOrderByAggregateInput
     _max?: employeesMaxOrderByAggregateInput
@@ -71970,6 +73669,14 @@ export namespace Prisma {
     secondary_supervisor_id?: StringNullableWithAggregatesFilter<"employees"> | string | null
     nickname?: StringNullableWithAggregatesFilter<"employees"> | string | null
     email?: StringNullableWithAggregatesFilter<"employees"> | string | null
+    general_allowance?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolWithAggregatesFilter<"employees"> | boolean
+    probation_meal_allowance?: BoolWithAggregatesFilter<"employees"> | boolean
+    probation_travel_allowance?: BoolWithAggregatesFilter<"employees"> | boolean
+    fixed_accommodation_allowance?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type general_welfare_claimsWhereInput = {
@@ -72804,6 +74511,7 @@ export namespace Prisma {
     is_published?: BoolFilter<"monthly_payroll_data"> | boolean
     insurance?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     insurance_income?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }
 
@@ -72837,6 +74545,7 @@ export namespace Prisma {
     is_published?: SortOrder
     insurance?: SortOrderInput | SortOrder
     insurance_income?: SortOrderInput | SortOrder
+    general_allowance_override?: SortOrderInput | SortOrder
     employees?: employeesOrderByWithRelationInput
   }
 
@@ -72874,6 +74583,7 @@ export namespace Prisma {
     is_published?: BoolFilter<"monthly_payroll_data"> | boolean
     insurance?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     insurance_income?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }, "id" | "emp_id_cycle_month_cycle_year">
 
@@ -72907,6 +74617,7 @@ export namespace Prisma {
     is_published?: SortOrder
     insurance?: SortOrderInput | SortOrder
     insurance_income?: SortOrderInput | SortOrder
+    general_allowance_override?: SortOrderInput | SortOrder
     _count?: monthly_payroll_dataCountOrderByAggregateInput
     _avg?: monthly_payroll_dataAvgOrderByAggregateInput
     _max?: monthly_payroll_dataMaxOrderByAggregateInput
@@ -72947,6 +74658,7 @@ export namespace Prisma {
     is_published?: BoolWithAggregatesFilter<"monthly_payroll_data"> | boolean
     insurance?: DecimalNullableWithAggregatesFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     insurance_income?: DecimalNullableWithAggregatesFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: DecimalNullableWithAggregatesFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ot_requestsWhereInput = {
@@ -73666,6 +75378,7 @@ export namespace Prisma {
     status?: StringFilter<"room_bookings"> | string
     created_at?: DateTimeFilter<"room_bookings"> | Date | string
     minutes?: StringNullableFilter<"room_bookings"> | string | null
+    meeting_link?: StringNullableFilter<"room_bookings"> | string | null
     room_booking_attendees?: Room_booking_attendeesListRelationFilter
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
     meeting_rooms?: XOR<Meeting_roomsScalarRelationFilter, meeting_roomsWhereInput>
@@ -73681,6 +75394,7 @@ export namespace Prisma {
     status?: SortOrder
     created_at?: SortOrder
     minutes?: SortOrderInput | SortOrder
+    meeting_link?: SortOrderInput | SortOrder
     room_booking_attendees?: room_booking_attendeesOrderByRelationAggregateInput
     employees?: employeesOrderByWithRelationInput
     meeting_rooms?: meeting_roomsOrderByWithRelationInput
@@ -73699,6 +75413,7 @@ export namespace Prisma {
     status?: StringFilter<"room_bookings"> | string
     created_at?: DateTimeFilter<"room_bookings"> | Date | string
     minutes?: StringNullableFilter<"room_bookings"> | string | null
+    meeting_link?: StringNullableFilter<"room_bookings"> | string | null
     room_booking_attendees?: Room_booking_attendeesListRelationFilter
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
     meeting_rooms?: XOR<Meeting_roomsScalarRelationFilter, meeting_roomsWhereInput>
@@ -73714,6 +75429,7 @@ export namespace Prisma {
     status?: SortOrder
     created_at?: SortOrder
     minutes?: SortOrderInput | SortOrder
+    meeting_link?: SortOrderInput | SortOrder
     _count?: room_bookingsCountOrderByAggregateInput
     _avg?: room_bookingsAvgOrderByAggregateInput
     _max?: room_bookingsMaxOrderByAggregateInput
@@ -73734,6 +75450,7 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"room_bookings"> | string
     created_at?: DateTimeWithAggregatesFilter<"room_bookings"> | Date | string
     minutes?: StringNullableWithAggregatesFilter<"room_bookings"> | string | null
+    meeting_link?: StringNullableWithAggregatesFilter<"room_bookings"> | string | null
   }
 
   export type sessionsWhereInput = {
@@ -73923,6 +75640,101 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"travel_claims"> | Date | string
     remark?: StringNullableWithAggregatesFilter<"travel_claims"> | string | null
     end_date?: DateTimeNullableWithAggregatesFilter<"travel_claims"> | Date | string | null
+  }
+
+  export type employee_trainingsWhereInput = {
+    AND?: employee_trainingsWhereInput | employee_trainingsWhereInput[]
+    OR?: employee_trainingsWhereInput[]
+    NOT?: employee_trainingsWhereInput | employee_trainingsWhereInput[]
+    id?: IntFilter<"employee_trainings"> | number
+    emp_id?: StringFilter<"employee_trainings"> | string
+    course_name?: StringFilter<"employee_trainings"> | string
+    institution_name?: StringNullableFilter<"employee_trainings"> | string | null
+    training_date_start?: DateTimeNullableFilter<"employee_trainings"> | Date | string | null
+    training_date_end?: DateTimeNullableFilter<"employee_trainings"> | Date | string | null
+    completion_percentage?: DecimalNullableFilter<"employee_trainings"> | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: StringNullableFilter<"employee_trainings"> | string | null
+    certificate_file_url?: StringNullableFilter<"employee_trainings"> | string | null
+    assessor_id?: StringNullableFilter<"employee_trainings"> | string | null
+    created_at?: DateTimeFilter<"employee_trainings"> | Date | string
+    updated_at?: DateTimeFilter<"employee_trainings"> | Date | string
+    employees_employee_trainings_assessor_idToemployees?: XOR<EmployeesNullableScalarRelationFilter, employeesWhereInput> | null
+    employees_employee_trainings_emp_idToemployees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
+  }
+
+  export type employee_trainingsOrderByWithRelationInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    course_name?: SortOrder
+    institution_name?: SortOrderInput | SortOrder
+    training_date_start?: SortOrderInput | SortOrder
+    training_date_end?: SortOrderInput | SortOrder
+    completion_percentage?: SortOrderInput | SortOrder
+    effectiveness_result?: SortOrderInput | SortOrder
+    certificate_file_url?: SortOrderInput | SortOrder
+    assessor_id?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    employees_employee_trainings_assessor_idToemployees?: employeesOrderByWithRelationInput
+    employees_employee_trainings_emp_idToemployees?: employeesOrderByWithRelationInput
+  }
+
+  export type employee_trainingsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: employee_trainingsWhereInput | employee_trainingsWhereInput[]
+    OR?: employee_trainingsWhereInput[]
+    NOT?: employee_trainingsWhereInput | employee_trainingsWhereInput[]
+    emp_id?: StringFilter<"employee_trainings"> | string
+    course_name?: StringFilter<"employee_trainings"> | string
+    institution_name?: StringNullableFilter<"employee_trainings"> | string | null
+    training_date_start?: DateTimeNullableFilter<"employee_trainings"> | Date | string | null
+    training_date_end?: DateTimeNullableFilter<"employee_trainings"> | Date | string | null
+    completion_percentage?: DecimalNullableFilter<"employee_trainings"> | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: StringNullableFilter<"employee_trainings"> | string | null
+    certificate_file_url?: StringNullableFilter<"employee_trainings"> | string | null
+    assessor_id?: StringNullableFilter<"employee_trainings"> | string | null
+    created_at?: DateTimeFilter<"employee_trainings"> | Date | string
+    updated_at?: DateTimeFilter<"employee_trainings"> | Date | string
+    employees_employee_trainings_assessor_idToemployees?: XOR<EmployeesNullableScalarRelationFilter, employeesWhereInput> | null
+    employees_employee_trainings_emp_idToemployees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
+  }, "id">
+
+  export type employee_trainingsOrderByWithAggregationInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    course_name?: SortOrder
+    institution_name?: SortOrderInput | SortOrder
+    training_date_start?: SortOrderInput | SortOrder
+    training_date_end?: SortOrderInput | SortOrder
+    completion_percentage?: SortOrderInput | SortOrder
+    effectiveness_result?: SortOrderInput | SortOrder
+    certificate_file_url?: SortOrderInput | SortOrder
+    assessor_id?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: employee_trainingsCountOrderByAggregateInput
+    _avg?: employee_trainingsAvgOrderByAggregateInput
+    _max?: employee_trainingsMaxOrderByAggregateInput
+    _min?: employee_trainingsMinOrderByAggregateInput
+    _sum?: employee_trainingsSumOrderByAggregateInput
+  }
+
+  export type employee_trainingsScalarWhereWithAggregatesInput = {
+    AND?: employee_trainingsScalarWhereWithAggregatesInput | employee_trainingsScalarWhereWithAggregatesInput[]
+    OR?: employee_trainingsScalarWhereWithAggregatesInput[]
+    NOT?: employee_trainingsScalarWhereWithAggregatesInput | employee_trainingsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"employee_trainings"> | number
+    emp_id?: StringWithAggregatesFilter<"employee_trainings"> | string
+    course_name?: StringWithAggregatesFilter<"employee_trainings"> | string
+    institution_name?: StringNullableWithAggregatesFilter<"employee_trainings"> | string | null
+    training_date_start?: DateTimeNullableWithAggregatesFilter<"employee_trainings"> | Date | string | null
+    training_date_end?: DateTimeNullableWithAggregatesFilter<"employee_trainings"> | Date | string | null
+    completion_percentage?: DecimalNullableWithAggregatesFilter<"employee_trainings"> | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: StringNullableWithAggregatesFilter<"employee_trainings"> | string | null
+    certificate_file_url?: StringNullableWithAggregatesFilter<"employee_trainings"> | string | null
+    assessor_id?: StringNullableWithAggregatesFilter<"employee_trainings"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"employee_trainings"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"employee_trainings"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -75556,6 +77368,11 @@ export namespace Prisma {
     sellerName?: string | null
     currentStep?: string
     flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
@@ -75579,6 +77396,11 @@ export namespace Prisma {
     quotationId?: string | null
     currentStep?: string
     flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
@@ -75600,6 +77422,11 @@ export namespace Prisma {
     sellerName?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
@@ -75623,6 +77450,11 @@ export namespace Prisma {
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
@@ -75645,6 +77477,11 @@ export namespace Prisma {
     quotationId?: string | null
     currentStep?: string
     flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -75664,6 +77501,11 @@ export namespace Prisma {
     sellerName?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -75684,6 +77526,11 @@ export namespace Prisma {
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -75817,19 +77664,19 @@ export namespace Prisma {
     phoneNumber?: string | null
     workType?: string | null
     forwardedBy?: string | null
-    company?: string | null
-    customerCompany?: string | null
-    customerAddress?: string | null
-    salesPerson?: string | null
     items: JsonNullValueInput | InputJsonValue
     symptoms?: string | null
     settings?: string | null
     checklist: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: Date | string | null
     sentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: string | null
+    customerAddress?: string | null
+    customerCompany?: string | null
+    salesPerson?: string | null
     job: JobCreateNestedOneWithoutRepairOrderInput
   }
 
@@ -75845,19 +77692,19 @@ export namespace Prisma {
     phoneNumber?: string | null
     workType?: string | null
     forwardedBy?: string | null
-    company?: string | null
-    customerCompany?: string | null
-    customerAddress?: string | null
-    salesPerson?: string | null
     items: JsonNullValueInput | InputJsonValue
     symptoms?: string | null
     settings?: string | null
     checklist: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: Date | string | null
     sentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: string | null
+    customerAddress?: string | null
+    customerCompany?: string | null
+    salesPerson?: string | null
   }
 
   export type RepairOrderUpdateInput = {
@@ -75871,19 +77718,19 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    company?: NullableStringFieldUpdateOperationsInput | string | null
-    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
-    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
     checklist?: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
     job?: JobUpdateOneRequiredWithoutRepairOrderNestedInput
   }
 
@@ -75899,19 +77746,19 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    company?: NullableStringFieldUpdateOperationsInput | string | null
-    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
-    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
     checklist?: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RepairOrderCreateManyInput = {
@@ -75926,19 +77773,19 @@ export namespace Prisma {
     phoneNumber?: string | null
     workType?: string | null
     forwardedBy?: string | null
-    company?: string | null
-    customerCompany?: string | null
-    customerAddress?: string | null
-    salesPerson?: string | null
     items: JsonNullValueInput | InputJsonValue
     symptoms?: string | null
     settings?: string | null
     checklist: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: Date | string | null
     sentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: string | null
+    customerAddress?: string | null
+    customerCompany?: string | null
+    salesPerson?: string | null
   }
 
   export type RepairOrderUpdateManyMutationInput = {
@@ -75952,19 +77799,19 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    company?: NullableStringFieldUpdateOperationsInput | string | null
-    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
-    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
     checklist?: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RepairOrderUncheckedUpdateManyInput = {
@@ -75979,19 +77826,19 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    company?: NullableStringFieldUpdateOperationsInput | string | null
-    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
-    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
     checklist?: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type admin_login_attemptsCreateInput = {
@@ -77194,10 +79041,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -77253,10 +79110,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -77302,10 +79169,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -77361,10 +79238,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -77415,6 +79302,14 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesUpdateManyMutationInput = {
@@ -77445,6 +79340,14 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesUncheckedUpdateManyInput = {
@@ -77480,6 +79383,14 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type general_welfare_claimsCreateInput = {
@@ -78396,6 +80307,7 @@ export namespace Prisma {
     is_published?: boolean
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: Decimal | DecimalJsLike | number | string | null
     employees: employeesCreateNestedOneWithoutMonthly_payroll_dataInput
   }
 
@@ -78429,6 +80341,7 @@ export namespace Prisma {
     is_published?: boolean
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUpdateInput = {
@@ -78459,6 +80372,7 @@ export namespace Prisma {
     is_published?: BoolFieldUpdateOperationsInput | boolean
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     employees?: employeesUpdateOneRequiredWithoutMonthly_payroll_dataNestedInput
   }
 
@@ -78492,6 +80406,7 @@ export namespace Prisma {
     is_published?: BoolFieldUpdateOperationsInput | boolean
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataCreateManyInput = {
@@ -78524,6 +80439,7 @@ export namespace Prisma {
     is_published?: boolean
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUpdateManyMutationInput = {
@@ -78554,6 +80470,7 @@ export namespace Prisma {
     is_published?: BoolFieldUpdateOperationsInput | boolean
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUncheckedUpdateManyInput = {
@@ -78586,6 +80503,7 @@ export namespace Prisma {
     is_published?: BoolFieldUpdateOperationsInput | boolean
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ot_requestsCreateInput = {
@@ -79408,6 +81326,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
     room_booking_attendees?: room_booking_attendeesCreateNestedManyWithoutRoom_bookingsInput
     employees: employeesCreateNestedOneWithoutRoom_bookingsInput
     meeting_rooms: meeting_roomsCreateNestedOneWithoutRoom_bookingsInput
@@ -79423,6 +81342,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
     room_booking_attendees?: room_booking_attendeesUncheckedCreateNestedManyWithoutRoom_bookingsInput
   }
 
@@ -79433,6 +81353,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
     room_booking_attendees?: room_booking_attendeesUpdateManyWithoutRoom_bookingsNestedInput
     employees?: employeesUpdateOneRequiredWithoutRoom_bookingsNestedInput
     meeting_rooms?: meeting_roomsUpdateOneRequiredWithoutRoom_bookingsNestedInput
@@ -79448,6 +81369,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
     room_booking_attendees?: room_booking_attendeesUncheckedUpdateManyWithoutRoom_bookingsNestedInput
   }
 
@@ -79461,6 +81383,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
   }
 
   export type room_bookingsUpdateManyMutationInput = {
@@ -79470,6 +81393,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type room_bookingsUncheckedUpdateManyInput = {
@@ -79482,6 +81406,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type sessionsCreateInput = {
@@ -79694,6 +81619,106 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     remark?: NullableStringFieldUpdateOperationsInput | string | null
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type employee_trainingsCreateInput = {
+    course_name: string
+    institution_name?: string | null
+    training_date_start?: Date | string | null
+    training_date_end?: Date | string | null
+    completion_percentage?: Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: string | null
+    certificate_file_url?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    employees_employee_trainings_assessor_idToemployees?: employeesCreateNestedOneWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput
+    employees_employee_trainings_emp_idToemployees: employeesCreateNestedOneWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput
+  }
+
+  export type employee_trainingsUncheckedCreateInput = {
+    id?: number
+    emp_id: string
+    course_name: string
+    institution_name?: string | null
+    training_date_start?: Date | string | null
+    training_date_end?: Date | string | null
+    completion_percentage?: Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: string | null
+    certificate_file_url?: string | null
+    assessor_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type employee_trainingsUpdateInput = {
+    course_name?: StringFieldUpdateOperationsInput | string
+    institution_name?: NullableStringFieldUpdateOperationsInput | string | null
+    training_date_start?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    training_date_end?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completion_percentage?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: NullableStringFieldUpdateOperationsInput | string | null
+    certificate_file_url?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    employees_employee_trainings_assessor_idToemployees?: employeesUpdateOneWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesNestedInput
+    employees_employee_trainings_emp_idToemployees?: employeesUpdateOneRequiredWithoutEmployee_trainings_employee_trainings_emp_idToemployeesNestedInput
+  }
+
+  export type employee_trainingsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    course_name?: StringFieldUpdateOperationsInput | string
+    institution_name?: NullableStringFieldUpdateOperationsInput | string | null
+    training_date_start?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    training_date_end?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completion_percentage?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: NullableStringFieldUpdateOperationsInput | string | null
+    certificate_file_url?: NullableStringFieldUpdateOperationsInput | string | null
+    assessor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type employee_trainingsCreateManyInput = {
+    id?: number
+    emp_id: string
+    course_name: string
+    institution_name?: string | null
+    training_date_start?: Date | string | null
+    training_date_end?: Date | string | null
+    completion_percentage?: Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: string | null
+    certificate_file_url?: string | null
+    assessor_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type employee_trainingsUpdateManyMutationInput = {
+    course_name?: StringFieldUpdateOperationsInput | string
+    institution_name?: NullableStringFieldUpdateOperationsInput | string | null
+    training_date_start?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    training_date_end?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completion_percentage?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: NullableStringFieldUpdateOperationsInput | string | null
+    certificate_file_url?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type employee_trainingsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    course_name?: StringFieldUpdateOperationsInput | string
+    institution_name?: NullableStringFieldUpdateOperationsInput | string | null
+    training_date_start?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    training_date_end?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completion_percentage?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: NullableStringFieldUpdateOperationsInput | string | null
+    certificate_file_url?: NullableStringFieldUpdateOperationsInput | string | null
+    assessor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -80843,6 +82868,11 @@ export namespace Prisma {
     quotationId?: SortOrder
     currentStep?: SortOrder
     flowVariant?: SortOrder
+    deliveryMethod?: SortOrder
+    deliveryDate?: SortOrder
+    courierCompany?: SortOrder
+    trackingNumber?: SortOrder
+    trackingPhotoUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -80868,6 +82898,11 @@ export namespace Prisma {
     quotationId?: SortOrder
     currentStep?: SortOrder
     flowVariant?: SortOrder
+    deliveryMethod?: SortOrder
+    deliveryDate?: SortOrder
+    courierCompany?: SortOrder
+    trackingNumber?: SortOrder
+    trackingPhotoUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -80888,6 +82923,11 @@ export namespace Prisma {
     quotationId?: SortOrder
     currentStep?: SortOrder
     flowVariant?: SortOrder
+    deliveryMethod?: SortOrder
+    deliveryDate?: SortOrder
+    courierCompany?: SortOrder
+    trackingNumber?: SortOrder
+    trackingPhotoUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -81028,19 +83068,19 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     workType?: SortOrder
     forwardedBy?: SortOrder
-    company?: SortOrder
-    customerCompany?: SortOrder
-    customerAddress?: SortOrder
-    salesPerson?: SortOrder
     items?: SortOrder
     symptoms?: SortOrder
     settings?: SortOrder
     checklist?: SortOrder
-    checklistImages?: SortOrder
     receivedDate?: SortOrder
     sentDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    checklistImages?: SortOrder
+    company?: SortOrder
+    customerAddress?: SortOrder
+    customerCompany?: SortOrder
+    salesPerson?: SortOrder
   }
 
   export type RepairOrderMaxOrderByAggregateInput = {
@@ -81055,16 +83095,16 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     workType?: SortOrder
     forwardedBy?: SortOrder
-    company?: SortOrder
-    customerCompany?: SortOrder
-    customerAddress?: SortOrder
-    salesPerson?: SortOrder
     symptoms?: SortOrder
     settings?: SortOrder
     receivedDate?: SortOrder
     sentDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    company?: SortOrder
+    customerAddress?: SortOrder
+    customerCompany?: SortOrder
+    salesPerson?: SortOrder
   }
 
   export type RepairOrderMinOrderByAggregateInput = {
@@ -81079,16 +83119,16 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     workType?: SortOrder
     forwardedBy?: SortOrder
-    company?: SortOrder
-    customerCompany?: SortOrder
-    customerAddress?: SortOrder
-    salesPerson?: SortOrder
     symptoms?: SortOrder
     settings?: SortOrder
     receivedDate?: SortOrder
     sentDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    company?: SortOrder
+    customerAddress?: SortOrder
+    customerCompany?: SortOrder
+    salesPerson?: SortOrder
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -81990,6 +84030,12 @@ export namespace Prisma {
     none?: daily_work_plansWhereInput
   }
 
+  export type Employee_trainingsListRelationFilter = {
+    every?: employee_trainingsWhereInput
+    some?: employee_trainingsWhereInput
+    none?: employee_trainingsWhereInput
+  }
+
   export type Employee_warningsListRelationFilter = {
     every?: employee_warningsWhereInput
     some?: employee_warningsWhereInput
@@ -82088,6 +84134,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type employee_trainingsOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type employee_warningsOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -82165,6 +84215,14 @@ export namespace Prisma {
     secondary_supervisor_id?: SortOrder
     nickname?: SortOrder
     email?: SortOrder
+    general_allowance?: SortOrder
+    probation_accommodation_allowance?: SortOrder
+    probation_meal_allowance?: SortOrder
+    probation_travel_allowance?: SortOrder
+    fixed_accommodation_allowance?: SortOrder
+    fixed_meal_allowance?: SortOrder
+    fixed_travel_allowance?: SortOrder
+    fixed_tax_deduction?: SortOrder
   }
 
   export type employeesAvgOrderByAggregateInput = {
@@ -82172,6 +84230,11 @@ export namespace Prisma {
     department_id?: SortOrder
     job_position_id?: SortOrder
     position_allowance?: SortOrder
+    general_allowance?: SortOrder
+    fixed_accommodation_allowance?: SortOrder
+    fixed_meal_allowance?: SortOrder
+    fixed_travel_allowance?: SortOrder
+    fixed_tax_deduction?: SortOrder
   }
 
   export type employeesMaxOrderByAggregateInput = {
@@ -82207,6 +84270,14 @@ export namespace Prisma {
     secondary_supervisor_id?: SortOrder
     nickname?: SortOrder
     email?: SortOrder
+    general_allowance?: SortOrder
+    probation_accommodation_allowance?: SortOrder
+    probation_meal_allowance?: SortOrder
+    probation_travel_allowance?: SortOrder
+    fixed_accommodation_allowance?: SortOrder
+    fixed_meal_allowance?: SortOrder
+    fixed_travel_allowance?: SortOrder
+    fixed_tax_deduction?: SortOrder
   }
 
   export type employeesMinOrderByAggregateInput = {
@@ -82242,6 +84313,14 @@ export namespace Prisma {
     secondary_supervisor_id?: SortOrder
     nickname?: SortOrder
     email?: SortOrder
+    general_allowance?: SortOrder
+    probation_accommodation_allowance?: SortOrder
+    probation_meal_allowance?: SortOrder
+    probation_travel_allowance?: SortOrder
+    fixed_accommodation_allowance?: SortOrder
+    fixed_meal_allowance?: SortOrder
+    fixed_travel_allowance?: SortOrder
+    fixed_tax_deduction?: SortOrder
   }
 
   export type employeesSumOrderByAggregateInput = {
@@ -82249,6 +84328,11 @@ export namespace Prisma {
     department_id?: SortOrder
     job_position_id?: SortOrder
     position_allowance?: SortOrder
+    general_allowance?: SortOrder
+    fixed_accommodation_allowance?: SortOrder
+    fixed_meal_allowance?: SortOrder
+    fixed_travel_allowance?: SortOrder
+    fixed_tax_deduction?: SortOrder
   }
 
   export type general_welfare_claimsCountOrderByAggregateInput = {
@@ -82797,6 +84881,7 @@ export namespace Prisma {
     is_published?: SortOrder
     insurance?: SortOrder
     insurance_income?: SortOrder
+    general_allowance_override?: SortOrder
   }
 
   export type monthly_payroll_dataAvgOrderByAggregateInput = {
@@ -82825,6 +84910,7 @@ export namespace Prisma {
     commissions?: SortOrder
     insurance?: SortOrder
     insurance_income?: SortOrder
+    general_allowance_override?: SortOrder
   }
 
   export type monthly_payroll_dataMaxOrderByAggregateInput = {
@@ -82857,6 +84943,7 @@ export namespace Prisma {
     is_published?: SortOrder
     insurance?: SortOrder
     insurance_income?: SortOrder
+    general_allowance_override?: SortOrder
   }
 
   export type monthly_payroll_dataMinOrderByAggregateInput = {
@@ -82889,6 +84976,7 @@ export namespace Prisma {
     is_published?: SortOrder
     insurance?: SortOrder
     insurance_income?: SortOrder
+    general_allowance_override?: SortOrder
   }
 
   export type monthly_payroll_dataSumOrderByAggregateInput = {
@@ -82917,6 +85005,7 @@ export namespace Prisma {
     commissions?: SortOrder
     insurance?: SortOrder
     insurance_income?: SortOrder
+    general_allowance_override?: SortOrder
   }
 
   export type ot_requestsCountOrderByAggregateInput = {
@@ -83416,6 +85505,7 @@ export namespace Prisma {
     status?: SortOrder
     created_at?: SortOrder
     minutes?: SortOrder
+    meeting_link?: SortOrder
   }
 
   export type room_bookingsAvgOrderByAggregateInput = {
@@ -83433,6 +85523,7 @@ export namespace Prisma {
     status?: SortOrder
     created_at?: SortOrder
     minutes?: SortOrder
+    meeting_link?: SortOrder
   }
 
   export type room_bookingsMinOrderByAggregateInput = {
@@ -83445,6 +85536,7 @@ export namespace Prisma {
     status?: SortOrder
     created_at?: SortOrder
     minutes?: SortOrder
+    meeting_link?: SortOrder
   }
 
   export type room_bookingsSumOrderByAggregateInput = {
@@ -83566,6 +85658,61 @@ export namespace Prisma {
 
   export type travel_claimsSumOrderByAggregateInput = {
     accommodation_amount?: SortOrder
+  }
+
+  export type employee_trainingsCountOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    course_name?: SortOrder
+    institution_name?: SortOrder
+    training_date_start?: SortOrder
+    training_date_end?: SortOrder
+    completion_percentage?: SortOrder
+    effectiveness_result?: SortOrder
+    certificate_file_url?: SortOrder
+    assessor_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type employee_trainingsAvgOrderByAggregateInput = {
+    id?: SortOrder
+    completion_percentage?: SortOrder
+  }
+
+  export type employee_trainingsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    course_name?: SortOrder
+    institution_name?: SortOrder
+    training_date_start?: SortOrder
+    training_date_end?: SortOrder
+    completion_percentage?: SortOrder
+    effectiveness_result?: SortOrder
+    certificate_file_url?: SortOrder
+    assessor_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type employee_trainingsMinOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    course_name?: SortOrder
+    institution_name?: SortOrder
+    training_date_start?: SortOrder
+    training_date_end?: SortOrder
+    completion_percentage?: SortOrder
+    effectiveness_result?: SortOrder
+    certificate_file_url?: SortOrder
+    assessor_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type employee_trainingsSumOrderByAggregateInput = {
+    id?: SortOrder
+    completion_percentage?: SortOrder
   }
 
   export type CompanyCreateNestedManyWithoutAssignedUserInput = {
@@ -85151,6 +87298,20 @@ export namespace Prisma {
     connect?: daily_work_plansWhereUniqueInput | daily_work_plansWhereUniqueInput[]
   }
 
+  export type employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    create?: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput> | employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput[] | employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    connectOrCreate?: employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    createMany?: employee_trainingsCreateManyEmployees_employee_trainings_assessor_idToemployeesInputEnvelope
+    connect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+  }
+
+  export type employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    create?: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput> | employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput[] | employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    connectOrCreate?: employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    createMany?: employee_trainingsCreateManyEmployees_employee_trainings_emp_idToemployeesInputEnvelope
+    connect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+  }
+
   export type employee_warningsCreateNestedManyWithoutEmployeesInput = {
     create?: XOR<employee_warningsCreateWithoutEmployeesInput, employee_warningsUncheckedCreateWithoutEmployeesInput> | employee_warningsCreateWithoutEmployeesInput[] | employee_warningsUncheckedCreateWithoutEmployeesInput[]
     connectOrCreate?: employee_warningsCreateOrConnectWithoutEmployeesInput | employee_warningsCreateOrConnectWithoutEmployeesInput[]
@@ -85314,6 +87475,20 @@ export namespace Prisma {
     connect?: daily_work_plansWhereUniqueInput | daily_work_plansWhereUniqueInput[]
   }
 
+  export type employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    create?: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput> | employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput[] | employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    connectOrCreate?: employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    createMany?: employee_trainingsCreateManyEmployees_employee_trainings_assessor_idToemployeesInputEnvelope
+    connect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+  }
+
+  export type employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    create?: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput> | employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput[] | employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    connectOrCreate?: employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    createMany?: employee_trainingsCreateManyEmployees_employee_trainings_emp_idToemployeesInputEnvelope
+    connect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+  }
+
   export type employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput = {
     create?: XOR<employee_warningsCreateWithoutEmployeesInput, employee_warningsUncheckedCreateWithoutEmployeesInput> | employee_warningsCreateWithoutEmployeesInput[] | employee_warningsUncheckedCreateWithoutEmployeesInput[]
     connectOrCreate?: employee_warningsCreateOrConnectWithoutEmployeesInput | employee_warningsCreateOrConnectWithoutEmployeesInput[]
@@ -85473,6 +87648,34 @@ export namespace Prisma {
     update?: daily_work_plansUpdateWithWhereUniqueWithoutEmployeesInput | daily_work_plansUpdateWithWhereUniqueWithoutEmployeesInput[]
     updateMany?: daily_work_plansUpdateManyWithWhereWithoutEmployeesInput | daily_work_plansUpdateManyWithWhereWithoutEmployeesInput[]
     deleteMany?: daily_work_plansScalarWhereInput | daily_work_plansScalarWhereInput[]
+  }
+
+  export type employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput = {
+    create?: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput> | employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput[] | employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    connectOrCreate?: employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    upsert?: employee_trainingsUpsertWithWhereUniqueWithoutEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsUpsertWithWhereUniqueWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    createMany?: employee_trainingsCreateManyEmployees_employee_trainings_assessor_idToemployeesInputEnvelope
+    set?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    disconnect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    delete?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    connect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    update?: employee_trainingsUpdateWithWhereUniqueWithoutEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsUpdateWithWhereUniqueWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    updateMany?: employee_trainingsUpdateManyWithWhereWithoutEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsUpdateManyWithWhereWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    deleteMany?: employee_trainingsScalarWhereInput | employee_trainingsScalarWhereInput[]
+  }
+
+  export type employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput = {
+    create?: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput> | employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput[] | employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    connectOrCreate?: employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    upsert?: employee_trainingsUpsertWithWhereUniqueWithoutEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsUpsertWithWhereUniqueWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    createMany?: employee_trainingsCreateManyEmployees_employee_trainings_emp_idToemployeesInputEnvelope
+    set?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    disconnect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    delete?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    connect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    update?: employee_trainingsUpdateWithWhereUniqueWithoutEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsUpdateWithWhereUniqueWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    updateMany?: employee_trainingsUpdateManyWithWhereWithoutEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsUpdateManyWithWhereWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    deleteMany?: employee_trainingsScalarWhereInput | employee_trainingsScalarWhereInput[]
   }
 
   export type employee_warningsUpdateManyWithoutEmployeesNestedInput = {
@@ -85789,6 +87992,34 @@ export namespace Prisma {
     update?: daily_work_plansUpdateWithWhereUniqueWithoutEmployeesInput | daily_work_plansUpdateWithWhereUniqueWithoutEmployeesInput[]
     updateMany?: daily_work_plansUpdateManyWithWhereWithoutEmployeesInput | daily_work_plansUpdateManyWithWhereWithoutEmployeesInput[]
     deleteMany?: daily_work_plansScalarWhereInput | daily_work_plansScalarWhereInput[]
+  }
+
+  export type employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput = {
+    create?: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput> | employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput[] | employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    connectOrCreate?: employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    upsert?: employee_trainingsUpsertWithWhereUniqueWithoutEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsUpsertWithWhereUniqueWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    createMany?: employee_trainingsCreateManyEmployees_employee_trainings_assessor_idToemployeesInputEnvelope
+    set?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    disconnect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    delete?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    connect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    update?: employee_trainingsUpdateWithWhereUniqueWithoutEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsUpdateWithWhereUniqueWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    updateMany?: employee_trainingsUpdateManyWithWhereWithoutEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsUpdateManyWithWhereWithoutEmployees_employee_trainings_assessor_idToemployeesInput[]
+    deleteMany?: employee_trainingsScalarWhereInput | employee_trainingsScalarWhereInput[]
+  }
+
+  export type employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput = {
+    create?: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput> | employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput[] | employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    connectOrCreate?: employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    upsert?: employee_trainingsUpsertWithWhereUniqueWithoutEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsUpsertWithWhereUniqueWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    createMany?: employee_trainingsCreateManyEmployees_employee_trainings_emp_idToemployeesInputEnvelope
+    set?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    disconnect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    delete?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    connect?: employee_trainingsWhereUniqueInput | employee_trainingsWhereUniqueInput[]
+    update?: employee_trainingsUpdateWithWhereUniqueWithoutEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsUpdateWithWhereUniqueWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    updateMany?: employee_trainingsUpdateManyWithWhereWithoutEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsUpdateManyWithWhereWithoutEmployees_employee_trainings_emp_idToemployeesInput[]
+    deleteMany?: employee_trainingsScalarWhereInput | employee_trainingsScalarWhereInput[]
   }
 
   export type employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput = {
@@ -86577,6 +88808,36 @@ export namespace Prisma {
     upsert?: employeesUpsertWithoutTravel_claimsInput
     connect?: employeesWhereUniqueInput
     update?: XOR<XOR<employeesUpdateToOneWithWhereWithoutTravel_claimsInput, employeesUpdateWithoutTravel_claimsInput>, employeesUncheckedUpdateWithoutTravel_claimsInput>
+  }
+
+  export type employeesCreateNestedOneWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
+    create?: XOR<employeesCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput, employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput>
+    connectOrCreate?: employeesCreateOrConnectWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput
+    connect?: employeesWhereUniqueInput
+  }
+
+  export type employeesCreateNestedOneWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
+    create?: XOR<employeesCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput, employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput>
+    connectOrCreate?: employeesCreateOrConnectWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput
+    connect?: employeesWhereUniqueInput
+  }
+
+  export type employeesUpdateOneWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesNestedInput = {
+    create?: XOR<employeesCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput, employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput>
+    connectOrCreate?: employeesCreateOrConnectWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput
+    upsert?: employeesUpsertWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput
+    disconnect?: employeesWhereInput | boolean
+    delete?: employeesWhereInput | boolean
+    connect?: employeesWhereUniqueInput
+    update?: XOR<XOR<employeesUpdateToOneWithWhereWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput, employeesUpdateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput>, employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput>
+  }
+
+  export type employeesUpdateOneRequiredWithoutEmployee_trainings_employee_trainings_emp_idToemployeesNestedInput = {
+    create?: XOR<employeesCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput, employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput>
+    connectOrCreate?: employeesCreateOrConnectWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput
+    upsert?: employeesUpsertWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput
+    connect?: employeesWhereUniqueInput
+    update?: XOR<XOR<employeesUpdateToOneWithWhereWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput, employeesUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput>, employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -89173,6 +91434,11 @@ export namespace Prisma {
     sellerName?: string | null
     currentStep?: string
     flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
@@ -89194,6 +91460,11 @@ export namespace Prisma {
     sellerName?: string | null
     currentStep?: string
     flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
@@ -89434,6 +91705,11 @@ export namespace Prisma {
     quotationId?: StringNullableFilter<"Job"> | string | null
     currentStep?: StringFilter<"Job"> | string
     flowVariant?: StringNullableFilter<"Job"> | string | null
+    deliveryMethod?: StringNullableFilter<"Job"> | string | null
+    deliveryDate?: DateTimeNullableFilter<"Job"> | Date | string | null
+    courierCompany?: StringNullableFilter<"Job"> | string | null
+    trackingNumber?: StringNullableFilter<"Job"> | string | null
+    trackingPhotoUrl?: StringNullableFilter<"Job"> | string | null
     createdAt?: DateTimeFilter<"Job"> | Date | string
     updatedAt?: DateTimeFilter<"Job"> | Date | string
   }
@@ -90463,19 +92739,19 @@ export namespace Prisma {
     phoneNumber?: string | null
     workType?: string | null
     forwardedBy?: string | null
-    company?: string | null
-    customerCompany?: string | null
-    customerAddress?: string | null
-    salesPerson?: string | null
     items: JsonNullValueInput | InputJsonValue
     symptoms?: string | null
     settings?: string | null
     checklist: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: Date | string | null
     sentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: string | null
+    customerAddress?: string | null
+    customerCompany?: string | null
+    salesPerson?: string | null
   }
 
   export type RepairOrderUncheckedCreateWithoutJobInput = {
@@ -90489,19 +92765,19 @@ export namespace Prisma {
     phoneNumber?: string | null
     workType?: string | null
     forwardedBy?: string | null
-    company?: string | null
-    customerCompany?: string | null
-    customerAddress?: string | null
-    salesPerson?: string | null
     items: JsonNullValueInput | InputJsonValue
     symptoms?: string | null
     settings?: string | null
     checklist: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: Date | string | null
     sentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: string | null
+    customerAddress?: string | null
+    customerCompany?: string | null
+    salesPerson?: string | null
   }
 
   export type RepairOrderCreateOrConnectWithoutJobInput = {
@@ -90638,19 +92914,19 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    company?: NullableStringFieldUpdateOperationsInput | string | null
-    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
-    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
     checklist?: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RepairOrderUncheckedUpdateWithoutJobInput = {
@@ -90664,19 +92940,19 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    company?: NullableStringFieldUpdateOperationsInput | string | null
-    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
-    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
     checklist?: JsonNullValueInput | InputJsonValue
-    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    salesPerson?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type JobStepLogUpsertWithWhereUniqueWithoutJobInput = {
@@ -90808,6 +93084,11 @@ export namespace Prisma {
     sellerName?: string | null
     currentStep?: string
     flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
@@ -90830,6 +93111,11 @@ export namespace Prisma {
     quotationId?: string | null
     currentStep?: string
     flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
@@ -90866,6 +93152,11 @@ export namespace Prisma {
     sellerName?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
@@ -90888,6 +93179,11 @@ export namespace Prisma {
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
@@ -90908,6 +93204,11 @@ export namespace Prisma {
     sellerName?: string | null
     currentStep?: string
     flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
@@ -90930,6 +93231,11 @@ export namespace Prisma {
     quotationId?: string | null
     currentStep?: string
     flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
@@ -90966,6 +93272,11 @@ export namespace Prisma {
     sellerName?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
@@ -90988,6 +93299,11 @@ export namespace Prisma {
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
@@ -91113,9 +93429,19 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -91171,9 +93497,19 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -91283,9 +93619,19 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -91341,9 +93687,19 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -91493,9 +93849,19 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -91551,9 +93917,19 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -91615,9 +93991,19 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -91673,9 +94059,19 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -91721,10 +94117,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -91778,10 +94184,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -91861,6 +94277,14 @@ export namespace Prisma {
     secondary_supervisor_id?: StringNullableFilter<"employees"> | string | null
     nickname?: StringNullableFilter<"employees"> | string | null
     email?: StringNullableFilter<"employees"> | string | null
+    general_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFilter<"employees"> | boolean
+    probation_meal_allowance?: BoolFilter<"employees"> | boolean
+    probation_travel_allowance?: BoolFilter<"employees"> | boolean
+    fixed_accommodation_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesCreateWithoutCommission_claimsInput = {
@@ -91891,9 +94315,19 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -91949,9 +94383,19 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -92013,9 +94457,19 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -92071,9 +94525,19 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -92119,9 +94583,19 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -92177,9 +94651,19 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -92241,9 +94725,19 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -92299,9 +94793,19 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -92365,10 +94869,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
     employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput
@@ -92422,10 +94936,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -92641,10 +95165,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
     employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput
@@ -92699,10 +95233,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
     general_welfare_claims?: general_welfare_claimsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -92763,10 +95307,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
     employees_employees_secondary_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesNestedInput
@@ -92821,10 +95375,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
     general_welfare_claims?: general_welfare_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -93023,6 +95587,80 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    course_name: string
+    institution_name?: string | null
+    training_date_start?: Date | string | null
+    training_date_end?: Date | string | null
+    completion_percentage?: Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: string | null
+    certificate_file_url?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    employees_employee_trainings_emp_idToemployees: employeesCreateNestedOneWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput
+  }
+
+  export type employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    id?: number
+    emp_id: string
+    course_name: string
+    institution_name?: string | null
+    training_date_start?: Date | string | null
+    training_date_end?: Date | string | null
+    completion_percentage?: Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: string | null
+    certificate_file_url?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    where: employee_trainingsWhereUniqueInput
+    create: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput>
+  }
+
+  export type employee_trainingsCreateManyEmployees_employee_trainings_assessor_idToemployeesInputEnvelope = {
+    data: employee_trainingsCreateManyEmployees_employee_trainings_assessor_idToemployeesInput | employee_trainingsCreateManyEmployees_employee_trainings_assessor_idToemployeesInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    course_name: string
+    institution_name?: string | null
+    training_date_start?: Date | string | null
+    training_date_end?: Date | string | null
+    completion_percentage?: Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: string | null
+    certificate_file_url?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    employees_employee_trainings_assessor_idToemployees?: employeesCreateNestedOneWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput
+  }
+
+  export type employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    id?: number
+    course_name: string
+    institution_name?: string | null
+    training_date_start?: Date | string | null
+    training_date_end?: Date | string | null
+    completion_percentage?: Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: string | null
+    certificate_file_url?: string | null
+    assessor_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type employee_trainingsCreateOrConnectWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    where: employee_trainingsWhereUniqueInput
+    create: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput>
+  }
+
+  export type employee_trainingsCreateManyEmployees_employee_trainings_emp_idToemployeesInputEnvelope = {
+    data: employee_trainingsCreateManyEmployees_employee_trainings_emp_idToemployeesInput | employee_trainingsCreateManyEmployees_employee_trainings_emp_idToemployeesInput[]
+    skipDuplicates?: boolean
+  }
+
   export type employee_warningsCreateWithoutEmployeesInput = {
     date?: Date | string
     reason: string
@@ -93126,10 +95764,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -93184,10 +95832,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
     general_welfare_claims?: general_welfare_claimsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -93237,10 +95895,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -93294,10 +95962,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -93353,10 +96031,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -93411,10 +96099,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     general_welfare_claims?: general_welfare_claimsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -93464,10 +96162,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -93521,10 +96229,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -93813,6 +96531,7 @@ export namespace Prisma {
     is_published?: boolean
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUncheckedCreateWithoutEmployeesInput = {
@@ -93844,6 +96563,7 @@ export namespace Prisma {
     is_published?: boolean
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataCreateOrConnectWithoutEmployeesInput = {
@@ -94160,6 +96880,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
     room_booking_attendees?: room_booking_attendeesCreateNestedManyWithoutRoom_bookingsInput
     meeting_rooms: meeting_roomsCreateNestedOneWithoutRoom_bookingsInput
   }
@@ -94173,6 +96894,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
     room_booking_attendees?: room_booking_attendeesUncheckedCreateNestedManyWithoutRoom_bookingsInput
   }
 
@@ -94363,6 +97085,56 @@ export namespace Prisma {
     notified_at?: DateTimeNullableFilter<"daily_work_plans"> | Date | string | null
   }
 
+  export type employee_trainingsUpsertWithWhereUniqueWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    where: employee_trainingsWhereUniqueInput
+    update: XOR<employee_trainingsUpdateWithoutEmployees_employee_trainings_assessor_idToemployeesInput, employee_trainingsUncheckedUpdateWithoutEmployees_employee_trainings_assessor_idToemployeesInput>
+    create: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_assessor_idToemployeesInput>
+  }
+
+  export type employee_trainingsUpdateWithWhereUniqueWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    where: employee_trainingsWhereUniqueInput
+    data: XOR<employee_trainingsUpdateWithoutEmployees_employee_trainings_assessor_idToemployeesInput, employee_trainingsUncheckedUpdateWithoutEmployees_employee_trainings_assessor_idToemployeesInput>
+  }
+
+  export type employee_trainingsUpdateManyWithWhereWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    where: employee_trainingsScalarWhereInput
+    data: XOR<employee_trainingsUpdateManyMutationInput, employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput>
+  }
+
+  export type employee_trainingsScalarWhereInput = {
+    AND?: employee_trainingsScalarWhereInput | employee_trainingsScalarWhereInput[]
+    OR?: employee_trainingsScalarWhereInput[]
+    NOT?: employee_trainingsScalarWhereInput | employee_trainingsScalarWhereInput[]
+    id?: IntFilter<"employee_trainings"> | number
+    emp_id?: StringFilter<"employee_trainings"> | string
+    course_name?: StringFilter<"employee_trainings"> | string
+    institution_name?: StringNullableFilter<"employee_trainings"> | string | null
+    training_date_start?: DateTimeNullableFilter<"employee_trainings"> | Date | string | null
+    training_date_end?: DateTimeNullableFilter<"employee_trainings"> | Date | string | null
+    completion_percentage?: DecimalNullableFilter<"employee_trainings"> | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: StringNullableFilter<"employee_trainings"> | string | null
+    certificate_file_url?: StringNullableFilter<"employee_trainings"> | string | null
+    assessor_id?: StringNullableFilter<"employee_trainings"> | string | null
+    created_at?: DateTimeFilter<"employee_trainings"> | Date | string
+    updated_at?: DateTimeFilter<"employee_trainings"> | Date | string
+  }
+
+  export type employee_trainingsUpsertWithWhereUniqueWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    where: employee_trainingsWhereUniqueInput
+    update: XOR<employee_trainingsUpdateWithoutEmployees_employee_trainings_emp_idToemployeesInput, employee_trainingsUncheckedUpdateWithoutEmployees_employee_trainings_emp_idToemployeesInput>
+    create: XOR<employee_trainingsCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput, employee_trainingsUncheckedCreateWithoutEmployees_employee_trainings_emp_idToemployeesInput>
+  }
+
+  export type employee_trainingsUpdateWithWhereUniqueWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    where: employee_trainingsWhereUniqueInput
+    data: XOR<employee_trainingsUpdateWithoutEmployees_employee_trainings_emp_idToemployeesInput, employee_trainingsUncheckedUpdateWithoutEmployees_employee_trainings_emp_idToemployeesInput>
+  }
+
+  export type employee_trainingsUpdateManyWithWhereWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    where: employee_trainingsScalarWhereInput
+    data: XOR<employee_trainingsUpdateManyMutationInput, employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesInput>
+  }
+
   export type employee_warningsUpsertWithWhereUniqueWithoutEmployeesInput = {
     where: employee_warningsWhereUniqueInput
     update: XOR<employee_warningsUpdateWithoutEmployeesInput, employee_warningsUncheckedUpdateWithoutEmployeesInput>
@@ -94493,10 +97265,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -94551,10 +97333,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
     general_welfare_claims?: general_welfare_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -94626,10 +97418,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -94684,10 +97486,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     general_welfare_claims?: general_welfare_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -94937,6 +97749,7 @@ export namespace Prisma {
     is_published?: BoolFilter<"monthly_payroll_data"> | boolean
     insurance?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     insurance_income?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ot_requestsUpsertWithWhereUniqueWithoutEmployeesInput = {
@@ -95148,6 +97961,7 @@ export namespace Prisma {
     status?: StringFilter<"room_bookings"> | string
     created_at?: DateTimeFilter<"room_bookings"> | Date | string
     minutes?: StringNullableFilter<"room_bookings"> | string | null
+    meeting_link?: StringNullableFilter<"room_bookings"> | string | null
   }
 
   export type travel_claimsUpsertWithWhereUniqueWithoutEmployeesInput = {
@@ -95220,10 +98034,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -95278,10 +98102,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -95342,10 +98176,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -95400,10 +98244,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -95448,10 +98302,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput
@@ -95505,10 +98369,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -95747,10 +98621,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -95805,10 +98689,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -95858,10 +98752,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -95916,10 +98820,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -96021,10 +98935,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -96079,10 +99003,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -96138,10 +99072,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -96196,10 +99140,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -96446,10 +99400,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -96504,10 +99468,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -96568,10 +99542,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -96626,10 +99610,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -96700,6 +99694,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
     room_booking_attendees?: room_booking_attendeesCreateNestedManyWithoutRoom_bookingsInput
     employees: employeesCreateNestedOneWithoutRoom_bookingsInput
   }
@@ -96713,6 +99708,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
     room_booking_attendees?: room_booking_attendeesUncheckedCreateNestedManyWithoutRoom_bookingsInput
   }
 
@@ -96770,10 +99766,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -96828,10 +99834,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -96892,10 +99908,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -96950,10 +99976,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -96998,10 +100034,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -97056,10 +100102,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -97120,10 +100176,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -97178,10 +100244,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -97226,10 +100302,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -97284,10 +100370,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -97337,10 +100433,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -97395,10 +100501,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -97459,10 +100575,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -97517,10 +100643,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -97576,10 +100712,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -97634,10 +100780,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -97682,10 +100838,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -97740,10 +100906,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -97836,10 +101012,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -97894,10 +101080,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -98020,6 +101216,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
     employees: employeesCreateNestedOneWithoutRoom_bookingsInput
     meeting_rooms: meeting_roomsCreateNestedOneWithoutRoom_bookingsInput
   }
@@ -98034,6 +101231,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
   }
 
   export type room_bookingsCreateOrConnectWithoutRoom_booking_attendeesInput = {
@@ -98069,10 +101267,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -98127,10 +101335,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -98170,6 +101388,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
     employees?: employeesUpdateOneRequiredWithoutRoom_bookingsNestedInput
     meeting_rooms?: meeting_roomsUpdateOneRequiredWithoutRoom_bookingsNestedInput
   }
@@ -98184,6 +101403,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type employeesUpsertWithoutRoom_booking_attendeesInput = {
@@ -98225,10 +101445,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -98283,10 +101513,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -98350,10 +101590,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -98408,10 +101658,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -98512,10 +101772,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -98570,10 +101840,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -98702,10 +101982,20 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
     departments?: departmentsCreateNestedOneWithoutEmployeesInput
     job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
@@ -98760,10 +102050,20 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
     employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
@@ -98824,10 +102124,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -98882,10 +102192,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -98900,6 +102220,542 @@ export namespace Prisma {
     product_borrowings?: product_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     room_booking_attendees?: room_booking_attendeesUncheckedUpdateManyWithoutEmployeesNestedInput
     room_bookings?: room_bookingsUncheckedUpdateManyWithoutEmployeesNestedInput
+  }
+
+  export type employeesCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
+    emp_id: string
+    name: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    pin_hash?: string | null
+    gender?: string | null
+    hire_date?: Date | string | null
+    birth_date?: Date | string | null
+    phone_number?: string | null
+    base_salary?: Decimal | DecimalJsLike | number | string | null
+    otp_code?: string | null
+    otp_expires_at?: Date | string | null
+    bank_account_no?: string | null
+    bank_name?: string | null
+    is_on_trial?: boolean
+    has_telephone_allowance?: boolean
+    position_allowance?: Decimal | DecimalJsLike | number | string | null
+    address?: string | null
+    national_id_card?: string | null
+    salary_type?: string | null
+    line_user_id?: string | null
+    is_checkin_exempt?: boolean
+    probation_end_date?: Date | string | null
+    resignation_date?: Date | string | null
+    nickname?: string | null
+    email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
+    birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
+    commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
+    daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
+    employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
+    departments?: departmentsCreateNestedOneWithoutEmployeesInput
+    job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
+    employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
+    employees_employees_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_supervisor_idToemployeesInput
+    other_employees_employees_supervisor_idToemployees?: employeesCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
+    branches?: branchesCreateNestedOneWithoutEmployeesInput
+    general_welfare_claims?: general_welfare_claimsCreateNestedManyWithoutEmployeesInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsCreateNestedManyWithoutEmployees_kpi_evaluations_emp_idToemployeesInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsCreateNestedManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesInput
+    leave_requests?: leave_requestsCreateNestedManyWithoutEmployeesInput
+    monthly_payroll_data?: monthly_payroll_dataCreateNestedManyWithoutEmployeesInput
+    ot_requests?: ot_requestsCreateNestedManyWithoutEmployeesInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsCreateNestedManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsCreateNestedManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput
+    product_borrowings?: product_borrowingsCreateNestedManyWithoutEmployeesInput
+    room_booking_attendees?: room_booking_attendeesCreateNestedManyWithoutEmployeesInput
+    room_bookings?: room_bookingsCreateNestedManyWithoutEmployeesInput
+    travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+  }
+
+  export type employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
+    emp_id: string
+    name: string
+    branch_id?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    pin_hash?: string | null
+    gender?: string | null
+    hire_date?: Date | string | null
+    birth_date?: Date | string | null
+    phone_number?: string | null
+    base_salary?: Decimal | DecimalJsLike | number | string | null
+    department_id?: number | null
+    job_position_id?: number | null
+    otp_code?: string | null
+    otp_expires_at?: Date | string | null
+    supervisor_id?: string | null
+    bank_account_no?: string | null
+    bank_name?: string | null
+    is_on_trial?: boolean
+    has_telephone_allowance?: boolean
+    position_allowance?: Decimal | DecimalJsLike | number | string | null
+    address?: string | null
+    national_id_card?: string | null
+    salary_type?: string | null
+    line_user_id?: string | null
+    is_checkin_exempt?: boolean
+    probation_end_date?: Date | string | null
+    resignation_date?: Date | string | null
+    secondary_supervisor_id?: string | null
+    nickname?: string | null
+    email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
+    birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
+    employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
+    other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
+    general_welfare_claims?: general_welfare_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUncheckedCreateNestedManyWithoutEmployees_kpi_evaluations_emp_idToemployeesInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUncheckedCreateNestedManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesInput
+    leave_requests?: leave_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    monthly_payroll_data?: monthly_payroll_dataUncheckedCreateNestedManyWithoutEmployeesInput
+    ot_requests?: ot_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUncheckedCreateNestedManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUncheckedCreateNestedManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput
+    product_borrowings?: product_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
+    room_booking_attendees?: room_booking_attendeesUncheckedCreateNestedManyWithoutEmployeesInput
+    room_bookings?: room_bookingsUncheckedCreateNestedManyWithoutEmployeesInput
+    travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+  }
+
+  export type employeesCreateOrConnectWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
+    where: employeesWhereUniqueInput
+    create: XOR<employeesCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput, employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput>
+  }
+
+  export type employeesCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
+    emp_id: string
+    name: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    pin_hash?: string | null
+    gender?: string | null
+    hire_date?: Date | string | null
+    birth_date?: Date | string | null
+    phone_number?: string | null
+    base_salary?: Decimal | DecimalJsLike | number | string | null
+    otp_code?: string | null
+    otp_expires_at?: Date | string | null
+    bank_account_no?: string | null
+    bank_name?: string | null
+    is_on_trial?: boolean
+    has_telephone_allowance?: boolean
+    position_allowance?: Decimal | DecimalJsLike | number | string | null
+    address?: string | null
+    national_id_card?: string | null
+    salary_type?: string | null
+    line_user_id?: string | null
+    is_checkin_exempt?: boolean
+    probation_end_date?: Date | string | null
+    resignation_date?: Date | string | null
+    nickname?: string | null
+    email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
+    birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
+    commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
+    daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
+    departments?: departmentsCreateNestedOneWithoutEmployeesInput
+    job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
+    employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
+    employees_employees_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_supervisor_idToemployeesInput
+    other_employees_employees_supervisor_idToemployees?: employeesCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
+    branches?: branchesCreateNestedOneWithoutEmployeesInput
+    general_welfare_claims?: general_welfare_claimsCreateNestedManyWithoutEmployeesInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsCreateNestedManyWithoutEmployees_kpi_evaluations_emp_idToemployeesInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsCreateNestedManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesInput
+    leave_requests?: leave_requestsCreateNestedManyWithoutEmployeesInput
+    monthly_payroll_data?: monthly_payroll_dataCreateNestedManyWithoutEmployeesInput
+    ot_requests?: ot_requestsCreateNestedManyWithoutEmployeesInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsCreateNestedManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsCreateNestedManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput
+    product_borrowings?: product_borrowingsCreateNestedManyWithoutEmployeesInput
+    room_booking_attendees?: room_booking_attendeesCreateNestedManyWithoutEmployeesInput
+    room_bookings?: room_bookingsCreateNestedManyWithoutEmployeesInput
+    travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+  }
+
+  export type employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
+    emp_id: string
+    name: string
+    branch_id?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    pin_hash?: string | null
+    gender?: string | null
+    hire_date?: Date | string | null
+    birth_date?: Date | string | null
+    phone_number?: string | null
+    base_salary?: Decimal | DecimalJsLike | number | string | null
+    department_id?: number | null
+    job_position_id?: number | null
+    otp_code?: string | null
+    otp_expires_at?: Date | string | null
+    supervisor_id?: string | null
+    bank_account_no?: string | null
+    bank_name?: string | null
+    is_on_trial?: boolean
+    has_telephone_allowance?: boolean
+    position_allowance?: Decimal | DecimalJsLike | number | string | null
+    address?: string | null
+    national_id_card?: string | null
+    salary_type?: string | null
+    line_user_id?: string | null
+    is_checkin_exempt?: boolean
+    probation_end_date?: Date | string | null
+    resignation_date?: Date | string | null
+    secondary_supervisor_id?: string | null
+    nickname?: string | null
+    email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
+    birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
+    other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
+    general_welfare_claims?: general_welfare_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUncheckedCreateNestedManyWithoutEmployees_kpi_evaluations_emp_idToemployeesInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUncheckedCreateNestedManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesInput
+    leave_requests?: leave_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    monthly_payroll_data?: monthly_payroll_dataUncheckedCreateNestedManyWithoutEmployeesInput
+    ot_requests?: ot_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUncheckedCreateNestedManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUncheckedCreateNestedManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput
+    product_borrowings?: product_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
+    room_booking_attendees?: room_booking_attendeesUncheckedCreateNestedManyWithoutEmployeesInput
+    room_bookings?: room_bookingsUncheckedCreateNestedManyWithoutEmployeesInput
+    travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+  }
+
+  export type employeesCreateOrConnectWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
+    where: employeesWhereUniqueInput
+    create: XOR<employeesCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput, employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput>
+  }
+
+  export type employeesUpsertWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
+    update: XOR<employeesUpdateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput, employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput>
+    create: XOR<employeesCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput, employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput>
+    where?: employeesWhereInput
+  }
+
+  export type employeesUpdateToOneWithWhereWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
+    where?: employeesWhereInput
+    data: XOR<employeesUpdateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput, employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput>
+  }
+
+  export type employeesUpdateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pin_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    hire_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    base_salary?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    otp_code?: NullableStringFieldUpdateOperationsInput | string | null
+    otp_expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    bank_account_no?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_on_trial?: BoolFieldUpdateOperationsInput | boolean
+    has_telephone_allowance?: BoolFieldUpdateOperationsInput | boolean
+    position_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    national_id_card?: NullableStringFieldUpdateOperationsInput | string | null
+    salary_type?: NullableStringFieldUpdateOperationsInput | string | null
+    line_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_checkin_exempt?: BoolFieldUpdateOperationsInput | boolean
+    probation_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
+    birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
+    commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
+    daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
+    employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
+    departments?: departmentsUpdateOneWithoutEmployeesNestedInput
+    job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
+    employees_employees_secondary_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesNestedInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
+    employees_employees_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_supervisor_idToemployeesNestedInput
+    other_employees_employees_supervisor_idToemployees?: employeesUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
+    branches?: branchesUpdateOneWithoutEmployeesNestedInput
+    general_welfare_claims?: general_welfare_claimsUpdateManyWithoutEmployeesNestedInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUpdateManyWithoutEmployees_kpi_evaluations_emp_idToemployeesNestedInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUpdateManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesNestedInput
+    leave_requests?: leave_requestsUpdateManyWithoutEmployeesNestedInput
+    monthly_payroll_data?: monthly_payroll_dataUpdateManyWithoutEmployeesNestedInput
+    ot_requests?: ot_requestsUpdateManyWithoutEmployeesNestedInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesNestedInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesNestedInput
+    product_borrowings?: product_borrowingsUpdateManyWithoutEmployeesNestedInput
+    room_booking_attendees?: room_booking_attendeesUpdateManyWithoutEmployeesNestedInput
+    room_bookings?: room_bookingsUpdateManyWithoutEmployeesNestedInput
+    travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+  }
+
+  export type employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    branch_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pin_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    hire_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    base_salary?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    department_id?: NullableIntFieldUpdateOperationsInput | number | null
+    job_position_id?: NullableIntFieldUpdateOperationsInput | number | null
+    otp_code?: NullableStringFieldUpdateOperationsInput | string | null
+    otp_expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_account_no?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_on_trial?: BoolFieldUpdateOperationsInput | boolean
+    has_telephone_allowance?: BoolFieldUpdateOperationsInput | boolean
+    position_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    national_id_card?: NullableStringFieldUpdateOperationsInput | string | null
+    salary_type?: NullableStringFieldUpdateOperationsInput | string | null
+    line_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_checkin_exempt?: BoolFieldUpdateOperationsInput | boolean
+    probation_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
+    employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
+    other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
+    general_welfare_claims?: general_welfare_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUncheckedUpdateManyWithoutEmployees_kpi_evaluations_emp_idToemployeesNestedInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUncheckedUpdateManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesNestedInput
+    leave_requests?: leave_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    monthly_payroll_data?: monthly_payroll_dataUncheckedUpdateManyWithoutEmployeesNestedInput
+    ot_requests?: ot_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesNestedInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesNestedInput
+    product_borrowings?: product_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    room_booking_attendees?: room_booking_attendeesUncheckedUpdateManyWithoutEmployeesNestedInput
+    room_bookings?: room_bookingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+  }
+
+  export type employeesUpsertWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
+    update: XOR<employeesUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput, employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput>
+    create: XOR<employeesCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput, employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput>
+    where?: employeesWhereInput
+  }
+
+  export type employeesUpdateToOneWithWhereWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
+    where?: employeesWhereInput
+    data: XOR<employeesUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput, employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput>
+  }
+
+  export type employeesUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pin_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    hire_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    base_salary?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    otp_code?: NullableStringFieldUpdateOperationsInput | string | null
+    otp_expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    bank_account_no?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_on_trial?: BoolFieldUpdateOperationsInput | boolean
+    has_telephone_allowance?: BoolFieldUpdateOperationsInput | boolean
+    position_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    national_id_card?: NullableStringFieldUpdateOperationsInput | string | null
+    salary_type?: NullableStringFieldUpdateOperationsInput | string | null
+    line_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_checkin_exempt?: BoolFieldUpdateOperationsInput | boolean
+    probation_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
+    birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
+    commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
+    daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
+    departments?: departmentsUpdateOneWithoutEmployeesNestedInput
+    job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
+    employees_employees_secondary_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesNestedInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
+    employees_employees_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_supervisor_idToemployeesNestedInput
+    other_employees_employees_supervisor_idToemployees?: employeesUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
+    branches?: branchesUpdateOneWithoutEmployeesNestedInput
+    general_welfare_claims?: general_welfare_claimsUpdateManyWithoutEmployeesNestedInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUpdateManyWithoutEmployees_kpi_evaluations_emp_idToemployeesNestedInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUpdateManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesNestedInput
+    leave_requests?: leave_requestsUpdateManyWithoutEmployeesNestedInput
+    monthly_payroll_data?: monthly_payroll_dataUpdateManyWithoutEmployeesNestedInput
+    ot_requests?: ot_requestsUpdateManyWithoutEmployeesNestedInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesNestedInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesNestedInput
+    product_borrowings?: product_borrowingsUpdateManyWithoutEmployeesNestedInput
+    room_booking_attendees?: room_booking_attendeesUpdateManyWithoutEmployeesNestedInput
+    room_bookings?: room_bookingsUpdateManyWithoutEmployeesNestedInput
+    travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+  }
+
+  export type employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    branch_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pin_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    hire_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    base_salary?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    department_id?: NullableIntFieldUpdateOperationsInput | number | null
+    job_position_id?: NullableIntFieldUpdateOperationsInput | number | null
+    otp_code?: NullableStringFieldUpdateOperationsInput | string | null
+    otp_expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_account_no?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_on_trial?: BoolFieldUpdateOperationsInput | boolean
+    has_telephone_allowance?: BoolFieldUpdateOperationsInput | boolean
+    position_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    national_id_card?: NullableStringFieldUpdateOperationsInput | string | null
+    salary_type?: NullableStringFieldUpdateOperationsInput | string | null
+    line_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_checkin_exempt?: BoolFieldUpdateOperationsInput | boolean
+    probation_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
+    other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
+    general_welfare_claims?: general_welfare_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUncheckedUpdateManyWithoutEmployees_kpi_evaluations_emp_idToemployeesNestedInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUncheckedUpdateManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesNestedInput
+    leave_requests?: leave_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    monthly_payroll_data?: monthly_payroll_dataUncheckedUpdateManyWithoutEmployeesNestedInput
+    ot_requests?: ot_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesNestedInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesNestedInput
+    product_borrowings?: product_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    room_booking_attendees?: room_booking_attendeesUncheckedUpdateManyWithoutEmployeesNestedInput
+    room_bookings?: room_bookingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type CompanyCreateManyAssignedUserInput = {
@@ -100046,6 +103902,11 @@ export namespace Prisma {
     sellerName?: string | null
     currentStep?: string
     flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -100106,6 +103967,11 @@ export namespace Prisma {
     sellerName?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
@@ -100127,6 +103993,11 @@ export namespace Prisma {
     sellerName?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
@@ -100148,6 +104019,11 @@ export namespace Prisma {
     sellerName?: NullableStringFieldUpdateOperationsInput | string | null
     currentStep?: StringFieldUpdateOperationsInput | string
     flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -100378,6 +104254,14 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesUpdateWithoutBranchesInput = {
@@ -100408,10 +104292,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -100465,10 +104359,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -100518,6 +104422,14 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesCreateManyDepartmentsInput = {
@@ -100552,6 +104464,14 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type job_positionsCreateManyDepartmentsInput = {
@@ -100593,10 +104513,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
     employees_employees_secondary_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesNestedInput
@@ -100650,10 +104580,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -100703,6 +104643,14 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type job_positionsUpdateWithoutDepartmentsInput = {
@@ -100844,6 +104792,34 @@ export namespace Prisma {
     notified_at?: Date | string | null
   }
 
+  export type employee_trainingsCreateManyEmployees_employee_trainings_assessor_idToemployeesInput = {
+    id?: number
+    emp_id: string
+    course_name: string
+    institution_name?: string | null
+    training_date_start?: Date | string | null
+    training_date_end?: Date | string | null
+    completion_percentage?: Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: string | null
+    certificate_file_url?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type employee_trainingsCreateManyEmployees_employee_trainings_emp_idToemployeesInput = {
+    id?: number
+    course_name: string
+    institution_name?: string | null
+    training_date_start?: Date | string | null
+    training_date_end?: Date | string | null
+    completion_percentage?: Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: string | null
+    certificate_file_url?: string | null
+    assessor_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
   export type employee_warningsCreateManyEmployeesInput = {
     id?: number
     date?: Date | string
@@ -100883,6 +104859,14 @@ export namespace Prisma {
     resignation_date?: Date | string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesCreateManyEmployees_employees_supervisor_idToemployeesInput = {
@@ -100917,6 +104901,14 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type general_welfare_claimsCreateManyEmployeesInput = {
@@ -101031,6 +105023,7 @@ export namespace Prisma {
     is_published?: boolean
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type ot_requestsCreateManyEmployeesInput = {
@@ -101168,6 +105161,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
   }
 
   export type travel_claimsCreateManyEmployeesInput = {
@@ -101406,6 +105400,88 @@ export namespace Prisma {
     notified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type employee_trainingsUpdateWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    course_name?: StringFieldUpdateOperationsInput | string
+    institution_name?: NullableStringFieldUpdateOperationsInput | string | null
+    training_date_start?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    training_date_end?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completion_percentage?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: NullableStringFieldUpdateOperationsInput | string | null
+    certificate_file_url?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    employees_employee_trainings_emp_idToemployees?: employeesUpdateOneRequiredWithoutEmployee_trainings_employee_trainings_emp_idToemployeesNestedInput
+  }
+
+  export type employee_trainingsUncheckedUpdateWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    course_name?: StringFieldUpdateOperationsInput | string
+    institution_name?: NullableStringFieldUpdateOperationsInput | string | null
+    training_date_start?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    training_date_end?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completion_percentage?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: NullableStringFieldUpdateOperationsInput | string | null
+    certificate_file_url?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    course_name?: StringFieldUpdateOperationsInput | string
+    institution_name?: NullableStringFieldUpdateOperationsInput | string | null
+    training_date_start?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    training_date_end?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completion_percentage?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: NullableStringFieldUpdateOperationsInput | string | null
+    certificate_file_url?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type employee_trainingsUpdateWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    course_name?: StringFieldUpdateOperationsInput | string
+    institution_name?: NullableStringFieldUpdateOperationsInput | string | null
+    training_date_start?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    training_date_end?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completion_percentage?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: NullableStringFieldUpdateOperationsInput | string | null
+    certificate_file_url?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    employees_employee_trainings_assessor_idToemployees?: employeesUpdateOneWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesNestedInput
+  }
+
+  export type employee_trainingsUncheckedUpdateWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    course_name?: StringFieldUpdateOperationsInput | string
+    institution_name?: NullableStringFieldUpdateOperationsInput | string | null
+    training_date_start?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    training_date_end?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completion_percentage?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: NullableStringFieldUpdateOperationsInput | string | null
+    certificate_file_url?: NullableStringFieldUpdateOperationsInput | string | null
+    assessor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    course_name?: StringFieldUpdateOperationsInput | string
+    institution_name?: NullableStringFieldUpdateOperationsInput | string | null
+    training_date_start?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    training_date_end?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completion_percentage?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    effectiveness_result?: NullableStringFieldUpdateOperationsInput | string | null
+    certificate_file_url?: NullableStringFieldUpdateOperationsInput | string | null
+    assessor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type employee_warningsUpdateWithoutEmployeesInput = {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     reason?: StringFieldUpdateOperationsInput | string
@@ -101454,10 +105530,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -101511,10 +105597,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -101564,6 +105660,14 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesUpdateWithoutEmployees_employees_supervisor_idToemployeesInput = {
@@ -101594,10 +105698,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
@@ -101651,10 +105765,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -101704,6 +105828,14 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type general_welfare_claimsUpdateWithoutEmployeesInput = {
@@ -101985,6 +106117,7 @@ export namespace Prisma {
     is_published?: BoolFieldUpdateOperationsInput | boolean
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUncheckedUpdateWithoutEmployeesInput = {
@@ -102016,6 +106149,7 @@ export namespace Prisma {
     is_published?: BoolFieldUpdateOperationsInput | boolean
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUncheckedUpdateManyWithoutEmployeesInput = {
@@ -102047,6 +106181,7 @@ export namespace Prisma {
     is_published?: BoolFieldUpdateOperationsInput | boolean
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ot_requestsUpdateWithoutEmployeesInput = {
@@ -102429,6 +106564,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
     room_booking_attendees?: room_booking_attendeesUpdateManyWithoutRoom_bookingsNestedInput
     meeting_rooms?: meeting_roomsUpdateOneRequiredWithoutRoom_bookingsNestedInput
   }
@@ -102442,6 +106578,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
     room_booking_attendees?: room_booking_attendeesUncheckedUpdateManyWithoutRoom_bookingsNestedInput
   }
 
@@ -102454,6 +106591,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type travel_claimsUpdateWithoutEmployeesInput = {
@@ -102554,6 +106692,14 @@ export namespace Prisma {
     secondary_supervisor_id?: string | null
     nickname?: string | null
     email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type job_positionsCreateManyJob_positionsInput = {
@@ -102595,10 +106741,20 @@ export namespace Prisma {
     resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
     departments?: departmentsUpdateOneWithoutEmployeesNestedInput
     employees_employees_secondary_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesNestedInput
@@ -102652,10 +106808,20 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
     employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
     other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
     other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
@@ -102705,6 +106871,14 @@ export namespace Prisma {
     secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type job_positionsUpdateWithoutJob_positionsInput = {
@@ -102838,6 +107012,7 @@ export namespace Prisma {
     status?: string
     created_at?: Date | string
     minutes?: string | null
+    meeting_link?: string | null
   }
 
   export type room_bookingsUpdateWithoutMeeting_roomsInput = {
@@ -102847,6 +107022,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
     room_booking_attendees?: room_booking_attendeesUpdateManyWithoutRoom_bookingsNestedInput
     employees?: employeesUpdateOneRequiredWithoutRoom_bookingsNestedInput
   }
@@ -102860,6 +107036,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
     room_booking_attendees?: room_booking_attendeesUncheckedUpdateManyWithoutRoom_bookingsNestedInput
   }
 
@@ -102872,6 +107049,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     minutes?: NullableStringFieldUpdateOperationsInput | string | null
+    meeting_link?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type product_borrowingsCreateManyProductsInput = {

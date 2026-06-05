@@ -19,7 +19,7 @@ export async function signup(state: FormState, formData: FormData) {
     if (registrationCode !== MASTER_CODE) {
       return { message: 'ระบบปิดการลงทะเบียนสาธารณะ กรุณาใช้รหัสลงทะเบียนสำหรับผู้จัดการ หรือติดต่อผู้ดูแลระบบ' }
     }
-  } else if (sessionUser.role !== 'ผู้จัดการ') {
+  } else if (sessionUser.role !== 'ผู้จัดการ' && (sessionUser.role || '').toLowerCase() !== 'sales manager') {
     return { message: 'เฉพาะผู้จัดการเท่านั้นที่สามารถสร้างบัญชีผู้ใช้ได้' }
   }
 
@@ -122,7 +122,7 @@ export async function signup(state: FormState, formData: FormData) {
 
 export async function updateUser(state: FormState, formData: FormData) {
   const sessionUser = await getUser()
-  if (!sessionUser || sessionUser.role !== 'ผู้จัดการ') {
+  if (!sessionUser || (sessionUser.role !== 'ผู้จัดการ' && (sessionUser.role || '').toLowerCase() !== 'sales manager')) {
     return { message: 'เฉพาะผู้จัดการเท่านั้นที่สามารถแก้ไขข้อมูลพนักงานได้' }
   }
 
@@ -224,7 +224,7 @@ export async function updateUser(state: FormState, formData: FormData) {
 
 export async function deactivateUser(id: string) {
   const sessionUser = await getUser()
-  if (!sessionUser || sessionUser.role !== 'ผู้จัดการ') {
+  if (!sessionUser || (sessionUser.role !== 'ผู้จัดการ' && (sessionUser.role || '').toLowerCase() !== 'sales manager')) {
     return { success: false, message: 'เฉพาะผู้จัดการเท่านั้นที่สามารถจัดการทีมได้' }
   }
 

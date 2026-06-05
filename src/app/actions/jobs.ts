@@ -96,8 +96,13 @@ export async function confirmJobStep(payload: {
   department:  string
   note?:       string
   variant?:    string   // ส่งมาตอน step แรก ถ้ามี variantQuestion
+  deliveryMethod?: string
+  deliveryDate?: string | Date
+  courierCompany?: string
+  trackingNumber?: string
+  trackingPhotoUrl?: string
 }) {
-  const { jobId, stepKey, completedBy, department, note, variant } = payload
+  const { jobId, stepKey, completedBy, department, note, variant, deliveryMethod, deliveryDate, courierCompany, trackingNumber, trackingPhotoUrl } = payload
 
   const job = await prisma.job.findUnique({ where: { id: jobId } })
   if (!job) throw new Error("Job not found")
@@ -117,6 +122,11 @@ export async function confirmJobStep(payload: {
     data: {
       currentStep: nextStep?.key ?? stepKey, // ถ้าไม่มี next = จบแล้ว
       ...(variant ? { flowVariant: variant } : {}),
+      ...(deliveryMethod ? { deliveryMethod } : {}),
+      ...(deliveryDate ? { deliveryDate: new Date(deliveryDate) } : {}),
+      ...(courierCompany ? { courierCompany } : {}),
+      ...(trackingNumber ? { trackingNumber } : {}),
+      ...(trackingPhotoUrl ? { trackingPhotoUrl } : {}),
     },
   })
 

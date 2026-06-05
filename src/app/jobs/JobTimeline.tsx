@@ -20,6 +20,7 @@ type Props = {
   stepLogs:     StepLog[]
   userName:     string
   userDept:     string   // department ของ user ที่ login อยู่
+  userRole?:    string   // role ของ user
   isManager?:   boolean
   jobNumber?:    string
   customerName?: string
@@ -27,7 +28,7 @@ type Props = {
 }
 
 export default function JobTimeline({
-  jobId, jobType, currentStep, flowVariant, stepLogs, userName, userDept, isManager,
+  jobId, jobType, currentStep, flowVariant, stepLogs, userName, userDept, userRole, isManager,
   jobNumber, customerName, sellerName
 }: Props) {
   const [isPending, startTransition] = useTransition()
@@ -35,7 +36,13 @@ export default function JobTimeline({
   const [pendingConfirm, setPendingConfirm]     = useState(false)
   const [noteInput, setNoteInput]               = useState("")
   
-
+  // Delivery specific state
+  const [deliveryMethod, setDeliveryMethod] = useState<"in-house" | "courier">("in-house")
+  const [deliveryDate, setDeliveryDate] = useState("")
+  const [courierCompany, setCourierCompany] = useState("")
+  const [trackingNumber, setTrackingNumber] = useState("")
+  const [trackingFile, setTrackingFile] = useState<File | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
 
   const wf        = getWorkflow(jobType)
   const steps     = getSteps(jobType, flowVariant)
@@ -71,19 +78,84 @@ export default function JobTimeline({
     })
   }
 
+  async function handleConfirmDelivery() {
+    if (!activeStep) return;
+    
+    if (deliveryMethod === "in-house" && !deliveryDate) {
+      alert("กรุณาระบุวันที่จัดส่ง");
+      return;
+    }
+    if (deliveryMethod === "courier" && (!courierCompany || !trackingNumber)) {
+      alert("กรุณาระบุบริษัทขนส่งและเลขพัสดุ");
+      return;
+    }
+
+    let photoUrl = "";
+    if (deliveryMethod === "courier" && trackingFile) {
+      setIsUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", trackingFile);
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.success) photoUrl = data.url;
+      } catch (err) {
+        console.error("Upload failed", err);
+        alert("อัปโหลดรูปภาพไม่สำเร็จ");
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
+    }
+    
+    startTransition(async () => {
+      await confirmJobStep({
+        jobId,
+        stepKey:     activeStep.key,
+        completedBy: userName,
+        department:  userDept,
+        note:        noteInput || undefined,
+        deliveryMethod,
+        deliveryDate: deliveryMethod === "in-house" ? deliveryDate : undefined,
+        courierCompany: deliveryMethod === "courier" ? courierCompany : undefined,
+        trackingNumber: deliveryMethod === "courier" ? trackingNumber : undefined,
+        trackingPhotoUrl: photoUrl || undefined,
+      })
+      setNoteInput("")
+      setPendingConfirm(false)
+      setShowVariantModal(false)
+    })
+  }
+
   // ตรวจว่า user กด confirm step นี้ได้มั้ย
   const normalizedDept = (() => {
-    const d = userDept.toLowerCase().trim()
-    const depts: string[] = []
-    if (d.includes('sale') || d.includes('ขาย') || d.includes('เซลส์') || d.includes('เซลล์') || d.includes('marketing') || d.includes('business development') || d.includes('การตลาด')) depts.push("sales")
-    if (d.includes('account') || d.includes('finance') || d.includes('บัญชี') || d.includes('การเงิน') || d.includes('ap ') || d.includes('ar ')) depts.push("accounting")
-    if (d.includes('store') || d.includes('warehouse') || d.includes('สโตร์') || d.includes('คลัง')) depts.push("store")
-    if (d.includes('service') || d.includes('บริการ') || d.includes('ซ่อม')) depts.push("service")
-    if (d.includes('purchase') || d.includes('จัดซื้อ')) depts.push("purchase")
-    if (d.includes('delivery') || d.includes('transport') || d.includes('จัดส่ง') || d.includes('ขนส่ง') || d.includes('driver') || d.includes('คนขับ')) depts.push("delivery")
-    if (d.includes('production') || d.includes('ผลิต')) depts.push("production")
+    const roleLower = String(userRole || "").toLowerCase().trim()
+    const deptLower = String(userDept || "").toLowerCase().trim()
     
-    if (depts.length === 0) depts.push(d)
+    const depts: string[] = []
+    
+    const isSales = roleLower.includes('sale') || roleLower.includes('ขาย') || roleLower.includes('เซล') || roleLower.includes('marketing') || deptLower.includes('sale') || deptLower.includes('ขาย') || deptLower.includes('เซล') || deptLower.includes('marketing')
+    const isAccounting = roleLower.includes('account') || roleLower.includes('บัญชี') || roleLower.includes('finance') || deptLower.includes('account') || deptLower.includes('บัญชี') || deptLower.includes('finance')
+    const isService = roleLower.includes('service') || roleLower.includes('ซ่อม') || roleLower.includes('บริการ') || deptLower.includes('service') || deptLower.includes('ซ่อม') || deptLower.includes('บริการ')
+    const isPurchase = roleLower.includes('purchase') || roleLower.includes('จัดซื้อ') || deptLower.includes('purchase') || deptLower.includes('จัดซื้อ')
+    const isProduction = roleLower.includes('production') || roleLower.includes('ผลิต') || deptLower.includes('production') || deptLower.includes('ผลิต')
+    
+    const isDeliveryRole = roleLower.includes('delivery') || roleLower.includes('transport') || roleLower.includes('จัดส่ง') || roleLower.includes('ขนส่ง') || roleLower.includes('driver') || roleLower.includes('คนขับ')
+    const isStoreRole = roleLower.includes('store') || roleLower.includes('warehouse') || roleLower.includes('สโตร์') || roleLower.includes('คลัง')
+    
+    if (isDeliveryRole) {
+      depts.push("delivery")
+    } else if (isStoreRole || deptLower.includes('store') || deptLower.includes('สโตร์') || deptLower.includes('คลัง')) {
+      depts.push("store")
+    }
+    
+    if (isSales) depts.push("sales")
+    if (isAccounting) depts.push("accounting")
+    if (isService) depts.push("service")
+    if (isPurchase) depts.push("purchase")
+    if (isProduction) depts.push("production")
+    
+    if (depts.length === 0) depts.push(deptLower)
     return depts
   })()
 
@@ -198,6 +270,47 @@ export default function JobTimeline({
             ยืนยัน Step: {activeStep.label}
             {activeStep.note && <span className="text-red-400 ml-1 text-[10px]">({activeStep.note})</span>}
           </p>
+
+          {activeStep.key === "delivery" && (
+            <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200 text-sm shadow-sm">
+              <p className="font-bold text-gray-800 mb-3">รูปแบบการจัดส่ง</p>
+              <div className="flex gap-6 mb-4">
+                <label className="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
+                  <input type="radio" name="deliveryMethod" value="in-house" checked={deliveryMethod === "in-house"} onChange={() => setDeliveryMethod("in-house")} className="accent-brand-red w-4 h-4" />
+                  จัดส่งเอง (In-house)
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
+                  <input type="radio" name="deliveryMethod" value="courier" checked={deliveryMethod === "courier"} onChange={() => setDeliveryMethod("courier")} className="accent-brand-red w-4 h-4" />
+                  บริษัทขนส่ง (Courier)
+                </label>
+              </div>
+
+              {deliveryMethod === "in-house" && (
+                <div className="mb-2">
+                  <label className="block text-xs font-bold text-gray-500 mb-1">วันที่จัดส่ง *</label>
+                  <input type="date" value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" />
+                </div>
+              )}
+
+              {deliveryMethod === "courier" && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1">บริษัทขนส่ง *</label>
+                    <input type="text" value={courierCompany} onChange={e => setCourierCompany(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" placeholder="เช่น Kerry, J&T, ไปรษณีย์ไทย" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1">เลขพัสดุ (Tracking Number) *</label>
+                    <input type="text" value={trackingNumber} onChange={e => setTrackingNumber(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1">รูปถ่ายสลิป/ใบเสร็จ (แนบเพื่อเป็นหลักฐาน)</label>
+                    <input type="file" accept="image/*" onChange={e => setTrackingFile(e.target.files?.[0] || null)} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-brand-red hover:file:bg-red-100 transition-colors" />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <input
             type="text"
             placeholder="หมายเหตุ (ถ้ามี)..."
@@ -206,8 +319,12 @@ export default function JobTimeline({
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
           />
           <button
-            disabled={isPending}
+            disabled={isPending || isUploading}
             onClick={() => {
+              if (activeStep.key === "delivery") {
+                handleConfirmDelivery();
+                return;
+              }
               // ตรวจสอบว่า step นี้คือ step ที่ต้องตอบคำถาม variant หรือไม่
               const isVariantStep = wf?.variantQuestion?.askedAtStep === activeStep.key;
               if (isVariantStep && !flowVariant) {
@@ -218,7 +335,7 @@ export default function JobTimeline({
             }}
             className="bg-brand-red text-white text-xs font-black uppercase tracking-widest px-5 py-2.5 rounded-xl hover:bg-red-700 disabled:opacity-50 transition-all shadow-md shadow-red-200"
           >
-            {isPending ? "กำลังบันทึก..." : "✓ ยืนยัน step นี้"}
+            {isUploading ? "กำลังอัปโหลดรูป..." : isPending ? "กำลังบันทึก..." : "✓ ยืนยัน step นี้"}
           </button>
         </div>
       )}

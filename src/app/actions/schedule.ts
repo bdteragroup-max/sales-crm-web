@@ -23,7 +23,7 @@ export async function getStaffSchedules(preFetchedUser?: any) {
     }
 
     let whereClause: any = { userId: user.id }
-    if (user.role === 'ผู้จัดการ') {
+    if (user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager') {
       const subordinates = await teraDb.employees.findMany({
         where: { supervisor_id: user.employeeId, is_active: true },
         select: { emp_id: true }
@@ -92,7 +92,7 @@ export async function createSchedule(data: { userId: string, title: string, desc
 
     // If user is not manager, they can only create for themselves.
     // If user is manager, they can create for themselves or their subordinates.
-    if (user.role !== 'ผู้จัดการ') {
+    if (user.role !== 'ผู้จัดการ' && (user.role || '').toLowerCase() !== 'sales manager') {
       if (targetUserId !== user.id) {
         return { success: false, error: 'Access Denied. You can only create your own schedule.' }
       }
@@ -209,7 +209,7 @@ export async function updateSchedule(id: string, data: {
     }
 
     // Access check: self or subordinate
-    if (user.role !== 'ผู้จัดการ' && schedule.userId !== user.id) {
+    if (user.role !== 'ผู้จัดการ' && (user.role || '').toLowerCase() !== 'sales manager' && schedule.userId !== user.id) {
       return { success: false, error: 'Access Denied.' }
     }
 
@@ -309,7 +309,7 @@ export async function deleteSchedule(id: string) {
       return { success: false, error: 'Schedule not found' }
     }
 
-    if (user.role !== 'ผู้จัดการ' && schedule.userId !== user.id) {
+    if (user.role !== 'ผู้จัดการ' && (user.role || '').toLowerCase() !== 'sales manager' && schedule.userId !== user.id) {
       return { success: false, error: 'Access Denied.' }
     }
 

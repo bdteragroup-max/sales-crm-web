@@ -25,8 +25,8 @@ export async function updateOrderStatus(
       return { success: false, error: "ไม่พบข้อมูล Order (Order not found)" };
     }
 
-    // Only manager or the assigned salesperson can edit
-    if (user.role !== "ผู้จัดการ" && order.salespersonId !== user.id) {
+    // Only manager or the assigned salesperson can update
+    if (user.role !== "ผู้จัดการ" && (user.role || '').toLowerCase() !== "sales manager" && order.salespersonId !== user.id) {
       return { success: false, error: "ปฏิเสธการเข้าถึง: คุณสามารถแก้ไขเฉพาะออเดอร์ของคุณเองเท่านั้น" };
     }
 

@@ -96,7 +96,8 @@ export default async function DepartmentPage() {
           jobs={JSON.parse(JSON.stringify(jobs))} 
           isManager={isManager} 
           currentUser={user.fullName ?? ""}
-          userDept={resolvedDept} 
+          userDept={`${resolvedDept} ${user.role}`} 
+          userRole={user.role}
         />
       </main>
     </div>

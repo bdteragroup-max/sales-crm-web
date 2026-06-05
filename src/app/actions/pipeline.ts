@@ -38,7 +38,7 @@ export async function updateQuotationStatus(
     }
 
     // Authorization validation: only owner or a manager can edit
-    if (user.role !== "ผู้จัดการ" && quotation.salespersonId !== user.id) {
+    if (user.role !== "ผู้จัดการ" && (user.role || '').toLowerCase() !== "sales manager" && quotation.salespersonId !== user.id) {
       return { success: false, error: "ปฏิเสธการเข้าถึง: คุณสามารถแก้ไขเฉพาะดีลของคุณเองเท่านั้น" };
     }
 

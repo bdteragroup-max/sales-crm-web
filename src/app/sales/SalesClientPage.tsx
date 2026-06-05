@@ -241,7 +241,10 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
                     filteredQuotations.map((record: any) => (
                       <tr key={record.id} className="group hover:bg-gray-50/60 transition-colors">
                         <td className="py-4 px-5 text-[11px] font-bold text-gray-400 whitespace-nowrap">
-                          {record.createdAt ? new Date(record.createdAt).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' }) : '—'}
+                          {(() => {
+                            const d = record.billingDate || record.poDate || record.quotationDate || record.updatedAt || record.createdAt;
+                            return d ? new Date(d).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' }) : '—';
+                          })()}
                         </td>
                         <td className="py-4 px-5">
                           <span className="text-xs font-black text-gray-800 font-mono">{record.quotationNumber || '—'}</span>

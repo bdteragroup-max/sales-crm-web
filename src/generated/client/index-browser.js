@@ -359,6 +359,11 @@ exports.Prisma.JobScalarFieldEnum = {
   quotationId: 'quotationId',
   currentStep: 'currentStep',
   flowVariant: 'flowVariant',
+  deliveryMethod: 'deliveryMethod',
+  deliveryDate: 'deliveryDate',
+  courierCompany: 'courierCompany',
+  trackingNumber: 'trackingNumber',
+  trackingPhotoUrl: 'trackingPhotoUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -392,19 +397,19 @@ exports.Prisma.RepairOrderScalarFieldEnum = {
   phoneNumber: 'phoneNumber',
   workType: 'workType',
   forwardedBy: 'forwardedBy',
-  company: 'company',
-  customerCompany: 'customerCompany',
-  customerAddress: 'customerAddress',
-  salesPerson: 'salesPerson',
   items: 'items',
   symptoms: 'symptoms',
   settings: 'settings',
   checklist: 'checklist',
-  checklistImages: 'checklistImages',
   receivedDate: 'receivedDate',
   sentDate: 'sentDate',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  checklistImages: 'checklistImages',
+  company: 'company',
+  customerAddress: 'customerAddress',
+  customerCompany: 'customerCompany',
+  salesPerson: 'salesPerson'
 };
 
 exports.Prisma.Admin_login_attemptsScalarFieldEnum = {
@@ -607,7 +612,15 @@ exports.Prisma.EmployeesScalarFieldEnum = {
   resignation_date: 'resignation_date',
   secondary_supervisor_id: 'secondary_supervisor_id',
   nickname: 'nickname',
-  email: 'email'
+  email: 'email',
+  general_allowance: 'general_allowance',
+  probation_accommodation_allowance: 'probation_accommodation_allowance',
+  probation_meal_allowance: 'probation_meal_allowance',
+  probation_travel_allowance: 'probation_travel_allowance',
+  fixed_accommodation_allowance: 'fixed_accommodation_allowance',
+  fixed_meal_allowance: 'fixed_meal_allowance',
+  fixed_travel_allowance: 'fixed_travel_allowance',
+  fixed_tax_deduction: 'fixed_tax_deduction'
 };
 
 exports.Prisma.General_welfare_claimsScalarFieldEnum = {
@@ -766,7 +779,8 @@ exports.Prisma.Monthly_payroll_dataScalarFieldEnum = {
   commissions: 'commissions',
   is_published: 'is_published',
   insurance: 'insurance',
-  insurance_income: 'insurance_income'
+  insurance_income: 'insurance_income',
+  general_allowance_override: 'general_allowance_override'
 };
 
 exports.Prisma.Ot_requestsScalarFieldEnum = {
@@ -897,7 +911,8 @@ exports.Prisma.Room_bookingsScalarFieldEnum = {
   purpose: 'purpose',
   status: 'status',
   created_at: 'created_at',
-  minutes: 'minutes'
+  minutes: 'minutes',
+  meeting_link: 'meeting_link'
 };
 
 exports.Prisma.SessionsScalarFieldEnum = {
@@ -929,6 +944,21 @@ exports.Prisma.Travel_claimsScalarFieldEnum = {
   created_at: 'created_at',
   remark: 'remark',
   end_date: 'end_date'
+};
+
+exports.Prisma.Employee_trainingsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  course_name: 'course_name',
+  institution_name: 'institution_name',
+  training_date_start: 'training_date_start',
+  training_date_end: 'training_date_end',
+  completion_percentage: 'completion_percentage',
+  effectiveness_result: 'effectiveness_result',
+  certificate_file_url: 'certificate_file_url',
+  assessor_id: 'assessor_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.SortOrder = {
@@ -1012,7 +1042,8 @@ exports.Prisma.ModelName = {
   room_booking_attendees: 'room_booking_attendees',
   room_bookings: 'room_bookings',
   sessions: 'sessions',
-  travel_claims: 'travel_claims'
+  travel_claims: 'travel_claims',
+  employee_trainings: 'employee_trainings'
 };
 
 /**

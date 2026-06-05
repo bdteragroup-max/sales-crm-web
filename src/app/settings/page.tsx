@@ -18,7 +18,7 @@ export default async function SettingsPage() {
   const currentMonth = new Date().getMonth() + 1
   const currentYear = new Date().getFullYear()
 
-  const isManager = user.role === 'ผู้จัดการ' || isMarketingManager
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager' || isMarketingManager
 
   let staffList: { id: string; fullName: string; position: string | null }[] = [];
 
@@ -73,22 +73,12 @@ export default async function SettingsPage() {
       where: {
         ...(isMarketingManager ? {} : { employeeId: { in: subordinateEmpIds } }),
         isActive: true,
-        NOT: {
-          OR: [
-            { role: 'อื่นๆ' },
-            { role: { contains: 'accounting' } },
-            { role: { contains: 'บัญชี' } },
-            { role: { contains: 'purchasing' } },
-            { role: { contains: 'จัดซื้อ' } },
-            { role: { contains: 'warehouse' } },
-            { role: { contains: 'คลังสินค้า' } },
-            { role: { contains: 'marketing' } },
-            { role: { contains: 'การตลาด' } },
-            { role: { contains: 'admin' } },
-            { role: { contains: 'service' } },
-            { role: { contains: 'บริการ' } }
-          ]
-        }
+        OR: [
+          { role: { contains: 'sales', mode: 'insensitive' } },
+          { role: { contains: 'ขาย', mode: 'insensitive' } },
+          { role: 'ผู้จัดการ' },
+          { role: { contains: 'marketing manager', mode: 'insensitive' } },
+        ]
       },
       select: { id: true, fullName: true, position: true }
     });
