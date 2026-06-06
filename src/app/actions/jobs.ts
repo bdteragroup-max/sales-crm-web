@@ -7,6 +7,12 @@ import {
   mapProductTypeToJobType,
 } from "@/app/lib/job-utils";
 import { revalidatePath } from "next/cache";
+import {
+  getLineUserIdByCrmUserId,
+  getLineUserIdByEmpId,
+  jobStepMessage,
+  pushLineMessage,
+} from "@/app/lib/lineNotify";
 
 export type CreateJobInput = {
   quotationId: string;
@@ -160,6 +166,10 @@ export async function confirmJobStep(payload: {
     await createRepairDelivery(jobId)
   }
 
+  // Trigger LINE Notification
+  const stepInfo = STEP_LABELS[stepKey] || { label: stepKey, dept: department };
+  await notifyJobStepUpdate(jobId, stepKey, stepInfo.label, stepInfo.dept);
+
   revalidatePath("/jobs")
 }
 
@@ -185,6 +195,10 @@ export async function rejectJobStep(jobId: string, targetStep: string, note: str
     where: { id: jobId },
     data: { currentStep: targetStep }
   })
+
+  // Trigger LINE Notification for rejection
+  const stepInfo = STEP_LABELS[targetStep] || { label: targetStep, dept: "Accounting" };
+  await notifyJobStepUpdate(jobId, targetStep, `ตีกลับไปที่ ${stepInfo.label}`, stepInfo.dept);
 
   revalidatePath("/jobs")
 }
@@ -216,4 +230,59 @@ export async function getJobs(filters?: {
     include: { quotation: true },
     orderBy: { dateClosed: "desc" },
   });
+}
+
+export const STEP_LABELS: Record<string, { label: string; dept: string }> = { 
+  'sales': { label: '📝 Sales - Job Entry', dept: 'Sales' },
+  'store_check': { label: '🏭 Store - Inventory Check', dept: 'Store' },
+  'store_confirm': { label: '✅ Store - Inventory Confirmed', dept: 'Store' },
+  'purchase': { label: '🛒 Purchase - Order Placed', dept: 'Purchase' },
+  'manufacturing': { label: '⚙️ Manufacturing - Production', dept: 'Manufacturing' },
+  'store_send': { label: '📦 Store - Shipment', dept: 'Store' },
+  'accounting': { label: '💰 Accounting - Billing', dept: 'Accounting' },
+  'complete': { label: '🎉 Job Completed', dept: 'System' },
+  'service_receive': { label: '🔧 Service Receive', dept: 'Service' },
+  'service_repair': { label: '🔨 Service Repair', dept: 'Service' },
+  'service_return': { label: '📬 Service Return', dept: 'Service' },
+};
+
+export async function notifyJobStepUpdate(jobId: string, stepKey: string, stepLabel: string, dept: string) {
+  const job = await prisma.job.findUnique({
+    where: { id: jobId },
+    include: {
+      quotation: { include: { salesperson: true } }
+    }
+  });
+  if (!job) return;
+
+  const lineIdsToNotify = new Set<string>();
+
+  const salespersonId = job.quotation?.salespersonId;
+  if (salespersonId) {
+    const salesLineId = await getLineUserIdByCrmUserId(salespersonId);
+    if (salesLineId) lineIdsToNotify.add(salesLineId);
+
+    const user = await prisma.user.findUnique({
+      where: { id: salespersonId },
+      select: { employeeId: true }
+    });
+    if (user?.employeeId) {
+      const employee = await prisma.employees.findUnique({
+        where: { emp_id: user.employeeId },
+        select: { supervisor_id: true }
+      });
+      if (employee?.supervisor_id) {
+        const supervisorLineId = await getLineUserIdByEmpId(employee.supervisor_id);
+        if (supervisorLineId) lineIdsToNotify.add(supervisorLineId);
+      }
+    }
+  }
+
+  if (lineIdsToNotify.size === 0) return;
+
+  const message = jobStepMessage(job, stepLabel, dept);
+
+  for (const lineUserId of lineIdsToNotify) {
+    await pushLineMessage(lineUserId, [message]);
+  }
 }
