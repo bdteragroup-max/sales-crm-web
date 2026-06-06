@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, PhoneCall,
   LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink
@@ -21,6 +21,7 @@ const managerNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมทีม', href: '/dashboard' },
   { icon: GitCommit, label: 'ท่อดีลฝ่ายขาย', href: '/pipeline' },
   { icon: TrendingUp, label: 'จัดการใบเสนอราคา', href: '/sales' },
+  { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
   { icon: Users, label: 'จัดการทีม', href: '/team' },
   { icon: CalendarDays, label: 'จัดการตารางงาน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
@@ -32,6 +33,7 @@ const repNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมของฉัน', href: '/dashboard' },
   { icon: GitCommit, label: 'ท่อดีลของฉัน', href: '/pipeline' },
   { icon: TrendingUp, label: 'บันทึกใบเสนอราคา', href: '/sales' },
+  { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
   { icon: CalendarDays, label: 'ตารางงานของฉัน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
   { icon: Users, label: 'ลูกค้าและบริษัท', href: '/clients' },
@@ -79,6 +81,7 @@ function ResponsiveSidebar({
   nav,
 }: SidebarProps & { nav: NavItem[] }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [loadingHref, setLoadingHref] = useState<string | null>(null);
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
@@ -111,6 +114,12 @@ function ResponsiveSidebar({
     }
   }, [router, nav, userRole]);
 
+  useEffect(() => {
+    // Reset loading state when the pathname changes
+    setLoadingHref(null);
+    setIsSettingsLoading(false);
+  }, [pathname]);
+
   const showTooltip = useCallback((label: string, e: React.MouseEvent) => {
     if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -124,6 +133,10 @@ function ResponsiveSidebar({
   useEffect(() => () => {
     if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
   }, []);
+
+  // Find the most specific active route
+  const sortedNav = [...nav].sort((a, b) => b.href.length - a.href.length);
+  const bestMatchHref = sortedNav.find(n => pathname === n.href || pathname.startsWith(n.href + '/'))?.href || activeRoute;
 
   return (
     <>
@@ -144,7 +157,7 @@ function ResponsiveSidebar({
           {/* Nav items */}
           <nav className="flex flex-col gap-2 w-full px-2">
             {nav.map(({ icon: Icon, label, href }) => {
-              const active = activeRoute === href;
+              const isActive = href === bestMatchHref;
               const isLoading = loadingHref === href;
               return (
                 <Link
@@ -154,12 +167,12 @@ function ResponsiveSidebar({
                   onMouseEnter={(e) => showTooltip(label, e)}
                   onMouseLeave={hideTooltip}
                   onClick={() => {
-                    if (activeRoute !== href) {
+                    if (!isActive) {
                       setLoadingHref(href);
                     }
                   }}
                   className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${
-                    active
+                    isActive
                       ? 'bg-red-50 text-[#ff2301] shadow-sm border border-red-100'
                       : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
                   }`}
@@ -167,9 +180,9 @@ function ResponsiveSidebar({
                   {isLoading ? (
                     <Loader2 size={20} className="animate-spin text-[#ff2301]" />
                   ) : (
-                    <Icon size={20} strokeWidth={active ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
+                    <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
                   )}
-                  {active && !isLoading && (
+                  {isActive && !isLoading && (
                     <span
                       className="absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full bg-[#ff2301] border border-white animate-pulse"
                     />
@@ -312,7 +325,7 @@ function ResponsiveSidebar({
           {/* Nav items list */}
           <nav className="flex flex-col gap-1.5 w-full">
             {nav.map(({ icon: Icon, label, href }) => {
-              const active = activeRoute === href;
+              const isActive = href === bestMatchHref;
               const isLoading = loadingHref === href;
               return (
                 <Link
@@ -320,13 +333,13 @@ function ResponsiveSidebar({
                   href={href}
                   prefetch={true}
                   onClick={() => {
-                    if (activeRoute !== href) {
+                    if (!isActive) {
                       setLoadingHref(href);
                     }
                     setIsMobileMenuOpen(false);
                   }}
                   className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 transition-all duration-200 border ${
-                    active
+                    isActive
                       ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
                       : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
                   }`}
@@ -335,7 +348,7 @@ function ResponsiveSidebar({
                     {isLoading ? (
                       <Loader2 size={18} className="animate-spin text-[#ff2301]" />
                     ) : (
-                      <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+                      <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                     )}
                     {href === '/accounting' && unpaidCount > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">

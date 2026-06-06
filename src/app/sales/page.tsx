@@ -13,6 +13,7 @@ interface PageProps {
     companyId?: string;
     contactId?: string;
     editId?: string;
+    reqId?: string;
   }>;
 }
 
@@ -109,6 +110,73 @@ export default async function SalesPage({ searchParams }: PageProps) {
       prefillData = {
         company: JSON.parse(JSON.stringify(company)),
         contact: contact ? JSON.parse(JSON.stringify(contact)) : null
+      };
+    }
+  }
+
+
+  // ── Handle reqId: load requirement for a fresh new quotation ──
+  if (!editingData && params.reqId) {
+    const requirement = await prisma.customerRequirement.findUnique({
+      where: { id: params.reqId }
+    });
+    
+    if (requirement) {
+      const company = await prisma.company.findFirst({
+        where: { companyName: requirement.companyName },
+        include: {
+          contacts: {
+            where: { contactName: requirement.contactName }
+          }
+        }
+      });
+      
+      let inferredProductType = 'อื่นๆ';
+      let inferredProductInterest = '';
+
+      if (requirement.formData) {
+        const fd = requirement.formData as any;
+        let brand = '';
+        let kw = '';
+        let hp = '';
+        let inputs: string[] = [];
+
+        if (fd["สินค้า_INVERTER"]) {
+          inferredProductType = 'Inverter Veichi';
+          brand = fd["INVERTER_ยี่ห้อ"] || '';
+          kw = fd["INVERTER_ขนาดเครื่อง_kW"] || '';
+          hp = fd["INVERTER_ขนาดเครื่อง_HP"] || '';
+          if (fd["INVERTER_Input_220V_1P"]) inputs.push('220V 1 Phase');
+          if (fd["INVERTER_Input_220V_3P"]) inputs.push('220V 3 Phase');
+          if (fd["INVERTER_Input_380V_3P"]) inputs.push('380V 3 Phase');
+          if (fd["INVERTER_Input_อื่นๆ"]) inputs.push(fd["INVERTER_Input_อื่นๆ_ระบุ"] || 'อื่นๆ');
+        } else if (fd["สินค้า_MOTOR"]) {
+          inferredProductType = 'Motor';
+          brand = fd["MOTOR_ยี่ห้อ"] || '';
+          kw = fd["MOTOR_ขนาด_kW"] || '';
+          hp = fd["MOTOR_ขนาด_HP"] || '';
+        } else if (fd["สินค้า_PUMP"]) {
+          inferredProductType = 'Pump';
+          brand = fd["PUMP_ยี่ห้อ"] || '';
+        } else if (fd["สินค้า_SOLAR_ROOF"]) {
+          inferredProductType = 'Solar Roof';
+        }
+
+        const details = [];
+        if (brand) details.push(`Brand: ${brand}`);
+        if (kw || hp) details.push(`Size: ${kw ? kw + ' kW' : ''}${kw && hp ? ' / ' : ''}${hp ? hp + ' HP' : ''}`);
+        if (inputs.length > 0) details.push(`Input: ${inputs.join(', ')}`);
+
+        inferredProductInterest = details.join('\n');
+      }
+
+      prefillData = {
+        requirementNumber: requirement.requirementNumber,
+        requirementDate: requirement.date,
+        productType: inferredProductType,
+        productInterest: inferredProductInterest,
+        company: company ? JSON.parse(JSON.stringify(company)) : { companyName: requirement.companyName },
+        contact: (company && company.contacts.length > 0) ? JSON.parse(JSON.stringify(company.contacts[0])) : { contactName: requirement.contactName },
       };
     }
   }

@@ -5,6 +5,7 @@ import { FileText, FileSpreadsheet, Plus, Search, Edit2, Trash2, TrendingUp, Che
 import NewQuotationForm from './components/NewQuotationForm';
 import BulkUploadModal from './components/BulkUploadModal';
 import { deleteQuotation } from '@/app/actions/sales';
+import Link from 'next/link';
 
 interface SalesClientPageProps {
   initialQuotations?: any[];
@@ -13,6 +14,10 @@ interface SalesClientPageProps {
   prefillData?: {
     company: any;
     contact: any;
+    requirementNumber?: string;
+    requirementDate?: any;
+    productType?: string;
+    productInterest?: string;
   } | null;
   editingQuotation?: any | null; // Full quotation from DB when coming from /pipeline?editId=xxx
 }
@@ -59,6 +64,10 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
         company: prefillData.company,
         contact: prefillData.contact,
         companyId: prefillData.company?.id || null,
+        requirementNumber: prefillData.requirementNumber,
+        requirementDate: prefillData.requirementDate,
+        productType: prefillData.productType,
+        productInterest: prefillData.productInterest,
         isPrefilled: true
       };
     }

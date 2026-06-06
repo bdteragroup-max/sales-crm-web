@@ -8,27 +8,28 @@ datasource db {
 }
 
 model User {
-  id                String          @id @default(cuid())
-  employeeId        String          @unique
-  email             String?         @unique
-  fullName          String
-  phoneNumber       String?
-  role              String          @default("Sales Representative")
-  position          String?
-  password          String
-  createdAt         DateTime        @default(now()) @db.Timestamptz(6)
-  updatedAt         DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
-  otpCode           String?
-  otpExpiresAt      DateTime?       @db.Timestamptz(6)
-  isActive          Boolean         @default(true)
-  assignedCompanies Company[]       @relation("AssignedCompany")
-  monthlyTargets    MonthlyTarget[]
-  orders            Order[]
-  quotations        Quotation[]
-  schedules         Schedule[]
-  telesales         Telesale[]
-  telesalesKPIs     TelesalesKPI[]
-  employeeSale      EmployeeSale?
+  id                   String                @id @default(cuid())
+  employeeId           String                @unique
+  email                String?               @unique
+  fullName             String
+  phoneNumber          String?
+  role                 String                @default("Sales Representative")
+  position             String?
+  password             String
+  createdAt            DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime              @default(now()) @updatedAt @db.Timestamptz(6)
+  otpCode              String?
+  otpExpiresAt         DateTime?             @db.Timestamptz(6)
+  isActive             Boolean               @default(true)
+  assignedCompanies    Company[]             @relation("AssignedCompany")
+  monthlyTargets       MonthlyTarget[]
+  orders               Order[]
+  quotations           Quotation[]
+  schedules            Schedule[]
+  telesales            Telesale[]
+  telesalesKPIs        TelesalesKPI[]
+  employeeSale         EmployeeSale?
+  customerRequirements CustomerRequirement[]
 }
 
 model MonthlyTarget {
@@ -479,6 +480,22 @@ model OutsourceRepair {
 
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}
+
+model CustomerRequirement {
+  id                String   @id @default(cuid())
+  requirementNumber String?  @unique
+  userId            String?
+  companyName       String
+  contactName       String
+  salesperson       String
+  date              DateTime @db.Timestamptz(6)
+  formData          Json
+  createdAt         DateTime @default(now()) @db.Timestamptz(6)
+  user              User?    @relation(fields: [userId], references: [id])
+
+  @@index([companyName])
+  @@index([userId])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.

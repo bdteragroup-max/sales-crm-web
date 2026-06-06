@@ -119,6 +119,11 @@ export type RepairDelivery = $Result.DefaultSelection<Prisma.$RepairDeliveryPayl
  */
 export type OutsourceRepair = $Result.DefaultSelection<Prisma.$OutsourceRepairPayload>
 /**
+ * Model CustomerRequirement
+ * 
+ */
+export type CustomerRequirement = $Result.DefaultSelection<Prisma.$CustomerRequirementPayload>
+/**
  * Model admin_login_attempts
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
@@ -614,6 +619,16 @@ export class PrismaClient<
     * ```
     */
   get outsourceRepair(): Prisma.OutsourceRepairDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.customerRequirement`: Exposes CRUD operations for the **CustomerRequirement** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CustomerRequirements
+    * const customerRequirements = await prisma.customerRequirement.findMany()
+    * ```
+    */
+  get customerRequirement(): Prisma.CustomerRequirementDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.admin_login_attempts`: Exposes CRUD operations for the **admin_login_attempts** model.
@@ -1399,6 +1414,7 @@ export namespace Prisma {
     RepairOrder: 'RepairOrder',
     RepairDelivery: 'RepairDelivery',
     OutsourceRepair: 'OutsourceRepair',
+    CustomerRequirement: 'CustomerRequirement',
     admin_login_attempts: 'admin_login_attempts',
     admins: 'admins',
     asset_borrowings: 'asset_borrowings',
@@ -1447,7 +1463,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "outsourceRepair" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3002,6 +3018,80 @@ export namespace Prisma {
           count: {
             args: Prisma.OutsourceRepairCountArgs<ExtArgs>
             result: $Utils.Optional<OutsourceRepairCountAggregateOutputType> | number
+          }
+        }
+      }
+      CustomerRequirement: {
+        payload: Prisma.$CustomerRequirementPayload<ExtArgs>
+        fields: Prisma.CustomerRequirementFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CustomerRequirementFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CustomerRequirementFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload>
+          }
+          findFirst: {
+            args: Prisma.CustomerRequirementFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CustomerRequirementFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload>
+          }
+          findMany: {
+            args: Prisma.CustomerRequirementFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload>[]
+          }
+          create: {
+            args: Prisma.CustomerRequirementCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload>
+          }
+          createMany: {
+            args: Prisma.CustomerRequirementCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CustomerRequirementCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload>[]
+          }
+          delete: {
+            args: Prisma.CustomerRequirementDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload>
+          }
+          update: {
+            args: Prisma.CustomerRequirementUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload>
+          }
+          deleteMany: {
+            args: Prisma.CustomerRequirementDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CustomerRequirementUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CustomerRequirementUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload>[]
+          }
+          upsert: {
+            args: Prisma.CustomerRequirementUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerRequirementPayload>
+          }
+          aggregate: {
+            args: Prisma.CustomerRequirementAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCustomerRequirement>
+          }
+          groupBy: {
+            args: Prisma.CustomerRequirementGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CustomerRequirementGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CustomerRequirementCountArgs<ExtArgs>
+            result: $Utils.Optional<CustomerRequirementCountAggregateOutputType> | number
           }
         }
       }
@@ -5576,6 +5666,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderOmit
     repairDelivery?: RepairDeliveryOmit
     outsourceRepair?: OutsourceRepairOmit
+    customerRequirement?: CustomerRequirementOmit
     admin_login_attempts?: admin_login_attemptsOmit
     admins?: adminsOmit
     asset_borrowings?: asset_borrowingsOmit
@@ -5696,6 +5787,7 @@ export namespace Prisma {
     schedules: number
     telesales: number
     telesalesKPIs: number
+    customerRequirements: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5706,6 +5798,7 @@ export namespace Prisma {
     schedules?: boolean | UserCountOutputTypeCountSchedulesArgs
     telesales?: boolean | UserCountOutputTypeCountTelesalesArgs
     telesalesKPIs?: boolean | UserCountOutputTypeCountTelesalesKPIsArgs
+    customerRequirements?: boolean | UserCountOutputTypeCountCustomerRequirementsArgs
   }
 
   // Custom InputTypes
@@ -5766,6 +5859,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountTelesalesKPIsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TelesalesKPIWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCustomerRequirementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomerRequirementWhereInput
   }
 
 
@@ -6797,6 +6897,7 @@ export namespace Prisma {
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
+    customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -6858,6 +6959,7 @@ export namespace Prisma {
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
+    customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6874,6 +6976,7 @@ export namespace Prisma {
       telesales: Prisma.$TelesalePayload<ExtArgs>[]
       telesalesKPIs: Prisma.$TelesalesKPIPayload<ExtArgs>[]
       employeeSale: Prisma.$EmployeeSalePayload<ExtArgs> | null
+      customerRequirements: Prisma.$CustomerRequirementPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7291,6 +7394,7 @@ export namespace Prisma {
     telesales<T extends User$telesalesArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     telesalesKPIs<T extends User$telesalesKPIsArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesKPIsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     employeeSale<T extends User$employeeSaleArgs<ExtArgs> = {}>(args?: Subset<T, User$employeeSaleArgs<ExtArgs>>): Prisma__EmployeeSaleClient<$Result.GetResult<Prisma.$EmployeeSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    customerRequirements<T extends User$customerRequirementsArgs<ExtArgs> = {}>(args?: Subset<T, User$customerRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7910,6 +8014,30 @@ export namespace Prisma {
      */
     include?: EmployeeSaleInclude<ExtArgs> | null
     where?: EmployeeSaleWhereInput
+  }
+
+  /**
+   * User.customerRequirements
+   */
+  export type User$customerRequirementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    where?: CustomerRequirementWhereInput
+    orderBy?: CustomerRequirementOrderByWithRelationInput | CustomerRequirementOrderByWithRelationInput[]
+    cursor?: CustomerRequirementWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CustomerRequirementScalarFieldEnum | CustomerRequirementScalarFieldEnum[]
   }
 
   /**
@@ -32424,6 +32552,1136 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OutsourceRepairInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CustomerRequirement
+   */
+
+  export type AggregateCustomerRequirement = {
+    _count: CustomerRequirementCountAggregateOutputType | null
+    _min: CustomerRequirementMinAggregateOutputType | null
+    _max: CustomerRequirementMaxAggregateOutputType | null
+  }
+
+  export type CustomerRequirementMinAggregateOutputType = {
+    id: string | null
+    requirementNumber: string | null
+    userId: string | null
+    companyName: string | null
+    contactName: string | null
+    salesperson: string | null
+    date: Date | null
+    createdAt: Date | null
+  }
+
+  export type CustomerRequirementMaxAggregateOutputType = {
+    id: string | null
+    requirementNumber: string | null
+    userId: string | null
+    companyName: string | null
+    contactName: string | null
+    salesperson: string | null
+    date: Date | null
+    createdAt: Date | null
+  }
+
+  export type CustomerRequirementCountAggregateOutputType = {
+    id: number
+    requirementNumber: number
+    userId: number
+    companyName: number
+    contactName: number
+    salesperson: number
+    date: number
+    formData: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CustomerRequirementMinAggregateInputType = {
+    id?: true
+    requirementNumber?: true
+    userId?: true
+    companyName?: true
+    contactName?: true
+    salesperson?: true
+    date?: true
+    createdAt?: true
+  }
+
+  export type CustomerRequirementMaxAggregateInputType = {
+    id?: true
+    requirementNumber?: true
+    userId?: true
+    companyName?: true
+    contactName?: true
+    salesperson?: true
+    date?: true
+    createdAt?: true
+  }
+
+  export type CustomerRequirementCountAggregateInputType = {
+    id?: true
+    requirementNumber?: true
+    userId?: true
+    companyName?: true
+    contactName?: true
+    salesperson?: true
+    date?: true
+    formData?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CustomerRequirementAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomerRequirement to aggregate.
+     */
+    where?: CustomerRequirementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerRequirements to fetch.
+     */
+    orderBy?: CustomerRequirementOrderByWithRelationInput | CustomerRequirementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CustomerRequirementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerRequirements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerRequirements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CustomerRequirements
+    **/
+    _count?: true | CustomerRequirementCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CustomerRequirementMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CustomerRequirementMaxAggregateInputType
+  }
+
+  export type GetCustomerRequirementAggregateType<T extends CustomerRequirementAggregateArgs> = {
+        [P in keyof T & keyof AggregateCustomerRequirement]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCustomerRequirement[P]>
+      : GetScalarType<T[P], AggregateCustomerRequirement[P]>
+  }
+
+
+
+
+  export type CustomerRequirementGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomerRequirementWhereInput
+    orderBy?: CustomerRequirementOrderByWithAggregationInput | CustomerRequirementOrderByWithAggregationInput[]
+    by: CustomerRequirementScalarFieldEnum[] | CustomerRequirementScalarFieldEnum
+    having?: CustomerRequirementScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CustomerRequirementCountAggregateInputType | true
+    _min?: CustomerRequirementMinAggregateInputType
+    _max?: CustomerRequirementMaxAggregateInputType
+  }
+
+  export type CustomerRequirementGroupByOutputType = {
+    id: string
+    requirementNumber: string | null
+    userId: string | null
+    companyName: string
+    contactName: string
+    salesperson: string
+    date: Date
+    formData: JsonValue
+    createdAt: Date
+    _count: CustomerRequirementCountAggregateOutputType | null
+    _min: CustomerRequirementMinAggregateOutputType | null
+    _max: CustomerRequirementMaxAggregateOutputType | null
+  }
+
+  type GetCustomerRequirementGroupByPayload<T extends CustomerRequirementGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CustomerRequirementGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CustomerRequirementGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CustomerRequirementGroupByOutputType[P]>
+            : GetScalarType<T[P], CustomerRequirementGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CustomerRequirementSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requirementNumber?: boolean
+    userId?: boolean
+    companyName?: boolean
+    contactName?: boolean
+    salesperson?: boolean
+    date?: boolean
+    formData?: boolean
+    createdAt?: boolean
+    user?: boolean | CustomerRequirement$userArgs<ExtArgs>
+  }, ExtArgs["result"]["customerRequirement"]>
+
+  export type CustomerRequirementSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requirementNumber?: boolean
+    userId?: boolean
+    companyName?: boolean
+    contactName?: boolean
+    salesperson?: boolean
+    date?: boolean
+    formData?: boolean
+    createdAt?: boolean
+    user?: boolean | CustomerRequirement$userArgs<ExtArgs>
+  }, ExtArgs["result"]["customerRequirement"]>
+
+  export type CustomerRequirementSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requirementNumber?: boolean
+    userId?: boolean
+    companyName?: boolean
+    contactName?: boolean
+    salesperson?: boolean
+    date?: boolean
+    formData?: boolean
+    createdAt?: boolean
+    user?: boolean | CustomerRequirement$userArgs<ExtArgs>
+  }, ExtArgs["result"]["customerRequirement"]>
+
+  export type CustomerRequirementSelectScalar = {
+    id?: boolean
+    requirementNumber?: boolean
+    userId?: boolean
+    companyName?: boolean
+    contactName?: boolean
+    salesperson?: boolean
+    date?: boolean
+    formData?: boolean
+    createdAt?: boolean
+  }
+
+  export type CustomerRequirementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requirementNumber" | "userId" | "companyName" | "contactName" | "salesperson" | "date" | "formData" | "createdAt", ExtArgs["result"]["customerRequirement"]>
+  export type CustomerRequirementInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | CustomerRequirement$userArgs<ExtArgs>
+  }
+  export type CustomerRequirementIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | CustomerRequirement$userArgs<ExtArgs>
+  }
+  export type CustomerRequirementIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | CustomerRequirement$userArgs<ExtArgs>
+  }
+
+  export type $CustomerRequirementPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CustomerRequirement"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      requirementNumber: string | null
+      userId: string | null
+      companyName: string
+      contactName: string
+      salesperson: string
+      date: Date
+      formData: Prisma.JsonValue
+      createdAt: Date
+    }, ExtArgs["result"]["customerRequirement"]>
+    composites: {}
+  }
+
+  type CustomerRequirementGetPayload<S extends boolean | null | undefined | CustomerRequirementDefaultArgs> = $Result.GetResult<Prisma.$CustomerRequirementPayload, S>
+
+  type CustomerRequirementCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CustomerRequirementFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CustomerRequirementCountAggregateInputType | true
+    }
+
+  export interface CustomerRequirementDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CustomerRequirement'], meta: { name: 'CustomerRequirement' } }
+    /**
+     * Find zero or one CustomerRequirement that matches the filter.
+     * @param {CustomerRequirementFindUniqueArgs} args - Arguments to find a CustomerRequirement
+     * @example
+     * // Get one CustomerRequirement
+     * const customerRequirement = await prisma.customerRequirement.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CustomerRequirementFindUniqueArgs>(args: SelectSubset<T, CustomerRequirementFindUniqueArgs<ExtArgs>>): Prisma__CustomerRequirementClient<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CustomerRequirement that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CustomerRequirementFindUniqueOrThrowArgs} args - Arguments to find a CustomerRequirement
+     * @example
+     * // Get one CustomerRequirement
+     * const customerRequirement = await prisma.customerRequirement.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CustomerRequirementFindUniqueOrThrowArgs>(args: SelectSubset<T, CustomerRequirementFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CustomerRequirementClient<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomerRequirement that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerRequirementFindFirstArgs} args - Arguments to find a CustomerRequirement
+     * @example
+     * // Get one CustomerRequirement
+     * const customerRequirement = await prisma.customerRequirement.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CustomerRequirementFindFirstArgs>(args?: SelectSubset<T, CustomerRequirementFindFirstArgs<ExtArgs>>): Prisma__CustomerRequirementClient<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomerRequirement that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerRequirementFindFirstOrThrowArgs} args - Arguments to find a CustomerRequirement
+     * @example
+     * // Get one CustomerRequirement
+     * const customerRequirement = await prisma.customerRequirement.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CustomerRequirementFindFirstOrThrowArgs>(args?: SelectSubset<T, CustomerRequirementFindFirstOrThrowArgs<ExtArgs>>): Prisma__CustomerRequirementClient<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CustomerRequirements that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerRequirementFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CustomerRequirements
+     * const customerRequirements = await prisma.customerRequirement.findMany()
+     * 
+     * // Get first 10 CustomerRequirements
+     * const customerRequirements = await prisma.customerRequirement.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const customerRequirementWithIdOnly = await prisma.customerRequirement.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CustomerRequirementFindManyArgs>(args?: SelectSubset<T, CustomerRequirementFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CustomerRequirement.
+     * @param {CustomerRequirementCreateArgs} args - Arguments to create a CustomerRequirement.
+     * @example
+     * // Create one CustomerRequirement
+     * const CustomerRequirement = await prisma.customerRequirement.create({
+     *   data: {
+     *     // ... data to create a CustomerRequirement
+     *   }
+     * })
+     * 
+     */
+    create<T extends CustomerRequirementCreateArgs>(args: SelectSubset<T, CustomerRequirementCreateArgs<ExtArgs>>): Prisma__CustomerRequirementClient<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CustomerRequirements.
+     * @param {CustomerRequirementCreateManyArgs} args - Arguments to create many CustomerRequirements.
+     * @example
+     * // Create many CustomerRequirements
+     * const customerRequirement = await prisma.customerRequirement.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CustomerRequirementCreateManyArgs>(args?: SelectSubset<T, CustomerRequirementCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CustomerRequirements and returns the data saved in the database.
+     * @param {CustomerRequirementCreateManyAndReturnArgs} args - Arguments to create many CustomerRequirements.
+     * @example
+     * // Create many CustomerRequirements
+     * const customerRequirement = await prisma.customerRequirement.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CustomerRequirements and only return the `id`
+     * const customerRequirementWithIdOnly = await prisma.customerRequirement.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CustomerRequirementCreateManyAndReturnArgs>(args?: SelectSubset<T, CustomerRequirementCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CustomerRequirement.
+     * @param {CustomerRequirementDeleteArgs} args - Arguments to delete one CustomerRequirement.
+     * @example
+     * // Delete one CustomerRequirement
+     * const CustomerRequirement = await prisma.customerRequirement.delete({
+     *   where: {
+     *     // ... filter to delete one CustomerRequirement
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CustomerRequirementDeleteArgs>(args: SelectSubset<T, CustomerRequirementDeleteArgs<ExtArgs>>): Prisma__CustomerRequirementClient<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CustomerRequirement.
+     * @param {CustomerRequirementUpdateArgs} args - Arguments to update one CustomerRequirement.
+     * @example
+     * // Update one CustomerRequirement
+     * const customerRequirement = await prisma.customerRequirement.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CustomerRequirementUpdateArgs>(args: SelectSubset<T, CustomerRequirementUpdateArgs<ExtArgs>>): Prisma__CustomerRequirementClient<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CustomerRequirements.
+     * @param {CustomerRequirementDeleteManyArgs} args - Arguments to filter CustomerRequirements to delete.
+     * @example
+     * // Delete a few CustomerRequirements
+     * const { count } = await prisma.customerRequirement.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CustomerRequirementDeleteManyArgs>(args?: SelectSubset<T, CustomerRequirementDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomerRequirements.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerRequirementUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CustomerRequirements
+     * const customerRequirement = await prisma.customerRequirement.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CustomerRequirementUpdateManyArgs>(args: SelectSubset<T, CustomerRequirementUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomerRequirements and returns the data updated in the database.
+     * @param {CustomerRequirementUpdateManyAndReturnArgs} args - Arguments to update many CustomerRequirements.
+     * @example
+     * // Update many CustomerRequirements
+     * const customerRequirement = await prisma.customerRequirement.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CustomerRequirements and only return the `id`
+     * const customerRequirementWithIdOnly = await prisma.customerRequirement.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CustomerRequirementUpdateManyAndReturnArgs>(args: SelectSubset<T, CustomerRequirementUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CustomerRequirement.
+     * @param {CustomerRequirementUpsertArgs} args - Arguments to update or create a CustomerRequirement.
+     * @example
+     * // Update or create a CustomerRequirement
+     * const customerRequirement = await prisma.customerRequirement.upsert({
+     *   create: {
+     *     // ... data to create a CustomerRequirement
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CustomerRequirement we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CustomerRequirementUpsertArgs>(args: SelectSubset<T, CustomerRequirementUpsertArgs<ExtArgs>>): Prisma__CustomerRequirementClient<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CustomerRequirements.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerRequirementCountArgs} args - Arguments to filter CustomerRequirements to count.
+     * @example
+     * // Count the number of CustomerRequirements
+     * const count = await prisma.customerRequirement.count({
+     *   where: {
+     *     // ... the filter for the CustomerRequirements we want to count
+     *   }
+     * })
+    **/
+    count<T extends CustomerRequirementCountArgs>(
+      args?: Subset<T, CustomerRequirementCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CustomerRequirementCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CustomerRequirement.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerRequirementAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CustomerRequirementAggregateArgs>(args: Subset<T, CustomerRequirementAggregateArgs>): Prisma.PrismaPromise<GetCustomerRequirementAggregateType<T>>
+
+    /**
+     * Group by CustomerRequirement.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerRequirementGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CustomerRequirementGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CustomerRequirementGroupByArgs['orderBy'] }
+        : { orderBy?: CustomerRequirementGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CustomerRequirementGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCustomerRequirementGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CustomerRequirement model
+   */
+  readonly fields: CustomerRequirementFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CustomerRequirement.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CustomerRequirementClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends CustomerRequirement$userArgs<ExtArgs> = {}>(args?: Subset<T, CustomerRequirement$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CustomerRequirement model
+   */
+  interface CustomerRequirementFieldRefs {
+    readonly id: FieldRef<"CustomerRequirement", 'String'>
+    readonly requirementNumber: FieldRef<"CustomerRequirement", 'String'>
+    readonly userId: FieldRef<"CustomerRequirement", 'String'>
+    readonly companyName: FieldRef<"CustomerRequirement", 'String'>
+    readonly contactName: FieldRef<"CustomerRequirement", 'String'>
+    readonly salesperson: FieldRef<"CustomerRequirement", 'String'>
+    readonly date: FieldRef<"CustomerRequirement", 'DateTime'>
+    readonly formData: FieldRef<"CustomerRequirement", 'Json'>
+    readonly createdAt: FieldRef<"CustomerRequirement", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CustomerRequirement findUnique
+   */
+  export type CustomerRequirementFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerRequirement to fetch.
+     */
+    where: CustomerRequirementWhereUniqueInput
+  }
+
+  /**
+   * CustomerRequirement findUniqueOrThrow
+   */
+  export type CustomerRequirementFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerRequirement to fetch.
+     */
+    where: CustomerRequirementWhereUniqueInput
+  }
+
+  /**
+   * CustomerRequirement findFirst
+   */
+  export type CustomerRequirementFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerRequirement to fetch.
+     */
+    where?: CustomerRequirementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerRequirements to fetch.
+     */
+    orderBy?: CustomerRequirementOrderByWithRelationInput | CustomerRequirementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomerRequirements.
+     */
+    cursor?: CustomerRequirementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerRequirements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerRequirements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomerRequirements.
+     */
+    distinct?: CustomerRequirementScalarFieldEnum | CustomerRequirementScalarFieldEnum[]
+  }
+
+  /**
+   * CustomerRequirement findFirstOrThrow
+   */
+  export type CustomerRequirementFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerRequirement to fetch.
+     */
+    where?: CustomerRequirementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerRequirements to fetch.
+     */
+    orderBy?: CustomerRequirementOrderByWithRelationInput | CustomerRequirementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomerRequirements.
+     */
+    cursor?: CustomerRequirementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerRequirements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerRequirements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomerRequirements.
+     */
+    distinct?: CustomerRequirementScalarFieldEnum | CustomerRequirementScalarFieldEnum[]
+  }
+
+  /**
+   * CustomerRequirement findMany
+   */
+  export type CustomerRequirementFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerRequirements to fetch.
+     */
+    where?: CustomerRequirementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerRequirements to fetch.
+     */
+    orderBy?: CustomerRequirementOrderByWithRelationInput | CustomerRequirementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CustomerRequirements.
+     */
+    cursor?: CustomerRequirementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerRequirements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerRequirements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomerRequirements.
+     */
+    distinct?: CustomerRequirementScalarFieldEnum | CustomerRequirementScalarFieldEnum[]
+  }
+
+  /**
+   * CustomerRequirement create
+   */
+  export type CustomerRequirementCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CustomerRequirement.
+     */
+    data: XOR<CustomerRequirementCreateInput, CustomerRequirementUncheckedCreateInput>
+  }
+
+  /**
+   * CustomerRequirement createMany
+   */
+  export type CustomerRequirementCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CustomerRequirements.
+     */
+    data: CustomerRequirementCreateManyInput | CustomerRequirementCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CustomerRequirement createManyAndReturn
+   */
+  export type CustomerRequirementCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * The data used to create many CustomerRequirements.
+     */
+    data: CustomerRequirementCreateManyInput | CustomerRequirementCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomerRequirement update
+   */
+  export type CustomerRequirementUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CustomerRequirement.
+     */
+    data: XOR<CustomerRequirementUpdateInput, CustomerRequirementUncheckedUpdateInput>
+    /**
+     * Choose, which CustomerRequirement to update.
+     */
+    where: CustomerRequirementWhereUniqueInput
+  }
+
+  /**
+   * CustomerRequirement updateMany
+   */
+  export type CustomerRequirementUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CustomerRequirements.
+     */
+    data: XOR<CustomerRequirementUpdateManyMutationInput, CustomerRequirementUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomerRequirements to update
+     */
+    where?: CustomerRequirementWhereInput
+    /**
+     * Limit how many CustomerRequirements to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomerRequirement updateManyAndReturn
+   */
+  export type CustomerRequirementUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * The data used to update CustomerRequirements.
+     */
+    data: XOR<CustomerRequirementUpdateManyMutationInput, CustomerRequirementUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomerRequirements to update
+     */
+    where?: CustomerRequirementWhereInput
+    /**
+     * Limit how many CustomerRequirements to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomerRequirement upsert
+   */
+  export type CustomerRequirementUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CustomerRequirement to update in case it exists.
+     */
+    where: CustomerRequirementWhereUniqueInput
+    /**
+     * In case the CustomerRequirement found by the `where` argument doesn't exist, create a new CustomerRequirement with this data.
+     */
+    create: XOR<CustomerRequirementCreateInput, CustomerRequirementUncheckedCreateInput>
+    /**
+     * In case the CustomerRequirement was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CustomerRequirementUpdateInput, CustomerRequirementUncheckedUpdateInput>
+  }
+
+  /**
+   * CustomerRequirement delete
+   */
+  export type CustomerRequirementDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    /**
+     * Filter which CustomerRequirement to delete.
+     */
+    where: CustomerRequirementWhereUniqueInput
+  }
+
+  /**
+   * CustomerRequirement deleteMany
+   */
+  export type CustomerRequirementDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomerRequirements to delete
+     */
+    where?: CustomerRequirementWhereInput
+    /**
+     * Limit how many CustomerRequirements to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomerRequirement.user
+   */
+  export type CustomerRequirement$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * CustomerRequirement without action
+   */
+  export type CustomerRequirementDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
   }
 
 
@@ -73990,6 +75248,21 @@ export namespace Prisma {
   export type OutsourceRepairScalarFieldEnum = (typeof OutsourceRepairScalarFieldEnum)[keyof typeof OutsourceRepairScalarFieldEnum]
 
 
+  export const CustomerRequirementScalarFieldEnum: {
+    id: 'id',
+    requirementNumber: 'requirementNumber',
+    userId: 'userId',
+    companyName: 'companyName',
+    contactName: 'contactName',
+    salesperson: 'salesperson',
+    date: 'date',
+    formData: 'formData',
+    createdAt: 'createdAt'
+  };
+
+  export type CustomerRequirementScalarFieldEnum = (typeof CustomerRequirementScalarFieldEnum)[keyof typeof CustomerRequirementScalarFieldEnum]
+
+
   export const Admin_login_attemptsScalarFieldEnum: {
     id: 'id',
     username: 'username',
@@ -74824,6 +76097,7 @@ export namespace Prisma {
     telesales?: TelesaleListRelationFilter
     telesalesKPIs?: TelesalesKPIListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
+    customerRequirements?: CustomerRequirementListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -74848,6 +76122,7 @@ export namespace Prisma {
     telesales?: TelesaleOrderByRelationAggregateInput
     telesalesKPIs?: TelesalesKPIOrderByRelationAggregateInput
     employeeSale?: EmployeeSaleOrderByWithRelationInput
+    customerRequirements?: CustomerRequirementOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -74875,6 +76150,7 @@ export namespace Prisma {
     telesales?: TelesaleListRelationFilter
     telesalesKPIs?: TelesalesKPIListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
+    customerRequirements?: CustomerRequirementListRelationFilter
   }, "id" | "employeeId" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -77013,6 +78289,81 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"OutsourceRepair"> | string
     createdAt?: DateTimeWithAggregatesFilter<"OutsourceRepair"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OutsourceRepair"> | Date | string
+  }
+
+  export type CustomerRequirementWhereInput = {
+    AND?: CustomerRequirementWhereInput | CustomerRequirementWhereInput[]
+    OR?: CustomerRequirementWhereInput[]
+    NOT?: CustomerRequirementWhereInput | CustomerRequirementWhereInput[]
+    id?: StringFilter<"CustomerRequirement"> | string
+    requirementNumber?: StringNullableFilter<"CustomerRequirement"> | string | null
+    userId?: StringNullableFilter<"CustomerRequirement"> | string | null
+    companyName?: StringFilter<"CustomerRequirement"> | string
+    contactName?: StringFilter<"CustomerRequirement"> | string
+    salesperson?: StringFilter<"CustomerRequirement"> | string
+    date?: DateTimeFilter<"CustomerRequirement"> | Date | string
+    formData?: JsonFilter<"CustomerRequirement">
+    createdAt?: DateTimeFilter<"CustomerRequirement"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type CustomerRequirementOrderByWithRelationInput = {
+    id?: SortOrder
+    requirementNumber?: SortOrderInput | SortOrder
+    userId?: SortOrderInput | SortOrder
+    companyName?: SortOrder
+    contactName?: SortOrder
+    salesperson?: SortOrder
+    date?: SortOrder
+    formData?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type CustomerRequirementWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    requirementNumber?: string
+    AND?: CustomerRequirementWhereInput | CustomerRequirementWhereInput[]
+    OR?: CustomerRequirementWhereInput[]
+    NOT?: CustomerRequirementWhereInput | CustomerRequirementWhereInput[]
+    userId?: StringNullableFilter<"CustomerRequirement"> | string | null
+    companyName?: StringFilter<"CustomerRequirement"> | string
+    contactName?: StringFilter<"CustomerRequirement"> | string
+    salesperson?: StringFilter<"CustomerRequirement"> | string
+    date?: DateTimeFilter<"CustomerRequirement"> | Date | string
+    formData?: JsonFilter<"CustomerRequirement">
+    createdAt?: DateTimeFilter<"CustomerRequirement"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "requirementNumber">
+
+  export type CustomerRequirementOrderByWithAggregationInput = {
+    id?: SortOrder
+    requirementNumber?: SortOrderInput | SortOrder
+    userId?: SortOrderInput | SortOrder
+    companyName?: SortOrder
+    contactName?: SortOrder
+    salesperson?: SortOrder
+    date?: SortOrder
+    formData?: SortOrder
+    createdAt?: SortOrder
+    _count?: CustomerRequirementCountOrderByAggregateInput
+    _max?: CustomerRequirementMaxOrderByAggregateInput
+    _min?: CustomerRequirementMinOrderByAggregateInput
+  }
+
+  export type CustomerRequirementScalarWhereWithAggregatesInput = {
+    AND?: CustomerRequirementScalarWhereWithAggregatesInput | CustomerRequirementScalarWhereWithAggregatesInput[]
+    OR?: CustomerRequirementScalarWhereWithAggregatesInput[]
+    NOT?: CustomerRequirementScalarWhereWithAggregatesInput | CustomerRequirementScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CustomerRequirement"> | string
+    requirementNumber?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
+    userId?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
+    companyName?: StringWithAggregatesFilter<"CustomerRequirement"> | string
+    contactName?: StringWithAggregatesFilter<"CustomerRequirement"> | string
+    salesperson?: StringWithAggregatesFilter<"CustomerRequirement"> | string
+    date?: DateTimeWithAggregatesFilter<"CustomerRequirement"> | Date | string
+    formData?: JsonWithAggregatesFilter<"CustomerRequirement">
+    createdAt?: DateTimeWithAggregatesFilter<"CustomerRequirement"> | Date | string
   }
 
   export type admin_login_attemptsWhereInput = {
@@ -80450,6 +81801,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -80474,6 +81826,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -80498,6 +81851,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -80522,6 +81876,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -83022,6 +84377,89 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerRequirementCreateInput = {
+    id?: string
+    requirementNumber?: string | null
+    companyName: string
+    contactName: string
+    salesperson: string
+    date: Date | string
+    formData: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    user?: UserCreateNestedOneWithoutCustomerRequirementsInput
+  }
+
+  export type CustomerRequirementUncheckedCreateInput = {
+    id?: string
+    requirementNumber?: string | null
+    userId?: string | null
+    companyName: string
+    contactName: string
+    salesperson: string
+    date: Date | string
+    formData: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type CustomerRequirementUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    companyName?: StringFieldUpdateOperationsInput | string
+    contactName?: StringFieldUpdateOperationsInput | string
+    salesperson?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    formData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutCustomerRequirementsNestedInput
+  }
+
+  export type CustomerRequirementUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    companyName?: StringFieldUpdateOperationsInput | string
+    contactName?: StringFieldUpdateOperationsInput | string
+    salesperson?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    formData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerRequirementCreateManyInput = {
+    id?: string
+    requirementNumber?: string | null
+    userId?: string | null
+    companyName: string
+    contactName: string
+    salesperson: string
+    date: Date | string
+    formData: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type CustomerRequirementUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    companyName?: StringFieldUpdateOperationsInput | string
+    contactName?: StringFieldUpdateOperationsInput | string
+    salesperson?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    formData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerRequirementUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    companyName?: StringFieldUpdateOperationsInput | string
+    contactName?: StringFieldUpdateOperationsInput | string
+    salesperson?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    formData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type admin_login_attemptsCreateInput = {
@@ -87008,6 +88446,12 @@ export namespace Prisma {
     isNot?: EmployeeSaleWhereInput | null
   }
 
+  export type CustomerRequirementListRelationFilter = {
+    every?: CustomerRequirementWhereInput
+    some?: CustomerRequirementWhereInput
+    none?: CustomerRequirementWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -87038,6 +88482,10 @@ export namespace Prisma {
   }
 
   export type TelesalesKPIOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CustomerRequirementOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -88607,6 +90055,40 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type CustomerRequirementCountOrderByAggregateInput = {
+    id?: SortOrder
+    requirementNumber?: SortOrder
+    userId?: SortOrder
+    companyName?: SortOrder
+    contactName?: SortOrder
+    salesperson?: SortOrder
+    date?: SortOrder
+    formData?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CustomerRequirementMaxOrderByAggregateInput = {
+    id?: SortOrder
+    requirementNumber?: SortOrder
+    userId?: SortOrder
+    companyName?: SortOrder
+    contactName?: SortOrder
+    salesperson?: SortOrder
+    date?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CustomerRequirementMinOrderByAggregateInput = {
+    id?: SortOrder
+    requirementNumber?: SortOrder
+    userId?: SortOrder
+    companyName?: SortOrder
+    contactName?: SortOrder
+    salesperson?: SortOrder
+    date?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type BigIntFilter<$PrismaModel = never> = {
@@ -91196,6 +92678,13 @@ export namespace Prisma {
     connect?: EmployeeSaleWhereUniqueInput
   }
 
+  export type CustomerRequirementCreateNestedManyWithoutUserInput = {
+    create?: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput> | CustomerRequirementCreateWithoutUserInput[] | CustomerRequirementUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CustomerRequirementCreateOrConnectWithoutUserInput | CustomerRequirementCreateOrConnectWithoutUserInput[]
+    createMany?: CustomerRequirementCreateManyUserInputEnvelope
+    connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+  }
+
   export type CompanyUncheckedCreateNestedManyWithoutAssignedUserInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -91249,6 +92738,13 @@ export namespace Prisma {
     create?: XOR<EmployeeSaleCreateWithoutUserInput, EmployeeSaleUncheckedCreateWithoutUserInput>
     connectOrCreate?: EmployeeSaleCreateOrConnectWithoutUserInput
     connect?: EmployeeSaleWhereUniqueInput
+  }
+
+  export type CustomerRequirementUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput> | CustomerRequirementCreateWithoutUserInput[] | CustomerRequirementUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CustomerRequirementCreateOrConnectWithoutUserInput | CustomerRequirementCreateOrConnectWithoutUserInput[]
+    createMany?: CustomerRequirementCreateManyUserInputEnvelope
+    connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -91379,6 +92875,20 @@ export namespace Prisma {
     update?: XOR<XOR<EmployeeSaleUpdateToOneWithWhereWithoutUserInput, EmployeeSaleUpdateWithoutUserInput>, EmployeeSaleUncheckedUpdateWithoutUserInput>
   }
 
+  export type CustomerRequirementUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput> | CustomerRequirementCreateWithoutUserInput[] | CustomerRequirementUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CustomerRequirementCreateOrConnectWithoutUserInput | CustomerRequirementCreateOrConnectWithoutUserInput[]
+    upsert?: CustomerRequirementUpsertWithWhereUniqueWithoutUserInput | CustomerRequirementUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CustomerRequirementCreateManyUserInputEnvelope
+    set?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    disconnect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    delete?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    update?: CustomerRequirementUpdateWithWhereUniqueWithoutUserInput | CustomerRequirementUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CustomerRequirementUpdateManyWithWhereWithoutUserInput | CustomerRequirementUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
+  }
+
   export type CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -91485,6 +92995,20 @@ export namespace Prisma {
     delete?: EmployeeSaleWhereInput | boolean
     connect?: EmployeeSaleWhereUniqueInput
     update?: XOR<XOR<EmployeeSaleUpdateToOneWithWhereWithoutUserInput, EmployeeSaleUpdateWithoutUserInput>, EmployeeSaleUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput> | CustomerRequirementCreateWithoutUserInput[] | CustomerRequirementUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CustomerRequirementCreateOrConnectWithoutUserInput | CustomerRequirementCreateOrConnectWithoutUserInput[]
+    upsert?: CustomerRequirementUpsertWithWhereUniqueWithoutUserInput | CustomerRequirementUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CustomerRequirementCreateManyUserInputEnvelope
+    set?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    disconnect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    delete?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    update?: CustomerRequirementUpdateWithWhereUniqueWithoutUserInput | CustomerRequirementUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CustomerRequirementUpdateManyWithWhereWithoutUserInput | CustomerRequirementUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutMonthlyTargetsInput = {
@@ -92459,6 +93983,22 @@ export namespace Prisma {
     delete?: JobWhereInput | boolean
     connect?: JobWhereUniqueInput
     update?: XOR<XOR<JobUpdateToOneWithWhereWithoutOutsourceRepairsInput, JobUpdateWithoutOutsourceRepairsInput>, JobUncheckedUpdateWithoutOutsourceRepairsInput>
+  }
+
+  export type UserCreateNestedOneWithoutCustomerRequirementsInput = {
+    create?: XOR<UserCreateWithoutCustomerRequirementsInput, UserUncheckedCreateWithoutCustomerRequirementsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCustomerRequirementsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutCustomerRequirementsNestedInput = {
+    create?: XOR<UserCreateWithoutCustomerRequirementsInput, UserUncheckedCreateWithoutCustomerRequirementsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCustomerRequirementsInput
+    upsert?: UserUpsertWithoutCustomerRequirementsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCustomerRequirementsInput, UserUpdateWithoutCustomerRequirementsInput>, UserUncheckedUpdateWithoutCustomerRequirementsInput>
   }
 
   export type BigIntFieldUpdateOperationsInput = {
@@ -95198,6 +96738,38 @@ export namespace Prisma {
     create: XOR<EmployeeSaleCreateWithoutUserInput, EmployeeSaleUncheckedCreateWithoutUserInput>
   }
 
+  export type CustomerRequirementCreateWithoutUserInput = {
+    id?: string
+    requirementNumber?: string | null
+    companyName: string
+    contactName: string
+    salesperson: string
+    date: Date | string
+    formData: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type CustomerRequirementUncheckedCreateWithoutUserInput = {
+    id?: string
+    requirementNumber?: string | null
+    companyName: string
+    contactName: string
+    salesperson: string
+    date: Date | string
+    formData: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type CustomerRequirementCreateOrConnectWithoutUserInput = {
+    where: CustomerRequirementWhereUniqueInput
+    create: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput>
+  }
+
+  export type CustomerRequirementCreateManyUserInputEnvelope = {
+    data: CustomerRequirementCreateManyUserInput | CustomerRequirementCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithWhereUniqueWithoutAssignedUserInput = {
     where: CompanyWhereUniqueInput
     update: XOR<CompanyUpdateWithoutAssignedUserInput, CompanyUncheckedUpdateWithoutAssignedUserInput>
@@ -95515,6 +97087,37 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type CustomerRequirementUpsertWithWhereUniqueWithoutUserInput = {
+    where: CustomerRequirementWhereUniqueInput
+    update: XOR<CustomerRequirementUpdateWithoutUserInput, CustomerRequirementUncheckedUpdateWithoutUserInput>
+    create: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput>
+  }
+
+  export type CustomerRequirementUpdateWithWhereUniqueWithoutUserInput = {
+    where: CustomerRequirementWhereUniqueInput
+    data: XOR<CustomerRequirementUpdateWithoutUserInput, CustomerRequirementUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CustomerRequirementUpdateManyWithWhereWithoutUserInput = {
+    where: CustomerRequirementScalarWhereInput
+    data: XOR<CustomerRequirementUpdateManyMutationInput, CustomerRequirementUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type CustomerRequirementScalarWhereInput = {
+    AND?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
+    OR?: CustomerRequirementScalarWhereInput[]
+    NOT?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
+    id?: StringFilter<"CustomerRequirement"> | string
+    requirementNumber?: StringNullableFilter<"CustomerRequirement"> | string | null
+    userId?: StringNullableFilter<"CustomerRequirement"> | string | null
+    companyName?: StringFilter<"CustomerRequirement"> | string
+    contactName?: StringFilter<"CustomerRequirement"> | string
+    salesperson?: StringFilter<"CustomerRequirement"> | string
+    date?: DateTimeFilter<"CustomerRequirement"> | Date | string
+    formData?: JsonFilter<"CustomerRequirement">
+    createdAt?: DateTimeFilter<"CustomerRequirement"> | Date | string
+  }
+
   export type UserCreateWithoutMonthlyTargetsInput = {
     id?: string
     employeeId: string
@@ -95536,6 +97139,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMonthlyTargetsInput = {
@@ -95559,6 +97163,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMonthlyTargetsInput = {
@@ -95598,6 +97203,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonthlyTargetsInput = {
@@ -95621,6 +97227,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CompanyCreateWithoutSchedulesInput = {
@@ -95768,6 +97375,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSchedulesInput = {
@@ -95791,6 +97399,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSchedulesInput = {
@@ -95966,6 +97575,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSchedulesInput = {
@@ -95989,6 +97599,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutEmployeeSaleInput = {
@@ -96012,6 +97623,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutEmployeeSaleInput = {
@@ -96035,6 +97647,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutEmployeeSaleInput = {
@@ -96074,6 +97687,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEmployeeSaleInput = {
@@ -96097,6 +97711,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAssignedCompaniesInput = {
@@ -96120,6 +97735,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAssignedCompaniesInput = {
@@ -96143,6 +97759,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAssignedCompaniesInput = {
@@ -96438,6 +98055,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedCompaniesInput = {
@@ -96461,6 +98079,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContactUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -96977,6 +98596,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuotationsInput = {
@@ -97000,6 +98620,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuotationsInput = {
@@ -97243,6 +98864,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuotationsInput = {
@@ -97266,6 +98888,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type JobUpsertWithWhereUniqueWithoutQuotationInput = {
@@ -97451,6 +99074,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTelesalesInput = {
@@ -97474,6 +99098,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTelesalesInput = {
@@ -97641,6 +99266,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTelesalesInput = {
@@ -97664,6 +99290,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutTelesalesKPIsInput = {
@@ -97687,6 +99314,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTelesalesKPIsInput = {
@@ -97710,6 +99338,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTelesalesKPIsInput = {
@@ -97749,6 +99378,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTelesalesKPIsInput = {
@@ -97772,6 +99402,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CompanyCreateWithoutOrdersInput = {
@@ -97949,6 +99580,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrdersInput = {
@@ -97972,6 +99604,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrdersInput = {
@@ -98203,6 +99836,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -98226,6 +99860,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrderStatusLogUpsertWithWhereUniqueWithoutOrderInput = {
@@ -99647,6 +101282,118 @@ export namespace Prisma {
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type UserCreateWithoutCustomerRequirementsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutCustomerRequirementsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutCustomerRequirementsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCustomerRequirementsInput, UserUncheckedCreateWithoutCustomerRequirementsInput>
+  }
+
+  export type UserUpsertWithoutCustomerRequirementsInput = {
+    update: XOR<UserUpdateWithoutCustomerRequirementsInput, UserUncheckedUpdateWithoutCustomerRequirementsInput>
+    create: XOR<UserCreateWithoutCustomerRequirementsInput, UserUncheckedCreateWithoutCustomerRequirementsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCustomerRequirementsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCustomerRequirementsInput, UserUncheckedUpdateWithoutCustomerRequirementsInput>
+  }
+
+  export type UserUpdateWithoutCustomerRequirementsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCustomerRequirementsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type sessionsCreateWithoutAdminsInput = {
@@ -109236,6 +110983,17 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type CustomerRequirementCreateManyUserInput = {
+    id?: string
+    requirementNumber?: string | null
+    companyName: string
+    contactName: string
+    salesperson: string
+    date: Date | string
+    formData: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
   export type CompanyUpdateWithoutAssignedUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     companyName?: StringFieldUpdateOperationsInput | string
@@ -109666,6 +111424,39 @@ export namespace Prisma {
     connectionRateMin?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerRequirementUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    companyName?: StringFieldUpdateOperationsInput | string
+    contactName?: StringFieldUpdateOperationsInput | string
+    salesperson?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    formData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerRequirementUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    companyName?: StringFieldUpdateOperationsInput | string
+    contactName?: StringFieldUpdateOperationsInput | string
+    salesperson?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    formData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerRequirementUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    companyName?: StringFieldUpdateOperationsInput | string
+    contactName?: StringFieldUpdateOperationsInput | string
+    salesperson?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    formData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ContactCreateManyCompanyInput = {

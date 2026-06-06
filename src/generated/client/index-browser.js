@@ -481,6 +481,18 @@ exports.Prisma.OutsourceRepairScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CustomerRequirementScalarFieldEnum = {
+  id: 'id',
+  requirementNumber: 'requirementNumber',
+  userId: 'userId',
+  companyName: 'companyName',
+  contactName: 'contactName',
+  salesperson: 'salesperson',
+  date: 'date',
+  formData: 'formData',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.Admin_login_attemptsScalarFieldEnum = {
   id: 'id',
   username: 'username',
@@ -1083,6 +1095,7 @@ exports.Prisma.ModelName = {
   RepairOrder: 'RepairOrder',
   RepairDelivery: 'RepairDelivery',
   OutsourceRepair: 'OutsourceRepair',
+  CustomerRequirement: 'CustomerRequirement',
   admin_login_attempts: 'admin_login_attempts',
   admins: 'admins',
   asset_borrowings: 'asset_borrowings',

@@ -54,7 +54,8 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
   const formatDateForInput = (date: any) => {
     if (!date) return '';
     const d = new Date(date);
-    return d.toISOString().split('T')[0];
+    const offset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - offset).toISOString().split('T')[0];
   };
 
   const handleCompanySearch = async (query: string) => {
@@ -178,8 +179,8 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
       if (initialData.isPrefilled) {
         setFormData({
           updatedDate: formatDateForInput(new Date()),
-          requirementNumber: generateRequirementNumber(),
-          requirementDate: formatDateForInput(new Date()),
+          requirementNumber: initialData.requirementNumber || generateRequirementNumber(),
+          requirementDate: initialData.requirementDate ? formatDateForInput(initialData.requirementDate) : formatDateForInput(new Date()),
           quotationNumber: '',
           quotationDate: '',
           rejectReason: '',
@@ -204,8 +205,8 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           contactName: initialData.contact?.contactName || '',
           position: initialData.contact?.position || '',
           mobilePhone: initialData.contact?.mobilePhone || '',
-          productInterest: '',
-          productType: 'อื่นๆ',
+          productInterest: initialData.productInterest || '',
+          productType: initialData.productType || 'อื่นๆ',
           followUp1: '',
           followUp2: '',
           followUp3: '',
