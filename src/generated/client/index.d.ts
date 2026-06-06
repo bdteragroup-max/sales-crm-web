@@ -288,6 +288,11 @@ export type travel_claims = $Result.DefaultSelection<Prisma.$travel_claimsPayloa
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type employee_trainings = $Result.DefaultSelection<Prisma.$employee_trainingsPayload>
+/**
+ * Model PurchaseOrder
+ * 
+ */
+export type PurchaseOrder = $Result.DefaultSelection<Prisma.$PurchaseOrderPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -959,6 +964,16 @@ export class PrismaClient<
     * ```
     */
   get employee_trainings(): Prisma.employee_trainingsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.purchaseOrder`: Exposes CRUD operations for the **PurchaseOrder** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PurchaseOrders
+    * const purchaseOrders = await prisma.purchaseOrder.findMany()
+    * ```
+    */
+  get purchaseOrder(): Prisma.PurchaseOrderDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1447,7 +1462,8 @@ export namespace Prisma {
     room_bookings: 'room_bookings',
     sessions: 'sessions',
     travel_claims: 'travel_claims',
-    employee_trainings: 'employee_trainings'
+    employee_trainings: 'employee_trainings',
+    PurchaseOrder: 'PurchaseOrder'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1463,7 +1479,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5537,6 +5553,80 @@ export namespace Prisma {
           }
         }
       }
+      PurchaseOrder: {
+        payload: Prisma.$PurchaseOrderPayload<ExtArgs>
+        fields: Prisma.PurchaseOrderFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PurchaseOrderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PurchaseOrderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload>
+          }
+          findFirst: {
+            args: Prisma.PurchaseOrderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PurchaseOrderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload>
+          }
+          findMany: {
+            args: Prisma.PurchaseOrderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload>[]
+          }
+          create: {
+            args: Prisma.PurchaseOrderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload>
+          }
+          createMany: {
+            args: Prisma.PurchaseOrderCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PurchaseOrderCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload>[]
+          }
+          delete: {
+            args: Prisma.PurchaseOrderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload>
+          }
+          update: {
+            args: Prisma.PurchaseOrderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload>
+          }
+          deleteMany: {
+            args: Prisma.PurchaseOrderDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PurchaseOrderUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PurchaseOrderUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload>[]
+          }
+          upsert: {
+            args: Prisma.PurchaseOrderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PurchaseOrderPayload>
+          }
+          aggregate: {
+            args: Prisma.PurchaseOrderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePurchaseOrder>
+          }
+          groupBy: {
+            args: Prisma.PurchaseOrderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PurchaseOrderGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PurchaseOrderCountArgs<ExtArgs>
+            result: $Utils.Optional<PurchaseOrderCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5700,6 +5790,7 @@ export namespace Prisma {
     sessions?: sessionsOmit
     travel_claims?: travel_claimsOmit
     employee_trainings?: employee_trainingsOmit
+    purchaseOrder?: PurchaseOrderOmit
   }
 
   /* Types for Logging */
@@ -6044,14 +6135,18 @@ export namespace Prisma {
 
   export type JobCountOutputType = {
     stepLogs: number
+    paymentTasks: number
     repairDeliveries: number
     outsourceRepairs: number
+    purchaseOrders: number
   }
 
   export type JobCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     stepLogs?: boolean | JobCountOutputTypeCountStepLogsArgs
+    paymentTasks?: boolean | JobCountOutputTypeCountPaymentTasksArgs
     repairDeliveries?: boolean | JobCountOutputTypeCountRepairDeliveriesArgs
     outsourceRepairs?: boolean | JobCountOutputTypeCountOutsourceRepairsArgs
+    purchaseOrders?: boolean | JobCountOutputTypeCountPurchaseOrdersArgs
   }
 
   // Custom InputTypes
@@ -6075,6 +6170,13 @@ export namespace Prisma {
   /**
    * JobCountOutputType without action
    */
+  export type JobCountOutputTypeCountPaymentTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentTaskWhereInput
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
   export type JobCountOutputTypeCountRepairDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RepairDeliveryWhereInput
   }
@@ -6084,6 +6186,13 @@ export namespace Prisma {
    */
   export type JobCountOutputTypeCountOutsourceRepairsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OutsourceRepairWhereInput
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeCountPurchaseOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PurchaseOrderWhereInput
   }
 
 
@@ -24180,10 +24289,11 @@ export namespace Prisma {
     updatedAt?: boolean
     repairOrder?: boolean | Job$repairOrderArgs<ExtArgs>
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
-    paymentTask?: boolean | Job$paymentTaskArgs<ExtArgs>
+    paymentTasks?: boolean | Job$paymentTasksArgs<ExtArgs>
     quotation?: boolean | Job$quotationArgs<ExtArgs>
     repairDeliveries?: boolean | Job$repairDeliveriesArgs<ExtArgs>
     outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
+    purchaseOrders?: boolean | Job$purchaseOrdersArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["job"]>
 
@@ -24274,10 +24384,11 @@ export namespace Prisma {
   export type JobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     repairOrder?: boolean | Job$repairOrderArgs<ExtArgs>
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
-    paymentTask?: boolean | Job$paymentTaskArgs<ExtArgs>
+    paymentTasks?: boolean | Job$paymentTasksArgs<ExtArgs>
     quotation?: boolean | Job$quotationArgs<ExtArgs>
     repairDeliveries?: boolean | Job$repairDeliveriesArgs<ExtArgs>
     outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
+    purchaseOrders?: boolean | Job$purchaseOrdersArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type JobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -24292,10 +24403,11 @@ export namespace Prisma {
     objects: {
       repairOrder: Prisma.$RepairOrderPayload<ExtArgs> | null
       stepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
-      paymentTask: Prisma.$PaymentTaskPayload<ExtArgs> | null
+      paymentTasks: Prisma.$PaymentTaskPayload<ExtArgs>[]
       quotation: Prisma.$QuotationPayload<ExtArgs> | null
       repairDeliveries: Prisma.$RepairDeliveryPayload<ExtArgs>[]
       outsourceRepairs: Prisma.$OutsourceRepairPayload<ExtArgs>[]
+      purchaseOrders: Prisma.$PurchaseOrderPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -24718,10 +24830,11 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     repairOrder<T extends Job$repairOrderArgs<ExtArgs> = {}>(args?: Subset<T, Job$repairOrderArgs<ExtArgs>>): Prisma__RepairOrderClient<$Result.GetResult<Prisma.$RepairOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     stepLogs<T extends Job$stepLogsArgs<ExtArgs> = {}>(args?: Subset<T, Job$stepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    paymentTask<T extends Job$paymentTaskArgs<ExtArgs> = {}>(args?: Subset<T, Job$paymentTaskArgs<ExtArgs>>): Prisma__PaymentTaskClient<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    paymentTasks<T extends Job$paymentTasksArgs<ExtArgs> = {}>(args?: Subset<T, Job$paymentTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotation<T extends Job$quotationArgs<ExtArgs> = {}>(args?: Subset<T, Job$quotationArgs<ExtArgs>>): Prisma__QuotationClient<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     repairDeliveries<T extends Job$repairDeliveriesArgs<ExtArgs> = {}>(args?: Subset<T, Job$repairDeliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     outsourceRepairs<T extends Job$outsourceRepairsArgs<ExtArgs> = {}>(args?: Subset<T, Job$outsourceRepairsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    purchaseOrders<T extends Job$purchaseOrdersArgs<ExtArgs> = {}>(args?: Subset<T, Job$purchaseOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -25219,9 +25332,9 @@ export namespace Prisma {
   }
 
   /**
-   * Job.paymentTask
+   * Job.paymentTasks
    */
-  export type Job$paymentTaskArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Job$paymentTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the PaymentTask
      */
@@ -25235,6 +25348,11 @@ export namespace Prisma {
      */
     include?: PaymentTaskInclude<ExtArgs> | null
     where?: PaymentTaskWhereInput
+    orderBy?: PaymentTaskOrderByWithRelationInput | PaymentTaskOrderByWithRelationInput[]
+    cursor?: PaymentTaskWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaymentTaskScalarFieldEnum | PaymentTaskScalarFieldEnum[]
   }
 
   /**
@@ -25305,6 +25423,30 @@ export namespace Prisma {
   }
 
   /**
+   * Job.purchaseOrders
+   */
+  export type Job$purchaseOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+    where?: PurchaseOrderWhereInput
+    orderBy?: PurchaseOrderOrderByWithRelationInput | PurchaseOrderOrderByWithRelationInput[]
+    cursor?: PurchaseOrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PurchaseOrderScalarFieldEnum | PurchaseOrderScalarFieldEnum[]
+  }
+
+  /**
    * Job without action
    */
   export type JobDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -25337,10 +25479,16 @@ export namespace Prisma {
 
   export type PaymentTaskAvgAggregateOutputType = {
     paidAmount: number | null
+    installmentNo: number | null
+    installmentTotal: number | null
+    installmentAmount: number | null
   }
 
   export type PaymentTaskSumAggregateOutputType = {
     paidAmount: number | null
+    installmentNo: number | null
+    installmentTotal: number | null
+    installmentAmount: number | null
   }
 
   export type PaymentTaskMinAggregateOutputType = {
@@ -25352,6 +25500,9 @@ export namespace Prisma {
     paidAmount: number | null
     paidDate: Date | null
     note: string | null
+    installmentNo: number | null
+    installmentTotal: number | null
+    installmentAmount: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -25365,6 +25516,9 @@ export namespace Prisma {
     paidAmount: number | null
     paidDate: Date | null
     note: string | null
+    installmentNo: number | null
+    installmentTotal: number | null
+    installmentAmount: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -25378,6 +25532,9 @@ export namespace Prisma {
     paidAmount: number
     paidDate: number
     note: number
+    installmentNo: number
+    installmentTotal: number
+    installmentAmount: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -25386,10 +25543,16 @@ export namespace Prisma {
 
   export type PaymentTaskAvgAggregateInputType = {
     paidAmount?: true
+    installmentNo?: true
+    installmentTotal?: true
+    installmentAmount?: true
   }
 
   export type PaymentTaskSumAggregateInputType = {
     paidAmount?: true
+    installmentNo?: true
+    installmentTotal?: true
+    installmentAmount?: true
   }
 
   export type PaymentTaskMinAggregateInputType = {
@@ -25401,6 +25564,9 @@ export namespace Prisma {
     paidAmount?: true
     paidDate?: true
     note?: true
+    installmentNo?: true
+    installmentTotal?: true
+    installmentAmount?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -25414,6 +25580,9 @@ export namespace Prisma {
     paidAmount?: true
     paidDate?: true
     note?: true
+    installmentNo?: true
+    installmentTotal?: true
+    installmentAmount?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -25427,6 +25596,9 @@ export namespace Prisma {
     paidAmount?: true
     paidDate?: true
     note?: true
+    installmentNo?: true
+    installmentTotal?: true
+    installmentAmount?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -25527,6 +25699,9 @@ export namespace Prisma {
     paidAmount: number | null
     paidDate: Date | null
     note: string | null
+    installmentNo: number | null
+    installmentTotal: number | null
+    installmentAmount: number | null
     createdAt: Date
     updatedAt: Date
     _count: PaymentTaskCountAggregateOutputType | null
@@ -25559,6 +25734,9 @@ export namespace Prisma {
     paidAmount?: boolean
     paidDate?: boolean
     note?: boolean
+    installmentNo?: boolean
+    installmentTotal?: boolean
+    installmentAmount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
@@ -25573,6 +25751,9 @@ export namespace Prisma {
     paidAmount?: boolean
     paidDate?: boolean
     note?: boolean
+    installmentNo?: boolean
+    installmentTotal?: boolean
+    installmentAmount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
@@ -25587,6 +25768,9 @@ export namespace Prisma {
     paidAmount?: boolean
     paidDate?: boolean
     note?: boolean
+    installmentNo?: boolean
+    installmentTotal?: boolean
+    installmentAmount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
@@ -25601,11 +25785,14 @@ export namespace Prisma {
     paidAmount?: boolean
     paidDate?: boolean
     note?: boolean
+    installmentNo?: boolean
+    installmentTotal?: boolean
+    installmentAmount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PaymentTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "status" | "assignedTo" | "dueDate" | "paidAmount" | "paidDate" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentTask"]>
+  export type PaymentTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "status" | "assignedTo" | "dueDate" | "paidAmount" | "paidDate" | "note" | "installmentNo" | "installmentTotal" | "installmentAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentTask"]>
   export type PaymentTaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | JobDefaultArgs<ExtArgs>
   }
@@ -25630,6 +25817,9 @@ export namespace Prisma {
       paidAmount: number | null
       paidDate: Date | null
       note: string | null
+      installmentNo: number | null
+      installmentTotal: number | null
+      installmentAmount: number | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["paymentTask"]>
@@ -26064,6 +26254,9 @@ export namespace Prisma {
     readonly paidAmount: FieldRef<"PaymentTask", 'Float'>
     readonly paidDate: FieldRef<"PaymentTask", 'DateTime'>
     readonly note: FieldRef<"PaymentTask", 'String'>
+    readonly installmentNo: FieldRef<"PaymentTask", 'Int'>
+    readonly installmentTotal: FieldRef<"PaymentTask", 'Int'>
+    readonly installmentAmount: FieldRef<"PaymentTask", 'Float'>
     readonly createdAt: FieldRef<"PaymentTask", 'DateTime'>
     readonly updatedAt: FieldRef<"PaymentTask", 'DateTime'>
   }
@@ -74811,6 +75004,1203 @@ export namespace Prisma {
 
 
   /**
+   * Model PurchaseOrder
+   */
+
+  export type AggregatePurchaseOrder = {
+    _count: PurchaseOrderCountAggregateOutputType | null
+    _avg: PurchaseOrderAvgAggregateOutputType | null
+    _sum: PurchaseOrderSumAggregateOutputType | null
+    _min: PurchaseOrderMinAggregateOutputType | null
+    _max: PurchaseOrderMaxAggregateOutputType | null
+  }
+
+  export type PurchaseOrderAvgAggregateOutputType = {
+    totalAmount: number | null
+  }
+
+  export type PurchaseOrderSumAggregateOutputType = {
+    totalAmount: number | null
+  }
+
+  export type PurchaseOrderMinAggregateOutputType = {
+    id: string | null
+    poNumber: string | null
+    jobId: string | null
+    supplierName: string | null
+    supplierPhone: string | null
+    totalAmount: number | null
+    expectedDate: Date | null
+    status: string | null
+    createdBy: string | null
+    note: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PurchaseOrderMaxAggregateOutputType = {
+    id: string | null
+    poNumber: string | null
+    jobId: string | null
+    supplierName: string | null
+    supplierPhone: string | null
+    totalAmount: number | null
+    expectedDate: Date | null
+    status: string | null
+    createdBy: string | null
+    note: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PurchaseOrderCountAggregateOutputType = {
+    id: number
+    poNumber: number
+    jobId: number
+    supplierName: number
+    supplierPhone: number
+    items: number
+    totalAmount: number
+    expectedDate: number
+    status: number
+    createdBy: number
+    note: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PurchaseOrderAvgAggregateInputType = {
+    totalAmount?: true
+  }
+
+  export type PurchaseOrderSumAggregateInputType = {
+    totalAmount?: true
+  }
+
+  export type PurchaseOrderMinAggregateInputType = {
+    id?: true
+    poNumber?: true
+    jobId?: true
+    supplierName?: true
+    supplierPhone?: true
+    totalAmount?: true
+    expectedDate?: true
+    status?: true
+    createdBy?: true
+    note?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PurchaseOrderMaxAggregateInputType = {
+    id?: true
+    poNumber?: true
+    jobId?: true
+    supplierName?: true
+    supplierPhone?: true
+    totalAmount?: true
+    expectedDate?: true
+    status?: true
+    createdBy?: true
+    note?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PurchaseOrderCountAggregateInputType = {
+    id?: true
+    poNumber?: true
+    jobId?: true
+    supplierName?: true
+    supplierPhone?: true
+    items?: true
+    totalAmount?: true
+    expectedDate?: true
+    status?: true
+    createdBy?: true
+    note?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PurchaseOrderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PurchaseOrder to aggregate.
+     */
+    where?: PurchaseOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PurchaseOrders to fetch.
+     */
+    orderBy?: PurchaseOrderOrderByWithRelationInput | PurchaseOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PurchaseOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PurchaseOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PurchaseOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PurchaseOrders
+    **/
+    _count?: true | PurchaseOrderCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PurchaseOrderAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PurchaseOrderSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PurchaseOrderMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PurchaseOrderMaxAggregateInputType
+  }
+
+  export type GetPurchaseOrderAggregateType<T extends PurchaseOrderAggregateArgs> = {
+        [P in keyof T & keyof AggregatePurchaseOrder]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePurchaseOrder[P]>
+      : GetScalarType<T[P], AggregatePurchaseOrder[P]>
+  }
+
+
+
+
+  export type PurchaseOrderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PurchaseOrderWhereInput
+    orderBy?: PurchaseOrderOrderByWithAggregationInput | PurchaseOrderOrderByWithAggregationInput[]
+    by: PurchaseOrderScalarFieldEnum[] | PurchaseOrderScalarFieldEnum
+    having?: PurchaseOrderScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PurchaseOrderCountAggregateInputType | true
+    _avg?: PurchaseOrderAvgAggregateInputType
+    _sum?: PurchaseOrderSumAggregateInputType
+    _min?: PurchaseOrderMinAggregateInputType
+    _max?: PurchaseOrderMaxAggregateInputType
+  }
+
+  export type PurchaseOrderGroupByOutputType = {
+    id: string
+    poNumber: string | null
+    jobId: string
+    supplierName: string | null
+    supplierPhone: string | null
+    items: JsonValue | null
+    totalAmount: number | null
+    expectedDate: Date | null
+    status: string
+    createdBy: string | null
+    note: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: PurchaseOrderCountAggregateOutputType | null
+    _avg: PurchaseOrderAvgAggregateOutputType | null
+    _sum: PurchaseOrderSumAggregateOutputType | null
+    _min: PurchaseOrderMinAggregateOutputType | null
+    _max: PurchaseOrderMaxAggregateOutputType | null
+  }
+
+  type GetPurchaseOrderGroupByPayload<T extends PurchaseOrderGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PurchaseOrderGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PurchaseOrderGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PurchaseOrderGroupByOutputType[P]>
+            : GetScalarType<T[P], PurchaseOrderGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PurchaseOrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    poNumber?: boolean
+    jobId?: boolean
+    supplierName?: boolean
+    supplierPhone?: boolean
+    items?: boolean
+    totalAmount?: boolean
+    expectedDate?: boolean
+    status?: boolean
+    createdBy?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["purchaseOrder"]>
+
+  export type PurchaseOrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    poNumber?: boolean
+    jobId?: boolean
+    supplierName?: boolean
+    supplierPhone?: boolean
+    items?: boolean
+    totalAmount?: boolean
+    expectedDate?: boolean
+    status?: boolean
+    createdBy?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["purchaseOrder"]>
+
+  export type PurchaseOrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    poNumber?: boolean
+    jobId?: boolean
+    supplierName?: boolean
+    supplierPhone?: boolean
+    items?: boolean
+    totalAmount?: boolean
+    expectedDate?: boolean
+    status?: boolean
+    createdBy?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["purchaseOrder"]>
+
+  export type PurchaseOrderSelectScalar = {
+    id?: boolean
+    poNumber?: boolean
+    jobId?: boolean
+    supplierName?: boolean
+    supplierPhone?: boolean
+    items?: boolean
+    totalAmount?: boolean
+    expectedDate?: boolean
+    status?: boolean
+    createdBy?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PurchaseOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "poNumber" | "jobId" | "supplierName" | "supplierPhone" | "items" | "totalAmount" | "expectedDate" | "status" | "createdBy" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["purchaseOrder"]>
+  export type PurchaseOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }
+  export type PurchaseOrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }
+  export type PurchaseOrderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+  }
+
+  export type $PurchaseOrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PurchaseOrder"
+    objects: {
+      job: Prisma.$JobPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      poNumber: string | null
+      jobId: string
+      supplierName: string | null
+      supplierPhone: string | null
+      items: Prisma.JsonValue | null
+      totalAmount: number | null
+      expectedDate: Date | null
+      status: string
+      createdBy: string | null
+      note: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["purchaseOrder"]>
+    composites: {}
+  }
+
+  type PurchaseOrderGetPayload<S extends boolean | null | undefined | PurchaseOrderDefaultArgs> = $Result.GetResult<Prisma.$PurchaseOrderPayload, S>
+
+  type PurchaseOrderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PurchaseOrderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PurchaseOrderCountAggregateInputType | true
+    }
+
+  export interface PurchaseOrderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PurchaseOrder'], meta: { name: 'PurchaseOrder' } }
+    /**
+     * Find zero or one PurchaseOrder that matches the filter.
+     * @param {PurchaseOrderFindUniqueArgs} args - Arguments to find a PurchaseOrder
+     * @example
+     * // Get one PurchaseOrder
+     * const purchaseOrder = await prisma.purchaseOrder.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PurchaseOrderFindUniqueArgs>(args: SelectSubset<T, PurchaseOrderFindUniqueArgs<ExtArgs>>): Prisma__PurchaseOrderClient<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PurchaseOrder that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PurchaseOrderFindUniqueOrThrowArgs} args - Arguments to find a PurchaseOrder
+     * @example
+     * // Get one PurchaseOrder
+     * const purchaseOrder = await prisma.purchaseOrder.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PurchaseOrderFindUniqueOrThrowArgs>(args: SelectSubset<T, PurchaseOrderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PurchaseOrderClient<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PurchaseOrder that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PurchaseOrderFindFirstArgs} args - Arguments to find a PurchaseOrder
+     * @example
+     * // Get one PurchaseOrder
+     * const purchaseOrder = await prisma.purchaseOrder.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PurchaseOrderFindFirstArgs>(args?: SelectSubset<T, PurchaseOrderFindFirstArgs<ExtArgs>>): Prisma__PurchaseOrderClient<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PurchaseOrder that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PurchaseOrderFindFirstOrThrowArgs} args - Arguments to find a PurchaseOrder
+     * @example
+     * // Get one PurchaseOrder
+     * const purchaseOrder = await prisma.purchaseOrder.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PurchaseOrderFindFirstOrThrowArgs>(args?: SelectSubset<T, PurchaseOrderFindFirstOrThrowArgs<ExtArgs>>): Prisma__PurchaseOrderClient<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PurchaseOrders that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PurchaseOrderFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PurchaseOrders
+     * const purchaseOrders = await prisma.purchaseOrder.findMany()
+     * 
+     * // Get first 10 PurchaseOrders
+     * const purchaseOrders = await prisma.purchaseOrder.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const purchaseOrderWithIdOnly = await prisma.purchaseOrder.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PurchaseOrderFindManyArgs>(args?: SelectSubset<T, PurchaseOrderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PurchaseOrder.
+     * @param {PurchaseOrderCreateArgs} args - Arguments to create a PurchaseOrder.
+     * @example
+     * // Create one PurchaseOrder
+     * const PurchaseOrder = await prisma.purchaseOrder.create({
+     *   data: {
+     *     // ... data to create a PurchaseOrder
+     *   }
+     * })
+     * 
+     */
+    create<T extends PurchaseOrderCreateArgs>(args: SelectSubset<T, PurchaseOrderCreateArgs<ExtArgs>>): Prisma__PurchaseOrderClient<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PurchaseOrders.
+     * @param {PurchaseOrderCreateManyArgs} args - Arguments to create many PurchaseOrders.
+     * @example
+     * // Create many PurchaseOrders
+     * const purchaseOrder = await prisma.purchaseOrder.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PurchaseOrderCreateManyArgs>(args?: SelectSubset<T, PurchaseOrderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PurchaseOrders and returns the data saved in the database.
+     * @param {PurchaseOrderCreateManyAndReturnArgs} args - Arguments to create many PurchaseOrders.
+     * @example
+     * // Create many PurchaseOrders
+     * const purchaseOrder = await prisma.purchaseOrder.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PurchaseOrders and only return the `id`
+     * const purchaseOrderWithIdOnly = await prisma.purchaseOrder.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PurchaseOrderCreateManyAndReturnArgs>(args?: SelectSubset<T, PurchaseOrderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PurchaseOrder.
+     * @param {PurchaseOrderDeleteArgs} args - Arguments to delete one PurchaseOrder.
+     * @example
+     * // Delete one PurchaseOrder
+     * const PurchaseOrder = await prisma.purchaseOrder.delete({
+     *   where: {
+     *     // ... filter to delete one PurchaseOrder
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PurchaseOrderDeleteArgs>(args: SelectSubset<T, PurchaseOrderDeleteArgs<ExtArgs>>): Prisma__PurchaseOrderClient<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PurchaseOrder.
+     * @param {PurchaseOrderUpdateArgs} args - Arguments to update one PurchaseOrder.
+     * @example
+     * // Update one PurchaseOrder
+     * const purchaseOrder = await prisma.purchaseOrder.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PurchaseOrderUpdateArgs>(args: SelectSubset<T, PurchaseOrderUpdateArgs<ExtArgs>>): Prisma__PurchaseOrderClient<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PurchaseOrders.
+     * @param {PurchaseOrderDeleteManyArgs} args - Arguments to filter PurchaseOrders to delete.
+     * @example
+     * // Delete a few PurchaseOrders
+     * const { count } = await prisma.purchaseOrder.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PurchaseOrderDeleteManyArgs>(args?: SelectSubset<T, PurchaseOrderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PurchaseOrders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PurchaseOrderUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PurchaseOrders
+     * const purchaseOrder = await prisma.purchaseOrder.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PurchaseOrderUpdateManyArgs>(args: SelectSubset<T, PurchaseOrderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PurchaseOrders and returns the data updated in the database.
+     * @param {PurchaseOrderUpdateManyAndReturnArgs} args - Arguments to update many PurchaseOrders.
+     * @example
+     * // Update many PurchaseOrders
+     * const purchaseOrder = await prisma.purchaseOrder.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PurchaseOrders and only return the `id`
+     * const purchaseOrderWithIdOnly = await prisma.purchaseOrder.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PurchaseOrderUpdateManyAndReturnArgs>(args: SelectSubset<T, PurchaseOrderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PurchaseOrder.
+     * @param {PurchaseOrderUpsertArgs} args - Arguments to update or create a PurchaseOrder.
+     * @example
+     * // Update or create a PurchaseOrder
+     * const purchaseOrder = await prisma.purchaseOrder.upsert({
+     *   create: {
+     *     // ... data to create a PurchaseOrder
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PurchaseOrder we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PurchaseOrderUpsertArgs>(args: SelectSubset<T, PurchaseOrderUpsertArgs<ExtArgs>>): Prisma__PurchaseOrderClient<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PurchaseOrders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PurchaseOrderCountArgs} args - Arguments to filter PurchaseOrders to count.
+     * @example
+     * // Count the number of PurchaseOrders
+     * const count = await prisma.purchaseOrder.count({
+     *   where: {
+     *     // ... the filter for the PurchaseOrders we want to count
+     *   }
+     * })
+    **/
+    count<T extends PurchaseOrderCountArgs>(
+      args?: Subset<T, PurchaseOrderCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PurchaseOrderCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PurchaseOrder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PurchaseOrderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PurchaseOrderAggregateArgs>(args: Subset<T, PurchaseOrderAggregateArgs>): Prisma.PrismaPromise<GetPurchaseOrderAggregateType<T>>
+
+    /**
+     * Group by PurchaseOrder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PurchaseOrderGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PurchaseOrderGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PurchaseOrderGroupByArgs['orderBy'] }
+        : { orderBy?: PurchaseOrderGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PurchaseOrderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPurchaseOrderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PurchaseOrder model
+   */
+  readonly fields: PurchaseOrderFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PurchaseOrder.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PurchaseOrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    job<T extends JobDefaultArgs<ExtArgs> = {}>(args?: Subset<T, JobDefaultArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PurchaseOrder model
+   */
+  interface PurchaseOrderFieldRefs {
+    readonly id: FieldRef<"PurchaseOrder", 'String'>
+    readonly poNumber: FieldRef<"PurchaseOrder", 'String'>
+    readonly jobId: FieldRef<"PurchaseOrder", 'String'>
+    readonly supplierName: FieldRef<"PurchaseOrder", 'String'>
+    readonly supplierPhone: FieldRef<"PurchaseOrder", 'String'>
+    readonly items: FieldRef<"PurchaseOrder", 'Json'>
+    readonly totalAmount: FieldRef<"PurchaseOrder", 'Float'>
+    readonly expectedDate: FieldRef<"PurchaseOrder", 'DateTime'>
+    readonly status: FieldRef<"PurchaseOrder", 'String'>
+    readonly createdBy: FieldRef<"PurchaseOrder", 'String'>
+    readonly note: FieldRef<"PurchaseOrder", 'String'>
+    readonly createdAt: FieldRef<"PurchaseOrder", 'DateTime'>
+    readonly updatedAt: FieldRef<"PurchaseOrder", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PurchaseOrder findUnique
+   */
+  export type PurchaseOrderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which PurchaseOrder to fetch.
+     */
+    where: PurchaseOrderWhereUniqueInput
+  }
+
+  /**
+   * PurchaseOrder findUniqueOrThrow
+   */
+  export type PurchaseOrderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which PurchaseOrder to fetch.
+     */
+    where: PurchaseOrderWhereUniqueInput
+  }
+
+  /**
+   * PurchaseOrder findFirst
+   */
+  export type PurchaseOrderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which PurchaseOrder to fetch.
+     */
+    where?: PurchaseOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PurchaseOrders to fetch.
+     */
+    orderBy?: PurchaseOrderOrderByWithRelationInput | PurchaseOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PurchaseOrders.
+     */
+    cursor?: PurchaseOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PurchaseOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PurchaseOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PurchaseOrders.
+     */
+    distinct?: PurchaseOrderScalarFieldEnum | PurchaseOrderScalarFieldEnum[]
+  }
+
+  /**
+   * PurchaseOrder findFirstOrThrow
+   */
+  export type PurchaseOrderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which PurchaseOrder to fetch.
+     */
+    where?: PurchaseOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PurchaseOrders to fetch.
+     */
+    orderBy?: PurchaseOrderOrderByWithRelationInput | PurchaseOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PurchaseOrders.
+     */
+    cursor?: PurchaseOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PurchaseOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PurchaseOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PurchaseOrders.
+     */
+    distinct?: PurchaseOrderScalarFieldEnum | PurchaseOrderScalarFieldEnum[]
+  }
+
+  /**
+   * PurchaseOrder findMany
+   */
+  export type PurchaseOrderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which PurchaseOrders to fetch.
+     */
+    where?: PurchaseOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PurchaseOrders to fetch.
+     */
+    orderBy?: PurchaseOrderOrderByWithRelationInput | PurchaseOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PurchaseOrders.
+     */
+    cursor?: PurchaseOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PurchaseOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PurchaseOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PurchaseOrders.
+     */
+    distinct?: PurchaseOrderScalarFieldEnum | PurchaseOrderScalarFieldEnum[]
+  }
+
+  /**
+   * PurchaseOrder create
+   */
+  export type PurchaseOrderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PurchaseOrder.
+     */
+    data: XOR<PurchaseOrderCreateInput, PurchaseOrderUncheckedCreateInput>
+  }
+
+  /**
+   * PurchaseOrder createMany
+   */
+  export type PurchaseOrderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PurchaseOrders.
+     */
+    data: PurchaseOrderCreateManyInput | PurchaseOrderCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PurchaseOrder createManyAndReturn
+   */
+  export type PurchaseOrderCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * The data used to create many PurchaseOrders.
+     */
+    data: PurchaseOrderCreateManyInput | PurchaseOrderCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PurchaseOrder update
+   */
+  export type PurchaseOrderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PurchaseOrder.
+     */
+    data: XOR<PurchaseOrderUpdateInput, PurchaseOrderUncheckedUpdateInput>
+    /**
+     * Choose, which PurchaseOrder to update.
+     */
+    where: PurchaseOrderWhereUniqueInput
+  }
+
+  /**
+   * PurchaseOrder updateMany
+   */
+  export type PurchaseOrderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PurchaseOrders.
+     */
+    data: XOR<PurchaseOrderUpdateManyMutationInput, PurchaseOrderUncheckedUpdateManyInput>
+    /**
+     * Filter which PurchaseOrders to update
+     */
+    where?: PurchaseOrderWhereInput
+    /**
+     * Limit how many PurchaseOrders to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PurchaseOrder updateManyAndReturn
+   */
+  export type PurchaseOrderUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * The data used to update PurchaseOrders.
+     */
+    data: XOR<PurchaseOrderUpdateManyMutationInput, PurchaseOrderUncheckedUpdateManyInput>
+    /**
+     * Filter which PurchaseOrders to update
+     */
+    where?: PurchaseOrderWhereInput
+    /**
+     * Limit how many PurchaseOrders to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PurchaseOrder upsert
+   */
+  export type PurchaseOrderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PurchaseOrder to update in case it exists.
+     */
+    where: PurchaseOrderWhereUniqueInput
+    /**
+     * In case the PurchaseOrder found by the `where` argument doesn't exist, create a new PurchaseOrder with this data.
+     */
+    create: XOR<PurchaseOrderCreateInput, PurchaseOrderUncheckedCreateInput>
+    /**
+     * In case the PurchaseOrder was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PurchaseOrderUpdateInput, PurchaseOrderUncheckedUpdateInput>
+  }
+
+  /**
+   * PurchaseOrder delete
+   */
+  export type PurchaseOrderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+    /**
+     * Filter which PurchaseOrder to delete.
+     */
+    where: PurchaseOrderWhereUniqueInput
+  }
+
+  /**
+   * PurchaseOrder deleteMany
+   */
+  export type PurchaseOrderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PurchaseOrders to delete
+     */
+    where?: PurchaseOrderWhereInput
+    /**
+     * Limit how many PurchaseOrders to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PurchaseOrder without action
+   */
+  export type PurchaseOrderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrder
+     */
+    select?: PurchaseOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PurchaseOrder
+     */
+    omit?: PurchaseOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PurchaseOrderInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -75128,6 +76518,9 @@ export namespace Prisma {
     paidAmount: 'paidAmount',
     paidDate: 'paidDate',
     note: 'note',
+    installmentNo: 'installmentNo',
+    installmentTotal: 'installmentTotal',
+    installmentAmount: 'installmentAmount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -75909,6 +77302,25 @@ export namespace Prisma {
   };
 
   export type Employee_trainingsScalarFieldEnum = (typeof Employee_trainingsScalarFieldEnum)[keyof typeof Employee_trainingsScalarFieldEnum]
+
+
+  export const PurchaseOrderScalarFieldEnum: {
+    id: 'id',
+    poNumber: 'poNumber',
+    jobId: 'jobId',
+    supplierName: 'supplierName',
+    supplierPhone: 'supplierPhone',
+    items: 'items',
+    totalAmount: 'totalAmount',
+    expectedDate: 'expectedDate',
+    status: 'status',
+    createdBy: 'createdBy',
+    note: 'note',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PurchaseOrderScalarFieldEnum = (typeof PurchaseOrderScalarFieldEnum)[keyof typeof PurchaseOrderScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -77507,10 +78919,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Job"> | Date | string
     repairOrder?: XOR<RepairOrderNullableScalarRelationFilter, RepairOrderWhereInput> | null
     stepLogs?: JobStepLogListRelationFilter
-    paymentTask?: XOR<PaymentTaskNullableScalarRelationFilter, PaymentTaskWhereInput> | null
+    paymentTasks?: PaymentTaskListRelationFilter
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     repairDeliveries?: RepairDeliveryListRelationFilter
     outsourceRepairs?: OutsourceRepairListRelationFilter
+    purchaseOrders?: PurchaseOrderListRelationFilter
   }
 
   export type JobOrderByWithRelationInput = {
@@ -77540,10 +78953,11 @@ export namespace Prisma {
     updatedAt?: SortOrder
     repairOrder?: RepairOrderOrderByWithRelationInput
     stepLogs?: JobStepLogOrderByRelationAggregateInput
-    paymentTask?: PaymentTaskOrderByWithRelationInput
+    paymentTasks?: PaymentTaskOrderByRelationAggregateInput
     quotation?: QuotationOrderByWithRelationInput
     repairDeliveries?: RepairDeliveryOrderByRelationAggregateInput
     outsourceRepairs?: OutsourceRepairOrderByRelationAggregateInput
+    purchaseOrders?: PurchaseOrderOrderByRelationAggregateInput
   }
 
   export type JobWhereUniqueInput = Prisma.AtLeast<{
@@ -77576,10 +78990,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Job"> | Date | string
     repairOrder?: XOR<RepairOrderNullableScalarRelationFilter, RepairOrderWhereInput> | null
     stepLogs?: JobStepLogListRelationFilter
-    paymentTask?: XOR<PaymentTaskNullableScalarRelationFilter, PaymentTaskWhereInput> | null
+    paymentTasks?: PaymentTaskListRelationFilter
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     repairDeliveries?: RepairDeliveryListRelationFilter
     outsourceRepairs?: OutsourceRepairListRelationFilter
+    purchaseOrders?: PurchaseOrderListRelationFilter
   }, "id" | "jobNumber">
 
   export type JobOrderByWithAggregationInput = {
@@ -77656,6 +79071,9 @@ export namespace Prisma {
     paidAmount?: FloatNullableFilter<"PaymentTask"> | number | null
     paidDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
     note?: StringNullableFilter<"PaymentTask"> | string | null
+    installmentNo?: IntNullableFilter<"PaymentTask"> | number | null
+    installmentTotal?: IntNullableFilter<"PaymentTask"> | number | null
+    installmentAmount?: FloatNullableFilter<"PaymentTask"> | number | null
     createdAt?: DateTimeFilter<"PaymentTask"> | Date | string
     updatedAt?: DateTimeFilter<"PaymentTask"> | Date | string
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
@@ -77670,6 +79088,9 @@ export namespace Prisma {
     paidAmount?: SortOrderInput | SortOrder
     paidDate?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
+    installmentNo?: SortOrderInput | SortOrder
+    installmentTotal?: SortOrderInput | SortOrder
+    installmentAmount?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     job?: JobOrderByWithRelationInput
@@ -77677,20 +79098,23 @@ export namespace Prisma {
 
   export type PaymentTaskWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    jobId?: string
     AND?: PaymentTaskWhereInput | PaymentTaskWhereInput[]
     OR?: PaymentTaskWhereInput[]
     NOT?: PaymentTaskWhereInput | PaymentTaskWhereInput[]
+    jobId?: StringFilter<"PaymentTask"> | string
     status?: StringFilter<"PaymentTask"> | string
     assignedTo?: StringNullableFilter<"PaymentTask"> | string | null
     dueDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
     paidAmount?: FloatNullableFilter<"PaymentTask"> | number | null
     paidDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
     note?: StringNullableFilter<"PaymentTask"> | string | null
+    installmentNo?: IntNullableFilter<"PaymentTask"> | number | null
+    installmentTotal?: IntNullableFilter<"PaymentTask"> | number | null
+    installmentAmount?: FloatNullableFilter<"PaymentTask"> | number | null
     createdAt?: DateTimeFilter<"PaymentTask"> | Date | string
     updatedAt?: DateTimeFilter<"PaymentTask"> | Date | string
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
-  }, "id" | "jobId">
+  }, "id">
 
   export type PaymentTaskOrderByWithAggregationInput = {
     id?: SortOrder
@@ -77701,6 +79125,9 @@ export namespace Prisma {
     paidAmount?: SortOrderInput | SortOrder
     paidDate?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
+    installmentNo?: SortOrderInput | SortOrder
+    installmentTotal?: SortOrderInput | SortOrder
+    installmentAmount?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: PaymentTaskCountOrderByAggregateInput
@@ -77722,6 +79149,9 @@ export namespace Prisma {
     paidAmount?: FloatNullableWithAggregatesFilter<"PaymentTask"> | number | null
     paidDate?: DateTimeNullableWithAggregatesFilter<"PaymentTask"> | Date | string | null
     note?: StringNullableWithAggregatesFilter<"PaymentTask"> | string | null
+    installmentNo?: IntNullableWithAggregatesFilter<"PaymentTask"> | number | null
+    installmentTotal?: IntNullableWithAggregatesFilter<"PaymentTask"> | number | null
+    installmentAmount?: FloatNullableWithAggregatesFilter<"PaymentTask"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"PaymentTask"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PaymentTask"> | Date | string
   }
@@ -81779,6 +83209,103 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"employee_trainings"> | Date | string
   }
 
+  export type PurchaseOrderWhereInput = {
+    AND?: PurchaseOrderWhereInput | PurchaseOrderWhereInput[]
+    OR?: PurchaseOrderWhereInput[]
+    NOT?: PurchaseOrderWhereInput | PurchaseOrderWhereInput[]
+    id?: StringFilter<"PurchaseOrder"> | string
+    poNumber?: StringNullableFilter<"PurchaseOrder"> | string | null
+    jobId?: StringFilter<"PurchaseOrder"> | string
+    supplierName?: StringNullableFilter<"PurchaseOrder"> | string | null
+    supplierPhone?: StringNullableFilter<"PurchaseOrder"> | string | null
+    items?: JsonNullableFilter<"PurchaseOrder">
+    totalAmount?: FloatNullableFilter<"PurchaseOrder"> | number | null
+    expectedDate?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
+    status?: StringFilter<"PurchaseOrder"> | string
+    createdBy?: StringNullableFilter<"PurchaseOrder"> | string | null
+    note?: StringNullableFilter<"PurchaseOrder"> | string | null
+    createdAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
+    job?: XOR<JobScalarRelationFilter, JobWhereInput>
+  }
+
+  export type PurchaseOrderOrderByWithRelationInput = {
+    id?: SortOrder
+    poNumber?: SortOrderInput | SortOrder
+    jobId?: SortOrder
+    supplierName?: SortOrderInput | SortOrder
+    supplierPhone?: SortOrderInput | SortOrder
+    items?: SortOrderInput | SortOrder
+    totalAmount?: SortOrderInput | SortOrder
+    expectedDate?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdBy?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    job?: JobOrderByWithRelationInput
+  }
+
+  export type PurchaseOrderWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PurchaseOrderWhereInput | PurchaseOrderWhereInput[]
+    OR?: PurchaseOrderWhereInput[]
+    NOT?: PurchaseOrderWhereInput | PurchaseOrderWhereInput[]
+    poNumber?: StringNullableFilter<"PurchaseOrder"> | string | null
+    jobId?: StringFilter<"PurchaseOrder"> | string
+    supplierName?: StringNullableFilter<"PurchaseOrder"> | string | null
+    supplierPhone?: StringNullableFilter<"PurchaseOrder"> | string | null
+    items?: JsonNullableFilter<"PurchaseOrder">
+    totalAmount?: FloatNullableFilter<"PurchaseOrder"> | number | null
+    expectedDate?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
+    status?: StringFilter<"PurchaseOrder"> | string
+    createdBy?: StringNullableFilter<"PurchaseOrder"> | string | null
+    note?: StringNullableFilter<"PurchaseOrder"> | string | null
+    createdAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
+    job?: XOR<JobScalarRelationFilter, JobWhereInput>
+  }, "id">
+
+  export type PurchaseOrderOrderByWithAggregationInput = {
+    id?: SortOrder
+    poNumber?: SortOrderInput | SortOrder
+    jobId?: SortOrder
+    supplierName?: SortOrderInput | SortOrder
+    supplierPhone?: SortOrderInput | SortOrder
+    items?: SortOrderInput | SortOrder
+    totalAmount?: SortOrderInput | SortOrder
+    expectedDate?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdBy?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PurchaseOrderCountOrderByAggregateInput
+    _avg?: PurchaseOrderAvgOrderByAggregateInput
+    _max?: PurchaseOrderMaxOrderByAggregateInput
+    _min?: PurchaseOrderMinOrderByAggregateInput
+    _sum?: PurchaseOrderSumOrderByAggregateInput
+  }
+
+  export type PurchaseOrderScalarWhereWithAggregatesInput = {
+    AND?: PurchaseOrderScalarWhereWithAggregatesInput | PurchaseOrderScalarWhereWithAggregatesInput[]
+    OR?: PurchaseOrderScalarWhereWithAggregatesInput[]
+    NOT?: PurchaseOrderScalarWhereWithAggregatesInput | PurchaseOrderScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PurchaseOrder"> | string
+    poNumber?: StringNullableWithAggregatesFilter<"PurchaseOrder"> | string | null
+    jobId?: StringWithAggregatesFilter<"PurchaseOrder"> | string
+    supplierName?: StringNullableWithAggregatesFilter<"PurchaseOrder"> | string | null
+    supplierPhone?: StringNullableWithAggregatesFilter<"PurchaseOrder"> | string | null
+    items?: JsonNullableWithAggregatesFilter<"PurchaseOrder">
+    totalAmount?: FloatNullableWithAggregatesFilter<"PurchaseOrder"> | number | null
+    expectedDate?: DateTimeNullableWithAggregatesFilter<"PurchaseOrder"> | Date | string | null
+    status?: StringWithAggregatesFilter<"PurchaseOrder"> | string
+    createdBy?: StringNullableWithAggregatesFilter<"PurchaseOrder"> | string | null
+    note?: StringNullableWithAggregatesFilter<"PurchaseOrder"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"PurchaseOrder"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PurchaseOrder"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     employeeId: string
@@ -83425,10 +84952,11 @@ export namespace Prisma {
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
-    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateInput = {
@@ -83458,9 +84986,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
-    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobUpdateInput = {
@@ -83489,10 +85018,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
-    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateInput = {
@@ -83522,9 +85052,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
-    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateManyInput = {
@@ -83615,9 +85146,12 @@ export namespace Prisma {
     paidAmount?: number | null
     paidDate?: Date | string | null
     note?: string | null
+    installmentNo?: number | null
+    installmentTotal?: number | null
+    installmentAmount?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    job: JobCreateNestedOneWithoutPaymentTaskInput
+    job: JobCreateNestedOneWithoutPaymentTasksInput
   }
 
   export type PaymentTaskUncheckedCreateInput = {
@@ -83629,6 +85163,9 @@ export namespace Prisma {
     paidAmount?: number | null
     paidDate?: Date | string | null
     note?: string | null
+    installmentNo?: number | null
+    installmentTotal?: number | null
+    installmentAmount?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -83641,9 +85178,12 @@ export namespace Prisma {
     paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    job?: JobUpdateOneRequiredWithoutPaymentTaskNestedInput
+    job?: JobUpdateOneRequiredWithoutPaymentTasksNestedInput
   }
 
   export type PaymentTaskUncheckedUpdateInput = {
@@ -83655,6 +85195,9 @@ export namespace Prisma {
     paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -83668,6 +85211,9 @@ export namespace Prisma {
     paidAmount?: number | null
     paidDate?: Date | string | null
     note?: string | null
+    installmentNo?: number | null
+    installmentTotal?: number | null
+    installmentAmount?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -83680,6 +85226,9 @@ export namespace Prisma {
     paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -83693,6 +85242,9 @@ export namespace Prisma {
     paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -88342,6 +89894,117 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PurchaseOrderCreateInput = {
+    id?: string
+    poNumber?: string | null
+    supplierName?: string | null
+    supplierPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: number | null
+    expectedDate?: Date | string | null
+    status?: string
+    createdBy?: string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    job: JobCreateNestedOneWithoutPurchaseOrdersInput
+  }
+
+  export type PurchaseOrderUncheckedCreateInput = {
+    id?: string
+    poNumber?: string | null
+    jobId: string
+    supplierName?: string | null
+    supplierPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: number | null
+    expectedDate?: Date | string | null
+    status?: string
+    createdBy?: string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PurchaseOrderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierName?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneRequiredWithoutPurchaseOrdersNestedInput
+  }
+
+  export type PurchaseOrderUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jobId?: StringFieldUpdateOperationsInput | string
+    supplierName?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PurchaseOrderCreateManyInput = {
+    id?: string
+    poNumber?: string | null
+    jobId: string
+    supplierName?: string | null
+    supplierPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: number | null
+    expectedDate?: Date | string | null
+    status?: string
+    createdBy?: string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PurchaseOrderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierName?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PurchaseOrderUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jobId?: StringFieldUpdateOperationsInput | string
+    supplierName?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -89479,9 +91142,10 @@ export namespace Prisma {
     none?: JobStepLogWhereInput
   }
 
-  export type PaymentTaskNullableScalarRelationFilter = {
-    is?: PaymentTaskWhereInput | null
-    isNot?: PaymentTaskWhereInput | null
+  export type PaymentTaskListRelationFilter = {
+    every?: PaymentTaskWhereInput
+    some?: PaymentTaskWhereInput
+    none?: PaymentTaskWhereInput
   }
 
   export type RepairDeliveryListRelationFilter = {
@@ -89496,7 +91160,17 @@ export namespace Prisma {
     none?: OutsourceRepairWhereInput
   }
 
+  export type PurchaseOrderListRelationFilter = {
+    every?: PurchaseOrderWhereInput
+    some?: PurchaseOrderWhereInput
+    none?: PurchaseOrderWhereInput
+  }
+
   export type JobStepLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaymentTaskOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -89505,6 +91179,10 @@ export namespace Prisma {
   }
 
   export type OutsourceRepairOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PurchaseOrderOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -89599,6 +91277,17 @@ export namespace Prisma {
     yearBe?: SortOrder
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type JobScalarRelationFilter = {
     is?: JobWhereInput
     isNot?: JobWhereInput
@@ -89613,12 +91302,18 @@ export namespace Prisma {
     paidAmount?: SortOrder
     paidDate?: SortOrder
     note?: SortOrder
+    installmentNo?: SortOrder
+    installmentTotal?: SortOrder
+    installmentAmount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type PaymentTaskAvgOrderByAggregateInput = {
     paidAmount?: SortOrder
+    installmentNo?: SortOrder
+    installmentTotal?: SortOrder
+    installmentAmount?: SortOrder
   }
 
   export type PaymentTaskMaxOrderByAggregateInput = {
@@ -89630,6 +91325,9 @@ export namespace Prisma {
     paidAmount?: SortOrder
     paidDate?: SortOrder
     note?: SortOrder
+    installmentNo?: SortOrder
+    installmentTotal?: SortOrder
+    installmentAmount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -89643,12 +91341,34 @@ export namespace Prisma {
     paidAmount?: SortOrder
     paidDate?: SortOrder
     note?: SortOrder
+    installmentNo?: SortOrder
+    installmentTotal?: SortOrder
+    installmentAmount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type PaymentTaskSumOrderByAggregateInput = {
     paidAmount?: SortOrder
+    installmentNo?: SortOrder
+    installmentTotal?: SortOrder
+    installmentAmount?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type JobRunningNumberYearBeMonthCompoundUniqueInput = {
@@ -90536,17 +92256,6 @@ export namespace Prisma {
     not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
   }
 
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type checkinsCountOrderByAggregateInput = {
     id?: SortOrder
     timestamp?: SortOrder
@@ -90650,22 +92359,6 @@ export namespace Prisma {
     _sum?: NestedDecimalNullableFilter<$PrismaModel>
     _min?: NestedDecimalNullableFilter<$PrismaModel>
     _max?: NestedDecimalNullableFilter<$PrismaModel>
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type StringNullableListFilter<$PrismaModel = never> = {
@@ -92623,6 +94316,60 @@ export namespace Prisma {
     completion_percentage?: SortOrder
   }
 
+  export type PurchaseOrderCountOrderByAggregateInput = {
+    id?: SortOrder
+    poNumber?: SortOrder
+    jobId?: SortOrder
+    supplierName?: SortOrder
+    supplierPhone?: SortOrder
+    items?: SortOrder
+    totalAmount?: SortOrder
+    expectedDate?: SortOrder
+    status?: SortOrder
+    createdBy?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PurchaseOrderAvgOrderByAggregateInput = {
+    totalAmount?: SortOrder
+  }
+
+  export type PurchaseOrderMaxOrderByAggregateInput = {
+    id?: SortOrder
+    poNumber?: SortOrder
+    jobId?: SortOrder
+    supplierName?: SortOrder
+    supplierPhone?: SortOrder
+    totalAmount?: SortOrder
+    expectedDate?: SortOrder
+    status?: SortOrder
+    createdBy?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PurchaseOrderMinOrderByAggregateInput = {
+    id?: SortOrder
+    poNumber?: SortOrder
+    jobId?: SortOrder
+    supplierName?: SortOrder
+    supplierPhone?: SortOrder
+    totalAmount?: SortOrder
+    expectedDate?: SortOrder
+    status?: SortOrder
+    createdBy?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PurchaseOrderSumOrderByAggregateInput = {
+    totalAmount?: SortOrder
+  }
+
   export type CompanyCreateNestedManyWithoutAssignedUserInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -93718,10 +95465,11 @@ export namespace Prisma {
     connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
   }
 
-  export type PaymentTaskCreateNestedOneWithoutJobInput = {
-    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
-    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput
-    connect?: PaymentTaskWhereUniqueInput
+  export type PaymentTaskCreateNestedManyWithoutJobInput = {
+    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput> | PaymentTaskCreateWithoutJobInput[] | PaymentTaskUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput | PaymentTaskCreateOrConnectWithoutJobInput[]
+    createMany?: PaymentTaskCreateManyJobInputEnvelope
+    connect?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
   }
 
   export type QuotationCreateNestedOneWithoutJobsInput = {
@@ -93744,6 +95492,13 @@ export namespace Prisma {
     connect?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
   }
 
+  export type PurchaseOrderCreateNestedManyWithoutJobInput = {
+    create?: XOR<PurchaseOrderCreateWithoutJobInput, PurchaseOrderUncheckedCreateWithoutJobInput> | PurchaseOrderCreateWithoutJobInput[] | PurchaseOrderUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: PurchaseOrderCreateOrConnectWithoutJobInput | PurchaseOrderCreateOrConnectWithoutJobInput[]
+    createMany?: PurchaseOrderCreateManyJobInputEnvelope
+    connect?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
+  }
+
   export type RepairOrderUncheckedCreateNestedOneWithoutJobInput = {
     create?: XOR<RepairOrderCreateWithoutJobInput, RepairOrderUncheckedCreateWithoutJobInput>
     connectOrCreate?: RepairOrderCreateOrConnectWithoutJobInput
@@ -93757,10 +95512,11 @@ export namespace Prisma {
     connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
   }
 
-  export type PaymentTaskUncheckedCreateNestedOneWithoutJobInput = {
-    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
-    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput
-    connect?: PaymentTaskWhereUniqueInput
+  export type PaymentTaskUncheckedCreateNestedManyWithoutJobInput = {
+    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput> | PaymentTaskCreateWithoutJobInput[] | PaymentTaskUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput | PaymentTaskCreateOrConnectWithoutJobInput[]
+    createMany?: PaymentTaskCreateManyJobInputEnvelope
+    connect?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
   }
 
   export type RepairDeliveryUncheckedCreateNestedManyWithoutJobInput = {
@@ -93775,6 +95531,13 @@ export namespace Prisma {
     connectOrCreate?: OutsourceRepairCreateOrConnectWithoutJobInput | OutsourceRepairCreateOrConnectWithoutJobInput[]
     createMany?: OutsourceRepairCreateManyJobInputEnvelope
     connect?: OutsourceRepairWhereUniqueInput | OutsourceRepairWhereUniqueInput[]
+  }
+
+  export type PurchaseOrderUncheckedCreateNestedManyWithoutJobInput = {
+    create?: XOR<PurchaseOrderCreateWithoutJobInput, PurchaseOrderUncheckedCreateWithoutJobInput> | PurchaseOrderCreateWithoutJobInput[] | PurchaseOrderUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: PurchaseOrderCreateOrConnectWithoutJobInput | PurchaseOrderCreateOrConnectWithoutJobInput[]
+    createMany?: PurchaseOrderCreateManyJobInputEnvelope
+    connect?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
   }
 
   export type RepairOrderUpdateOneWithoutJobNestedInput = {
@@ -93801,14 +95564,18 @@ export namespace Prisma {
     deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
   }
 
-  export type PaymentTaskUpdateOneWithoutJobNestedInput = {
-    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
-    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput
-    upsert?: PaymentTaskUpsertWithoutJobInput
-    disconnect?: PaymentTaskWhereInput | boolean
-    delete?: PaymentTaskWhereInput | boolean
-    connect?: PaymentTaskWhereUniqueInput
-    update?: XOR<XOR<PaymentTaskUpdateToOneWithWhereWithoutJobInput, PaymentTaskUpdateWithoutJobInput>, PaymentTaskUncheckedUpdateWithoutJobInput>
+  export type PaymentTaskUpdateManyWithoutJobNestedInput = {
+    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput> | PaymentTaskCreateWithoutJobInput[] | PaymentTaskUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput | PaymentTaskCreateOrConnectWithoutJobInput[]
+    upsert?: PaymentTaskUpsertWithWhereUniqueWithoutJobInput | PaymentTaskUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: PaymentTaskCreateManyJobInputEnvelope
+    set?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
+    disconnect?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
+    delete?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
+    connect?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
+    update?: PaymentTaskUpdateWithWhereUniqueWithoutJobInput | PaymentTaskUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: PaymentTaskUpdateManyWithWhereWithoutJobInput | PaymentTaskUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: PaymentTaskScalarWhereInput | PaymentTaskScalarWhereInput[]
   }
 
   export type QuotationUpdateOneWithoutJobsNestedInput = {
@@ -93849,6 +95616,20 @@ export namespace Prisma {
     deleteMany?: OutsourceRepairScalarWhereInput | OutsourceRepairScalarWhereInput[]
   }
 
+  export type PurchaseOrderUpdateManyWithoutJobNestedInput = {
+    create?: XOR<PurchaseOrderCreateWithoutJobInput, PurchaseOrderUncheckedCreateWithoutJobInput> | PurchaseOrderCreateWithoutJobInput[] | PurchaseOrderUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: PurchaseOrderCreateOrConnectWithoutJobInput | PurchaseOrderCreateOrConnectWithoutJobInput[]
+    upsert?: PurchaseOrderUpsertWithWhereUniqueWithoutJobInput | PurchaseOrderUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: PurchaseOrderCreateManyJobInputEnvelope
+    set?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
+    disconnect?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
+    delete?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
+    connect?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
+    update?: PurchaseOrderUpdateWithWhereUniqueWithoutJobInput | PurchaseOrderUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: PurchaseOrderUpdateManyWithWhereWithoutJobInput | PurchaseOrderUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: PurchaseOrderScalarWhereInput | PurchaseOrderScalarWhereInput[]
+  }
+
   export type RepairOrderUncheckedUpdateOneWithoutJobNestedInput = {
     create?: XOR<RepairOrderCreateWithoutJobInput, RepairOrderUncheckedCreateWithoutJobInput>
     connectOrCreate?: RepairOrderCreateOrConnectWithoutJobInput
@@ -93873,14 +95654,18 @@ export namespace Prisma {
     deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
   }
 
-  export type PaymentTaskUncheckedUpdateOneWithoutJobNestedInput = {
-    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
-    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput
-    upsert?: PaymentTaskUpsertWithoutJobInput
-    disconnect?: PaymentTaskWhereInput | boolean
-    delete?: PaymentTaskWhereInput | boolean
-    connect?: PaymentTaskWhereUniqueInput
-    update?: XOR<XOR<PaymentTaskUpdateToOneWithWhereWithoutJobInput, PaymentTaskUpdateWithoutJobInput>, PaymentTaskUncheckedUpdateWithoutJobInput>
+  export type PaymentTaskUncheckedUpdateManyWithoutJobNestedInput = {
+    create?: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput> | PaymentTaskCreateWithoutJobInput[] | PaymentTaskUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput | PaymentTaskCreateOrConnectWithoutJobInput[]
+    upsert?: PaymentTaskUpsertWithWhereUniqueWithoutJobInput | PaymentTaskUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: PaymentTaskCreateManyJobInputEnvelope
+    set?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
+    disconnect?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
+    delete?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
+    connect?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
+    update?: PaymentTaskUpdateWithWhereUniqueWithoutJobInput | PaymentTaskUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: PaymentTaskUpdateManyWithWhereWithoutJobInput | PaymentTaskUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: PaymentTaskScalarWhereInput | PaymentTaskScalarWhereInput[]
   }
 
   export type RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput = {
@@ -93911,18 +95696,40 @@ export namespace Prisma {
     deleteMany?: OutsourceRepairScalarWhereInput | OutsourceRepairScalarWhereInput[]
   }
 
-  export type JobCreateNestedOneWithoutPaymentTaskInput = {
-    create?: XOR<JobCreateWithoutPaymentTaskInput, JobUncheckedCreateWithoutPaymentTaskInput>
-    connectOrCreate?: JobCreateOrConnectWithoutPaymentTaskInput
+  export type PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput = {
+    create?: XOR<PurchaseOrderCreateWithoutJobInput, PurchaseOrderUncheckedCreateWithoutJobInput> | PurchaseOrderCreateWithoutJobInput[] | PurchaseOrderUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: PurchaseOrderCreateOrConnectWithoutJobInput | PurchaseOrderCreateOrConnectWithoutJobInput[]
+    upsert?: PurchaseOrderUpsertWithWhereUniqueWithoutJobInput | PurchaseOrderUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: PurchaseOrderCreateManyJobInputEnvelope
+    set?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
+    disconnect?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
+    delete?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
+    connect?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
+    update?: PurchaseOrderUpdateWithWhereUniqueWithoutJobInput | PurchaseOrderUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: PurchaseOrderUpdateManyWithWhereWithoutJobInput | PurchaseOrderUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: PurchaseOrderScalarWhereInput | PurchaseOrderScalarWhereInput[]
+  }
+
+  export type JobCreateNestedOneWithoutPaymentTasksInput = {
+    create?: XOR<JobCreateWithoutPaymentTasksInput, JobUncheckedCreateWithoutPaymentTasksInput>
+    connectOrCreate?: JobCreateOrConnectWithoutPaymentTasksInput
     connect?: JobWhereUniqueInput
   }
 
-  export type JobUpdateOneRequiredWithoutPaymentTaskNestedInput = {
-    create?: XOR<JobCreateWithoutPaymentTaskInput, JobUncheckedCreateWithoutPaymentTaskInput>
-    connectOrCreate?: JobCreateOrConnectWithoutPaymentTaskInput
-    upsert?: JobUpsertWithoutPaymentTaskInput
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type JobUpdateOneRequiredWithoutPaymentTasksNestedInput = {
+    create?: XOR<JobCreateWithoutPaymentTasksInput, JobUncheckedCreateWithoutPaymentTasksInput>
+    connectOrCreate?: JobCreateOrConnectWithoutPaymentTasksInput
+    upsert?: JobUpsertWithoutPaymentTasksInput
     connect?: JobWhereUniqueInput
-    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutPaymentTaskInput, JobUpdateWithoutPaymentTaskInput>, JobUncheckedUpdateWithoutPaymentTaskInput>
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutPaymentTasksInput, JobUpdateWithoutPaymentTasksInput>, JobUncheckedUpdateWithoutPaymentTasksInput>
   }
 
   export type JobCreateNestedOneWithoutStepLogsInput = {
@@ -94195,14 +96002,6 @@ export namespace Prisma {
     decrement?: Decimal | DecimalJsLike | number | string
     multiply?: Decimal | DecimalJsLike | number | string
     divide?: Decimal | DecimalJsLike | number | string
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type commission_claimsCreatecompanion_idsInput = {
@@ -95968,6 +97767,20 @@ export namespace Prisma {
     update?: XOR<XOR<employeesUpdateToOneWithWhereWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput, employeesUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput>, employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput>
   }
 
+  export type JobCreateNestedOneWithoutPurchaseOrdersInput = {
+    create?: XOR<JobCreateWithoutPurchaseOrdersInput, JobUncheckedCreateWithoutPurchaseOrdersInput>
+    connectOrCreate?: JobCreateOrConnectWithoutPurchaseOrdersInput
+    connect?: JobWhereUniqueInput
+  }
+
+  export type JobUpdateOneRequiredWithoutPurchaseOrdersNestedInput = {
+    create?: XOR<JobCreateWithoutPurchaseOrdersInput, JobUncheckedCreateWithoutPurchaseOrdersInput>
+    connectOrCreate?: JobCreateOrConnectWithoutPurchaseOrdersInput
+    upsert?: JobUpsertWithoutPurchaseOrdersInput
+    connect?: JobWhereUniqueInput
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutPurchaseOrdersInput, JobUpdateWithoutPurchaseOrdersInput>, JobUncheckedUpdateWithoutPurchaseOrdersInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -96184,6 +97997,22 @@ export namespace Prisma {
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -96323,22 +98152,6 @@ export namespace Prisma {
     _sum?: NestedDecimalNullableFilter<$PrismaModel>
     _min?: NestedDecimalNullableFilter<$PrismaModel>
     _max?: NestedDecimalNullableFilter<$PrismaModel>
-  }
-
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type CompanyCreateWithoutAssignedUserInput = {
@@ -98654,9 +100467,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
-    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutQuotationInput = {
@@ -98685,9 +100499,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
-    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutQuotationInput = {
@@ -100056,6 +101871,9 @@ export namespace Prisma {
     paidAmount?: number | null
     paidDate?: Date | string | null
     note?: string | null
+    installmentNo?: number | null
+    installmentTotal?: number | null
+    installmentAmount?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -100068,6 +101886,9 @@ export namespace Prisma {
     paidAmount?: number | null
     paidDate?: Date | string | null
     note?: string | null
+    installmentNo?: number | null
+    installmentTotal?: number | null
+    installmentAmount?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -100075,6 +101896,11 @@ export namespace Prisma {
   export type PaymentTaskCreateOrConnectWithoutJobInput = {
     where: PaymentTaskWhereUniqueInput
     create: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
+  }
+
+  export type PaymentTaskCreateManyJobInputEnvelope = {
+    data: PaymentTaskCreateManyJobInput | PaymentTaskCreateManyJobInput[]
+    skipDuplicates?: boolean
   }
 
   export type QuotationCreateWithoutJobsInput = {
@@ -100280,6 +102106,46 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PurchaseOrderCreateWithoutJobInput = {
+    id?: string
+    poNumber?: string | null
+    supplierName?: string | null
+    supplierPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: number | null
+    expectedDate?: Date | string | null
+    status?: string
+    createdBy?: string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PurchaseOrderUncheckedCreateWithoutJobInput = {
+    id?: string
+    poNumber?: string | null
+    supplierName?: string | null
+    supplierPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: number | null
+    expectedDate?: Date | string | null
+    status?: string
+    createdBy?: string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PurchaseOrderCreateOrConnectWithoutJobInput = {
+    where: PurchaseOrderWhereUniqueInput
+    create: XOR<PurchaseOrderCreateWithoutJobInput, PurchaseOrderUncheckedCreateWithoutJobInput>
+  }
+
+  export type PurchaseOrderCreateManyJobInputEnvelope = {
+    data: PurchaseOrderCreateManyJobInput | PurchaseOrderCreateManyJobInput[]
+    skipDuplicates?: boolean
+  }
+
   export type RepairOrderUpsertWithoutJobInput = {
     update: XOR<RepairOrderUpdateWithoutJobInput, RepairOrderUncheckedUpdateWithoutJobInput>
     create: XOR<RepairOrderCreateWithoutJobInput, RepairOrderUncheckedCreateWithoutJobInput>
@@ -100372,39 +102238,39 @@ export namespace Prisma {
     completedAt?: DateTimeFilter<"JobStepLog"> | Date | string
   }
 
-  export type PaymentTaskUpsertWithoutJobInput = {
+  export type PaymentTaskUpsertWithWhereUniqueWithoutJobInput = {
+    where: PaymentTaskWhereUniqueInput
     update: XOR<PaymentTaskUpdateWithoutJobInput, PaymentTaskUncheckedUpdateWithoutJobInput>
     create: XOR<PaymentTaskCreateWithoutJobInput, PaymentTaskUncheckedCreateWithoutJobInput>
-    where?: PaymentTaskWhereInput
   }
 
-  export type PaymentTaskUpdateToOneWithWhereWithoutJobInput = {
-    where?: PaymentTaskWhereInput
+  export type PaymentTaskUpdateWithWhereUniqueWithoutJobInput = {
+    where: PaymentTaskWhereUniqueInput
     data: XOR<PaymentTaskUpdateWithoutJobInput, PaymentTaskUncheckedUpdateWithoutJobInput>
   }
 
-  export type PaymentTaskUpdateWithoutJobInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
-    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
-    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type PaymentTaskUpdateManyWithWhereWithoutJobInput = {
+    where: PaymentTaskScalarWhereInput
+    data: XOR<PaymentTaskUpdateManyMutationInput, PaymentTaskUncheckedUpdateManyWithoutJobInput>
   }
 
-  export type PaymentTaskUncheckedUpdateWithoutJobInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
-    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
-    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type PaymentTaskScalarWhereInput = {
+    AND?: PaymentTaskScalarWhereInput | PaymentTaskScalarWhereInput[]
+    OR?: PaymentTaskScalarWhereInput[]
+    NOT?: PaymentTaskScalarWhereInput | PaymentTaskScalarWhereInput[]
+    id?: StringFilter<"PaymentTask"> | string
+    jobId?: StringFilter<"PaymentTask"> | string
+    status?: StringFilter<"PaymentTask"> | string
+    assignedTo?: StringNullableFilter<"PaymentTask"> | string | null
+    dueDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
+    paidAmount?: FloatNullableFilter<"PaymentTask"> | number | null
+    paidDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
+    note?: StringNullableFilter<"PaymentTask"> | string | null
+    installmentNo?: IntNullableFilter<"PaymentTask"> | number | null
+    installmentTotal?: IntNullableFilter<"PaymentTask"> | number | null
+    installmentAmount?: FloatNullableFilter<"PaymentTask"> | number | null
+    createdAt?: DateTimeFilter<"PaymentTask"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentTask"> | Date | string
   }
 
   export type QuotationUpsertWithoutJobsInput = {
@@ -100584,7 +102450,42 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"OutsourceRepair"> | Date | string
   }
 
-  export type JobCreateWithoutPaymentTaskInput = {
+  export type PurchaseOrderUpsertWithWhereUniqueWithoutJobInput = {
+    where: PurchaseOrderWhereUniqueInput
+    update: XOR<PurchaseOrderUpdateWithoutJobInput, PurchaseOrderUncheckedUpdateWithoutJobInput>
+    create: XOR<PurchaseOrderCreateWithoutJobInput, PurchaseOrderUncheckedCreateWithoutJobInput>
+  }
+
+  export type PurchaseOrderUpdateWithWhereUniqueWithoutJobInput = {
+    where: PurchaseOrderWhereUniqueInput
+    data: XOR<PurchaseOrderUpdateWithoutJobInput, PurchaseOrderUncheckedUpdateWithoutJobInput>
+  }
+
+  export type PurchaseOrderUpdateManyWithWhereWithoutJobInput = {
+    where: PurchaseOrderScalarWhereInput
+    data: XOR<PurchaseOrderUpdateManyMutationInput, PurchaseOrderUncheckedUpdateManyWithoutJobInput>
+  }
+
+  export type PurchaseOrderScalarWhereInput = {
+    AND?: PurchaseOrderScalarWhereInput | PurchaseOrderScalarWhereInput[]
+    OR?: PurchaseOrderScalarWhereInput[]
+    NOT?: PurchaseOrderScalarWhereInput | PurchaseOrderScalarWhereInput[]
+    id?: StringFilter<"PurchaseOrder"> | string
+    poNumber?: StringNullableFilter<"PurchaseOrder"> | string | null
+    jobId?: StringFilter<"PurchaseOrder"> | string
+    supplierName?: StringNullableFilter<"PurchaseOrder"> | string | null
+    supplierPhone?: StringNullableFilter<"PurchaseOrder"> | string | null
+    items?: JsonNullableFilter<"PurchaseOrder">
+    totalAmount?: FloatNullableFilter<"PurchaseOrder"> | number | null
+    expectedDate?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
+    status?: StringFilter<"PurchaseOrder"> | string
+    createdBy?: StringNullableFilter<"PurchaseOrder"> | string | null
+    note?: StringNullableFilter<"PurchaseOrder"> | string | null
+    createdAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
+  }
+
+  export type JobCreateWithoutPaymentTasksInput = {
     id?: string
     jobNumber: string
     companyCode: string
@@ -100613,9 +102514,10 @@ export namespace Prisma {
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
   }
 
-  export type JobUncheckedCreateWithoutPaymentTaskInput = {
+  export type JobUncheckedCreateWithoutPaymentTasksInput = {
     id?: string
     jobNumber: string
     companyCode: string
@@ -100644,25 +102546,26 @@ export namespace Prisma {
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
-  export type JobCreateOrConnectWithoutPaymentTaskInput = {
+  export type JobCreateOrConnectWithoutPaymentTasksInput = {
     where: JobWhereUniqueInput
-    create: XOR<JobCreateWithoutPaymentTaskInput, JobUncheckedCreateWithoutPaymentTaskInput>
+    create: XOR<JobCreateWithoutPaymentTasksInput, JobUncheckedCreateWithoutPaymentTasksInput>
   }
 
-  export type JobUpsertWithoutPaymentTaskInput = {
-    update: XOR<JobUpdateWithoutPaymentTaskInput, JobUncheckedUpdateWithoutPaymentTaskInput>
-    create: XOR<JobCreateWithoutPaymentTaskInput, JobUncheckedCreateWithoutPaymentTaskInput>
+  export type JobUpsertWithoutPaymentTasksInput = {
+    update: XOR<JobUpdateWithoutPaymentTasksInput, JobUncheckedUpdateWithoutPaymentTasksInput>
+    create: XOR<JobCreateWithoutPaymentTasksInput, JobUncheckedCreateWithoutPaymentTasksInput>
     where?: JobWhereInput
   }
 
-  export type JobUpdateToOneWithWhereWithoutPaymentTaskInput = {
+  export type JobUpdateToOneWithWhereWithoutPaymentTasksInput = {
     where?: JobWhereInput
-    data: XOR<JobUpdateWithoutPaymentTaskInput, JobUncheckedUpdateWithoutPaymentTaskInput>
+    data: XOR<JobUpdateWithoutPaymentTasksInput, JobUncheckedUpdateWithoutPaymentTasksInput>
   }
 
-  export type JobUpdateWithoutPaymentTaskInput = {
+  export type JobUpdateWithoutPaymentTasksInput = {
     id?: StringFieldUpdateOperationsInput | string
     jobNumber?: StringFieldUpdateOperationsInput | string
     companyCode?: StringFieldUpdateOperationsInput | string
@@ -100691,9 +102594,10 @@ export namespace Prisma {
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
   }
 
-  export type JobUncheckedUpdateWithoutPaymentTaskInput = {
+  export type JobUncheckedUpdateWithoutPaymentTasksInput = {
     id?: StringFieldUpdateOperationsInput | string
     jobNumber?: StringFieldUpdateOperationsInput | string
     companyCode?: StringFieldUpdateOperationsInput | string
@@ -100722,6 +102626,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutStepLogsInput = {
@@ -100749,10 +102654,11 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
-    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutStepLogsInput = {
@@ -100781,9 +102687,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
-    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutStepLogsInput = {
@@ -100827,10 +102734,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
-    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutStepLogsInput = {
@@ -100859,9 +102767,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
-    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutRepairOrderInput = {
@@ -100889,10 +102798,11 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
-    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutRepairOrderInput = {
@@ -100921,9 +102831,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
-    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutRepairOrderInput = {
@@ -100967,10 +102878,11 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
-    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutRepairOrderInput = {
@@ -100999,9 +102911,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
-    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutRepairDeliveriesInput = {
@@ -101030,9 +102943,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
-    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutRepairDeliveriesInput = {
@@ -101062,8 +102976,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
-    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutRepairDeliveriesInput = {
@@ -101108,9 +103023,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
-    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutRepairDeliveriesInput = {
@@ -101140,8 +103056,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
-    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutOutsourceRepairsInput = {
@@ -101170,9 +103087,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
-    paymentTask?: PaymentTaskCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutOutsourceRepairsInput = {
@@ -101202,8 +103120,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
-    paymentTask?: PaymentTaskUncheckedCreateNestedOneWithoutJobInput
+    paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutOutsourceRepairsInput = {
@@ -101248,9 +103167,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
-    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutOutsourceRepairsInput = {
@@ -101280,8 +103200,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
-    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type UserCreateWithoutCustomerRequirementsInput = {
@@ -110845,6 +112766,150 @@ export namespace Prisma {
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
+  export type JobCreateWithoutPurchaseOrdersInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+    paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+    quotation?: QuotationCreateNestedOneWithoutJobsInput
+    repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateWithoutPurchaseOrdersInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    quotationId?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+    repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobCreateOrConnectWithoutPurchaseOrdersInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutPurchaseOrdersInput, JobUncheckedCreateWithoutPurchaseOrdersInput>
+  }
+
+  export type JobUpsertWithoutPurchaseOrdersInput = {
+    update: XOR<JobUpdateWithoutPurchaseOrdersInput, JobUncheckedUpdateWithoutPurchaseOrdersInput>
+    create: XOR<JobCreateWithoutPurchaseOrdersInput, JobUncheckedCreateWithoutPurchaseOrdersInput>
+    where?: JobWhereInput
+  }
+
+  export type JobUpdateToOneWithWhereWithoutPurchaseOrdersInput = {
+    where?: JobWhereInput
+    data: XOR<JobUpdateWithoutPurchaseOrdersInput, JobUncheckedUpdateWithoutPurchaseOrdersInput>
+  }
+
+  export type JobUpdateWithoutPurchaseOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+    quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutPurchaseOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+  }
+
   export type CompanyCreateManyAssignedUserInput = {
     id?: string
     companyName: string
@@ -112111,9 +114176,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
-    paymentTask?: PaymentTaskUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutQuotationInput = {
@@ -112142,9 +114208,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
-    paymentTask?: PaymentTaskUncheckedUpdateOneWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateManyWithoutQuotationInput = {
@@ -112214,6 +114281,21 @@ export namespace Prisma {
     completedAt?: Date | string
   }
 
+  export type PaymentTaskCreateManyJobInput = {
+    id?: string
+    status?: string
+    assignedTo?: string | null
+    dueDate?: Date | string | null
+    paidAmount?: number | null
+    paidDate?: Date | string | null
+    note?: string | null
+    installmentNo?: number | null
+    installmentTotal?: number | null
+    installmentAmount?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type RepairDeliveryCreateManyJobInput = {
     id?: string
     deliveryNumber: string
@@ -112266,6 +114348,21 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type PurchaseOrderCreateManyJobInput = {
+    id?: string
+    poNumber?: string | null
+    supplierName?: string | null
+    supplierPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: number | null
+    expectedDate?: Date | string | null
+    status?: string
+    createdBy?: string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type JobStepLogUpdateWithoutJobInput = {
     id?: StringFieldUpdateOperationsInput | string
     step?: StringFieldUpdateOperationsInput | string
@@ -112291,6 +114388,51 @@ export namespace Prisma {
     department?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentTaskUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentTaskUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentTaskUncheckedUpdateManyWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paidAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RepairDeliveryUpdateWithoutJobInput = {
@@ -112445,6 +114587,51 @@ export namespace Prisma {
     remark?: NullableStringFieldUpdateOperationsInput | string | null
     sender?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PurchaseOrderUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierName?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PurchaseOrderUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierName?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PurchaseOrderUncheckedUpdateManyWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierName?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    totalAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react"
 import { getSteps, getWorkflow, type StepDef } from "@/app/lib/job-workflow"
-import { confirmJobStep } from "@/app/actions/jobs"
+import { confirmJobStep, rejectJobStep } from "@/app/actions/jobs"
+import { XCircle, Edit2 } from "lucide-react"
 import { Check, CheckCircle2, Loader2 } from "lucide-react"
 import Link from "next/link"
 type StepLog = {
@@ -26,12 +27,12 @@ type Props = {
   jobNumber?:    string
   customerName?: string
   sellerName?:   string
-  paymentTask?:  any
+  paymentTasks?: any[]
 }
 
 export default function JobTimeline({
   jobId, jobType, currentStep, flowVariant, stepLogs, userName, userDept, userRole, isManager,
-  jobNumber, customerName, sellerName, paymentTask
+  jobNumber, customerName, sellerName, paymentTasks
 }: Props) {
   const [isPending, startTransition] = useTransition()
   const [showVariantModal, setShowVariantModal] = useState(false)
@@ -45,6 +46,14 @@ export default function JobTimeline({
   const [trackingNumber, setTrackingNumber] = useState("")
   const [trackingFile, setTrackingFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+
+  // PR / PO specific state
+  const [prItemsText, setPrItemsText] = useState("")
+  const [supplierName, setSupplierName] = useState("")
+  const [supplierPhone, setSupplierPhone] = useState("")
+  const [totalAmount, setTotalAmount] = useState("")
+  const [poNumber, setPoNumber] = useState("")
+  const [expectedDate, setExpectedDate] = useState("")
 
   const wf        = getWorkflow(jobType)
   const steps     = getSteps(jobType, flowVariant)
@@ -62,10 +71,40 @@ export default function JobTimeline({
   // step ที่ active (รอ confirm อยู่)
   const activeStep = isFinished ? null : steps[currentIdx]
 
+  function handleReject(targetStepKey: string) {
+    if (!noteInput.trim()) {
+      alert("กรุณาระบุหมายเหตุ (สาเหตุที่ตีกลับ) ก่อนกดตีกลับ/แก้ไข");
+      return;
+    }
+    startTransition(async () => {
+      await rejectJobStep(jobId, targetStepKey, noteInput, userName);
+      setNoteInput("");
+      setPendingConfirm(false);
+      setShowVariantModal(false);
+    });
+  }
+
   // user กด confirm step ปัจจุบัน
   function handleConfirm(variant?: string) {
     if (!activeStep) return
     startTransition(async () => {
+      // Validate PR/PO fields
+      if (activeStep.key === "sales_pr" && !prItemsText) {
+        alert("กรุณาระบุรายการสินค้าที่ต้องการสั่งซื้อ");
+        return;
+      }
+      if (activeStep.key === "purchase_find_supplier" && !supplierName) {
+        alert("กรุณาระบุชื่อร้านค้า/Supplier");
+        return;
+      }
+      if (activeStep.key === "purchase_po" && !poNumber) {
+        alert("กรุณาระบุเลขที่ PO");
+        return;
+      }
+
+      const prItems = prItemsText ? [{ text: prItemsText }] : undefined;
+      const numTotalAmount = totalAmount ? parseFloat(totalAmount) : undefined;
+
       await confirmJobStep({
         jobId,
         stepKey:     activeStep.key,
@@ -73,6 +112,12 @@ export default function JobTimeline({
         department:  userDept,
         note:        noteInput || undefined,
         variant,
+        prItems,
+        supplierName: supplierName || undefined,
+        supplierPhone: supplierPhone || undefined,
+        totalAmount: numTotalAmount,
+        poNumber: poNumber || undefined,
+        expectedDate: expectedDate || undefined,
       })
       setNoteInput("")
       setPendingConfirm(false)
@@ -166,9 +211,27 @@ export default function JobTimeline({
 
   // Message แจ้งเตือนสาเหตุที่กดไม่ได้
   const blockReasonMessage = (() => {
-    if (activeStep && ['store_send', 'accounting', 'complete'].includes(activeStep.key)) {
-      if (paymentTask && paymentTask.status !== 'ตรวจสอบและบันทึกแล้ว') {
-        return `ระงับการดำเนินการชั่วคราว: รอฝ่ายบัญชีตรวจสอบการชำระเงิน (สถานะ: ${paymentTask.status})`;
+    if (!activeStep) return null;
+    
+    // Check if any payment task is incomplete
+    const hasIncompletePayment = paymentTasks && paymentTasks.length > 0 
+      ? paymentTasks.some((pt: any) => pt.status !== 'ตรวจสอบและบันทึกแล้ว')
+      : false;
+
+    if (!hasIncompletePayment) return null;
+
+    // Check payment method
+    const paymentMethod = paymentTasks?.[0]?.job?.paymentMethod || paymentTasks?.[0]?.paymentMethod || '';
+    const isInstallment = paymentMethod === 'ผ่อนชำระ';
+    
+    if (isInstallment) {
+      if (['complete'].includes(activeStep.key)) {
+        return `ระงับการดำเนินการชั่วคราว: รอฝ่ายบัญชีตรวจสอบการชำระเงินค่างวดให้ครบถ้วน`;
+      }
+    } else {
+      if (['store_send', 'accounting', 'complete'].includes(activeStep.key)) {
+        const status = paymentTasks?.[0]?.status || 'รอดำเนินการ';
+        return `ระงับการดำเนินการชั่วคราว: รอฝ่ายบัญชีตรวจสอบการชำระเงิน (สถานะ: ${status})`;
       }
     }
     return null;
@@ -290,6 +353,54 @@ export default function JobTimeline({
             {activeStep.note && <span className="text-red-400 ml-1 text-[10px]">({activeStep.note})</span>}
           </p>
 
+          {activeStep.key === "sales_pr" && (
+            <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200 text-sm shadow-sm">
+              <p className="font-bold text-gray-800 mb-3">รายการสินค้าที่ต้องการ (PR)</p>
+              <div>
+                <textarea value={prItemsText} onChange={e => setPrItemsText(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red min-h-[100px]" placeholder="ระบุชื่อสินค้า, สเปค, จำนวน..." />
+              </div>
+            </div>
+          )}
+
+          {activeStep.key === "purchase_find_supplier" && (
+            <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200 text-sm shadow-sm space-y-3">
+              <p className="font-bold text-gray-800 mb-1">ข้อมูลร้านค้า (Supplier)</p>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1">ชื่อร้านค้า / Supplier *</label>
+                <input type="text" value={supplierName} onChange={e => setSupplierName(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" placeholder="กรอกชื่อร้าน..." />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1">เบอร์ติดต่อร้านค้า</label>
+                <input type="text" value={supplierPhone} onChange={e => setSupplierPhone(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" placeholder="กรอกเบอร์โทร..." />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1">ราคารวม (บาท)</label>
+                <input type="number" value={totalAmount} onChange={e => setTotalAmount(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" placeholder="0.00" />
+              </div>
+            </div>
+          )}
+
+          {activeStep.key === "sales_acknowledge_po" && (
+            <div className="mb-4 p-4 bg-red-50 rounded-lg border border-red-200 text-sm shadow-sm space-y-3">
+              <p className="font-bold text-brand-red mb-1">ตรวจสอบและรับทราบ PO</p>
+              <p className="text-gray-700">กรุณาตรวจสอบข้อมูลการสั่งซื้อ เมื่อถูกต้องครบถ้วนแล้ว กดยืนยันเพื่อรับทราบ</p>
+            </div>
+          )}
+
+          {activeStep.key === "purchase_po" && (
+            <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200 text-sm shadow-sm space-y-3">
+              <p className="font-bold text-gray-800 mb-1">บันทึก PO</p>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1">เลขที่เอกสาร PO *</label>
+                <input type="text" value={poNumber} onChange={e => setPoNumber(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" placeholder="เช่น PO-6601001" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1">วันที่คาดว่าจะได้รับสินค้า</label>
+                <input type="date" value={expectedDate} onChange={e => setExpectedDate(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" />
+              </div>
+            </div>
+          )}
+
           {activeStep.key === "delivery" && (
             <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200 text-sm shadow-sm">
               <p className="font-bold text-gray-800 mb-3">รูปแบบการจัดส่ง</p>
@@ -337,6 +448,16 @@ export default function JobTimeline({
             onChange={(e) => setNoteInput(e.target.value)}
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
           />
+          {activeStep.key === "sales_acknowledge_po" && (
+            <button
+              disabled={isPending || isBlocked}
+              onClick={() => handleReject("purchase_po")}
+              className="w-full bg-white text-gray-700 border border-gray-300 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-gray-100 disabled:opacity-50 mb-3 transition-all shadow-sm flex items-center justify-center gap-2"
+            >
+              <XCircle className="w-4 h-4 text-red-500" /> ตีกลับให้จัดซื้อแก้ไข (ต้องใส่หมายเหตุ)
+            </button>
+          )}
+
           <button
             disabled={isPending || isUploading || isBlocked}
             onClick={() => {
@@ -361,13 +482,22 @@ export default function JobTimeline({
 
       {/* Add Repair Order button if user is service */}
       {normalizedDept.includes("service") && (
-        <Link
-          href={`/jobs/${jobId}/repair-order`}
-          className="mt-4 w-full bg-white border border-gray-200 text-gray-700 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-all shadow-sm flex justify-center items-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
-          ออกใบรับซ่อม (PDF)
-        </Link>
+        <div className="flex flex-col gap-2 mt-4">
+          <Link
+            href={`/jobs/${jobId}/manage-repair-order`}
+            className="w-full bg-white border border-gray-200 text-gray-700 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-all shadow-sm flex justify-center items-center gap-2"
+          >
+            <Edit2 className="w-4 h-4" />
+            จัดการข้อมูลใบรับซ่อม
+          </Link>
+          <Link
+            href={`/jobs/${jobId}/repair-order`}
+            className="w-full bg-brand-red border border-transparent text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-red-700 transition-all shadow-sm flex justify-center items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+            พิมพ์ใบรับซ่อม (PDF)
+          </Link>
+        </div>
       )}
 
       {/* ไม่มีสิทธิ์ */}

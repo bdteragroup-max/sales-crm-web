@@ -70,7 +70,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
     include: { 
       quotation: true,
       stepLogs: { orderBy: { completedAt: "asc" } },
-      paymentTask: true,
+      paymentTasks: true,
     }, 
     orderBy: { dateClosed: "desc" }, 
   }); 

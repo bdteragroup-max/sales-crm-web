@@ -14,11 +14,20 @@ export async function updatePaymentTaskStatus(taskId: string, status: string, no
   });
 
   if (status === 'ตรวจสอบและบันทึกแล้ว' && task.job) {
-    // If it's paid, update job payment status
-    await prisma.job.update({
-      where: { id: task.jobId },
-      data: { paymentStatus: 'paid' }
+    // Check if there are other incomplete tasks
+    const pendingTasks = await prisma.paymentTask.count({
+      where: {
+        jobId: task.jobId,
+        status: { not: 'ตรวจสอบและบันทึกแล้ว' }
+      }
     });
+
+    if (pendingTasks === 0) {
+      await prisma.job.update({
+        where: { id: task.jobId },
+        data: { paymentStatus: 'paid' }
+      });
+    }
   }
 
   revalidatePath('/accounting');

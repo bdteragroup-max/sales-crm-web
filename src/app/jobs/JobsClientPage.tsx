@@ -39,7 +39,7 @@ type Job = {
   trackingPhotoUrl?: string | null;
   stepLogs: StepLog[];
   paymentMethod?: string | null;
-  paymentTask?: any;
+  paymentTasks?: any[];
 };
 
 const COMPANY_CODES = ["TP", "TG", "TE"];
@@ -186,7 +186,7 @@ function ExpandedRow({
             jobNumber={job.jobNumber}
             customerName={job.customerName}
             sellerName={job.sellerName || undefined}
-            paymentTask={job.paymentTask}
+            paymentTasks={job.paymentTasks}
           />
 
           {job.deliveryMethod && (
@@ -446,7 +446,7 @@ export default function JobsClientPage({
         const newJob = await createStandaloneJob({ customerName, item, companyCode, jobType: "งานซ่อม" });
         setJobs(prev => [newJob as any, ...prev]);
         setShowQuickRepair(false);
-        router.push(`/jobs/${newJob.id}/repair-order`);
+        router.push(`/jobs/${newJob.id}/manage-repair-order`);
       } catch (err) {
         alert("เกิดข้อผิดพลาด");
       } finally {

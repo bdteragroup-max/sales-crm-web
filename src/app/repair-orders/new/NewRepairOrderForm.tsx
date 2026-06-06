@@ -26,9 +26,11 @@ interface RepairOrderItem {
 export default function NewRepairOrderForm({
   users,
   currentUserId,
+  initialData,
 }: {
   users: UserOption[];
   currentUserId: string;
+  initialData?: any;
 }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,7 +56,7 @@ export default function NewRepairOrderForm({
   const [contactSearchResults, setContactSearchResults] = useState<any[]>([]);
   const contactSearchRef = useRef<HTMLDivElement>(null);
 
-  const [customerCompany, setCustomerCompany] = useState("");
+  const [customerCompany, setCustomerCompany] = useState(initialData?.customerCompany || "");
   const [customerAddress, setCustomerAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [subDistrict, setSubDistrict] = useState("");
@@ -254,6 +256,7 @@ export default function NewRepairOrderForm({
       const selectedUser = users.find(u => u.id === receiverId);
 
       const formData = {
+        jobId: initialData?.jobId,
         workType,
         invoiceNo,
         receiverName: selectedUser?.name || receiverNameText,
@@ -261,6 +264,8 @@ export default function NewRepairOrderForm({
         phoneNumber,
         deliveryNoteNo,
         customerCompany,
+        company: initialData?.company,
+        salesPerson: initialData?.salesPerson,
         customerAddress: `${customerAddress} ${subDistrict} ${district} ${province} ${postalCode}`.trim(),
         items: items.map(i => ({
           type: i.type, brand: i.brand, model: i.model, size: i.size, serial: i.serial, qty: i.qty, remark: i.remark

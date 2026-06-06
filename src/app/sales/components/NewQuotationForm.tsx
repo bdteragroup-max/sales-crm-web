@@ -40,7 +40,14 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
   };
 
   // Form states to handle initialData
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>({
+    installments: [
+      { installmentNo: 1, amount: '', dueDate: new Date().toISOString().slice(0, 10) },
+      { installmentNo: 2, amount: '', dueDate: '' },
+      { installmentNo: 3, amount: '', dueDate: '' }
+    ],
+    installmentCount: 3
+  });
 
   const generateRequirementNumber = () => {
     const now = new Date();
@@ -254,6 +261,13 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           salesBranch: initialData.salesBranch || initialData.salesperson?.employeeSale?.branch || '',
           salesTeamLeader: initialData.salesTeamLeader || initialData.salesperson?.employeeSale?.teamLeader || '',
           remarks: initialData.remarks || '',
+          paymentMethod: initialData.jobs?.[0]?.paymentMethod || 'เครดิต 30 วัน',
+          installmentCount: initialData.jobs?.[0]?.paymentTasks?.length || 3,
+          installments: initialData.jobs?.[0]?.paymentTasks?.length > 0 ? initialData.jobs[0].paymentTasks : [
+            { installmentNo: 1, amount: '', dueDate: formatDateForInput(new Date()) },
+            { installmentNo: 2, amount: '', dueDate: '' },
+            { installmentNo: 3, amount: '', dueDate: '' }
+          ]
         });
       }
       setSelectedCompanyId(initialData.companyId || null);
@@ -498,9 +512,71 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
               <InputField name="poNumber" label="เลขที่ P/O (Purchase Order) :" type="text" placeholder="กรอกเลขที่ใบสั่งซื้อ..." value={formData.poNumber || ''} onChange={handleInputChange} />
               <InputField name="billingDate" label="วันเปิดบิลขาย :" type="date" value={formData.billingDate || ''} onChange={handleInputChange} required={status === 'เปิดบิลแล้ว'} />
               <InputField name="invoiceNumber" label="หมายเลขใบแจ้งหนี้ :" type="text" value={formData.invoiceNumber || ''} onChange={handleInputChange} />
+              
+              {/* Hidden input to submit installments */}
+              <input type="hidden" name="installments" value={JSON.stringify(formData.installments || [])} />
+
               {(status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) && (
-                <div className="pt-2">
+                <div className="pt-2 space-y-4">
                   <SelectField name="jobType" label="ประเภทงาน (Job Type) :" options={[...JOB_TYPES]} value={formData.jobType || ''} onChange={handleInputChange} />
+                  <SelectField name="paymentMethod" label="วิธีการชำระเงิน :" options={['จ่ายแล้ว', 'เครดิต 30 วัน', 'เครดิต 60 วัน', 'เก็บเงินหน้างาน', 'ผ่อนชำระ']} value={formData.paymentMethod || 'เครดิต 30 วัน'} onChange={handleInputChange} />
+                  
+                  {formData.paymentMethod === 'ผ่อนชำระ' && (
+                    <div className="flex items-start gap-4">
+                      <label className="w-1/3 text-sm font-bold text-orange-600 text-right mt-2.5">ตั้งค่างวดผ่อนชำระ :</label>
+                      <div className="flex-1 bg-orange-50/50 p-4 rounded-xl border border-orange-100 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-orange-800 uppercase tracking-widest">จำนวนงวด</label>
+                          <select 
+                            value={formData.installmentCount || 3} 
+                            onChange={(e) => {
+                              const count = parseInt(e.target.value);
+                              const currentInstallments = formData.installments || [];
+                              const newInstallments: any[] = [];
+                              for (let i = 1; i <= count; i++) {
+                                newInstallments.push(currentInstallments[i - 1] || { installmentNo: i, amount: '', dueDate: '' });
+                              }
+                              setFormData((prev: any) => ({ ...prev, installmentCount: count, installments: newInstallments }));
+                            }}
+                            className="px-3 py-1.5 border border-orange-200 rounded-lg text-sm font-bold bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                          >
+                            {[2, 3, 4, 5, 6, 10, 12, 24, 36].map(num => (
+                              <option key={num} value={num}>{num} งวด</option>
+                            ))}
+                          </select>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          {(formData.installments || []).map((inst: any, idx: number) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <div className="w-16 text-xs font-bold text-orange-700">งวดที่ {inst.installmentNo}</div>
+                              <input 
+                                type="number" 
+                                placeholder="จำนวนเงิน" 
+                                value={inst.amount || ''}
+                                onChange={(e) => {
+                                  const newInstallments = [...(formData.installments || [])];
+                                  newInstallments[idx] = { ...newInstallments[idx], amount: e.target.value };
+                                  setFormData((prev: any) => ({ ...prev, installments: newInstallments }));
+                                }}
+                                className="flex-1 px-2 py-1.5 border border-orange-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 placeholder-orange-300"
+                              />
+                              <input 
+                                type="date" 
+                                value={inst.dueDate || ''}
+                                onChange={(e) => {
+                                  const newInstallments = [...(formData.installments || [])];
+                                  newInstallments[idx] = { ...newInstallments[idx], dueDate: e.target.value };
+                                  setFormData((prev: any) => ({ ...prev, installments: newInstallments }));
+                                }}
+                                className="w-32 px-2 py-1.5 border border-orange-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               {!isLostStatus && (

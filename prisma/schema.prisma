@@ -334,26 +334,30 @@ model Job {
   updatedAt       DateTime     @updatedAt @db.Timestamptz(6)
   repairOrder     RepairOrder?
   stepLogs        JobStepLog[]
-  paymentTask     PaymentTask?
+  paymentTasks    PaymentTask[]
   quotation       Quotation?   @relation(fields: [quotationId], references: [id])
   repairDeliveries RepairDelivery[]
   outsourceRepairs OutsourceRepair[]
+  purchaseOrders  PurchaseOrder[]
 
   @@map("jobs")
 }
 
 model PaymentTask {
-  id          String    @id @default(cuid())
-  jobId       String    @unique
-  job         Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  status      String    @default("รอดำเนินการ")
-  assignedTo  String?
-  dueDate     DateTime? @db.Timestamptz(6)
-  paidAmount  Float?
-  paidDate    DateTime? @db.Timestamptz(6)
-  note        String?
-  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  id                String    @id @default(cuid())
+  jobId             String
+  job               Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status            String    @default("รอดำเนินการ")
+  assignedTo        String?
+  dueDate           DateTime? @db.Timestamptz(6)
+  paidAmount        Float?
+  paidDate          DateTime? @db.Timestamptz(6)
+  note              String?
+  installmentNo     Int?
+  installmentTotal  Int?
+  installmentAmount Float?
+  createdAt         DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime  @updatedAt @db.Timestamptz(6)
 
   @@map("payment_tasks")
 }
@@ -1197,4 +1201,28 @@ model employee_trainings {
   updated_at                                          DateTime   @default(now()) @db.Timestamptz(6)
   employees_employee_trainings_assessor_idToemployees employees? @relation("employee_trainings_assessor_idToemployees", fields: [assessor_id], references: [emp_id])
   employees_employee_trainings_emp_idToemployees      employees  @relation("employee_trainings_emp_idToemployees", fields: [emp_id], references: [emp_id], onDelete: Cascade)
+}
+
+model PurchaseOrder {
+  id              String    @id @default(cuid())
+  poNumber        String?   
+  jobId           String
+  job             Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  supplierName    String?
+  supplierPhone   String?
+  
+  items           Json?     
+  totalAmount     Float?
+  expectedDate    DateTime? @db.Timestamptz(6)
+  
+  status          String    @default("รอสินค้า")
+  
+  createdBy       String?   
+  note            String?
+  
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@map("purchase_orders")
 }

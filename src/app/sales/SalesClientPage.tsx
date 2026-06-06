@@ -188,8 +188,8 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
       <div className="shrink-0 flex items-center justify-between px-8 pt-4 border-b border-gray-100 bg-white">
         <div className="flex items-center gap-1">
           {[
-            { id: 'new' as const, label: editingData ? 'แก้ไขใบเสนอราคา' : 'บันทึกใหม่', icon: <Plus size={14} />, action: handleCreateNew },
-            { id: 'list' as const, label: `รายการทั้งหมด (${initialQuotations.length})`, icon: <FileText size={14} />, action: () => setActiveTab('list') },
+            { id: 'new' as const, label: editingData ? 'แก้ไขใบเสนอราคา' : 'สร้างใบเสนอราคา', icon: <Plus size={14} />, action: handleCreateNew },
+            { id: 'list' as const, label: `ประวัติ (${initialQuotations.length})`, icon: <FileText size={14} />, action: () => setActiveTab('list') },
           ].map(tab => (
             <button
               key={tab.id}

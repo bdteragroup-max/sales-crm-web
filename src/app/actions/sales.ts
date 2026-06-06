@@ -158,6 +158,12 @@ export async function saveSalesData(formData: FormData) {
     }
     const rejectReason = formData.get("rejectReason") as string;
     const jobType = formData.get("jobType") as string;
+    const paymentMethod = formData.get("paymentMethod") as string;
+    const installmentsRaw = formData.get("installments") as string;
+    let installments = undefined;
+    try {
+      if (installmentsRaw) installments = JSON.parse(installmentsRaw).map((i: any) => ({ ...i, amount: Number(i.amount) || 0, dueDate: new Date(i.dueDate || new Date()) }));
+    } catch(e) {}
     
     const salesBeforeVat = parseFloat(formData.get("salesBeforeVat") as string) || 0;
     const transportationFee = parseFloat(formData.get("transportationFee") as string) || 0;
@@ -356,6 +362,8 @@ export async function saveSalesData(formData: FormData) {
         poNumber: poNumber,
         jobType: jobType || undefined,
         closedDate: finalBillingDate || finalPoDate || new Date(),
+        paymentMethod: paymentMethod || undefined,
+        installments: installments,
       });
     }
 
@@ -396,6 +404,12 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
     }
     const rejectReason = formData.get("rejectReason") as string;
     const jobType = formData.get("jobType") as string;
+    const paymentMethod = formData.get("paymentMethod") as string;
+    const installmentsRaw = formData.get("installments") as string;
+    let installments = undefined;
+    try {
+      if (installmentsRaw) installments = JSON.parse(installmentsRaw).map((i: any) => ({ ...i, amount: Number(i.amount) || 0, dueDate: new Date(i.dueDate || new Date()) }));
+    } catch(e) {}
     
     const salesBeforeVat = parseFloat(formData.get("salesBeforeVat") as string) || 0;
     const transportationFee = parseFloat(formData.get("transportationFee") as string) || 0;
@@ -594,6 +608,8 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
         poNumber: poNumber,
         jobType: jobType || undefined,
         closedDate: finalBillingDate || finalPoDate || new Date(),
+        paymentMethod: paymentMethod || undefined,
+        installments: installments,
       });
     }
 

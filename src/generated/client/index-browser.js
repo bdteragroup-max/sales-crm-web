@@ -379,6 +379,9 @@ exports.Prisma.PaymentTaskScalarFieldEnum = {
   paidAmount: 'paidAmount',
   paidDate: 'paidDate',
   note: 'note',
+  installmentNo: 'installmentNo',
+  installmentTotal: 'installmentTotal',
+  installmentAmount: 'installmentAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -1042,6 +1045,22 @@ exports.Prisma.Employee_trainingsScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.PurchaseOrderScalarFieldEnum = {
+  id: 'id',
+  poNumber: 'poNumber',
+  jobId: 'jobId',
+  supplierName: 'supplierName',
+  supplierPhone: 'supplierPhone',
+  items: 'items',
+  totalAmount: 'totalAmount',
+  expectedDate: 'expectedDate',
+  status: 'status',
+  createdBy: 'createdBy',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1128,7 +1147,8 @@ exports.Prisma.ModelName = {
   room_bookings: 'room_bookings',
   sessions: 'sessions',
   travel_claims: 'travel_claims',
-  employee_trainings: 'employee_trainings'
+  employee_trainings: 'employee_trainings',
+  PurchaseOrder: 'PurchaseOrder'
 };
 
 /**

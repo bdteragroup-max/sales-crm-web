@@ -20,6 +20,11 @@ export type CreateJobInput = {
   poNumber?: string;
   closedDate?: Date; // If not submitted → use now()
   paymentMethod?: string; // e.g. "จ่ายแล้ว", "เครดิต", "ผ่อน", "เก็บเงินหน้างาน"
+  installments?: {
+    installmentNo: number;
+    amount: number;
+    dueDate: Date;
+  }[];
 };
 
 // ================================================
@@ -78,24 +83,39 @@ export async function createJobFromQuotation(input: CreateJobInput) {
     }, 
   }); 
 
-  // Auto-create PaymentTask if not paid
+  // Auto-create PaymentTasks if not paid
   if (input.paymentMethod && input.paymentMethod !== 'จ่ายแล้ว') {
-    let dueDate = new Date(closedDate);
-    if (input.paymentMethod.includes('เครดิต 30 วัน') || input.paymentMethod === 'เครดิต') {
-      dueDate.setDate(dueDate.getDate() + 30);
-    } else if (input.paymentMethod.includes('เครดิต 60 วัน')) {
-      dueDate.setDate(dueDate.getDate() + 60);
-    } else if (input.paymentMethod === 'เก็บเงินหน้างาน') {
-      dueDate.setDate(dueDate.getDate() + 7);
-    }
-    
-    await prisma.paymentTask.create({
-      data: {
-        jobId: job.id,
-        status: 'รอดำเนินการ',
-        dueDate,
+    if (input.paymentMethod === 'ผ่อนชำระ' && input.installments && input.installments.length > 0) {
+      // Create multiple installment tasks
+      await prisma.paymentTask.createMany({
+        data: input.installments.map(inst => ({
+          jobId: job.id,
+          status: 'รอดำเนินการ',
+          dueDate: inst.dueDate,
+          installmentNo: inst.installmentNo,
+          installmentTotal: input.installments!.length,
+          installmentAmount: inst.amount,
+        }))
+      });
+    } else {
+      // Single payment task
+      let dueDate = new Date(closedDate);
+      if (input.paymentMethod.includes('เครดิต 30 วัน') || input.paymentMethod === 'เครดิต') {
+        dueDate.setDate(dueDate.getDate() + 30);
+      } else if (input.paymentMethod.includes('เครดิต 60 วัน')) {
+        dueDate.setDate(dueDate.getDate() + 60);
+      } else if (input.paymentMethod === 'เก็บเงินหน้างาน') {
+        dueDate.setDate(dueDate.getDate() + 7);
       }
-    });
+      
+      await prisma.paymentTask.create({
+        data: {
+          jobId: job.id,
+          status: 'รอดำเนินการ',
+          dueDate,
+        }
+      });
+    }
   }
 
   revalidatePath("/jobs"); 
@@ -131,6 +151,12 @@ export async function confirmJobStep(payload: {
   courierCompany?: string
   trackingNumber?: string
   trackingPhotoUrl?: string
+  prItems?: any[]
+  supplierName?: string
+  supplierPhone?: string
+  totalAmount?: number
+  poNumber?: string
+  expectedDate?: string | Date
 }) {
   const { jobId, stepKey, completedBy, department, note, variant, deliveryMethod, deliveryDate, courierCompany, trackingNumber, trackingPhotoUrl } = payload
 
@@ -159,6 +185,63 @@ export async function confirmJobStep(payload: {
       ...(trackingPhotoUrl ? { trackingPhotoUrl } : {}),
     },
   })
+
+  // === PURCHASE FLOW LOGIC ===
+  if (stepKey === "sales_pr" && payload.prItems) {
+    await prisma.purchaseOrder.create({
+      data: {
+        jobId,
+        items: payload.prItems,
+        createdBy: completedBy,
+        note: payload.note,
+      }
+    })
+  }
+
+  if (stepKey === "purchase_find_supplier" && payload.supplierName) {
+    const existingPo = await prisma.purchaseOrder.findFirst({ where: { jobId }, orderBy: { createdAt: 'desc' } })
+    if (existingPo) {
+      await prisma.purchaseOrder.update({
+        where: { id: existingPo.id },
+        data: {
+          supplierName: payload.supplierName,
+          supplierPhone: payload.supplierPhone,
+          totalAmount: payload.totalAmount,
+        }
+      })
+    }
+  }
+
+  if (stepKey === "purchase_po" && payload.poNumber) {
+    const existingPo = await prisma.purchaseOrder.findFirst({ where: { jobId }, orderBy: { createdAt: 'desc' } })
+    if (existingPo) {
+      await prisma.purchaseOrder.update({
+        where: { id: existingPo.id },
+        data: {
+          poNumber: payload.poNumber,
+          expectedDate: payload.expectedDate ? new Date(payload.expectedDate) : null,
+          status: "รอสินค้า",
+        }
+      })
+    }
+  }
+  
+  if (stepKey === "purchase_waiting") {
+    // nothing special needed, just move step
+  }
+
+  if (stepKey === "store_receive") {
+    const existingPo = await prisma.purchaseOrder.findFirst({ where: { jobId }, orderBy: { createdAt: 'desc' } })
+    if (existingPo) {
+      await prisma.purchaseOrder.update({
+        where: { id: existingPo.id },
+        data: {
+          status: "สินค้าเข้าแล้ว",
+          note: payload.note,
+        }
+      })
+    }
+  }
 
   // Trigger: Automatically create Delivery Note if the job moved to 'service_return'
   if (nextStep?.key === 'service_return') {
@@ -233,17 +316,23 @@ export async function getJobs(filters?: {
 }
 
 const STEP_LABELS: Record<string, { label: string; dept: string }> = { 
-  'sales': { label: '📝 Sales - Job Entry', dept: 'Sales' },
-  'store_check': { label: '🏭 Store - Inventory Check', dept: 'Store' },
-  'store_confirm': { label: '✅ Store - Inventory Confirmed', dept: 'Store' },
-  'purchase': { label: '🛒 Purchase - Order Placed', dept: 'Purchase' },
-  'manufacturing': { label: '⚙️ Manufacturing - Production', dept: 'Manufacturing' },
-  'store_send': { label: '📦 Store - Shipment', dept: 'Store' },
-  'accounting': { label: '💰 Accounting - Billing', dept: 'Accounting' },
-  'complete': { label: '🎉 Job Completed', dept: 'System' },
-  'service_receive': { label: '🔧 Service Receive', dept: 'Service' },
-  'service_repair': { label: '🔨 Service Repair', dept: 'Service' },
-  'service_return': { label: '📬 Service Return', dept: 'Service' },
+  'sales': { label: '📝 ฝ่ายขาย - สร้างงาน', dept: 'Sales' },
+  'store_check': { label: '🏭 สโตร์ - ตรวจสอบสินค้า', dept: 'Store' },
+  'store_confirm': { label: '✅ สโตร์ - ยืนยันสินค้า', dept: 'Store' },
+  'purchase': { label: '🛒 จัดซื้อ - สั่งซื้อสินค้า', dept: 'Purchase' },
+  'manufacturing': { label: '⚙️ ฝ่ายผลิต - ดำเนินการผลิต', dept: 'Manufacturing' },
+  'store_send': { label: '📦 สโตร์ - จัดส่งสินค้า', dept: 'Store' },
+  'accounting': { label: '💰 บัญชี - ออกบิล', dept: 'Accounting' },
+  'complete': { label: '🎉 งานเสร็จสิ้น', dept: 'System' },
+  'service_receive': { label: '🔧 ฝ่ายบริการ - รับเรื่อง', dept: 'Service' },
+  'service_repair': { label: '🔨 ฝ่ายบริการ - ดำเนินการซ่อม', dept: 'Service' },
+  'service_return': { label: '📬 ฝ่ายบริการ - ส่งคืนสินค้า', dept: 'Service' },
+  'sales_pr': { label: '📝 ฝ่ายขาย - เปิด PR เพื่อสั่งซื้อ', dept: 'Sales' },
+  'purchase_find_supplier': { label: '🛒 จัดซื้อ - หาร้านและขอราคา', dept: 'Purchase' },
+  'purchase_po': { label: '🛒 จัดซื้อ - บันทึก PO', dept: 'Purchase' },
+  'sales_acknowledge_po': { label: '📝 ฝ่ายขาย - รับทราบและยืนยัน PO', dept: 'Sales' },
+  'purchase_waiting': { label: '⏳ จัดซื้อ - รอสินค้า', dept: 'Purchase' },
+  'store_receive': { label: '📦 Store - รับและตรวจสอบสินค้า', dept: 'Store' },
 };
 
 export async function notifyJobStepUpdate(jobId: string, stepKey: string, stepLabel: string, dept: string) {
@@ -255,13 +344,12 @@ export async function notifyJobStepUpdate(jobId: string, stepKey: string, stepLa
   });
   if (!job) return;
 
-  const lineIdsToNotify = new Set<string>();
-
   const salespersonId = job.quotation?.salespersonId;
-  if (salespersonId) {
-    const salesLineId = await getLineUserIdByCrmUserId(salespersonId);
-    if (salesLineId) lineIdsToNotify.add(salesLineId);
+  let salesLineId: string | null | undefined = null;
+  let supervisorLineId: string | null | undefined = null;
 
+  if (salespersonId) {
+    salesLineId = await getLineUserIdByCrmUserId(salespersonId);
     const user = await prisma.user.findUnique({
       where: { id: salespersonId },
       select: { employeeId: true }
@@ -272,11 +360,133 @@ export async function notifyJobStepUpdate(jobId: string, stepKey: string, stepLa
         select: { supervisor_id: true }
       });
       if (employee?.supervisor_id) {
-        const supervisorLineId = await getLineUserIdByEmpId(employee.supervisor_id);
-        if (supervisorLineId) lineIdsToNotify.add(supervisorLineId);
+        supervisorLineId = await getLineUserIdByEmpId(employee.supervisor_id);
       }
     }
   }
+
+  // Handle special notification for sales_pr (Store out of stock)
+  if (stepKey === 'sales_pr') {
+    const { customSalesPRMessage } = await import('@/app/lib/lineNotify');
+    
+    // Notify Salesperson
+    if (salesLineId) {
+      const salesMessage = customSalesPRMessage(job, 'sales');
+      await pushLineMessage(salesLineId, [salesMessage]);
+    }
+    
+    // Notify Supervisor/Manager
+    if (supervisorLineId) {
+      const mgrMessage = customSalesPRMessage(job, 'manager');
+      await pushLineMessage(supervisorLineId, [mgrMessage]);
+    }
+
+    // Notify Purchasing Department
+    const purchaseEmployees = await prisma.employeeSale.findMany({
+      where: { department: { contains: 'Purchase', mode: 'insensitive' } },
+      select: { employeeId: true }
+    });
+    
+    // Or check users with role/department relating to Purchase
+    const purchaseUsers = await prisma.user.findMany({
+      where: { role: { contains: 'purchase', mode: 'insensitive' } },
+      select: { employeeId: true }
+    });
+
+    const empIdsToNotify = new Set<string>();
+    purchaseEmployees.forEach(e => { if (e.employeeId) empIdsToNotify.add(e.employeeId) });
+    purchaseUsers.forEach(u => { if (u.employeeId) empIdsToNotify.add(u.employeeId) });
+
+    const purchaseMsg = customSalesPRMessage(job, 'purchase');
+    for (const empId of empIdsToNotify) {
+      const lineId = await getLineUserIdByEmpId(empId);
+      if (lineId) {
+        await pushLineMessage(lineId, [purchaseMsg]);
+      }
+    }
+
+    return; // Stop here, custom notification sent.
+  }
+
+  // Handle special notifications for Purchase Flow
+  if (stepKey === 'purchase_po') {
+    // Transition from purchase_po -> sales_acknowledge_po (Purchasing saved PO)
+    // Notify Sales + Manager to acknowledge
+    const { customPurchasePOMessage } = await import('@/app/lib/lineNotify');
+    const poMsg = await customPurchasePOMessage(job);
+    if (salesLineId) await pushLineMessage(salesLineId, [poMsg]);
+    if (supervisorLineId) await pushLineMessage(supervisorLineId, [poMsg]);
+    return;
+  }
+
+  if (stepKey === 'sales_acknowledge_po') {
+    // Transition from sales_acknowledge_po -> purchase_waiting
+    // Notify Purchasing that Sales has acknowledged the PO
+    const { customSalesAcknowledgeMessage } = await import('@/app/lib/lineNotify');
+    const ackMsg = await customSalesAcknowledgeMessage(job);
+    
+    const purchaseEmployees = await prisma.employeeSale.findMany({
+      where: { department: { contains: 'Purchase', mode: 'insensitive' } },
+      select: { employeeId: true }
+    });
+    const purchaseUsers = await prisma.user.findMany({
+      where: { role: { contains: 'purchase', mode: 'insensitive' } },
+      select: { employeeId: true }
+    });
+
+    const empIdsToNotify = new Set<string>();
+    purchaseEmployees.forEach(e => { if (e.employeeId) empIdsToNotify.add(e.employeeId) });
+    purchaseUsers.forEach(u => { if (u.employeeId) empIdsToNotify.add(u.employeeId) });
+
+    for (const empId of empIdsToNotify) {
+      const lineId = await getLineUserIdByEmpId(empId);
+      if (lineId) await pushLineMessage(lineId, [ackMsg]);
+    }
+    return;
+  }
+
+  if (stepKey === 'purchase_waiting') {
+    // Transition from purchase_waiting -> store_receive (Stock arrived)
+    // Notify Store + Sales + Manager
+    const { customStockArrivedMessage } = await import('@/app/lib/lineNotify');
+    const arrivedMsg = await customStockArrivedMessage(job);
+    if (salesLineId) await pushLineMessage(salesLineId, [arrivedMsg]);
+    if (supervisorLineId) await pushLineMessage(supervisorLineId, [arrivedMsg]);
+
+    const storeEmployees = await prisma.employeeSale.findMany({
+      where: { department: { contains: 'Store', mode: 'insensitive' } },
+      select: { employeeId: true }
+    });
+    const storeUsers = await prisma.user.findMany({
+      where: { role: { contains: 'store', mode: 'insensitive' } },
+      select: { employeeId: true }
+    });
+    
+    const empIdsToNotify = new Set<string>();
+    storeEmployees.forEach(e => { if (e.employeeId) empIdsToNotify.add(e.employeeId) });
+    storeUsers.forEach(u => { if (u.employeeId) empIdsToNotify.add(u.employeeId) });
+
+    for (const empId of empIdsToNotify) {
+      const lineId = await getLineUserIdByEmpId(empId);
+      if (lineId) await pushLineMessage(lineId, [arrivedMsg]);
+    }
+    return;
+  }
+
+  if (stepKey === 'store_receive') {
+    // Transition from store_receive -> next (Confirm receive)
+    // Notify Sales + Manager
+    const { customStoreReceivedMessage } = await import('@/app/lib/lineNotify');
+    const storeReceivedMsg = await customStoreReceivedMessage(job);
+    if (salesLineId) await pushLineMessage(salesLineId, [storeReceivedMsg]);
+    if (supervisorLineId) await pushLineMessage(supervisorLineId, [storeReceivedMsg]);
+    return;
+  }
+
+  // Default notification
+  const lineIdsToNotify = new Set<string>();
+  if (salesLineId) lineIdsToNotify.add(salesLineId);
+  if (supervisorLineId) lineIdsToNotify.add(supervisorLineId);
 
   if (lineIdsToNotify.size === 0) return;
 

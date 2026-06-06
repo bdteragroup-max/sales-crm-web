@@ -55,7 +55,38 @@ function formatBkkTime(date: Date) {
 // Job step update
 export function jobStepMessage(job: any, step: string, dept: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  return {
+  
+  const bodyContents: any[] = [
+    { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
+    { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+    { type: 'text', text: `ขั้นตอน: ${step}`, size: 'sm' },
+    { type: 'text', text: `แผนก: ${dept}`, size: 'sm', color: '#ef4444' },
+    { type: 'text', text: `เวลา: ${formatBkkTime(new Date())}`, size: 'xs', color: '#999999' },
+  ];
+
+  if (job.deliveryMethod) {
+    bodyContents.push({ type: 'separator', margin: 'md' });
+    const methodStr = job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' : 
+                      job.deliveryMethod === 'courier' ? 'บริษัทขนส่ง (Courier)' : 
+                      job.deliveryMethod;
+    
+    bodyContents.push({ type: 'text', text: `การจัดส่ง: ${methodStr}`, size: 'sm', color: '#0369a1', weight: 'bold', margin: 'md' });
+    
+    if (job.deliveryMethod === 'in-house' && job.deliveryDate) {
+      bodyContents.push({ type: 'text', text: `วันที่จัดส่ง: ${new Date(job.deliveryDate).toLocaleDateString('th-TH')}`, size: 'sm' });
+    }
+    
+    if (job.deliveryMethod === 'courier') {
+      if (job.courierCompany) {
+        bodyContents.push({ type: 'text', text: `บริษัทขนส่ง: ${job.courierCompany}`, size: 'sm' });
+      }
+      if (job.trackingNumber) {
+        bodyContents.push({ type: 'text', text: `เลขพัสดุ: ${job.trackingNumber}`, size: 'sm' });
+      }
+    }
+  }
+
+  const message: any = {
     type: 'flex',
     altText: `📋 อัปเดตสถานะงาน ${job.jobNumber}`,
     contents: {
@@ -76,13 +107,7 @@ export function jobStepMessage(job: any, step: string, dept: string) {
       body: {
         type: 'box',
         layout: 'vertical',
-        contents: [
-          { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
-          { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
-          { type: 'text', text: `ขั้นตอน: ${step}`, size: 'sm' },
-          { type: 'text', text: `แผนก: ${dept}`, size: 'sm', color: '#ef4444' },
-          { type: 'text', text: `เวลา: ${formatBkkTime(new Date())}`, size: 'xs', color: '#999999' },
-        ],
+        contents: bodyContents,
       },
       footer: {
         type: 'box',
@@ -97,6 +122,254 @@ export function jobStepMessage(job: any, step: string, dept: string) {
               label: 'ดูรายละเอียด',
               uri: `${appUrl}/jobs?jobId=${job.id}`,
             },
+          },
+        ],
+      },
+    },
+  };
+
+  if (job.trackingPhotoUrl) {
+    message.contents.hero = {
+      type: 'image',
+      url: job.trackingPhotoUrl,
+      size: 'full',
+      aspectRatio: '20:13',
+      aspectMode: 'cover'
+    };
+  }
+
+  return message;
+}
+
+export function customSalesPRMessage(job: any, role: 'sales' | 'manager' | 'purchase') {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  let headerText = '⚠️ แจ้งเตือนสินค้าหมดสต๊อก';
+  let bodyText = '';
+  let bgColor = '#f59e0b'; // amber/warning
+
+  if (role === 'sales') {
+    bodyText = 'สโตร์ไม่มีสินค้า กรุณาเปิด PR ให้ฝ่ายจัดซื้อเพื่อสั่งซื้อสินค้า';
+  } else if (role === 'manager') {
+    bodyText = `สโตร์แจ้งว่าสินค้าหมดสต๊อก ฝ่ายขายกำลังดำเนินการเปิด PR`;
+  } else if (role === 'purchase') {
+    headerText = '🛒 เตรียมรับ PR ใหม่';
+    bgColor = '#3b82f6'; // blue
+    bodyText = `สโตร์แจ้งว่าสินค้าหมด ฝ่ายขายกำลังเตรียมเปิด PR สำหรับงานนี้`;
+  }
+
+  const bodyContents: any[] = [
+    { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
+    { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+    { type: 'separator', margin: 'md' },
+    { type: 'text', text: bodyText, size: 'sm', wrap: true, margin: 'md', weight: 'bold', color: '#ef4444' },
+    { type: 'text', text: `เวลา: ${formatBkkTime(new Date())}`, size: 'xs', color: '#999999', margin: 'md' },
+  ];
+
+  return {
+    type: 'flex',
+    altText: `⚠️ แจ้งเตือนงาน ${job.jobNumber}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: bgColor,
+        contents: [
+          {
+            type: 'text',
+            text: headerText,
+            color: '#ffffff',
+            weight: 'bold',
+          },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: bodyContents,
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: bgColor,
+            action: {
+              type: 'uri',
+              label: 'ดูรายละเอียดงาน',
+              uri: `${appUrl}/jobs?jobId=${job.id}`,
+            },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function customPurchasePOMessage(job: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `🛒 แจ้งเตือน PO งาน ${job.jobNumber}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#3b82f6', // blue
+        contents: [
+          { type: 'text', text: '🛒 ฝ่ายจัดซื้อบันทึก PO แล้ว', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `ฝ่ายจัดซื้อได้ทำการบันทึก PO เรียบร้อยแล้ว กรุณาตรวจสอบและกดยืนยันรับทราบ PO`, size: 'sm', wrap: true, margin: 'md', weight: 'bold', color: '#ef4444' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#3b82f6',
+            action: { type: 'uri', label: 'ตรวจสอบและยืนยัน', uri: `${appUrl}/jobs?jobId=${job.id}` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function customSalesAcknowledgeMessage(job: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `✅ ฝ่ายขายรับทราบ PO งาน ${job.jobNumber}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#10b981', // green
+        contents: [
+          { type: 'text', text: '✅ ฝ่ายขายรับทราบ PO แล้ว', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `ฝ่ายขายได้ตรวจสอบและยืนยันรับทราบ PO แล้ว กรุณาดำเนินการรอสินค้าเข้าสโตร์ต่อไป`, size: 'sm', wrap: true, margin: 'md', weight: 'bold', color: '#10b981' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#10b981',
+            action: { type: 'uri', label: 'ดูรายละเอียดงาน', uri: `${appUrl}/jobs?jobId=${job.id}` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function customStockArrivedMessage(job: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `📦 สินค้าเข้าแล้ว งาน ${job.jobNumber}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#10b981', // green
+        contents: [
+          { type: 'text', text: '📦 สินค้ามาถึงแล้ว', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `ฝ่ายจัดซื้อแจ้งว่าสินค้าเข้ามาถึงแล้ว สโตร์กรุณาตรวจสอบและรับสินค้า`, size: 'sm', wrap: true, margin: 'md', weight: 'bold', color: '#10b981' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#10b981',
+            action: { type: 'uri', label: 'ดูรายละเอียดงาน', uri: `${appUrl}/jobs?jobId=${job.id}` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function customStoreReceivedMessage(job: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `✅ สโตร์รับสินค้า งาน ${job.jobNumber}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#8b5cf6', // purple
+        contents: [
+          { type: 'text', text: '✅ สโตร์รับสินค้าครบถ้วน', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `สโตร์ได้รับและตรวจสอบสินค้าครบถ้วน พร้อมดำเนินการขั้นตอนต่อไป`, size: 'sm', wrap: true, margin: 'md', weight: 'bold', color: '#8b5cf6' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#8b5cf6',
+            action: { type: 'uri', label: 'ดูรายละเอียดงาน', uri: `${appUrl}/jobs?jobId=${job.id}` },
           },
         ],
       },

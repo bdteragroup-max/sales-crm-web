@@ -269,7 +269,7 @@ export default function PipelineClientPage({
     await executeMove(id, nextDbStatus)
   }
 
-  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string, paymentMethod?: string }) => {
+  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string, paymentMethod?: string, installments?: any[] }) => {
     const oldQuotations = [...quotations]
     setQuotations(prev => {
       const updated = prev.map(q => q.id === id ? { 
@@ -843,7 +843,9 @@ export default function PipelineClientPage({
             executeMove(pendingTransition.id, data.subStatus, { 
               poNumber: data.poNumber, 
               poDate: data.poDate,
-              jobType: data.jobType
+              jobType: data.jobType,
+              paymentMethod: data.paymentMethod,
+              installments: data.installments
             });
             setPendingTransition(null);
           }}
@@ -858,7 +860,8 @@ export default function PipelineClientPage({
             executeMove(pendingTransition.id, 'เปิดบิลแล้ว', { 
               poNumber: data.poNumber, 
               poDate: data.poDate,
-              jobType: data.jobType
+              jobType: data.jobType,
+              paymentMethod: data.paymentMethod
             });
             setPendingTransition(null);
           }}
@@ -943,7 +946,7 @@ function QuotationTransitionModal({ quotation, onConfirm, onCancel }: { quotatio
 function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCancel }: { 
   quotation: any, 
   isClosedStatus?: boolean,
-  onConfirm: (data: { poNumber: string, poDate: string, subStatus: string, jobType: string, paymentMethod?: string }) => void, 
+  onConfirm: (data: { poNumber: string, poDate: string, subStatus: string, jobType: string, paymentMethod?: string, installments?: any[] }) => void, 
   onCancel: () => void 
 }) {
   const [poNumber, setPoNumber] = useState(quotation.poNumber || '')
@@ -957,6 +960,28 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
   const [subStatus, setSubStatus] = useState('รอจัดทำ PO')
   const [jobType, setJobType] = useState<string>(JOB_TYPES[0])
   const [paymentMethod, setPaymentMethod] = useState<string>('เครดิต 30 วัน')
+  const [installmentCount, setInstallmentCount] = useState<number>(3)
+  const [installments, setInstallments] = useState<any[]>([
+    { installmentNo: 1, amount: '', dueDate: defaultDate },
+    { installmentNo: 2, amount: '', dueDate: '' },
+    { installmentNo: 3, amount: '', dueDate: '' }
+  ])
+
+  const handleInstallmentCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const count = parseInt(e.target.value);
+    setInstallmentCount(count);
+    const newInstallments = [];
+    for (let i = 1; i <= count; i++) {
+      newInstallments.push(installments[i - 1] || { installmentNo: i, amount: '', dueDate: '' });
+    }
+    setInstallments(newInstallments);
+  }
+
+  const handleInstallmentChange = (index: number, field: string, value: string) => {
+    const newInstallments = [...installments];
+    newInstallments[index] = { ...newInstallments[index], [field]: value };
+    setInstallments(newInstallments);
+  }
 
   const PO_SUB_STATUSES = [
     'รอจัดทำ PO',
@@ -1073,6 +1098,44 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
                 </button>
               ))}
             </div>
+            
+            {paymentMethod === 'ผ่อนชำระ' && (
+              <div className="mt-4 p-4 bg-orange-50 border border-orange-100 rounded-xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-orange-800 uppercase tracking-widest">จำนวนงวด</label>
+                  <select 
+                    value={installmentCount} 
+                    onChange={handleInstallmentCountChange}
+                    className="px-3 py-1.5 border border-orange-200 rounded-lg text-sm font-bold bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  >
+                    {[2, 3, 4, 5, 6, 10, 12, 24, 36].map(num => (
+                      <option key={num} value={num}>{num} งวด</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-3">
+                  {installments.map((inst, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <div className="w-16 text-xs font-bold text-orange-700">งวดที่ {inst.installmentNo}</div>
+                      <input 
+                        type="number" 
+                        placeholder="จำนวนเงิน" 
+                        value={inst.amount}
+                        onChange={(e) => handleInstallmentChange(idx, 'amount', e.target.value)}
+                        className="flex-1 px-2 py-1.5 border border-orange-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 placeholder-orange-300"
+                      />
+                      <input 
+                        type="date" 
+                        value={inst.dueDate}
+                        onChange={(e) => handleInstallmentChange(idx, 'dueDate', e.target.value)}
+                        className="w-32 px-2 py-1.5 border border-orange-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1084,7 +1147,12 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
             ยกเลิก
           </button>
           <button
-            onClick={() => onConfirm({ poNumber, poDate, subStatus, jobType, paymentMethod })}
+            onClick={() => {
+              const formattedInstallments = paymentMethod === 'ผ่อนชำระ' 
+                ? installments.map(i => ({ ...i, amount: Number(i.amount) || 0, dueDate: i.dueDate ? new Date(i.dueDate) : new Date() }))
+                : undefined;
+              onConfirm({ poNumber, poDate, subStatus, jobType, paymentMethod, installments: formattedInstallments })
+            }}
             className={`px-4 py-2 text-xs font-black text-white ${isClosedStatus ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20' : 'bg-violet-600 hover:bg-violet-700 shadow-violet-500/20'} rounded-xl transition-all uppercase tracking-widest shadow-md`}
           >
             {isClosedStatus ? 'บันทึกการปิดการขาย' : 'บันทึก PO'}
