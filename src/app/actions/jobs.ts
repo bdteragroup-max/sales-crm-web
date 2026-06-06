@@ -232,7 +232,7 @@ export async function getJobs(filters?: {
   });
 }
 
-export const STEP_LABELS: Record<string, { label: string; dept: string }> = { 
+const STEP_LABELS: Record<string, { label: string; dept: string }> = { 
   'sales': { label: '📝 Sales - Job Entry', dept: 'Sales' },
   'store_check': { label: '🏭 Store - Inventory Check', dept: 'Store' },
   'store_confirm': { label: '✅ Store - Inventory Confirmed', dept: 'Store' },

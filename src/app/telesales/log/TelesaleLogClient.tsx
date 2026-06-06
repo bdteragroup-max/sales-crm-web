@@ -107,7 +107,7 @@ export default function TelesaleLogClient({
         callStatus,
         callOutcome,
         conversationSummary,
-        callbackAt: callStatus !== "รับสาย" ? callbackAt : undefined,
+        callbackAt: (callStatus !== "รับสาย" || (callStatus === "รับสาย" && callOutcome === "สนใจ")) && callbackAt ? callbackAt : undefined,
         forwardTo: callStatus === "รับสาย" ? forwardTo : undefined,
         contactName,
         mobilePhone,
@@ -464,6 +464,25 @@ export default function TelesaleLogClient({
                     required={callStatus === "รับสาย"}
                   />
                 </div>
+
+
+                {/* Callback Appointment if Interested */}
+                {callOutcome === "สนใจ" && (
+                  <div className="flex flex-col gap-1.5 bg-rose-50/20 border border-rose-100 p-5 rounded-3xl">
+                    <label className="text-[10px] font-black text-rose-600 uppercase tracking-widest flex items-center gap-1.5">
+                      <Clock size={12} /> วันและเวลานัดโทรกลับ (Callback Appointment)
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={callbackAt}
+                      onChange={(e) => setCallbackAt(e.target.value)}
+                      className="w-full bg-white text-xs font-bold text-slate-700 border border-slate-200 rounded-2xl py-2.5 px-4 focus:outline-none focus:border-slate-800 mt-2"
+                    />
+                    <p className="text-[10px] font-bold text-rose-400 mt-1 italic">
+                      *กรุณาระบุวันและเวลานัดหมายให้ชัดเจนเพื่อให้พนักงานโทรซ้ำตามรอบ (หากต้องการนัดโทรกลับ)
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               // UNANSWERED / CALLBACK FORM LAYOUT

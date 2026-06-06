@@ -3,6 +3,14 @@
     { 
       "path": "/api/cron/quotation-reminder", 
       "schedule": "0 1 * * *" 
-    } 
+    },
+    {
+      "path": "/api/cron/callback-reminder",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/schedule-reminder",
+      "schedule": "0 1 * * *"
+    }
   ]
 }

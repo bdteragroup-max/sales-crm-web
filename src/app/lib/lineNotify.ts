@@ -6,7 +6,7 @@ export async function pushLineMessage(
   lineUserId: string,
   messages: LineMessage[]
 ) {
-  await fetch('https://api.line.me/v2/bot/message/push', {
+  const res = await fetch('https://api.line.me/v2/bot/message/push', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -14,6 +14,11 @@ export async function pushLineMessage(
     },
     body: JSON.stringify({ to: lineUserId, messages }),
   });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error(`Failed to send LINE message to ${lineUserId}:`, res.status, errorText);
+  }
 }
 
 // Retrieve LINE User ID from TERA_db via emp_id
@@ -49,9 +54,10 @@ function formatBkkTime(date: Date) {
 
 // Job step update
 export function jobStepMessage(job: any, step: string, dept: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
   return {
     type: 'flex',
-    altText: `📋 Job ${job.jobNumber} Update`,
+    altText: `📋 อัปเดตสถานะงาน ${job.jobNumber}`,
     contents: {
       type: 'bubble',
       header: {
@@ -61,7 +67,7 @@ export function jobStepMessage(job: any, step: string, dept: string) {
         contents: [
           {
             type: 'text',
-            text: '📋 Job Update',
+            text: '📋 อัปเดตสถานะงาน',
             color: '#ffffff',
             weight: 'bold',
           },
@@ -71,11 +77,11 @@ export function jobStepMessage(job: any, step: string, dept: string) {
         type: 'box',
         layout: 'vertical',
         contents: [
-          { type: 'text', text: `Job: ${job.jobNumber}`, weight: 'bold', size: 'md' },
-          { type: 'text', text: `Customer: ${job.customerName}`, size: 'sm', color: '#666' },
-          { type: 'text', text: `step: ${step}`, size: 'sm' },
-          { type: 'text', text: `Department: ${dept}`, size: 'sm', color: '#ef4444' },
-          { type: 'text', text: `time: ${formatBkkTime(new Date())}`, size: 'xs', color: '#999' },
+          { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+          { type: 'text', text: `ขั้นตอน: ${step}`, size: 'sm' },
+          { type: 'text', text: `แผนก: ${dept}`, size: 'sm', color: '#ef4444' },
+          { type: 'text', text: `เวลา: ${formatBkkTime(new Date())}`, size: 'xs', color: '#999999' },
         ],
       },
       footer: {
@@ -88,8 +94,8 @@ export function jobStepMessage(job: any, step: string, dept: string) {
             color: '#ef4444',
             action: {
               type: 'uri',
-              label: 'View Details',
-              uri: `${process.env.NEXT_PUBLIC_APP_URL}/jobs?jobId=${job.id}`,
+              label: 'ดูรายละเอียด',
+              uri: `${appUrl}/jobs?jobId=${job.id}`,
             },
           },
         ],
@@ -99,21 +105,23 @@ export function jobStepMessage(job: any, step: string, dept: string) {
 }
 
 // Quotation reminder
-export function quotationReminderMessage(quotation: any, daysSince: number) {
-  const urgency = daysSince >= 14 ? '🔴' : daysSince >= 7 ? '🟡' : '🟢';
+export function quotationReminderMessage(quotation: any, remainingDays: number) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  const urgency = remainingDays <= 3 ? '🔴' : remainingDays <= 7 ? '🟡' : '🟢';
+  const bgColor = remainingDays <= 3 ? '#dc2626' : remainingDays <= 7 ? '#d97706' : '#16a34a';
   return {
     type: 'flex',
-    altText: `${urgency} ${quotation.quotationNumber} pending ${daysSince} days`,
+    altText: `${urgency} การแจ้งเตือนใบเสนอราคา ${quotation.quotationNumber} เหลือเวลา ${remainingDays} วัน`,
     contents: {
       type: 'bubble',
       header: {
         type: 'box',
         layout: 'vertical',
-        backgroundColor: daysSince >= 14 ? '#dc2626' : daysSince >= 7 ? '#d97706' : '#16a34a',
+        backgroundColor: bgColor,
         contents: [
           {
             type: 'text',
-            text: `${urgency} Quotation Reminder`,
+            text: `${urgency} แจ้งเตือนใบเสนอราคา`,
             color: '#ffffff',
             weight: 'bold',
           },
@@ -124,20 +132,20 @@ export function quotationReminderMessage(quotation: any, daysSince: number) {
         layout: 'vertical',
         contents: [
           { type: 'text', text: quotation.quotationNumber, weight: 'bold' },
-          { type: 'text', text: `Customer: ${quotation.company?.companyName}`, size: 'sm' },
+          { type: 'text', text: `ลูกค้า: ${quotation.company?.companyName}`, size: 'sm' },
           {
             type: 'text',
-            text: `Value: ฿${quotation.totalAmountBeforeVat?.toLocaleString()}`,
+            text: `มูลค่า: ฿${quotation.totalAmountBeforeVat?.toLocaleString()}`,
             size: 'sm',
           },
           {
             type: 'text',
-            text: `Pending: ${daysSince} days`,
+            text: `เหลือเวลาอีก: ${remainingDays} วัน`,
             size: 'sm',
             color: '#ef4444',
             weight: 'bold',
           },
-          { type: 'text', text: `Status: ${quotation.status}`, size: 'sm' },
+          { type: 'text', text: `สถานะ: ${quotation.status}`, size: 'sm' },
         ],
       },
       footer: {
@@ -150,9 +158,355 @@ export function quotationReminderMessage(quotation: any, daysSince: number) {
             color: '#ef4444',
             action: {
               type: 'uri',
-              label: 'Track Quote',
-              uri: `${process.env.NEXT_PUBLIC_APP_URL}/sales?editId=${quotation.id}`,
+              label: 'ติดตามใบเสนอราคา',
+              uri: `${appUrl}/sales?editId=${quotation.id}`,
             },
+          },
+        ],
+      },
+    },
+  };
+}
+
+// Callback daily summary
+export function callbackDailySummaryMessage(employeeName: string, callbacks: any[]) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  // Format each callback as a box
+  const callbackBoxes = callbacks.slice(0, 10).map((cb: any, index: number) => {
+    const cbDate = new Date(cb.callbackAt);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const isOverdue = cbDate.getTime() < today.getTime();
+    const timeStr = isOverdue 
+      ? cbDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) + ' ' + cbDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) 
+      : cbDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+      
+    const prefix = isOverdue ? '⚠️ เกินกำหนด:' : 'เวลา:';
+    const color = isOverdue ? '#ef4444' : '#0369a1';
+
+    return {
+      type: 'box',
+      layout: 'vertical',
+      margin: 'md',
+      spacing: 'sm',
+      contents: [
+        { type: 'text', text: `${index + 1}. ${prefix} ${timeStr} น.`, weight: 'bold', size: 'sm', color: color },
+        { type: 'text', text: `บริษัท: ${cb.company?.companyName || 'ไม่ระบุ'}`, size: 'sm' },
+        { type: 'text', text: `วัตถุประสงค์: ${cb.meetingObjective || 'ไม่ระบุ'}`, size: 'xs', color: '#666666', wrap: true },
+        { type: 'separator', margin: 'md' }
+      ]
+    };
+  });
+
+  if (callbacks.length > 10) {
+    callbackBoxes.push({
+      type: 'box',
+      layout: 'vertical',
+      margin: 'md',
+      contents: [
+        { type: 'text', text: `... และอีก ${callbacks.length - 10} รายการ`, size: 'sm', color: '#999999', align: 'center' }
+      ]
+    } as any);
+  }
+
+  return {
+    type: 'flex',
+    altText: `📞 สรุปนัดโทรกลับวันนี้ของคุณ ${employeeName} มีทั้งหมด ${callbacks.length} รายการ`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#0284c7', // Sky blue color for Telesales/Callbacks
+        contents: [
+          {
+            type: 'text',
+            text: '📞 สรุปนัดโทรกลับวันนี้',
+            color: '#ffffff',
+            weight: 'bold',
+          },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `พนักงาน: ${employeeName}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `จำนวนนัดหมาย: ${callbacks.length} รายการ`, size: 'sm', margin: 'md' },
+          { type: 'separator', margin: 'md' },
+          ...callbackBoxes
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#0284c7',
+            action: {
+              type: 'uri',
+              label: 'ดูนัดหมายทั้งหมด',
+              uri: `${appUrl}/telesales?tab=callbacks`,
+            },
+          },
+        ],
+      },
+    },
+  };
+}
+
+// Team Callback Summary for Supervisor
+export function teamCallbackSummaryMessage(supervisorName: string, employeeData: { employeeName: string, callbacks: any[] }[]) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  let totalCallbacks = 0;
+  employeeData.forEach(e => totalCallbacks += e.callbacks.length);
+
+  const employeeBoxes = employeeData.map(e => {
+    return {
+      type: 'box',
+      layout: 'vertical',
+      margin: 'md',
+      spacing: 'xs',
+      contents: [
+        { type: 'text', text: `👤 ${e.employeeName} (${e.callbacks.length} รายการ)`, weight: 'bold', size: 'sm', color: '#0369a1' },
+        { type: 'text', text: e.callbacks.slice(0, 5).map(cb => {
+          const cbDate = new Date(cb.callbackAt);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const isOverdue = cbDate.getTime() < today.getTime();
+          return `- ${cb.company?.companyName || 'ไม่ระบุ'} ${isOverdue ? '(เกินกำหนด)' : ''}`;
+        }).join('\n'), size: 'xs', wrap: true },
+        ...(e.callbacks.length > 5 ? [{ type: 'text', text: `...และอีก ${e.callbacks.length - 5} รายการ`, size: 'xs', color: '#999999' }] : []),
+        { type: 'separator', margin: 'md' }
+      ]
+    };
+  });
+
+  return {
+    type: 'flex',
+    altText: `📞 สรุปนัดโทรกลับทีมงานของคุณ ${supervisorName} มีทั้งหมด ${totalCallbacks} รายการ`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#0284c7', 
+        contents: [
+          { type: 'text', text: '👥 สรุปนัดโทรกลับของทีม', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หัวหน้าทีม: ${supervisorName}`, weight: 'bold', size: 'sm' },
+          { type: 'text', text: `รวมนัดหมายของทีม: ${totalCallbacks} รายการ`, size: 'xs', color: '#666666', margin: 'sm' },
+          { type: 'separator', margin: 'md' },
+          ...employeeBoxes
+        ] as any[],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#0284c7',
+            action: { type: 'uri', label: 'ดูนัดหมายทีมทั้งหมด', uri: `${appUrl}/telesales?tab=callbacks` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+// Team Quotation Summary for Supervisor
+export function teamQuotationSummaryMessage(supervisorName: string, employeeData: { employeeName: string, quotations: { q: any, remainingDays: number }[] }[]) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  let totalQuotations = 0;
+  employeeData.forEach(e => totalQuotations += e.quotations.length);
+
+  const employeeBoxes = employeeData.map(e => {
+    return {
+      type: 'box',
+      layout: 'vertical',
+      margin: 'md',
+      spacing: 'xs',
+      contents: [
+        { type: 'text', text: `👤 ${e.employeeName} (${e.quotations.length} รายการ)`, weight: 'bold', size: 'sm', color: '#c2410c' },
+        { type: 'text', text: e.quotations.slice(0, 5).map(item => {
+          return `- ${item.q.documentNo} (ใน ${item.remainingDays} วัน)`;
+        }).join('\n'), size: 'xs', wrap: true },
+        ...(e.quotations.length > 5 ? [{ type: 'text', text: `...และอีก ${e.quotations.length - 5} รายการ`, size: 'xs', color: '#999999' }] : []),
+        { type: 'separator', margin: 'md' }
+      ]
+    };
+  });
+
+  return {
+    type: 'flex',
+    altText: `⚠️ สรุปใบเสนอราคาของทีมคุณ ${supervisorName} มีทั้งหมด ${totalQuotations} รายการ`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#ea580c', 
+        contents: [
+          { type: 'text', text: '👥 สรุปใบเสนอราคาของทีม', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หัวหน้าทีม: ${supervisorName}`, weight: 'bold', size: 'sm' },
+          { type: 'text', text: `รวมรายการของทีม: ${totalQuotations} รายการ`, size: 'xs', color: '#666666', margin: 'sm' },
+          { type: 'separator', margin: 'md' },
+          ...employeeBoxes
+        ] as any[],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#ea580c',
+            action: { type: 'uri', label: 'ดูใบเสนอราคาทีมทั้งหมด', uri: `${appUrl}/sales` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+// Schedule Daily Summary
+export function scheduleDailyMessage(employeeName: string, schedules: any[]) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  const scheduleBoxes = schedules.slice(0, 10).map((sched: any, index: number) => {
+    const time = new Date(sched.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    const location = sched.company?.companyName || sched.description || 'ไม่ระบุสถานที่';
+    return {
+      type: 'box',
+      layout: 'vertical',
+      margin: 'md',
+      spacing: 'sm',
+      contents: [
+        { type: 'text', text: `${index + 1}. เวลา: ${time} น.`, weight: 'bold', size: 'sm', color: '#047857' },
+        { type: 'text', text: `เรื่อง: ${sched.title || 'ไม่ระบุ'}`, size: 'sm' },
+        { type: 'text', text: `สถานที่: ${location}`, size: 'xs', color: '#666666', wrap: true },
+        { type: 'separator', margin: 'md' }
+      ]
+    };
+  });
+
+  return {
+    type: 'flex',
+    altText: `📅 ตารางนัดหมายวันนี้ของคุณ ${employeeName} มีทั้งหมด ${schedules.length} รายการ`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#059669', // Emerald color for Schedule
+        contents: [
+          { type: 'text', text: '📅 ตารางนัดหมายวันนี้', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `พนักงาน: ${employeeName}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `จำนวนนัดหมาย: ${schedules.length} รายการ`, size: 'sm', margin: 'md' },
+          { type: 'separator', margin: 'md' },
+          ...scheduleBoxes
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#059669',
+            action: { type: 'uri', label: 'ดูนัดหมายทั้งหมด', uri: `${appUrl}/schedule` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+// Team Schedule Summary for Supervisor
+export function teamScheduleSummaryMessage(supervisorName: string, employeeData: { employeeName: string, schedules: any[] }[]) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  let totalSchedules = 0;
+  employeeData.forEach(e => totalSchedules += e.schedules.length);
+
+  const employeeBoxes = employeeData.map(e => {
+    return {
+      type: 'box',
+      layout: 'vertical',
+      margin: 'md',
+      spacing: 'xs',
+      contents: [
+        { type: 'text', text: `👤 ${e.employeeName} (${e.schedules.length} รายการ)`, weight: 'bold', size: 'sm', color: '#047857' },
+        { type: 'text', text: e.schedules.slice(0, 5).map(sched => {
+          const time = new Date(sched.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+          const location = sched.company?.companyName || 'ไม่ระบุสถานที่';
+          return `- ${time} น. ไป ${location}`;
+        }).join('\n'), size: 'xs', wrap: true },
+        ...(e.schedules.length > 5 ? [{ type: 'text', text: `...และอีก ${e.schedules.length - 5} รายการ`, size: 'xs', color: '#999999' }] : []),
+        { type: 'separator', margin: 'md' }
+      ]
+    };
+  });
+
+  return {
+    type: 'flex',
+    altText: `📅 สรุปตารางนัดหมายทีมคุณ ${supervisorName} วันนี้ มีทั้งหมด ${totalSchedules} รายการ`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#059669', 
+        contents: [
+          { type: 'text', text: '👥 สรุปนัดหมายของทีมวันนี้', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หัวหน้าทีม: ${supervisorName}`, weight: 'bold', size: 'sm' },
+          { type: 'text', text: `รวมนัดหมายของทีม: ${totalSchedules} รายการ`, size: 'xs', color: '#666666', margin: 'sm' },
+          { type: 'separator', margin: 'md' },
+          ...employeeBoxes
+        ] as any[],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#059669',
+            action: { type: 'uri', label: 'ดูตารางนัดหมายทีม', uri: `${appUrl}/schedule` },
           },
         ],
       },
