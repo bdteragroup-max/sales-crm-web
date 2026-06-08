@@ -1,6 +1,7 @@
 import { getUser } from "@/app/lib/dal"
 import prisma from "@/app/lib/db"
 import InstallationDashboardClient from "./InstallationDashboardClient" // force ts update
+import { Suspense } from "react"
 
 export default async function ServiceInstallationPage() {
   const session = await getUser()
@@ -56,7 +57,9 @@ export default async function ServiceInstallationPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-8">
-      <InstallationDashboardClient orders={mergedOrders} users={users} currentUser={session} />
+      <Suspense fallback={null}>
+        <InstallationDashboardClient orders={mergedOrders} users={users} currentUser={session} />
+      </Suspense>
     </div>
   )
 }

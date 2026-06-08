@@ -171,10 +171,10 @@ function ExpandedRow({
     onUpdate(job.id, { [field]: value }); 
 
   return ( 
-    <tr> 
-      <td colSpan={10} className="bg-gray-50 border-b px-6 py-4 shadow-inner"> 
-        <div className="mb-5 pb-5 border-b border-gray-100">
-          <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">สถานะการดำเนินงาน</p>
+    <div className="bg-gray-50/50 p-5 w-full"> 
+      <div className="mb-5 pb-5 border-b border-gray-100">
+        <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">สถานะการดำเนินงาน (Timeline)</p>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
           <JobTimeline
             jobId={job.id}
             jobType={job.jobType}
@@ -192,66 +192,69 @@ function ExpandedRow({
             installationOrders={job.installationOrders}
             repairOrder={job.repairOrder}
           />
-
-          {job.deliveryMethod && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <p className="text-[10px] text-gray-400 mb-2 font-medium uppercase tracking-wide">ข้อมูลการจัดส่ง</p>
-              <div className="flex flex-wrap gap-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                <div>
-                  <p className="text-[10px] text-gray-400 font-medium">รูปแบบ</p>
-                  <p className="text-xs font-bold text-gray-700">{job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' : 'บริษัทขนส่ง (Courier)'}</p>
-                </div>
-                {job.deliveryMethod === 'in-house' && job.deliveryDate && (
-                  <div>
-                    <p className="text-[10px] text-gray-400 font-medium">วันที่จัดส่ง</p>
-                    <p className="text-xs font-bold text-gray-700">{formatDate(job.deliveryDate)}</p>
-                  </div>
-                )}
-                {job.deliveryMethod === 'courier' && (
-                  <>
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-medium">บริษัทขนส่ง</p>
-                      <p className="text-xs font-bold text-brand-red">{job.courierCompany}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-medium">เลขพัสดุ</p>
-                      <p className="text-xs font-bold text-gray-700">{job.trackingNumber}</p>
-                    </div>
-                  </>
-                )}
-                {job.trackingPhotoUrl && (
-                  <div className="w-full mt-2">
-                    <p className="text-[10px] text-gray-400 font-medium mb-2">สลิป/ใบเสร็จ</p>
-                    <a href={job.trackingPhotoUrl} target="_blank" rel="noreferrer" className="inline-block border border-gray-200 rounded-lg overflow-hidden hover:border-brand-red transition-colors shadow-sm">
-                      <img src={job.trackingPhotoUrl} alt="Tracking slip" className="h-32 object-contain bg-gray-50" />
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {isManager && (
-            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
-              <span className="text-xs text-brand-red font-medium flex items-center gap-1">
-                <Edit2 size={10} /> 
-                แก้ไขสถานะแบบ Manual (สำหรับผู้จัดการ):
-              </span>
-              <select 
-                value={job.currentStep} 
-                onChange={(e) => onUpdate(job.id, { currentStep: e.target.value } as any)}
-                className="text-xs border rounded px-2 py-1 bg-white text-gray-600 focus:outline-none focus:border-brand-red"
-              >
-                <option value={job.currentStep}>-- เลือกสถานะใหม่ --</option>
-                {getSteps(job.jobType, job.flowVariant)?.map(s => (
-                  <option key={s.key} value={s.key}>{s.label}</option>
-                )) || <option value={job.currentStep}>{job.currentStep}</option>}
-              </select>
-            </div>
-          )}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4 mb-4"> 
+        {job.deliveryMethod && (
+          <div className="mt-5 pt-5 border-t border-gray-100">
+            <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">ข้อมูลการจัดส่ง</p>
+            <div className="flex flex-wrap gap-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+              <div>
+                <p className="text-[10px] text-gray-400 font-medium">รูปแบบ</p>
+                <p className="text-xs font-bold text-gray-700">{job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' : 'บริษัทขนส่ง (Courier)'}</p>
+              </div>
+              {job.deliveryMethod === 'in-house' && job.deliveryDate && (
+                <div>
+                  <p className="text-[10px] text-gray-400 font-medium">วันที่จัดส่ง</p>
+                  <p className="text-xs font-bold text-gray-700">{formatDate(job.deliveryDate)}</p>
+                </div>
+              )}
+              {job.deliveryMethod === 'courier' && (
+                <>
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">บริษัทขนส่ง</p>
+                    <p className="text-xs font-bold text-brand-red">{job.courierCompany}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">เลขพัสดุ</p>
+                    <p className="text-xs font-bold text-gray-700">{job.trackingNumber}</p>
+                  </div>
+                </>
+              )}
+              {job.trackingPhotoUrl && (
+                <div className="w-full mt-2">
+                  <p className="text-[10px] text-gray-400 font-medium mb-2">สลิป/ใบเสร็จ</p>
+                  <a href={job.trackingPhotoUrl} target="_blank" rel="noreferrer" className="inline-block border border-gray-200 rounded-lg overflow-hidden hover:border-brand-red transition-colors shadow-sm">
+                    <img src={job.trackingPhotoUrl} alt="Tracking slip" className="h-32 object-contain bg-gray-50" />
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {isManager && (
+          <div className="mt-5 pt-5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
+            <span className="text-xs text-brand-red font-bold flex items-center gap-1.5">
+              <Wrench size={12} /> 
+              แก้ไขสถานะแบบ Manual:
+            </span>
+            <select 
+              value={job.currentStep} 
+              onChange={(e) => onUpdate(job.id, { currentStep: e.target.value } as any)}
+              className="text-xs border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 font-medium focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red max-w-[250px]"
+            >
+              <option value={job.currentStep}>-- เลือกสถานะใหม่ --</option>
+              {getSteps(job.jobType, job.flowVariant)?.map(s => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              )) || <option value={job.currentStep}>{job.currentStep}</option>}
+            </select>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm mb-4">
+        <p className="text-[10px] font-bold text-gray-400 mb-4 uppercase tracking-widest">ข้อมูลงานเบื้องต้น</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4"> 
           <EditableField label="ประเภทงาน" value={job.jobType} type="select" options={JOB_TYPES as unknown as string[]} onSave={save("jobType")} /> 
           <EditableField label="หมายเลข PO" value={job.poNumber ?? ""} onSave={save("poNumber")} /> 
           <EditableField label="วันที่ปิดการขาย" value={new Date(job.dateClosed).toISOString().slice(0, 10)} type="date" onSave={save("dateClosed")} />
@@ -261,19 +264,21 @@ function ExpandedRow({
           <EditableField label="พนักงานขาย" value={job.sellerName ?? ""} onSave={save("sellerName")} />
           <EditableField label="บริษัท" value={job.companyCode} type="select" options={COMPANY_CODES} onSave={save("companyCode")} />
         </div>
+      </div>
 
-        {isManager && (
+      {isManager && (
+        <div className="flex justify-end">
           <button
             onClick={() => {
               if (confirm(`คุณต้องการลบงาน ${job.jobNumber} ใช่หรือไม่?`)) onDelete(job.id);
             }}
-            className="text-xs text-red-500 hover:underline flex items-center gap-1"
+            className="text-xs text-red-500 font-bold hover:text-white hover:bg-red-500 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
           >
             <Trash2 size={12} /> ลบงานนี้
           </button>
-        )}
-      </td>
-    </tr>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -585,104 +590,102 @@ export default function JobsClientPage({
         <span className="ml-auto text-xs font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg">{filtered.length} รายการ</span>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
-        <table className="w-full text-left text-sm min-w-[1000px]">
-          <thead>
-            <tr className="border-b border-gray-100">
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest w-12"></th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">รหัสงาน</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">สถานะ</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">บริษัท</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ประเภทงาน</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่ปิดการขาย</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ลูกค้า</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ใบเสนอราคา</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">หมายเลข PO</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">พนักงานขาย</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={10} className="text-center py-16 text-gray-400 font-medium">
-                  ไม่พบงานที่ตรงกับเงื่อนไข
-                </td>
-              </tr>
-            )}
-            {filtered.map((job) => {
-              const isOpen = expanded === job.id;
-              return (
-                <React.Fragment key={job.id}>
-                  <tr 
-                    onClick={() => setExpanded(isOpen ? null : job.id)} 
-                    className={`cursor-pointer transition-colors ${isOpen ? "bg-blue-50/50" : "hover:bg-gray-50"} ${isPending ? "opacity-60" : ""}`} 
-                  > 
-                    <td className="px-5 py-4 text-gray-400"> 
-                      {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />} 
-                    </td> 
-                    <td className="px-5 py-4 font-mono font-black text-brand-red tracking-wide text-xs"> 
-                      {job.jobNumber} 
-                    </td> 
-                    <td className="px-5 py-4">
-                      <span className={`
-                        inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border
-                        ${isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
-                          ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                          : "bg-blue-50 text-blue-600 border-blue-200"
-                        }
-                      `}>
-                        {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
-                          ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span>
-                          : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
-                        }
-                      </span>
-                    </td>
-                    <td className="px-5 py-4"> 
-                      <CompanyBadge code={job.companyCode} /> 
-                    </td> 
-                    <td className="px-5 py-4"> 
-                      <JobTypeBadge type={job.jobType} /> 
-                    </td> 
-                    <td className="px-5 py-4"> 
-                      <span className="text-[11px] font-bold text-gray-400 whitespace-nowrap">
-                        {formatDate(job.dateClosed)}
-                      </span>
-                    </td> 
-                    <td className="px-5 py-4"> 
-                      <p className="text-xs font-bold text-gray-900 truncate max-w-[180px]">
-                        {job.customerName}
-                      </p>
-                    </td> 
-                    <td className="px-5 py-4 font-mono text-[11px] font-black text-gray-800 hover:text-brand-red hover:underline transition-colors"> 
-                      {job.quotationNumber ?? "—"} 
-                    </td> 
-                    <td className="px-5 py-4 font-mono text-[11px] font-black text-gray-500"> 
-                      {job.poNumber ?? <span className="text-gray-300">—</span>}
-                    </td>
-                    <td className="px-5 py-4">
-                      <p className="text-[11px] font-bold text-gray-600">
-                        {job.sellerName ?? "—"}
-                      </p>
-                    </td>
-                  </tr>
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {filtered.length === 0 && (
+          <div className="col-span-full py-20 text-center bg-white rounded-3xl border-2 border-gray-100 border-dashed">
+            <div className="flex flex-col items-center gap-4 text-gray-300">
+              <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
+                <ClipboardList size={32} strokeWidth={1.5} />
+              </div>
+              <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+                ไม่พบงานที่ตรงกับเงื่อนไข
+              </p>
+            </div>
+          </div>
+        )}
+        {filtered.map((job) => {
+          const isOpen = expanded === job.id;
+          return (
+            <div key={job.id} className={`bg-white rounded-2xl border ${isOpen ? 'border-brand-red/50 shadow-md ring-4 ring-red-50' : 'border-gray-200 shadow-sm hover:shadow-xl hover:border-brand-red/30'} transition-all duration-300 flex flex-col overflow-hidden ${isPending ? "opacity-60" : ""}`}>
+              {/* Card Header */}
+              <div 
+                onClick={() => setExpanded(isOpen ? null : job.id)}
+                className={`p-5 border-b border-gray-100 flex justify-between items-start cursor-pointer transition-colors ${isOpen ? 'bg-gradient-to-br from-red-50/50 to-white' : 'bg-gradient-to-br from-gray-50/50 to-white hover:from-red-50/20 hover:to-white'}`}
+              >
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-mono font-black text-brand-red tracking-wide text-[13px]">{job.jobNumber}</span>
+                    <CompanyBadge code={job.companyCode} />
+                  </div>
+                  <JobTypeBadge type={job.jobType} />
+                </div>
+                <div className="text-right flex flex-col items-end">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1">วันที่ปิดการขาย</span>
+                  <span className="text-[11px] font-bold text-gray-900">{formatDate(job.dateClosed)}</span>
+                </div>
+              </div>
+              
+              {/* Card Body (Always visible summary) */}
+              <div 
+                onClick={() => setExpanded(isOpen ? null : job.id)}
+                className="p-5 flex-1 flex flex-col gap-3 cursor-pointer"
+              >
+                <div>
+                  <h3 className="text-[14px] font-black text-gray-900 mb-1 line-clamp-1" title={job.customerName}>{job.customerName}</h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs) ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-blue-50 text-blue-600 border-blue-200"}`}>
+                      {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs) ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span> : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-gray-50">
+                  <div>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">ใบเสนอราคา</span>
+                    <span className="font-mono text-[10px] font-black text-gray-800">{job.quotationNumber ?? "—"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">หมายเลข PO</span>
+                    <span className="font-mono text-[10px] font-black text-gray-500">{job.poNumber ?? "—"}</span>
+                  </div>
+                </div>
+              </div>
 
-                  {isOpen && (
-                    <ExpandedRow
-                      job={job}
-                      onUpdate={handleUpdate}
-                      onDelete={handleDelete}
-                      isManager={isManager}
-                      userName={currentUser}
-                      userDept={userDept}
-                      userRole={userRole}
-                    />
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+              {/* Card Footer */}
+              <div className="px-5 py-3 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-600 font-bold text-[9px] shadow-sm">
+                    {job.sellerName?.charAt(0) || '-'}
+                  </div>
+                  <span className="text-[10px] text-gray-600 font-bold uppercase tracking-wide truncate max-w-[100px]">{job.sellerName || "—"}</span>
+                </div>
+                <button 
+                  onClick={() => setExpanded(isOpen ? null : job.id)}
+                  className="text-[10px] font-black uppercase tracking-widest text-brand-red flex items-center gap-1 hover:text-red-700 transition-colors"
+                >
+                  {isOpen ? "ปิดรายละเอียด" : "ดูรายละเอียด"}
+                  {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </button>
+              </div>
+
+              {/* Expanded Details */}
+              {isOpen && (
+                <div className="bg-gray-50/50 border-t border-gray-100 p-0 animate-in slide-in-from-top-2 duration-200">
+                  <ExpandedRow
+                    job={job}
+                    onUpdate={handleUpdate}
+                    onDelete={handleDelete}
+                    isManager={isManager}
+                    userName={currentUser}
+                    userDept={userDept}
+                    userRole={userRole}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       </div>

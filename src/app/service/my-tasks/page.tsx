@@ -14,7 +14,7 @@ export default async function MyTasksPage() {
   // Get only orders assigned to this user
   const orders = await prisma.installationOrder.findMany({
     where: { technician: session.fullName },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { plannedStartDate: 'asc' }
   })
 
   return <MyTasksClient orders={orders} currentUser={session} />

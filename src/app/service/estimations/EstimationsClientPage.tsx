@@ -179,19 +179,47 @@ export default function EstimationsClientPage({ currentUser, initialRecords }: E
                               {record.formData["INVERTER_Input_อื่นๆ"] ? ` (${record.formData["INVERTER_Input_อื่นๆ_ระบุ"]})` : ''}
                             </div>
                           )}
-                          {record.formData["สินค้า_MDB"] && (
+                          {record.formData["สินค้า_MOTOR"] && (
                             <div className="text-[11px] bg-gray-50 p-2 rounded-lg border border-gray-100 text-gray-600">
-                              <strong className="text-gray-800">MDB:</strong> {record.formData["MDB_รายละเอียด"] || 'ไม่ระบุรายละเอียด'}
+                              <strong className="text-gray-800">MOTOR:</strong> 
+                              {record.formData["MOTOR_ยี่ห้อ"] ? ` ยี่ห้อ ${record.formData["MOTOR_ยี่ห้อ"]}` : ''}
+                              {record.formData["MOTOR_ขนาด_kW"] ? ` ขนาด ${record.formData["MOTOR_ขนาด_kW"]}kW` : ''}
+                              {record.formData["MOTOR_ขนาด_HP"] ? ` ${record.formData["MOTOR_ขนาด_HP"]}HP` : ''}
+                              {record.formData["MOTOR_ขาตั้ง"] ? ` (ขาตั้ง B3)` : ''}
+                              {record.formData["MOTOR_หน้าแปลน"] ? ` (หน้าแปลน B5/B14)` : ''}
                             </div>
                           )}
-                          {record.formData["สินค้า_DB"] && (
+                          {record.formData["สินค้า_PUMP"] && (
                             <div className="text-[11px] bg-gray-50 p-2 rounded-lg border border-gray-100 text-gray-600">
-                              <strong className="text-gray-800">DB:</strong> {record.formData["DB_รายละเอียด"] || 'ไม่ระบุรายละเอียด'}
+                              <strong className="text-gray-800">PUMP:</strong> 
+                              {record.formData["PUMP_ยี่ห้อ"] ? ` ยี่ห้อ ${record.formData["PUMP_ยี่ห้อ"]}` : ''}
+                              {record.formData["PUMP_รุ่น"] ? ` รุ่น ${record.formData["PUMP_รุ่น"]}` : ''}
                             </div>
                           )}
-                          {record.formData["สินค้า_CONTROL"] && (
+                          {record.formData["สินค้า_SOLAR_ROOF"] && (
                             <div className="text-[11px] bg-gray-50 p-2 rounded-lg border border-gray-100 text-gray-600">
-                              <strong className="text-gray-800">CONTROL:</strong> {record.formData["CONTROL_รายละเอียด_อุปกรณ์"] || 'ไม่ระบุรายละเอียด'}
+                              <strong className="text-gray-800">SOLAR ROOF:</strong> 
+                              {record.formData["SOLAR_ROOF_OnGrid"] ? ` On-Grid` : ''}
+                              {record.formData["SOLAR_ROOF_OffGrid"] ? ` Off-Grid` : ''}
+                              {record.formData["SOLAR_ROOF_kW"] ? ` ขนาด ${record.formData["SOLAR_ROOF_kW"]}kW` : ''}
+                              {record.formData["SOLAR_ROOF_ยี่ห้อแผง"] ? ` แผง ${record.formData["SOLAR_ROOF_ยี่ห้อแผง"]}` : ''}
+                              {record.formData["SOLAR_ROOF_ยี่ห้ออินเวอร์เตอร์"] ? ` อินเวอร์เตอร์ ${record.formData["SOLAR_ROOF_ยี่ห้ออินเวอร์เตอร์"]}` : ''}
+                            </div>
+                          )}
+                          {record.formData["สินค้า_SOLAR_PUMP"] && (
+                            <div className="text-[11px] bg-gray-50 p-2 rounded-lg border border-gray-100 text-gray-600">
+                              <strong className="text-gray-800">SOLAR PUMP:</strong> 
+                              {record.formData["SOLAR_PUMP_ยี่ห้อ"] ? ` ยี่ห้อ ${record.formData["SOLAR_PUMP_ยี่ห้อ"]}` : ''}
+                              {record.formData["SOLAR_PUMP_รุ่น"] ? ` รุ่น ${record.formData["SOLAR_PUMP_รุ่น"]}` : ''}
+                              {record.formData["SOLAR_PUMP_kW"] ? ` ขนาด ${record.formData["SOLAR_PUMP_kW"]}kW` : ''}
+                              {record.formData["SOLAR_PUMP_HP"] ? ` ${record.formData["SOLAR_PUMP_HP"]}HP` : ''}
+                            </div>
+                          )}
+                          {(record.formData["สินค้า_MDB"] || record.formData["สินค้า_DB"] || record.formData["สินค้า_CONTROL"]) && (
+                            <div className="text-[11px] bg-gray-50 p-2 rounded-lg border border-gray-100 text-gray-600">
+                              <strong className="text-gray-800">ตู้ MDB / DB / CONTROL:</strong> 
+                              {record.formData["ตู้_ลักษณะ"] ? ` ${record.formData["ตู้_ลักษณะ"]}` : ''}
+                              {record.formData["ตู้_กว้าง"] && record.formData["ตู้_ยาว"] && record.formData["ตู้_ลึก"] ? ` ขนาด ${record.formData["ตู้_กว้าง"]}x${record.formData["ตู้_ยาว"]}x${record.formData["ตู้_ลึก"]}mm` : ''}
                             </div>
                           )}
                           {record.note && (
@@ -223,11 +251,10 @@ export default function EstimationsClientPage({ currentUser, initialRecords }: E
                     <Link
                       href={`/sales/requirements/print/${record.id}`}
                       target="_blank"
-                      className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-white rounded-lg border border-transparent hover:border-gray-200 shadow-sm transition-all flex items-center gap-2"
-                      title="Print PDF"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-gray-700 border border-gray-200 text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-gray-50 hover:text-[#ff2301] hover:border-red-200 shadow-sm transition-all"
+                      title="Download/Print PDF"
                     >
-                      <Printer size={14} />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">PDF</span>
+                      <Printer size={14} /> ดาวน์โหลด PDF
                     </Link>
                     
                     {activeTab === 'PENDING' && (

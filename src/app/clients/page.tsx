@@ -3,6 +3,7 @@ import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import ClientsClientPage from '@/app/clients/ClientsClientPage';
 import { unstable_cache } from 'next/cache';
+import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 
@@ -288,19 +289,21 @@ export default async function ClientsPage({ searchParams }: PageProps) {
 
   return (
     <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
-      <ClientsClientPage
-        initialCompanies={JSON.parse(JSON.stringify(companies))}
-        initialContacts={JSON.parse(JSON.stringify(contacts))}
-        companiesCount={companiesCount}
-        contactsCount={contactsCount}
-        allCompanies={JSON.parse(JSON.stringify(allCompaniesMinimal))}
-        salesReps={JSON.parse(JSON.stringify(salesReps))}
-        businessTypes={JSON.parse(JSON.stringify(businessTypes))}
-        provinces={provinces}
-        currentPage={page}
-        limit={limit}
-        currentUser={user ? { id: user.id, fullName: user.fullName, role: user.role } : null}
-      />
+      <Suspense fallback={null}>
+        <ClientsClientPage
+          initialCompanies={JSON.parse(JSON.stringify(companies))}
+          initialContacts={JSON.parse(JSON.stringify(contacts))}
+          companiesCount={companiesCount}
+          contactsCount={contactsCount}
+          allCompanies={JSON.parse(JSON.stringify(allCompaniesMinimal))}
+          salesReps={JSON.parse(JSON.stringify(salesReps))}
+          businessTypes={JSON.parse(JSON.stringify(businessTypes))}
+          provinces={provinces}
+          currentPage={page}
+          limit={limit}
+          currentUser={user ? { id: user.id, fullName: user.fullName, role: user.role } : null}
+        />
+      </Suspense>
     </main>
   );
 }

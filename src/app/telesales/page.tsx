@@ -3,6 +3,7 @@ import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import TelesalesClientPage from './TelesalesClientPage';
+import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 
@@ -139,16 +140,18 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
 
   return (
     <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
-      <TelesalesClientPage 
-        userFullName={user?.fullName} 
-        initialRecords={JSON.parse(JSON.stringify(telesales))}
-        totalCount={totalCount}
-        currentPage={page}
-        limit={limit}
-        todayCallsCount={todayCallsCount}
-        todayInterestedCount={todayInterestedCount}
-        todayCallbacksCount={todayCallbacksCount}
-      />
+      <Suspense fallback={null}>
+        <TelesalesClientPage 
+          userFullName={user?.fullName} 
+          initialRecords={JSON.parse(JSON.stringify(telesales))}
+          totalCount={totalCount}
+          currentPage={page}
+          limit={limit}
+          todayCallsCount={todayCallsCount}
+          todayInterestedCount={todayInterestedCount}
+          todayCallbacksCount={todayCallbacksCount}
+        />
+      </Suspense>
     </main>
   );
 }

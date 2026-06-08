@@ -4,6 +4,7 @@ import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import DashboardClientWrapper from '@/app/components/DashboardClientWrapper';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 
@@ -1356,115 +1357,117 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   }
 
   return (
-    <>
-      <DashboardClientWrapper
-        userFullName={user.fullName}
-        userRole={user.role}
-        metrics={{
-          actualSales: { value: wonVal, target: targetMTD, pct: achMTD, short: Math.max(targetMTD - wonVal, 0) },
-          revenue: { mtd: wonVal, qtd: qtdRevenue, ytd: ytdRevenue },
-          targetAch: { mtd: achMTD, qtd: achQTD },
-          growth: { mom: momGrowth, yoy: yoyGrowth },
-          avgTicketSize: { value: avgTicketSize },
-          pipeline: { value: pipelineVal, count: pipelineCount },
-          won: { value: wonVal, count: teamWonQuotesCount },
-          lost: { value: lostVal, count: teamLostQuotesCount },
-          conversionRate: { pct: conversionRate },
-          forecast: { value: forecastValue },
-          provinces: allProvinces.map(p => p.province),
-          
-          // Enhanced enterprise metrics
-          teamWinRate,
-          teamResolvedCount: teamClosedCount,
-          funnelStages: funnelStagesData,
-          salesCycle: {
-            avgTimeToWin: finalAvgTimeToWin,
-            avgTimeToLose: finalAvgTimeToLose,
-            prevAvgTimeToWin,
-            prevAvgTimeToLose,
-            productBreakdown: productCycleTimes
-          },
-          agingDeals,
-          pipelineFlow,
-          telesalesKPIs: {
-            weeklyCallGoal,
-            monthlyCallGoal,
-            appointmentGoal,
-            connectionRateMin
-          },
-          orderMetrics: ordersAgg,
-          jobMetrics: jobsAgg
-        } as any}
-        recentActivities={recentQ}
-        nextMeetings={nextM}
-        dailyTrend={dailyTrend}
-        salesReps={salesReps}
-        salespersonIds={salespersonIds}
-        filterMonth={currentMonth}
-        filterYear={refYear}
-        filterStartDate={toBkkDateStr(filterStart)}
-        filterEndDate={toBkkDateStr(filterEnd)}
-        productMix={productMix.map(p => {
-          const name = p.productType || 'อื่นๆ';
-          const val = p._sum.actualClosingAmount || p._sum.totalAmountBeforeVat || 0;
-          const marginPct = PRODUCT_MARGINS[name] || PRODUCT_MARGINS['อื่นๆ'];
-          const grossProfit = val * (marginPct / 100);
-          return {
-            name,
-            value: val,
-            volume: p._count.id,
-            marginPct,
-            grossProfit,
-          };
-        })}
-        productWinRates={productTypes.map(pType => {
-          const pQuotes = (analyticalData as any[]).filter(q => (q.productType || 'อื่นๆ') === pType);
-          const pWinningCount = pQuotes.filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).length;
-          const pLostCount = pQuotes.filter(q => q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')).length;
-          const pClosedCount = pWinningCount + pLostCount;
-          const pWinRate = pClosedCount > 0 ? (pWinningCount / pClosedCount) * 100 : 0;
+    <main className="flex-1 overflow-y-auto bg-gray-50 pb-20 md:pb-10 relative">
+      <Suspense fallback={null}>
+        <DashboardClientWrapper
+          userFullName={user.fullName}
+          userRole={user.role}
+          metrics={{
+            actualSales: { value: wonVal, target: targetMTD, pct: achMTD, short: Math.max(targetMTD - wonVal, 0) },
+            revenue: { mtd: wonVal, qtd: qtdRevenue, ytd: ytdRevenue },
+            targetAch: { mtd: achMTD, qtd: achQTD },
+            growth: { mom: momGrowth, yoy: yoyGrowth },
+            avgTicketSize: { value: avgTicketSize },
+            pipeline: { value: pipelineVal, count: pipelineCount },
+            won: { value: wonVal, count: teamWonQuotesCount },
+            lost: { value: lostVal, count: teamLostQuotesCount },
+            conversionRate: { pct: conversionRate },
+            forecast: { value: forecastValue },
+            provinces: allProvinces.map(p => p.province),
+            
+            // Enhanced enterprise metrics
+            teamWinRate,
+            teamResolvedCount: teamClosedCount,
+            funnelStages: funnelStagesData,
+            salesCycle: {
+              avgTimeToWin: finalAvgTimeToWin,
+              avgTimeToLose: finalAvgTimeToLose,
+              prevAvgTimeToWin,
+              prevAvgTimeToLose,
+              productBreakdown: productCycleTimes
+            },
+            agingDeals,
+            pipelineFlow,
+            telesalesKPIs: {
+              weeklyCallGoal,
+              monthlyCallGoal,
+              appointmentGoal,
+              connectionRateMin
+            },
+            orderMetrics: ordersAgg,
+            jobMetrics: jobsAgg
+          } as any}
+          recentActivities={recentQ}
+          nextMeetings={nextM}
+          dailyTrend={dailyTrend}
+          salesReps={salesReps}
+          salespersonIds={salespersonIds}
+          filterMonth={currentMonth}
+          filterYear={refYear}
+          filterStartDate={toBkkDateStr(filterStart)}
+          filterEndDate={toBkkDateStr(filterEnd)}
+          productMix={productMix.map(p => {
+            const name = p.productType || 'อื่นๆ';
+            const val = p._sum.actualClosingAmount || p._sum.totalAmountBeforeVat || 0;
+            const marginPct = PRODUCT_MARGINS[name] || PRODUCT_MARGINS['อื่นๆ'];
+            const grossProfit = val * (marginPct / 100);
+            return {
+              name,
+              value: val,
+              volume: p._count.id,
+              marginPct,
+              grossProfit,
+            };
+          })}
+          productWinRates={productTypes.map(pType => {
+            const pQuotes = (analyticalData as any[]).filter(q => (q.productType || 'อื่นๆ') === pType);
+            const pWinningCount = pQuotes.filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).length;
+            const pLostCount = pQuotes.filter(q => q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')).length;
+            const pClosedCount = pWinningCount + pLostCount;
+            const pWinRate = pClosedCount > 0 ? (pWinningCount / pClosedCount) * 100 : 0;
 
-          // Company-wide product win rate
-          const cQuotes = (companyClosedQuotations as any[]).filter(q => (q.productType || 'อื่นๆ') === pType);
-          const cWinningCount = cQuotes.filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).length;
-          const cClosedCount = cQuotes.length;
-          const cWinRate = cClosedCount > 0 ? (cWinningCount / cClosedCount) * 100 : 0;
+            // Company-wide product win rate
+            const cQuotes = (companyClosedQuotations as any[]).filter(q => (q.productType || 'อื่นๆ') === pType);
+            const cWinningCount = cQuotes.filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).length;
+            const cClosedCount = cQuotes.length;
+            const cWinRate = cClosedCount > 0 ? (cWinningCount / cClosedCount) * 100 : 0;
 
-          return {
-            productType: pType,
-            wonCount: pWinningCount,
-            closedCount: pClosedCount,
-            winRate: pWinRate,
-            companyWinRate: cWinRate,
-            companyClosedCount: cClosedCount
-          };
-        }).sort((a, b) => {
-          const aRate = a.closedCount > 0 ? a.winRate : a.companyWinRate;
-          const bRate = b.closedCount > 0 ? b.winRate : b.companyWinRate;
-          return bRate - aRate;
-        })}
-        lostReasons={Object.values(lostReasonMap).sort((a, b) => b.lostValue - a.lostValue)}
-        lostReasonsAnalysis={{
-          byProduct: lostReasonsByProduct,
-          bySalesperson: lostReasonsBySalesperson
-        }}
-        regions={enrichedRegions}
-        customerSegments={Object.entries(segmentMap).map(([name, value]) => ({ name, value }))}
-        bizTypePipeline={Object.entries(bizTypePipelineMap).map(([name, value]) => ({ name, value }))}
-        bizTypeWon={Object.entries(bizTypeWonMap).map(([name, value]) => ({ name, value }))}
-        employeePerformance={employeePerformance}
-        dailyTarget={dailyTarget}
-        lostDealsWithoutReasonCount={lostDealsWithoutReasonCount}
-        forecastAccuracy={forecastAccuracyData}
-        topCustomers={topCustomers}
-        clvTiers={clvTiers}
-        newVsExisting={newVsExisting}
-        atRiskCustomers={atRiskCustomers}
-        atRiskDays={atRiskDays}
-        alerts={alerts}
-        telesalesRecords={historyTelesales}
-        telesalesBenchmark={teamTelesalesBenchmark}
-      />
-    </>
+            return {
+              productType: pType,
+              wonCount: pWinningCount,
+              closedCount: pClosedCount,
+              winRate: pWinRate,
+              companyWinRate: cWinRate,
+              companyClosedCount: cClosedCount
+            };
+          }).sort((a, b) => {
+            const aRate = a.closedCount > 0 ? a.winRate : a.companyWinRate;
+            const bRate = b.closedCount > 0 ? b.winRate : b.companyWinRate;
+            return bRate - aRate;
+          })}
+          lostReasons={Object.values(lostReasonMap).sort((a, b) => b.lostValue - a.lostValue)}
+          lostReasonsAnalysis={{
+            byProduct: lostReasonsByProduct,
+            bySalesperson: lostReasonsBySalesperson
+          }}
+          regions={enrichedRegions}
+          customerSegments={Object.entries(segmentMap).map(([name, value]) => ({ name, value }))}
+          bizTypePipeline={Object.entries(bizTypePipelineMap).map(([name, value]) => ({ name, value }))}
+          bizTypeWon={Object.entries(bizTypeWonMap).map(([name, value]) => ({ name, value }))}
+          employeePerformance={employeePerformance}
+          dailyTarget={dailyTarget}
+          lostDealsWithoutReasonCount={lostDealsWithoutReasonCount}
+          forecastAccuracy={forecastAccuracyData}
+          topCustomers={topCustomers}
+          clvTiers={clvTiers}
+          newVsExisting={newVsExisting}
+          atRiskCustomers={atRiskCustomers}
+          atRiskDays={atRiskDays}
+          alerts={alerts}
+          telesalesRecords={historyTelesales}
+          telesalesBenchmark={teamTelesalesBenchmark}
+        />
+      </Suspense>
+    </main>
   );
 }
