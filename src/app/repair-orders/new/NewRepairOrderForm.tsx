@@ -588,7 +588,7 @@ export default function NewRepairOrderForm({
               <label className="cursor-pointer border-2 border-dashed border-red-200 hover:border-red-500 hover:bg-red-50 rounded-2xl w-32 h-32 flex flex-col items-center justify-center text-red-400 hover:text-red-600 transition-all">
                 <Upload className="w-8 h-8 mb-2" />
                 <span className="text-xs font-bold uppercase tracking-wider">เพิ่มรูปภาพ</span>
-                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} capture="environment" />
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
               </label>
 
               {imagePreviews.map((preview, idx) => (
