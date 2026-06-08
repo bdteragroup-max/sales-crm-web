@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation"
 import { FileSignature, Save, ArrowLeft, Loader2, Building2, Users, ClipboardList } from "lucide-react"
 import Link from "next/link"
 import { createInstallationOrder, updateInstallationOrder } from "@/app/actions/installationOrders"
+import SearchableSelect from "@/app/components/SearchableSelect"
 
-export default function ManageInstallationForm({ initialData, isEdit, currentUser }: { initialData: any, isEdit: boolean, currentUser: any }) {
+export default function ManageInstallationForm({ initialData, isEdit, currentUser, technicians = [] }: { initialData: any, isEdit: boolean, currentUser: any, technicians?: { fullName: string, phoneNumber: string | null }[] }) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -30,10 +31,24 @@ export default function ManageInstallationForm({ initialData, isEdit, currentUse
     note: initialData.note || "",
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     if (type === "checkbox") {
       setFormData(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }))
+    } else if (name === "technician") {
+      const selectedTech = technicians.find(t => t.fullName === value);
+      setFormData(prev => ({ 
+        ...prev, 
+        technician: value,
+        technicianPhone: selectedTech?.phoneNumber || prev.technicianPhone
+      }))
+    } else if (name === "technicianPhone") {
+      const selectedTech = technicians.find(t => t.phoneNumber === value);
+      setFormData(prev => ({ 
+        ...prev, 
+        technicianPhone: value,
+        ...(selectedTech && !prev.technician ? { technician: selectedTech.fullName } : {})
+      }))
     } else {
       setFormData(prev => ({ ...prev, [name]: value }))
     }
@@ -144,11 +159,31 @@ export default function ManageInstallationForm({ initialData, isEdit, currentUse
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-1.5">ช่าง/วิศวกร (Technician / Engineer)</label>
-              <input type="text" name="technician" value={formData.technician} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              <SearchableSelect 
+                value={formData.technician}
+                onChange={(val) => {
+                  const selectedTech = technicians.find(t => t.fullName === val)
+                  setFormData(prev => ({
+                    ...prev,
+                    technician: val,
+                    technicianPhone: selectedTech?.phoneNumber || prev.technicianPhone
+                  }))
+                }}
+                options={technicians.map(t => ({ label: t.fullName, value: t.fullName }))}
+                placeholder="-- เลือกช่าง/วิศวกร --"
+              />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-1.5">เบอร์โทร ช่าง/วิศวกร (Technician Phone)</label>
-              <input type="text" name="technicianPhone" value={formData.technicianPhone} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              <input 
+                type="text" 
+                name="technicianPhone" 
+                value={formData.technicianPhone} 
+                onChange={(e) => setFormData(prev => ({ ...prev, technicianPhone: e.target.value }))} 
+                className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" 
+                placeholder="เบอร์โทรศัพท์"
+                autoComplete="off"
+              />
             </div>
           </div>
         </div>

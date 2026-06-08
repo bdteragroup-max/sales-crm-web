@@ -42,9 +42,10 @@ export default function EditOutsourceRepairForm({ users, currentUserId, initialD
   const [status, setStatus] = useState(initialData?.status || "SENT");
 
   // Items State
-  const [items, setItems] = useState<any[]>(initialData?.items && initialData.items.length > 0 ? initialData.items : [
-    { id: crypto.randomUUID(), type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" },
-  ]);
+  const [items, setItems] = useState<any[]>(initialData?.items && initialData.items.length > 0 
+    ? initialData.items.map((item: any) => ({ ...item, id: item.id || crypto.randomUUID() }))
+    : [{ id: crypto.randomUUID(), type: "", brand: "", model: "", size: "", serial: "", qty: 1, remark: "" }]
+  );
 
   const [symptoms, setSymptoms] = useState(initialData?.symptoms || "");
   const [settings, setSettings] = useState(initialData?.settings || "");

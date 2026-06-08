@@ -1,15 +1,26 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { ClipboardList, Building2, Users, FileSignature, CheckCircle2, Clock } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { ClipboardList, Building2, Users, FileSignature, CheckCircle2, Clock, CalendarPlus, MapPin } from "lucide-react"
 import { updateInstallationOrder } from "@/app/actions/installationOrders"
+import SearchableSelect from "@/app/components/SearchableSelect"
 
 export default function InstallationDashboardClient({ orders, users, currentUser }: { orders: any[], users?: any[], currentUser: any }) {
-  const [activeTab, setActiveTab] = useState("all")
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "all")
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const router = useRouter()
+
+  useEffect(() => {
+    const tab = searchParams.get("tab")
+    if (tab) {
+      setActiveTab(tab)
+    } else {
+      setActiveTab("all")
+    }
+  }, [searchParams])
 
   // KPIs
   const totalOrders = orders.length
@@ -63,6 +74,52 @@ export default function InstallationDashboardClient({ orders, users, currentUser
       setIsUpdating(null)
     }
   }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "เปิด Job - ยังไม่เริ่มติดตั้ง": return "bg-yellow-100 text-yellow-800";
+      case "กำลังติดตั้ง": return "bg-blue-100 text-blue-800";
+      case "มีปัญหา": return "bg-red-100 text-red-800";
+      case "ปิด Job - ติดตั้งเสร็จสิ้น": return "bg-green-200 text-green-900";
+      case "ยกเลิก - PO": return "bg-red-700 text-white";
+      case "ปิด Job - ตรวจเช็คเสร็จสิ้น": return "bg-emerald-700 text-white";
+      case "กำลังตรวจเช็ค": return "bg-orange-200 text-orange-900";
+      case "เปิด Job - ยังไม่เริ่มตรวจเช็ค": return "bg-slate-200 text-slate-800";
+      case "รอดำเนินการ": return "bg-gray-100 text-gray-700";
+      default: return "bg-gray-100 text-gray-700";
+    }
+  }
+
+  const STATUS_OPTIONS = [
+    "เปิด Job - ยังไม่เริ่มติดตั้ง",
+    "กำลังติดตั้ง",
+    "มีปัญหา",
+    "ปิด Job - ติดตั้งเสร็จสิ้น",
+    "ยกเลิก - PO",
+    "ปิด Job - ตรวจเช็คเสร็จสิ้น",
+    "กำลังตรวจเช็ค",
+    "เปิด Job - ยังไม่เริ่มตรวจเช็ค"
+  ];
+
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    if (orderId.startsWith("mock-")) return;
+    setIsUpdating(orderId);
+    try {
+      await updateInstallationOrder(orderId, { status: newStatus });
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      alert("Failed to update status");
+    } finally {
+      setIsUpdating(null);
+    }
+  }
+
+  const isCompleted = (status: string) => status === 'Completed' || status === 'เสร็จสิ้น' || status === 'ปิด Job - ติดตั้งเสร็จสิ้น' || status === 'ปิด Job - ตรวจเช็คเสร็จสิ้น';
+
+  const isOwnerOrAdmin = (order: any) => {
+    return order.technician === currentUser?.fullName || currentUser?.role === 'Admin' || currentUser?.role === 'ผู้ดูแลระบบ';
+  };
 
   return (
     <div className="space-y-6">
@@ -136,7 +193,9 @@ export default function InstallationDashboardClient({ orders, users, currentUser
                     <th className="px-4 pb-3 font-bold text-gray-500">บริษัท</th>
                     <th className="px-4 pb-3 font-bold text-gray-500">ชื่องาน</th>
                     <th className="px-4 pb-3 font-bold text-gray-500 whitespace-nowrap">วิศวกร/ช่าง</th>
+                    <th className="px-4 pb-3 font-bold text-gray-500 whitespace-nowrap">เซลล์รับผิดชอบ</th>
                     <th className="px-4 pb-3 font-bold text-gray-500 whitespace-nowrap">ผู้บันทึก</th>
+                    <th className="px-4 pb-3 font-bold text-gray-500 text-center whitespace-nowrap">แผนงาน</th>
                     <th className="px-4 pb-3 font-bold text-gray-500 text-right whitespace-nowrap">สถานะ</th>
                   </tr>
                 </thead>
@@ -151,26 +210,73 @@ export default function InstallationDashboardClient({ orders, users, currentUser
                         </Link>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-gray-600">{new Date(order.installationDate).toLocaleDateString('th-TH')}</td>
-                      <td className="px-4 py-3 min-w-[150px] font-medium text-gray-900">{order.company}</td>
-                      <td className="px-4 py-3 min-w-[200px] max-w-[300px] text-gray-600 truncate" title={order.jobName}>{order.jobName}</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <select
-                          value={order.technician || ""}
-                          onChange={(e) => handleTechnicianChange(order.id, e.target.value)}
-                          disabled={isUpdating === order.id || order.id.startsWith("mock-")}
-                          className="border border-gray-200 rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent min-w-[140px] disabled:opacity-50"
-                        >
-                          <option value="">- เลือกช่าง -</option>
-                          {users?.map(user => (
-                            <option key={user.id} value={user.fullName}>{user.fullName} ({user.role})</option>
-                          ))}
-                        </select>
+                      <td className="px-3 py-3 text-gray-900 font-medium">
+                        <div className="line-clamp-2 text-xs" title={order.company}>{order.company}</div>
                       </td>
+                      <td className="px-3 py-3 text-gray-600">
+                        <Link href={`/jobs/${order.jobId}`} className="line-clamp-2 text-xs max-w-[250px] text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 transition-colors" title={`ดูรายละเอียด Job: ${order.jobName}`}>
+                          {order.jobName}
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        </Link>
+                      </td>
+                      <td className="px-3 py-3 w-[200px] relative">
+                        <SearchableSelect
+                          value={order.technician || ""}
+                          onChange={(val) => handleTechnicianChange(order.id, val)}
+                          disabled={isUpdating === order.id || order.id.startsWith("mock-")}
+                          options={users?.map(user => ({ label: `${user.fullName}`, value: user.fullName })) || []}
+                          placeholder="- เลือกช่าง -"
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">{order.job?.sellerName || '-'}</td>
                       <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{order.sender || '-'}</td>
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
+                        {!order.id.startsWith("mock-") && (
+                          <div className="flex flex-col items-center gap-1">
+                            {isOwnerOrAdmin(order) ? (
+                              <Link href={`/jobs/${order.jobId}/installation-schedule`} className={`px-3 py-1 flex items-center gap-1.5 rounded-full text-[11px] font-bold transition-colors ${order.plannedStartDate ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'}`}>
+                                {order.plannedStartDate ? (
+                                  <><FileSignature size={12} /> แก้ไขแผน (Edit Plan)</>
+                                ) : (
+                                  <><CalendarPlus size={12} /> เพิ่มแผน (Plan)</>
+                                )}
+                              </Link>
+                            ) : order.plannedStartDate ? (
+                              <Link href={`/jobs/${order.jobId}/installation-plan`} className="px-3 py-1 flex items-center gap-1.5 rounded-full text-[11px] font-bold transition-colors bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-100">
+                                <ClipboardList size={12} /> ดูแผนงาน (View)
+                              </Link>
+                            ) : (
+                              <span className="px-3 py-1 flex items-center gap-1.5 rounded-full text-[11px] font-bold text-gray-400 bg-gray-50 border border-gray-100 cursor-not-allowed">
+                                <CalendarPlus size={12} /> รอเพิ่มแผน
+                              </span>
+                            )}
+                            {order.plannedStartDate && (
+                              <span className="text-[10px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">
+                                {new Date(order.plannedStartDate).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-right whitespace-nowrap">
-                        <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full uppercase tracking-wider ${order.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                          {order.status}
-                        </span>
+                        {order.id.startsWith("mock-") ? (
+                          <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full tracking-wider ${getStatusColor("รอดำเนินการ")}`}>
+                            รอดำเนินการ
+                          </span>
+                        ) : (
+                          <select
+                            value={STATUS_OPTIONS.includes(order.status) ? order.status : "เปิด Job - ยังไม่เริ่มติดตั้ง"}
+                            onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                            disabled={isUpdating === order.id}
+                            className={`px-2 py-1 text-xs font-bold rounded-full outline-none cursor-pointer border-none appearance-none text-center ${getStatusColor(order.status)}`}
+                            style={{ textAlignLast: 'center' }}
+                          >
+                            {!STATUS_OPTIONS.includes(order.status) && <option value={order.status} className="bg-white text-gray-900">{order.status}</option>}
+                            {STATUS_OPTIONS.map(opt => (
+                              <option key={opt} value={opt} className="bg-white text-gray-900 font-normal">{opt}</option>
+                            ))}
+                          </select>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -224,7 +330,7 @@ export default function InstallationDashboardClient({ orders, users, currentUser
                     {item.orders.slice(0, 3).map((o: any, i: number) => (
                       <div key={i} className="flex justify-between items-center text-xs">
                         <span className="text-gray-600 truncate mr-2">{o.company}</span>
-                        <span className={`px-2 py-0.5 rounded-full font-bold shrink-0 ${o.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                        <span className={`px-2 py-0.5 rounded-full font-bold shrink-0 text-[10px] ${getStatusColor(o.status)}`}>
                           {o.status}
                         </span>
                       </div>

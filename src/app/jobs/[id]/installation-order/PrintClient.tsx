@@ -63,6 +63,7 @@ export default function PrintClient({ data }: { data: any }) {
         <div className="ro-info-row"><span className="ro-lbl">ชื่อลูกค้า:</span><span className="ro-val">{data?.customer || '-'}</span></div>
         <div className="ro-info-row"><span className="ro-lbl">เบอร์โทร:</span><span className="ro-val">{data?.senderPhone || '-'}</span></div>
         <div className="ro-info-row"><span className="ro-lbl">เลขที่ใบเสนอราคา:</span><span className="ro-val">{data?.quotationNo || '-'}</span></div>
+        <div className="ro-info-row"><span className="ro-lbl">เซลล์รับผิดชอบ:</span><span className="ro-val">{data?.job?.sellerName || data?.salesPerson || '-'}</span></div>
         <div className="ro-info-row"><span className="ro-lbl">ช่าง/วิศวกร:</span><span className="ro-val">{data?.technician || '-'}</span></div>
         <div className="ro-info-row ro-full"><span className="ro-lbl">ที่อยู่บริษัท:</span><span className="ro-val">{data?.address || '-'}</span></div>
         <div className="ro-info-row ro-full"><span className="ro-lbl">สถานที่หน้างาน:</span><span className="ro-val">{data?.siteAddress || '-'}</span></div>
@@ -222,7 +223,7 @@ export default function PrintClient({ data }: { data: any }) {
           justify-content: space-between;
           align-items: flex-start;
           gap: 4mm;
-          margin-bottom: 1.5mm;
+          margin-bottom: 4mm;
           flex-shrink: 0;
         }
 
@@ -279,9 +280,9 @@ export default function PrintClient({ data }: { data: any }) {
         /* ── Title ── */
         .ro-title {
           text-align: center;
-          font-size: 22px;
+          font-size: 24px;
           font-weight: 700;
-          margin: 1mm 0 2mm;
+          margin: 4mm 0 6mm;
           flex-shrink: 0;
         }
 
@@ -289,17 +290,17 @@ export default function PrintClient({ data }: { data: any }) {
         .ro-info-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 0.5mm 6mm;
-          margin-bottom: 2mm;
-          font-size: 13px;
+          gap: 3mm 8mm;
+          margin-bottom: 6mm;
+          font-size: 14px;
           flex-shrink: 0;
         }
 
         .ro-info-row {
           display: flex;
-          gap: 1.5mm;
+          gap: 2mm;
           align-items: baseline;
-          padding-bottom: 0.3mm;
+          padding-bottom: 1.5mm;
           border-bottom: 0.15mm dotted #ccc;
         }
 
@@ -309,17 +310,17 @@ export default function PrintClient({ data }: { data: any }) {
 
         /* ── Notes ── */
         .ro-notes {
-          margin-bottom: 1.5mm;
-          font-size: 13px;
+          margin-bottom: 6mm;
+          font-size: 14px;
           flex-shrink: 0;
         }
 
         .ro-notes-line {
           display: flex;
-          gap: 1.5mm;
+          gap: 2mm;
           align-items: baseline;
-          margin-bottom: 1mm;
-          padding-bottom: 0.3mm;
+          margin-bottom: 3mm;
+          padding-bottom: 1.5mm;
           border-bottom: 0.15mm dotted #ccc;
         }
 
@@ -328,21 +329,21 @@ export default function PrintClient({ data }: { data: any }) {
 
         /* ── Checklist ── */
         .ro-checklist-section {
-          margin-bottom: 2mm;
+          margin-bottom: 6mm;
           flex-shrink: 0;
         }
 
         .ro-checklist-title {
           font-weight: 700;
-          font-size: 13px;
-          margin-bottom: 1.5mm;
+          font-size: 15px;
+          margin-bottom: 4mm;
         }
 
         .ro-check-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 1.5mm 3mm;
-          font-size: 12px;
+          gap: 4mm 4mm;
+          font-size: 14px;
         }
 
         .ro-check-item {
@@ -352,27 +353,27 @@ export default function PrintClient({ data }: { data: any }) {
         }
 
         .ro-check-box {
-          width: 4mm;
-          height: 4mm;
+          width: 5mm;
+          height: 5mm;
           border: 0.3mm solid #555;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          font-size: 10px;
+          font-size: 12px;
           font-weight: 700;
           flex-shrink: 0;
         }
 
         .ro-check-box.ro-checked { background: #dcfce7; color: #166534; }
         .ro-check-box.ro-partial { background: #fef9c3; color: #854d0e; }
-        .ro-check-label { flex: 1; font-size: 11px; }
-        .ro-check-count { font-size: 10px; color: #555; white-space: nowrap; }
+        .ro-check-label { flex: 1; font-size: 13px; }
+        .ro-check-count { font-size: 12px; color: #555; white-space: nowrap; }
 
         /* ── Divider ── */
         .ro-divider {
           border: none;
           border-top: 0.3mm solid #ccc;
-          margin: 1.5mm 0;
+          margin: 6mm 0;
           flex-shrink: 0;
         }
 
@@ -388,26 +389,27 @@ export default function PrintClient({ data }: { data: any }) {
         .ro-sign-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 1.5mm 14mm;
-          margin-bottom: 2mm;
+          gap: 6mm 14mm;
+          margin-bottom: 4mm;
+          margin-top: 4mm;
         }
 
         .ro-sign-block { text-align: center; }
 
         .ro-sign-role {
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 700;
-          margin-bottom: 0.5mm;
+          margin-bottom: 1.5mm;
         }
 
         .ro-sign-sub {
-          font-size: 10px;
+          font-size: 12px;
           color: #888;
-          margin-bottom: 0.5mm;
+          margin-bottom: 1.5mm;
         }
 
         .ro-sig-space {
-          height: 10mm;
+          height: 16mm;
         }
 
         .ro-name-line-wrap {
@@ -456,7 +458,7 @@ export default function PrintClient({ data }: { data: any }) {
           align-items: flex-end;
           gap: 6mm;
           margin-top: auto;
-          font-size: 10px;
+          font-size: 11px;
           color: #444;
           flex-shrink: 0;
         }

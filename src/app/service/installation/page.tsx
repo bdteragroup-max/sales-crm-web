@@ -1,6 +1,6 @@
 import { getUser } from "@/app/lib/dal"
 import prisma from "@/app/lib/db"
-import InstallationDashboardClient from "./InstallationDashboardClient"
+import InstallationDashboardClient from "./InstallationDashboardClient" // force ts update
 
 export default async function ServiceInstallationPage() {
   const session = await getUser()

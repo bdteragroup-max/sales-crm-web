@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FileText, Plus, Search, CheckCircle2, FileSpreadsheet, ClipboardList, Printer, Edit2, Trash2, User, Phone } from 'lucide-react';
+import { FileText, Plus, Search, CheckCircle2, FileSpreadsheet, ClipboardList, Printer, Edit2, Trash2, User, Phone, Send, Calculator, Clock } from 'lucide-react';
 import CustomerRequirementForm from './CustomerRequirementForm';
 import Link from 'next/link';
 import { deleteCustomerRequirementHistory } from '@/app/actions/requirements';
+import { sendRequirementForEstimation } from '@/app/actions/estimations';
 
 interface CustomerRequirementClientProps {
   currentUser: any;
@@ -17,6 +18,19 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
   const [editingData, setEditingData] = useState<any>(undefined);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isSendingEstimation, setIsSendingEstimation] = useState<string | null>(null);
+
+  const handleSendToService = async (id: string) => {
+    setIsSendingEstimation(id);
+    try {
+      await sendRequirementForEstimation(id);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send to service");
+    } finally {
+      setIsSendingEstimation(null);
+    }
+  };
 
   const handleEdit = (record: any) => {
     setEditingId(record.id);
@@ -121,6 +135,8 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
                   if (record.formData?.["สินค้า_SOLAR_ROOF"]) products.push("SOLAR ROOF");
                   if (record.formData?.["สินค้า_SOLAR_PUMP"]) products.push("SOLAR PUMP");
                   
+                  const hasElectricalPanel = ['สินค้า_INVERTER','สินค้า_MDB','สินค้า_DB','สินค้า_CONTROL'].some(key => record.formData?.[key]);
+                  
                   return (
                     <div key={record.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-brand-red/30 transition-all duration-300 flex flex-col group overflow-hidden">
                       {/* Card Header */}
@@ -198,13 +214,54 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
                           </button>
                         </div>
                         
-                        <Link 
-                          href={`/sales?reqId=${record.id}`}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-red text-white text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-red-600 hover:shadow-lg hover:shadow-red-200 transition-all transform hover:-translate-y-0.5"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Plus size={14} /> สร้างใบเสนอราคา
-                        </Link>
+                        {record.hasQuotation ? (
+                          <div 
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[11px] font-black uppercase tracking-wider rounded-xl cursor-default"
+                            onClick={(e) => e.stopPropagation()}
+                            title="มีการเปิดใบเสนอราคาจากใบรับความต้องการนี้แล้ว"
+                          >
+                            <CheckCircle2 size={14} /> เปิดใบเสนอราคาแล้ว
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            {hasElectricalPanel && !record.isSentToService && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleSendToService(record.id); }}
+                                disabled={isSendingEstimation === record.id}
+                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-blue-100 transition-colors"
+                              >
+                                {isSendingEstimation === record.id ? 'กำลังส่ง...' : <><Send size={14} /> ส่งให้ช่างประเมินราคา</>}
+                              </button>
+                            )}
+
+                            {record.isSentToService && record.estimationStatus === 'PENDING' && (
+                              <div className="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-50 text-yellow-600 border border-yellow-200 text-[11px] font-black uppercase tracking-wider rounded-xl cursor-default">
+                                <Clock size={14} /> รอช่างประเมินราคา
+                              </div>
+                            )}
+
+                            {record.estimationStatus === 'ESTIMATED' && (
+                              <div className="inline-flex flex-col items-end gap-1 px-4 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl cursor-default text-right mr-2">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 flex items-center gap-1">
+                                  <Calculator size={10} /> ราคาประเมิน: ฿{record.estimatedPrice?.toLocaleString()}
+                                </span>
+                                {record.estimationNote && (
+                                  <span className="text-[9px] text-emerald-500 max-w-[150px] truncate" title={record.estimationNote}>
+                                    หมายเหตุ: {record.estimationNote}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
+                            <Link 
+                              href={`/sales?reqId=${record.id}`}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-red text-white text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-red-600 hover:shadow-lg hover:shadow-red-200 transition-all transform hover:-translate-y-0.5"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Plus size={14} /> สร้างใบเสนอราคา
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )

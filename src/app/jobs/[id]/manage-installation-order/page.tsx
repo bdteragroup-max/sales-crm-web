@@ -1,7 +1,7 @@
 import { getUser } from "@/app/lib/dal"
 import { redirect } from "next/navigation"
 import prisma from "@/app/lib/db"
-import ManageInstallationForm from "./ManageInstallationForm"
+import ManageInstallationForm from "./ManageInstallationForm";
 import Sidebar from "@/app/components/Sidebar"
 
 export default async function ManageInstallationPage({ params }: { params: Promise<{ id: string }> }) {
@@ -32,7 +32,7 @@ export default async function ManageInstallationPage({ params }: { params: Promi
 
   let initialData = null
   if (installationOrder) {
-    initialData = installationOrder
+    initialData = JSON.parse(JSON.stringify(installationOrder))
   } else {
     const company = await prisma.company.findUnique({
       where: { id: job.companyCode },
@@ -66,6 +66,11 @@ export default async function ManageInstallationPage({ params }: { params: Promi
     }
   }
 
+  const techniciansList = await prisma.user.findMany({
+    where: { isActive: true },
+    select: { fullName: true, phoneNumber: true }
+  })
+
   return (
     <div className="flex h-screen bg-slate-50 text-gray-900 font-sans overflow-hidden">
       <Sidebar 
@@ -76,7 +81,12 @@ export default async function ManageInstallationPage({ params }: { params: Promi
       />
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto py-8 px-4 md:px-8">
-          <ManageInstallationForm initialData={initialData} isEdit={!!installationOrder} currentUser={session} />
+          <ManageInstallationForm 
+            initialData={initialData} 
+            isEdit={!!installationOrder} 
+            currentUser={session} 
+            technicians={techniciansList}
+          />
         </div>
       </main>
     </div>

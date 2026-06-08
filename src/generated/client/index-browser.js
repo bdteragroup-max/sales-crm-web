@@ -486,6 +486,13 @@ exports.Prisma.InstallationOrderScalarFieldEnum = {
   nameSender: 'nameSender',
   sigReceiverUrl: 'sigReceiverUrl',
   nameReceiver: 'nameReceiver',
+  plannedStartDate: 'plannedStartDate',
+  plannedEndDate: 'plannedEndDate',
+  workLocation: 'workLocation',
+  workPlan: 'workPlan',
+  technicianNote: 'technicianNote',
+  planUpdatedAt: 'planUpdatedAt',
+  planUpdatedBy: 'planUpdatedBy',
   status: 'status',
   pdfUrl: 'pdfUrl',
   createdAt: 'createdAt',
@@ -523,6 +530,12 @@ exports.Prisma.CustomerRequirementScalarFieldEnum = {
   salesperson: 'salesperson',
   date: 'date',
   formData: 'formData',
+  isSentToService: 'isSentToService',
+  estimationStatus: 'estimationStatus',
+  estimatedPrice: 'estimatedPrice',
+  estimationNote: 'estimationNote',
+  estimatedBy: 'estimatedBy',
+  estimatedAt: 'estimatedAt',
   createdAt: 'createdAt'
 };
 

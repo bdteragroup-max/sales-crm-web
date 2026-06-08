@@ -2,10 +2,10 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, PhoneCall,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator
 } from 'lucide-react';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
@@ -45,6 +45,8 @@ const serviceNav = [
   { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },
   { icon: FileSignature, label: 'ใบส่งมอบงาน', href: '/repair-deliveries' },
   { icon: ClipboardList, label: 'แดชบอร์ดงานติดตั้ง', href: '/service/installation' },
+  { icon: Calculator, label: 'ประเมินราคางานซ่อม/ประกอบ', href: '/service/estimations' },
+  { icon: UserSquare, label: 'งานของฉัน', href: '/service/my-tasks' },
 ];
 
 const backofficeNav = [
@@ -83,6 +85,7 @@ function ResponsiveSidebar({
 }: SidebarProps & { nav: NavItem[] }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [loadingHref, setLoadingHref] = useState<string | null>(null);
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
@@ -136,8 +139,9 @@ function ResponsiveSidebar({
   }, []);
 
   // Find the most specific active route
+  const currentFullPath = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
   const sortedNav = [...nav].sort((a, b) => b.href.length - a.href.length);
-  const bestMatchHref = sortedNav.find(n => pathname === n.href || pathname.startsWith(n.href + '/'))?.href || activeRoute;
+  const bestMatchHref = sortedNav.find(n => currentFullPath === n.href || pathname === n.href || pathname.startsWith(n.href + '/'))?.href || activeRoute;
 
   return (
     <>

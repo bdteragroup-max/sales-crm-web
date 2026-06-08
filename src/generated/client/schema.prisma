@@ -489,6 +489,15 @@ model InstallationOrder {
   sigReceiverUrl String?
   nameReceiver   String?
 
+  // Technician Planning Fields
+  plannedStartDate DateTime? @db.Timestamptz(6)
+  plannedEndDate   DateTime? @db.Timestamptz(6)
+  workLocation     String?
+  workPlan         String?
+  technicianNote   String?
+  planUpdatedAt    DateTime? @db.Timestamptz(6)
+  planUpdatedBy    String?
+
   status String  @default("Draft")
   pdfUrl String?
 
@@ -528,16 +537,22 @@ model OutsourceRepair {
 }
 
 model CustomerRequirement {
-  id                String   @id @default(cuid())
-  requirementNumber String?  @unique
+  id                String    @id @default(cuid())
+  requirementNumber String?   @unique
   userId            String?
   companyName       String
   contactName       String
   salesperson       String
-  date              DateTime @db.Timestamptz(6)
+  date              DateTime  @db.Timestamptz(6)
   formData          Json
-  createdAt         DateTime @default(now()) @db.Timestamptz(6)
-  user              User?    @relation(fields: [userId], references: [id])
+  isSentToService   Boolean   @default(false)
+  estimationStatus  String?
+  estimatedPrice    Float?
+  estimationNote    String?
+  estimatedBy       String?
+  estimatedAt       DateTime? @db.Timestamptz(6)
+  createdAt         DateTime  @default(now()) @db.Timestamptz(6)
+  user              User?     @relation(fields: [userId], references: [id])
 
   @@index([companyName])
   @@index([userId])

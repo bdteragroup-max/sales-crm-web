@@ -40,6 +40,8 @@ type Job = {
   stepLogs: StepLog[];
   paymentMethod?: string | null;
   paymentTasks?: any[];
+  installationOrders?: any[];
+  repairOrder?: any;
 };
 
 const COMPANY_CODES = ["TP", "TG", "TE"];
@@ -187,6 +189,8 @@ function ExpandedRow({
             customerName={job.customerName}
             sellerName={job.sellerName || undefined}
             paymentTasks={job.paymentTasks}
+            installationOrders={job.installationOrders}
+            repairOrder={job.repairOrder}
           />
 
           {job.deliveryMethod && (

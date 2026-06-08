@@ -123,12 +123,13 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
 
 
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex flex-wrap items-center gap-3 mb-6">
+      <form onSubmit={handleSubmit} className="space-y-6 pb-20">
+        {/* Sticky Action Bar */}
+        <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl p-4 border border-red-100 shadow-md shadow-red-500/5 rounded-2xl flex flex-wrap items-center gap-3 mb-6 transition-all">
           <LoadingButton
             type="submit"
             loading={loading}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-red-200 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100"
+            className="bg-[#ff2301] hover:bg-red-700 text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-red-200 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100"
           >
             {!loading && <Save size={18} />}
             ส่งใบรับความต้องการ
@@ -138,13 +139,13 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
             onClick={() => {
               if (onSuccess) onSuccess();
             }}
-            className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow-sm transition-all"
+            className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow-sm transition-all hover:-translate-y-0.5"
           >
             <X size={18} />
             ยกเลิก
           </button>
           {success && (
-            <div className="text-sm font-bold px-4 py-2.5 rounded-xl bg-green-50 text-green-700 border border-green-100 ml-auto animate-in fade-in slide-in-from-right-4 flex items-center gap-2">
+            <div className="text-sm font-bold px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 ml-auto animate-in fade-in slide-in-from-right-4 flex items-center gap-2">
               <CheckCircle2 size={16} /> บันทึกข้อมูลสำเร็จ!
             </div>
           )}
@@ -159,7 +160,7 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
           <div className="space-y-6">
 
             {/* === 1. ข้อมูลลูกค้าทั่วไป === */}
-            <Card title="ข้อมูลลูกค้า (Customer Info)">
+            <Card title="1. ข้อมูลลูกค้า (Customer Info)" collapsible defaultExpanded={true}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-xs font-bold text-gray-600 mb-1">เลขที่ใบรับความต้องการ (Requirement Number)</label>
@@ -312,7 +313,7 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
           </div>
           <div className="space-y-6">
             {/* === 2. เลือกสินค้าที่ต้องการ === */}
-            <Card title="เลือกประเภทสินค้า (Product Types)">
+            <Card title="2. เลือกประเภทสินค้า (Product Types)" collapsible defaultExpanded={true}>
               <div className="flex flex-wrap gap-4 p-5 bg-red-50/30 rounded-xl border border-red-100">
                 {[
                   { id: 'สินค้า_INVERTER', label: 'INVERTER' },
@@ -334,7 +335,7 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
 
             {/* === CONDITIONAL RENDER FOR INVERTER === */}
             {data["สินค้า_INVERTER"] && (
-              <Card title="รายละเอียด INVERTER">
+              <Card title="รายละเอียด INVERTER" collapsible defaultExpanded={true}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-600 mb-1">ยี่ห้อ (Brand)</label>
@@ -447,7 +448,7 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
 
             {/* === CONDITIONAL RENDER FOR MOTOR === */}
             {data["สินค้า_MOTOR"] && (
-              <Card title="รายละเอียด MOTOR">
+              <Card title="รายละเอียด MOTOR" collapsible defaultExpanded={true}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-600 mb-1">ยี่ห้อ (Brand)</label>
@@ -521,7 +522,7 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
 
             {/* === CONDITIONAL RENDER FOR PUMP === */}
             {data["สินค้า_PUMP"] && (
-              <Card title="รายละเอียด PUMP">
+              <Card title="รายละเอียด PUMP" collapsible defaultExpanded={true}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-600 mb-1">ยี่ห้อ (Brand)</label>
@@ -580,7 +581,7 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
 
             {/* === CONDITIONAL RENDER FOR MDB/DB/CONTROL === */}
             {(data["สินค้า_MDB"] || data["สินค้า_DB"] || data["สินค้า_CONTROL"]) && (
-              <Card title="รายละเอียดตู้ MDB / DB / CONTROL">
+              <Card title="รายละเอียดตู้ MDB / DB / CONTROL" collapsible defaultExpanded={true}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-xs font-bold text-gray-600 mb-2">พื้นที่ติดตั้ง</label>
@@ -659,7 +660,7 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
 
             {/* === CONDITIONAL RENDER FOR SOLAR ROOF === */}
             {data["สินค้า_SOLAR_ROOF"] && (
-              <Card title="รายละเอียด SOLAR ROOF">
+              <Card title="รายละเอียด SOLAR ROOF" collapsible defaultExpanded={true}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-xs font-bold text-gray-600 mb-2">ระบบที่ต้องการ</label>
@@ -691,7 +692,7 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
 
             {/* === CONDITIONAL RENDER FOR SOLAR PUMP === */}
             {data["สินค้า_SOLAR_PUMP"] && (
-              <Card title="รายละเอียด SOLAR PUMP">
+              <Card title="รายละเอียด SOLAR PUMP" collapsible defaultExpanded={true}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-600 mb-1">ยี่ห้อ (Brand)</label>
@@ -749,7 +750,7 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
 
 
             {/* === 4. หมายเหตุ (บังคับ) === */}
-            <Card title="หมายเหตุเพิ่มเติม (Notes) *">
+            <Card title="หมายเหตุเพิ่มเติม (Notes) *" collapsible defaultExpanded={true}>
               <div className="flex flex-col gap-4">
                 <textarea
                   name="หมายเหตุ"

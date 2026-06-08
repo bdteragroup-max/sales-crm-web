@@ -63,9 +63,9 @@ export default function OutsourceRepairsClientPage({ initialData, currentUser }:
         {/* ── KPI Summary Strip ── */}
         <div className="shrink-0 grid grid-cols-2 md:grid-cols-3 border-b border-gray-100 divide-x divide-y md:divide-y-0 divide-gray-100">
           {[
-            { label: "ทั้งหมด (Total)", value: totalCount, icon: <FileText size={14} />, color: "text-gray-400", bg: "bg-gray-50" },
-            { label: "ส่งซ่อมแล้ว (Sent)", value: sentCount, icon: <Clock size={14} />, color: "text-amber-500", bg: "bg-amber-50" },
-            { label: "รับคืนแล้ว (Returned)", value: returnedCount, icon: <CheckCircle2 size={14} />, color: "text-emerald-600", bg: "bg-emerald-50" },
+            { label: "ทั้งหมด", value: totalCount, icon: <FileText size={14} />, color: "text-gray-400", bg: "bg-gray-50" },
+            { label: "ส่งซ่อมแล้ว", value: sentCount, icon: <Clock size={14} />, color: "text-amber-500", bg: "bg-amber-50" },
+            { label: "รับคืนแล้ว", value: returnedCount, icon: <CheckCircle2 size={14} />, color: "text-emerald-600", bg: "bg-emerald-50" },
           ].map((k) => (
             <div key={k.label} className={`flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 ${k.bg}`}>
               <span className={k.color}>{k.icon}</span>
@@ -96,8 +96,8 @@ export default function OutsourceRepairsClientPage({ initialData, currentUser }:
               className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-sm font-medium outline-none"
             >
               <option value="">ทุกสถานะ</option>
-              <option value="SENT">ส่งซ่อมแล้ว (Sent)</option>
-              <option value="RETURNED">รับคืนแล้ว (Returned)</option>
+              <option value="SENT">ส่งซ่อมแล้ว</option>
+              <option value="RETURNED">รับคืนแล้ว</option>
             </select>
           </div>
           <Link
@@ -144,8 +144,8 @@ export default function OutsourceRepairsClientPage({ initialData, currentUser }:
                       item.status === 'RETURNED' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
                       'bg-gray-50 text-gray-600 border-gray-200'
                     }`}>
-                      {item.status === 'SENT' ? 'SENT' : 
-                       item.status === 'RETURNED' ? 'RETURNED' : item.status}
+                      {item.status === 'SENT' ? 'ส่งซ่อมแล้ว' : 
+                       item.status === 'RETURNED' ? 'รับคืนแล้ว' : item.status}
                     </span>
                   </td>
                   <td className="px-6 py-4">

@@ -31647,6 +31647,13 @@ export namespace Prisma {
     nameSender: string | null
     sigReceiverUrl: string | null
     nameReceiver: string | null
+    plannedStartDate: Date | null
+    plannedEndDate: Date | null
+    workLocation: string | null
+    workPlan: string | null
+    technicianNote: string | null
+    planUpdatedAt: Date | null
+    planUpdatedBy: string | null
     status: string | null
     pdfUrl: string | null
     createdAt: Date | null
@@ -31674,6 +31681,13 @@ export namespace Prisma {
     nameSender: string | null
     sigReceiverUrl: string | null
     nameReceiver: string | null
+    plannedStartDate: Date | null
+    plannedEndDate: Date | null
+    workLocation: string | null
+    workPlan: string | null
+    technicianNote: string | null
+    planUpdatedAt: Date | null
+    planUpdatedBy: string | null
     status: string | null
     pdfUrl: string | null
     createdAt: Date | null
@@ -31704,6 +31718,13 @@ export namespace Prisma {
     nameSender: number
     sigReceiverUrl: number
     nameReceiver: number
+    plannedStartDate: number
+    plannedEndDate: number
+    workLocation: number
+    workPlan: number
+    technicianNote: number
+    planUpdatedAt: number
+    planUpdatedBy: number
     status: number
     pdfUrl: number
     createdAt: number
@@ -31733,6 +31754,13 @@ export namespace Prisma {
     nameSender?: true
     sigReceiverUrl?: true
     nameReceiver?: true
+    plannedStartDate?: true
+    plannedEndDate?: true
+    workLocation?: true
+    workPlan?: true
+    technicianNote?: true
+    planUpdatedAt?: true
+    planUpdatedBy?: true
     status?: true
     pdfUrl?: true
     createdAt?: true
@@ -31760,6 +31788,13 @@ export namespace Prisma {
     nameSender?: true
     sigReceiverUrl?: true
     nameReceiver?: true
+    plannedStartDate?: true
+    plannedEndDate?: true
+    workLocation?: true
+    workPlan?: true
+    technicianNote?: true
+    planUpdatedAt?: true
+    planUpdatedBy?: true
     status?: true
     pdfUrl?: true
     createdAt?: true
@@ -31790,6 +31825,13 @@ export namespace Prisma {
     nameSender?: true
     sigReceiverUrl?: true
     nameReceiver?: true
+    plannedStartDate?: true
+    plannedEndDate?: true
+    workLocation?: true
+    workPlan?: true
+    technicianNote?: true
+    planUpdatedAt?: true
+    planUpdatedBy?: true
     status?: true
     pdfUrl?: true
     createdAt?: true
@@ -31893,6 +31935,13 @@ export namespace Prisma {
     nameSender: string | null
     sigReceiverUrl: string | null
     nameReceiver: string | null
+    plannedStartDate: Date | null
+    plannedEndDate: Date | null
+    workLocation: string | null
+    workPlan: string | null
+    technicianNote: string | null
+    planUpdatedAt: Date | null
+    planUpdatedBy: string | null
     status: string
     pdfUrl: string | null
     createdAt: Date
@@ -31940,6 +31989,13 @@ export namespace Prisma {
     nameSender?: boolean
     sigReceiverUrl?: boolean
     nameReceiver?: boolean
+    plannedStartDate?: boolean
+    plannedEndDate?: boolean
+    workLocation?: boolean
+    workPlan?: boolean
+    technicianNote?: boolean
+    planUpdatedAt?: boolean
+    planUpdatedBy?: boolean
     status?: boolean
     pdfUrl?: boolean
     createdAt?: boolean
@@ -31971,6 +32027,13 @@ export namespace Prisma {
     nameSender?: boolean
     sigReceiverUrl?: boolean
     nameReceiver?: boolean
+    plannedStartDate?: boolean
+    plannedEndDate?: boolean
+    workLocation?: boolean
+    workPlan?: boolean
+    technicianNote?: boolean
+    planUpdatedAt?: boolean
+    planUpdatedBy?: boolean
     status?: boolean
     pdfUrl?: boolean
     createdAt?: boolean
@@ -32002,6 +32065,13 @@ export namespace Prisma {
     nameSender?: boolean
     sigReceiverUrl?: boolean
     nameReceiver?: boolean
+    plannedStartDate?: boolean
+    plannedEndDate?: boolean
+    workLocation?: boolean
+    workPlan?: boolean
+    technicianNote?: boolean
+    planUpdatedAt?: boolean
+    planUpdatedBy?: boolean
     status?: boolean
     pdfUrl?: boolean
     createdAt?: boolean
@@ -32033,13 +32103,20 @@ export namespace Prisma {
     nameSender?: boolean
     sigReceiverUrl?: boolean
     nameReceiver?: boolean
+    plannedStartDate?: boolean
+    plannedEndDate?: boolean
+    workLocation?: boolean
+    workPlan?: boolean
+    technicianNote?: boolean
+    planUpdatedAt?: boolean
+    planUpdatedBy?: boolean
     status?: boolean
     pdfUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type InstallationOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "installationNo" | "jobId" | "installationDate" | "company" | "jobName" | "customer" | "customerPosition" | "address" | "siteAddress" | "quotationNo" | "sender" | "senderPhone" | "technician" | "technicianPhone" | "items" | "checklist" | "checklistImages" | "note" | "sigSenderUrl" | "nameSender" | "sigReceiverUrl" | "nameReceiver" | "status" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["installationOrder"]>
+  export type InstallationOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "installationNo" | "jobId" | "installationDate" | "company" | "jobName" | "customer" | "customerPosition" | "address" | "siteAddress" | "quotationNo" | "sender" | "senderPhone" | "technician" | "technicianPhone" | "items" | "checklist" | "checklistImages" | "note" | "sigSenderUrl" | "nameSender" | "sigReceiverUrl" | "nameReceiver" | "plannedStartDate" | "plannedEndDate" | "workLocation" | "workPlan" | "technicianNote" | "planUpdatedAt" | "planUpdatedBy" | "status" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["installationOrder"]>
   export type InstallationOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | InstallationOrder$jobArgs<ExtArgs>
   }
@@ -32079,6 +32156,13 @@ export namespace Prisma {
       nameSender: string | null
       sigReceiverUrl: string | null
       nameReceiver: string | null
+      plannedStartDate: Date | null
+      plannedEndDate: Date | null
+      workLocation: string | null
+      workPlan: string | null
+      technicianNote: string | null
+      planUpdatedAt: Date | null
+      planUpdatedBy: string | null
       status: string
       pdfUrl: string | null
       createdAt: Date
@@ -32530,6 +32614,13 @@ export namespace Prisma {
     readonly nameSender: FieldRef<"InstallationOrder", 'String'>
     readonly sigReceiverUrl: FieldRef<"InstallationOrder", 'String'>
     readonly nameReceiver: FieldRef<"InstallationOrder", 'String'>
+    readonly plannedStartDate: FieldRef<"InstallationOrder", 'DateTime'>
+    readonly plannedEndDate: FieldRef<"InstallationOrder", 'DateTime'>
+    readonly workLocation: FieldRef<"InstallationOrder", 'String'>
+    readonly workPlan: FieldRef<"InstallationOrder", 'String'>
+    readonly technicianNote: FieldRef<"InstallationOrder", 'String'>
+    readonly planUpdatedAt: FieldRef<"InstallationOrder", 'DateTime'>
+    readonly planUpdatedBy: FieldRef<"InstallationOrder", 'String'>
     readonly status: FieldRef<"InstallationOrder", 'String'>
     readonly pdfUrl: FieldRef<"InstallationOrder", 'String'>
     readonly createdAt: FieldRef<"InstallationOrder", 'DateTime'>
@@ -34238,8 +34329,18 @@ export namespace Prisma {
 
   export type AggregateCustomerRequirement = {
     _count: CustomerRequirementCountAggregateOutputType | null
+    _avg: CustomerRequirementAvgAggregateOutputType | null
+    _sum: CustomerRequirementSumAggregateOutputType | null
     _min: CustomerRequirementMinAggregateOutputType | null
     _max: CustomerRequirementMaxAggregateOutputType | null
+  }
+
+  export type CustomerRequirementAvgAggregateOutputType = {
+    estimatedPrice: number | null
+  }
+
+  export type CustomerRequirementSumAggregateOutputType = {
+    estimatedPrice: number | null
   }
 
   export type CustomerRequirementMinAggregateOutputType = {
@@ -34250,6 +34351,12 @@ export namespace Prisma {
     contactName: string | null
     salesperson: string | null
     date: Date | null
+    isSentToService: boolean | null
+    estimationStatus: string | null
+    estimatedPrice: number | null
+    estimationNote: string | null
+    estimatedBy: string | null
+    estimatedAt: Date | null
     createdAt: Date | null
   }
 
@@ -34261,6 +34368,12 @@ export namespace Prisma {
     contactName: string | null
     salesperson: string | null
     date: Date | null
+    isSentToService: boolean | null
+    estimationStatus: string | null
+    estimatedPrice: number | null
+    estimationNote: string | null
+    estimatedBy: string | null
+    estimatedAt: Date | null
     createdAt: Date | null
   }
 
@@ -34273,10 +34386,24 @@ export namespace Prisma {
     salesperson: number
     date: number
     formData: number
+    isSentToService: number
+    estimationStatus: number
+    estimatedPrice: number
+    estimationNote: number
+    estimatedBy: number
+    estimatedAt: number
     createdAt: number
     _all: number
   }
 
+
+  export type CustomerRequirementAvgAggregateInputType = {
+    estimatedPrice?: true
+  }
+
+  export type CustomerRequirementSumAggregateInputType = {
+    estimatedPrice?: true
+  }
 
   export type CustomerRequirementMinAggregateInputType = {
     id?: true
@@ -34286,6 +34413,12 @@ export namespace Prisma {
     contactName?: true
     salesperson?: true
     date?: true
+    isSentToService?: true
+    estimationStatus?: true
+    estimatedPrice?: true
+    estimationNote?: true
+    estimatedBy?: true
+    estimatedAt?: true
     createdAt?: true
   }
 
@@ -34297,6 +34430,12 @@ export namespace Prisma {
     contactName?: true
     salesperson?: true
     date?: true
+    isSentToService?: true
+    estimationStatus?: true
+    estimatedPrice?: true
+    estimationNote?: true
+    estimatedBy?: true
+    estimatedAt?: true
     createdAt?: true
   }
 
@@ -34309,6 +34448,12 @@ export namespace Prisma {
     salesperson?: true
     date?: true
     formData?: true
+    isSentToService?: true
+    estimationStatus?: true
+    estimatedPrice?: true
+    estimationNote?: true
+    estimatedBy?: true
+    estimatedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -34351,6 +34496,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: CustomerRequirementAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CustomerRequirementSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: CustomerRequirementMinAggregateInputType
@@ -34381,6 +34538,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: CustomerRequirementCountAggregateInputType | true
+    _avg?: CustomerRequirementAvgAggregateInputType
+    _sum?: CustomerRequirementSumAggregateInputType
     _min?: CustomerRequirementMinAggregateInputType
     _max?: CustomerRequirementMaxAggregateInputType
   }
@@ -34394,8 +34553,16 @@ export namespace Prisma {
     salesperson: string
     date: Date
     formData: JsonValue
+    isSentToService: boolean
+    estimationStatus: string | null
+    estimatedPrice: number | null
+    estimationNote: string | null
+    estimatedBy: string | null
+    estimatedAt: Date | null
     createdAt: Date
     _count: CustomerRequirementCountAggregateOutputType | null
+    _avg: CustomerRequirementAvgAggregateOutputType | null
+    _sum: CustomerRequirementSumAggregateOutputType | null
     _min: CustomerRequirementMinAggregateOutputType | null
     _max: CustomerRequirementMaxAggregateOutputType | null
   }
@@ -34423,6 +34590,12 @@ export namespace Prisma {
     salesperson?: boolean
     date?: boolean
     formData?: boolean
+    isSentToService?: boolean
+    estimationStatus?: boolean
+    estimatedPrice?: boolean
+    estimationNote?: boolean
+    estimatedBy?: boolean
+    estimatedAt?: boolean
     createdAt?: boolean
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }, ExtArgs["result"]["customerRequirement"]>
@@ -34436,6 +34609,12 @@ export namespace Prisma {
     salesperson?: boolean
     date?: boolean
     formData?: boolean
+    isSentToService?: boolean
+    estimationStatus?: boolean
+    estimatedPrice?: boolean
+    estimationNote?: boolean
+    estimatedBy?: boolean
+    estimatedAt?: boolean
     createdAt?: boolean
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }, ExtArgs["result"]["customerRequirement"]>
@@ -34449,6 +34628,12 @@ export namespace Prisma {
     salesperson?: boolean
     date?: boolean
     formData?: boolean
+    isSentToService?: boolean
+    estimationStatus?: boolean
+    estimatedPrice?: boolean
+    estimationNote?: boolean
+    estimatedBy?: boolean
+    estimatedAt?: boolean
     createdAt?: boolean
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }, ExtArgs["result"]["customerRequirement"]>
@@ -34462,10 +34647,16 @@ export namespace Prisma {
     salesperson?: boolean
     date?: boolean
     formData?: boolean
+    isSentToService?: boolean
+    estimationStatus?: boolean
+    estimatedPrice?: boolean
+    estimationNote?: boolean
+    estimatedBy?: boolean
+    estimatedAt?: boolean
     createdAt?: boolean
   }
 
-  export type CustomerRequirementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requirementNumber" | "userId" | "companyName" | "contactName" | "salesperson" | "date" | "formData" | "createdAt", ExtArgs["result"]["customerRequirement"]>
+  export type CustomerRequirementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requirementNumber" | "userId" | "companyName" | "contactName" | "salesperson" | "date" | "formData" | "isSentToService" | "estimationStatus" | "estimatedPrice" | "estimationNote" | "estimatedBy" | "estimatedAt" | "createdAt", ExtArgs["result"]["customerRequirement"]>
   export type CustomerRequirementInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }
@@ -34490,6 +34681,12 @@ export namespace Prisma {
       salesperson: string
       date: Date
       formData: Prisma.JsonValue
+      isSentToService: boolean
+      estimationStatus: string | null
+      estimatedPrice: number | null
+      estimationNote: string | null
+      estimatedBy: string | null
+      estimatedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["customerRequirement"]>
     composites: {}
@@ -34923,6 +35120,12 @@ export namespace Prisma {
     readonly salesperson: FieldRef<"CustomerRequirement", 'String'>
     readonly date: FieldRef<"CustomerRequirement", 'DateTime'>
     readonly formData: FieldRef<"CustomerRequirement", 'Json'>
+    readonly isSentToService: FieldRef<"CustomerRequirement", 'Boolean'>
+    readonly estimationStatus: FieldRef<"CustomerRequirement", 'String'>
+    readonly estimatedPrice: FieldRef<"CustomerRequirement", 'Float'>
+    readonly estimationNote: FieldRef<"CustomerRequirement", 'String'>
+    readonly estimatedBy: FieldRef<"CustomerRequirement", 'String'>
+    readonly estimatedAt: FieldRef<"CustomerRequirement", 'DateTime'>
     readonly createdAt: FieldRef<"CustomerRequirement", 'DateTime'>
   }
     
@@ -78124,6 +78327,13 @@ export namespace Prisma {
     nameSender: 'nameSender',
     sigReceiverUrl: 'sigReceiverUrl',
     nameReceiver: 'nameReceiver',
+    plannedStartDate: 'plannedStartDate',
+    plannedEndDate: 'plannedEndDate',
+    workLocation: 'workLocation',
+    workPlan: 'workPlan',
+    technicianNote: 'technicianNote',
+    planUpdatedAt: 'planUpdatedAt',
+    planUpdatedBy: 'planUpdatedBy',
     status: 'status',
     pdfUrl: 'pdfUrl',
     createdAt: 'createdAt',
@@ -78167,6 +78377,12 @@ export namespace Prisma {
     salesperson: 'salesperson',
     date: 'date',
     formData: 'formData',
+    isSentToService: 'isSentToService',
+    estimationStatus: 'estimationStatus',
+    estimatedPrice: 'estimatedPrice',
+    estimationNote: 'estimationNote',
+    estimatedBy: 'estimatedBy',
+    estimatedAt: 'estimatedAt',
     createdAt: 'createdAt'
   };
 
@@ -81143,6 +81359,13 @@ export namespace Prisma {
     nameSender?: StringNullableFilter<"InstallationOrder"> | string | null
     sigReceiverUrl?: StringNullableFilter<"InstallationOrder"> | string | null
     nameReceiver?: StringNullableFilter<"InstallationOrder"> | string | null
+    plannedStartDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    plannedEndDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    workLocation?: StringNullableFilter<"InstallationOrder"> | string | null
+    workPlan?: StringNullableFilter<"InstallationOrder"> | string | null
+    technicianNote?: StringNullableFilter<"InstallationOrder"> | string | null
+    planUpdatedAt?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    planUpdatedBy?: StringNullableFilter<"InstallationOrder"> | string | null
     status?: StringFilter<"InstallationOrder"> | string
     pdfUrl?: StringNullableFilter<"InstallationOrder"> | string | null
     createdAt?: DateTimeFilter<"InstallationOrder"> | Date | string
@@ -81174,6 +81397,13 @@ export namespace Prisma {
     nameSender?: SortOrderInput | SortOrder
     sigReceiverUrl?: SortOrderInput | SortOrder
     nameReceiver?: SortOrderInput | SortOrder
+    plannedStartDate?: SortOrderInput | SortOrder
+    plannedEndDate?: SortOrderInput | SortOrder
+    workLocation?: SortOrderInput | SortOrder
+    workPlan?: SortOrderInput | SortOrder
+    technicianNote?: SortOrderInput | SortOrder
+    planUpdatedAt?: SortOrderInput | SortOrder
+    planUpdatedBy?: SortOrderInput | SortOrder
     status?: SortOrder
     pdfUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -81208,6 +81438,13 @@ export namespace Prisma {
     nameSender?: StringNullableFilter<"InstallationOrder"> | string | null
     sigReceiverUrl?: StringNullableFilter<"InstallationOrder"> | string | null
     nameReceiver?: StringNullableFilter<"InstallationOrder"> | string | null
+    plannedStartDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    plannedEndDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    workLocation?: StringNullableFilter<"InstallationOrder"> | string | null
+    workPlan?: StringNullableFilter<"InstallationOrder"> | string | null
+    technicianNote?: StringNullableFilter<"InstallationOrder"> | string | null
+    planUpdatedAt?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    planUpdatedBy?: StringNullableFilter<"InstallationOrder"> | string | null
     status?: StringFilter<"InstallationOrder"> | string
     pdfUrl?: StringNullableFilter<"InstallationOrder"> | string | null
     createdAt?: DateTimeFilter<"InstallationOrder"> | Date | string
@@ -81239,6 +81476,13 @@ export namespace Prisma {
     nameSender?: SortOrderInput | SortOrder
     sigReceiverUrl?: SortOrderInput | SortOrder
     nameReceiver?: SortOrderInput | SortOrder
+    plannedStartDate?: SortOrderInput | SortOrder
+    plannedEndDate?: SortOrderInput | SortOrder
+    workLocation?: SortOrderInput | SortOrder
+    workPlan?: SortOrderInput | SortOrder
+    technicianNote?: SortOrderInput | SortOrder
+    planUpdatedAt?: SortOrderInput | SortOrder
+    planUpdatedBy?: SortOrderInput | SortOrder
     status?: SortOrder
     pdfUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -81275,6 +81519,13 @@ export namespace Prisma {
     nameSender?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
     sigReceiverUrl?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
     nameReceiver?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    plannedStartDate?: DateTimeNullableWithAggregatesFilter<"InstallationOrder"> | Date | string | null
+    plannedEndDate?: DateTimeNullableWithAggregatesFilter<"InstallationOrder"> | Date | string | null
+    workLocation?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    workPlan?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    technicianNote?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    planUpdatedAt?: DateTimeNullableWithAggregatesFilter<"InstallationOrder"> | Date | string | null
+    planUpdatedBy?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
     status?: StringWithAggregatesFilter<"InstallationOrder"> | string
     pdfUrl?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"InstallationOrder"> | Date | string
@@ -81418,6 +81669,12 @@ export namespace Prisma {
     salesperson?: StringFilter<"CustomerRequirement"> | string
     date?: DateTimeFilter<"CustomerRequirement"> | Date | string
     formData?: JsonFilter<"CustomerRequirement">
+    isSentToService?: BoolFilter<"CustomerRequirement"> | boolean
+    estimationStatus?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedPrice?: FloatNullableFilter<"CustomerRequirement"> | number | null
+    estimationNote?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedBy?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedAt?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
     createdAt?: DateTimeFilter<"CustomerRequirement"> | Date | string
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
@@ -81431,6 +81688,12 @@ export namespace Prisma {
     salesperson?: SortOrder
     date?: SortOrder
     formData?: SortOrder
+    isSentToService?: SortOrder
+    estimationStatus?: SortOrderInput | SortOrder
+    estimatedPrice?: SortOrderInput | SortOrder
+    estimationNote?: SortOrderInput | SortOrder
+    estimatedBy?: SortOrderInput | SortOrder
+    estimatedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
@@ -81447,6 +81710,12 @@ export namespace Prisma {
     salesperson?: StringFilter<"CustomerRequirement"> | string
     date?: DateTimeFilter<"CustomerRequirement"> | Date | string
     formData?: JsonFilter<"CustomerRequirement">
+    isSentToService?: BoolFilter<"CustomerRequirement"> | boolean
+    estimationStatus?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedPrice?: FloatNullableFilter<"CustomerRequirement"> | number | null
+    estimationNote?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedBy?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedAt?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
     createdAt?: DateTimeFilter<"CustomerRequirement"> | Date | string
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "requirementNumber">
@@ -81460,10 +81729,18 @@ export namespace Prisma {
     salesperson?: SortOrder
     date?: SortOrder
     formData?: SortOrder
+    isSentToService?: SortOrder
+    estimationStatus?: SortOrderInput | SortOrder
+    estimatedPrice?: SortOrderInput | SortOrder
+    estimationNote?: SortOrderInput | SortOrder
+    estimatedBy?: SortOrderInput | SortOrder
+    estimatedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: CustomerRequirementCountOrderByAggregateInput
+    _avg?: CustomerRequirementAvgOrderByAggregateInput
     _max?: CustomerRequirementMaxOrderByAggregateInput
     _min?: CustomerRequirementMinOrderByAggregateInput
+    _sum?: CustomerRequirementSumOrderByAggregateInput
   }
 
   export type CustomerRequirementScalarWhereWithAggregatesInput = {
@@ -81478,6 +81755,12 @@ export namespace Prisma {
     salesperson?: StringWithAggregatesFilter<"CustomerRequirement"> | string
     date?: DateTimeWithAggregatesFilter<"CustomerRequirement"> | Date | string
     formData?: JsonWithAggregatesFilter<"CustomerRequirement">
+    isSentToService?: BoolWithAggregatesFilter<"CustomerRequirement"> | boolean
+    estimationStatus?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
+    estimatedPrice?: FloatNullableWithAggregatesFilter<"CustomerRequirement"> | number | null
+    estimationNote?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
+    estimatedBy?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
+    estimatedAt?: DateTimeNullableWithAggregatesFilter<"CustomerRequirement"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"CustomerRequirement"> | Date | string
   }
 
@@ -87490,6 +87773,13 @@ export namespace Prisma {
     nameSender?: string | null
     sigReceiverUrl?: string | null
     nameReceiver?: string | null
+    plannedStartDate?: Date | string | null
+    plannedEndDate?: Date | string | null
+    workLocation?: string | null
+    workPlan?: string | null
+    technicianNote?: string | null
+    planUpdatedAt?: Date | string | null
+    planUpdatedBy?: string | null
     status?: string
     pdfUrl?: string | null
     createdAt?: Date | string
@@ -87521,6 +87811,13 @@ export namespace Prisma {
     nameSender?: string | null
     sigReceiverUrl?: string | null
     nameReceiver?: string | null
+    plannedStartDate?: Date | string | null
+    plannedEndDate?: Date | string | null
+    workLocation?: string | null
+    workPlan?: string | null
+    technicianNote?: string | null
+    planUpdatedAt?: Date | string | null
+    planUpdatedBy?: string | null
     status?: string
     pdfUrl?: string | null
     createdAt?: Date | string
@@ -87550,6 +87847,13 @@ export namespace Prisma {
     nameSender?: NullableStringFieldUpdateOperationsInput | string | null
     sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    plannedEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
+    planUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87581,6 +87885,13 @@ export namespace Prisma {
     nameSender?: NullableStringFieldUpdateOperationsInput | string | null
     sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    plannedEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
+    planUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87611,6 +87922,13 @@ export namespace Prisma {
     nameSender?: string | null
     sigReceiverUrl?: string | null
     nameReceiver?: string | null
+    plannedStartDate?: Date | string | null
+    plannedEndDate?: Date | string | null
+    workLocation?: string | null
+    workPlan?: string | null
+    technicianNote?: string | null
+    planUpdatedAt?: Date | string | null
+    planUpdatedBy?: string | null
     status?: string
     pdfUrl?: string | null
     createdAt?: Date | string
@@ -87640,6 +87958,13 @@ export namespace Prisma {
     nameSender?: NullableStringFieldUpdateOperationsInput | string | null
     sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    plannedEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
+    planUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87670,6 +87995,13 @@ export namespace Prisma {
     nameSender?: NullableStringFieldUpdateOperationsInput | string | null
     sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    plannedEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
+    planUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87837,6 +88169,12 @@ export namespace Prisma {
     salesperson: string
     date: Date | string
     formData: JsonNullValueInput | InputJsonValue
+    isSentToService?: boolean
+    estimationStatus?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimatedBy?: string | null
+    estimatedAt?: Date | string | null
     createdAt?: Date | string
     user?: UserCreateNestedOneWithoutCustomerRequirementsInput
   }
@@ -87850,6 +88188,12 @@ export namespace Prisma {
     salesperson: string
     date: Date | string
     formData: JsonNullValueInput | InputJsonValue
+    isSentToService?: boolean
+    estimationStatus?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimatedBy?: string | null
+    estimatedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -87861,6 +88205,12 @@ export namespace Prisma {
     salesperson?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     formData?: JsonNullValueInput | InputJsonValue
+    isSentToService?: BoolFieldUpdateOperationsInput | boolean
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutCustomerRequirementsNestedInput
   }
@@ -87874,6 +88224,12 @@ export namespace Prisma {
     salesperson?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     formData?: JsonNullValueInput | InputJsonValue
+    isSentToService?: BoolFieldUpdateOperationsInput | boolean
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -87886,6 +88242,12 @@ export namespace Prisma {
     salesperson: string
     date: Date | string
     formData: JsonNullValueInput | InputJsonValue
+    isSentToService?: boolean
+    estimationStatus?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimatedBy?: string | null
+    estimatedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -87897,6 +88259,12 @@ export namespace Prisma {
     salesperson?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     formData?: JsonNullValueInput | InputJsonValue
+    isSentToService?: BoolFieldUpdateOperationsInput | boolean
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -87909,6 +88277,12 @@ export namespace Prisma {
     salesperson?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     formData?: JsonNullValueInput | InputJsonValue
+    isSentToService?: BoolFieldUpdateOperationsInput | boolean
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -93645,6 +94019,13 @@ export namespace Prisma {
     nameSender?: SortOrder
     sigReceiverUrl?: SortOrder
     nameReceiver?: SortOrder
+    plannedStartDate?: SortOrder
+    plannedEndDate?: SortOrder
+    workLocation?: SortOrder
+    workPlan?: SortOrder
+    technicianNote?: SortOrder
+    planUpdatedAt?: SortOrder
+    planUpdatedBy?: SortOrder
     status?: SortOrder
     pdfUrl?: SortOrder
     createdAt?: SortOrder
@@ -93672,6 +94053,13 @@ export namespace Prisma {
     nameSender?: SortOrder
     sigReceiverUrl?: SortOrder
     nameReceiver?: SortOrder
+    plannedStartDate?: SortOrder
+    plannedEndDate?: SortOrder
+    workLocation?: SortOrder
+    workPlan?: SortOrder
+    technicianNote?: SortOrder
+    planUpdatedAt?: SortOrder
+    planUpdatedBy?: SortOrder
     status?: SortOrder
     pdfUrl?: SortOrder
     createdAt?: SortOrder
@@ -93699,6 +94087,13 @@ export namespace Prisma {
     nameSender?: SortOrder
     sigReceiverUrl?: SortOrder
     nameReceiver?: SortOrder
+    plannedStartDate?: SortOrder
+    plannedEndDate?: SortOrder
+    workLocation?: SortOrder
+    workPlan?: SortOrder
+    technicianNote?: SortOrder
+    planUpdatedAt?: SortOrder
+    planUpdatedBy?: SortOrder
     status?: SortOrder
     pdfUrl?: SortOrder
     createdAt?: SortOrder
@@ -93778,7 +94173,17 @@ export namespace Prisma {
     salesperson?: SortOrder
     date?: SortOrder
     formData?: SortOrder
+    isSentToService?: SortOrder
+    estimationStatus?: SortOrder
+    estimatedPrice?: SortOrder
+    estimationNote?: SortOrder
+    estimatedBy?: SortOrder
+    estimatedAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type CustomerRequirementAvgOrderByAggregateInput = {
+    estimatedPrice?: SortOrder
   }
 
   export type CustomerRequirementMaxOrderByAggregateInput = {
@@ -93789,6 +94194,12 @@ export namespace Prisma {
     contactName?: SortOrder
     salesperson?: SortOrder
     date?: SortOrder
+    isSentToService?: SortOrder
+    estimationStatus?: SortOrder
+    estimatedPrice?: SortOrder
+    estimationNote?: SortOrder
+    estimatedBy?: SortOrder
+    estimatedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -93800,7 +94211,17 @@ export namespace Prisma {
     contactName?: SortOrder
     salesperson?: SortOrder
     date?: SortOrder
+    isSentToService?: SortOrder
+    estimationStatus?: SortOrder
+    estimatedPrice?: SortOrder
+    estimationNote?: SortOrder
+    estimatedBy?: SortOrder
+    estimatedAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type CustomerRequirementSumOrderByAggregateInput = {
+    estimatedPrice?: SortOrder
   }
 
   export type BigIntFilter<$PrismaModel = never> = {
@@ -100609,6 +101030,12 @@ export namespace Prisma {
     salesperson: string
     date: Date | string
     formData: JsonNullValueInput | InputJsonValue
+    isSentToService?: boolean
+    estimationStatus?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimatedBy?: string | null
+    estimatedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -100620,6 +101047,12 @@ export namespace Prisma {
     salesperson: string
     date: Date | string
     formData: JsonNullValueInput | InputJsonValue
+    isSentToService?: boolean
+    estimationStatus?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimatedBy?: string | null
+    estimatedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -100978,6 +101411,12 @@ export namespace Prisma {
     salesperson?: StringFilter<"CustomerRequirement"> | string
     date?: DateTimeFilter<"CustomerRequirement"> | Date | string
     formData?: JsonFilter<"CustomerRequirement">
+    isSentToService?: BoolFilter<"CustomerRequirement"> | boolean
+    estimationStatus?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedPrice?: FloatNullableFilter<"CustomerRequirement"> | number | null
+    estimationNote?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedBy?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedAt?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
     createdAt?: DateTimeFilter<"CustomerRequirement"> | Date | string
   }
 
@@ -104221,6 +104660,13 @@ export namespace Prisma {
     nameSender?: string | null
     sigReceiverUrl?: string | null
     nameReceiver?: string | null
+    plannedStartDate?: Date | string | null
+    plannedEndDate?: Date | string | null
+    workLocation?: string | null
+    workPlan?: string | null
+    technicianNote?: string | null
+    planUpdatedAt?: Date | string | null
+    planUpdatedBy?: string | null
     status?: string
     pdfUrl?: string | null
     createdAt?: Date | string
@@ -104250,6 +104696,13 @@ export namespace Prisma {
     nameSender?: string | null
     sigReceiverUrl?: string | null
     nameReceiver?: string | null
+    plannedStartDate?: Date | string | null
+    plannedEndDate?: Date | string | null
+    workLocation?: string | null
+    workPlan?: string | null
+    technicianNote?: string | null
+    planUpdatedAt?: Date | string | null
+    planUpdatedBy?: string | null
     status?: string
     pdfUrl?: string | null
     createdAt?: Date | string
@@ -104648,6 +105101,13 @@ export namespace Prisma {
     nameSender?: StringNullableFilter<"InstallationOrder"> | string | null
     sigReceiverUrl?: StringNullableFilter<"InstallationOrder"> | string | null
     nameReceiver?: StringNullableFilter<"InstallationOrder"> | string | null
+    plannedStartDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    plannedEndDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    workLocation?: StringNullableFilter<"InstallationOrder"> | string | null
+    workPlan?: StringNullableFilter<"InstallationOrder"> | string | null
+    technicianNote?: StringNullableFilter<"InstallationOrder"> | string | null
+    planUpdatedAt?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    planUpdatedBy?: StringNullableFilter<"InstallationOrder"> | string | null
     status?: StringFilter<"InstallationOrder"> | string
     pdfUrl?: StringNullableFilter<"InstallationOrder"> | string | null
     createdAt?: DateTimeFilter<"InstallationOrder"> | Date | string
@@ -115397,6 +115857,12 @@ export namespace Prisma {
     salesperson: string
     date: Date | string
     formData: JsonNullValueInput | InputJsonValue
+    isSentToService?: boolean
+    estimationStatus?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimatedBy?: string | null
+    estimatedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -115840,6 +116306,12 @@ export namespace Prisma {
     salesperson?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     formData?: JsonNullValueInput | InputJsonValue
+    isSentToService?: BoolFieldUpdateOperationsInput | boolean
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -115851,6 +116323,12 @@ export namespace Prisma {
     salesperson?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     formData?: JsonNullValueInput | InputJsonValue
+    isSentToService?: BoolFieldUpdateOperationsInput | boolean
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -115862,6 +116340,12 @@ export namespace Prisma {
     salesperson?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     formData?: JsonNullValueInput | InputJsonValue
+    isSentToService?: BoolFieldUpdateOperationsInput | boolean
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -116729,6 +117213,13 @@ export namespace Prisma {
     nameSender?: string | null
     sigReceiverUrl?: string | null
     nameReceiver?: string | null
+    plannedStartDate?: Date | string | null
+    plannedEndDate?: Date | string | null
+    workLocation?: string | null
+    workPlan?: string | null
+    technicianNote?: string | null
+    planUpdatedAt?: Date | string | null
+    planUpdatedBy?: string | null
     status?: string
     pdfUrl?: string | null
     createdAt?: Date | string
@@ -117031,6 +117522,13 @@ export namespace Prisma {
     nameSender?: NullableStringFieldUpdateOperationsInput | string | null
     sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    plannedEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
+    planUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -117060,6 +117558,13 @@ export namespace Prisma {
     nameSender?: NullableStringFieldUpdateOperationsInput | string | null
     sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    plannedEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
+    planUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -117089,6 +117594,13 @@ export namespace Prisma {
     nameSender?: NullableStringFieldUpdateOperationsInput | string | null
     sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
     nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    plannedEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
+    planUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

@@ -786,3 +786,139 @@ export function teamScheduleSummaryMessage(supervisorName: string, employeeData:
     },
   };
 }
+
+// Installation Plan Update Message
+export function installationPlanUpdatedMessage(order: any, technicianName: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  const startDateStr = order.plannedStartDate ? new Date(order.plannedStartDate).toLocaleString('th-TH') : '-';
+  const endDateStr = order.plannedEndDate ? new Date(order.plannedEndDate).toLocaleString('th-TH') : '-';
+  
+  return {
+    type: 'flex',
+    altText: `🛠️ อัปเดตแผนงานติดตั้ง งาน ${order.installationNo}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#4f46e5', // indigo
+        contents: [
+          { type: 'text', text: '🛠️ อัปเดตแผนงานติดตั้ง', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `ใบงาน: ${order.installationNo}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${order.company || order.customer || '-'}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `ผู้รับผิดชอบ: ${technicianName}`, size: 'sm', margin: 'md', weight: 'bold' },
+          { type: 'text', text: `สถานที่: ${order.workLocation || '-'}`, size: 'sm', wrap: true },
+          { type: 'text', text: `เริ่ม: ${startDateStr}`, size: 'sm' },
+          { type: 'text', text: `สิ้นสุด: ${endDateStr}`, size: 'sm' },
+          { type: 'text', text: `รายละเอียดแผนงาน:`, size: 'xs', margin: 'md', color: '#666666' },
+          { type: 'text', text: order.workPlan || '-', size: 'sm', wrap: true, color: '#4f46e5' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#4f46e5',
+            action: { type: 'uri', label: 'ดูรายละเอียด', uri: `${appUrl}/service/installation` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+// Estimation Notifications
+export function estimationRequestMessage(customerName: string, items: string[], salesperson: string, requirementId: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `🔔 มีรายการรอประเมินราคาใหม่: ${customerName}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#eab308', // yellow-500
+        contents: [
+          { type: 'text', text: '🔔 รอประเมินราคาใหม่', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `ลูกค้า: ${customerName}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `รายการ: ${items.join(', ')}`, size: 'sm', wrap: true, margin: 'md' },
+          { type: 'text', text: `โดย: ${salesperson}`, size: 'sm', color: '#666666', margin: 'md' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#eab308',
+            action: { type: 'uri', label: 'ดูรายละเอียด', uri: `${appUrl}/service/estimations` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function estimationCompletedMessage(customerName: string, price: number, note: string, servicePerson: string, requirementId: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `✅ ประเมินราคาเสร็จแล้ว: ${customerName}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#10b981', // green-500
+        contents: [
+          { type: 'text', text: '✅ ประเมินราคาเสร็จแล้ว', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `ลูกค้า: ${customerName}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ราคารวม: ฿${price.toLocaleString()}`, size: 'md', color: '#ef4444', weight: 'bold', margin: 'md' },
+          { type: 'text', text: `หมายเหตุ: ${note || '-'}`, size: 'sm', wrap: true, margin: 'sm' },
+          { type: 'text', text: `ประเมินโดย: ${servicePerson}`, size: 'sm', color: '#666666', margin: 'md' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#10b981',
+            action: { type: 'uri', label: 'เปิดใบเสนอราคา', uri: `${appUrl}/sales?reqId=${requirementId}` },
+          },
+        ],
+      },
+    },
+  };
+}
+

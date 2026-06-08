@@ -55,10 +55,23 @@ export default async function CustomerRequirementPage() {
     : { OR: [{ userId: user.id }, { userId: null }] };
 
   // Fetch history for this user or team
-  const history = await prisma.customerRequirement.findMany({
+  const rawHistory = await prisma.customerRequirement.findMany({
     where: whereClause,
     orderBy: { date: 'desc' },
   });
+
+  const reqNumbers = rawHistory.map(h => h.requirementNumber).filter(Boolean) as string[];
+  const relatedQuotations = await prisma.quotation.findMany({
+    where: { requirementNumber: { in: reqNumbers } },
+    select: { requirementNumber: true }
+  });
+  
+  const openedReqSet = new Set(relatedQuotations.map(q => q.requirementNumber));
+
+  const history = rawHistory.map(h => ({
+    ...h,
+    hasQuotation: h.requirementNumber ? openedReqSet.has(h.requirementNumber) : false
+  }));
 
   return (
     <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 md:p-6 bg-white pb-24 md:pb-6">

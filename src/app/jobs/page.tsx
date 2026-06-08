@@ -67,10 +67,12 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
 
   const jobs = await prisma.job.findMany({ 
     where: whereClause, 
-    include: { 
+    include: {
       quotation: true,
       stepLogs: { orderBy: { completedAt: "asc" } },
       paymentTasks: true,
+      installationOrders: { orderBy: { createdAt: "desc" } },
+      repairOrder: true,
     }, 
     orderBy: { dateClosed: "desc" }, 
   }); 
