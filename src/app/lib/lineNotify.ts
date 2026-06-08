@@ -615,7 +615,7 @@ export function teamQuotationSummaryMessage(supervisorName: string, employeeData
       contents: [
         { type: 'text', text: `👤 ${e.employeeName} (${e.quotations.length} รายการ)`, weight: 'bold', size: 'sm', color: '#c2410c' },
         { type: 'text', text: e.quotations.slice(0, 5).map(item => {
-          return `- ${item.q.documentNo} (ใน ${item.remainingDays} วัน)`;
+          return `- ${item.q.quotationNumber} (ใน ${item.remainingDays} วัน)`;
         }).join('\n'), size: 'xs', wrap: true },
         ...(e.quotations.length > 5 ? [{ type: 'text', text: `...และอีก ${e.quotations.length - 5} รายการ`, size: 'xs', color: '#999999' }] : []),
         { type: 'separator', margin: 'md' }

@@ -38,6 +38,7 @@ export default function JobTimeline({
   const [showVariantModal, setShowVariantModal] = useState(false)
   const [pendingConfirm, setPendingConfirm]     = useState(false)
   const [noteInput, setNoteInput]               = useState("")
+  const [showHistory, setShowHistory]           = useState(false)
   
   // Delivery specific state
   const [deliveryMethod, setDeliveryMethod] = useState<"in-house" | "courier">("in-house")
@@ -497,6 +498,26 @@ export default function JobTimeline({
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
             พิมพ์ใบรับซ่อม (PDF)
           </Link>
+
+          {(jobType.includes("ติดตั้ง") || jobType.includes("ซ่อม")) && (
+            <>
+              <div className="w-full h-px bg-gray-100 my-1"></div>
+              <Link
+                href={`/jobs/${jobId}/manage-installation-order`}
+                className="w-full bg-white border border-gray-200 text-gray-700 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-all shadow-sm flex justify-center items-center gap-2"
+              >
+                <Edit2 className="w-4 h-4" />
+                จัดการข้อมูลใบติดตั้ง
+              </Link>
+              <Link
+                href={`/jobs/${jobId}/installation-order`}
+                className="w-full bg-orange-600 border border-transparent text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-orange-700 transition-all shadow-sm flex justify-center items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+                พิมพ์ใบติดตั้ง (PDF)
+              </Link>
+            </>
+          )}
         </div>
       )}
 
@@ -511,6 +532,53 @@ export default function JobTimeline({
       {isFinished && (
         <p className="mt-3 text-xs text-green-600 font-medium flex items-center gap-1"><CheckCircle2 className="w-4 h-4"/> Job นี้เสร็จสมบูรณ์แล้ว</p>
       )}
+
+      {/* Work History Section */}
+      <div className="mt-6">
+        <button
+          onClick={() => setShowHistory(!showHistory)}
+          className="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 text-xs font-bold py-2 px-4 rounded-lg flex items-center justify-between transition-colors border border-gray-200"
+        >
+          <span className="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ดูประวัติการทำงาน (Work History)
+          </span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transform transition-transform ${showHistory ? "rotate-180" : ""}`}><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+
+        {showHistory && (
+          <div className="mt-3 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+              <h3 className="text-xs font-bold text-gray-700">ประวัติการทำงานเรียงตามลำดับ</h3>
+            </div>
+            <div className="p-4 space-y-4 max-h-60 overflow-y-auto custom-scrollbar">
+              {stepLogs.length === 0 ? (
+                <p className="text-xs text-gray-400 text-center py-4">ยังไม่มีประวัติการทำงาน</p>
+              ) : (
+                stepLogs.map((log, idx) => (
+                  <div key={idx} className="flex gap-3">
+                    <div className="w-2 h-2 mt-1.5 rounded-full bg-brand-red shrink-0" />
+                    <div>
+                      <p className="text-xs font-bold text-gray-800">{getSteps(jobType, flowVariant).find(s => s.key === log.step)?.label || log.step}</p>
+                      <p className="text-[10px] text-gray-500 mt-0.5">
+                        <span className="font-medium text-gray-700">{log.completedBy}</span> • แผนก {log.department}
+                      </p>
+                      {log.note && (
+                        <p className="text-[10px] text-red-600 mt-1 bg-red-50 px-2 py-1 rounded border border-red-100">
+                          หมายเหตุ: {log.note}
+                        </p>
+                      )}
+                      <p className="text-[9px] text-gray-400 mt-1">
+                        {new Date(log.completedAt).toLocaleString("th-TH")}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

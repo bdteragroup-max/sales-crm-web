@@ -628,8 +628,22 @@ export async function deleteQuotation(id: string) {
   if (!user) return { success: false, error: "Unauthorized" };
   
   try {
-    // Only allow managers or the owner to delete? For now, we allow the request if the user is authenticated, 
-    // but typically we should check permissions.
+    // First, find and delete all related jobs (this will cascade to installation orders, repair orders, etc.)
+    const jobs = await prisma.job.findMany({ where: { quotationId: id } });
+    const jobIds = jobs.map(j => j.id);
+    
+    if (jobIds.length > 0) {
+      await prisma.job.deleteMany({
+        where: { id: { in: jobIds } }
+      });
+    }
+
+    // Delete any orders linked to this quotation
+    await prisma.order.deleteMany({
+      where: { quotationId: id }
+    });
+
+    // Finally, delete the quotation itself
     await prisma.quotation.delete({
       where: { id }
     });

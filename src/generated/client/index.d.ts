@@ -114,6 +114,11 @@ export type RepairOrder = $Result.DefaultSelection<Prisma.$RepairOrderPayload>
  */
 export type RepairDelivery = $Result.DefaultSelection<Prisma.$RepairDeliveryPayload>
 /**
+ * Model InstallationOrder
+ * 
+ */
+export type InstallationOrder = $Result.DefaultSelection<Prisma.$InstallationOrderPayload>
+/**
  * Model OutsourceRepair
  * 
  */
@@ -614,6 +619,16 @@ export class PrismaClient<
     * ```
     */
   get repairDelivery(): Prisma.RepairDeliveryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.installationOrder`: Exposes CRUD operations for the **InstallationOrder** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more InstallationOrders
+    * const installationOrders = await prisma.installationOrder.findMany()
+    * ```
+    */
+  get installationOrder(): Prisma.InstallationOrderDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.outsourceRepair`: Exposes CRUD operations for the **OutsourceRepair** model.
@@ -1428,6 +1443,7 @@ export namespace Prisma {
     JobStepLog: 'JobStepLog',
     RepairOrder: 'RepairOrder',
     RepairDelivery: 'RepairDelivery',
+    InstallationOrder: 'InstallationOrder',
     OutsourceRepair: 'OutsourceRepair',
     CustomerRequirement: 'CustomerRequirement',
     admin_login_attempts: 'admin_login_attempts',
@@ -1479,7 +1495,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2960,6 +2976,80 @@ export namespace Prisma {
           count: {
             args: Prisma.RepairDeliveryCountArgs<ExtArgs>
             result: $Utils.Optional<RepairDeliveryCountAggregateOutputType> | number
+          }
+        }
+      }
+      InstallationOrder: {
+        payload: Prisma.$InstallationOrderPayload<ExtArgs>
+        fields: Prisma.InstallationOrderFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InstallationOrderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InstallationOrderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload>
+          }
+          findFirst: {
+            args: Prisma.InstallationOrderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InstallationOrderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload>
+          }
+          findMany: {
+            args: Prisma.InstallationOrderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload>[]
+          }
+          create: {
+            args: Prisma.InstallationOrderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload>
+          }
+          createMany: {
+            args: Prisma.InstallationOrderCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InstallationOrderCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload>[]
+          }
+          delete: {
+            args: Prisma.InstallationOrderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload>
+          }
+          update: {
+            args: Prisma.InstallationOrderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload>
+          }
+          deleteMany: {
+            args: Prisma.InstallationOrderDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InstallationOrderUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.InstallationOrderUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload>[]
+          }
+          upsert: {
+            args: Prisma.InstallationOrderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InstallationOrderPayload>
+          }
+          aggregate: {
+            args: Prisma.InstallationOrderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInstallationOrder>
+          }
+          groupBy: {
+            args: Prisma.InstallationOrderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InstallationOrderGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InstallationOrderCountArgs<ExtArgs>
+            result: $Utils.Optional<InstallationOrderCountAggregateOutputType> | number
           }
         }
       }
@@ -5755,6 +5845,7 @@ export namespace Prisma {
     jobStepLog?: JobStepLogOmit
     repairOrder?: RepairOrderOmit
     repairDelivery?: RepairDeliveryOmit
+    installationOrder?: InstallationOrderOmit
     outsourceRepair?: OutsourceRepairOmit
     customerRequirement?: CustomerRequirementOmit
     admin_login_attempts?: admin_login_attemptsOmit
@@ -6139,6 +6230,7 @@ export namespace Prisma {
     repairDeliveries: number
     outsourceRepairs: number
     purchaseOrders: number
+    installationOrders: number
   }
 
   export type JobCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6147,6 +6239,7 @@ export namespace Prisma {
     repairDeliveries?: boolean | JobCountOutputTypeCountRepairDeliveriesArgs
     outsourceRepairs?: boolean | JobCountOutputTypeCountOutsourceRepairsArgs
     purchaseOrders?: boolean | JobCountOutputTypeCountPurchaseOrdersArgs
+    installationOrders?: boolean | JobCountOutputTypeCountInstallationOrdersArgs
   }
 
   // Custom InputTypes
@@ -6193,6 +6286,13 @@ export namespace Prisma {
    */
   export type JobCountOutputTypeCountPurchaseOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PurchaseOrderWhereInput
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeCountInstallationOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InstallationOrderWhereInput
   }
 
 
@@ -24294,6 +24394,7 @@ export namespace Prisma {
     repairDeliveries?: boolean | Job$repairDeliveriesArgs<ExtArgs>
     outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
     purchaseOrders?: boolean | Job$purchaseOrdersArgs<ExtArgs>
+    installationOrders?: boolean | Job$installationOrdersArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["job"]>
 
@@ -24389,6 +24490,7 @@ export namespace Prisma {
     repairDeliveries?: boolean | Job$repairDeliveriesArgs<ExtArgs>
     outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
     purchaseOrders?: boolean | Job$purchaseOrdersArgs<ExtArgs>
+    installationOrders?: boolean | Job$installationOrdersArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type JobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -24408,6 +24510,7 @@ export namespace Prisma {
       repairDeliveries: Prisma.$RepairDeliveryPayload<ExtArgs>[]
       outsourceRepairs: Prisma.$OutsourceRepairPayload<ExtArgs>[]
       purchaseOrders: Prisma.$PurchaseOrderPayload<ExtArgs>[]
+      installationOrders: Prisma.$InstallationOrderPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -24835,6 +24938,7 @@ export namespace Prisma {
     repairDeliveries<T extends Job$repairDeliveriesArgs<ExtArgs> = {}>(args?: Subset<T, Job$repairDeliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     outsourceRepairs<T extends Job$outsourceRepairsArgs<ExtArgs> = {}>(args?: Subset<T, Job$outsourceRepairsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     purchaseOrders<T extends Job$purchaseOrdersArgs<ExtArgs> = {}>(args?: Subset<T, Job$purchaseOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    installationOrders<T extends Job$installationOrdersArgs<ExtArgs> = {}>(args?: Subset<T, Job$installationOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -25444,6 +25548,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PurchaseOrderScalarFieldEnum | PurchaseOrderScalarFieldEnum[]
+  }
+
+  /**
+   * Job.installationOrders
+   */
+  export type Job$installationOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    where?: InstallationOrderWhereInput
+    orderBy?: InstallationOrderOrderByWithRelationInput | InstallationOrderOrderByWithRelationInput[]
+    cursor?: InstallationOrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InstallationOrderScalarFieldEnum | InstallationOrderScalarFieldEnum[]
   }
 
   /**
@@ -31485,6 +31613,1362 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: RepairDeliveryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model InstallationOrder
+   */
+
+  export type AggregateInstallationOrder = {
+    _count: InstallationOrderCountAggregateOutputType | null
+    _min: InstallationOrderMinAggregateOutputType | null
+    _max: InstallationOrderMaxAggregateOutputType | null
+  }
+
+  export type InstallationOrderMinAggregateOutputType = {
+    id: string | null
+    installationNo: string | null
+    jobId: string | null
+    installationDate: Date | null
+    company: string | null
+    jobName: string | null
+    customer: string | null
+    customerPosition: string | null
+    address: string | null
+    siteAddress: string | null
+    quotationNo: string | null
+    sender: string | null
+    senderPhone: string | null
+    technician: string | null
+    technicianPhone: string | null
+    note: string | null
+    sigSenderUrl: string | null
+    nameSender: string | null
+    sigReceiverUrl: string | null
+    nameReceiver: string | null
+    status: string | null
+    pdfUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type InstallationOrderMaxAggregateOutputType = {
+    id: string | null
+    installationNo: string | null
+    jobId: string | null
+    installationDate: Date | null
+    company: string | null
+    jobName: string | null
+    customer: string | null
+    customerPosition: string | null
+    address: string | null
+    siteAddress: string | null
+    quotationNo: string | null
+    sender: string | null
+    senderPhone: string | null
+    technician: string | null
+    technicianPhone: string | null
+    note: string | null
+    sigSenderUrl: string | null
+    nameSender: string | null
+    sigReceiverUrl: string | null
+    nameReceiver: string | null
+    status: string | null
+    pdfUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type InstallationOrderCountAggregateOutputType = {
+    id: number
+    installationNo: number
+    jobId: number
+    installationDate: number
+    company: number
+    jobName: number
+    customer: number
+    customerPosition: number
+    address: number
+    siteAddress: number
+    quotationNo: number
+    sender: number
+    senderPhone: number
+    technician: number
+    technicianPhone: number
+    items: number
+    checklist: number
+    checklistImages: number
+    note: number
+    sigSenderUrl: number
+    nameSender: number
+    sigReceiverUrl: number
+    nameReceiver: number
+    status: number
+    pdfUrl: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type InstallationOrderMinAggregateInputType = {
+    id?: true
+    installationNo?: true
+    jobId?: true
+    installationDate?: true
+    company?: true
+    jobName?: true
+    customer?: true
+    customerPosition?: true
+    address?: true
+    siteAddress?: true
+    quotationNo?: true
+    sender?: true
+    senderPhone?: true
+    technician?: true
+    technicianPhone?: true
+    note?: true
+    sigSenderUrl?: true
+    nameSender?: true
+    sigReceiverUrl?: true
+    nameReceiver?: true
+    status?: true
+    pdfUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type InstallationOrderMaxAggregateInputType = {
+    id?: true
+    installationNo?: true
+    jobId?: true
+    installationDate?: true
+    company?: true
+    jobName?: true
+    customer?: true
+    customerPosition?: true
+    address?: true
+    siteAddress?: true
+    quotationNo?: true
+    sender?: true
+    senderPhone?: true
+    technician?: true
+    technicianPhone?: true
+    note?: true
+    sigSenderUrl?: true
+    nameSender?: true
+    sigReceiverUrl?: true
+    nameReceiver?: true
+    status?: true
+    pdfUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type InstallationOrderCountAggregateInputType = {
+    id?: true
+    installationNo?: true
+    jobId?: true
+    installationDate?: true
+    company?: true
+    jobName?: true
+    customer?: true
+    customerPosition?: true
+    address?: true
+    siteAddress?: true
+    quotationNo?: true
+    sender?: true
+    senderPhone?: true
+    technician?: true
+    technicianPhone?: true
+    items?: true
+    checklist?: true
+    checklistImages?: true
+    note?: true
+    sigSenderUrl?: true
+    nameSender?: true
+    sigReceiverUrl?: true
+    nameReceiver?: true
+    status?: true
+    pdfUrl?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type InstallationOrderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InstallationOrder to aggregate.
+     */
+    where?: InstallationOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InstallationOrders to fetch.
+     */
+    orderBy?: InstallationOrderOrderByWithRelationInput | InstallationOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InstallationOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InstallationOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InstallationOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned InstallationOrders
+    **/
+    _count?: true | InstallationOrderCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InstallationOrderMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InstallationOrderMaxAggregateInputType
+  }
+
+  export type GetInstallationOrderAggregateType<T extends InstallationOrderAggregateArgs> = {
+        [P in keyof T & keyof AggregateInstallationOrder]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInstallationOrder[P]>
+      : GetScalarType<T[P], AggregateInstallationOrder[P]>
+  }
+
+
+
+
+  export type InstallationOrderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InstallationOrderWhereInput
+    orderBy?: InstallationOrderOrderByWithAggregationInput | InstallationOrderOrderByWithAggregationInput[]
+    by: InstallationOrderScalarFieldEnum[] | InstallationOrderScalarFieldEnum
+    having?: InstallationOrderScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InstallationOrderCountAggregateInputType | true
+    _min?: InstallationOrderMinAggregateInputType
+    _max?: InstallationOrderMaxAggregateInputType
+  }
+
+  export type InstallationOrderGroupByOutputType = {
+    id: string
+    installationNo: string
+    jobId: string | null
+    installationDate: Date | null
+    company: string | null
+    jobName: string | null
+    customer: string | null
+    customerPosition: string | null
+    address: string | null
+    siteAddress: string | null
+    quotationNo: string | null
+    sender: string | null
+    senderPhone: string | null
+    technician: string | null
+    technicianPhone: string | null
+    items: JsonValue | null
+    checklist: JsonValue | null
+    checklistImages: JsonValue | null
+    note: string | null
+    sigSenderUrl: string | null
+    nameSender: string | null
+    sigReceiverUrl: string | null
+    nameReceiver: string | null
+    status: string
+    pdfUrl: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: InstallationOrderCountAggregateOutputType | null
+    _min: InstallationOrderMinAggregateOutputType | null
+    _max: InstallationOrderMaxAggregateOutputType | null
+  }
+
+  type GetInstallationOrderGroupByPayload<T extends InstallationOrderGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InstallationOrderGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InstallationOrderGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InstallationOrderGroupByOutputType[P]>
+            : GetScalarType<T[P], InstallationOrderGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InstallationOrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    installationNo?: boolean
+    jobId?: boolean
+    installationDate?: boolean
+    company?: boolean
+    jobName?: boolean
+    customer?: boolean
+    customerPosition?: boolean
+    address?: boolean
+    siteAddress?: boolean
+    quotationNo?: boolean
+    sender?: boolean
+    senderPhone?: boolean
+    technician?: boolean
+    technicianPhone?: boolean
+    items?: boolean
+    checklist?: boolean
+    checklistImages?: boolean
+    note?: boolean
+    sigSenderUrl?: boolean
+    nameSender?: boolean
+    sigReceiverUrl?: boolean
+    nameReceiver?: boolean
+    status?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+  }, ExtArgs["result"]["installationOrder"]>
+
+  export type InstallationOrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    installationNo?: boolean
+    jobId?: boolean
+    installationDate?: boolean
+    company?: boolean
+    jobName?: boolean
+    customer?: boolean
+    customerPosition?: boolean
+    address?: boolean
+    siteAddress?: boolean
+    quotationNo?: boolean
+    sender?: boolean
+    senderPhone?: boolean
+    technician?: boolean
+    technicianPhone?: boolean
+    items?: boolean
+    checklist?: boolean
+    checklistImages?: boolean
+    note?: boolean
+    sigSenderUrl?: boolean
+    nameSender?: boolean
+    sigReceiverUrl?: boolean
+    nameReceiver?: boolean
+    status?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+  }, ExtArgs["result"]["installationOrder"]>
+
+  export type InstallationOrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    installationNo?: boolean
+    jobId?: boolean
+    installationDate?: boolean
+    company?: boolean
+    jobName?: boolean
+    customer?: boolean
+    customerPosition?: boolean
+    address?: boolean
+    siteAddress?: boolean
+    quotationNo?: boolean
+    sender?: boolean
+    senderPhone?: boolean
+    technician?: boolean
+    technicianPhone?: boolean
+    items?: boolean
+    checklist?: boolean
+    checklistImages?: boolean
+    note?: boolean
+    sigSenderUrl?: boolean
+    nameSender?: boolean
+    sigReceiverUrl?: boolean
+    nameReceiver?: boolean
+    status?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+  }, ExtArgs["result"]["installationOrder"]>
+
+  export type InstallationOrderSelectScalar = {
+    id?: boolean
+    installationNo?: boolean
+    jobId?: boolean
+    installationDate?: boolean
+    company?: boolean
+    jobName?: boolean
+    customer?: boolean
+    customerPosition?: boolean
+    address?: boolean
+    siteAddress?: boolean
+    quotationNo?: boolean
+    sender?: boolean
+    senderPhone?: boolean
+    technician?: boolean
+    technicianPhone?: boolean
+    items?: boolean
+    checklist?: boolean
+    checklistImages?: boolean
+    note?: boolean
+    sigSenderUrl?: boolean
+    nameSender?: boolean
+    sigReceiverUrl?: boolean
+    nameReceiver?: boolean
+    status?: boolean
+    pdfUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type InstallationOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "installationNo" | "jobId" | "installationDate" | "company" | "jobName" | "customer" | "customerPosition" | "address" | "siteAddress" | "quotationNo" | "sender" | "senderPhone" | "technician" | "technicianPhone" | "items" | "checklist" | "checklistImages" | "note" | "sigSenderUrl" | "nameSender" | "sigReceiverUrl" | "nameReceiver" | "status" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["installationOrder"]>
+  export type InstallationOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+  }
+  export type InstallationOrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+  }
+  export type InstallationOrderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+  }
+
+  export type $InstallationOrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "InstallationOrder"
+    objects: {
+      job: Prisma.$JobPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      installationNo: string
+      jobId: string | null
+      installationDate: Date | null
+      company: string | null
+      jobName: string | null
+      customer: string | null
+      customerPosition: string | null
+      address: string | null
+      siteAddress: string | null
+      quotationNo: string | null
+      sender: string | null
+      senderPhone: string | null
+      technician: string | null
+      technicianPhone: string | null
+      items: Prisma.JsonValue | null
+      checklist: Prisma.JsonValue | null
+      checklistImages: Prisma.JsonValue | null
+      note: string | null
+      sigSenderUrl: string | null
+      nameSender: string | null
+      sigReceiverUrl: string | null
+      nameReceiver: string | null
+      status: string
+      pdfUrl: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["installationOrder"]>
+    composites: {}
+  }
+
+  type InstallationOrderGetPayload<S extends boolean | null | undefined | InstallationOrderDefaultArgs> = $Result.GetResult<Prisma.$InstallationOrderPayload, S>
+
+  type InstallationOrderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<InstallationOrderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: InstallationOrderCountAggregateInputType | true
+    }
+
+  export interface InstallationOrderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['InstallationOrder'], meta: { name: 'InstallationOrder' } }
+    /**
+     * Find zero or one InstallationOrder that matches the filter.
+     * @param {InstallationOrderFindUniqueArgs} args - Arguments to find a InstallationOrder
+     * @example
+     * // Get one InstallationOrder
+     * const installationOrder = await prisma.installationOrder.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InstallationOrderFindUniqueArgs>(args: SelectSubset<T, InstallationOrderFindUniqueArgs<ExtArgs>>): Prisma__InstallationOrderClient<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one InstallationOrder that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {InstallationOrderFindUniqueOrThrowArgs} args - Arguments to find a InstallationOrder
+     * @example
+     * // Get one InstallationOrder
+     * const installationOrder = await prisma.installationOrder.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InstallationOrderFindUniqueOrThrowArgs>(args: SelectSubset<T, InstallationOrderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InstallationOrderClient<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first InstallationOrder that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InstallationOrderFindFirstArgs} args - Arguments to find a InstallationOrder
+     * @example
+     * // Get one InstallationOrder
+     * const installationOrder = await prisma.installationOrder.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InstallationOrderFindFirstArgs>(args?: SelectSubset<T, InstallationOrderFindFirstArgs<ExtArgs>>): Prisma__InstallationOrderClient<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first InstallationOrder that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InstallationOrderFindFirstOrThrowArgs} args - Arguments to find a InstallationOrder
+     * @example
+     * // Get one InstallationOrder
+     * const installationOrder = await prisma.installationOrder.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InstallationOrderFindFirstOrThrowArgs>(args?: SelectSubset<T, InstallationOrderFindFirstOrThrowArgs<ExtArgs>>): Prisma__InstallationOrderClient<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more InstallationOrders that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InstallationOrderFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all InstallationOrders
+     * const installationOrders = await prisma.installationOrder.findMany()
+     * 
+     * // Get first 10 InstallationOrders
+     * const installationOrders = await prisma.installationOrder.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const installationOrderWithIdOnly = await prisma.installationOrder.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InstallationOrderFindManyArgs>(args?: SelectSubset<T, InstallationOrderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a InstallationOrder.
+     * @param {InstallationOrderCreateArgs} args - Arguments to create a InstallationOrder.
+     * @example
+     * // Create one InstallationOrder
+     * const InstallationOrder = await prisma.installationOrder.create({
+     *   data: {
+     *     // ... data to create a InstallationOrder
+     *   }
+     * })
+     * 
+     */
+    create<T extends InstallationOrderCreateArgs>(args: SelectSubset<T, InstallationOrderCreateArgs<ExtArgs>>): Prisma__InstallationOrderClient<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many InstallationOrders.
+     * @param {InstallationOrderCreateManyArgs} args - Arguments to create many InstallationOrders.
+     * @example
+     * // Create many InstallationOrders
+     * const installationOrder = await prisma.installationOrder.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InstallationOrderCreateManyArgs>(args?: SelectSubset<T, InstallationOrderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many InstallationOrders and returns the data saved in the database.
+     * @param {InstallationOrderCreateManyAndReturnArgs} args - Arguments to create many InstallationOrders.
+     * @example
+     * // Create many InstallationOrders
+     * const installationOrder = await prisma.installationOrder.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many InstallationOrders and only return the `id`
+     * const installationOrderWithIdOnly = await prisma.installationOrder.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InstallationOrderCreateManyAndReturnArgs>(args?: SelectSubset<T, InstallationOrderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a InstallationOrder.
+     * @param {InstallationOrderDeleteArgs} args - Arguments to delete one InstallationOrder.
+     * @example
+     * // Delete one InstallationOrder
+     * const InstallationOrder = await prisma.installationOrder.delete({
+     *   where: {
+     *     // ... filter to delete one InstallationOrder
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InstallationOrderDeleteArgs>(args: SelectSubset<T, InstallationOrderDeleteArgs<ExtArgs>>): Prisma__InstallationOrderClient<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one InstallationOrder.
+     * @param {InstallationOrderUpdateArgs} args - Arguments to update one InstallationOrder.
+     * @example
+     * // Update one InstallationOrder
+     * const installationOrder = await prisma.installationOrder.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InstallationOrderUpdateArgs>(args: SelectSubset<T, InstallationOrderUpdateArgs<ExtArgs>>): Prisma__InstallationOrderClient<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more InstallationOrders.
+     * @param {InstallationOrderDeleteManyArgs} args - Arguments to filter InstallationOrders to delete.
+     * @example
+     * // Delete a few InstallationOrders
+     * const { count } = await prisma.installationOrder.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InstallationOrderDeleteManyArgs>(args?: SelectSubset<T, InstallationOrderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InstallationOrders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InstallationOrderUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many InstallationOrders
+     * const installationOrder = await prisma.installationOrder.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InstallationOrderUpdateManyArgs>(args: SelectSubset<T, InstallationOrderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InstallationOrders and returns the data updated in the database.
+     * @param {InstallationOrderUpdateManyAndReturnArgs} args - Arguments to update many InstallationOrders.
+     * @example
+     * // Update many InstallationOrders
+     * const installationOrder = await prisma.installationOrder.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more InstallationOrders and only return the `id`
+     * const installationOrderWithIdOnly = await prisma.installationOrder.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends InstallationOrderUpdateManyAndReturnArgs>(args: SelectSubset<T, InstallationOrderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one InstallationOrder.
+     * @param {InstallationOrderUpsertArgs} args - Arguments to update or create a InstallationOrder.
+     * @example
+     * // Update or create a InstallationOrder
+     * const installationOrder = await prisma.installationOrder.upsert({
+     *   create: {
+     *     // ... data to create a InstallationOrder
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the InstallationOrder we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InstallationOrderUpsertArgs>(args: SelectSubset<T, InstallationOrderUpsertArgs<ExtArgs>>): Prisma__InstallationOrderClient<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of InstallationOrders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InstallationOrderCountArgs} args - Arguments to filter InstallationOrders to count.
+     * @example
+     * // Count the number of InstallationOrders
+     * const count = await prisma.installationOrder.count({
+     *   where: {
+     *     // ... the filter for the InstallationOrders we want to count
+     *   }
+     * })
+    **/
+    count<T extends InstallationOrderCountArgs>(
+      args?: Subset<T, InstallationOrderCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InstallationOrderCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a InstallationOrder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InstallationOrderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InstallationOrderAggregateArgs>(args: Subset<T, InstallationOrderAggregateArgs>): Prisma.PrismaPromise<GetInstallationOrderAggregateType<T>>
+
+    /**
+     * Group by InstallationOrder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InstallationOrderGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InstallationOrderGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InstallationOrderGroupByArgs['orderBy'] }
+        : { orderBy?: InstallationOrderGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InstallationOrderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInstallationOrderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the InstallationOrder model
+   */
+  readonly fields: InstallationOrderFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for InstallationOrder.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InstallationOrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    job<T extends InstallationOrder$jobArgs<ExtArgs> = {}>(args?: Subset<T, InstallationOrder$jobArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the InstallationOrder model
+   */
+  interface InstallationOrderFieldRefs {
+    readonly id: FieldRef<"InstallationOrder", 'String'>
+    readonly installationNo: FieldRef<"InstallationOrder", 'String'>
+    readonly jobId: FieldRef<"InstallationOrder", 'String'>
+    readonly installationDate: FieldRef<"InstallationOrder", 'DateTime'>
+    readonly company: FieldRef<"InstallationOrder", 'String'>
+    readonly jobName: FieldRef<"InstallationOrder", 'String'>
+    readonly customer: FieldRef<"InstallationOrder", 'String'>
+    readonly customerPosition: FieldRef<"InstallationOrder", 'String'>
+    readonly address: FieldRef<"InstallationOrder", 'String'>
+    readonly siteAddress: FieldRef<"InstallationOrder", 'String'>
+    readonly quotationNo: FieldRef<"InstallationOrder", 'String'>
+    readonly sender: FieldRef<"InstallationOrder", 'String'>
+    readonly senderPhone: FieldRef<"InstallationOrder", 'String'>
+    readonly technician: FieldRef<"InstallationOrder", 'String'>
+    readonly technicianPhone: FieldRef<"InstallationOrder", 'String'>
+    readonly items: FieldRef<"InstallationOrder", 'Json'>
+    readonly checklist: FieldRef<"InstallationOrder", 'Json'>
+    readonly checklistImages: FieldRef<"InstallationOrder", 'Json'>
+    readonly note: FieldRef<"InstallationOrder", 'String'>
+    readonly sigSenderUrl: FieldRef<"InstallationOrder", 'String'>
+    readonly nameSender: FieldRef<"InstallationOrder", 'String'>
+    readonly sigReceiverUrl: FieldRef<"InstallationOrder", 'String'>
+    readonly nameReceiver: FieldRef<"InstallationOrder", 'String'>
+    readonly status: FieldRef<"InstallationOrder", 'String'>
+    readonly pdfUrl: FieldRef<"InstallationOrder", 'String'>
+    readonly createdAt: FieldRef<"InstallationOrder", 'DateTime'>
+    readonly updatedAt: FieldRef<"InstallationOrder", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * InstallationOrder findUnique
+   */
+  export type InstallationOrderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which InstallationOrder to fetch.
+     */
+    where: InstallationOrderWhereUniqueInput
+  }
+
+  /**
+   * InstallationOrder findUniqueOrThrow
+   */
+  export type InstallationOrderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which InstallationOrder to fetch.
+     */
+    where: InstallationOrderWhereUniqueInput
+  }
+
+  /**
+   * InstallationOrder findFirst
+   */
+  export type InstallationOrderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which InstallationOrder to fetch.
+     */
+    where?: InstallationOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InstallationOrders to fetch.
+     */
+    orderBy?: InstallationOrderOrderByWithRelationInput | InstallationOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InstallationOrders.
+     */
+    cursor?: InstallationOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InstallationOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InstallationOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InstallationOrders.
+     */
+    distinct?: InstallationOrderScalarFieldEnum | InstallationOrderScalarFieldEnum[]
+  }
+
+  /**
+   * InstallationOrder findFirstOrThrow
+   */
+  export type InstallationOrderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which InstallationOrder to fetch.
+     */
+    where?: InstallationOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InstallationOrders to fetch.
+     */
+    orderBy?: InstallationOrderOrderByWithRelationInput | InstallationOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InstallationOrders.
+     */
+    cursor?: InstallationOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InstallationOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InstallationOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InstallationOrders.
+     */
+    distinct?: InstallationOrderScalarFieldEnum | InstallationOrderScalarFieldEnum[]
+  }
+
+  /**
+   * InstallationOrder findMany
+   */
+  export type InstallationOrderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    /**
+     * Filter, which InstallationOrders to fetch.
+     */
+    where?: InstallationOrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InstallationOrders to fetch.
+     */
+    orderBy?: InstallationOrderOrderByWithRelationInput | InstallationOrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing InstallationOrders.
+     */
+    cursor?: InstallationOrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InstallationOrders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InstallationOrders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InstallationOrders.
+     */
+    distinct?: InstallationOrderScalarFieldEnum | InstallationOrderScalarFieldEnum[]
+  }
+
+  /**
+   * InstallationOrder create
+   */
+  export type InstallationOrderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    /**
+     * The data needed to create a InstallationOrder.
+     */
+    data: XOR<InstallationOrderCreateInput, InstallationOrderUncheckedCreateInput>
+  }
+
+  /**
+   * InstallationOrder createMany
+   */
+  export type InstallationOrderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many InstallationOrders.
+     */
+    data: InstallationOrderCreateManyInput | InstallationOrderCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * InstallationOrder createManyAndReturn
+   */
+  export type InstallationOrderCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * The data used to create many InstallationOrders.
+     */
+    data: InstallationOrderCreateManyInput | InstallationOrderCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InstallationOrder update
+   */
+  export type InstallationOrderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    /**
+     * The data needed to update a InstallationOrder.
+     */
+    data: XOR<InstallationOrderUpdateInput, InstallationOrderUncheckedUpdateInput>
+    /**
+     * Choose, which InstallationOrder to update.
+     */
+    where: InstallationOrderWhereUniqueInput
+  }
+
+  /**
+   * InstallationOrder updateMany
+   */
+  export type InstallationOrderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update InstallationOrders.
+     */
+    data: XOR<InstallationOrderUpdateManyMutationInput, InstallationOrderUncheckedUpdateManyInput>
+    /**
+     * Filter which InstallationOrders to update
+     */
+    where?: InstallationOrderWhereInput
+    /**
+     * Limit how many InstallationOrders to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * InstallationOrder updateManyAndReturn
+   */
+  export type InstallationOrderUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * The data used to update InstallationOrders.
+     */
+    data: XOR<InstallationOrderUpdateManyMutationInput, InstallationOrderUncheckedUpdateManyInput>
+    /**
+     * Filter which InstallationOrders to update
+     */
+    where?: InstallationOrderWhereInput
+    /**
+     * Limit how many InstallationOrders to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InstallationOrder upsert
+   */
+  export type InstallationOrderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    /**
+     * The filter to search for the InstallationOrder to update in case it exists.
+     */
+    where: InstallationOrderWhereUniqueInput
+    /**
+     * In case the InstallationOrder found by the `where` argument doesn't exist, create a new InstallationOrder with this data.
+     */
+    create: XOR<InstallationOrderCreateInput, InstallationOrderUncheckedCreateInput>
+    /**
+     * In case the InstallationOrder was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InstallationOrderUpdateInput, InstallationOrderUncheckedUpdateInput>
+  }
+
+  /**
+   * InstallationOrder delete
+   */
+  export type InstallationOrderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    /**
+     * Filter which InstallationOrder to delete.
+     */
+    where: InstallationOrderWhereUniqueInput
+  }
+
+  /**
+   * InstallationOrder deleteMany
+   */
+  export type InstallationOrderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InstallationOrders to delete
+     */
+    where?: InstallationOrderWhereInput
+    /**
+     * Limit how many InstallationOrders to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * InstallationOrder.job
+   */
+  export type InstallationOrder$jobArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    where?: JobWhereInput
+  }
+
+  /**
+   * InstallationOrder without action
+   */
+  export type InstallationOrderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
   }
 
 
@@ -76616,6 +78100,39 @@ export namespace Prisma {
   export type RepairDeliveryScalarFieldEnum = (typeof RepairDeliveryScalarFieldEnum)[keyof typeof RepairDeliveryScalarFieldEnum]
 
 
+  export const InstallationOrderScalarFieldEnum: {
+    id: 'id',
+    installationNo: 'installationNo',
+    jobId: 'jobId',
+    installationDate: 'installationDate',
+    company: 'company',
+    jobName: 'jobName',
+    customer: 'customer',
+    customerPosition: 'customerPosition',
+    address: 'address',
+    siteAddress: 'siteAddress',
+    quotationNo: 'quotationNo',
+    sender: 'sender',
+    senderPhone: 'senderPhone',
+    technician: 'technician',
+    technicianPhone: 'technicianPhone',
+    items: 'items',
+    checklist: 'checklist',
+    checklistImages: 'checklistImages',
+    note: 'note',
+    sigSenderUrl: 'sigSenderUrl',
+    nameSender: 'nameSender',
+    sigReceiverUrl: 'sigReceiverUrl',
+    nameReceiver: 'nameReceiver',
+    status: 'status',
+    pdfUrl: 'pdfUrl',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type InstallationOrderScalarFieldEnum = (typeof InstallationOrderScalarFieldEnum)[keyof typeof InstallationOrderScalarFieldEnum]
+
+
   export const OutsourceRepairScalarFieldEnum: {
     id: 'id',
     outsourceNumber: 'outsourceNumber',
@@ -78924,6 +80441,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryListRelationFilter
     outsourceRepairs?: OutsourceRepairListRelationFilter
     purchaseOrders?: PurchaseOrderListRelationFilter
+    installationOrders?: InstallationOrderListRelationFilter
   }
 
   export type JobOrderByWithRelationInput = {
@@ -78958,6 +80476,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryOrderByRelationAggregateInput
     outsourceRepairs?: OutsourceRepairOrderByRelationAggregateInput
     purchaseOrders?: PurchaseOrderOrderByRelationAggregateInput
+    installationOrders?: InstallationOrderOrderByRelationAggregateInput
   }
 
   export type JobWhereUniqueInput = Prisma.AtLeast<{
@@ -78995,6 +80514,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryListRelationFilter
     outsourceRepairs?: OutsourceRepairListRelationFilter
     purchaseOrders?: PurchaseOrderListRelationFilter
+    installationOrders?: InstallationOrderListRelationFilter
   }, "id" | "jobNumber">
 
   export type JobOrderByWithAggregationInput = {
@@ -79594,6 +81114,171 @@ export namespace Prisma {
     pdfUrl?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"RepairDelivery"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"RepairDelivery"> | Date | string
+  }
+
+  export type InstallationOrderWhereInput = {
+    AND?: InstallationOrderWhereInput | InstallationOrderWhereInput[]
+    OR?: InstallationOrderWhereInput[]
+    NOT?: InstallationOrderWhereInput | InstallationOrderWhereInput[]
+    id?: StringFilter<"InstallationOrder"> | string
+    installationNo?: StringFilter<"InstallationOrder"> | string
+    jobId?: StringNullableFilter<"InstallationOrder"> | string | null
+    installationDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    company?: StringNullableFilter<"InstallationOrder"> | string | null
+    jobName?: StringNullableFilter<"InstallationOrder"> | string | null
+    customer?: StringNullableFilter<"InstallationOrder"> | string | null
+    customerPosition?: StringNullableFilter<"InstallationOrder"> | string | null
+    address?: StringNullableFilter<"InstallationOrder"> | string | null
+    siteAddress?: StringNullableFilter<"InstallationOrder"> | string | null
+    quotationNo?: StringNullableFilter<"InstallationOrder"> | string | null
+    sender?: StringNullableFilter<"InstallationOrder"> | string | null
+    senderPhone?: StringNullableFilter<"InstallationOrder"> | string | null
+    technician?: StringNullableFilter<"InstallationOrder"> | string | null
+    technicianPhone?: StringNullableFilter<"InstallationOrder"> | string | null
+    items?: JsonNullableFilter<"InstallationOrder">
+    checklist?: JsonNullableFilter<"InstallationOrder">
+    checklistImages?: JsonNullableFilter<"InstallationOrder">
+    note?: StringNullableFilter<"InstallationOrder"> | string | null
+    sigSenderUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    nameSender?: StringNullableFilter<"InstallationOrder"> | string | null
+    sigReceiverUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    nameReceiver?: StringNullableFilter<"InstallationOrder"> | string | null
+    status?: StringFilter<"InstallationOrder"> | string
+    pdfUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    createdAt?: DateTimeFilter<"InstallationOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"InstallationOrder"> | Date | string
+    job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
+  }
+
+  export type InstallationOrderOrderByWithRelationInput = {
+    id?: SortOrder
+    installationNo?: SortOrder
+    jobId?: SortOrderInput | SortOrder
+    installationDate?: SortOrderInput | SortOrder
+    company?: SortOrderInput | SortOrder
+    jobName?: SortOrderInput | SortOrder
+    customer?: SortOrderInput | SortOrder
+    customerPosition?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
+    siteAddress?: SortOrderInput | SortOrder
+    quotationNo?: SortOrderInput | SortOrder
+    sender?: SortOrderInput | SortOrder
+    senderPhone?: SortOrderInput | SortOrder
+    technician?: SortOrderInput | SortOrder
+    technicianPhone?: SortOrderInput | SortOrder
+    items?: SortOrderInput | SortOrder
+    checklist?: SortOrderInput | SortOrder
+    checklistImages?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    sigSenderUrl?: SortOrderInput | SortOrder
+    nameSender?: SortOrderInput | SortOrder
+    sigReceiverUrl?: SortOrderInput | SortOrder
+    nameReceiver?: SortOrderInput | SortOrder
+    status?: SortOrder
+    pdfUrl?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    job?: JobOrderByWithRelationInput
+  }
+
+  export type InstallationOrderWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    installationNo?: string
+    AND?: InstallationOrderWhereInput | InstallationOrderWhereInput[]
+    OR?: InstallationOrderWhereInput[]
+    NOT?: InstallationOrderWhereInput | InstallationOrderWhereInput[]
+    jobId?: StringNullableFilter<"InstallationOrder"> | string | null
+    installationDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    company?: StringNullableFilter<"InstallationOrder"> | string | null
+    jobName?: StringNullableFilter<"InstallationOrder"> | string | null
+    customer?: StringNullableFilter<"InstallationOrder"> | string | null
+    customerPosition?: StringNullableFilter<"InstallationOrder"> | string | null
+    address?: StringNullableFilter<"InstallationOrder"> | string | null
+    siteAddress?: StringNullableFilter<"InstallationOrder"> | string | null
+    quotationNo?: StringNullableFilter<"InstallationOrder"> | string | null
+    sender?: StringNullableFilter<"InstallationOrder"> | string | null
+    senderPhone?: StringNullableFilter<"InstallationOrder"> | string | null
+    technician?: StringNullableFilter<"InstallationOrder"> | string | null
+    technicianPhone?: StringNullableFilter<"InstallationOrder"> | string | null
+    items?: JsonNullableFilter<"InstallationOrder">
+    checklist?: JsonNullableFilter<"InstallationOrder">
+    checklistImages?: JsonNullableFilter<"InstallationOrder">
+    note?: StringNullableFilter<"InstallationOrder"> | string | null
+    sigSenderUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    nameSender?: StringNullableFilter<"InstallationOrder"> | string | null
+    sigReceiverUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    nameReceiver?: StringNullableFilter<"InstallationOrder"> | string | null
+    status?: StringFilter<"InstallationOrder"> | string
+    pdfUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    createdAt?: DateTimeFilter<"InstallationOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"InstallationOrder"> | Date | string
+    job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
+  }, "id" | "installationNo">
+
+  export type InstallationOrderOrderByWithAggregationInput = {
+    id?: SortOrder
+    installationNo?: SortOrder
+    jobId?: SortOrderInput | SortOrder
+    installationDate?: SortOrderInput | SortOrder
+    company?: SortOrderInput | SortOrder
+    jobName?: SortOrderInput | SortOrder
+    customer?: SortOrderInput | SortOrder
+    customerPosition?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
+    siteAddress?: SortOrderInput | SortOrder
+    quotationNo?: SortOrderInput | SortOrder
+    sender?: SortOrderInput | SortOrder
+    senderPhone?: SortOrderInput | SortOrder
+    technician?: SortOrderInput | SortOrder
+    technicianPhone?: SortOrderInput | SortOrder
+    items?: SortOrderInput | SortOrder
+    checklist?: SortOrderInput | SortOrder
+    checklistImages?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    sigSenderUrl?: SortOrderInput | SortOrder
+    nameSender?: SortOrderInput | SortOrder
+    sigReceiverUrl?: SortOrderInput | SortOrder
+    nameReceiver?: SortOrderInput | SortOrder
+    status?: SortOrder
+    pdfUrl?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: InstallationOrderCountOrderByAggregateInput
+    _max?: InstallationOrderMaxOrderByAggregateInput
+    _min?: InstallationOrderMinOrderByAggregateInput
+  }
+
+  export type InstallationOrderScalarWhereWithAggregatesInput = {
+    AND?: InstallationOrderScalarWhereWithAggregatesInput | InstallationOrderScalarWhereWithAggregatesInput[]
+    OR?: InstallationOrderScalarWhereWithAggregatesInput[]
+    NOT?: InstallationOrderScalarWhereWithAggregatesInput | InstallationOrderScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"InstallationOrder"> | string
+    installationNo?: StringWithAggregatesFilter<"InstallationOrder"> | string
+    jobId?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    installationDate?: DateTimeNullableWithAggregatesFilter<"InstallationOrder"> | Date | string | null
+    company?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    jobName?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    customer?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    customerPosition?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    address?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    siteAddress?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    quotationNo?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    sender?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    senderPhone?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    technician?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    technicianPhone?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    items?: JsonNullableWithAggregatesFilter<"InstallationOrder">
+    checklist?: JsonNullableWithAggregatesFilter<"InstallationOrder">
+    checklistImages?: JsonNullableWithAggregatesFilter<"InstallationOrder">
+    note?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    sigSenderUrl?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    nameSender?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    sigReceiverUrl?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    nameReceiver?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    status?: StringWithAggregatesFilter<"InstallationOrder"> | string
+    pdfUrl?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"InstallationOrder"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"InstallationOrder"> | Date | string
   }
 
   export type OutsourceRepairWhereInput = {
@@ -84957,6 +86642,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateInput = {
@@ -84990,6 +86676,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobUpdateInput = {
@@ -85023,6 +86710,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateInput = {
@@ -85056,6 +86744,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateManyInput = {
@@ -85767,6 +87456,215 @@ export namespace Prisma {
     workRepair?: BoolFieldUpdateOperationsInput | boolean
     workTraining?: BoolFieldUpdateOperationsInput | boolean
     workOther?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InstallationOrderCreateInput = {
+    id?: string
+    installationNo: string
+    installationDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    job?: JobCreateNestedOneWithoutInstallationOrdersInput
+  }
+
+  export type InstallationOrderUncheckedCreateInput = {
+    id?: string
+    installationNo: string
+    jobId?: string | null
+    installationDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InstallationOrderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    installationNo?: StringFieldUpdateOperationsInput | string
+    installationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneWithoutInstallationOrdersNestedInput
+  }
+
+  export type InstallationOrderUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    installationNo?: StringFieldUpdateOperationsInput | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    installationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InstallationOrderCreateManyInput = {
+    id?: string
+    installationNo: string
+    jobId?: string | null
+    installationDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InstallationOrderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    installationNo?: StringFieldUpdateOperationsInput | string
+    installationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InstallationOrderUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    installationNo?: StringFieldUpdateOperationsInput | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    installationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
     note?: NullableStringFieldUpdateOperationsInput | string | null
     sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
     nameSender?: NullableStringFieldUpdateOperationsInput | string | null
@@ -91166,6 +93064,12 @@ export namespace Prisma {
     none?: PurchaseOrderWhereInput
   }
 
+  export type InstallationOrderListRelationFilter = {
+    every?: InstallationOrderWhereInput
+    some?: InstallationOrderWhereInput
+    none?: InstallationOrderWhereInput
+  }
+
   export type JobStepLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -91183,6 +93087,10 @@ export namespace Prisma {
   }
 
   export type PurchaseOrderOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type InstallationOrderOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -91702,6 +93610,90 @@ export namespace Prisma {
     workRepair?: SortOrder
     workTraining?: SortOrder
     workOther?: SortOrder
+    note?: SortOrder
+    sigSenderUrl?: SortOrder
+    nameSender?: SortOrder
+    sigReceiverUrl?: SortOrder
+    nameReceiver?: SortOrder
+    status?: SortOrder
+    pdfUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InstallationOrderCountOrderByAggregateInput = {
+    id?: SortOrder
+    installationNo?: SortOrder
+    jobId?: SortOrder
+    installationDate?: SortOrder
+    company?: SortOrder
+    jobName?: SortOrder
+    customer?: SortOrder
+    customerPosition?: SortOrder
+    address?: SortOrder
+    siteAddress?: SortOrder
+    quotationNo?: SortOrder
+    sender?: SortOrder
+    senderPhone?: SortOrder
+    technician?: SortOrder
+    technicianPhone?: SortOrder
+    items?: SortOrder
+    checklist?: SortOrder
+    checklistImages?: SortOrder
+    note?: SortOrder
+    sigSenderUrl?: SortOrder
+    nameSender?: SortOrder
+    sigReceiverUrl?: SortOrder
+    nameReceiver?: SortOrder
+    status?: SortOrder
+    pdfUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InstallationOrderMaxOrderByAggregateInput = {
+    id?: SortOrder
+    installationNo?: SortOrder
+    jobId?: SortOrder
+    installationDate?: SortOrder
+    company?: SortOrder
+    jobName?: SortOrder
+    customer?: SortOrder
+    customerPosition?: SortOrder
+    address?: SortOrder
+    siteAddress?: SortOrder
+    quotationNo?: SortOrder
+    sender?: SortOrder
+    senderPhone?: SortOrder
+    technician?: SortOrder
+    technicianPhone?: SortOrder
+    note?: SortOrder
+    sigSenderUrl?: SortOrder
+    nameSender?: SortOrder
+    sigReceiverUrl?: SortOrder
+    nameReceiver?: SortOrder
+    status?: SortOrder
+    pdfUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InstallationOrderMinOrderByAggregateInput = {
+    id?: SortOrder
+    installationNo?: SortOrder
+    jobId?: SortOrder
+    installationDate?: SortOrder
+    company?: SortOrder
+    jobName?: SortOrder
+    customer?: SortOrder
+    customerPosition?: SortOrder
+    address?: SortOrder
+    siteAddress?: SortOrder
+    quotationNo?: SortOrder
+    sender?: SortOrder
+    senderPhone?: SortOrder
+    technician?: SortOrder
+    technicianPhone?: SortOrder
     note?: SortOrder
     sigSenderUrl?: SortOrder
     nameSender?: SortOrder
@@ -95499,6 +97491,13 @@ export namespace Prisma {
     connect?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
   }
 
+  export type InstallationOrderCreateNestedManyWithoutJobInput = {
+    create?: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput> | InstallationOrderCreateWithoutJobInput[] | InstallationOrderUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: InstallationOrderCreateOrConnectWithoutJobInput | InstallationOrderCreateOrConnectWithoutJobInput[]
+    createMany?: InstallationOrderCreateManyJobInputEnvelope
+    connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+  }
+
   export type RepairOrderUncheckedCreateNestedOneWithoutJobInput = {
     create?: XOR<RepairOrderCreateWithoutJobInput, RepairOrderUncheckedCreateWithoutJobInput>
     connectOrCreate?: RepairOrderCreateOrConnectWithoutJobInput
@@ -95538,6 +97537,13 @@ export namespace Prisma {
     connectOrCreate?: PurchaseOrderCreateOrConnectWithoutJobInput | PurchaseOrderCreateOrConnectWithoutJobInput[]
     createMany?: PurchaseOrderCreateManyJobInputEnvelope
     connect?: PurchaseOrderWhereUniqueInput | PurchaseOrderWhereUniqueInput[]
+  }
+
+  export type InstallationOrderUncheckedCreateNestedManyWithoutJobInput = {
+    create?: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput> | InstallationOrderCreateWithoutJobInput[] | InstallationOrderUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: InstallationOrderCreateOrConnectWithoutJobInput | InstallationOrderCreateOrConnectWithoutJobInput[]
+    createMany?: InstallationOrderCreateManyJobInputEnvelope
+    connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
   }
 
   export type RepairOrderUpdateOneWithoutJobNestedInput = {
@@ -95630,6 +97636,20 @@ export namespace Prisma {
     deleteMany?: PurchaseOrderScalarWhereInput | PurchaseOrderScalarWhereInput[]
   }
 
+  export type InstallationOrderUpdateManyWithoutJobNestedInput = {
+    create?: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput> | InstallationOrderCreateWithoutJobInput[] | InstallationOrderUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: InstallationOrderCreateOrConnectWithoutJobInput | InstallationOrderCreateOrConnectWithoutJobInput[]
+    upsert?: InstallationOrderUpsertWithWhereUniqueWithoutJobInput | InstallationOrderUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: InstallationOrderCreateManyJobInputEnvelope
+    set?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    disconnect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    delete?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    update?: InstallationOrderUpdateWithWhereUniqueWithoutJobInput | InstallationOrderUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: InstallationOrderUpdateManyWithWhereWithoutJobInput | InstallationOrderUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
+  }
+
   export type RepairOrderUncheckedUpdateOneWithoutJobNestedInput = {
     create?: XOR<RepairOrderCreateWithoutJobInput, RepairOrderUncheckedCreateWithoutJobInput>
     connectOrCreate?: RepairOrderCreateOrConnectWithoutJobInput
@@ -95710,6 +97730,20 @@ export namespace Prisma {
     deleteMany?: PurchaseOrderScalarWhereInput | PurchaseOrderScalarWhereInput[]
   }
 
+  export type InstallationOrderUncheckedUpdateManyWithoutJobNestedInput = {
+    create?: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput> | InstallationOrderCreateWithoutJobInput[] | InstallationOrderUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: InstallationOrderCreateOrConnectWithoutJobInput | InstallationOrderCreateOrConnectWithoutJobInput[]
+    upsert?: InstallationOrderUpsertWithWhereUniqueWithoutJobInput | InstallationOrderUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: InstallationOrderCreateManyJobInputEnvelope
+    set?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    disconnect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    delete?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    update?: InstallationOrderUpdateWithWhereUniqueWithoutJobInput | InstallationOrderUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: InstallationOrderUpdateManyWithWhereWithoutJobInput | InstallationOrderUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
+  }
+
   export type JobCreateNestedOneWithoutPaymentTasksInput = {
     create?: XOR<JobCreateWithoutPaymentTasksInput, JobUncheckedCreateWithoutPaymentTasksInput>
     connectOrCreate?: JobCreateOrConnectWithoutPaymentTasksInput
@@ -95774,6 +97808,22 @@ export namespace Prisma {
     delete?: JobWhereInput | boolean
     connect?: JobWhereUniqueInput
     update?: XOR<XOR<JobUpdateToOneWithWhereWithoutRepairDeliveriesInput, JobUpdateWithoutRepairDeliveriesInput>, JobUncheckedUpdateWithoutRepairDeliveriesInput>
+  }
+
+  export type JobCreateNestedOneWithoutInstallationOrdersInput = {
+    create?: XOR<JobCreateWithoutInstallationOrdersInput, JobUncheckedCreateWithoutInstallationOrdersInput>
+    connectOrCreate?: JobCreateOrConnectWithoutInstallationOrdersInput
+    connect?: JobWhereUniqueInput
+  }
+
+  export type JobUpdateOneWithoutInstallationOrdersNestedInput = {
+    create?: XOR<JobCreateWithoutInstallationOrdersInput, JobUncheckedCreateWithoutInstallationOrdersInput>
+    connectOrCreate?: JobCreateOrConnectWithoutInstallationOrdersInput
+    upsert?: JobUpsertWithoutInstallationOrdersInput
+    disconnect?: JobWhereInput | boolean
+    delete?: JobWhereInput | boolean
+    connect?: JobWhereUniqueInput
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutInstallationOrdersInput, JobUpdateWithoutInstallationOrdersInput>, JobUncheckedUpdateWithoutInstallationOrdersInput>
   }
 
   export type JobCreateNestedOneWithoutOutsourceRepairsInput = {
@@ -100471,6 +102521,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutQuotationInput = {
@@ -100503,6 +102554,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutQuotationInput = {
@@ -102146,6 +104198,74 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type InstallationOrderCreateWithoutJobInput = {
+    id?: string
+    installationNo: string
+    installationDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InstallationOrderUncheckedCreateWithoutJobInput = {
+    id?: string
+    installationNo: string
+    installationDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InstallationOrderCreateOrConnectWithoutJobInput = {
+    where: InstallationOrderWhereUniqueInput
+    create: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput>
+  }
+
+  export type InstallationOrderCreateManyJobInputEnvelope = {
+    data: InstallationOrderCreateManyJobInput | InstallationOrderCreateManyJobInput[]
+    skipDuplicates?: boolean
+  }
+
   export type RepairOrderUpsertWithoutJobInput = {
     update: XOR<RepairOrderUpdateWithoutJobInput, RepairOrderUncheckedUpdateWithoutJobInput>
     create: XOR<RepairOrderCreateWithoutJobInput, RepairOrderUncheckedCreateWithoutJobInput>
@@ -102485,6 +104605,55 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
   }
 
+  export type InstallationOrderUpsertWithWhereUniqueWithoutJobInput = {
+    where: InstallationOrderWhereUniqueInput
+    update: XOR<InstallationOrderUpdateWithoutJobInput, InstallationOrderUncheckedUpdateWithoutJobInput>
+    create: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput>
+  }
+
+  export type InstallationOrderUpdateWithWhereUniqueWithoutJobInput = {
+    where: InstallationOrderWhereUniqueInput
+    data: XOR<InstallationOrderUpdateWithoutJobInput, InstallationOrderUncheckedUpdateWithoutJobInput>
+  }
+
+  export type InstallationOrderUpdateManyWithWhereWithoutJobInput = {
+    where: InstallationOrderScalarWhereInput
+    data: XOR<InstallationOrderUpdateManyMutationInput, InstallationOrderUncheckedUpdateManyWithoutJobInput>
+  }
+
+  export type InstallationOrderScalarWhereInput = {
+    AND?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
+    OR?: InstallationOrderScalarWhereInput[]
+    NOT?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
+    id?: StringFilter<"InstallationOrder"> | string
+    installationNo?: StringFilter<"InstallationOrder"> | string
+    jobId?: StringNullableFilter<"InstallationOrder"> | string | null
+    installationDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    company?: StringNullableFilter<"InstallationOrder"> | string | null
+    jobName?: StringNullableFilter<"InstallationOrder"> | string | null
+    customer?: StringNullableFilter<"InstallationOrder"> | string | null
+    customerPosition?: StringNullableFilter<"InstallationOrder"> | string | null
+    address?: StringNullableFilter<"InstallationOrder"> | string | null
+    siteAddress?: StringNullableFilter<"InstallationOrder"> | string | null
+    quotationNo?: StringNullableFilter<"InstallationOrder"> | string | null
+    sender?: StringNullableFilter<"InstallationOrder"> | string | null
+    senderPhone?: StringNullableFilter<"InstallationOrder"> | string | null
+    technician?: StringNullableFilter<"InstallationOrder"> | string | null
+    technicianPhone?: StringNullableFilter<"InstallationOrder"> | string | null
+    items?: JsonNullableFilter<"InstallationOrder">
+    checklist?: JsonNullableFilter<"InstallationOrder">
+    checklistImages?: JsonNullableFilter<"InstallationOrder">
+    note?: StringNullableFilter<"InstallationOrder"> | string | null
+    sigSenderUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    nameSender?: StringNullableFilter<"InstallationOrder"> | string | null
+    sigReceiverUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    nameReceiver?: StringNullableFilter<"InstallationOrder"> | string | null
+    status?: StringFilter<"InstallationOrder"> | string
+    pdfUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    createdAt?: DateTimeFilter<"InstallationOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"InstallationOrder"> | Date | string
+  }
+
   export type JobCreateWithoutPaymentTasksInput = {
     id?: string
     jobNumber: string
@@ -102515,6 +104684,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutPaymentTasksInput = {
@@ -102547,6 +104717,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutPaymentTasksInput = {
@@ -102595,6 +104766,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutPaymentTasksInput = {
@@ -102627,6 +104799,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutStepLogsInput = {
@@ -102659,6 +104832,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutStepLogsInput = {
@@ -102691,6 +104865,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutStepLogsInput = {
@@ -102739,6 +104914,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutStepLogsInput = {
@@ -102771,6 +104947,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutRepairOrderInput = {
@@ -102803,6 +104980,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutRepairOrderInput = {
@@ -102835,6 +105013,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutRepairOrderInput = {
@@ -102883,6 +105062,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutRepairOrderInput = {
@@ -102915,6 +105095,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutRepairDeliveriesInput = {
@@ -102947,6 +105128,7 @@ export namespace Prisma {
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutRepairDeliveriesInput = {
@@ -102979,6 +105161,7 @@ export namespace Prisma {
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutRepairDeliveriesInput = {
@@ -103027,6 +105210,7 @@ export namespace Prisma {
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutRepairDeliveriesInput = {
@@ -103057,6 +105241,155 @@ export namespace Prisma {
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobCreateWithoutInstallationOrdersInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+    paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+    quotation?: QuotationCreateNestedOneWithoutJobsInput
+    repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateWithoutInstallationOrdersInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    quotationId?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    deliveryMethod?: string | null
+    deliveryDate?: Date | string | null
+    courierCompany?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+    repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+    purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobCreateOrConnectWithoutInstallationOrdersInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutInstallationOrdersInput, JobUncheckedCreateWithoutInstallationOrdersInput>
+  }
+
+  export type JobUpsertWithoutInstallationOrdersInput = {
+    update: XOR<JobUpdateWithoutInstallationOrdersInput, JobUncheckedUpdateWithoutInstallationOrdersInput>
+    create: XOR<JobCreateWithoutInstallationOrdersInput, JobUncheckedCreateWithoutInstallationOrdersInput>
+    where?: JobWhereInput
+  }
+
+  export type JobUpdateToOneWithWhereWithoutInstallationOrdersInput = {
+    where?: JobWhereInput
+    data: XOR<JobUpdateWithoutInstallationOrdersInput, JobUncheckedUpdateWithoutInstallationOrdersInput>
+  }
+
+  export type JobUpdateWithoutInstallationOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+    quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+    purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutInstallationOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
   }
@@ -103091,6 +105424,7 @@ export namespace Prisma {
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutOutsourceRepairsInput = {
@@ -103123,6 +105457,7 @@ export namespace Prisma {
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     purchaseOrders?: PurchaseOrderUncheckedCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutOutsourceRepairsInput = {
@@ -103171,6 +105506,7 @@ export namespace Prisma {
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutOutsourceRepairsInput = {
@@ -103203,6 +105539,7 @@ export namespace Prisma {
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type UserCreateWithoutCustomerRequirementsInput = {
@@ -112796,6 +115133,7 @@ export namespace Prisma {
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutPurchaseOrdersInput = {
@@ -112828,6 +115166,7 @@ export namespace Prisma {
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutPurchaseOrdersInput = {
@@ -112876,6 +115215,7 @@ export namespace Prisma {
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutPurchaseOrdersInput = {
@@ -112908,6 +115248,7 @@ export namespace Prisma {
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type CompanyCreateManyAssignedUserInput = {
@@ -114180,6 +116521,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutQuotationInput = {
@@ -114212,6 +116554,7 @@ export namespace Prisma {
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateManyWithoutQuotationInput = {
@@ -114359,6 +116702,35 @@ export namespace Prisma {
     status?: string
     createdBy?: string | null
     note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InstallationOrderCreateManyJobInput = {
+    id?: string
+    installationNo: string
+    installationDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -114632,6 +117004,93 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InstallationOrderUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    installationNo?: StringFieldUpdateOperationsInput | string
+    installationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InstallationOrderUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    installationNo?: StringFieldUpdateOperationsInput | string
+    installationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InstallationOrderUncheckedUpdateManyWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    installationNo?: StringFieldUpdateOperationsInput | string
+    installationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

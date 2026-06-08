@@ -960,26 +960,54 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
   const [subStatus, setSubStatus] = useState('รอจัดทำ PO')
   const [jobType, setJobType] = useState<string>(JOB_TYPES[0])
   const [paymentMethod, setPaymentMethod] = useState<string>('เครดิต 30 วัน')
+  const totalAmount = Number(quotation.actualClosingAmount) || Number(quotation.totalAmountBeforeVat) || 0;
+
+  const calculateDefaultInstallments = (count: number, baseDateStr: string) => {
+    const baseDate = new Date(baseDateStr || new Date().toISOString().slice(0, 10));
+    return Array.from({ length: count }).map((_, i) => {
+      const d = new Date(baseDate);
+      d.setMonth(d.getMonth() + i);
+      const amount = i === count - 1 
+        ? totalAmount - Math.floor(totalAmount / count) * (count - 1) 
+        : Math.floor(totalAmount / count);
+      return {
+        installmentNo: i + 1,
+        amount: amount.toString(),
+        dueDate: d.toISOString().slice(0, 10)
+      };
+    });
+  };
+
   const [installmentCount, setInstallmentCount] = useState<number>(3)
-  const [installments, setInstallments] = useState<any[]>([
-    { installmentNo: 1, amount: '', dueDate: defaultDate },
-    { installmentNo: 2, amount: '', dueDate: '' },
-    { installmentNo: 3, amount: '', dueDate: '' }
-  ])
+  const [installments, setInstallments] = useState<any[]>(() => calculateDefaultInstallments(3, defaultDate))
 
   const handleInstallmentCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const count = parseInt(e.target.value);
     setInstallmentCount(count);
-    const newInstallments = [];
-    for (let i = 1; i <= count; i++) {
-      newInstallments.push(installments[i - 1] || { installmentNo: i, amount: '', dueDate: '' });
-    }
-    setInstallments(newInstallments);
+    setInstallments(calculateDefaultInstallments(count, poDate));
   }
 
   const handleInstallmentChange = (index: number, field: string, value: string) => {
     const newInstallments = [...installments];
     newInstallments[index] = { ...newInstallments[index], [field]: value };
+    
+    if (field === 'amount') {
+      let sumUpToCurrent = 0;
+      for (let i = 0; i <= index; i++) {
+        sumUpToCurrent += Number(newInstallments[i].amount) || 0;
+      }
+      const rem = totalAmount - sumUpToCurrent;
+      const remCount = installmentCount - 1 - index;
+      
+      if (remCount > 0) {
+        const each = Math.max(0, Math.floor(rem / remCount));
+        for (let i = index + 1; i < installmentCount; i++) {
+          const amt = (i === installmentCount - 1) ? (rem - each * (remCount - 1)) : each;
+          newInstallments[i] = { ...newInstallments[i], amount: Math.max(0, amt).toString() };
+        }
+      }
+    }
+    
     setInstallments(newInstallments);
   }
 
@@ -991,19 +1019,24 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
   ]
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-lg font-black text-gray-800 flex items-center gap-2">
-            <ClipboardCheck className={isClosedStatus ? "text-emerald-600" : "text-violet-600"} size={20} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+        
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
+          <h2 className="text-lg font-black text-gray-800 flex items-center gap-2.5">
+            <div className={`p-2 rounded-xl ${isClosedStatus ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-50 text-violet-600'}`}>
+              <ClipboardCheck size={20} />
+            </div>
             {isClosedStatus ? 'ยืนยันปิดการขาย' : 'ข้อมูล Purchase Order'}
           </h2>
-          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 transition-colors">
+          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-colors">
             <AlertCircle size={20} />
           </button>
         </div>
         
-        <div className="p-6 space-y-4">
+        {/* Scrollable Content */}
+        <div className="p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50">
           <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex justify-between items-start gap-4">
             <div>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">บริษัทลูกค้า</p>
@@ -1139,10 +1172,11 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
           </div>
         </div>
 
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-2">
+        {/* Footer */}
+        <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-xs font-black text-gray-600 hover:bg-gray-200 bg-gray-100 rounded-xl transition-all uppercase tracking-widest"
+            className="px-5 py-2.5 text-xs font-black text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-all tracking-wide"
           >
             ยกเลิก
           </button>
@@ -1153,7 +1187,7 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
                 : undefined;
               onConfirm({ poNumber, poDate, subStatus, jobType, paymentMethod, installments: formattedInstallments })
             }}
-            className={`px-4 py-2 text-xs font-black text-white ${isClosedStatus ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20' : 'bg-violet-600 hover:bg-violet-700 shadow-violet-500/20'} rounded-xl transition-all uppercase tracking-widest shadow-md`}
+            className={`px-6 py-2.5 text-sm font-black text-white ${isClosedStatus ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/25' : 'bg-violet-600 hover:bg-violet-700 shadow-violet-500/25'} rounded-xl transition-all tracking-wide shadow-lg hover:-translate-y-0.5`}
           >
             {isClosedStatus ? 'บันทึกการปิดการขาย' : 'บันทึก PO'}
           </button>

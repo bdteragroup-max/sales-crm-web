@@ -339,6 +339,7 @@ model Job {
   repairDeliveries RepairDelivery[]
   outsourceRepairs OutsourceRepair[]
   purchaseOrders  PurchaseOrder[]
+  installationOrders InstallationOrder[]
 
   @@map("jobs")
 }
@@ -453,6 +454,46 @@ model RepairDelivery {
   
   createdAt       DateTime @default(now()) @db.Timestamptz(6)
   updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+}
+
+model InstallationOrder {
+  id               String   @id @default(cuid())
+  installationNo   String   @unique // e.g., INST-69-0001
+  
+  // Link to Job
+  jobId            String?
+  job              Job?     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  installationDate DateTime? @db.Timestamptz(6)
+  company          String?
+  jobName          String?
+  customer         String?
+  customerPosition String?
+  address          String?
+  siteAddress      String?
+  quotationNo      String?
+
+  sender           String?
+  senderPhone      String?
+  technician       String?
+  technicianPhone  String?
+
+  items            Json?    // list of items installed
+  checklist        Json?    // installation steps checklist
+  checklistImages  Json?    // any photos
+
+  note             String?
+
+  sigSenderUrl     String?
+  nameSender       String?
+  sigReceiverUrl   String?
+  nameReceiver     String?
+  
+  status           String   @default("Draft")
+  pdfUrl           String?
+  
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(6)
 }
 
 model OutsourceRepair {
