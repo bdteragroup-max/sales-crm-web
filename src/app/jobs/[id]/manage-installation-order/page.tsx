@@ -12,6 +12,11 @@ export default async function ManageInstallationPage({ params }: { params: Promi
 
   const { id: jobId } = await params
 
+  const userRecord = await prisma.user.findUnique({
+    where: { id: session.id },
+    select: { phoneNumber: true }
+  })
+
   const job = await prisma.job.findUnique({
     where: { id: jobId },
     include: { quotation: true }
@@ -49,7 +54,7 @@ export default async function ManageInstallationPage({ params }: { params: Promi
       siteAddress: company?.shippingAddress || company?.address || "",
       quotationNo: job.quotationNumber || job.quotation?.quotationNumber || "",
       sender: session.fullName || "",
-      senderPhone: session.phoneNumber || "",
+      senderPhone: userRecord?.phoneNumber || "",
       technician: "",
       technicianPhone: "",
       workInspect: false,
