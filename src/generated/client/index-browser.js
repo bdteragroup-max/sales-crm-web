@@ -366,8 +366,15 @@ exports.Prisma.JobScalarFieldEnum = {
   trackingPhotoUrl: 'trackingPhotoUrl',
   paymentMethod: 'paymentMethod',
   paymentStatus: 'paymentStatus',
+  paymentDate: 'paymentDate',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  salesOrderDate: 'salesOrderDate',
+  creditTerms: 'creditTerms',
+  creditDocsUrl: 'creditDocsUrl',
+  billingRegulations: 'billingRegulations',
+  billingDocsUrl: 'billingDocsUrl',
+  percentageTerms: 'percentageTerms'
 };
 
 exports.Prisma.PaymentTaskScalarFieldEnum = {

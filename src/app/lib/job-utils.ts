@@ -1,22 +1,6 @@
 import prisma from "@/app/lib/db";
 
-// ================================================
-// Extract company code from QT number
-// QT68-P-T1155 → split('-') → ['QT68','P','T1155']
-// parts[2][0] = 'T' → TP
-// ================================================
-export function extractCompanyCode(qtNumber: string): string { 
-  const companyMap: Record<string, string> = { 
-    T: "TP", 
-    G: "TG", 
-    E: "TE", 
-  }; 
-  const parts = qtNumber.split("-"); 
-  const char = parts[2]?.[0]?.toUpperCase() ?? ""; 
-  return companyMap[char] ?? "TP"; // fallback TP
-}
-
-// ================================================
+// Moved extractCompanyCode to src/utils/company-utils.ts// ================================================
 // Generate Job Number Atomic (Prevents race conditions)
 // JB{yearBe}-{month}{seq4} e.g., JB69-040095
 // ================================================

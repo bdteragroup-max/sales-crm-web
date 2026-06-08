@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Save, X, FileText, MapPin, User, AlertTriangle } from 'lucide-react';
+import { Save, X, FileText, MapPin, User, AlertTriangle, ClipboardCheck, Loader2 } from 'lucide-react';
 import { saveSalesData, updateSalesData, searchCompanies, searchContacts, getPostalInfo } from '@/app/actions/sales';
 import Card from './Card';
 import InputField from './InputField';
 import SelectField from './SelectField';
 import { LoadingButton } from '@/app/components/LoadingButton';
+import { extractCompanyCode } from '@/utils/company-utils';
 import { JOB_TYPES } from '@/constants/job-types';
+import { createClient } from '@/utils/supabase/client';
 
 interface NewQuotationFormProps {
   businessTypes?: string[];
@@ -30,6 +32,70 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
   const [postalResults, setPostalResults] = useState<any[]>([]);
   const [showPostalDropdown, setShowPostalDropdown] = useState(false);
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [creditDocsUrl, setCreditDocsUrl] = useState('');
+
+  const [isUploadingBilling, setIsUploadingBilling] = useState(false);
+  const [billingDocsUrl, setBillingDocsUrl] = useState('');
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    const supabase = createClient();
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `credit-docs/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('uploadsService')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('uploadsService')
+        .getPublicUrl(filePath);
+
+      setCreditDocsUrl(publicUrl);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleBillingFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingBilling(true);
+    const supabase = createClient();
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `billing-docs/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('uploadsService')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('uploadsService')
+        .getPublicUrl(filePath);
+
+      setBillingDocsUrl(publicUrl);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์');
+    } finally {
+      setIsUploadingBilling(false);
+    }
+  };
 
   const handleBlur = () => {
     setTimeout(() => setShowSuggestions(false), 200);
@@ -218,10 +284,14 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           followUp2: '',
           followUp3: '',
           followUp4: '',
+          workName: '',
           salesBranch: currentUserSale?.branch || '',
           salesTeamLeader: currentUserSale?.teamLeader || '',
           remarks: '',
+          salesOrderDate: formatDateForInput(new Date()),
+          paymentDate: '',
         });
+        setCreditDocsUrl('');
       } else {
         const d = initialData.billingDate || initialData.poDate || initialData.quotationDate || initialData.updatedAt || new Date();
         setFormData({
@@ -258,17 +328,28 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           followUp2: formatDateForInput(initialData.followUp2),
           followUp3: formatDateForInput(initialData.followUp3),
           followUp4: formatDateForInput(initialData.followUp4),
+          workName: initialData.jobs?.[0]?.item || initialData.subject || initialData.productType || '',
           salesBranch: initialData.salesBranch || initialData.salesperson?.employeeSale?.branch || '',
           salesTeamLeader: initialData.salesTeamLeader || initialData.salesperson?.employeeSale?.teamLeader || '',
           remarks: initialData.remarks || '',
-          paymentMethod: initialData.jobs?.[0]?.paymentMethod || 'เครดิต 30 วัน',
+          jobType: initialData.jobs?.[0]?.jobType || '',
+          paymentMethod: initialData.jobs?.[0]?.paymentMethod?.startsWith('เครดิต') ? 'เครดิต' : (initialData.jobs?.[0]?.paymentMethod || 'เครดิต'),
           installmentCount: initialData.jobs?.[0]?.paymentTasks?.length || 3,
           installments: initialData.jobs?.[0]?.paymentTasks?.length > 0 ? initialData.jobs[0].paymentTasks : [
             { installmentNo: 1, amount: '', dueDate: formatDateForInput(new Date()) },
             { installmentNo: 2, amount: '', dueDate: '' },
             { installmentNo: 3, amount: '', dueDate: '' }
-          ]
+          ],
+          salesOrderDate: initialData.jobs?.[0]?.salesOrderDate ? formatDateForInput(initialData.jobs[0].salesOrderDate) : formatDateForInput(new Date()),
+          paymentDate: initialData.jobs?.[0]?.paymentDate ? formatDateForInput(initialData.jobs[0].paymentDate) : '',
+          deliveryDate: initialData.jobs?.[0]?.deliveryDate ? formatDateForInput(initialData.jobs[0].deliveryDate) : '',
+          creditTerms: initialData.jobs?.[0]?.creditTerms || '',
+          billingRegulations: initialData.jobs?.[0]?.billingRegulations || '',
+          percentageTerms: initialData.jobs?.[0]?.percentageTerms || '',
+          companyCode: initialData.jobs?.[0]?.companyCode || extractCompanyCode(initialData.quotationNumber || ''),
         });
+        setCreditDocsUrl(initialData.jobs?.[0]?.creditDocsUrl || '');
+        setBillingDocsUrl(initialData.jobs?.[0]?.billingDocsUrl || '');
       }
       setSelectedCompanyId(initialData.companyId || null);
     } else {
@@ -283,12 +364,15 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
         customerStatus: 'ลูกค้าใหม่',
         customerAccessChannel: 'Website',
         productType: 'อื่นๆ',
+        companyCode: 'TP',
       });
       setStatus('');
       setWinLossReason('');
       setSalesBeforeVat(0);
       setTransportationFee(0);
       setInstallationFee(0);
+      setCreditDocsUrl('');
+      setBillingDocsUrl('');
     }
   }, [initialData]);
 
@@ -303,13 +387,20 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
     setIsSubmitting(true);
     setMessage('');
 
-    const form = new FormData(e.currentTarget);
-    let res;
+    const formDataObj = new FormData(e.currentTarget);
+    if (creditDocsUrl) {
+      formDataObj.append('creditDocsUrl', creditDocsUrl);
+    }
+    if (billingDocsUrl) {
+      formDataObj.append('billingDocsUrl', billingDocsUrl);
+    }
     
+    let res;
     if (initialData?.id) {
-      res = await updateSalesData(initialData.id, form);
+      formDataObj.append('id', initialData.id);
+      res = await updateSalesData(initialData.id, formDataObj);
     } else {
-      res = await saveSalesData(form);
+      res = await saveSalesData(formDataObj);
     }
 
     if (res.success) {
@@ -337,6 +428,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <input type="hidden" name="creditDocsUrl" value={creditDocsUrl} />
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <LoadingButton
           type="submit"
@@ -518,8 +610,20 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
 
               {(status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) && (
                 <div className="pt-2 space-y-4">
-                  <SelectField name="jobType" label="ประเภทงาน (Job Type) :" options={[...JOB_TYPES]} value={formData.jobType || ''} onChange={handleInputChange} />
-                  <SelectField name="paymentMethod" label="วิธีการชำระเงิน :" options={['จ่ายแล้ว', 'เครดิต 30 วัน', 'เครดิต 60 วัน', 'เก็บเงินหน้างาน', 'ผ่อนชำระ']} value={formData.paymentMethod || 'เครดิต 30 วัน'} onChange={handleInputChange} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <SelectField 
+                      name="companyCode" 
+                      label="บริษัทที่ออกบิล (Company) :" 
+                      options={['TP', 'TG', 'TE']} 
+                      value={formData.companyCode || 'TP'} 
+                      onChange={handleInputChange} 
+                    />
+                    <SelectField name="jobType" label="ประเภทงาน (Job Type) :" options={[...JOB_TYPES]} value={formData.jobType || ''} onChange={handleInputChange} />
+                  </div>
+                  {formData.jobType !== 'สินค้าฝากขาย' && formData.jobType !== 'งานขาย' && (
+                    <InputField name="workName" label="ชื่อชิ้นงาน (Work Name) :" type="text" placeholder="เช่น ติดตั้งกล้องวงจรปิด" value={formData.workName || ''} onChange={handleInputChange} required />
+                  )}
+                  <SelectField name="paymentMethod" label="วิธีการชำระเงิน :" options={['เงินสด', 'จ่ายแล้ว', 'เครดิต', 'เก็บเงินหน้างาน', 'ผ่อนชำระ']} value={formData.paymentMethod || 'เครดิต'} onChange={handleInputChange} />
                   
                   {formData.paymentMethod === 'ผ่อนชำระ' && (
                     <div className="flex items-start gap-4">
@@ -577,12 +681,86 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                       </div>
                     </div>
                   )}
+
+                  <div className="pt-4 border-t border-gray-200 mt-6 space-y-4">
+                    <h3 className="text-sm font-black text-gray-800 flex items-center gap-2">
+                      <ClipboardCheck size={16} className="text-blue-600" /> ข้อมูลยืนยันการขาย (สำหรับบัญชี)
+                    </h3>
+                    <div className="flex flex-col gap-4">
+                      <InputField name="salesOrderDate" label="วันที่สั่งซื้อ (Order Date) :" type="date" value={formData.salesOrderDate || ''} onChange={handleInputChange} required />
+                      <InputField name="deliveryDate" label="วันที่ส่งมอบ (Delivery Date) :" type="date" value={formData.deliveryDate || ''} onChange={handleInputChange} required />
+                      {(formData.paymentMethod === 'เงินสด' || formData.paymentMethod === 'จ่ายแล้ว') && (
+                        <InputField name="paymentDate" label="วันที่ชำระเงิน (Payment Date) :" type="date" value={formData.paymentDate || ''} onChange={handleInputChange} required />
+                      )}
+                    </div>
+                    
+                    {formData.paymentMethod !== 'เงินสด' && formData.paymentMethod !== 'จ่ายแล้ว' && (
+                      <>
+                        <div className="mt-4">
+                          <InputField name="creditTerms" label="เงื่อนไขเครดิต (Credit Terms) :" type="text" placeholder="เช่น 15, 30, 45, 60 วัน..." value={formData.creditTerms || ''} onChange={handleInputChange} />
+                        </div>
+                        
+                        <div className="flex flex-col gap-6 mt-4">
+                          <div className="flex flex-col md:flex-row items-start gap-1.5 md:gap-4 w-full">
+                            <label className="w-full md:w-1/3 text-left md:text-right text-xs md:text-sm font-semibold md:font-medium text-slate-500 md:text-gray-600 mt-2.5">เอกสารอนุมัติขอเครดิต :</label>
+                            <div className="flex-1 w-full border border-slate-200 rounded-xl p-4 bg-white hover:border-slate-300 transition-all shadow-sm flex flex-col justify-center h-full">
+                              <div className="flex flex-col gap-3">
+                                <input
+                                  type="file"
+                                  onChange={handleFileUpload}
+                                  accept=".pdf,image/*"
+                                  className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors cursor-pointer"
+                                />
+                                {isUploading && <div className="text-xs text-blue-600 flex items-center gap-1.5 font-bold animate-pulse"><Loader2 size={14} className="animate-spin" /> กำลังอัปโหลด...</div>}
+                              </div>
+                              {creditDocsUrl && (
+                                <div className="mt-4 pt-4 border-t border-slate-100">
+                                  <a href={creditDocsUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 font-bold hover:text-blue-800 hover:underline flex items-center gap-1.5 bg-blue-50 w-fit px-3 py-1.5 rounded-lg transition-colors">
+                                    <FileText size={14} /> ดูไฟล์ที่อัปโหลด
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col md:flex-row items-start gap-1.5 md:gap-4 w-full">
+                            <label className="w-full md:w-1/3 text-left md:text-right text-xs md:text-sm font-semibold md:font-medium text-slate-500 md:text-gray-600 mt-2.5">ระเบียบการวางบิล และเงื่อนไขการจ่ายเงิน :</label>
+                            <div className="flex-1 w-full border border-slate-200 rounded-xl p-4 bg-white hover:border-slate-300 transition-all shadow-sm flex flex-col gap-4">
+                              <textarea name="billingRegulations" rows={2} placeholder="ระบุระเบียบการวางบิล และเงื่อนไขการจ่ายเงิน..." value={formData.billingRegulations || ''} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"></textarea>
+                              <div className="flex flex-col gap-3">
+                                <input
+                                  type="file"
+                                  onChange={handleBillingFileUpload}
+                                  accept=".pdf,image/*"
+                                  className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors cursor-pointer"
+                                />
+                                {isUploadingBilling && <div className="text-xs text-blue-600 flex items-center gap-1.5 font-bold animate-pulse"><Loader2 size={14} className="animate-spin" /> กำลังอัปโหลด...</div>}
+                              </div>
+                              {billingDocsUrl && (
+                                <div className="pt-4 border-t border-slate-100 mt-1">
+                                  <a href={billingDocsUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 font-bold hover:text-blue-800 hover:underline flex items-center gap-1.5 bg-blue-50 w-fit px-3 py-1.5 rounded-lg transition-colors">
+                                    <FileText size={14} /> ดูไฟล์ที่อัปโหลด
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                      </>
+                    )}
+                    
+                    <div className="flex flex-col md:flex-row items-start gap-1.5 md:gap-4 w-full mt-6">
+                      <label className="w-full md:w-1/3 text-left md:text-right text-xs md:text-sm font-semibold md:font-medium text-slate-500 md:text-gray-600 mt-2.5">เงื่อนไข % กรณีขอเบิกเงิน (Invoice % Terms) :</label>
+                      <textarea name="percentageTerms" rows={2} placeholder="ระบุเงื่อนไขการเบิกเงิน..." value={formData.percentageTerms || ''} onChange={handleInputChange} className="flex-1 w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white hover:border-slate-300 transition-all resize-none shadow-sm"></textarea>
+                    </div>
+                  </div>
                 </div>
               )}
               {!isLostStatus && (
-                <div className="flex items-start gap-4">
-                  <label className="w-1/3 text-sm font-medium text-gray-600 text-right mt-2.5">เหตุผล ซื้อ/ไม่ซื้อ :</label>
-                  <textarea name="winLossReason" rows={2} value={formData.winLossReason || ''} onChange={handleInputChange} className="flex-1 border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none bg-white transition-all"></textarea>
+                <div className="flex flex-col md:flex-row items-start gap-1.5 md:gap-4 w-full mt-4">
+                  <label className="w-full md:w-1/3 text-left md:text-right text-xs md:text-sm font-semibold md:font-medium text-slate-500 md:text-gray-600 mt-2.5">เหตุผล ซื้อ/ไม่ซื้อ :</label>
+                  <textarea name="winLossReason" rows={2} placeholder="ระบุเหตุผล..." value={formData.winLossReason || ''} onChange={handleInputChange} className="flex-1 w-full border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none bg-white hover:border-slate-300 transition-all resize-none shadow-sm"></textarea>
                 </div>
               )}
             </div>

@@ -330,8 +330,15 @@ model Job {
   trackingPhotoUrl String?
   paymentMethod   String?
   paymentStatus   String?      @default("pending")
+  paymentDate     DateTime?    @db.Timestamptz(6)
   createdAt       DateTime     @default(now()) @db.Timestamptz(6)
   updatedAt       DateTime     @updatedAt @db.Timestamptz(6)
+  salesOrderDate  DateTime?    @db.Timestamptz(6)
+  creditTerms     String?
+  creditDocsUrl   String?
+  billingRegulations String?
+  billingDocsUrl  String?
+  percentageTerms String?
   repairOrder     RepairOrder?
   stepLogs        JobStepLog[]
   paymentTasks    PaymentTask[]

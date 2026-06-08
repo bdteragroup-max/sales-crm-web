@@ -3,7 +3,10 @@
 import React, { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateQuotationStatus } from '@/app/actions/pipeline'
+import { searchCompanies } from '@/app/actions/sales'
+import { extractCompanyCode } from '@/utils/company-utils'
 import { JOB_TYPES } from '@/constants/job-types'
+import { createClient } from '@/utils/supabase/client'
 import {
   Layers,
   Sparkles,
@@ -28,6 +31,7 @@ import {
   ClipboardCheck,
   Calendar,
   CalendarDays,
+  Loader2,
 } from 'lucide-react'
 
 interface PipelineClientPageProps {
@@ -269,7 +273,7 @@ export default function PipelineClientPage({
     await executeMove(id, nextDbStatus)
   }
 
-  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string, paymentMethod?: string, installments?: any[] }) => {
+  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string, paymentMethod?: string, installments?: any[], salesOrderDate?: string, deliveryDate?: string, creditTerms?: string, creditDocsUrl?: string, billingRegulations?: string, percentageTerms?: string, paymentDate?: string, companyId?: string }) => {
     const oldQuotations = [...quotations]
     setQuotations(prev => {
       const updated = prev.map(q => q.id === id ? { 
@@ -845,7 +849,15 @@ export default function PipelineClientPage({
               poDate: data.poDate,
               jobType: data.jobType,
               paymentMethod: data.paymentMethod,
-              installments: data.installments
+              installments: data.installments,
+              salesOrderDate: data.salesOrderDate,
+              deliveryDate: data.deliveryDate,
+              creditTerms: data.creditTerms,
+              creditDocsUrl: data.creditDocsUrl,
+              billingRegulations: data.billingRegulations,
+              percentageTerms: data.percentageTerms,
+              paymentDate: data.paymentDate,
+              companyId: data.companyId
             });
             setPendingTransition(null);
           }}
@@ -861,7 +873,16 @@ export default function PipelineClientPage({
               poNumber: data.poNumber, 
               poDate: data.poDate,
               jobType: data.jobType,
-              paymentMethod: data.paymentMethod
+              paymentMethod: data.paymentMethod,
+              installments: data.installments,
+              salesOrderDate: data.salesOrderDate,
+              deliveryDate: data.deliveryDate,
+              creditTerms: data.creditTerms,
+              creditDocsUrl: data.creditDocsUrl,
+              billingRegulations: data.billingRegulations,
+              percentageTerms: data.percentageTerms,
+              paymentDate: data.paymentDate,
+              companyId: data.companyId
             });
             setPendingTransition(null);
           }}
@@ -946,20 +967,135 @@ function QuotationTransitionModal({ quotation, onConfirm, onCancel }: { quotatio
 function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCancel }: { 
   quotation: any, 
   isClosedStatus?: boolean,
-  onConfirm: (data: { poNumber: string, poDate: string, subStatus: string, jobType: string, paymentMethod?: string, installments?: any[] }) => void, 
+  onConfirm: (data: { 
+    poNumber: string, 
+    poDate: string, 
+    subStatus: string, 
+    jobType: string, 
+    paymentMethod?: string, 
+    installments?: any[],
+    salesOrderDate?: string,
+    deliveryDate?: string,
+    creditTerms?: string,
+    creditDocsUrl?: string,
+    billingRegulations?: string,
+    billingDocsUrl?: string,
+    percentageTerms?: string,
+    paymentDate?: string,
+    workName?: string,
+    companyId?: string,
+    companyCode?: string
+  }) => void, 
   onCancel: () => void 
 }) {
-  const [poNumber, setPoNumber] = useState(quotation.poNumber || '')
+  const job = quotation.jobs?.[0]
+  const [poNumber, setPoNumber] = useState(job?.poNumber || quotation.poNumber || '')
   
   // Format existing date or use today
-  const defaultDate = quotation.poDate 
-    ? new Date(quotation.poDate).toISOString().slice(0, 10) 
+  const defaultDate = job?.poDate || quotation.poDate 
+    ? new Date(job?.poDate || quotation.poDate).toISOString().slice(0, 10) 
     : new Date().toISOString().slice(0, 10)
   
   const [poDate, setPoDate] = useState(defaultDate)
   const [subStatus, setSubStatus] = useState('รอจัดทำ PO')
-  const [jobType, setJobType] = useState<string>(JOB_TYPES[0])
-  const [paymentMethod, setPaymentMethod] = useState<string>('เครดิต 30 วัน')
+  const [jobType, setJobType] = useState<string>(job?.jobType || JOB_TYPES[0])
+  const [paymentMethod, setPaymentMethod] = useState<string>(job?.paymentMethod || 'เครดิต')
+  const [workName, setWorkName] = useState(job?.item || quotation.subject || quotation.productType || '')
+  const [companyCode, setCompanyCode] = useState<string>(job?.companyCode || extractCompanyCode(quotation.quotationNumber || ''))
+  
+  // Sales Confirmation Fields
+  const [salesOrderDate, setSalesOrderDate] = useState(job?.salesOrderDate ? new Date(job.salesOrderDate).toISOString().slice(0, 10) : defaultDate)
+  const [deliveryDate, setDeliveryDate] = useState(job?.deliveryDate ? new Date(job.deliveryDate).toISOString().slice(0, 10) : '')
+  const [creditTerms, setCreditTerms] = useState(job?.creditTerms || '')
+  const [creditDocsUrl, setCreditDocsUrl] = useState(job?.creditDocsUrl || '')
+  const [billingRegulations, setBillingRegulations] = useState(job?.billingRegulations || '')
+  const [percentageTerms, setPercentageTerms] = useState(job?.percentageTerms || '')
+  const [billingDocsUrl, setBillingDocsUrl] = useState(job?.billingDocsUrl || '')
+  const [paymentDate, setPaymentDate] = useState(job?.paymentDate ? new Date(job.paymentDate).toISOString().slice(0, 10) : '')
+  const [isUploading, setIsUploading] = useState(false)
+  const [isUploadingBilling, setIsUploadingBilling] = useState(false)
+
+  const [companySearchTerm, setCompanySearchTerm] = useState(quotation.company?.companyName || '')
+  const [selectedCompanyId, setSelectedCompanyId] = useState(quotation.companyId || null)
+  const [companyResults, setCompanyResults] = useState<any[]>([])
+  const [showCompanyDropdown, setShowCompanyDropdown] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (companySearchTerm.length >= 2 && !selectedCompanyId && companySearchTerm !== quotation.company?.companyName) {
+        try {
+          const results = await searchCompanies(companySearchTerm)
+          setCompanyResults(results)
+          setShowCompanyDropdown(true)
+        } catch (error) {
+          console.error(error)
+        }
+      } else {
+        setCompanyResults([])
+        setShowCompanyDropdown(false)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [companySearchTerm, selectedCompanyId, quotation.company?.companyName])
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setIsUploading(true)
+    const supabase = createClient()
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+      const filePath = `credit-docs/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('uploadsService')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('uploadsService')
+        .getPublicUrl(filePath)
+
+      setCreditDocsUrl(publicUrl)
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleBillingFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setIsUploadingBilling(true)
+    const supabase = createClient()
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+      const filePath = `billing-docs/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('uploadsService')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('uploadsService')
+        .getPublicUrl(filePath)
+
+      setBillingDocsUrl(publicUrl)
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์')
+    } finally {
+      setIsUploadingBilling(false)
+    }
+  }
+
   const totalAmount = Number(quotation.actualClosingAmount) || Number(quotation.totalAmountBeforeVat) || 0;
 
   const calculateDefaultInstallments = (count: number, baseDateStr: string) => {
@@ -978,8 +1114,11 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
     });
   };
 
-  const [installmentCount, setInstallmentCount] = useState<number>(3)
-  const [installments, setInstallments] = useState<any[]>(() => calculateDefaultInstallments(3, defaultDate))
+  const [installmentCount, setInstallmentCount] = useState<number>(job?.paymentTasks?.length || 3)
+  const [installments, setInstallments] = useState<any[]>(() => {
+    if (job?.paymentTasks && job.paymentTasks.length > 0) return job.paymentTasks
+    return calculateDefaultInstallments(3, defaultDate)
+  })
 
   const handleInstallmentCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const count = parseInt(e.target.value);
@@ -1038,9 +1177,38 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
         {/* Scrollable Content */}
         <div className="p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50">
           <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex justify-between items-start gap-4">
-            <div>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">บริษัทลูกค้า</p>
-              <p className="text-sm font-black text-gray-800">{quotation.company?.companyName || 'ไม่ระบุชื่อบริษัท'}</p>
+            <div className="flex-1 relative">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">บริษัทลูกค้า (Company)</label>
+              <input 
+                type="text"
+                value={companySearchTerm}
+                onChange={(e) => {
+                  setCompanySearchTerm(e.target.value);
+                  setSelectedCompanyId(null);
+                  setCompanyResults([]);
+                }}
+                onBlur={() => setTimeout(() => setShowCompanyDropdown(false), 200)}
+                onFocus={() => { if (companyResults.length > 0) setShowCompanyDropdown(true) }}
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+                placeholder="พิมพ์เพื่อค้นหาบริษัท..."
+              />
+              {showCompanyDropdown && companyResults.length > 0 && (
+                <ul className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-auto divide-y divide-slate-50">
+                  {companyResults.map((company, index) => (
+                    <li 
+                      key={index} 
+                      onClick={() => {
+                        setSelectedCompanyId(company.id);
+                        setCompanySearchTerm(company.companyName);
+                        setShowCompanyDropdown(false);
+                      }}
+                      className="px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors"
+                    >
+                      <div className="font-bold text-slate-800 text-sm mb-0.5">{company.companyName}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             {quotation.quotationNumber && (
               <div className="text-right">
@@ -1080,6 +1248,20 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+                บริษัทที่ออกบิล (Company) <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={companyCode}
+                onChange={(e) => setCompanyCode(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+              >
+                <option value="TP">TP (Teragroup)</option>
+                <option value="TG">TG (Tera Global)</option>
+                <option value="TE">TE (Tera Enterprise)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
                 ประเภทงาน (Sales Type) <span className="text-red-500">*</span>
               </label>
               <select
@@ -1092,6 +1274,21 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
                 ))}
               </select>
             </div>
+
+            {jobType !== 'สินค้าฝากขาย' && jobType !== 'งานขาย' && (
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+                  ชื่อชิ้นงาน (Work Name)
+                </label>
+                <input
+                  type="text"
+                  value={workName}
+                  onChange={(e) => setWorkName(e.target.value)}
+                  placeholder="เช่น ติดตั้งกล้องวงจรปิด"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
+                />
+              </div>
+            )}
             
             {!isClosedStatus && (
               <div>
@@ -1116,7 +1313,7 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
               วิธีการชำระเงิน <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {['จ่ายแล้ว', 'เครดิต 30 วัน', 'เครดิต 60 วัน', 'เก็บเงินหน้างาน', 'ผ่อนชำระ'].map(method => (
+              {['เงินสด', 'จ่ายแล้ว', 'เครดิต', 'เก็บเงินหน้างาน', 'ผ่อนชำระ'].map(method => (
                 <button
                   key={method}
                   type="button"
@@ -1170,6 +1367,130 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
               </div>
             )}
           </div>
+
+          {/* Sales Confirmation Fields */}
+          <div className="pt-4 border-t border-gray-200">
+            <h3 className="text-sm font-black text-gray-800 flex items-center gap-2 mb-4">
+              <ClipboardCheck size={16} className="text-blue-600" /> ข้อมูลยืนยันการขาย (สำหรับบัญชี)
+            </h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+                    วันที่สั่งซื้อ (Order Date) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={salesOrderDate}
+                    onChange={(e) => setSalesOrderDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+                    วันที่ส่งมอบ (Delivery Date) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={deliveryDate}
+                    onChange={(e) => setDeliveryDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  />
+                </div>
+                {(paymentMethod === 'เงินสด' || paymentMethod === 'จ่ายแล้ว') && (
+                  <div className="col-span-2">
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+                      วันที่ชำระเงิน (Payment Date) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={paymentDate}
+                      onChange={(e) => setPaymentDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {paymentMethod !== 'เงินสด' && paymentMethod !== 'จ่ายแล้ว' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+                      เงื่อนไขเครดิต (Credit Terms)
+                    </label>
+                    <input
+                      type="text"
+                      value={creditTerms}
+                      onChange={(e) => setCreditTerms(e.target.value)}
+                      placeholder="เช่น 15, 30, 45, 60 วัน..."
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+                      เอกสารอนุมัติขอเครดิต (Credit Request Docs)
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        onChange={handleFileUpload}
+                        accept=".pdf,image/*"
+                        className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
+                      />
+                      {isUploading && <div className="text-xs text-blue-600 flex items-center gap-1 font-bold animate-pulse"><Loader2 size={12} className="animate-spin" /> กำลังอัปโหลด...</div>}
+                    </div>
+                    {creditDocsUrl && (
+                      <a href={creditDocsUrl} target="_blank" rel="noreferrer" className="mt-2 text-xs text-blue-600 font-bold hover:underline flex items-center gap-1">
+                        <FileText size={12} /> ดูไฟล์ที่อัปโหลด
+                      </a>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+                      ระเบียบการวางบิล และเงื่อนไขการจ่ายเงิน
+                    </label>
+                    <textarea
+                      value={billingRegulations}
+                      onChange={(e) => setBillingRegulations(e.target.value)}
+                      rows={2}
+                      placeholder="ระบุระเบียบการวางบิล และเงื่อนไขการจ่ายเงิน..."
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none mb-3"
+                    />
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        onChange={handleBillingFileUpload}
+                        accept=".pdf,image/*"
+                        className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
+                      />
+                      {isUploadingBilling && <div className="text-xs text-blue-600 flex items-center gap-1 font-bold animate-pulse"><Loader2 size={12} className="animate-spin" /> กำลังอัปโหลด...</div>}
+                    </div>
+                    {billingDocsUrl && (
+                      <a href={billingDocsUrl} target="_blank" rel="noreferrer" className="mt-2 text-xs text-blue-600 font-bold hover:underline flex items-center gap-1">
+                        <FileText size={12} /> ดูไฟล์ที่อัปโหลด
+                      </a>
+                    )}
+                  </div>
+
+                </>
+              )}
+              
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+                  เงื่อนไข % กรณีขอเบิกเงิน (Invoice % Terms)
+                </label>
+                <textarea
+                  value={percentageTerms}
+                  onChange={(e) => setPercentageTerms(e.target.value)}
+                  rows={2}
+                  placeholder="ระบุเงื่อนไขการเบิกเงิน..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
@@ -1185,9 +1506,18 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
               const formattedInstallments = paymentMethod === 'ผ่อนชำระ' 
                 ? installments.map(i => ({ ...i, amount: Number(i.amount) || 0, dueDate: i.dueDate ? new Date(i.dueDate) : new Date() }))
                 : undefined;
-              onConfirm({ poNumber, poDate, subStatus, jobType, paymentMethod, installments: formattedInstallments })
+              onConfirm({ 
+                poNumber, poDate, subStatus, jobType, paymentMethod, installments: formattedInstallments,
+                salesOrderDate, deliveryDate, creditTerms, creditDocsUrl, billingRegulations, billingDocsUrl, percentageTerms, paymentDate, workName, companyId: selectedCompanyId, companyCode
+              })
             }}
-            className={`px-6 py-2.5 text-sm font-black text-white ${isClosedStatus ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/25' : 'bg-violet-600 hover:bg-violet-700 shadow-violet-500/25'} rounded-xl transition-all tracking-wide shadow-lg hover:-translate-y-0.5`}
+            disabled={
+              ((jobType !== 'สินค้าฝากขาย' && jobType !== 'งานขาย') && !workName?.trim()) ||
+              !salesOrderDate ||
+              !deliveryDate ||
+              ((paymentMethod === 'เงินสด' || paymentMethod === 'จ่ายแล้ว') && !paymentDate)
+            }
+            className={`px-6 py-2.5 text-sm font-black text-white ${isClosedStatus ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/25' : 'bg-violet-600 hover:bg-violet-700 shadow-violet-500/25'} rounded-xl transition-all tracking-wide shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {isClosedStatus ? 'บันทึกการปิดการขาย' : 'บันทึก PO'}
           </button>

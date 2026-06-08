@@ -214,45 +214,16 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
                           </button>
                         </div>
                         
-                        {record.hasQuotation ? (
-                          <div 
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[11px] font-black uppercase tracking-wider rounded-xl cursor-default"
-                            onClick={(e) => e.stopPropagation()}
-                            title="มีการเปิดใบเสนอราคาจากใบรับความต้องการนี้แล้ว"
-                          >
-                            <CheckCircle2 size={14} /> เปิดใบเสนอราคาแล้ว
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            {hasElectricalPanel && !record.isSentToService && (
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleSendToService(record.id); }}
-                                disabled={isSendingEstimation === record.id}
-                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-blue-100 transition-colors"
-                              >
-                                {isSendingEstimation === record.id ? 'กำลังส่ง...' : <><Send size={14} /> ส่งให้ช่างประเมินราคา</>}
-                              </button>
-                            )}
-
-                            {record.isSentToService && record.estimationStatus === 'PENDING' && (
-                              <div className="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-50 text-yellow-600 border border-yellow-200 text-[11px] font-black uppercase tracking-wider rounded-xl cursor-default">
-                                <Clock size={14} /> รอช่างประเมินราคา
-                              </div>
-                            )}
-
-                            {record.estimationStatus === 'ESTIMATED' && (
-                              <div className="inline-flex flex-col items-end gap-1 px-4 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl cursor-default text-right mr-2">
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 flex items-center gap-1">
-                                  <Calculator size={10} /> ราคาประเมิน: ฿{record.estimatedPrice?.toLocaleString()}
-                                </span>
-                                {record.estimationNote && (
-                                  <span className="text-[9px] text-emerald-500 max-w-[150px] truncate" title={record.estimationNote}>
-                                    หมายเหตุ: {record.estimationNote}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-
+                        <div className="flex flex-wrap justify-end items-center gap-2 mt-2 sm:mt-0">
+                          {record.hasQuotation ? (
+                            <div 
+                              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[11px] font-black uppercase tracking-wider rounded-xl cursor-default"
+                              onClick={(e) => e.stopPropagation()}
+                              title="มีการเปิดใบเสนอราคาจากใบรับความต้องการนี้แล้ว"
+                            >
+                              <CheckCircle2 size={14} /> เปิดใบเสนอราคาแล้ว
+                            </div>
+                          ) : (
                             <Link 
                               href={`/sales?reqId=${record.id}`}
                               className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-red text-white text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-red-600 hover:shadow-lg hover:shadow-red-200 transition-all transform hover:-translate-y-0.5"
@@ -260,8 +231,37 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
                             >
                               <Plus size={14} /> สร้างใบเสนอราคา
                             </Link>
-                          </div>
-                        )}
+                          )}
+
+                          {hasElectricalPanel && !record.isSentToService && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleSendToService(record.id); }}
+                              disabled={isSendingEstimation === record.id}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-blue-100 transition-colors"
+                            >
+                              {isSendingEstimation === record.id ? 'กำลังส่ง...' : <><Send size={14} /> ส่งให้ช่างประเมินราคา</>}
+                            </button>
+                          )}
+
+                          {record.isSentToService && record.estimationStatus === 'PENDING' && (
+                            <div className="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-50 text-yellow-600 border border-yellow-200 text-[11px] font-black uppercase tracking-wider rounded-xl cursor-default">
+                              <Clock size={14} /> รอช่างประเมินราคา
+                            </div>
+                          )}
+
+                          {record.estimationStatus === 'ESTIMATED' && (
+                            <div className="inline-flex flex-col items-end gap-1 px-4 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl cursor-default text-right mr-2">
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 flex items-center gap-1">
+                                <Calculator size={10} /> ราคาประเมิน: ฿{record.estimatedPrice?.toLocaleString()}
+                              </span>
+                              {record.estimationNote && (
+                                <span className="text-[9px] text-emerald-500 max-w-[150px] truncate" title={record.estimationNote}>
+                                  หมายเหตุ: {record.estimationNote}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )

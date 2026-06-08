@@ -83,8 +83,7 @@ export default function NewRepairOrderForm({
   });
 
   // Images State
-  const [images, setImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [checklistFiles, setChecklistFiles] = useState<Record<string, File[]>>({});
   const [isUploading, setIsUploading] = useState(false);
 
   // Signatures State
@@ -211,21 +210,22 @@ export default function NewRepairOrderForm({
     setChecklist(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Handle Images
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle Images per Checklist Item
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      setImages(prev => [...prev, ...newFiles]);
-      
-      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
-      setImagePreviews(prev => [...prev, ...newPreviews]);
+      setChecklistFiles(prev => ({
+        ...prev,
+        [key]: [...(prev[key] || []), ...newFiles]
+      }));
     }
   };
 
-  const removeImage = (index: number) => {
-    URL.revokeObjectURL(imagePreviews[index]);
-    setImages(images.filter((_, i) => i !== index));
-    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+  const removeFile = (key: string, index: number) => {
+    setChecklistFiles(prev => ({
+      ...prev,
+      [key]: prev[key].filter((_, i) => i !== index)
+    }));
   };
 
   // Submit Handler
@@ -233,20 +233,46 @@ export default function NewRepairOrderForm({
     setIsSubmitting(true);
     
     try {
-      // 1. Upload Images
-      const uploadedUrls: string[] = [];
-      if (images.length > 0) {
+      // 1. Upload Images/Videos directly from browser to Supabase Storage
+      const uploadedFilesMap: Record<string, string[]> = {};
+      const allFiles = Object.values(checklistFiles).flat();
+      if (allFiles.length > 0) {
         setIsUploading(true);
-        for (const file of images) {
-          const fd = new FormData();
-          fd.append('file', file);
-          const res = await fetch('/api/upload', {
-            method: 'POST',
-            body: fd
-          });
-          const result = await res.json();
-          if (result.success && result.url) {
-            uploadedUrls.push(result.url);
+        
+        // Dynamically import supabase to keep bundle small if possible, or just instantiate it
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        for (const [key, files] of Object.entries(checklistFiles)) {
+          if (files.length === 0) continue;
+          uploadedFilesMap[key] = [];
+          for (const file of files) {
+            const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+            const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+            
+            const { data: uploadData, error: uploadError } = await supabase
+              .storage
+              .from('uploadsService')
+              .upload(filename, file, {
+                contentType: file.type,
+                upsert: false
+              });
+
+            if (uploadError) {
+              console.error('Supabase direct upload error:', uploadError);
+              alert(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${file.name}`);
+              throw new Error('Upload failed');
+            }
+
+            const { data: { publicUrl } } = supabase
+              .storage
+              .from('uploadsService')
+              .getPublicUrl(uploadData.path);
+
+            uploadedFilesMap[key].push(publicUrl);
           }
         }
         setIsUploading(false);
@@ -273,7 +299,7 @@ export default function NewRepairOrderForm({
         symptoms,
         settings,
         checklist: checklist,
-        checklistImages: (uploadedUrls.length > 0 ? { general: uploadedUrls } : {}) as Record<string, string[]>,
+        checklistImages: uploadedFilesMap,
         senderName,
         receivedDate,
         sentDate,
@@ -545,61 +571,70 @@ export default function NewRepairOrderForm({
             </div>
             4. อาการเสียและการตรวจสอบ
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="space-y-4 xl:col-span-1 flex flex-col">
+              <div className="flex-1 flex flex-col">
                 <label className={labelClass}>อาการเสีย (Symptoms)</label>
-                <textarea rows={3} value={symptoms} onChange={(e) => setSymptoms(e.target.value)} className={inputClass}></textarea>
+                <textarea rows={5} value={symptoms} onChange={(e) => setSymptoms(e.target.value)} className={`${inputClass} flex-1 resize-none`}></textarea>
               </div>
-              <div>
+              <div className="flex-1 flex flex-col">
                 <label className={labelClass}>การตั้งค่า (Setting)</label>
-                <textarea rows={3} value={settings} onChange={(e) => setSettings(e.target.value)} className={inputClass}></textarea>
+                <textarea rows={5} value={settings} onChange={(e) => setSettings(e.target.value)} className={`${inputClass} flex-1 resize-none`}></textarea>
               </div>
             </div>
             
-            <div>
+            <div className="xl:col-span-2 flex flex-col">
               <label className={labelClass}>Checklist ก่อนซ่อม</label>
-              <div className="grid grid-cols-2 gap-4 bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/50 p-5 rounded-2xl border border-gray-100 flex-1">
                 {[
-                  { k: "Front", l: "ด้านหน้า/Front" }, { k: "Top", l: "ด้านบน/Top" },
-                  { k: "SideLeft", l: "ด้านข้าง(ซ้าย)/Side Left" }, { k: "SideRight", l: "ด้านข้าง(ขวา)/Side Right" },
-                  { k: "Inside", l: "ด้านใน/Inside" }, { k: "Nameplate", l: "Nameplate" },
-                  { k: "Bottom", l: "ด้านล่าง/Bottom" }, { k: "TerminalNut", l: "Terminal/Nut" },
-                  { k: "TermCover", l: "Term.Cover" }, { k: "Cover", l: "ฝาครอบ/Cover" },
-                  { k: "Video", l: "Video" }
-                ].map(({ k, l }) => (
-                  <label key={k} className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center justify-center">
-                      <input type="checkbox" checked={checklist[k] || false} onChange={() => toggleChecklist(k)} className="peer w-5 h-5 opacity-0 absolute" />
-                      <div className="w-5 h-5 rounded border-2 border-gray-300 peer-checked:bg-red-500 peer-checked:border-red-500 transition-colors flex items-center justify-center">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                  { k: "Front", l: "ด้านหน้า/Front", isVideo: false }, { k: "Top", l: "ด้านบน/Top", isVideo: false },
+                  { k: "SideLeft", l: "ด้านข้าง(ซ้าย)/Side Left", isVideo: false }, { k: "SideRight", l: "ด้านข้าง(ขวา)/Side Right", isVideo: false },
+                  { k: "Inside", l: "ด้านใน/Inside", isVideo: false }, { k: "Nameplate", l: "Nameplate", isVideo: false },
+                  { k: "Bottom", l: "ด้านล่าง/Bottom", isVideo: false }, { k: "TerminalNut", l: "Terminal/Nut", isVideo: false },
+                  { k: "TermCover", l: "Term.Cover", isVideo: false }, { k: "Cover", l: "ฝาครอบ/Cover", isVideo: false },
+                  { k: "Video", l: "Video", isVideo: true }
+                ].map(({ k, l, isVideo }) => (
+                  <div key={k} className="flex flex-col gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+                    <label className="flex items-center gap-3 cursor-pointer group w-fit">
+                      <div className="relative flex items-center justify-center">
+                        <input type="checkbox" checked={checklist[k] || false} onChange={() => toggleChecklist(k)} className="peer w-5 h-5 opacity-0 absolute" />
+                        <div className="w-5 h-5 rounded border-2 border-gray-300 peer-checked:bg-red-500 peer-checked:border-red-500 transition-colors flex items-center justify-center">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                        </div>
                       </div>
-                    </div>
-                    <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900 transition-colors">{l}</span>
-                  </label>
+                      <span className="text-sm font-bold text-gray-700 group-hover:text-red-500 transition-colors">{l}</span>
+                    </label>
+
+                    {checklist[k] && (
+                      <div className="flex flex-wrap gap-2 items-start pl-8 mt-1">
+                        <label className="cursor-pointer border-2 border-dashed border-red-200 hover:border-red-500 hover:bg-red-50 rounded-xl w-20 h-20 flex flex-col items-center justify-center text-red-400 hover:text-red-600 transition-all shrink-0">
+                          <Upload className="w-5 h-5 mb-1" />
+                          <span className="text-[9px] font-bold uppercase tracking-wider">{isVideo ? "เพิ่มวิดีโอ" : "เพิ่มรูป"}</span>
+                          <input type="file" accept={isVideo ? "video/*" : "image/*"} multiple className="hidden" onChange={(e) => handleFileChange(e, k)} />
+                        </label>
+                        
+                        {(checklistFiles[k] || []).map((file, idx) => {
+                          const previewUrl = URL.createObjectURL(file);
+                          const isVid = file.type.startsWith("video/");
+                          return (
+                            <div key={idx} className="relative group w-20 h-20 rounded-xl overflow-hidden shadow-sm shrink-0 border border-gray-200">
+                              {isVid ? (
+                                <video src={previewUrl} className="w-full h-full object-cover" muted />
+                              ) : (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img src={previewUrl} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                              )}
+                              <button type="button" onClick={() => removeFile(k, idx)} className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500">
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <label className={labelClass}>รูปภาพประกอบ (Checklist Images)</label>
-            <div className="flex flex-wrap gap-4 items-start mt-3">
-              <label className="cursor-pointer border-2 border-dashed border-red-200 hover:border-red-500 hover:bg-red-50 rounded-2xl w-32 h-32 flex flex-col items-center justify-center text-red-400 hover:text-red-600 transition-all">
-                <Upload className="w-8 h-8 mb-2" />
-                <span className="text-xs font-bold uppercase tracking-wider">เพิ่มรูปภาพ</span>
-                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
-              </label>
-
-              {imagePreviews.map((preview, idx) => (
-                <div key={idx} className="relative group w-32 h-32 rounded-2xl overflow-hidden shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={preview} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
-                  <button type="button" onClick={() => removeImage(idx)} className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500">
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
             </div>
           </div>
         </div>

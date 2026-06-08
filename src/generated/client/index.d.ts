@@ -24078,8 +24078,15 @@ export namespace Prisma {
     trackingPhotoUrl: string | null
     paymentMethod: string | null
     paymentStatus: string | null
+    paymentDate: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    salesOrderDate: Date | null
+    creditTerms: string | null
+    creditDocsUrl: string | null
+    billingRegulations: string | null
+    billingDocsUrl: string | null
+    percentageTerms: string | null
   }
 
   export type JobMaxAggregateOutputType = {
@@ -24105,8 +24112,15 @@ export namespace Prisma {
     trackingPhotoUrl: string | null
     paymentMethod: string | null
     paymentStatus: string | null
+    paymentDate: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    salesOrderDate: Date | null
+    creditTerms: string | null
+    creditDocsUrl: string | null
+    billingRegulations: string | null
+    billingDocsUrl: string | null
+    percentageTerms: string | null
   }
 
   export type JobCountAggregateOutputType = {
@@ -24132,8 +24146,15 @@ export namespace Prisma {
     trackingPhotoUrl: number
     paymentMethod: number
     paymentStatus: number
+    paymentDate: number
     createdAt: number
     updatedAt: number
+    salesOrderDate: number
+    creditTerms: number
+    creditDocsUrl: number
+    billingRegulations: number
+    billingDocsUrl: number
+    percentageTerms: number
     _all: number
   }
 
@@ -24171,8 +24192,15 @@ export namespace Prisma {
     trackingPhotoUrl?: true
     paymentMethod?: true
     paymentStatus?: true
+    paymentDate?: true
     createdAt?: true
     updatedAt?: true
+    salesOrderDate?: true
+    creditTerms?: true
+    creditDocsUrl?: true
+    billingRegulations?: true
+    billingDocsUrl?: true
+    percentageTerms?: true
   }
 
   export type JobMaxAggregateInputType = {
@@ -24198,8 +24226,15 @@ export namespace Prisma {
     trackingPhotoUrl?: true
     paymentMethod?: true
     paymentStatus?: true
+    paymentDate?: true
     createdAt?: true
     updatedAt?: true
+    salesOrderDate?: true
+    creditTerms?: true
+    creditDocsUrl?: true
+    billingRegulations?: true
+    billingDocsUrl?: true
+    percentageTerms?: true
   }
 
   export type JobCountAggregateInputType = {
@@ -24225,8 +24260,15 @@ export namespace Prisma {
     trackingPhotoUrl?: true
     paymentMethod?: true
     paymentStatus?: true
+    paymentDate?: true
     createdAt?: true
     updatedAt?: true
+    salesOrderDate?: true
+    creditTerms?: true
+    creditDocsUrl?: true
+    billingRegulations?: true
+    billingDocsUrl?: true
+    percentageTerms?: true
     _all?: true
   }
 
@@ -24339,8 +24381,15 @@ export namespace Prisma {
     trackingPhotoUrl: string | null
     paymentMethod: string | null
     paymentStatus: string | null
+    paymentDate: Date | null
     createdAt: Date
     updatedAt: Date
+    salesOrderDate: Date | null
+    creditTerms: string | null
+    creditDocsUrl: string | null
+    billingRegulations: string | null
+    billingDocsUrl: string | null
+    percentageTerms: string | null
     _count: JobCountAggregateOutputType | null
     _avg: JobAvgAggregateOutputType | null
     _sum: JobSumAggregateOutputType | null
@@ -24385,8 +24434,15 @@ export namespace Prisma {
     trackingPhotoUrl?: boolean
     paymentMethod?: boolean
     paymentStatus?: boolean
+    paymentDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    salesOrderDate?: boolean
+    creditTerms?: boolean
+    creditDocsUrl?: boolean
+    billingRegulations?: boolean
+    billingDocsUrl?: boolean
+    percentageTerms?: boolean
     repairOrder?: boolean | Job$repairOrderArgs<ExtArgs>
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
     paymentTasks?: boolean | Job$paymentTasksArgs<ExtArgs>
@@ -24421,8 +24477,15 @@ export namespace Prisma {
     trackingPhotoUrl?: boolean
     paymentMethod?: boolean
     paymentStatus?: boolean
+    paymentDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    salesOrderDate?: boolean
+    creditTerms?: boolean
+    creditDocsUrl?: boolean
+    billingRegulations?: boolean
+    billingDocsUrl?: boolean
+    percentageTerms?: boolean
     quotation?: boolean | Job$quotationArgs<ExtArgs>
   }, ExtArgs["result"]["job"]>
 
@@ -24449,8 +24512,15 @@ export namespace Prisma {
     trackingPhotoUrl?: boolean
     paymentMethod?: boolean
     paymentStatus?: boolean
+    paymentDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    salesOrderDate?: boolean
+    creditTerms?: boolean
+    creditDocsUrl?: boolean
+    billingRegulations?: boolean
+    billingDocsUrl?: boolean
+    percentageTerms?: boolean
     quotation?: boolean | Job$quotationArgs<ExtArgs>
   }, ExtArgs["result"]["job"]>
 
@@ -24477,11 +24547,18 @@ export namespace Prisma {
     trackingPhotoUrl?: boolean
     paymentMethod?: boolean
     paymentStatus?: boolean
+    paymentDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    salesOrderDate?: boolean
+    creditTerms?: boolean
+    creditDocsUrl?: boolean
+    billingRegulations?: boolean
+    billingDocsUrl?: boolean
+    percentageTerms?: boolean
   }
 
-  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobNumber" | "companyCode" | "jobType" | "month" | "yearBe" | "dateClosed" | "customerName" | "item" | "quotationNumber" | "poNumber" | "sellerName" | "quotationId" | "currentStep" | "flowVariant" | "deliveryMethod" | "deliveryDate" | "courierCompany" | "trackingNumber" | "trackingPhotoUrl" | "paymentMethod" | "paymentStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobNumber" | "companyCode" | "jobType" | "month" | "yearBe" | "dateClosed" | "customerName" | "item" | "quotationNumber" | "poNumber" | "sellerName" | "quotationId" | "currentStep" | "flowVariant" | "deliveryMethod" | "deliveryDate" | "courierCompany" | "trackingNumber" | "trackingPhotoUrl" | "paymentMethod" | "paymentStatus" | "paymentDate" | "createdAt" | "updatedAt" | "salesOrderDate" | "creditTerms" | "creditDocsUrl" | "billingRegulations" | "billingDocsUrl" | "percentageTerms", ExtArgs["result"]["job"]>
   export type JobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     repairOrder?: boolean | Job$repairOrderArgs<ExtArgs>
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
@@ -24535,8 +24612,15 @@ export namespace Prisma {
       trackingPhotoUrl: string | null
       paymentMethod: string | null
       paymentStatus: string | null
+      paymentDate: Date | null
       createdAt: Date
       updatedAt: Date
+      salesOrderDate: Date | null
+      creditTerms: string | null
+      creditDocsUrl: string | null
+      billingRegulations: string | null
+      billingDocsUrl: string | null
+      percentageTerms: string | null
     }, ExtArgs["result"]["job"]>
     composites: {}
   }
@@ -24990,8 +25074,15 @@ export namespace Prisma {
     readonly trackingPhotoUrl: FieldRef<"Job", 'String'>
     readonly paymentMethod: FieldRef<"Job", 'String'>
     readonly paymentStatus: FieldRef<"Job", 'String'>
+    readonly paymentDate: FieldRef<"Job", 'DateTime'>
     readonly createdAt: FieldRef<"Job", 'DateTime'>
     readonly updatedAt: FieldRef<"Job", 'DateTime'>
+    readonly salesOrderDate: FieldRef<"Job", 'DateTime'>
+    readonly creditTerms: FieldRef<"Job", 'String'>
+    readonly creditDocsUrl: FieldRef<"Job", 'String'>
+    readonly billingRegulations: FieldRef<"Job", 'String'>
+    readonly billingDocsUrl: FieldRef<"Job", 'String'>
+    readonly percentageTerms: FieldRef<"Job", 'String'>
   }
     
 
@@ -78189,8 +78280,15 @@ export namespace Prisma {
     trackingPhotoUrl: 'trackingPhotoUrl',
     paymentMethod: 'paymentMethod',
     paymentStatus: 'paymentStatus',
+    paymentDate: 'paymentDate',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    salesOrderDate: 'salesOrderDate',
+    creditTerms: 'creditTerms',
+    creditDocsUrl: 'creditDocsUrl',
+    billingRegulations: 'billingRegulations',
+    billingDocsUrl: 'billingDocsUrl',
+    percentageTerms: 'percentageTerms'
   };
 
   export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
@@ -80648,8 +80746,15 @@ export namespace Prisma {
     trackingPhotoUrl?: StringNullableFilter<"Job"> | string | null
     paymentMethod?: StringNullableFilter<"Job"> | string | null
     paymentStatus?: StringNullableFilter<"Job"> | string | null
+    paymentDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     createdAt?: DateTimeFilter<"Job"> | Date | string
     updatedAt?: DateTimeFilter<"Job"> | Date | string
+    salesOrderDate?: DateTimeNullableFilter<"Job"> | Date | string | null
+    creditTerms?: StringNullableFilter<"Job"> | string | null
+    creditDocsUrl?: StringNullableFilter<"Job"> | string | null
+    billingRegulations?: StringNullableFilter<"Job"> | string | null
+    billingDocsUrl?: StringNullableFilter<"Job"> | string | null
+    percentageTerms?: StringNullableFilter<"Job"> | string | null
     repairOrder?: XOR<RepairOrderNullableScalarRelationFilter, RepairOrderWhereInput> | null
     stepLogs?: JobStepLogListRelationFilter
     paymentTasks?: PaymentTaskListRelationFilter
@@ -80683,8 +80788,15 @@ export namespace Prisma {
     trackingPhotoUrl?: SortOrderInput | SortOrder
     paymentMethod?: SortOrderInput | SortOrder
     paymentStatus?: SortOrderInput | SortOrder
+    paymentDate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    salesOrderDate?: SortOrderInput | SortOrder
+    creditTerms?: SortOrderInput | SortOrder
+    creditDocsUrl?: SortOrderInput | SortOrder
+    billingRegulations?: SortOrderInput | SortOrder
+    billingDocsUrl?: SortOrderInput | SortOrder
+    percentageTerms?: SortOrderInput | SortOrder
     repairOrder?: RepairOrderOrderByWithRelationInput
     stepLogs?: JobStepLogOrderByRelationAggregateInput
     paymentTasks?: PaymentTaskOrderByRelationAggregateInput
@@ -80721,8 +80833,15 @@ export namespace Prisma {
     trackingPhotoUrl?: StringNullableFilter<"Job"> | string | null
     paymentMethod?: StringNullableFilter<"Job"> | string | null
     paymentStatus?: StringNullableFilter<"Job"> | string | null
+    paymentDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     createdAt?: DateTimeFilter<"Job"> | Date | string
     updatedAt?: DateTimeFilter<"Job"> | Date | string
+    salesOrderDate?: DateTimeNullableFilter<"Job"> | Date | string | null
+    creditTerms?: StringNullableFilter<"Job"> | string | null
+    creditDocsUrl?: StringNullableFilter<"Job"> | string | null
+    billingRegulations?: StringNullableFilter<"Job"> | string | null
+    billingDocsUrl?: StringNullableFilter<"Job"> | string | null
+    percentageTerms?: StringNullableFilter<"Job"> | string | null
     repairOrder?: XOR<RepairOrderNullableScalarRelationFilter, RepairOrderWhereInput> | null
     stepLogs?: JobStepLogListRelationFilter
     paymentTasks?: PaymentTaskListRelationFilter
@@ -80756,8 +80875,15 @@ export namespace Prisma {
     trackingPhotoUrl?: SortOrderInput | SortOrder
     paymentMethod?: SortOrderInput | SortOrder
     paymentStatus?: SortOrderInput | SortOrder
+    paymentDate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    salesOrderDate?: SortOrderInput | SortOrder
+    creditTerms?: SortOrderInput | SortOrder
+    creditDocsUrl?: SortOrderInput | SortOrder
+    billingRegulations?: SortOrderInput | SortOrder
+    billingDocsUrl?: SortOrderInput | SortOrder
+    percentageTerms?: SortOrderInput | SortOrder
     _count?: JobCountOrderByAggregateInput
     _avg?: JobAvgOrderByAggregateInput
     _max?: JobMaxOrderByAggregateInput
@@ -80791,8 +80917,15 @@ export namespace Prisma {
     trackingPhotoUrl?: StringNullableWithAggregatesFilter<"Job"> | string | null
     paymentMethod?: StringNullableWithAggregatesFilter<"Job"> | string | null
     paymentStatus?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    paymentDate?: DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Job"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Job"> | Date | string
+    salesOrderDate?: DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+    creditTerms?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    creditDocsUrl?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    billingRegulations?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    billingDocsUrl?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    percentageTerms?: StringNullableWithAggregatesFilter<"Job"> | string | null
   }
 
   export type PaymentTaskWhereInput = {
@@ -86916,8 +87049,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
@@ -86951,8 +87091,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -86984,8 +87131,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
@@ -87019,8 +87173,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -87053,8 +87214,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
   }
 
   export type JobUpdateManyMutationInput = {
@@ -87079,8 +87247,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type JobUncheckedUpdateManyInput = {
@@ -87106,8 +87281,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTaskCreateInput = {
@@ -93491,8 +93673,15 @@ export namespace Prisma {
     trackingPhotoUrl?: SortOrder
     paymentMethod?: SortOrder
     paymentStatus?: SortOrder
+    paymentDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    salesOrderDate?: SortOrder
+    creditTerms?: SortOrder
+    creditDocsUrl?: SortOrder
+    billingRegulations?: SortOrder
+    billingDocsUrl?: SortOrder
+    percentageTerms?: SortOrder
   }
 
   export type JobAvgOrderByAggregateInput = {
@@ -93523,8 +93712,15 @@ export namespace Prisma {
     trackingPhotoUrl?: SortOrder
     paymentMethod?: SortOrder
     paymentStatus?: SortOrder
+    paymentDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    salesOrderDate?: SortOrder
+    creditTerms?: SortOrder
+    creditDocsUrl?: SortOrder
+    billingRegulations?: SortOrder
+    billingDocsUrl?: SortOrder
+    percentageTerms?: SortOrder
   }
 
   export type JobMinOrderByAggregateInput = {
@@ -93550,8 +93746,15 @@ export namespace Prisma {
     trackingPhotoUrl?: SortOrder
     paymentMethod?: SortOrder
     paymentStatus?: SortOrder
+    paymentDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    salesOrderDate?: SortOrder
+    creditTerms?: SortOrder
+    creditDocsUrl?: SortOrder
+    billingRegulations?: SortOrder
+    billingDocsUrl?: SortOrder
+    percentageTerms?: SortOrder
   }
 
   export type JobSumOrderByAggregateInput = {
@@ -102952,8 +103155,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
@@ -102985,8 +103195,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -103239,8 +103456,15 @@ export namespace Prisma {
     trackingPhotoUrl?: StringNullableFilter<"Job"> | string | null
     paymentMethod?: StringNullableFilter<"Job"> | string | null
     paymentStatus?: StringNullableFilter<"Job"> | string | null
+    paymentDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     createdAt?: DateTimeFilter<"Job"> | Date | string
     updatedAt?: DateTimeFilter<"Job"> | Date | string
+    salesOrderDate?: DateTimeNullableFilter<"Job"> | Date | string | null
+    creditTerms?: StringNullableFilter<"Job"> | string | null
+    creditDocsUrl?: StringNullableFilter<"Job"> | string | null
+    billingRegulations?: StringNullableFilter<"Job"> | string | null
+    billingDocsUrl?: StringNullableFilter<"Job"> | string | null
+    percentageTerms?: StringNullableFilter<"Job"> | string | null
   }
 
   export type ScheduleCreateWithoutTelesaleInput = {
@@ -105136,8 +105360,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
@@ -105170,8 +105401,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
@@ -105218,8 +105456,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
@@ -105252,8 +105497,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
@@ -105284,8 +105536,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
@@ -105318,8 +105577,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
@@ -105366,8 +105632,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
@@ -105400,8 +105673,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
@@ -105432,8 +105712,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
@@ -105466,8 +105753,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
@@ -105514,8 +105808,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
@@ -105548,8 +105849,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
@@ -105580,8 +105888,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
@@ -105614,8 +105929,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -105662,8 +105984,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
@@ -105696,8 +106025,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -105728,8 +106064,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
@@ -105762,8 +106105,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -105810,8 +106160,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
@@ -105844,8 +106201,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -105876,8 +106240,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
@@ -105910,8 +106281,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -105958,8 +106336,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
@@ -105992,8 +106377,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -115585,8 +115977,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
@@ -115619,8 +116018,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -115667,8 +116073,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
@@ -115701,8 +116114,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -116930,8 +117350,15 @@ export namespace Prisma {
     trackingPhotoUrl?: string | null
     paymentMethod?: string | null
     paymentStatus?: string | null
+    paymentDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    salesOrderDate?: Date | string | null
+    creditTerms?: string | null
+    creditDocsUrl?: string | null
+    billingRegulations?: string | null
+    billingDocsUrl?: string | null
+    percentageTerms?: string | null
   }
 
   export type OrderUpdateWithoutQuotationInput = {
@@ -116997,8 +117424,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
@@ -117030,8 +117464,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -117063,8 +117504,15 @@ export namespace Prisma {
     trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderStatusLogCreateManyOrderInput = {

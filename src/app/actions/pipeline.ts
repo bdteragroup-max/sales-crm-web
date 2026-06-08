@@ -21,7 +21,18 @@ export async function updateQuotationStatus(
     appointmentNote?: string,
     jobType?: string,
     paymentMethod?: string,
-    installments?: any[]
+    installments?: any[],
+    salesOrderDate?: string,
+    creditTerms?: string,
+    creditDocsUrl?: string,
+    billingRegulations?: string,
+    billingDocsUrl?: string,
+    percentageTerms?: string,
+    workName?: string,
+    deliveryDate?: string,
+    paymentDate?: string,
+    companyId?: string,
+    companyCode?: string
   }
 ) {
   const user = await getUser();
@@ -63,6 +74,7 @@ export async function updateQuotationStatus(
     if (extra?.poDate) updateData.poDate = new Date(extra.poDate);
     if (extra?.appointmentDate) updateData.appointmentDate = new Date(extra.appointmentDate);
     if (extra?.appointmentNote) updateData.appointmentNote = extra.appointmentNote;
+    if (extra?.companyId) updateData.companyId = extra.companyId;
 
     const updated = await prisma.quotation.update({
       where: { id },
@@ -125,10 +137,20 @@ export async function updateQuotationStatus(
       await createJobFromQuotation({
         quotationId: quotation.id,
         poNumber: updateData.poNumber,
+        companyCode: extra?.companyCode,
         jobType: extra?.jobType,
         closedDate: updated.billingDate || updated.poDate || new Date(),
         paymentMethod: extra?.paymentMethod,
         installments: extra?.installments,
+        salesOrderDate: extra?.salesOrderDate ? new Date(extra.salesOrderDate) : undefined,
+        creditTerms: extra?.creditTerms,
+        creditDocsUrl: extra?.creditDocsUrl,
+        billingRegulations: extra?.billingRegulations,
+        billingDocsUrl: extra?.billingDocsUrl,
+        percentageTerms: extra?.percentageTerms,
+        workName: extra?.workName,
+        deliveryDate: extra?.deliveryDate ? new Date(extra.deliveryDate) : undefined,
+        paymentDate: extra?.paymentDate ? new Date(extra.paymentDate) : undefined,
       });
     }
 

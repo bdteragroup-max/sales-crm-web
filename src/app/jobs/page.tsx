@@ -27,7 +27,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
     redirect('/')
   }
 
-  const isManager = user.role === 'ผู้จัดการ'; 
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'service engineer mgr'; 
   
   const teraEmployee = await teraDb.employees.findUnique({
     where: { emp_id: user.employeeId },

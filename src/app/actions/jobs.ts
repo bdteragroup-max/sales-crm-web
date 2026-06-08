@@ -2,10 +2,10 @@
 
 import prisma from "@/app/lib/db";
 import {
-  extractCompanyCode,
   generateJobNumber,
   mapProductTypeToJobType,
 } from "@/app/lib/job-utils";
+import { extractCompanyCode } from "@/utils/company-utils";
 import { revalidatePath } from "next/cache";
 import {
   getLineUserIdByCrmUserId,
@@ -25,6 +25,16 @@ export type CreateJobInput = {
     amount: number;
     dueDate: Date;
   }[];
+  salesOrderDate?: Date;
+  creditTerms?: string;
+  creditDocsUrl?: string;
+  billingRegulations?: string;
+  billingDocsUrl?: string;
+  percentageTerms?: string;
+  deliveryDate?: Date;
+  paymentDate?: Date;
+  workName?: string;
+  companyCode?: string; // TP, TG, or TE
 };
 
 // ================================================
@@ -32,7 +42,7 @@ export type CreateJobInput = {
 // Called when QT is moved to "Invoice Opened" or "PO"
 // ================================================
 export async function createJobFromQuotation(input: CreateJobInput) {
-  const { quotationId, jobType, poNumber } = input;
+  const { quotationId, jobType, poNumber, companyCode: inputCompanyCode } = input;
   const closedDate = input.closedDate ?? new Date();
 
   // 1. Retrieve Quotation data along with customer and creator
@@ -53,8 +63,8 @@ export async function createJobFromQuotation(input: CreateJobInput) {
   });
   if (existingJob) return existingJob;
 
-  // 2. Extract company code from QT number
-  const companyCode = extractCompanyCode(quotation.quotationNumber ?? "");
+  // 2. Extract company code from QT number or use provided company code
+  const companyCode = inputCompanyCode || extractCompanyCode(quotation.quotationNumber ?? "");
 
   // 3. jobType: Use the one sent or the default from productType in QT
   const resolvedJobType =
@@ -73,13 +83,21 @@ export async function createJobFromQuotation(input: CreateJobInput) {
       yearBe: (closedDate.getFullYear() + 543) % 100, 
       dateClosed: closedDate, 
       customerName: quotation.company?.companyName ?? "", 
-      item: quotation.subject ?? quotation.productType ?? "", 
+      item: input.workName || quotation.subject || quotation.productType || "", 
       quotationNumber: quotation.quotationNumber ?? "", 
       poNumber: poNumber ?? null, 
       sellerName: quotation.salesperson?.fullName ?? "", 
       quotationId,
       paymentMethod: input.paymentMethod,
       paymentStatus: input.paymentMethod === 'จ่ายแล้ว' ? 'paid' : 'pending',
+      salesOrderDate: input.salesOrderDate,
+      creditTerms: input.creditTerms,
+      creditDocsUrl: input.creditDocsUrl,
+      billingRegulations: input.billingRegulations,
+      billingDocsUrl: input.billingDocsUrl,
+      percentageTerms: input.percentageTerms,
+      deliveryDate: input.deliveryDate,
+      paymentDate: input.paymentDate,
     }, 
   }); 
 

@@ -203,6 +203,16 @@ export async function saveSalesData(formData: FormData) {
     const salesBranch = formData.get("salesBranch") as string;
     const salesTeamLeader = formData.get("salesTeamLeader") as string;
 
+    const salesOrderDateRaw = formData.get("salesOrderDate") as string;
+    const deliveryDateRaw = formData.get("deliveryDate") as string;
+    const creditTerms = formData.get("creditTerms") as string;
+    const creditDocsUrl = formData.get("creditDocsUrl") as string;
+    const billingRegulations = formData.get("billingRegulations") as string;
+    const billingDocsUrl = formData.get("billingDocsUrl") as string;
+    const percentageTerms = formData.get("percentageTerms") as string;
+    const paymentDateRaw = formData.get("paymentDate") as string;
+    const workName = formData.get("workName") as string;
+
     const isLostStatus = status && (status.startsWith('ปฏิเสธ') || status.startsWith('ยกเลิก'));
     if (isLostStatus) {
       if (!winLossReason || !winLossReason.trim()) {
@@ -357,13 +367,23 @@ export async function saveSalesData(formData: FormData) {
       
       // Auto-create Job
       const { createJobFromQuotation } = await import('@/app/actions/jobs');
+      const companyCode = formData.get("companyCode") as string;
       await createJobFromQuotation({
         quotationId: newQuotation.id,
         poNumber: poNumber,
+        companyCode: companyCode || undefined,
         jobType: jobType || undefined,
         closedDate: finalBillingDate || finalPoDate || new Date(),
         paymentMethod: paymentMethod || undefined,
         installments: installments,
+        salesOrderDate: parseDate(salesOrderDateRaw) || undefined,
+        deliveryDate: parseDate(deliveryDateRaw) || undefined,
+        creditTerms: creditTerms || undefined,
+        creditDocsUrl: creditDocsUrl || undefined,
+        billingRegulations: billingRegulations || undefined,
+        billingDocsUrl: billingDocsUrl || undefined,
+        percentageTerms: percentageTerms || undefined,
+        paymentDate: parseDate(paymentDateRaw) || undefined,
       });
     }
 
@@ -448,6 +468,16 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
     const remarks = formData.get("remarks") as string;
     const salesBranch = formData.get("salesBranch") as string;
     const salesTeamLeader = formData.get("salesTeamLeader") as string;
+
+    const salesOrderDateRaw = formData.get("salesOrderDate") as string;
+    const deliveryDateRaw = formData.get("deliveryDate") as string;
+    const creditTerms = formData.get("creditTerms") as string;
+    const creditDocsUrl = formData.get("creditDocsUrl") as string;
+    const billingRegulations = formData.get("billingRegulations") as string;
+    const billingDocsUrl = formData.get("billingDocsUrl") as string;
+    const percentageTerms = formData.get("percentageTerms") as string;
+    const paymentDateRaw = formData.get("paymentDate") as string;
+    const workName = formData.get("workName") as string;
 
     const isLostStatus = status && (status.startsWith('ปฏิเสธ') || status.startsWith('ยกเลิก'));
     if (isLostStatus) {
@@ -603,13 +633,23 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       
       // Auto-create Job
       const { createJobFromQuotation } = await import('@/app/actions/jobs');
+      const companyCode = formData.get("companyCode") as string;
       await createJobFromQuotation({
         quotationId: updatedQuotation.id,
         poNumber: poNumber,
+        companyCode: companyCode || undefined,
         jobType: jobType || undefined,
         closedDate: finalBillingDate || finalPoDate || new Date(),
         paymentMethod: paymentMethod || undefined,
         installments: installments,
+        salesOrderDate: parseDate(salesOrderDateRaw) || undefined,
+        deliveryDate: parseDate(deliveryDateRaw) || undefined,
+        creditTerms: creditTerms || undefined,
+        creditDocsUrl: creditDocsUrl || undefined,
+        billingRegulations: billingRegulations || undefined,
+        billingDocsUrl: billingDocsUrl || undefined,
+        percentageTerms: percentageTerms || undefined,
+        paymentDate: parseDate(paymentDateRaw) || undefined,
       });
     }
 

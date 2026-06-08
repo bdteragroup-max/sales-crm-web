@@ -157,6 +157,57 @@ function JobDetailModal({
             </div>
           </section>
 
+          {/* Sales Confirmation Info */}
+          {(job.salesOrderDate || job.deliveryDate || job.paymentDate || job.creditTerms || job.billingRegulations || job.percentageTerms) && (
+            <section>
+              <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-3">ข้อมูลยืนยันการขาย (Sales Confirmation)</h3>
+              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm grid grid-cols-2 gap-y-4 gap-x-6">
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">วันที่สั่งซื้อ (Order Date)</p>
+                  <p className="text-sm font-semibold">{job.salesOrderDate ? formatDate(job.salesOrderDate) : '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">วันที่ส่งมอบ (Delivery Date)</p>
+                  <p className="text-sm font-semibold">{job.deliveryDate ? formatDate(job.deliveryDate) : '-'}</p>
+                </div>
+                {job.paymentMethod === 'เงินสด' && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">วันที่ชำระเงิน (Payment Date)</p>
+                    <p className="text-sm font-semibold">{job.paymentDate ? formatDate(job.paymentDate) : '-'}</p>
+                  </div>
+                )}
+                
+                {job.paymentMethod !== 'เงินสด' && (
+                  <>
+                    <div className="col-span-2 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">เงื่อนไขเครดิต</p>
+                        <p className="text-sm font-medium">{job.creditTerms || '-'}</p>
+                      </div>
+                      {job.creditDocsUrl && (
+                        <a href={job.creditDocsUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors">
+                          ดูเอกสารอนุมัติเครดิต
+                        </a>
+                      )}
+                    </div>
+                    {job.billingRegulations && (
+                      <div className="col-span-2">
+                        <p className="text-xs text-gray-500 mb-1">ระเบียบการวางบิล และเงื่อนไขการจ่ายเงิน</p>
+                        <p className="text-sm text-gray-700 bg-gray-50 p-2.5 rounded-lg border border-gray-100 whitespace-pre-wrap">{job.billingRegulations}</p>
+                      </div>
+                    )}
+                  </>
+                )}
+                {job.percentageTerms && (
+                  <div className="col-span-2">
+                    <p className="text-xs text-gray-500 mb-1">เงื่อนไข % กรณีขอเบิกเงิน</p>
+                    <p className="text-sm text-gray-700 bg-gray-50 p-2.5 rounded-lg border border-gray-100 whitespace-pre-wrap">{job.percentageTerms}</p>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
           {/* Payment Info */}
           <section>
             <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
