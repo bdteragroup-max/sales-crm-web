@@ -39,8 +39,19 @@ export async function createRepairDelivery(jobId?: string, autoData?: any) {
     }
 
     const beYear = getBkkBeYear();
-    const count = await prisma.repairDelivery.count();
-    const deliveryNumber = `DN${beYear}-${String(count + 1).padStart(4, "0")}`;
+    const lastRecord = await prisma.repairDelivery.findFirst({
+      where: { deliveryNumber: { startsWith: `DN${beYear}-` } },
+      orderBy: { deliveryNumber: 'desc' },
+    });
+    
+    let nextNumber = 1;
+    if (lastRecord && lastRecord.deliveryNumber) {
+      const parts = lastRecord.deliveryNumber.split('-');
+      if (parts.length === 2) {
+        nextNumber = parseInt(parts[1], 10) + 1;
+      }
+    }
+    const deliveryNumber = `DN${beYear}-${String(nextNumber).padStart(4, "0")}`;
 
     const newDelivery = await prisma.repairDelivery.create({
       data: {
