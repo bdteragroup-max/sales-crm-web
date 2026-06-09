@@ -20,9 +20,9 @@ export async function createInstallationOrder(jobId?: string, autoData?: any) {
         include: { quotation: true }
       });
       if (job) {
-        const company = await prisma.company.findUnique({
-          where: { id: job.companyCode }
-        });
+        const company = job.quotation?.companyId ? await prisma.company.findUnique({
+          where: { id: job.quotation.companyId }
+        }) : null;
         
         prefill = {
           jobId: job.id,

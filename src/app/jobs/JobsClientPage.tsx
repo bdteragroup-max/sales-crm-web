@@ -294,6 +294,7 @@ export default function JobsClientPage({
   userDept,
   userRole,
   actionParam,
+  targetJobId,
 }: { 
   jobs: Job[]; 
   isManager: boolean; 
@@ -301,6 +302,7 @@ export default function JobsClientPage({
   userDept: string;
   userRole: string;
   actionParam?: string;
+  targetJobId?: string;
 }) { 
   const router = useRouter();
   const [showQuickRepair, setShowQuickRepair] = useState(actionParam === "new-repair");
@@ -317,7 +319,7 @@ export default function JobsClientPage({
   useEffect(() => {
     setJobs(initialJobs);
   }, [initialJobs]);
-  const [expanded, setExpanded] = useState<string | null>(null); 
+  const [expanded, setExpanded] = useState<string | null>(targetJobId || null); 
   const [search, setSearch] = useState(""); 
   const [filterCo, setFilterCo] = useState(""); 
   const [filterType, setFilterType] = useState(""); 

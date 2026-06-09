@@ -175,9 +175,15 @@ export default function RepairOrdersClientPage({
                             : "—"}
                         </td>
                         <td className="py-4 px-5">
-                          <span className="text-xs font-black text-gray-800 font-mono">
-                            {record.job?.jobNumber || "—"}
-                          </span>
+                          {record.jobId ? (
+                            <Link href={`/jobs?jobId=${record.jobId}`} className="text-xs font-black text-blue-600 hover:text-blue-800 hover:underline font-mono transition-colors">
+                              {record.job?.jobNumber || "—"}
+                            </Link>
+                          ) : (
+                            <span className="text-xs font-black text-gray-800 font-mono">
+                              {record.job?.jobNumber || "—"}
+                            </span>
+                          )}
                         </td>
                         <td className="py-4 px-5 max-w-[200px]">
                           <p className="text-xs font-bold text-gray-900 truncate">

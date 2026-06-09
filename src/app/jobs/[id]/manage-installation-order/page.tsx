@@ -19,7 +19,7 @@ export default async function ManageInstallationPage({ params }: { params: Promi
 
   const job = await prisma.job.findUnique({
     where: { id: jobId },
-    include: { quotation: true }
+    include: { quotation: { include: { salesperson: true } } }
   })
 
   if (!job) {
@@ -34,10 +34,10 @@ export default async function ManageInstallationPage({ params }: { params: Promi
   if (installationOrder) {
     initialData = JSON.parse(JSON.stringify(installationOrder))
   } else {
-    const company = await prisma.company.findUnique({
-      where: { id: job.companyCode },
+    const company = job.quotation?.companyId ? await prisma.company.findUnique({
+      where: { id: job.quotation.companyId },
       include: { contacts: true }
-    })
+    }) : null;
     
     // Try to find the specific contact if customerName matches, or get the first contact
     const contact = company?.contacts?.find(c => c.contactName === job.customerName) 
@@ -53,8 +53,8 @@ export default async function ManageInstallationPage({ params }: { params: Promi
       address: company?.address || "",
       siteAddress: company?.shippingAddress || company?.address || "",
       quotationNo: job.quotationNumber || job.quotation?.quotationNumber || "",
-      sender: session.fullName || "",
-      senderPhone: userRecord?.phoneNumber || "",
+      sender: job.sellerName || session.fullName || "",
+      senderPhone: (job.quotation as any)?.salesperson?.phoneNumber || userRecord?.phoneNumber || "",
       technician: "",
       technicianPhone: "",
       workInspect: false,

@@ -90,7 +90,8 @@ export default function ScheduleForm({ order, currentUser }: { order: any, curre
       if (!res.success) {
         throw new Error(res.error || "Failed to save plan")
       }
-      router.push("/service/installation")
+      alert("บันทึกแผนงานสำเร็จ (Schedule saved successfully)");
+      router.push(`/jobs?jobId=${order.jobId}`)
       router.refresh()
     } catch (err: any) {
       setError(err.message)
@@ -132,7 +133,6 @@ export default function ScheduleForm({ order, currentUser }: { order: any, curre
               <input 
                 type="date" 
                 name="startDate"
-                required
                 value={formData.startDate}
                 onChange={handleChange}
                 className="w-[55%] p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
@@ -158,7 +158,6 @@ export default function ScheduleForm({ order, currentUser }: { order: any, curre
               <input 
                 type="date" 
                 name="endDate"
-                required
                 value={formData.endDate}
                 onChange={handleChange}
                 className="w-[55%] p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
@@ -185,7 +184,6 @@ export default function ScheduleForm({ order, currentUser }: { order: any, curre
           <input 
             type="text" 
             name="workLocation"
-            required
             value={formData.workLocation}
             onChange={handleChange}
             placeholder="ระบุสถานที่ปฏิบัติงาน"

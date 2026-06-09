@@ -191,22 +191,44 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
     const file = e.target.files?.[0];
     if (!file || !uploadTarget) return;
     
+    if (file.size > 50 * 1024 * 1024) {
+      alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (รองรับสูงสุด 50MB)`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    
     setUploading(true);
     try {
-      const form = new FormData();
-      form.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body: form });
-      const data = await res.json();
-      if (data.success) {
-        const { key, index } = uploadTarget;
-        setFormData((prev: any) => {
-          const newImages = { ...prev.checklistImages };
-          if (!newImages[key]) newImages[key] = [];
-          while (newImages[key].length <= index) newImages[key].push("");
-          newImages[key][index] = data.url;
-          return { ...prev, checklistImages: newImages };
+      const supabase = (await import('@supabase/supabase-js')).createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from('uploadsService')
+        .upload(filename, file, {
+          contentType: file.type,
+          upsert: false
         });
-      }
+      
+      if (uploadError) throw uploadError;
+      
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from('uploadsService')
+        .getPublicUrl(uploadData.path);
+      
+      const { key, index } = uploadTarget;
+      setFormData((prev: any) => {
+        const newImages = { ...prev.checklistImages };
+        if (!newImages[key]) newImages[key] = [];
+        while (newImages[key].length <= index) newImages[key].push("");
+        newImages[key][index] = publicUrl;
+        return { ...prev, checklistImages: newImages };
+      });
     } catch (err) {
       console.error(err);
       alert("Error uploading file.");
@@ -476,7 +498,7 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
 
             {/* Uploaded Images Gallery for checked items */}
             <div className="pt-4 border-t border-slate-100">
-              <p className="text-xs font-bold text-slate-600 mb-3">อัปโหลดรูปภาพสินค้า (ตามหัวข้อที่ติ๊ก):</p>
+              <p className="text-xs font-bold text-slate-600 mb-3">อัปโหลดรูปภาพสินค้า (ตามหัวข้อที่ติ๊ก) <span className="text-red-500 font-medium">(รองรับสูงสุด 50MB)</span>:</p>
               <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
               <div className="flex flex-wrap gap-4">
                 {CHECKLIST_OPTIONS.map(item => {

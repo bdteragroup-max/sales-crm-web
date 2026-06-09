@@ -214,9 +214,17 @@ export default function NewRepairOrderForm({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
+      const validFiles: File[] = [];
+      for (const file of newFiles) {
+        if (file.size > 50 * 1024 * 1024) {
+          alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (รองรับสูงสุด 50MB)`);
+        } else {
+          validFiles.push(file);
+        }
+      }
       setChecklistFiles(prev => ({
         ...prev,
-        [key]: [...(prev[key] || []), ...newFiles]
+        [key]: [...(prev[key] || []), ...validFiles]
       }));
     }
   };
@@ -239,23 +247,40 @@ export default function NewRepairOrderForm({
       if (allFiles.length > 0) {
         setIsUploading(true);
         
+        // Initialize Supabase client
+        const supabase = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        
         for (const [key, files] of Object.entries(checklistFiles)) {
           if (files.length === 0) continue;
           uploadedFilesMap[key] = [];
           for (const file of files) {
-            const form = new FormData();
-            form.append('file', file);
+            // Create unique filename
+            const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+            const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
             
-            const res = await fetch('/api/upload', { method: 'POST', body: form });
-            const data = await res.json();
+            const { data: uploadData, error: uploadError } = await supabase
+              .storage
+              .from('uploadsService')
+              .upload(filename, file, {
+                contentType: file.type,
+                upsert: false
+              });
             
-            if (!data.success) {
-              console.error('Upload error:', data.error);
+            if (uploadError) {
+              console.error('Upload error:', uploadError);
               alert(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${file.name}`);
               throw new Error('Upload failed');
             }
 
-            uploadedFilesMap[key].push(data.url);
+            const { data: { publicUrl } } = supabase
+              .storage
+              .from('uploadsService')
+              .getPublicUrl(uploadData.path);
+
+            uploadedFilesMap[key].push(publicUrl);
           }
         }
         setIsUploading(false);
@@ -593,6 +618,7 @@ export default function NewRepairOrderForm({
                         <label className="cursor-pointer border-2 border-dashed border-red-200 hover:border-red-500 hover:bg-red-50 rounded-xl w-20 h-20 flex flex-col items-center justify-center text-red-400 hover:text-red-600 transition-all shrink-0">
                           <Upload className="w-5 h-5 mb-1" />
                           <span className="text-[9px] font-bold uppercase tracking-wider">{isVideo ? "เพิ่มวิดีโอ" : "เพิ่มรูป"}</span>
+                          <span className="text-[8px] text-red-400 mt-0.5 text-center px-1 font-medium leading-tight">(สูงสุด 50MB)</span>
                           <input type="file" accept={isVideo ? "video/*" : "image/*"} multiple className="hidden" onChange={(e) => handleFileChange(e, k)} />
                         </label>
                         

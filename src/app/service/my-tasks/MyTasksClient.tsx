@@ -117,7 +117,7 @@ export default function MyTasksClient({ orders, currentUser }: { orders: any[], 
               <div className="flex items-start justify-between mb-4 gap-2">
                 <div className="relative inline-flex items-center">
                   <select
-                    value={STATUS_OPTIONS.includes(o.status) ? o.status : "เปิด Job - ยังไม่เริ่มติดตั้ง"}
+                    value={o.status || "Draft"}
                     onChange={(e) => handleStatusChange(o.id, e.target.value)}
                     disabled={isUpdating === o.id || o.id.startsWith("mock-")}
                     className={`px-3 py-1.5 pr-6 rounded-full text-[10px] font-bold tracking-wide border cursor-pointer appearance-none outline-none transition-all hover:shadow-sm ${getStatusColor(o.status)} ${isUpdating === o.id ? 'opacity-50' : ''}`}

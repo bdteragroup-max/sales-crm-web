@@ -142,13 +142,36 @@ export default function JobTimeline({
 
     let photoUrl = "";
     if (deliveryMethod === "courier" && trackingFile) {
+      if (trackingFile.size > 50 * 1024 * 1024) {
+        alert(`ไฟล์ ${trackingFile.name} มีขนาดใหญ่เกินไป (รองรับสูงสุด 50MB)`);
+        setTrackingFile(null);
+        return;
+      }
       setIsUploading(true);
       try {
-        const formData = new FormData();
-        formData.append("file", trackingFile);
-        const res = await fetch("/api/upload", { method: "POST", body: formData });
-        const data = await res.json();
-        if (data.success) photoUrl = data.url;
+        const supabase = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        const filename = `${uniqueSuffix}-${trackingFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase
+          .storage
+          .from('uploadsService')
+          .upload(filename, trackingFile, {
+            contentType: trackingFile.type,
+            upsert: false
+          });
+          
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase
+          .storage
+          .from('uploadsService')
+          .getPublicUrl(uploadData.path);
+          
+        photoUrl = publicUrl;
       } catch (err) {
         console.error("Upload failed", err);
         alert("อัปโหลดรูปภาพไม่สำเร็จ");
@@ -450,7 +473,7 @@ export default function JobTimeline({
                     <input type="text" value={trackingNumber} onChange={e => setTrackingNumber(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-1">รูปถ่ายสลิป/ใบเสร็จ (แนบเพื่อเป็นหลักฐาน)</label>
+                    <label className="block text-xs font-bold text-gray-500 mb-1">รูปถ่ายสลิป/ใบเสร็จ (แนบเพื่อเป็นหลักฐาน) <span className="text-red-500 font-medium">(รองรับสูงสุด 50MB)</span></label>
                     <input type="file" accept="image/*" onChange={e => setTrackingFile(e.target.files?.[0] || null)} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-brand-red hover:file:bg-red-100 transition-colors" />
                   </div>
                 </div>
@@ -598,6 +621,16 @@ export default function JobTimeline({
                     <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
                       แผนงาน: <span className="font-bold text-gray-700">{new Date(order.plannedStartDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                     </p>
+                  )}
+                  {order.workPlan && (
+                    <div className="mt-2 text-[10px] text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100">
+                      <p className="font-bold text-gray-700 mb-1">รายละเอียดแผนงาน:</p>
+                      <ul className="list-disc pl-4 space-y-0.5">
+                        {order.workPlan.split('\n').filter((t: string) => t.trim() !== '').map((task: string, idx: number) => (
+                          <li key={idx}>{task}</li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
               </div>

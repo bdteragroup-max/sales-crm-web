@@ -23,11 +23,11 @@ export default function ManageInstallationForm({ initialData, isEdit, currentUse
     senderPhone: initialData.senderPhone || "",
     technician: initialData.technician || "",
     technicianPhone: initialData.technicianPhone || "",
-    workInspect: initialData.workInspect || false,
-    workInstall: initialData.workInstall || false,
-    workRepair: initialData.workRepair || false,
-    workTraining: initialData.workTraining || false,
-    workOther: initialData.workOther || "",
+    workInspect: initialData.checklist?.workInspect || initialData.workInspect || false,
+    workInstall: initialData.checklist?.workInstall || initialData.workInstall || false,
+    workRepair: initialData.checklist?.workRepair || initialData.workRepair || false,
+    workTraining: initialData.checklist?.workTraining || initialData.workTraining || false,
+    workOther: initialData.checklist?.workOther || initialData.workOther || "",
     note: initialData.note || "",
   })
 
@@ -67,7 +67,7 @@ export default function ManageInstallationForm({ initialData, isEdit, currentUse
       }
       
       if (res.success) {
-        router.push(`/jobs/${initialData.jobId}`)
+        router.push(`/jobs?jobId=${initialData.jobId}`)
         router.refresh()
       } else {
         alert("Error saving: " + res.error)
@@ -111,11 +111,11 @@ export default function ManageInstallationForm({ initialData, isEdit, currentUse
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-1.5">บริษัท (Company)</label>
-              <input type="text" name="company" value={formData.company} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" required />
+              <input type="text" name="company" value={formData.company} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-1.5">ลูกค้า (Customer Name)</label>
-              <input type="text" name="customer" value={formData.customer} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" required />
+              <input type="text" name="customer" value={formData.customer} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-1.5">ฐานะ/ตำแหน่งลูกค้า (Position)</label>
@@ -150,11 +150,11 @@ export default function ManageInstallationForm({ initialData, isEdit, currentUse
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1.5">ผู้ส่งมอบงาน (Sender Name)</label>
+              <label className="block text-xs font-bold text-gray-600 mb-1.5">เซลล์ผู้รับผิดชอบ (Sales Owner)</label>
               <input type="text" name="sender" value={formData.sender} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1.5">เบอร์โทร ผู้ส่งมอบ (Sender Phone)</label>
+              <label className="block text-xs font-bold text-gray-600 mb-1.5">เบอร์โทร เซลล์ (Sales Phone)</label>
               <input type="text" name="senderPhone" value={formData.senderPhone} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
             <div>

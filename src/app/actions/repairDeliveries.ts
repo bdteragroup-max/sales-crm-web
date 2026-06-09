@@ -22,9 +22,9 @@ export async function createRepairDelivery(jobId?: string, autoData?: any) {
       });
       if (job) {
         // Find company manually since relation isn't explicitly defined in Prisma schema
-        const company = await prisma.company.findUnique({
-          where: { id: job.companyCode }
-        });
+        const company = job.quotation?.companyId ? await prisma.company.findUnique({
+          where: { id: job.quotation.companyId }
+        }) : null;
         
         prefill = {
           jobId: job.id,

@@ -11,6 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function JobsPage(props: { searchParams?: Promise<any> | any }) { 
   const searchParams = props.searchParams ? await props.searchParams : {};
   const actionParam = searchParams.action;
+  const targetJobId = searchParams.jobId;
   const session = (await cookies()).get('session')?.value
   const payload = await decrypt(session)
   
@@ -93,6 +94,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
           userDept={`${resolvedDept} ${user.role}`} 
           userRole={user.role}
           actionParam={actionParam}
+          targetJobId={targetJobId}
         />
       </main>
     </div>

@@ -64,6 +64,25 @@ export function jobStepMessage(job: any, step: string, dept: string) {
     { type: 'text', text: `เวลา: ${formatBkkTime(new Date())}`, size: 'xs', color: '#999999' },
   ];
 
+  if (job.flowVariant && dept.toLowerCase() === 'store') {
+    const stockStatus = job.flowVariant === 'has_stock' ? 'มีของพร้อมดำเนินการ' : 
+                        job.flowVariant === 'no_stock' ? 'ไม่มีของ (ต้องสั่ง/ผลิต)' : 
+                        job.flowVariant === 'in_house_warranty' ? 'ในประกัน (ซ่อมเอง)' :
+                        job.flowVariant === 'in_house_charged' ? 'นอกประกัน (ซ่อมเอง)' :
+                        job.flowVariant === 'outsource' ? 'ส่งซ่อมนอก (Outsource)' :
+                        job.flowVariant;
+    
+    bodyContents.push({ type: 'separator', margin: 'md' });
+    bodyContents.push({ 
+      type: 'text', 
+      text: `ตัวเลือก: ${stockStatus}`, 
+      size: 'sm', 
+      color: job.flowVariant === 'has_stock' ? '#16a34a' : '#ea580c', 
+      weight: 'bold', 
+      margin: 'md' 
+    });
+  }
+
   if (job.deliveryMethod) {
     bodyContents.push({ type: 'separator', margin: 'md' });
     const methodStr = job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' :
