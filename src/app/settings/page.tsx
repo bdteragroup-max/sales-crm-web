@@ -59,12 +59,13 @@ export default async function SettingsPage() {
         data: missingSubordinates.map(s => ({
           employeeId: s.emp_id,
           fullName: s.name,
-          email: s.email || `${s.emp_id}@teragroup.com`,
+          email: s.email || null,
           role: 'Sales Representative', // Default role
           position: s.job_positions?.title || 'พนักงาน',
           password: 'PENDING_LOGIN', // Will be updated on first login
           isActive: true
-        }))
+        })),
+        skipDuplicates: true
       });
     }
 
