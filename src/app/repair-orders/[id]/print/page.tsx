@@ -314,7 +314,7 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
         /* ── Page setup ── */
         @page {
           size: A4;
-          margin: 6mm 10mm 6mm 10mm;
+          margin: 0mm;
         }
 
         /* ── Reset (scoped to print wrapper) ── */
@@ -337,7 +337,7 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
         /* ── Sheet (one A4 page) ── */
         .ro-sheet {
           width: 210mm;
-          height: 297mm;
+          min-height: 297mm;
           margin: 8mm auto;
           padding: 6mm 12mm 6mm 12mm;
           background: #fff;
@@ -348,15 +348,19 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
           flex-direction: column;
           page-break-after: always;
         }
+        
+        .ro-sheet:last-child {
+          page-break-after: auto;
+        }
 
         /* ── Print overrides ── */
         @media print {
-          .ro-print-wrapper { background: #fff; }
+          .ro-print-wrapper { background: #fff; padding: 0; }
           .ro-sheet {
-            width: 100%;
-            height: auto;
+            width: 210mm;
+            min-height: 297mm;
             margin: 0;
-            padding: 0;
+            padding: 10mm 14mm;
             box-shadow: none;
           }
           .ro-fab { display: none !important; }

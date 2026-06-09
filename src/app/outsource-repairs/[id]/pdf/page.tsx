@@ -213,7 +213,7 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
 
         .ro-sheet {
           width: 210mm;
-          height: 297mm;
+          min-height: 297mm;
           margin: 8mm auto;
           padding: 6mm 12mm 6mm 12mm;
           background: #fff;
@@ -222,16 +222,19 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
           position: relative;
           display: flex;
           flex-direction: column;
-          page-break-after: always;
         }
 
         @media print {
+          @page {
+            size: A4;
+            margin: 0mm;
+          }
           .ro-print-wrapper { background: #fff; padding: 0; }
           .ro-sheet {
-            width: 100%;
-            height: auto;
+            width: 210mm;
+            height: 297mm;
             margin: 0;
-            padding: 0;
+            padding: 10mm 14mm;
             box-shadow: none;
           }
           .ro-fab { display: none !important; }
