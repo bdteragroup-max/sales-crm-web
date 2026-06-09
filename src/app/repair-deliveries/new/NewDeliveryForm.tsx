@@ -1,11 +1,19 @@
 "use client"
 
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { FileSignature, Save, ArrowLeft, Loader2, Eraser, Building2, Users, ClipboardList } from "lucide-react"
+import { FileSignature, Save, ArrowLeft, Loader2, Eraser, Building2, Users, ClipboardList, Search, X } from "lucide-react"
 import SignatureCanvas from "react-signature-canvas"
 import Link from "next/link"
-import { createRepairDelivery } from "@/app/actions/repairDeliveries"
+import { createRepairDelivery, searchSalespeople } from "@/app/actions/repairDeliveries"
+
+interface SalespersonResult {
+  id: string
+  fullName: string
+  phoneNumber: string | null
+  role: string
+  employeeSale?: { position: string | null; nickname: string | null } | null
+}
 
 export default function NewDeliveryForm({ currentUser }: { currentUser: any }) {
   const router = useRouter()
@@ -30,6 +38,72 @@ export default function NewDeliveryForm({ currentUser }: { currentUser: any }) {
     workOther: "",
     note: "",
   })
+
+  // Salesperson search state
+  const [senderSearchQuery, setSenderSearchQuery] = useState(currentUser?.fullName || "")
+  const [senderResults, setSenderResults] = useState<SalespersonResult[]>([])
+  const [isSenderSearching, setIsSenderSearching] = useState(false)
+  const [showSenderDropdown, setShowSenderDropdown] = useState(false)
+  const senderDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Debounced search for salesperson
+  useEffect(() => {
+    if (!senderSearchQuery || senderSearchQuery.trim().length < 1) {
+      setSenderResults([])
+      setShowSenderDropdown(false)
+      return
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSenderSearching(true)
+      try {
+        const res = await searchSalespeople(senderSearchQuery.trim())
+        if (res.success && res.data) {
+          setSenderResults(res.data as SalespersonResult[])
+          setShowSenderDropdown(true)
+        }
+      } catch (err) {
+        console.error("Search error:", err)
+      } finally {
+        setIsSenderSearching(false)
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [senderSearchQuery])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (senderDropdownRef.current && !senderDropdownRef.current.contains(event.target as Node)) {
+        setShowSenderDropdown(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const selectSalesperson = useCallback((person: SalespersonResult) => {
+    setSenderSearchQuery(person.fullName)
+    setFormData(prev => ({
+      ...prev,
+      sender: person.fullName,
+      senderPhone: person.phoneNumber || "",
+    }))
+    setShowSenderDropdown(false)
+    setSenderResults([])
+  }, [])
+
+  const clearSenderSelection = useCallback(() => {
+    setSenderSearchQuery("")
+    setFormData(prev => ({
+      ...prev,
+      sender: "",
+      senderPhone: "",
+    }))
+    setSenderResults([])
+    setShowSenderDropdown(false)
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -91,7 +165,7 @@ export default function NewDeliveryForm({ currentUser }: { currentUser: any }) {
             <div className="p-2 bg-blue-50 text-blue-500 rounded-lg">
               <Building2 size={18} />
             </div>
-            ข้อมูลลูกค้าและงาน (Customer & Job Details)
+            ข้อมูลลูกค้าและงาน (Customer &amp; Job Details)
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             <div>
@@ -134,12 +208,84 @@ export default function NewDeliveryForm({ currentUser }: { currentUser: any }) {
             ข้อมูลผู้ติดต่อ (Contact Persons)
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-            <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1.5">ผู้ส่งมอบงาน (Sender Name)</label>
-              <input type="text" name="sender" value={formData.sender} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all" />
+            {/* Salesperson Search Autocomplete */}
+            <div ref={senderDropdownRef} className="relative">
+              <label className="block text-xs font-bold text-gray-600 mb-1.5">พนักงานขายผู้รับผิดชอบ (Salesperson in Charge)</label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                  <Search size={16} />
+                </div>
+                <input
+                  type="text"
+                  value={senderSearchQuery}
+                  onChange={(e) => {
+                    setSenderSearchQuery(e.target.value)
+                    setFormData(prev => ({ ...prev, sender: e.target.value }))
+                  }}
+                  onFocus={() => {
+                    if (senderResults.length > 0) setShowSenderDropdown(true)
+                  }}
+                  placeholder="พิมพ์ชื่อพนักงานขายเพื่อค้นหา..."
+                  className="w-full pl-10 pr-10 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
+                />
+                {isSenderSearching && (
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                    <Loader2 size={16} className="animate-spin text-red-400" />
+                  </div>
+                )}
+                {formData.sender && !isSenderSearching && (
+                  <button
+                    type="button"
+                    onClick={clearSenderSelection}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+
+              {/* Dropdown Results */}
+              {showSenderDropdown && senderResults.length > 0 && (
+                <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl shadow-gray-200/50 max-h-60 overflow-y-auto">
+                  {senderResults.map((person) => (
+                    <button
+                      key={person.id}
+                      type="button"
+                      onClick={() => selectSalesperson(person)}
+                      className="w-full text-left px-4 py-3 hover:bg-red-50/50 transition-colors border-b border-gray-50 last:border-b-0 group"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-gray-800 group-hover:text-red-600 transition-colors truncate">
+                            {person.fullName}
+                            {person.employeeSale?.nickname && (
+                              <span className="ml-1.5 text-gray-400 font-medium">({person.employeeSale.nickname})</span>
+                            )}
+                          </p>
+                          <p className="text-[11px] text-gray-400 font-medium">
+                            {person.employeeSale?.position || person.role}
+                          </p>
+                        </div>
+                        {person.phoneNumber && (
+                          <span className="text-xs text-gray-500 font-mono bg-gray-50 px-2 py-0.5 rounded-md shrink-0">
+                            {person.phoneNumber}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {showSenderDropdown && senderResults.length === 0 && senderSearchQuery.trim().length >= 1 && !isSenderSearching && (
+                <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl shadow-gray-200/50 px-4 py-3">
+                  <p className="text-sm text-gray-400 text-center">ไม่พบพนักงานขาย</p>
+                </div>
+              )}
             </div>
+
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1.5">เบอร์โทร ผู้ส่งมอบ (Sender Phone)</label>
+              <label className="block text-xs font-bold text-gray-600 mb-1.5">เบอร์โทร พนักงานขาย (Salesperson Phone)</label>
               <input type="text" name="senderPhone" value={formData.senderPhone} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all" />
             </div>
             <div>

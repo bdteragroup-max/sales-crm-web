@@ -98,3 +98,27 @@ export async function deleteRepairDelivery(id: string) {
     return { success: false, error: error.message };
   }
 }
+
+export async function searchSalespeople(query: string) {
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        isActive: true,
+        fullName: { contains: query, mode: "insensitive" },
+      },
+      select: {
+        id: true,
+        fullName: true,
+        phoneNumber: true,
+        role: true,
+        employeeSale: { select: { position: true, nickname: true } },
+      },
+      take: 10,
+      orderBy: { fullName: "asc" },
+    });
+    return { success: true, data: users };
+  } catch (error: any) {
+    console.error("Failed to search salespeople:", error);
+    return { success: false, error: error.message, data: [] };
+  }
+}
