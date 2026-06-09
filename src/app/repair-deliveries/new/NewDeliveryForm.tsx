@@ -32,9 +32,13 @@ export default function NewDeliveryForm({ currentUser }: { currentUser: any }) {
     technician: "",
     technicianPhone: "",
     workInspect: false,
+    workInspectDetails: "",
     workInstall: false,
+    workInstallDetails: "",
     workRepair: false,
+    workRepairDetails: "",
     workTraining: false,
+    workTrainingDetails: "",
     workOther: "",
     note: "",
   })
