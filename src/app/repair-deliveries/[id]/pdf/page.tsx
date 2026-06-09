@@ -169,25 +169,25 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
             <tr>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '40%', textAlign: 'center', fontWeight: 'bold' }}>งานตรวจเช็ค</td>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '60%' }}>
-                {delivery.workInspect ? `✓ ${delivery.workInspectDetails || ''}` : delivery.workInspectDetails || ''}
+                {delivery.workInspectDetails || ''}
               </td>
             </tr>
             <tr>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '40%', textAlign: 'center', fontWeight: 'bold' }}>งานติดตั้ง</td>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '60%' }}>
-                {delivery.workInstall ? `✓ ${delivery.workInstallDetails || ''}` : delivery.workInstallDetails || ''}
+                {delivery.workInstallDetails || ''}
               </td>
             </tr>
             <tr>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '40%', textAlign: 'center', fontWeight: 'bold' }}>งานซ่อม</td>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '60%' }}>
-                {delivery.workRepair ? `✓ ${delivery.workRepairDetails || ''}` : delivery.workRepairDetails || ''}
+                {delivery.workRepairDetails || ''}
               </td>
             </tr>
             <tr>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '40%', textAlign: 'center', fontWeight: 'bold' }}>งานอบรม Training</td>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '60%' }}>
-                {delivery.workTraining ? `✓ ${delivery.workTrainingDetails || ''}` : delivery.workTrainingDetails || ''}
+                {delivery.workTrainingDetails || ''}
               </td>
             </tr>
             <tr>
