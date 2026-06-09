@@ -444,9 +444,13 @@ model RepairDelivery {
   technicianPhone String?
 
   workInspect     Boolean @default(false)
+  workInspectDetails String?
   workInstall     Boolean @default(false)
+  workInstallDetails String?
   workRepair      Boolean @default(false)
+  workRepairDetails  String?
   workTraining    Boolean @default(false)
+  workTrainingDetails String?
   workOther       String?
 
   note            String?
@@ -558,6 +562,9 @@ model CustomerRequirement {
   estimationNote  String?
   estimatedBy     String?
   estimatedAt     DateTime? @db.Timestamptz(6)
+  assignedTo        String?
+  assignedToUserId  String?
+  estimationDueDate DateTime? @db.Timestamptz(6)
   createdAt       DateTime @default(now()) @db.Timestamptz(6)
   user            User?    @relation(fields: [userId], references: [id])
 

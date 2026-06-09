@@ -307,17 +307,27 @@ export default function NewDeliveryForm({ currentUser }: { currentUser: any }) {
             </div>
             รายละเอียดงาน (Work Checklist)
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             {[
-              { name: "workInspect", label: "งานตรวจเช็ค", value: formData.workInspect },
-              { name: "workInstall", label: "งานติดตั้ง", value: formData.workInstall },
-              { name: "workRepair", label: "งานซ่อม", value: formData.workRepair },
-              { name: "workTraining", label: "งานอบรม", value: formData.workTraining },
+              { name: "workInspect", detailsName: "workInspectDetails", label: "งานตรวจเช็ค", value: formData.workInspect, details: formData.workInspectDetails },
+              { name: "workInstall", detailsName: "workInstallDetails", label: "งานติดตั้ง", value: formData.workInstall, details: formData.workInstallDetails },
+              { name: "workRepair", detailsName: "workRepairDetails", label: "งานซ่อม", value: formData.workRepair, details: formData.workRepairDetails },
+              { name: "workTraining", detailsName: "workTrainingDetails", label: "งานอบรม", value: formData.workTraining, details: formData.workTrainingDetails },
             ].map(work => (
-              <label key={work.name} className={`flex items-center justify-center p-4 border rounded-xl cursor-pointer transition-all ${work.value ? "border-red-500 bg-red-50 text-red-700" : "border-gray-200 bg-gray-50 hover:bg-white"}`}>
-                <input type="checkbox" name={work.name} checked={work.value} onChange={handleChange} className="hidden" />
-                <span className="text-sm font-bold text-center">{work.label}</span>
-              </label>
+              <div key={work.name} className="flex flex-col gap-2">
+                <label className={`flex items-center p-3 border rounded-xl cursor-pointer transition-all ${work.value ? "border-red-500 bg-red-50 text-red-700" : "border-gray-200 bg-gray-50 hover:bg-white"}`}>
+                  <input type="checkbox" name={work.name} checked={work.value} onChange={handleChange} className="mr-3 w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500" />
+                  <span className="text-sm font-bold">{work.label}</span>
+                </label>
+                <input
+                  type="text"
+                  name={work.detailsName}
+                  value={work.details || ""}
+                  onChange={handleChange}
+                  placeholder={`รายละเอียด${work.label} (ถ้ามี)`}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
             ))}
           </div>
           <div className="space-y-5">

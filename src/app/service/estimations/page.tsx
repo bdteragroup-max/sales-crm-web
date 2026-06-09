@@ -20,9 +20,42 @@ export default async function EstimationsPage() {
     fullName: employee?.name || user?.fullName || 'ผู้ใช้งานระบบ',
   };
 
+  // Fetch service team members for assignment (MGR role only)
+  let serviceTeamMembers: any[] = [];
+  const isManager = (currentUser.role || '').toLowerCase().includes('service engineer mgr') || currentUser.role === 'ผู้จัดการ';
+  console.log('[EstimationsPage] User role:', currentUser.role, 'isManager:', isManager);
+  
+  if (isManager) {
+    serviceTeamMembers = await prisma.user.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { role: { contains: "service", mode: "insensitive" } },
+          { role: { contains: "บริการ", mode: "insensitive" } },
+          { role: { contains: "ช่าง", mode: "insensitive" } }
+        ]
+      },
+      select: {
+        id: true,
+        fullName: true,
+        role: true,
+      },
+      orderBy: { fullName: 'asc' }
+    });
+  }
+
   // Fetch only requirements that are sent to service
+  // MGR sees all. Non-MGR sees only unassigned or assigned to them.
   const records = await prisma.customerRequirement.findMany({
-    where: { isSentToService: true },
+    where: { 
+      isSentToService: true,
+      ...(isManager ? {} : {
+        OR: [
+          { assignedToUserId: null }, // Still show unassigned ones just in case? Or only assigned?
+          { assignedToUserId: currentUser.id }
+        ]
+      })
+    },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -30,6 +63,8 @@ export default async function EstimationsPage() {
     <EstimationsClientPage
       currentUser={currentUser}
       initialRecords={records}
+      serviceTeamMembers={serviceTeamMembers}
+      isManager={isManager}
     />
   );
 }

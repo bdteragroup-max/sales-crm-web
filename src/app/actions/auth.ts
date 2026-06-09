@@ -56,6 +56,8 @@ export async function login(state: FormState, formData: FormData) {
           await createSession(existingUser.id);
           if (existingUser.role === 'อื่นๆ') {
             redirectPath = '/department';
+          } else if (existingUser.role.toLowerCase().includes('service') || existingUser.role.toLowerCase().includes('บริการ') || existingUser.role.toLowerCase().includes('ช่าง')) {
+            redirectPath = '/service/estimations';
           }
           // We must NOT call redirect inside try/catch, so we set a flag and break out by skipping the rest of the block
           // But since we want to redirect at the end of the function, we just do nothing here to reach the end.
@@ -122,9 +124,14 @@ export async function login(state: FormState, formData: FormData) {
       await createSession(crmUser.id);
 
       // 6. Set redirect path for non-sales roles
-      const isMarketingManager = crmRole.toLowerCase() === 'marketing manager' || crmRole.toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || crmRole.toLowerCase() === 'ผู้จัดการการตลาด' || crmRole.toLowerCase() === 'ผู้การจัดการตลาด';
-      const isBackofficeRole = !isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin'].some(r => crmRole.toLowerCase().includes(r));
-      if (crmRole === 'อื่นๆ' || isBackofficeRole) {
+      const actualRole = crmUser.role.toLowerCase();
+      const isMarketingManager = actualRole === 'marketing manager' || actualRole === 'ผู้จัดการฝ่ายการตลาด' || actualRole === 'ผู้จัดการการตลาด' || actualRole === 'ผู้การจัดการตลาด';
+      const isBackofficeRole = !isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin'].some(r => actualRole.includes(r));
+      const isServiceRole = ['service', 'บริการ', 'ช่าง'].some(r => actualRole.includes(r));
+      
+      if (isServiceRole) {
+        redirectPath = '/service/estimations';
+      } else if (crmUser.role === 'อื่นๆ' || isBackofficeRole) {
         redirectPath = '/department';
       }
     }

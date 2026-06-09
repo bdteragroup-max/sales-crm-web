@@ -3,14 +3,16 @@
 import React, { useState } from 'react';
 import { Calculator, CheckCircle2, Clock, FileText, Search, User, X, Printer } from 'lucide-react';
 import Link from 'next/link';
-import { submitEstimation } from '@/app/actions/estimations';
+import { submitEstimation, assignEstimation } from '@/app/actions/estimations';
 
 interface EstimationsClientPageProps {
   currentUser: any;
   initialRecords: any[];
+  serviceTeamMembers?: any[];
+  isManager?: boolean;
 }
 
-export default function EstimationsClientPage({ currentUser, initialRecords }: EstimationsClientPageProps) {
+export default function EstimationsClientPage({ currentUser, initialRecords, serviceTeamMembers, isManager }: EstimationsClientPageProps) {
   const [activeTab, setActiveTab] = useState<'PENDING' | 'ESTIMATED'>('PENDING');
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -19,6 +21,13 @@ export default function EstimationsClientPage({ currentUser, initialRecords }: E
   const [estimatedPrice, setEstimatedPrice] = useState<number | ''>('');
   const [estimationNote, setEstimationNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Assignment Modal State
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [selectedAssignReq, setSelectedAssignReq] = useState<any>(null);
+  const [assignUserId, setAssignUserId] = useState('');
+  const [assignDueDate, setAssignDueDate] = useState('');
+  const [isAssigning, setIsAssigning] = useState(false);
 
   const filteredRecords = initialRecords.filter(item => {
     const statusMatch = activeTab === 'PENDING' 
@@ -62,6 +71,38 @@ export default function EstimationsClientPage({ currentUser, initialRecords }: E
       console.error(err);
       alert("Failed to submit estimation");
       setIsSubmitting(false);
+    }
+  };
+
+  const handleOpenAssignModal = (req: any) => {
+    setSelectedAssignReq(req);
+    setAssignUserId(req.assignedToUserId || '');
+    setAssignDueDate(req.estimationDueDate ? new Date(req.estimationDueDate).toISOString().split('T')[0] : '');
+    setIsAssignModalOpen(true);
+  };
+
+  const handleAssignSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAssignReq || !assignUserId || !assignDueDate) return;
+    
+    setIsAssigning(true);
+    try {
+      const member = serviceTeamMembers?.find(m => m.id === assignUserId);
+      await assignEstimation(
+        selectedAssignReq.id,
+        assignUserId,
+        member?.fullName || '',
+        new Date(assignDueDate),
+        currentUser.fullName
+      );
+      setIsAssignModalOpen(false);
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to assign estimation");
+      setIsAssigning(false);
     }
   };
 
@@ -229,6 +270,16 @@ export default function EstimationsClientPage({ currentUser, initialRecords }: E
                           )}
                         </div>
                       )}
+                      
+                      {/* Assignment Info */}
+                      {record.assignedTo && (
+                        <div className="mt-3 text-[11px] bg-blue-50/50 p-2 rounded-lg border border-blue-100/50 text-blue-700 flex flex-col gap-1">
+                          <div><strong className="text-blue-800">ผู้รับผิดชอบ:</strong> {record.assignedTo}</div>
+                          {record.estimationDueDate && (
+                            <div><strong className="text-blue-800">กำหนดส่ง:</strong> {new Date(record.estimationDueDate).toLocaleDateString('th-TH')}</div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Show Result if Estimated */}
@@ -258,12 +309,22 @@ export default function EstimationsClientPage({ currentUser, initialRecords }: E
                     </Link>
                     
                     {activeTab === 'PENDING' && (
-                      <button 
-                        onClick={() => handleOpenModal(record)}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-[#ff2301] hover:shadow-lg hover:shadow-red-200 transition-all transform hover:-translate-y-0.5"
-                      >
-                        <Calculator size={14} /> ประเมินราคา
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {isManager && (
+                          <button 
+                            onClick={() => handleOpenAssignModal(record)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-[#ff2301] border border-red-200 text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-red-50 hover:border-[#ff2301] shadow-sm transition-all"
+                          >
+                            <User size={14} /> มอบหมาย
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => handleOpenModal(record)}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-[#ff2301] hover:shadow-lg hover:shadow-red-200 transition-all transform hover:-translate-y-0.5"
+                        >
+                          <Calculator size={14} /> ประเมินราคา
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -347,6 +408,78 @@ export default function EstimationsClientPage({ currentUser, initialRecords }: E
                   className="px-5 py-2.5 text-sm font-bold text-white bg-gray-900 hover:bg-[#ff2301] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-lg hover:shadow-red-200 transition-all"
                 >
                   {isSubmitting ? 'กำลังบันทึก...' : 'บันทึกราคา'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Assignment Modal */}
+      {isAssignModalOpen && selectedAssignReq && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-blue-50 to-white">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <User size={16} className="text-blue-600" />
+                </div>
+                <h2 className="text-lg font-black text-gray-900">มอบหมายงานประเมิน</h2>
+              </div>
+              <button 
+                onClick={() => setIsAssignModalOpen(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleAssignSubmit} className="p-6 space-y-5">
+              <div>
+                <p className="text-sm font-bold text-gray-800 mb-1">{selectedAssignReq.companyName}</p>
+                <p className="text-xs text-gray-500">เซลล์: {selectedAssignReq.salesperson}</p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">เลือกผู้รับผิดชอบ <span className="text-red-500">*</span></label>
+                <select
+                  required
+                  value={assignUserId}
+                  onChange={(e) => setAssignUserId(e.target.value)}
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50"
+                >
+                  <option value="">-- เลือกพนักงาน --</option>
+                  {serviceTeamMembers?.map(member => (
+                    <option key={member.id} value={member.id}>{member.fullName}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">กำหนดส่ง <span className="text-red-500">*</span></label>
+                <input
+                  type="date"
+                  required
+                  value={assignDueDate}
+                  onChange={(e) => setAssignDueDate(e.target.value)}
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsAssignModalOpen(false)}
+                  className="px-5 py-2.5 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  disabled={isAssigning || !assignUserId || !assignDueDate}
+                  className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-lg hover:shadow-blue-200 transition-all"
+                >
+                  {isAssigning ? 'กำลังบันทึก...' : 'มอบหมายงาน'}
                 </button>
               </div>
             </form>

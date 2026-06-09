@@ -454,9 +454,13 @@ exports.Prisma.RepairDeliveryScalarFieldEnum = {
   technician: 'technician',
   technicianPhone: 'technicianPhone',
   workInspect: 'workInspect',
+  workInspectDetails: 'workInspectDetails',
   workInstall: 'workInstall',
+  workInstallDetails: 'workInstallDetails',
   workRepair: 'workRepair',
+  workRepairDetails: 'workRepairDetails',
   workTraining: 'workTraining',
+  workTrainingDetails: 'workTrainingDetails',
   workOther: 'workOther',
   note: 'note',
   sigSenderUrl: 'sigSenderUrl',
@@ -543,6 +547,9 @@ exports.Prisma.CustomerRequirementScalarFieldEnum = {
   estimationNote: 'estimationNote',
   estimatedBy: 'estimatedBy',
   estimatedAt: 'estimatedAt',
+  assignedTo: 'assignedTo',
+  assignedToUserId: 'assignedToUserId',
+  estimationDueDate: 'estimationDueDate',
   createdAt: 'createdAt'
 };
 

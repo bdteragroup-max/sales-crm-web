@@ -195,7 +195,7 @@ export default function RepairDeliveriesClientPage({ initialDeliveries, currentU
                           delivery.status === "Completed" ? "bg-emerald-100 text-emerald-600" :
                           "bg-amber-100 text-amber-600"
                         }`}>
-                          {delivery.status}
+                          {delivery.status === "Draft" ? "ร่าง / รอส่งมอบ" : delivery.status === "Completed" ? "ส่งมอบแล้ว" : delivery.status}
                         </span>
                       </td>
 

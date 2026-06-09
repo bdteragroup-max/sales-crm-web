@@ -55,7 +55,7 @@ function formatBkkTime(date: Date) {
 // Job step update
 export function jobStepMessage(job: any, step: string, dept: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   const bodyContents: any[] = [
     { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
     { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
@@ -66,16 +66,16 @@ export function jobStepMessage(job: any, step: string, dept: string) {
 
   if (job.deliveryMethod) {
     bodyContents.push({ type: 'separator', margin: 'md' });
-    const methodStr = job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' : 
-                      job.deliveryMethod === 'courier' ? 'บริษัทขนส่ง (Courier)' : 
-                      job.deliveryMethod;
-    
+    const methodStr = job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' :
+      job.deliveryMethod === 'courier' ? 'บริษัทขนส่ง (Courier)' :
+        job.deliveryMethod;
+
     bodyContents.push({ type: 'text', text: `การจัดส่ง: ${methodStr}`, size: 'sm', color: '#0369a1', weight: 'bold', margin: 'md' });
-    
+
     if (job.deliveryMethod === 'in-house' && job.deliveryDate) {
       bodyContents.push({ type: 'text', text: `วันที่จัดส่ง: ${new Date(job.deliveryDate).toLocaleDateString('th-TH')}`, size: 'sm' });
     }
-    
+
     if (job.deliveryMethod === 'courier') {
       if (job.courierCompany) {
         bodyContents.push({ type: 'text', text: `บริษัทขนส่ง: ${job.courierCompany}`, size: 'sm' });
@@ -143,7 +143,7 @@ export function jobStepMessage(job: any, step: string, dept: string) {
 
 export function customSalesPRMessage(job: any, role: 'sales' | 'manager' | 'purchase') {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   let headerText = '⚠️ แจ้งเตือนสินค้าหมดสต๊อก';
   let bodyText = '';
   let bgColor = '#f59e0b'; // amber/warning
@@ -211,7 +211,7 @@ export function customSalesPRMessage(job: any, role: 'sales' | 'manager' | 'purc
 
 export function customPurchasePOMessage(job: any) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `🛒 แจ้งเตือน PO งาน ${job.jobNumber}`,
@@ -253,7 +253,7 @@ export function customPurchasePOMessage(job: any) {
 
 export function customSalesAcknowledgeMessage(job: any) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `✅ ฝ่ายขายรับทราบ PO งาน ${job.jobNumber}`,
@@ -295,7 +295,7 @@ export function customSalesAcknowledgeMessage(job: any) {
 
 export function customStockArrivedMessage(job: any) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `📦 สินค้าเข้าแล้ว งาน ${job.jobNumber}`,
@@ -337,7 +337,7 @@ export function customStockArrivedMessage(job: any) {
 
 export function customStoreReceivedMessage(job: any) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `✅ สโตร์รับสินค้า งาน ${job.jobNumber}`,
@@ -444,18 +444,18 @@ export function quotationReminderMessage(quotation: any, remainingDays: number) 
 // Callback daily summary
 export function callbackDailySummaryMessage(employeeName: string, callbacks: any[]) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   // Format each callback as a box
   const callbackBoxes = callbacks.slice(0, 10).map((cb: any, index: number) => {
     const cbDate = new Date(cb.callbackAt);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const isOverdue = cbDate.getTime() < today.getTime();
-    const timeStr = isOverdue 
-      ? cbDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) + ' ' + cbDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) 
+    const timeStr = isOverdue
+      ? cbDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) + ' ' + cbDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
       : cbDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-      
+
     const prefix = isOverdue ? '⚠️ เกินกำหนด:' : 'เวลา:';
     const color = isOverdue ? '#ef4444' : '#0369a1';
 
@@ -535,7 +535,7 @@ export function callbackDailySummaryMessage(employeeName: string, callbacks: any
 // Team Callback Summary for Supervisor
 export function teamCallbackSummaryMessage(supervisorName: string, employeeData: { employeeName: string, callbacks: any[] }[]) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   let totalCallbacks = 0;
   employeeData.forEach(e => totalCallbacks += e.callbacks.length);
 
@@ -547,13 +547,15 @@ export function teamCallbackSummaryMessage(supervisorName: string, employeeData:
       spacing: 'xs',
       contents: [
         { type: 'text', text: `👤 ${e.employeeName} (${e.callbacks.length} รายการ)`, weight: 'bold', size: 'sm', color: '#0369a1' },
-        { type: 'text', text: e.callbacks.slice(0, 5).map(cb => {
-          const cbDate = new Date(cb.callbackAt);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const isOverdue = cbDate.getTime() < today.getTime();
-          return `- ${cb.company?.companyName || 'ไม่ระบุ'} ${isOverdue ? '(เกินกำหนด)' : ''}`;
-        }).join('\n'), size: 'xs', wrap: true },
+        {
+          type: 'text', text: e.callbacks.slice(0, 5).map(cb => {
+            const cbDate = new Date(cb.callbackAt);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const isOverdue = cbDate.getTime() < today.getTime();
+            return `- ${cb.company?.companyName || 'ไม่ระบุ'} ${isOverdue ? '(เกินกำหนด)' : ''}`;
+          }).join('\n'), size: 'xs', wrap: true
+        },
         ...(e.callbacks.length > 5 ? [{ type: 'text', text: `...และอีก ${e.callbacks.length - 5} รายการ`, size: 'xs', color: '#999999' }] : []),
         { type: 'separator', margin: 'md' }
       ]
@@ -568,7 +570,7 @@ export function teamCallbackSummaryMessage(supervisorName: string, employeeData:
       header: {
         type: 'box',
         layout: 'vertical',
-        backgroundColor: '#0284c7', 
+        backgroundColor: '#0284c7',
         contents: [
           { type: 'text', text: '👥 สรุปนัดโทรกลับของทีม', color: '#ffffff', weight: 'bold' },
         ],
@@ -602,7 +604,7 @@ export function teamCallbackSummaryMessage(supervisorName: string, employeeData:
 // Team Quotation Summary for Supervisor
 export function teamQuotationSummaryMessage(supervisorName: string, employeeData: { employeeName: string, quotations: { q: any, remainingDays: number }[] }[]) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   let totalQuotations = 0;
   employeeData.forEach(e => totalQuotations += e.quotations.length);
 
@@ -614,9 +616,11 @@ export function teamQuotationSummaryMessage(supervisorName: string, employeeData
       spacing: 'xs',
       contents: [
         { type: 'text', text: `👤 ${e.employeeName} (${e.quotations.length} รายการ)`, weight: 'bold', size: 'sm', color: '#c2410c' },
-        { type: 'text', text: e.quotations.slice(0, 5).map(item => {
-          return `- ${item.q.quotationNumber} (ใน ${item.remainingDays} วัน)`;
-        }).join('\n'), size: 'xs', wrap: true },
+        {
+          type: 'text', text: e.quotations.slice(0, 5).map(item => {
+            return `- ${item.q.quotationNumber} (ใน ${item.remainingDays} วัน)`;
+          }).join('\n'), size: 'xs', wrap: true
+        },
         ...(e.quotations.length > 5 ? [{ type: 'text', text: `...และอีก ${e.quotations.length - 5} รายการ`, size: 'xs', color: '#999999' }] : []),
         { type: 'separator', margin: 'md' }
       ]
@@ -631,7 +635,7 @@ export function teamQuotationSummaryMessage(supervisorName: string, employeeData
       header: {
         type: 'box',
         layout: 'vertical',
-        backgroundColor: '#ea580c', 
+        backgroundColor: '#ea580c',
         contents: [
           { type: 'text', text: '👥 สรุปใบเสนอราคาของทีม', color: '#ffffff', weight: 'bold' },
         ],
@@ -665,7 +669,7 @@ export function teamQuotationSummaryMessage(supervisorName: string, employeeData
 // Schedule Daily Summary
 export function scheduleDailyMessage(employeeName: string, schedules: any[]) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   const scheduleBoxes = schedules.slice(0, 10).map((sched: any, index: number) => {
     const time = new Date(sched.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
     const location = sched.company?.companyName || sched.description || 'ไม่ระบุสถานที่';
@@ -725,7 +729,7 @@ export function scheduleDailyMessage(employeeName: string, schedules: any[]) {
 // Team Schedule Summary for Supervisor
 export function teamScheduleSummaryMessage(supervisorName: string, employeeData: { employeeName: string, schedules: any[] }[]) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   let totalSchedules = 0;
   employeeData.forEach(e => totalSchedules += e.schedules.length);
 
@@ -737,11 +741,13 @@ export function teamScheduleSummaryMessage(supervisorName: string, employeeData:
       spacing: 'xs',
       contents: [
         { type: 'text', text: `👤 ${e.employeeName} (${e.schedules.length} รายการ)`, weight: 'bold', size: 'sm', color: '#047857' },
-        { type: 'text', text: e.schedules.slice(0, 5).map(sched => {
-          const time = new Date(sched.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-          const location = sched.company?.companyName || 'ไม่ระบุสถานที่';
-          return `- ${time} น. ไป ${location}`;
-        }).join('\n'), size: 'xs', wrap: true },
+        {
+          type: 'text', text: e.schedules.slice(0, 5).map(sched => {
+            const time = new Date(sched.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+            const location = sched.company?.companyName || 'ไม่ระบุสถานที่';
+            return `- ${time} น. ไป ${location}`;
+          }).join('\n'), size: 'xs', wrap: true
+        },
         ...(e.schedules.length > 5 ? [{ type: 'text', text: `...และอีก ${e.schedules.length - 5} รายการ`, size: 'xs', color: '#999999' }] : []),
         { type: 'separator', margin: 'md' }
       ]
@@ -756,7 +762,7 @@ export function teamScheduleSummaryMessage(supervisorName: string, employeeData:
       header: {
         type: 'box',
         layout: 'vertical',
-        backgroundColor: '#059669', 
+        backgroundColor: '#059669',
         contents: [
           { type: 'text', text: '👥 สรุปนัดหมายของทีมวันนี้', color: '#ffffff', weight: 'bold' },
         ],
@@ -790,10 +796,10 @@ export function teamScheduleSummaryMessage(supervisorName: string, employeeData:
 // Installation Plan Update Message
 export function installationPlanUpdatedMessage(order: any, technicianName: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   const startDateStr = order.plannedStartDate ? new Date(order.plannedStartDate).toLocaleString('th-TH') : '-';
   const endDateStr = order.plannedEndDate ? new Date(order.plannedEndDate).toLocaleString('th-TH') : '-';
-  
+
   return {
     type: 'flex',
     altText: `🛠️ อัปเดตแผนงานติดตั้ง งาน ${order.installationNo}`,
@@ -841,7 +847,7 @@ export function installationPlanUpdatedMessage(order: any, technicianName: strin
 // Estimation Notifications
 export function estimationRequestMessage(customerName: string, items: string[], salesperson: string, requirementId: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `🔔 มีรายการรอประเมินราคาใหม่: ${customerName}`,
@@ -882,7 +888,7 @@ export function estimationRequestMessage(customerName: string, items: string[], 
 
 export function estimationCompletedMessage(customerName: string, price: number, note: string, servicePerson: string, requirementId: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
-  
+
   return {
     type: 'flex',
     altText: `✅ ประเมินราคาเสร็จแล้ว: ${customerName}`,
@@ -922,3 +928,44 @@ export function estimationCompletedMessage(customerName: string, price: number, 
   };
 }
 
+export function estimationAssignedMessage(customerName: string, items: string[], dueDate: Date, assignedBy: string, requirementId: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+
+  return {
+    type: 'flex',
+    altText: `🛠️ ได้รับมอบหมายงานประเมินราคา: ${customerName}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#f97316', // orange-500
+        contents: [
+          { type: 'text', text: '🛠️ มอบหมายงานประเมินราคา', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `ลูกค้า: ${customerName}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `รายการ: ${items.join(', ')}`, size: 'sm', wrap: true, margin: 'md' },
+          { type: 'text', text: `กำหนดส่ง: ${new Date(dueDate).toLocaleDateString('th-TH')}`, size: 'sm', color: '#ef4444', weight: 'bold', margin: 'md' },
+          { type: 'text', text: `มอบหมายโดย: ${assignedBy}`, size: 'sm', color: '#666666', margin: 'sm' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#f97316',
+            action: { type: 'uri', label: 'ดูรายละเอียดและประเมิน', uri: `${appUrl}/service/estimations` },
+          },
+        ],
+      },
+    },
+  };
+}

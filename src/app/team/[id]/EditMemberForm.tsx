@@ -143,6 +143,7 @@ export default function EditMemberForm({ member }: EditMemberFormProps) {
                   <option value="Purchasing">Purchasing</option>
                   <option value="Accounting Manager">Accounting Manager</option>
                   <option value="Accounting">Accounting</option>
+                  <option value="Service Engineer MGR">Service Engineer MGR</option>
                   <option value="Service Engineer">Service Engineer</option>
                   <option value="Service">Service</option>
                   <option value="Warehouse">Warehouse</option>

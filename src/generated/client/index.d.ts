@@ -30340,9 +30340,13 @@ export namespace Prisma {
     technician: string | null
     technicianPhone: string | null
     workInspect: boolean | null
+    workInspectDetails: string | null
     workInstall: boolean | null
+    workInstallDetails: string | null
     workRepair: boolean | null
+    workRepairDetails: string | null
     workTraining: boolean | null
+    workTrainingDetails: string | null
     workOther: string | null
     note: string | null
     sigSenderUrl: string | null
@@ -30372,9 +30376,13 @@ export namespace Prisma {
     technician: string | null
     technicianPhone: string | null
     workInspect: boolean | null
+    workInspectDetails: string | null
     workInstall: boolean | null
+    workInstallDetails: string | null
     workRepair: boolean | null
+    workRepairDetails: string | null
     workTraining: boolean | null
+    workTrainingDetails: string | null
     workOther: string | null
     note: string | null
     sigSenderUrl: string | null
@@ -30404,9 +30412,13 @@ export namespace Prisma {
     technician: number
     technicianPhone: number
     workInspect: number
+    workInspectDetails: number
     workInstall: number
+    workInstallDetails: number
     workRepair: number
+    workRepairDetails: number
     workTraining: number
+    workTrainingDetails: number
     workOther: number
     note: number
     sigSenderUrl: number
@@ -30438,9 +30450,13 @@ export namespace Prisma {
     technician?: true
     technicianPhone?: true
     workInspect?: true
+    workInspectDetails?: true
     workInstall?: true
+    workInstallDetails?: true
     workRepair?: true
+    workRepairDetails?: true
     workTraining?: true
+    workTrainingDetails?: true
     workOther?: true
     note?: true
     sigSenderUrl?: true
@@ -30470,9 +30486,13 @@ export namespace Prisma {
     technician?: true
     technicianPhone?: true
     workInspect?: true
+    workInspectDetails?: true
     workInstall?: true
+    workInstallDetails?: true
     workRepair?: true
+    workRepairDetails?: true
     workTraining?: true
+    workTrainingDetails?: true
     workOther?: true
     note?: true
     sigSenderUrl?: true
@@ -30502,9 +30522,13 @@ export namespace Prisma {
     technician?: true
     technicianPhone?: true
     workInspect?: true
+    workInspectDetails?: true
     workInstall?: true
+    workInstallDetails?: true
     workRepair?: true
+    workRepairDetails?: true
     workTraining?: true
+    workTrainingDetails?: true
     workOther?: true
     note?: true
     sigSenderUrl?: true
@@ -30607,9 +30631,13 @@ export namespace Prisma {
     technician: string | null
     technicianPhone: string | null
     workInspect: boolean
+    workInspectDetails: string | null
     workInstall: boolean
+    workInstallDetails: string | null
     workRepair: boolean
+    workRepairDetails: string | null
     workTraining: boolean
+    workTrainingDetails: string | null
     workOther: string | null
     note: string | null
     sigSenderUrl: string | null
@@ -30656,9 +30684,13 @@ export namespace Prisma {
     technician?: boolean
     technicianPhone?: boolean
     workInspect?: boolean
+    workInspectDetails?: boolean
     workInstall?: boolean
+    workInstallDetails?: boolean
     workRepair?: boolean
+    workRepairDetails?: boolean
     workTraining?: boolean
+    workTrainingDetails?: boolean
     workOther?: boolean
     note?: boolean
     sigSenderUrl?: boolean
@@ -30689,9 +30721,13 @@ export namespace Prisma {
     technician?: boolean
     technicianPhone?: boolean
     workInspect?: boolean
+    workInspectDetails?: boolean
     workInstall?: boolean
+    workInstallDetails?: boolean
     workRepair?: boolean
+    workRepairDetails?: boolean
     workTraining?: boolean
+    workTrainingDetails?: boolean
     workOther?: boolean
     note?: boolean
     sigSenderUrl?: boolean
@@ -30722,9 +30758,13 @@ export namespace Prisma {
     technician?: boolean
     technicianPhone?: boolean
     workInspect?: boolean
+    workInspectDetails?: boolean
     workInstall?: boolean
+    workInstallDetails?: boolean
     workRepair?: boolean
+    workRepairDetails?: boolean
     workTraining?: boolean
+    workTrainingDetails?: boolean
     workOther?: boolean
     note?: boolean
     sigSenderUrl?: boolean
@@ -30755,9 +30795,13 @@ export namespace Prisma {
     technician?: boolean
     technicianPhone?: boolean
     workInspect?: boolean
+    workInspectDetails?: boolean
     workInstall?: boolean
+    workInstallDetails?: boolean
     workRepair?: boolean
+    workRepairDetails?: boolean
     workTraining?: boolean
+    workTrainingDetails?: boolean
     workOther?: boolean
     note?: boolean
     sigSenderUrl?: boolean
@@ -30770,7 +30814,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type RepairDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "deliveryNumber" | "jobId" | "deliveryDate" | "company" | "jobName" | "customer" | "customerPosition" | "address" | "siteAddress" | "quotationNo" | "sender" | "senderPhone" | "technician" | "technicianPhone" | "workInspect" | "workInstall" | "workRepair" | "workTraining" | "workOther" | "note" | "sigSenderUrl" | "nameSender" | "sigReceiverUrl" | "nameReceiver" | "status" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["repairDelivery"]>
+  export type RepairDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "deliveryNumber" | "jobId" | "deliveryDate" | "company" | "jobName" | "customer" | "customerPosition" | "address" | "siteAddress" | "quotationNo" | "sender" | "senderPhone" | "technician" | "technicianPhone" | "workInspect" | "workInspectDetails" | "workInstall" | "workInstallDetails" | "workRepair" | "workRepairDetails" | "workTraining" | "workTrainingDetails" | "workOther" | "note" | "sigSenderUrl" | "nameSender" | "sigReceiverUrl" | "nameReceiver" | "status" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["repairDelivery"]>
   export type RepairDeliveryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | RepairDelivery$jobArgs<ExtArgs>
   }
@@ -30803,9 +30847,13 @@ export namespace Prisma {
       technician: string | null
       technicianPhone: string | null
       workInspect: boolean
+      workInspectDetails: string | null
       workInstall: boolean
+      workInstallDetails: string | null
       workRepair: boolean
+      workRepairDetails: string | null
       workTraining: boolean
+      workTrainingDetails: string | null
       workOther: string | null
       note: string | null
       sigSenderUrl: string | null
@@ -31256,9 +31304,13 @@ export namespace Prisma {
     readonly technician: FieldRef<"RepairDelivery", 'String'>
     readonly technicianPhone: FieldRef<"RepairDelivery", 'String'>
     readonly workInspect: FieldRef<"RepairDelivery", 'Boolean'>
+    readonly workInspectDetails: FieldRef<"RepairDelivery", 'String'>
     readonly workInstall: FieldRef<"RepairDelivery", 'Boolean'>
+    readonly workInstallDetails: FieldRef<"RepairDelivery", 'String'>
     readonly workRepair: FieldRef<"RepairDelivery", 'Boolean'>
+    readonly workRepairDetails: FieldRef<"RepairDelivery", 'String'>
     readonly workTraining: FieldRef<"RepairDelivery", 'Boolean'>
+    readonly workTrainingDetails: FieldRef<"RepairDelivery", 'String'>
     readonly workOther: FieldRef<"RepairDelivery", 'String'>
     readonly note: FieldRef<"RepairDelivery", 'String'>
     readonly sigSenderUrl: FieldRef<"RepairDelivery", 'String'>
@@ -34448,6 +34500,9 @@ export namespace Prisma {
     estimationNote: string | null
     estimatedBy: string | null
     estimatedAt: Date | null
+    assignedTo: string | null
+    assignedToUserId: string | null
+    estimationDueDate: Date | null
     createdAt: Date | null
   }
 
@@ -34465,6 +34520,9 @@ export namespace Prisma {
     estimationNote: string | null
     estimatedBy: string | null
     estimatedAt: Date | null
+    assignedTo: string | null
+    assignedToUserId: string | null
+    estimationDueDate: Date | null
     createdAt: Date | null
   }
 
@@ -34483,6 +34541,9 @@ export namespace Prisma {
     estimationNote: number
     estimatedBy: number
     estimatedAt: number
+    assignedTo: number
+    assignedToUserId: number
+    estimationDueDate: number
     createdAt: number
     _all: number
   }
@@ -34510,6 +34571,9 @@ export namespace Prisma {
     estimationNote?: true
     estimatedBy?: true
     estimatedAt?: true
+    assignedTo?: true
+    assignedToUserId?: true
+    estimationDueDate?: true
     createdAt?: true
   }
 
@@ -34527,6 +34591,9 @@ export namespace Prisma {
     estimationNote?: true
     estimatedBy?: true
     estimatedAt?: true
+    assignedTo?: true
+    assignedToUserId?: true
+    estimationDueDate?: true
     createdAt?: true
   }
 
@@ -34545,6 +34612,9 @@ export namespace Prisma {
     estimationNote?: true
     estimatedBy?: true
     estimatedAt?: true
+    assignedTo?: true
+    assignedToUserId?: true
+    estimationDueDate?: true
     createdAt?: true
     _all?: true
   }
@@ -34650,6 +34720,9 @@ export namespace Prisma {
     estimationNote: string | null
     estimatedBy: string | null
     estimatedAt: Date | null
+    assignedTo: string | null
+    assignedToUserId: string | null
+    estimationDueDate: Date | null
     createdAt: Date
     _count: CustomerRequirementCountAggregateOutputType | null
     _avg: CustomerRequirementAvgAggregateOutputType | null
@@ -34687,6 +34760,9 @@ export namespace Prisma {
     estimationNote?: boolean
     estimatedBy?: boolean
     estimatedAt?: boolean
+    assignedTo?: boolean
+    assignedToUserId?: boolean
+    estimationDueDate?: boolean
     createdAt?: boolean
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }, ExtArgs["result"]["customerRequirement"]>
@@ -34706,6 +34782,9 @@ export namespace Prisma {
     estimationNote?: boolean
     estimatedBy?: boolean
     estimatedAt?: boolean
+    assignedTo?: boolean
+    assignedToUserId?: boolean
+    estimationDueDate?: boolean
     createdAt?: boolean
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }, ExtArgs["result"]["customerRequirement"]>
@@ -34725,6 +34804,9 @@ export namespace Prisma {
     estimationNote?: boolean
     estimatedBy?: boolean
     estimatedAt?: boolean
+    assignedTo?: boolean
+    assignedToUserId?: boolean
+    estimationDueDate?: boolean
     createdAt?: boolean
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }, ExtArgs["result"]["customerRequirement"]>
@@ -34744,10 +34826,13 @@ export namespace Prisma {
     estimationNote?: boolean
     estimatedBy?: boolean
     estimatedAt?: boolean
+    assignedTo?: boolean
+    assignedToUserId?: boolean
+    estimationDueDate?: boolean
     createdAt?: boolean
   }
 
-  export type CustomerRequirementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requirementNumber" | "userId" | "companyName" | "contactName" | "salesperson" | "date" | "formData" | "isSentToService" | "estimationStatus" | "estimatedPrice" | "estimationNote" | "estimatedBy" | "estimatedAt" | "createdAt", ExtArgs["result"]["customerRequirement"]>
+  export type CustomerRequirementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requirementNumber" | "userId" | "companyName" | "contactName" | "salesperson" | "date" | "formData" | "isSentToService" | "estimationStatus" | "estimatedPrice" | "estimationNote" | "estimatedBy" | "estimatedAt" | "assignedTo" | "assignedToUserId" | "estimationDueDate" | "createdAt", ExtArgs["result"]["customerRequirement"]>
   export type CustomerRequirementInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }
@@ -34778,6 +34863,9 @@ export namespace Prisma {
       estimationNote: string | null
       estimatedBy: string | null
       estimatedAt: Date | null
+      assignedTo: string | null
+      assignedToUserId: string | null
+      estimationDueDate: Date | null
       createdAt: Date
     }, ExtArgs["result"]["customerRequirement"]>
     composites: {}
@@ -35217,6 +35305,9 @@ export namespace Prisma {
     readonly estimationNote: FieldRef<"CustomerRequirement", 'String'>
     readonly estimatedBy: FieldRef<"CustomerRequirement", 'String'>
     readonly estimatedAt: FieldRef<"CustomerRequirement", 'DateTime'>
+    readonly assignedTo: FieldRef<"CustomerRequirement", 'String'>
+    readonly assignedToUserId: FieldRef<"CustomerRequirement", 'String'>
+    readonly estimationDueDate: FieldRef<"CustomerRequirement", 'DateTime'>
     readonly createdAt: FieldRef<"CustomerRequirement", 'DateTime'>
   }
     
@@ -78383,9 +78474,13 @@ export namespace Prisma {
     technician: 'technician',
     technicianPhone: 'technicianPhone',
     workInspect: 'workInspect',
+    workInspectDetails: 'workInspectDetails',
     workInstall: 'workInstall',
+    workInstallDetails: 'workInstallDetails',
     workRepair: 'workRepair',
+    workRepairDetails: 'workRepairDetails',
     workTraining: 'workTraining',
+    workTrainingDetails: 'workTrainingDetails',
     workOther: 'workOther',
     note: 'note',
     sigSenderUrl: 'sigSenderUrl',
@@ -78481,6 +78576,9 @@ export namespace Prisma {
     estimationNote: 'estimationNote',
     estimatedBy: 'estimatedBy',
     estimatedAt: 'estimatedAt',
+    assignedTo: 'assignedTo',
+    assignedToUserId: 'assignedToUserId',
+    estimationDueDate: 'estimationDueDate',
     createdAt: 'createdAt'
   };
 
@@ -81310,9 +81408,13 @@ export namespace Prisma {
     technician?: StringNullableFilter<"RepairDelivery"> | string | null
     technicianPhone?: StringNullableFilter<"RepairDelivery"> | string | null
     workInspect?: BoolFilter<"RepairDelivery"> | boolean
+    workInspectDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workInstall?: BoolFilter<"RepairDelivery"> | boolean
+    workInstallDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workRepair?: BoolFilter<"RepairDelivery"> | boolean
+    workRepairDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workTraining?: BoolFilter<"RepairDelivery"> | boolean
+    workTrainingDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workOther?: StringNullableFilter<"RepairDelivery"> | string | null
     note?: StringNullableFilter<"RepairDelivery"> | string | null
     sigSenderUrl?: StringNullableFilter<"RepairDelivery"> | string | null
@@ -81343,9 +81445,13 @@ export namespace Prisma {
     technician?: SortOrderInput | SortOrder
     technicianPhone?: SortOrderInput | SortOrder
     workInspect?: SortOrder
+    workInspectDetails?: SortOrderInput | SortOrder
     workInstall?: SortOrder
+    workInstallDetails?: SortOrderInput | SortOrder
     workRepair?: SortOrder
+    workRepairDetails?: SortOrderInput | SortOrder
     workTraining?: SortOrder
+    workTrainingDetails?: SortOrderInput | SortOrder
     workOther?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
     sigSenderUrl?: SortOrderInput | SortOrder
@@ -81379,9 +81485,13 @@ export namespace Prisma {
     technician?: StringNullableFilter<"RepairDelivery"> | string | null
     technicianPhone?: StringNullableFilter<"RepairDelivery"> | string | null
     workInspect?: BoolFilter<"RepairDelivery"> | boolean
+    workInspectDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workInstall?: BoolFilter<"RepairDelivery"> | boolean
+    workInstallDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workRepair?: BoolFilter<"RepairDelivery"> | boolean
+    workRepairDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workTraining?: BoolFilter<"RepairDelivery"> | boolean
+    workTrainingDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workOther?: StringNullableFilter<"RepairDelivery"> | string | null
     note?: StringNullableFilter<"RepairDelivery"> | string | null
     sigSenderUrl?: StringNullableFilter<"RepairDelivery"> | string | null
@@ -81412,9 +81522,13 @@ export namespace Prisma {
     technician?: SortOrderInput | SortOrder
     technicianPhone?: SortOrderInput | SortOrder
     workInspect?: SortOrder
+    workInspectDetails?: SortOrderInput | SortOrder
     workInstall?: SortOrder
+    workInstallDetails?: SortOrderInput | SortOrder
     workRepair?: SortOrder
+    workRepairDetails?: SortOrderInput | SortOrder
     workTraining?: SortOrder
+    workTrainingDetails?: SortOrderInput | SortOrder
     workOther?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
     sigSenderUrl?: SortOrderInput | SortOrder
@@ -81450,9 +81564,13 @@ export namespace Prisma {
     technician?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     technicianPhone?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     workInspect?: BoolWithAggregatesFilter<"RepairDelivery"> | boolean
+    workInspectDetails?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     workInstall?: BoolWithAggregatesFilter<"RepairDelivery"> | boolean
+    workInstallDetails?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     workRepair?: BoolWithAggregatesFilter<"RepairDelivery"> | boolean
+    workRepairDetails?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     workTraining?: BoolWithAggregatesFilter<"RepairDelivery"> | boolean
+    workTrainingDetails?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     workOther?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     note?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     sigSenderUrl?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
@@ -81808,6 +81926,9 @@ export namespace Prisma {
     estimationNote?: StringNullableFilter<"CustomerRequirement"> | string | null
     estimatedBy?: StringNullableFilter<"CustomerRequirement"> | string | null
     estimatedAt?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
+    assignedTo?: StringNullableFilter<"CustomerRequirement"> | string | null
+    assignedToUserId?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimationDueDate?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
     createdAt?: DateTimeFilter<"CustomerRequirement"> | Date | string
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
@@ -81827,6 +81948,9 @@ export namespace Prisma {
     estimationNote?: SortOrderInput | SortOrder
     estimatedBy?: SortOrderInput | SortOrder
     estimatedAt?: SortOrderInput | SortOrder
+    assignedTo?: SortOrderInput | SortOrder
+    assignedToUserId?: SortOrderInput | SortOrder
+    estimationDueDate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
@@ -81849,6 +81973,9 @@ export namespace Prisma {
     estimationNote?: StringNullableFilter<"CustomerRequirement"> | string | null
     estimatedBy?: StringNullableFilter<"CustomerRequirement"> | string | null
     estimatedAt?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
+    assignedTo?: StringNullableFilter<"CustomerRequirement"> | string | null
+    assignedToUserId?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimationDueDate?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
     createdAt?: DateTimeFilter<"CustomerRequirement"> | Date | string
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "requirementNumber">
@@ -81868,6 +81995,9 @@ export namespace Prisma {
     estimationNote?: SortOrderInput | SortOrder
     estimatedBy?: SortOrderInput | SortOrder
     estimatedAt?: SortOrderInput | SortOrder
+    assignedTo?: SortOrderInput | SortOrder
+    assignedToUserId?: SortOrderInput | SortOrder
+    estimationDueDate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: CustomerRequirementCountOrderByAggregateInput
     _avg?: CustomerRequirementAvgOrderByAggregateInput
@@ -81894,6 +82024,9 @@ export namespace Prisma {
     estimationNote?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
     estimatedBy?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
     estimatedAt?: DateTimeNullableWithAggregatesFilter<"CustomerRequirement"> | Date | string | null
+    assignedTo?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
+    assignedToUserId?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
+    estimationDueDate?: DateTimeNullableWithAggregatesFilter<"CustomerRequirement"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"CustomerRequirement"> | Date | string
   }
 
@@ -87725,9 +87858,13 @@ export namespace Prisma {
     technician?: string | null
     technicianPhone?: string | null
     workInspect?: boolean
+    workInspectDetails?: string | null
     workInstall?: boolean
+    workInstallDetails?: string | null
     workRepair?: boolean
+    workRepairDetails?: string | null
     workTraining?: boolean
+    workTrainingDetails?: string | null
     workOther?: string | null
     note?: string | null
     sigSenderUrl?: string | null
@@ -87758,9 +87895,13 @@ export namespace Prisma {
     technician?: string | null
     technicianPhone?: string | null
     workInspect?: boolean
+    workInspectDetails?: string | null
     workInstall?: boolean
+    workInstallDetails?: string | null
     workRepair?: boolean
+    workRepairDetails?: string | null
     workTraining?: boolean
+    workTrainingDetails?: string | null
     workOther?: string | null
     note?: string | null
     sigSenderUrl?: string | null
@@ -87789,9 +87930,13 @@ export namespace Prisma {
     technician?: NullableStringFieldUpdateOperationsInput | string | null
     technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
     workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInspectDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workInstallDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workRepairDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workTrainingDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workOther?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87822,9 +87967,13 @@ export namespace Prisma {
     technician?: NullableStringFieldUpdateOperationsInput | string | null
     technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
     workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInspectDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workInstallDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workRepairDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workTrainingDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workOther?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87854,9 +88003,13 @@ export namespace Prisma {
     technician?: string | null
     technicianPhone?: string | null
     workInspect?: boolean
+    workInspectDetails?: string | null
     workInstall?: boolean
+    workInstallDetails?: string | null
     workRepair?: boolean
+    workRepairDetails?: string | null
     workTraining?: boolean
+    workTrainingDetails?: string | null
     workOther?: string | null
     note?: string | null
     sigSenderUrl?: string | null
@@ -87885,9 +88038,13 @@ export namespace Prisma {
     technician?: NullableStringFieldUpdateOperationsInput | string | null
     technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
     workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInspectDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workInstallDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workRepairDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workTrainingDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workOther?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87917,9 +88074,13 @@ export namespace Prisma {
     technician?: NullableStringFieldUpdateOperationsInput | string | null
     technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
     workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInspectDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workInstallDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workRepairDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workTrainingDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workOther?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -88357,6 +88518,9 @@ export namespace Prisma {
     estimationNote?: string | null
     estimatedBy?: string | null
     estimatedAt?: Date | string | null
+    assignedTo?: string | null
+    assignedToUserId?: string | null
+    estimationDueDate?: Date | string | null
     createdAt?: Date | string
     user?: UserCreateNestedOneWithoutCustomerRequirementsInput
   }
@@ -88376,6 +88540,9 @@ export namespace Prisma {
     estimationNote?: string | null
     estimatedBy?: string | null
     estimatedAt?: Date | string | null
+    assignedTo?: string | null
+    assignedToUserId?: string | null
+    estimationDueDate?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -88393,6 +88560,9 @@ export namespace Prisma {
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutCustomerRequirementsNestedInput
   }
@@ -88412,6 +88582,9 @@ export namespace Prisma {
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -88430,6 +88603,9 @@ export namespace Prisma {
     estimationNote?: string | null
     estimatedBy?: string | null
     estimatedAt?: Date | string | null
+    assignedTo?: string | null
+    assignedToUserId?: string | null
+    estimationDueDate?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -88447,6 +88623,9 @@ export namespace Prisma {
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -88465,6 +88644,9 @@ export namespace Prisma {
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -94119,9 +94301,13 @@ export namespace Prisma {
     technician?: SortOrder
     technicianPhone?: SortOrder
     workInspect?: SortOrder
+    workInspectDetails?: SortOrder
     workInstall?: SortOrder
+    workInstallDetails?: SortOrder
     workRepair?: SortOrder
+    workRepairDetails?: SortOrder
     workTraining?: SortOrder
+    workTrainingDetails?: SortOrder
     workOther?: SortOrder
     note?: SortOrder
     sigSenderUrl?: SortOrder
@@ -94151,9 +94337,13 @@ export namespace Prisma {
     technician?: SortOrder
     technicianPhone?: SortOrder
     workInspect?: SortOrder
+    workInspectDetails?: SortOrder
     workInstall?: SortOrder
+    workInstallDetails?: SortOrder
     workRepair?: SortOrder
+    workRepairDetails?: SortOrder
     workTraining?: SortOrder
+    workTrainingDetails?: SortOrder
     workOther?: SortOrder
     note?: SortOrder
     sigSenderUrl?: SortOrder
@@ -94183,9 +94373,13 @@ export namespace Prisma {
     technician?: SortOrder
     technicianPhone?: SortOrder
     workInspect?: SortOrder
+    workInspectDetails?: SortOrder
     workInstall?: SortOrder
+    workInstallDetails?: SortOrder
     workRepair?: SortOrder
+    workRepairDetails?: SortOrder
     workTraining?: SortOrder
+    workTrainingDetails?: SortOrder
     workOther?: SortOrder
     note?: SortOrder
     sigSenderUrl?: SortOrder
@@ -94382,6 +94576,9 @@ export namespace Prisma {
     estimationNote?: SortOrder
     estimatedBy?: SortOrder
     estimatedAt?: SortOrder
+    assignedTo?: SortOrder
+    assignedToUserId?: SortOrder
+    estimationDueDate?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -94403,6 +94600,9 @@ export namespace Prisma {
     estimationNote?: SortOrder
     estimatedBy?: SortOrder
     estimatedAt?: SortOrder
+    assignedTo?: SortOrder
+    assignedToUserId?: SortOrder
+    estimationDueDate?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -94420,6 +94620,9 @@ export namespace Prisma {
     estimationNote?: SortOrder
     estimatedBy?: SortOrder
     estimatedAt?: SortOrder
+    assignedTo?: SortOrder
+    assignedToUserId?: SortOrder
+    estimationDueDate?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -101239,6 +101442,9 @@ export namespace Prisma {
     estimationNote?: string | null
     estimatedBy?: string | null
     estimatedAt?: Date | string | null
+    assignedTo?: string | null
+    assignedToUserId?: string | null
+    estimationDueDate?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -101256,6 +101462,9 @@ export namespace Prisma {
     estimationNote?: string | null
     estimatedBy?: string | null
     estimatedAt?: Date | string | null
+    assignedTo?: string | null
+    assignedToUserId?: string | null
+    estimationDueDate?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -101620,6 +101829,9 @@ export namespace Prisma {
     estimationNote?: StringNullableFilter<"CustomerRequirement"> | string | null
     estimatedBy?: StringNullableFilter<"CustomerRequirement"> | string | null
     estimatedAt?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
+    assignedTo?: StringNullableFilter<"CustomerRequirement"> | string | null
+    assignedToUserId?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimationDueDate?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
     createdAt?: DateTimeFilter<"CustomerRequirement"> | Date | string
   }
 
@@ -104713,9 +104925,13 @@ export namespace Prisma {
     technician?: string | null
     technicianPhone?: string | null
     workInspect?: boolean
+    workInspectDetails?: string | null
     workInstall?: boolean
+    workInstallDetails?: string | null
     workRepair?: boolean
+    workRepairDetails?: string | null
     workTraining?: boolean
+    workTrainingDetails?: string | null
     workOther?: string | null
     note?: string | null
     sigSenderUrl?: string | null
@@ -104744,9 +104960,13 @@ export namespace Prisma {
     technician?: string | null
     technicianPhone?: string | null
     workInspect?: boolean
+    workInspectDetails?: string | null
     workInstall?: boolean
+    workInstallDetails?: string | null
     workRepair?: boolean
+    workRepairDetails?: string | null
     workTraining?: boolean
+    workTrainingDetails?: string | null
     workOther?: string | null
     note?: string | null
     sigSenderUrl?: string | null
@@ -105191,9 +105411,13 @@ export namespace Prisma {
     technician?: StringNullableFilter<"RepairDelivery"> | string | null
     technicianPhone?: StringNullableFilter<"RepairDelivery"> | string | null
     workInspect?: BoolFilter<"RepairDelivery"> | boolean
+    workInspectDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workInstall?: BoolFilter<"RepairDelivery"> | boolean
+    workInstallDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workRepair?: BoolFilter<"RepairDelivery"> | boolean
+    workRepairDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workTraining?: BoolFilter<"RepairDelivery"> | boolean
+    workTrainingDetails?: StringNullableFilter<"RepairDelivery"> | string | null
     workOther?: StringNullableFilter<"RepairDelivery"> | string | null
     note?: StringNullableFilter<"RepairDelivery"> | string | null
     sigSenderUrl?: StringNullableFilter<"RepairDelivery"> | string | null
@@ -116283,6 +116507,9 @@ export namespace Prisma {
     estimationNote?: string | null
     estimatedBy?: string | null
     estimatedAt?: Date | string | null
+    assignedTo?: string | null
+    assignedToUserId?: string | null
+    estimationDueDate?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -116732,6 +116959,9 @@ export namespace Prisma {
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -116749,6 +116979,9 @@ export namespace Prisma {
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -116766,6 +116999,9 @@ export namespace Prisma {
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -117587,9 +117823,13 @@ export namespace Prisma {
     technician?: string | null
     technicianPhone?: string | null
     workInspect?: boolean
+    workInspectDetails?: string | null
     workInstall?: boolean
+    workInstallDetails?: string | null
     workRepair?: boolean
+    workRepairDetails?: string | null
     workTraining?: boolean
+    workTrainingDetails?: string | null
     workOther?: string | null
     note?: string | null
     sigSenderUrl?: string | null
@@ -117762,9 +118002,13 @@ export namespace Prisma {
     technician?: NullableStringFieldUpdateOperationsInput | string | null
     technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
     workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInspectDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workInstallDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workRepairDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workTrainingDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workOther?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -117793,9 +118037,13 @@ export namespace Prisma {
     technician?: NullableStringFieldUpdateOperationsInput | string | null
     technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
     workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInspectDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workInstallDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workRepairDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workTrainingDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workOther?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -117824,9 +118072,13 @@ export namespace Prisma {
     technician?: NullableStringFieldUpdateOperationsInput | string | null
     technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
     workInspect?: BoolFieldUpdateOperationsInput | boolean
+    workInspectDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workInstall?: BoolFieldUpdateOperationsInput | boolean
+    workInstallDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workRepair?: BoolFieldUpdateOperationsInput | boolean
+    workRepairDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workTraining?: BoolFieldUpdateOperationsInput | boolean
+    workTrainingDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workOther?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null

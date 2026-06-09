@@ -6,6 +6,7 @@ import {
   pushLineMessage,
   estimationRequestMessage,
   estimationCompletedMessage,
+  estimationAssignedMessage,
   getLineUserIdByEmpId,
   getLineUserIdByCrmUserId
 } from "@/app/lib/lineNotify";
@@ -92,6 +93,49 @@ export async function submitEstimation(
   }
 
   revalidatePath("/sales/requirements");
+  revalidatePath("/service/estimations");
+  
+  return { success: true };
+}
+
+export async function assignEstimation(
+  requirementId: string,
+  assignedToUserId: string,
+  assignedToName: string,
+  dueDate: Date,
+  assignedBy: string
+) {
+  const req = await prisma.customerRequirement.update({
+    where: { id: requirementId },
+    data: {
+      assignedTo: assignedToName,
+      assignedToUserId: assignedToUserId,
+      estimationDueDate: dueDate,
+    },
+  });
+
+  // Items extraction for message
+  const items = [];
+  const fd = req.formData as any;
+  if (fd["สินค้า_INVERTER"]) items.push("Inverter");
+  if (fd["สินค้า_MDB"]) items.push("MDB");
+  if (fd["สินค้า_DB"]) items.push("DB");
+  if (fd["สินค้า_CONTROL"]) items.push("Control");
+
+  const msg = estimationAssignedMessage(
+    req.companyName,
+    items,
+    dueDate,
+    assignedBy,
+    req.id
+  );
+
+  // Notify the assigned Service Engineer
+  const assignedLineId = await getLineUserIdByCrmUserId(assignedToUserId);
+  if (assignedLineId) {
+    await pushLineMessage(assignedLineId, [msg]);
+  }
+
   revalidatePath("/service/estimations");
   
   return { success: true };

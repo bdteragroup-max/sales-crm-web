@@ -77,24 +77,9 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
           boxSizing: 'border-box'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '5mm', marginBottom: '3mm' }}>
-          {/* Logo 1 */}
-          <div style={{ width: '14mm', height: '17mm', backgroundColor: '#e62415', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-            <div style={{ border: '1px solid white', borderRadius: '50%', width: '10mm', height: '10mm', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '1mm' }}>
-              <span style={{ fontSize: '14pt', fontWeight: 'bold', fontFamily: 'Arial' }}>R</span>
-            </div>
-            <span style={{ fontSize: '6pt', fontWeight: 'bold', letterSpacing: '1px', marginTop: '1mm', fontFamily: 'Arial' }}>TERA</span>
-          </div>
-          {/* Logo 2 */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ color: '#e62415', fontSize: '18pt', fontWeight: '900', letterSpacing: '1px', lineHeight: 1, fontFamily: 'Arial' }}>TERA</div>
-            <div style={{ color: '#e62415', fontSize: '7pt', fontWeight: 'bold', letterSpacing: '0.5px', fontFamily: 'Arial' }}>ELECTRIC</div>
-          </div>
-          {/* Logo 3 */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ color: '#e62415', fontSize: '18pt', fontWeight: '900', letterSpacing: '1px', lineHeight: 1, fontFamily: 'Arial' }}>TERA</div>
-            <div style={{ color: '#e62415', fontSize: '7pt', fontWeight: 'bold', letterSpacing: '0.5px', fontFamily: 'Arial' }}>POWER</div>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3mm' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/17f3de5f-9a16-4fdd-8682-6157042b8cfd.png" alt="TERA Logo" style={{ height: '18mm', objectFit: 'contain' }} />
         </div>
 
         <div style={{ fontSize: '10.5pt', color: '#333', marginBottom: '2mm' }}>
@@ -116,7 +101,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '1mm' }}>
               <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap', flexShrink: 0, marginRight: '6px' }}>บริษัท :</span>
               <span style={{ fontWeight: 'normal', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                {delivery.company || ''}
+                TERA GROUP CO., LTD.
               </span>
             </div>
           </div>
@@ -130,7 +115,9 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
 
           <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '13pt', lineHeight: 1.25, marginBottom: '0.8mm' }}>
             <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap', flexShrink: 0, marginRight: '6px' }}>ลูกค้า :</span>
-            <span style={{ flex: 1, minHeight: '4.8mm', fontWeight: 'normal', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{delivery.customer || ''}</span>
+            <span style={{ flex: 1, minHeight: '4.8mm', fontWeight: 'normal', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+              {delivery.company ? `${delivery.company} ${delivery.customer ? `(${delivery.customer})` : ''}` : (delivery.customer || '')}
+            </span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '13pt', lineHeight: 1.25, marginBottom: '0.8mm' }}>
@@ -174,33 +161,33 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
         <table style={{ width: '100%', borderCollapse: 'collapse', margin: '3mm 0 2mm', fontSize: '13pt' }}>
           <thead>
             <tr>
-              <th style={{ border: '1px solid #000', padding: '1.5mm 3mm', textAlign: 'center', fontWeight: 'bold', background: '#f5f5f5', width: '40%' }}>รายการ</th>
-              <th style={{ border: '1px solid #000', padding: '1.5mm 3mm', textAlign: 'center', fontWeight: 'bold', background: '#f5f5f5', width: '60%' }}>รายละเอียด</th>
+              <th style={{ border: '1px solid #000', padding: '1.5mm 3mm', textAlign: 'center', fontWeight: 'bold', background: '#f5f5f5', width: '40%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>รายการ</th>
+              <th style={{ border: '1px solid #000', padding: '1.5mm 3mm', textAlign: 'center', fontWeight: 'bold', background: '#f5f5f5', width: '60%', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>รายละเอียด</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '40%', textAlign: 'center', fontWeight: 'bold' }}>งานตรวจเช็ค</td>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '60%' }}>
-                {delivery.workInspect ? '✓' : ''}
+                {delivery.workInspect ? `✓ ${delivery.workInspectDetails || ''}` : delivery.workInspectDetails || ''}
               </td>
             </tr>
             <tr>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '40%', textAlign: 'center', fontWeight: 'bold' }}>งานติดตั้ง</td>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '60%' }}>
-                {delivery.workInstall ? '✓' : ''}
+                {delivery.workInstall ? `✓ ${delivery.workInstallDetails || ''}` : delivery.workInstallDetails || ''}
               </td>
             </tr>
             <tr>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '40%', textAlign: 'center', fontWeight: 'bold' }}>งานซ่อม</td>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '60%' }}>
-                {delivery.workRepair ? '✓' : ''}
+                {delivery.workRepair ? `✓ ${delivery.workRepairDetails || ''}` : delivery.workRepairDetails || ''}
               </td>
             </tr>
             <tr>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '40%', textAlign: 'center', fontWeight: 'bold' }}>งานอบรม Training</td>
               <td style={{ border: '1px solid #000', padding: '1.5mm 3mm', verticalAlign: 'top', minHeight: '8mm', height: '8mm', width: '60%' }}>
-                {delivery.workTraining ? '✓' : ''}
+                {delivery.workTraining ? `✓ ${delivery.workTrainingDetails || ''}` : delivery.workTrainingDetails || ''}
               </td>
             </tr>
             <tr>
