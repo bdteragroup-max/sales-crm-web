@@ -301,10 +301,12 @@ export default function ClientsClientPage({
   const [createTaxId, setCreateTaxId] = useState('');
   const [taxIdWarning, setTaxIdWarning] = useState<string | null>(null);
   const [isCheckingTaxId, setIsCheckingTaxId] = useState(false);
+  const [createCustomerType, setCreateCustomerType] = useState('นิติบุคคล');
 
   const [editTaxId, setEditTaxId] = useState('');
   const [editTaxIdWarning, setEditTaxIdWarning] = useState<string | null>(null);
   const [isCheckingEditTaxId, setIsCheckingEditTaxId] = useState(false);
+  const [editCustomerType, setEditCustomerType] = useState('นิติบุคคล');
 
   const [customAlert, setCustomAlert] = useState<{ isOpen: boolean; message: string; title?: string } | null>(null);
 
@@ -324,6 +326,7 @@ export default function ClientsClientPage({
     setCreateTaxId('');
     setTaxIdWarning(null);
     setIsCheckingTaxId(false);
+    setCreateCustomerType('นิติบุคคล');
   };
 
   // Debounced Tax ID Check for Create Modal
@@ -434,6 +437,7 @@ export default function ClientsClientPage({
     // Populate Edit Tax ID states
     setEditTaxId(company.taxId || '');
     setEditTaxIdWarning(null);
+    setEditCustomerType(company.customerType || 'นิติบุคคล');
     
     // Pre-populate main address
     setEditSelectedProvince(company.province || '');
@@ -1142,7 +1146,7 @@ export default function ClientsClientPage({
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทลูกค้า (นิติบุคคล / บุคคลธรรมดา) *</label>
-                  <select required name="customerType" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
+                  <select required name="customerType" value={createCustomerType} onChange={(e) => setCreateCustomerType(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
                     <option value="นิติบุคคล">นิติบุคคล (Legal Entity)</option>
                     <option value="บุคคลธรรมดา">บุคคลธรรมดา (Individual)</option>
                   </select>
@@ -1214,9 +1218,9 @@ export default function ClientsClientPage({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด *</label>
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด {createCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
                   <select 
-                    required 
+                    required={createCustomerType !== 'บุคคลธรรมดา'} 
                     name="province" 
                     value={selectedProvince}
                     onChange={(e) => handleProvinceChange(e.target.value)}
@@ -1229,9 +1233,9 @@ export default function ClientsClientPage({
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ *</label>
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ {createCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
                   <select 
-                    required 
+                    required={createCustomerType !== 'บุคคลธรรมดา'} 
                     name="district" 
                     value={selectedDistrict}
                     disabled={!selectedProvince}
@@ -1245,9 +1249,9 @@ export default function ClientsClientPage({
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล *</label>
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล {createCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
                   <select 
-                    required 
+                    required={createCustomerType !== 'บุคคลธรรมดา'} 
                     name="subDistrict" 
                     value={selectedSubDistrict}
                     disabled={!selectedDistrict}
@@ -1261,13 +1265,13 @@ export default function ClientsClientPage({
                   </select>
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จดทะเบียน/ที่อยู่หลัก (Registered Address) *</label>
-                  <input required name="address" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="123/45 หมู่ 6 ถนนวิภาวดีรังสิต..." />
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จดทะเบียน/ที่อยู่หลัก (Registered Address) {createCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
+                  <input required={createCustomerType !== 'บุคคลธรรมดา'} name="address" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="123/45 หมู่ 6 ถนนวิภาวดีรังสิต..." />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์ *</label>
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์ {createCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
                   <input 
-                    required 
+                    required={createCustomerType !== 'บุคคลธรรมดา'} 
                     name="postalCode" 
                     value={autoPostalCode}
                     onChange={(e) => setAutoPostalCode(e.target.value)}
@@ -1622,7 +1626,7 @@ export default function ClientsClientPage({
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทลูกค้า *</label>
-                  <select required name="customerType" defaultValue={editingCompany.customerType || 'นิติบุคคล'} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none">
+                  <select required name="customerType" value={editCustomerType} onChange={(e) => setEditCustomerType(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none">
                     <option value="นิติบุคคล">นิติบุคคล (Legal Entity)</option>
                     <option value="บุคคลธรรมดา">บุคคลธรรมดา (Individual)</option>
                   </select>
@@ -1697,14 +1701,14 @@ export default function ClientsClientPage({
 
                 {/* Address Section */}
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จดทะเบียน/ที่อยู่หลัก (Registered Address) *</label>
-                  <input required name="address" defaultValue={editingCompany.address || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จดทะเบียน/ที่อยู่หลัก (Registered Address) {editCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
+                  <input required={editCustomerType !== 'บุคคลธรรมดา'} name="address" defaultValue={editingCompany.address || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด *</label>
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด {editCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
                   <select 
-                    required 
+                    required={editCustomerType !== 'บุคคลธรรมดา'} 
                     name="province" 
                     value={editSelectedProvince}
                     onChange={(e) => handleEditProvinceChange(e.target.value)}
@@ -1717,9 +1721,9 @@ export default function ClientsClientPage({
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ *</label>
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ {editCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
                   <select 
-                    required 
+                    required={editCustomerType !== 'บุคคลธรรมดา'} 
                     name="district" 
                     value={editSelectedDistrict}
                     disabled={!editSelectedProvince}
@@ -1733,9 +1737,9 @@ export default function ClientsClientPage({
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล *</label>
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล {editCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
                   <select 
-                    required 
+                    required={editCustomerType !== 'บุคคลธรรมดา'} 
                     name="subDistrict" 
                     value={editSelectedSubDistrict}
                     disabled={!editSelectedDistrict}
@@ -1749,9 +1753,9 @@ export default function ClientsClientPage({
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์ *</label>
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์ {editCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
                   <input 
-                    required 
+                    required={editCustomerType !== 'บุคคลธรรมดา'} 
                     name="postalCode" 
                     value={editAutoPostalCode}
                     onChange={(e) => setEditAutoPostalCode(e.target.value)}
