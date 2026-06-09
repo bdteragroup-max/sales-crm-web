@@ -172,9 +172,9 @@ export default function JobTimeline({
           .getPublicUrl(uploadData.path);
           
         photoUrl = publicUrl;
-      } catch (err) {
+      } catch (err: any) {
         console.error("Upload failed", err);
-        alert("อัปโหลดรูปภาพไม่สำเร็จ");
+        alert(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${trackingFile?.name || 'Unknown'}\nสาเหตุ: ${err.message || err}`);
         setIsUploading(false);
         return;
       }

@@ -247,11 +247,8 @@ export default function NewRepairOrderForm({
       if (allFiles.length > 0) {
         setIsUploading(true);
         
-        // Initialize Supabase client
-        const supabase = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
+        const { createClient } = await import('@/utils/supabase/client');
+        const supabase = createClient();
         
         for (const [key, files] of Object.entries(checklistFiles)) {
           if (files.length === 0) continue;
@@ -271,7 +268,7 @@ export default function NewRepairOrderForm({
             
             if (uploadError) {
               console.error('Upload error:', uploadError);
-              alert(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${file.name}`);
+              alert(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${file.name}\nสาเหตุ: ${uploadError.message}`);
               throw new Error('Upload failed');
             }
 

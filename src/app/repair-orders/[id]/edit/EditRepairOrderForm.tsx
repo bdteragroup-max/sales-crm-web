@@ -213,8 +213,11 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
           contentType: file.type,
           upsert: false
         });
-      
-      if (uploadError) throw uploadError;
+            if (uploadError) {
+              console.error('Upload error:', uploadError);
+              alert(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${file.name}\nสาเหตุ: ${uploadError.message}`);
+              throw new Error('Upload failed');
+            }
       
       const { data: { publicUrl } } = supabase
         .storage
