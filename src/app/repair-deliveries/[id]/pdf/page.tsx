@@ -62,6 +62,19 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
 
   return (
     <div className={`bg-gray-100 w-full h-full min-h-screen overflow-y-auto text-black pb-10 print:bg-white print:p-0 ${sarabun.className}`}>
+      <style type="text/css">
+        {`
+          @media print {
+            @page {
+              size: A4;
+              margin: 0;
+            }
+            body {
+              -webkit-print-color-adjust: exact;
+            }
+          }
+        `}
+      </style>
       <div className="flex justify-end mb-4 print:hidden max-w-[210mm] mx-auto pt-4">
         <PrintButton />
       </div>
@@ -74,7 +87,9 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
           padding: '14mm 18mm',
           fontSize: '14pt',
           color: '#000',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3mm' }}>
@@ -209,7 +224,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
           และผู้รับมอบงานได้ทำการตรวจรับมอบงานอย่างละเอียดเป็นที่เรียบร้อยแล้ว
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10mm', marginTop: '40mm' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10mm', marginTop: 'auto', paddingTop: '15mm' }}>
           <div style={{ flex: 1, textAlign: 'center' }}>
             <table style={{ width: '100%', height: '15mm', marginBottom: '-8mm' }}>
               <tbody>
