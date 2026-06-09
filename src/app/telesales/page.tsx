@@ -25,7 +25,8 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   // Base where clause based on role
   let roleWhere: any = { OR: [{ userId: user?.id }, { userId: null }] };
   let members: any[] = [];
-  const isManager = user?.role === 'ผู้จัดการ' || (user?.role || '').toLowerCase() === 'sales manager';
+  const roleLower = (user?.role || '').toLowerCase();
+  const isManager = ['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
   
   if (isManager) {
     // If manager, fetch team from TERA DB
