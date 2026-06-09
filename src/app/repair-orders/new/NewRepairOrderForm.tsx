@@ -239,40 +239,23 @@ export default function NewRepairOrderForm({
       if (allFiles.length > 0) {
         setIsUploading(true);
         
-        // Dynamically import supabase to keep bundle small if possible, or just instantiate it
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
-
         for (const [key, files] of Object.entries(checklistFiles)) {
           if (files.length === 0) continue;
           uploadedFilesMap[key] = [];
           for (const file of files) {
-            const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-            const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+            const form = new FormData();
+            form.append('file', file);
             
-            const { data: uploadData, error: uploadError } = await supabase
-              .storage
-              .from('uploadsService')
-              .upload(filename, file, {
-                contentType: file.type,
-                upsert: false
-              });
-
-            if (uploadError) {
-              console.error('Supabase direct upload error:', uploadError);
+            const res = await fetch('/api/upload', { method: 'POST', body: form });
+            const data = await res.json();
+            
+            if (!data.success) {
+              console.error('Upload error:', data.error);
               alert(`เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ${file.name}`);
               throw new Error('Upload failed');
             }
 
-            const { data: { publicUrl } } = supabase
-              .storage
-              .from('uploadsService')
-              .getPublicUrl(uploadData.path);
-
-            uploadedFilesMap[key].push(publicUrl);
+            uploadedFilesMap[key].push(data.url);
           }
         }
         setIsUploading(false);
