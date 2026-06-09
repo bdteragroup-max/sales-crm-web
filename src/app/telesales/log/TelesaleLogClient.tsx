@@ -107,7 +107,7 @@ export default function TelesaleLogClient({
         callStatus,
         callOutcome,
         conversationSummary,
-        callbackAt: (callStatus !== "รับสาย" || (callStatus === "รับสาย" && callOutcome === "สนใจ")) && callbackAt ? callbackAt : undefined,
+        callbackAt: (callStatus !== "รับสาย" || (callStatus === "รับสาย" && (callOutcome === "สนใจ" || callOutcome === "นัดหมายสำเร็จ"))) && callbackAt ? callbackAt : undefined,
         forwardTo: callStatus === "รับสาย" ? forwardTo : undefined,
         contactName,
         mobilePhone,
@@ -466,8 +466,8 @@ export default function TelesaleLogClient({
                 </div>
 
 
-                {/* Callback Appointment if Interested */}
-                {callOutcome === "สนใจ" && (
+                {/* Callback Appointment if Interested or Appointment Scheduled */}
+                {(callOutcome === "สนใจ" || callOutcome === "นัดหมายสำเร็จ") && (
                   <div className="flex flex-col gap-1.5 bg-rose-50/20 border border-rose-100 p-5 rounded-3xl">
                     <label className="text-[10px] font-black text-rose-600 uppercase tracking-widest flex items-center gap-1.5">
                       <Clock size={12} /> วันและเวลานัดโทรกลับ (Callback Appointment)

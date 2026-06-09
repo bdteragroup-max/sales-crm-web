@@ -168,7 +168,7 @@ export default function EditOutsourceRepairForm({ users, currentUserId, initialD
         {/* Section 1: ข้อมูลเอกสาร */}
         <section>
           <div className={sectionHeaderClass}>1. ข้อมูลเอกสาร</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
               <label className={labelClass}>เลขที่เอกสาร (ถ้ามี)</label>
               <input type="text" value={outsourceNumber} onChange={(e) => setOutsourceNumber(e.target.value)} className={inputClass} placeholder="เช่น EXT-2405-001" />
@@ -184,6 +184,13 @@ export default function EditOutsourceRepairForm({ users, currentUserId, initialD
             <div>
               <label className={labelClass}>ผู้ส่งซ่อม</label>
               <input type="text" value={senderName} onChange={(e) => setSenderName(e.target.value)} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>สถานะ (Status)</label>
+              <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass + " font-bold"}>
+                <option value="SENT">ส่งซ่อมแล้ว (SENT)</option>
+                <option value="RETURNED">รับคืนแล้ว (RETURNED)</option>
+              </select>
             </div>
           </div>
         </section>

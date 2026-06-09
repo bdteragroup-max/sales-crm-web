@@ -111,7 +111,7 @@ export async function saveTelesaleLog(data: {
           callStatus: data.callStatus,
           callOutcome: data.callStatus === "รับสาย" ? data.callOutcome : null,
           conversationSummary: data.callStatus === "รับสาย" ? data.conversationSummary : `สายโทรแบบ: ${data.callStatus}`,
-          callbackAt: data.callStatus !== "รับสาย" ? parseDate(data.callbackAt) : null,
+          callbackAt: data.callbackAt ? parseDate(data.callbackAt) : null,
           forwardTo: data.callStatus === "รับสาย" ? data.forwardTo : null,
           result: outcomeSummary,
         },
