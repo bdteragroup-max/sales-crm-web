@@ -37,7 +37,7 @@ export default function OrdersClientPage({
   const [search, setSearch] = useState('')
   const [memberFilter, setMemberFilter] = useState('')
   
-  const isManager = userRole === 'ผู้จัดการ'
+  const isManager = ['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase())
 
   const COLUMNS = [
     { id: 'รอยืนยัน', label: 'รอการยืนยัน', subLabel: 'Pending', accent: '#f59e0b', icon: Clock },

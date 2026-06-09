@@ -318,7 +318,7 @@ export default function DashboardUI({
 
           {/* Tier 2: Filter Toolbar Row */}
           <div className="py-3 px-6 md:px-8 bg-gray-50/40 flex flex-wrap items-center gap-3">
-            {userRole === 'ผู้จัดการ' && (
+            {['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
               <div className="relative">
                 <button 
                   onClick={(e) => { e.stopPropagation(); setIsSalespersonDropdownOpen(!isSalespersonDropdownOpen); }}
@@ -595,7 +595,7 @@ export default function DashboardUI({
             </div>
 
             {/* Activity Correlation Chart (Full Width, directly below daily trend graph) */}
-            {userRole === 'ผู้จัดการ' && (
+            {['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
               <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col h-[480px]">
                 <div className="mb-8">
                   <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">ความสัมพันธ์ของกิจกรรมและยอดขาย (Relationship between Activity and Revenue)</h3>

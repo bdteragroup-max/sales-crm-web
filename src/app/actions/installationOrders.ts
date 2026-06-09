@@ -2,6 +2,7 @@
 
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
+import { revalidatePath } from "next/cache";
 
 function getBkkBeYear() {
   const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
@@ -66,6 +67,7 @@ export async function createInstallationOrder(jobId?: string, autoData?: any) {
       } as any,
     });
 
+    revalidatePath("/jobs");
     return { success: true, installationOrderId: newInstallation.id };
   } catch (error: any) {
     console.error("Failed to create installation order:", error);
@@ -84,6 +86,7 @@ export async function updateInstallationOrder(id: string, data: any) {
         checklist: { workInspect, workInstall, workRepair, workTraining, workOther },
       },
     });
+    revalidatePath("/jobs");
     return { success: true };
   } catch (error: any) {
     console.error("Failed to update installation order:", error);
@@ -131,10 +134,12 @@ export async function updateInstallationPlan(orderId: string, data: any) {
       return { success: false, error: "Order not found." };
     }
 
-    // Only allow assigned technician or admins to edit the plan
-    const isOwnerOrAdmin = existingOrder.technician === session.fullName || session.role === 'Admin' || session.role === 'ผู้ดูแลระบบ';
+    const role = (session.role || '').toLowerCase();
+    const isOwnerOrAdmin = 
+      existingOrder.technician === session.fullName || 
+      ['admin', 'ผู้ดูแลระบบ', 'ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด'].includes(role);
     if (!isOwnerOrAdmin) {
-      return { success: false, error: "Unauthorized. เฉพาะช่างผู้รับผิดชอบงานหรือผู้ดูแลระบบเท่านั้นที่สามารถแก้ไขแผนงานได้" };
+      return { success: false, error: "Unauthorized. เฉพาะช่างผู้รับผิดชอบงาน, ผู้จัดการ หรือผู้ดูแลระบบเท่านั้นที่สามารถแก้ไขแผนงานได้" };
     }
 
     const { plannedStartDate, plannedEndDate, workLocation, workPlan, technicianNote } = data;
@@ -168,6 +173,7 @@ export async function updateInstallationPlan(orderId: string, data: any) {
       console.error("Line notify failed", lineError);
     }
 
+    revalidatePath("/jobs");
     return { success: true };
   } catch (error: any) {
     console.error("Failed to update installation plan:", error);

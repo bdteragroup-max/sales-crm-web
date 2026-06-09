@@ -4,6 +4,8 @@ import prisma from "@/app/lib/db"
 import ManageInstallationForm from "./ManageInstallationForm";
 import Sidebar from "@/app/components/Sidebar"
 
+export const dynamic = "force-dynamic"
+
 export default async function ManageInstallationPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getUser()
   if (!session) {

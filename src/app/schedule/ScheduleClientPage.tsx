@@ -30,7 +30,7 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
   const [selectedSchedule, setSelectedSchedule] = useState<any | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const isManager = userRole === 'ผู้จัดการ' || (userRole || '').toLowerCase() === 'sales manager'
+  const isManager = ['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase())
 
   // Calculate overdue visits (planned date has passed, status not Completed/Cancelled, no visit report)
   const now = new Date(

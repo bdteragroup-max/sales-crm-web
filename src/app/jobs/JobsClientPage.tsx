@@ -644,6 +644,7 @@ export default function JobsClientPage({
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">บริษัท</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ประเภทงาน</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่ปิดการขาย</th>
+              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">แผนงาน Service</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ลูกค้า</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ใบเสนอราคา</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">หมายเลข PO</th>
@@ -653,7 +654,7 @@ export default function JobsClientPage({
           <tbody className="divide-y divide-gray-50">
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={10} className="text-center py-16 text-gray-400 font-medium">
+                <td colSpan={11} className="text-center py-16 text-gray-400 font-medium">
                   ไม่พบงานที่ตรงกับเงื่อนไข
                 </td>
               </tr>
@@ -673,18 +674,39 @@ export default function JobsClientPage({
                       {job.jobNumber} 
                     </td> 
                     <td className="px-5 py-4">
-                      <span className={`
-                        inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border
-                        ${isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
-                          ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                          : "bg-blue-50 text-blue-600 border-blue-200"
-                        }
-                      `}>
-                        {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
-                          ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span>
-                          : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
-                        }
-                      </span>
+                      {getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.department.includes("service") ? (
+                        <div 
+                          className={`
+                            inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border cursor-pointer hover:shadow-md transition-all
+                            ${isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
+                              ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                              : "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
+                            }
+                          `}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push("/service/my-tasks");
+                          }}
+                        >
+                          {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
+                            ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span>
+                            : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
+                          }
+                        </div>
+                      ) : (
+                        <span className={`
+                          inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border
+                          ${isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
+                            ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                            : "bg-blue-50 text-blue-600 border-blue-200"
+                          }
+                        `}>
+                          {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
+                            ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span>
+                            : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
+                          }
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-4"> 
                       <CompanyBadge code={job.companyCode} /> 
@@ -697,6 +719,20 @@ export default function JobsClientPage({
                         {formatDate(job.dateClosed)}
                       </span>
                     </td> 
+                    <td className="px-5 py-4 text-center">
+                      {job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate ? (
+                        <div className="flex flex-col items-center">
+                          <span className="text-[10px] font-bold text-gray-700 whitespace-nowrap bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md">
+                            {new Date(job.installationOrders[0].plannedStartDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                          </span>
+                          <span className="text-[9px] font-bold text-gray-400 mt-0.5">
+                            {new Date(job.installationOrders[0].plannedStartDate).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-300 text-[11px]">—</span>
+                      )}
+                    </td>
                     <td className="px-5 py-4"> 
                       <p className="text-xs font-bold text-gray-900 truncate max-w-[180px]">
                         {job.customerName}
