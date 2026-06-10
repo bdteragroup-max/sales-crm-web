@@ -85,12 +85,28 @@ export default function SettingsClientPage({
     setStatus(null)
     const amount = targets[userId || 'team'] || 0
     
+    // Save the specific target
     const res = await upsertMonthlyTarget({
       userId,
       month: currentMonth,
       year: currentYear,
       amount
     })
+
+    // If saving Team Target, automatically save the calculated difference to the manager's personal target 
+    // so that the branch total accurately reflects the new Team Target in the dashboard.
+    if (userId === null && currentUser && isManager) {
+      const calculatedAmount = Math.max(0, amount - staffList.reduce((sum, s) => sum + (targets[s.id] || 0), 0))
+      
+      await upsertMonthlyTarget({
+        userId: currentUser.id,
+        month: currentMonth,
+        year: currentYear,
+        amount: calculatedAmount
+      })
+      
+      setTargets(prev => ({ ...prev, [currentUser.id]: calculatedAmount }))
+    }
 
     if (res.success) {
       setStatus({ type: 'success', message: `บันทึกเป้าหมายยอดขาย ${userId ? 'รายบุคคล' : 'ภาพรวมทีม'} สำเร็จ` })

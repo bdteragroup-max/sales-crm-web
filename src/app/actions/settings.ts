@@ -22,8 +22,9 @@ export async function upsertMonthlyTarget(data: {
     if (isManager) {
       // Security check: Ensure userId belongs to manager's team
       if (data.userId) {
-        const targetUser = await prisma.user.findUnique({ where: { id: data.userId } });
-        if (!targetUser) return { success: false, error: 'User not found' };
+        if (data.userId !== user.id) {
+          const targetUser = await prisma.user.findUnique({ where: { id: data.userId } });
+          if (!targetUser) return { success: false, error: 'User not found' };
         
         let isTeamMember = false;
         try {
@@ -35,6 +36,7 @@ export async function upsertMonthlyTarget(data: {
 
         if (!isTeamMember) {
           return { success: false, error: 'Unauthorized. This user is not in your team or is inactive.' }
+        }
         }
       }
     } else {
@@ -135,19 +137,21 @@ export async function upsertTelesalesKPI(data: {
   try {
     if (isManager) {
       if (data.userId) {
-        const targetUser = await prisma.user.findUnique({ where: { id: data.userId } });
-        if (!targetUser) return { success: false, error: 'User not found' };
-        
-        let isTeamMember = false;
-        try {
-          const hrEmployee = await teraDb.employees.findUnique({ where: { emp_id: targetUser.employeeId } });
-          if (hrEmployee && hrEmployee.supervisor_id === user.employeeId) {
-            isTeamMember = true;
-          }
-        } catch (e) { console.warn(e) }
+        if (data.userId !== user.id) {
+          const targetUser = await prisma.user.findUnique({ where: { id: data.userId } });
+          if (!targetUser) return { success: false, error: 'User not found' };
+          
+          let isTeamMember = false;
+          try {
+            const hrEmployee = await teraDb.employees.findUnique({ where: { emp_id: targetUser.employeeId } });
+            if (hrEmployee && hrEmployee.supervisor_id === user.employeeId) {
+              isTeamMember = true;
+            }
+          } catch (e) { console.warn(e) }
 
-        if (!isTeamMember) {
-          return { success: false, error: 'Unauthorized. This user is not in your team or is inactive.' }
+          if (!isTeamMember) {
+            return { success: false, error: 'Unauthorized. This user is not in your team or is inactive.' }
+          }
         }
       }
     } else {
