@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import {
   TrendingUp, Trophy, CalendarDays, PhoneCall,
   ArrowUpRight, Target, BarChart3, MapPin,
@@ -77,6 +78,8 @@ interface DashboardUIProps {
   filterStartDate?: string;
   filterEndDate?: string;
   productMix: any[];
+  productPerformance?: any[];
+  branchPerformance?: any[];
   productWinRates: any[];
   lostReasons: any[];
   lostReasonsAnalysis: {
@@ -115,6 +118,8 @@ export default function DashboardUI({
   filterStartDate,
   filterEndDate,
   productMix,
+  productPerformance = [],
+  branchPerformance = [],
   productWinRates,
   lostReasons,
   lostReasonsAnalysis,
@@ -955,6 +960,129 @@ export default function DashboardUI({
               </div>
             </div>
           </section>
+          {/* MARKETING MANAGER OVERVIEW: PRODUCT PERFORMANCE */}
+          {productPerformance && productPerformance.length > 0 && (userRole.toLowerCase().includes('marketing manager') || userRole.includes('การตลาด')) && (
+            <section className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col">
+                <div className="mb-6">
+                  <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                    <Target size={16} className="text-brand-red" />
+                    รายละเอียดสินค้า (Product Performance Dashboard)
+                  </h3>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                    ภาพรวมรายผลิตภัณฑ์: รอ PO, ยอดขายปิดเดือนนี้ และสัดส่วนเทียบเป้าหมายองค์กร (Assigned to Marketing Manager View)
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                      <tr className="border-b border-gray-100 bg-gray-50/50">
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest whitespace-nowrap rounded-tl-xl">รายละเอียดสินค้า (Product Details)</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">รอรับ PO (Pending PO)</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">ปิดยอดเดือนนี้ (Sales Closed)</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap rounded-tr-xl">สัดส่วนเทียบเป้าหมาย (Target Comparison)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {productPerformance.filter(r => r.category !== 'Others' || r.closedAmount > 0 || r.pendingPoAmount > 0).map((row, idx) => (
+                        <tr key={row.category} className="hover:bg-gray-50/50 transition-colors group">
+                          <td className="py-4 px-4">
+                            <span className="text-xs font-black text-gray-900">{idx + 1}. {row.category}</span>
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            {row.pendingPoAmount > 0 ? (
+                              <span className="text-xs font-bold text-amber-500">
+                                ฿{row.pendingPoAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            ) : (
+                              <span className="text-xs font-bold text-gray-400">฿0.00</span>
+                            )}
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <span className="text-xs font-bold text-emerald-600">
+                              ฿{row.closedAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <div className="flex items-center justify-end gap-3">
+                              <span className={`text-[11px] font-black w-12 ${row.targetComparisonPct >= 100 ? 'text-emerald-600' : 'text-brand-red'}`}>
+                                {row.targetComparisonPct.toFixed(1)}%
+                              </span>
+                              <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden shrink-0">
+                                <div 
+                                  className={`h-full ${row.targetComparisonPct >= 100 ? 'bg-emerald-500' : 'bg-brand-red'} transition-all duration-1000 ease-out`}
+                                  style={{ width: `${Math.min(row.targetComparisonPct, 100)}%` }}
+                                />
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* MARKETING MANAGER OVERVIEW: BRANCH PERFORMANCE */}
+          {branchPerformance && branchPerformance.length > 0 && (userRole.toLowerCase().includes('marketing manager') || userRole.includes('การตลาด')) && (
+            <section className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+              <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col">
+                <div className="mb-6">
+                  <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                    <Target size={16} className="text-brand-red" />
+                    ยอดขายตามสาขา (Branch Performance)
+                  </h3>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                    ภาพรวมรายสาขา: เป้าหมาย, ยอดขายปิดเดือนนี้ และรอ PO (Assigned to Marketing Manager View)
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                      <tr className="border-b border-gray-100 bg-gray-50/50">
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest whitespace-nowrap rounded-tl-xl">สาขา (Branch)</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">เป้าหมาย (Sales Target)</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">ปิดยอดเดือนนี้ (Sales Closed)</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap rounded-tr-xl">รอรับ PO (Waiting for PO)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {branchPerformance.map((row, idx) => (
+                        <tr key={row.branch} className="hover:bg-gray-50/50 transition-colors group">
+                          <td className="py-4 px-4">
+                            <span className="text-xs font-black text-gray-900">{idx + 1}. {row.branch}</span>
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <span className="text-xs font-bold text-gray-600">
+                              ฿{row.target.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <span className="text-xs font-bold text-emerald-600">
+                              ฿{row.closedAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            {row.pendingPoAmount > 0 ? (
+                              <span className="text-xs font-bold text-amber-500">
+                                ฿{row.pendingPoAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            ) : (
+                              <span className="text-xs font-bold text-gray-400">฿0.00</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* 7. SALES AREA COMPARISON: PERFORMANCE VS POTENTIAL */}
           <section className="grid grid-cols-1 gap-8 pb-8">

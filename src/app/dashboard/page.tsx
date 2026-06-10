@@ -135,6 +135,22 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     });
   }
 
+  // Fetch branch info from the HR system's employees table for each rep
+  const empIds = salesReps.map((r: any) => r.employeeId).filter(Boolean);
+  const hrEmployees = await prisma.employees.findMany({
+    where: { emp_id: { in: empIds } },
+    select: { emp_id: true, branches: { select: { name: true } } }
+  });
+
+  // Inject hrBranch into salesReps
+  salesReps = salesReps.map((r: any) => {
+    const hrEmp = hrEmployees.find(h => h.emp_id === r.employeeId);
+    return {
+      ...r,
+      hrBranch: hrEmp?.branches?.name || r.employeeSale?.branch || 'Head Office'
+    };
+  });
+
   const subordinateIds = salesReps.map((r: { id: string }) => r.id);
   const filterIds = isManager 
     ? (salespersonIds.length > 0 ? salespersonIds : subordinateIds) 
@@ -1406,6 +1422,88 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
           filterYear={refYear}
           filterStartDate={toBkkDateStr(filterStart)}
           filterEndDate={toBkkDateStr(filterEnd)}
+          productPerformance={(() => {
+            const mapProductCategory = (pType: string | null | undefined): string => {
+              if (!pType) return 'Others';
+              const pt = pType.trim().toLowerCase();
+              
+              const isInvOrAuto = ['inverter & automation', 'inverter veichi', 'inverter other', 'inverter powtran', 'inverter', 'motor', 'mdb/db', 'db', 'mdb/db/mcc'].some(x => pt === x.toLowerCase() || pt.includes(x.toLowerCase())) || pt.includes('automation');
+              if (isInvOrAuto) return 'Inverter & Automation';
+              
+              const isSolarRoof = ['solar roof'].some(x => pt === x.toLowerCase() || pt.includes(x.toLowerCase()));
+              if (isSolarRoof) return 'Solar Roof';
+              
+              const isPump = ['solar pump + pump', 'solar pump', 'other pumps', 'pump'].some(x => pt === x.toLowerCase() || pt.includes(x.toLowerCase()));
+              if (isPump) return 'Solar Pump + Pump';
+              
+              return 'Others';
+            };
+
+            return ['Inverter & Automation', 'Solar Roof', 'Solar Pump + Pump', 'Others'].map(groupName => {
+              const groupQuotes = (analyticalData as any[]).filter((q: any) => mapProductCategory(q.productType) === groupName);
+              // Pending PO (ใช้ allActiveQuotations เพื่อให้ข้อมูลตรงกับหน้า Pipeline ที่กรองตามเดือน)
+              const groupPendingQuotes = (allActiveQuotations as any[]).filter((q: any) => mapProductCategory(q.productType) === groupName);
+              const pendingPoQuotes = groupPendingQuotes.filter((q: any) => {
+                const status = q.status || '';
+                return status.includes('รอจัดทำ PO') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน');
+              });
+              
+              // Filter by the selected date range (using updatedAt to match Pipeline behavior)
+              const currentMonthPendingPoQuotes = pendingPoQuotes.filter((q: any) => {
+                const updatedTime = new Date(q.updatedAt).getTime();
+                return updatedTime >= filterStart.getTime() && updatedTime <= filterEnd.getTime();
+              });
+              
+              const pendingPoAmount = currentMonthPendingPoQuotes.reduce((sum: number, q: any) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
+            
+              // Sales Closed this Month
+              const closedQuotes = groupQuotes.filter((q: any) => q.status === 'เปิดบิลแล้ว');
+              const closedAmount = closedQuotes.reduce((sum: number, q: any) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
+            
+              // Target Comparison Pct
+              const targetComparisonPct = targetMTD > 0 ? (closedAmount / targetMTD) * 100 : 0;
+            
+              return {
+                category: groupName,
+                pendingPoAmount,
+                closedAmount,
+                targetComparisonPct
+              };
+            });
+          })()}
+          branchPerformance={(() => {
+            const branches = Array.from(new Set(salesReps.map((r: any) => r.hrBranch).filter(Boolean)));
+            return branches.map((branch: any) => {
+              const branchUsers = salesReps.filter((r: any) => r.hrBranch === branch);
+              const branchUserIds = branchUsers.map((u: any) => u.id);
+              
+              const target = (monthlyTargetResult as any[])
+                .filter(t => t.month === currentMonth && t.userId !== null && branchUserIds.includes(t.userId))
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+                
+              const branchClosedQuotes = (analyticalData as any[]).filter((q: any) => 
+                branchUserIds.includes(q.salespersonId) && q.status === 'เปิดบิลแล้ว'
+              );
+              const closedAmount = branchClosedQuotes.reduce((sum: number, q: any) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
+              
+              const branchPendingQuotes = (allActiveQuotations as any[]).filter((q: any) => {
+                const isBranchMatch = branchUserIds.includes(q.salespersonId);
+                const status = q.status || '';
+                const isPendingPo = status.includes('รอจัดทำ PO') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน');
+                const updatedTime = new Date(q.updatedAt).getTime();
+                const isCurrentMonth = updatedTime >= filterStart.getTime() && updatedTime <= filterEnd.getTime();
+                return isBranchMatch && isPendingPo && isCurrentMonth;
+              });
+              const pendingPoAmount = branchPendingQuotes.reduce((sum: number, q: any) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
+              
+              return {
+                branch,
+                target,
+                closedAmount,
+                pendingPoAmount
+              };
+            }).sort((a: any, b: any) => b.closedAmount - a.closedAmount);
+          })()}
           productMix={productMix.map(p => {
             const name = p.productType || 'อื่นๆ';
             const val = p._sum.actualClosingAmount || p._sum.totalAmountBeforeVat || 0;

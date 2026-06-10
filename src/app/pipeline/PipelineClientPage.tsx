@@ -43,6 +43,7 @@ interface PipelineClientPageProps {
   initialPreset?: string
   initialDateFrom?: string
   initialDateTo?: string
+  initialSearchTerm?: string
 }
 
 const COLUMNS = [
@@ -123,7 +124,7 @@ const LOST_COLUMN = {
 
 export default function PipelineClientPage({ 
   initialQuotations, teamMembers, userRole, currentUserId, 
-  initialDateField = 'updatedAt', initialPreset = '', initialDateFrom = '', initialDateTo = ''
+  initialDateField = 'updatedAt', initialPreset = '', initialDateFrom = '', initialDateTo = '', initialSearchTerm = ''
 }: PipelineClientPageProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -137,7 +138,7 @@ export default function PipelineClientPage({
   const [pendingCardIds, setPendingCardIds] = useState<Set<string>>(new Set())
 
   const [selectedSalespersonId, setSelectedSalespersonId] = useState<string>('')
-  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm)
   const [showLostDeals, setShowLostDeals] = useState<boolean>(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
@@ -158,16 +159,18 @@ export default function PipelineClientPage({
     setQuotations(initialQuotations)
   }, [initialQuotations])
 
-  const updateFilters = (updates: { df?: string, pr?: string, dFrom?: string, dTo?: string }) => {
+  const updateFilters = (updates: { df?: string, pr?: string, dFrom?: string, dTo?: string, search?: string }) => {
     const newDf = updates.df !== undefined ? updates.df : dateField
     const newPr = updates.pr !== undefined ? updates.pr : preset
     const newDFrom = updates.dFrom !== undefined ? updates.dFrom : dateFrom
     const newDTo = updates.dTo !== undefined ? updates.dTo : dateTo
+    const newSearch = updates.search !== undefined ? updates.search : searchTerm
 
     setDateField(newDf)
     setPreset(newPr)
     if (updates.dFrom !== undefined) setDateFrom(newDFrom)
     if (updates.dTo !== undefined) setDateTo(newDTo)
+    if (updates.search !== undefined) setSearchTerm(newSearch)
 
     const params = new URLSearchParams()
     if (newDf) params.set('dateField', newDf)
@@ -176,6 +179,7 @@ export default function PipelineClientPage({
       if (newDFrom) params.set('dateFrom', newDFrom)
       if (newDTo) params.set('dateTo', newDTo)
     }
+    if (newSearch) params.set('search', newSearch)
     
     startTransition(() => {
       router.push(`/pipeline?${params.toString()}`)
@@ -183,7 +187,7 @@ export default function PipelineClientPage({
   }
 
   const clearFilters = () => {
-    updateFilters({ df: 'updatedAt', pr: '', dFrom: '', dTo: '' })
+    updateFilters({ df: 'updatedAt', pr: '', dFrom: '', dTo: '', search: '' })
   }
 
   const isManager = ['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase())
@@ -407,7 +411,7 @@ export default function PipelineClientPage({
               type="text"
               placeholder="ค้นหาบริษัท, เลขที่..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => updateFilters({ search: e.target.value })}
               className="w-52 pl-8 pr-3 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
             />
           </div>

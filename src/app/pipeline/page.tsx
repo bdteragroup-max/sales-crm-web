@@ -95,6 +95,7 @@ export default async function PipelinePage({
   const preset = resolvedParams.preset as string | undefined
   const dateFromParam = resolvedParams.dateFrom as string | undefined
   const dateToParam = resolvedParams.dateTo as string | undefined
+  const searchParam = resolvedParams.search as string | undefined
 
   let from: Date | undefined
   let to: Date | undefined
@@ -160,6 +161,7 @@ export default async function PipelinePage({
         initialPreset={preset || ''}
         initialDateFrom={dateFromParam || ''}
         initialDateTo={dateToParam || ''}
+        initialSearchTerm={searchParam || ''}
       />
     </main>
   )

@@ -9,13 +9,15 @@ interface SettingsClientPageProps {
   initialTargets: any[]
   initialTelesalesKPIs: any[]
   isManager?: boolean
+  currentUser?: { id: string; fullName: string; position: string }
 }
 
 export default function SettingsClientPage({ 
   staffList, 
   initialTargets, 
   initialTelesalesKPIs,
-  isManager = true 
+  isManager = true,
+  currentUser
 }: SettingsClientPageProps) {
   
   const [activeTab, setActiveTab] = useState<'sales' | 'telesales'>('sales')
@@ -226,6 +228,54 @@ export default function SettingsClientPage({
             </div>
             
             <div className="space-y-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
+              {currentUser && isManager && (
+                <div className="p-4 rounded-2xl bg-brand-red/5 border border-red-100 flex items-center justify-between gap-4 group hover:bg-white hover:shadow-md transition-all mb-6">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-brand-red text-white font-black flex items-center justify-center shrink-0 shadow-sm">
+                      {currentUser.fullName.charAt(0)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-black text-gray-900 truncate">{currentUser.fullName} <span className="text-brand-red text-xs ml-2">(ส่วนตัว)</span></p>
+                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter truncate">{currentUser.position}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">คำนวณอัตโนมัติจากส่วนต่างทีม</span>
+                      <span className="text-xl font-black text-emerald-600">
+                        ฿{Math.max(0, (targets['team'] || 0) - staffList.reduce((sum, s) => sum + (targets[s.id] || 0), 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <button 
+                      onClick={async () => {
+                        const calculatedAmount = Math.max(0, (targets['team'] || 0) - staffList.reduce((sum, s) => sum + (targets[s.id] || 0), 0))
+                        setTargets(prev => ({ ...prev, [currentUser.id]: calculatedAmount }))
+                        
+                        setIsSubmitting(true)
+                        setStatus(null)
+                        const res = await upsertMonthlyTarget({
+                          userId: currentUser.id,
+                          month: currentMonth,
+                          year: currentYear,
+                          amount: calculatedAmount
+                        })
+                        if (res.success) {
+                          setStatus({ type: 'success', message: 'บันทึกเป้าหมายส่วนตัวสำเร็จ' })
+                        } else {
+                          setStatus({ type: 'error', message: res.error || 'เกิดข้อผิดพลาดในการบันทึก' })
+                        }
+                        setIsSubmitting(false)
+                      }}
+                      disabled={isSubmitting}
+                      className="flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-xl w-10 h-10 transition-all shrink-0 ml-4"
+                      title="บันทึก"
+                    >
+                      <Save size={18} />
+                    </button>
+                  </div>
+                </div>
+              )}
               {staffList.map((staff) => (
                 <div key={staff.id} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-between gap-4 group hover:bg-white hover:shadow-md transition-all">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
