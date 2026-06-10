@@ -122,7 +122,7 @@ export default async function SettingsPage() {
         initialTargets={initialTargets}
         initialTelesalesKPIs={JSON.parse(JSON.stringify(initialTelesalesKPIs))}
         isManager={isManager}
-        currentUser={{ id: user.id, fullName: user.fullName, position: user.position || 'ผู้จัดการ' }}
+        currentUser={{ id: user.id, fullName: user.fullName, position: user.employeeSale?.position || 'ผู้จัดการ' }}
       />
     </main>
   )
