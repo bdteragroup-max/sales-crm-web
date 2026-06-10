@@ -13,14 +13,20 @@ export type UpdateJobPayload = {
   companyCode?: string;
   quotationNumber?: string;
   currentStep?: string;
+  deliveryDate?: string | null;
+  paymentMethod?: string | null;
+  paymentDate?: string | null;
 };
 
 export async function updateJob(jobId: string, data: UpdateJobPayload) { 
+  const { dateClosed, deliveryDate, paymentDate, ...rest } = data;
   const updated = await prisma.job.update({ 
     where: { id: jobId }, 
     data: { 
-      ...data, 
-      ...(data.dateClosed && { dateClosed: new Date(data.dateClosed) }), 
+      ...rest, 
+      ...(dateClosed && { dateClosed: new Date(dateClosed) }), 
+      ...(deliveryDate !== undefined && { deliveryDate: deliveryDate ? new Date(deliveryDate) : null }),
+      ...(paymentDate !== undefined && { paymentDate: paymentDate ? new Date(paymentDate) : null }),
     }, 
   }); 
   revalidatePath("/jobs"); 

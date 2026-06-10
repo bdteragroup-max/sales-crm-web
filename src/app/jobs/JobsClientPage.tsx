@@ -39,6 +39,7 @@ type Job = {
   trackingPhotoUrl?: string | null;
   stepLogs: StepLog[];
   paymentMethod?: string | null;
+  paymentDate?: Date | string | null;
   paymentTasks?: any[];
   installationOrders?: any[];
   repairOrder?: any;
@@ -258,13 +259,25 @@ function ExpandedRow({
             <p className="text-[10px] font-bold text-gray-400 mb-4 uppercase tracking-widest">ข้อมูลงานเบื้องต้น</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4"> 
               <EditableField label="ประเภทงาน" value={job.jobType} type="select" options={JOB_TYPES as unknown as string[]} onSave={save("jobType")} /> 
-              <EditableField label="หมายเลข PO" value={job.poNumber ?? ""} onSave={save("poNumber")} /> 
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">หมายเลข PO</p>
+                <p className="text-sm text-gray-800">{job.poNumber || <span className="text-gray-400 italic">—</span>}</p>
+              </div>
               <EditableField label="วันที่ปิดการขาย" value={new Date(job.dateClosed).toISOString().slice(0, 10)} type="date" onSave={save("dateClosed")} />
               <EditableField label="ชื่อลูกค้า" value={job.customerName} onSave={save("customerName")} />
               <EditableField label="รายการสินค้า" value={job.item ?? ""} onSave={save("item")} />
-              <EditableField label="ใบเสนอราคา" value={job.quotationNumber ?? ""} onSave={save("quotationNumber")} />
-              <EditableField label="พนักงานขาย" value={job.sellerName ?? ""} onSave={save("sellerName")} />
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">ใบเสนอราคา</p>
+                <p className="text-sm text-gray-800">{job.quotationNumber || <span className="text-gray-400 italic">—</span>}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">พนักงานขาย</p>
+                <p className="text-sm text-gray-800">{job.sellerName || <span className="text-gray-400 italic">—</span>}</p>
+              </div>
               <EditableField label="บริษัท" value={job.companyCode} type="select" options={COMPANY_CODES} onSave={save("companyCode")} />
+              <EditableField label="วันที่ต้องการจัดส่ง" value={job.deliveryDate ? new Date(job.deliveryDate).toISOString().slice(0, 10) : ""} type="date" onSave={save("deliveryDate")} />
+              <EditableField label="รูปแบบการชำระเงิน" value={job.paymentMethod ?? ""} onSave={save("paymentMethod")} />
+              <EditableField label="วันที่ชำระเงิน" value={job.paymentDate ? new Date(job.paymentDate).toISOString().slice(0, 10) : ""} type="date" onSave={save("paymentDate")} />
             </div>
           </div>
 
@@ -324,6 +337,7 @@ export default function JobsClientPage({
   const [filterCo, setFilterCo] = useState(""); 
   const [filterType, setFilterType] = useState(""); 
   const [filterMonth, setFilterMonth] = useState(""); 
+  const [filterEmployee, setFilterEmployee] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
   const [isPending, startTransition] = useTransition(); 
@@ -368,6 +382,11 @@ export default function JobsClientPage({
     return Array.from(s).sort().reverse(); 
   }, [jobs]); 
 
+  const uniqueEmployees = useMemo(() => {
+    const s = new Set(jobs.map((j) => j.sellerName).filter(Boolean) as string[]);
+    return Array.from(s).sort();
+  }, [jobs]);
+
   // ── Filter ── 
   const filtered = useMemo(() => { 
     const q = search.toLowerCase(); 
@@ -375,6 +394,7 @@ export default function JobsClientPage({
       if (search && ![j.jobNumber, j.customerName, j.quotationNumber ?? ""].some((v) => v.toLowerCase().includes(q))) return false; 
       if (filterCo && j.companyCode !== filterCo) return false; 
       if (filterType && j.jobType !== filterType) return false; 
+      if (filterEmployee && j.sellerName !== filterEmployee) return false;
       if (filterMonth === "custom") {
         if (filterStartDate) {
           const s = new Date(filterStartDate);
@@ -397,7 +417,7 @@ export default function JobsClientPage({
       }
       return true; 
     }); 
-  }, [jobs, search, filterCo, filterType, filterMonth, filterStartDate, filterEndDate, filterStatus, normalizedDept]); 
+  }, [jobs, search, filterCo, filterType, filterEmployee, filterMonth, filterStartDate, filterEndDate, filterStatus, normalizedDept]); 
 
   // ── Handlers ── 
   function handleUpdate(id: string, data: UpdateJobPayload) { 
@@ -572,6 +592,14 @@ export default function JobsClientPage({
           {COMPANY_CODES.map((c) => <option key={c} value={c}>{c}</option>)} 
         </select> 
         <select 
+          value={filterEmployee} 
+          onChange={(e) => setFilterEmployee(e.target.value)} 
+          className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
+        > 
+          <option value="">พนักงานขายทั้งหมด</option> 
+          {uniqueEmployees.map((emp) => <option key={emp} value={emp}>{emp}</option>)} 
+        </select> 
+        <select 
           value={filterType} 
           onChange={(e) => setFilterType(e.target.value)} 
           className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
@@ -622,9 +650,9 @@ export default function JobsClientPage({
           <option value="all">สถานะทั้งหมด</option> 
           <option value="pending">รอฉันดำเนินการ</option> 
         </select>
-        {(search || filterCo || filterType || filterMonth || filterStartDate || filterEndDate || filterStatus !== (normalizedDept.includes("sales") ? "all" : "pending")) && ( 
+        {(search || filterCo || filterType || filterEmployee || filterMonth || filterStartDate || filterEndDate || filterStatus !== (normalizedDept.includes("sales") ? "all" : "pending")) && ( 
           <button 
-            onClick={() => { setSearch(""); setFilterCo(""); setFilterType(""); setFilterMonth(""); setFilterStartDate(""); setFilterEndDate(""); setFilterStatus(normalizedDept.includes("sales") ? "all" : "pending"); }} 
+            onClick={() => { setSearch(""); setFilterCo(""); setFilterType(""); setFilterEmployee(""); setFilterMonth(""); setFilterStartDate(""); setFilterEndDate(""); setFilterStatus(normalizedDept.includes("sales") ? "all" : "pending"); }} 
             className="text-xs font-bold text-gray-400 hover:text-gray-700 transition-colors" 
           > 
             ล้างตัวกรอง
@@ -644,8 +672,9 @@ export default function JobsClientPage({
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">บริษัท</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ประเภทงาน</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่ปิดการขาย</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">แผนงาน Service</th>
+              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">วันที่ต้องการ / แผนงาน</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ลูกค้า</th>
+              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">การชำระเงิน</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ใบเสนอราคา</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">หมายเลข PO</th>
               <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">พนักงานขาย</th>
@@ -654,7 +683,7 @@ export default function JobsClientPage({
           <tbody className="divide-y divide-gray-50">
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={11} className="text-center py-16 text-gray-400 font-medium">
+                <td colSpan={12} className="text-center py-16 text-gray-400 font-medium">
                   ไม่พบงานที่ตรงกับเงื่อนไข
                 </td>
               </tr>
@@ -720,23 +749,42 @@ export default function JobsClientPage({
                       </span>
                     </td> 
                     <td className="px-5 py-4 text-center">
-                      {job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate ? (
-                        <div className="flex flex-col items-center">
-                          <span className="text-[10px] font-bold text-gray-700 whitespace-nowrap bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md">
-                            {new Date(job.installationOrders[0].plannedStartDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                      <div className="flex flex-col items-center gap-1.5">
+                        {job.deliveryDate && (
+                          <span className="text-[10px] font-bold whitespace-nowrap bg-blue-50 border border-blue-100 text-blue-700 px-2 py-0.5 rounded-md" title="วันที่ต้องการ / จัดส่ง">
+                            ต้องการ: {new Date(job.deliveryDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                           </span>
-                          <span className="text-[9px] font-bold text-gray-400 mt-0.5">
-                            {new Date(job.installationOrders[0].plannedStartDate).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
+                        )}
+                        {job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate && (
+                          <span className="text-[10px] font-bold text-gray-700 whitespace-nowrap bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md" title="แผนงาน Service">
+                            แผน: {new Date(job.installationOrders[0].plannedStartDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                           </span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-300 text-[11px]">—</span>
-                      )}
+                        )}
+                        {!job.deliveryDate && !(job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate) && (
+                          <span className="text-gray-300 text-[11px]">—</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-5 py-4"> 
-                      <p className="text-xs font-bold text-gray-900 truncate max-w-[180px]">
+                      <p className="text-xs font-bold text-gray-900 truncate max-w-[180px]" title={job.customerName}>
                         {job.customerName}
                       </p>
+                    </td> 
+                    <td className="px-5 py-4">
+                      <div className="flex flex-col gap-1">
+                        {job.paymentMethod ? (
+                          <span className="text-[10px] font-bold whitespace-nowrap bg-green-50 border border-green-100 text-green-700 px-2 py-0.5 rounded-md w-fit">
+                            {job.paymentMethod}
+                          </span>
+                        ) : (
+                          <span className="text-gray-300 text-[11px]">—</span>
+                        )}
+                        {job.paymentDate && (
+                          <span className="text-[9px] font-bold text-gray-500 whitespace-nowrap">
+                            จ่าย: {new Date(job.paymentDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                          </span>
+                        )}
+                      </div>
                     </td> 
                     <td className="px-5 py-4 font-mono text-[11px] font-black text-gray-800 hover:text-brand-red hover:underline transition-colors"> 
                       {job.quotationNumber ?? "—"} 
