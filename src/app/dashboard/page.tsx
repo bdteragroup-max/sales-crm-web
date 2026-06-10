@@ -1461,7 +1461,15 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
               const closedAmount = closedQuotes.reduce((sum: number, q: any) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
             
               // Target Comparison Pct
-              const targetComparisonPct = targetMTD > 0 ? (closedAmount / targetMTD) * 100 : 0;
+              let productTarget = targetMTD;
+              if (groupName === 'Inverter & Automation') {
+                productTarget = 22000000;
+              } else if (groupName === 'Solar Pump + Pump') {
+                productTarget = 12000000;
+              } else if (groupName === 'Solar Roof') {
+                productTarget = 15000000;
+              }
+              const targetComparisonPct = productTarget > 0 ? (closedAmount / productTarget) * 100 : 0;
             
               return {
                 category: groupName,
