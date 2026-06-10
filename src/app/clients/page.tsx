@@ -163,9 +163,9 @@ export default async function ClientsPage({ searchParams }: PageProps) {
       }
     }
 
-    const results = await Promise.all([
+    // Prevent connection pool exhaustion by running queries sequentially or in small batches
     // 1. Paginated Companies
-    prisma.company.findMany({
+    companies = await prisma.company.findMany({
       where: companySearchFilter,
       orderBy: { updatedAt: 'desc' as const },
       take: limit,
@@ -204,70 +204,48 @@ export default async function ClientsPage({ searchParams }: PageProps) {
                 fullName: true,
                 role: true,
                 isActive: true,
-                employeeSale: {
-                  select: {
-                    position: true
-                  }
-                }
+                employeeSale: { select: { position: true } }
               }
             }
           }
         },
         _count: { select: { quotations: true, telesales: true } },
       },
-    }),
-    // 2. Count for Companies matching search filter
-    prisma.company.count({ where: companySearchFilter }),
+    });
+
+    // 2. Count for Companies
+    companiesCount = await prisma.company.count({ where: companySearchFilter });
 
     // 3. Paginated Contacts
-    prisma.contact.findMany({
+    contacts = await prisma.contact.findMany({
       where: contactSearchFilter,
       orderBy: { updatedAt: 'desc' as const },
       take: limit,
       skip: skip,
       include: { company: true },
-    }),
-    // 4. Count for Contacts matching search filter
-    prisma.contact.count({ where: contactSearchFilter }),
+    });
+
+    // 4. Count for Contacts
+    contactsCount = await prisma.contact.count({ where: contactSearchFilter });
 
     // 5. Active Sales Representatives & Managers for dropdown
-    prisma.user.findMany({
+    salesReps = await prisma.user.findMany({
       where: salesRepsWhere,
       select: { id: true, fullName: true, role: true, employeeSale: { select: { position: true } } }
-    }),
+    });
 
     // 6. Business Types
-    prisma.businessType.findMany({ orderBy: { name: 'asc' } }),
+    businessTypes = await prisma.businessType.findMany({ orderBy: { name: 'asc' } });
 
-    // 7. Provinces list (cached resiliently)
-    getProvinces(),
+    // 7. Provinces list
+    provinces = await getProvinces();
 
-    // 8. Lightweight minimal companies list for the "Add Contact" selection modal
-    prisma.company.findMany({
+    // 8. Lightweight minimal companies list (Limited to 500 to prevent huge JSON payloads and slow sorting)
+    allCompaniesMinimal = await prisma.company.findMany({
       select: { id: true, companyName: true },
-      orderBy: { companyName: 'asc' }
-    })
-    ]);
-
-    [
-      companies,
-      companiesCount,
-      contacts,
-      contactsCount,
-      salesReps,
-      businessTypes,
-      provinces,
-      allCompaniesMinimal
-    ] = results as [
-      { companyName?: string }[],
-      number,
-      unknown[],
-      number,
-      unknown[],
-      unknown[],
-      string[],
-      unknown[]
-    ];
+      orderBy: { updatedAt: 'desc' },
+      take: 500
+    });
 
     try {
       console.log('[clients] query results', {
