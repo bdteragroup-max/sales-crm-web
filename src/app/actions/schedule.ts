@@ -123,8 +123,7 @@ export async function createSchedule(data: { userId: string, title: string, desc
     // Combine date and time
     let scheduleDate = new Date(data.date)
     if (data.time) {
-      const [hours, minutes] = data.time.split(':').map(Number)
-      scheduleDate.setHours(hours, minutes)
+      scheduleDate = new Date(`${data.date}T${data.time}:00+07:00`)
     }
 
     // Find or create company if companyName is provided
@@ -219,19 +218,17 @@ export async function updateSchedule(id: string, data: {
     // Combine date and time if provided
     let scheduleDate = schedule.date
     if (data.date) {
-      scheduleDate = new Date(data.date)
       if (data.time) {
-        const [hours, minutes] = data.time.split(':').map(Number)
-        scheduleDate.setHours(hours, minutes)
+        scheduleDate = new Date(`${data.date}T${data.time}:00+07:00`)
       } else {
         // Keep old time but change date
-        scheduleDate.setHours(schedule.date.getHours(), schedule.date.getMinutes())
+        const oldTimeStr = schedule.date.toLocaleTimeString('en-GB', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit' })
+        scheduleDate = new Date(`${data.date}T${oldTimeStr}:00+07:00`)
       }
     } else if (data.time) {
       // Keep old date but change time
-      scheduleDate = new Date(schedule.date)
-      const [hours, minutes] = data.time.split(':').map(Number)
-      scheduleDate.setHours(hours, minutes)
+      const oldDateStr = schedule.date.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' })
+      scheduleDate = new Date(`${oldDateStr}T${data.time}:00+07:00`)
     }
 
     // Find or create company if companyName is provided

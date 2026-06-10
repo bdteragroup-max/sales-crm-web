@@ -12,6 +12,7 @@ import { checkDuplicatePhoneNumber, saveTelesaleLog } from "@/app/actions/telesa
 interface TelesaleLogClientProps {
   contactId: string;
   companyId: string;
+  telesaleId?: string;
   returnTo: string;
   initialContext: {
     contact: any;
@@ -24,6 +25,7 @@ interface TelesaleLogClientProps {
 export default function TelesaleLogClient({
   contactId,
   companyId,
+  telesaleId,
   returnTo,
   initialContext,
 }: TelesaleLogClientProps) {
@@ -58,6 +60,30 @@ export default function TelesaleLogClient({
     });
     setStampTime(formatted);
   }, []);
+
+  // Custom 24-hour Date/Time state management
+  const cbDate = callbackAt ? callbackAt.split('T')[0] : '';
+  const cbTime = callbackAt && callbackAt.includes('T') ? callbackAt.split('T')[1] : '';
+  const cbHour = cbTime ? cbTime.split(':')[0] : '09';
+  const cbMin = cbTime ? cbTime.split(':')[1] : '00';
+
+  const handleCallbackDateChange = (dateVal: string) => {
+    if (!dateVal) {
+      setCallbackAt('');
+      return;
+    }
+    setCallbackAt(`${dateVal}T${cbHour}:${cbMin}`);
+  };
+
+  const handleCallbackHourChange = (hourVal: string) => {
+    if (!cbDate) return;
+    setCallbackAt(`${cbDate}T${hourVal}:${cbMin}`);
+  };
+
+  const handleCallbackMinChange = (minVal: string) => {
+    if (!cbDate) return;
+    setCallbackAt(`${cbDate}T${cbHour}:${minVal}`);
+  };
 
   // Handle phone input blur to check for duplicate numbers
   const handlePhoneBlur = async () => {
@@ -104,6 +130,7 @@ export default function TelesaleLogClient({
       const res = await saveTelesaleLog({
         contactId,
         companyId,
+        telesaleId,
         callStatus,
         callOutcome,
         conversationSummary,
@@ -472,12 +499,37 @@ export default function TelesaleLogClient({
                     <label className="text-[10px] font-black text-rose-600 uppercase tracking-widest flex items-center gap-1.5">
                       <Clock size={12} /> วันและเวลานัดโทรกลับ (Callback Appointment)
                     </label>
-                    <input
-                      type="datetime-local"
-                      value={callbackAt}
-                      onChange={(e) => setCallbackAt(e.target.value)}
-                      className="w-full bg-white text-xs font-bold text-slate-700 border border-slate-200 rounded-2xl py-2.5 px-4 focus:outline-none focus:border-slate-800 mt-2"
-                    />
+                    <div className="flex gap-2 mt-2">
+                      <input
+                        type="date"
+                        value={cbDate}
+                        onChange={(e) => handleCallbackDateChange(e.target.value)}
+                        className="flex-1 bg-white text-xs font-bold text-slate-700 border border-slate-200 rounded-2xl py-2.5 px-4 focus:outline-none focus:border-slate-800"
+                      />
+                      <select
+                        value={cbHour}
+                        onChange={(e) => handleCallbackHourChange(e.target.value)}
+                        className="bg-white text-xs font-bold text-slate-700 border border-slate-200 rounded-2xl py-2.5 px-4 focus:outline-none focus:border-slate-800 appearance-none text-center"
+                      >
+                        {Array.from({ length: 24 }).map((_, i) => (
+                          <option key={i} value={i.toString().padStart(2, '0')}>
+                            {i.toString().padStart(2, '0')}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="flex items-center text-slate-400 font-bold">:</span>
+                      <select
+                        value={cbMin}
+                        onChange={(e) => handleCallbackMinChange(e.target.value)}
+                        className="bg-white text-xs font-bold text-slate-700 border border-slate-200 rounded-2xl py-2.5 px-4 focus:outline-none focus:border-slate-800 appearance-none text-center"
+                      >
+                        {Array.from({ length: 60 }).map((_, i) => (
+                          <option key={i} value={i.toString().padStart(2, '0')}>
+                            {i.toString().padStart(2, '0')}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                     <p className="text-[10px] font-bold text-rose-400 mt-1 italic">
                       *กรุณาระบุวันและเวลานัดหมายให้ชัดเจนเพื่อให้พนักงานโทรซ้ำตามรอบ (หากต้องการนัดโทรกลับ)
                     </p>
@@ -491,13 +543,38 @@ export default function TelesaleLogClient({
                   <label className="text-[10px] font-black text-rose-600 uppercase tracking-widest flex items-center gap-1.5">
                     <Clock size={12} /> วันและเวลานัดโทรกลับ (Callback Appointment)
                   </label>
-                  <input
-                    type="datetime-local"
-                    value={callbackAt}
-                    onChange={(e) => setCallbackAt(e.target.value)}
-                    className="w-full bg-white text-xs font-bold text-slate-700 border border-slate-200 rounded-2xl py-2.5 px-4 focus:outline-none focus:border-slate-800 mt-2"
-                    required={callStatus !== "รับสาย"}
-                  />
+                  <div className="flex gap-2 mt-2">
+                    <input
+                      type="date"
+                      value={cbDate}
+                      onChange={(e) => handleCallbackDateChange(e.target.value)}
+                      className="flex-1 bg-white text-xs font-bold text-slate-700 border border-slate-200 rounded-2xl py-2.5 px-4 focus:outline-none focus:border-slate-800"
+                      required={callStatus !== "รับสาย"}
+                    />
+                    <select
+                      value={cbHour}
+                      onChange={(e) => handleCallbackHourChange(e.target.value)}
+                      className="bg-white text-xs font-bold text-slate-700 border border-slate-200 rounded-2xl py-2.5 px-4 focus:outline-none focus:border-slate-800 appearance-none text-center"
+                    >
+                      {Array.from({ length: 24 }).map((_, i) => (
+                        <option key={i} value={i.toString().padStart(2, '0')}>
+                          {i.toString().padStart(2, '0')}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="flex items-center text-slate-400 font-bold">:</span>
+                    <select
+                      value={cbMin}
+                      onChange={(e) => handleCallbackMinChange(e.target.value)}
+                      className="bg-white text-xs font-bold text-slate-700 border border-slate-200 rounded-2xl py-2.5 px-4 focus:outline-none focus:border-slate-800 appearance-none text-center"
+                    >
+                      {Array.from({ length: 60 }).map((_, i) => (
+                        <option key={i} value={i.toString().padStart(2, '0')}>
+                          {i.toString().padStart(2, '0')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <p className="text-[10px] font-bold text-rose-400 mt-1 italic">
                     *กรุณาระบุวันและเวลานัดหมายให้ชัดเจนเพื่อให้พนักงานโทรซ้ำตามรอบ
                   </p>

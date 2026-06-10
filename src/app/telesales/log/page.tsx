@@ -11,6 +11,7 @@ interface PageProps {
   searchParams: Promise<{
     contactId?: string;
     companyId?: string;
+    telesaleId?: string;
     returnTo?: string;
   }>;
 }
@@ -22,6 +23,7 @@ export default async function TelesaleLogPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const contactId = params.contactId;
   const companyId = params.companyId;
+  const telesaleId = params.telesaleId;
   const returnTo = params.returnTo || "/clients";
 
   // Graceful direct-access fallback: redirect to /clients if parameters are missing
@@ -38,6 +40,7 @@ export default async function TelesaleLogPage({ searchParams }: PageProps) {
         <TelesaleLogClient
           contactId={contactId}
           companyId={companyId}
+          telesaleId={telesaleId}
           returnTo={returnTo}
           initialContext={context}
         />

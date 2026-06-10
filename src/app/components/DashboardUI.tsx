@@ -147,6 +147,15 @@ export default function DashboardUI({
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  const handleMultiFilterChange = (updates: Record<string, string>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value) params.set(key, value);
+      else params.delete(key);
+    });
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const toggleSalesperson = (id: string) => {
     let newIds = [...salespersonIds];
     if (newIds.includes(id)) newIds = newIds.filter(i => i !== id);
@@ -364,15 +373,14 @@ export default function DashboardUI({
                 onClick={() => {
                   const today = new Date();
                   const d = today.toISOString().split('T')[0];
-                  handleFilterChange('startDate', d); 
-                  handleFilterChange('endDate', d);
+                  handleMultiFilterChange({ startDate: d, endDate: d });
                 }} 
                 className="px-3 py-1.5 text-[10px] font-black text-gray-500 hover:text-brand-red transition-all"
               >
                 วันนี้
               </button>
               <button 
-                onClick={() => handleFilterChange('startDate', '')} 
+                onClick={() => handleMultiFilterChange({ startDate: '', endDate: '' })} 
                 className="px-3 py-1.5 text-[10px] font-black text-gray-500 hover:text-brand-red transition-all"
               >
                 เดือนนี้
@@ -400,14 +408,14 @@ export default function DashboardUI({
                 type="date" 
                 className="text-[10px] font-black text-gray-700 outline-none bg-transparent" 
                 value={filterStartDate || ''} 
-                onChange={(e) => handleFilterChange('startDate', e.target.value)} 
+                onChange={(e) => handleMultiFilterChange({ startDate: e.target.value, endDate: filterEndDate || e.target.value })} 
               />
               <ArrowRight size={12} className="text-gray-300" />
               <input 
                 type="date" 
                 className="text-[10px] font-black text-gray-700 outline-none bg-transparent" 
                 value={filterEndDate || ''} 
-                onChange={(e) => handleFilterChange('endDate', e.target.value)} 
+                onChange={(e) => handleMultiFilterChange({ startDate: filterStartDate || e.target.value, endDate: e.target.value })} 
               />
             </div>
           </div>

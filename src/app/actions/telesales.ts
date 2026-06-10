@@ -40,7 +40,13 @@ export async function saveTelesaleData(formData: FormData) {
     const resultArr = formData.getAll("result"); // Multiple checkboxes
     const result = resultArr.length > 0 ? resultArr.join(", ") : null;
 
-    const parseDate = (d?: string) => (d ? new Date(d) : null);
+    const parseDate = (d?: string) => {
+      if (!d) return null;
+      if (d.includes('T')) {
+        return new Date(`${d}:00+07:00`);
+      }
+      return new Date(`${d}T00:00:00+07:00`);
+    };
 
     const callbackTime = parseDate(callbackAtRaw);
     if (callbackTime) {
@@ -195,7 +201,13 @@ export async function updateTelesaleData(id: string, formData: FormData) {
     const resultArr = formData.getAll("result");
     const result = resultArr.length > 0 ? resultArr.join(", ") : null;
 
-    const parseDate = (d?: string) => (d ? new Date(d) : null);
+    const parseDate = (d?: string) => {
+      if (!d) return null;
+      if (d.includes('T')) {
+        return new Date(`${d}:00+07:00`);
+      }
+      return new Date(`${d}T00:00:00+07:00`);
+    };
 
     const callbackTime = parseDate(callbackAtRaw);
     if (callbackTime) {

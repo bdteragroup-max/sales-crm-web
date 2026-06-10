@@ -427,7 +427,7 @@ export default function TelesalesClientPage({
                                   window.location.href = `tel:${primaryContact.mobilePhone}`;
                                   // 2. Redirect to log page after 1200ms
                                   setTimeout(() => {
-                                    window.location.href = `/telesales/log?contactId=${primaryContact.id}&companyId=${record.companyId}&returnTo=/telesales?tab=callbacks`;
+                                    window.location.href = `/telesales/log?contactId=${primaryContact.id}&companyId=${record.companyId}&telesaleId=${record.id}&returnTo=/telesales?tab=callbacks`;
                                   }, 1200);
                                 } else {
                                   // Redirect to logger anyway or clients to set contact info

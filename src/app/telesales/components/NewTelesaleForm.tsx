@@ -31,14 +31,15 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
   const formatDateForInput = (date: any) => {
     if (!date) return '';
     const d = new Date(date);
-    return d.toISOString().split('T')[0];
+    return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
   };
 
   const formatDateTimeForInput = (date: any) => {
     if (!date) return '';
     const d = new Date(date);
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const dateStr = d.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+    const timeStr = d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit' });
+    return `${dateStr}T${timeStr}`;
   };
 
   useEffect(() => {

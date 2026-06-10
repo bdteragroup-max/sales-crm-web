@@ -80,6 +80,7 @@ export async function checkDuplicatePhoneNumber(phone: string, excludeContactId:
 export async function saveTelesaleLog(data: {
   contactId: string;
   companyId: string;
+  telesaleId?: string;
   callStatus: string;
   callOutcome: string;
   conversationSummary?: string;
@@ -94,7 +95,13 @@ export async function saveTelesaleLog(data: {
   }
 
   try {
-    const parseDate = (d?: string) => (d ? new Date(d) : null);
+    const parseDate = (d?: string) => {
+      if (!d) return null;
+      if (d.includes('T')) {
+        return new Date(`${d}:00+07:00`);
+      }
+      return new Date(`${d}T00:00:00+07:00`);
+    };
 
     // 1. Create a Telesale log entry
     let outcomeSummary = data.callOutcome;
@@ -102,7 +109,7 @@ export async function saveTelesaleLog(data: {
       outcomeSummary = data.callStatus;
     }
 
-    await prisma.$transaction([
+    const operations: any[] = [
       prisma.telesale.create({
         data: {
           companyId: data.companyId,
@@ -120,7 +127,22 @@ export async function saveTelesaleLog(data: {
         where: { id: data.companyId },
         data: { updatedAt: new Date() }
       })
-    ]);
+    ];
+
+    // If resolving an existing callback, mark it as resolved
+    if (data.telesaleId) {
+      operations.push(
+        prisma.telesale.update({
+          where: { id: data.telesaleId },
+          data: { 
+            callbackAt: null, 
+            result: `โทรกลับแล้ว - ${outcomeSummary}`
+          }
+        })
+      );
+    }
+
+    await prisma.$transaction(operations);
 
     // 2. Update the Contact row if name or phone changed in the form
     await prisma.contact.update({

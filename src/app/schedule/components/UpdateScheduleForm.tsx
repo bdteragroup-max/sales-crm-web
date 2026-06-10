@@ -17,9 +17,10 @@ export default function UpdateScheduleForm({ schedule, onClose, onSuccess, onDel
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // Extract date and time
-  const initialDate = new Date(schedule.date).toISOString().split('T')[0]
-  const initialTime = new Date(schedule.date).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  // Extract date and time in Bangkok time
+  const dateObj = new Date(schedule.date)
+  const initialDate = dateObj.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' })
+  const initialTime = dateObj.toLocaleTimeString('en-GB', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit' })
   
   const [selectedHour, setSelectedHour] = useState(initialTime.split(':')[0] || '09');
   const [selectedMinute, setSelectedMinute] = useState(initialTime.split(':')[1] || '00');
