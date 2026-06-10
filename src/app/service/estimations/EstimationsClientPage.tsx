@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Calculator, CheckCircle2, Clock, FileText, Search, User, X, Printer, Building2, Users } from 'lucide-react';
+import { Calculator, CheckCircle2, Clock, FileText, Search, User, X, Printer, Building2, Users, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { submitEstimation, assignEstimation } from '@/app/actions/estimations';
 
@@ -13,8 +13,14 @@ interface EstimationsClientPageProps {
 }
 
 export default function EstimationsClientPage({ currentUser, initialRecords, serviceTeamMembers, isManager }: EstimationsClientPageProps) {
-  const [activeTab, setActiveTab] = useState<'PENDING' | 'ESTIMATED' | 'COMPANY' | 'TECHNICIAN'>('PENDING');
+  const [activeTab, setActiveTab] = useState<'PENDING' | 'ESTIMATED' | 'COMPANY' | 'TECHNICIAN' | 'MONTHLY'>('PENDING');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // MGR Filters
+  const [filterDate, setFilterDate] = useState('');
+  const [filterMonth, setFilterMonth] = useState('');
+  const [filterTechnician, setFilterTechnician] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReq, setSelectedReq] = useState<any>(null);
@@ -30,15 +36,45 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
   const [isAssigning, setIsAssigning] = useState(false);
 
   const filteredRecords = initialRecords.filter(item => {
-    const statusMatch = activeTab === 'PENDING' 
-      ? item.estimationStatus === 'PENDING' 
-      : item.estimationStatus === 'ESTIMATED';
+    let statusMatch = true;
+    if (activeTab === 'PENDING') statusMatch = item.estimationStatus === 'PENDING';
+    if (activeTab === 'ESTIMATED') statusMatch = item.estimationStatus === 'ESTIMATED';
+    
+    if (activeTab === 'MONTHLY' || activeTab === 'COMPANY' || activeTab === 'TECHNICIAN') {
+      if (filterStatus) {
+        statusMatch = item.estimationStatus === filterStatus;
+      } else {
+        statusMatch = true;
+      }
+    }
       
     const searchMatch = 
       item.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.salesperson?.toLowerCase().includes(searchTerm.toLowerCase());
       
-    return statusMatch && searchMatch;
+    let dateMatch = true;
+    const itemDate = new Date(item.createdAt || item.date);
+    if (filterDate) {
+      const fd = new Date(filterDate);
+      if (itemDate.getFullYear() !== fd.getFullYear() || itemDate.getMonth() !== fd.getMonth() || itemDate.getDate() !== fd.getDate()) {
+        dateMatch = false;
+      }
+    }
+    if (filterMonth) {
+      const [y, m] = filterMonth.split('-');
+      if (itemDate.getFullYear() !== parseInt(y) || itemDate.getMonth() !== parseInt(m) - 1) {
+        dateMatch = false;
+      }
+    }
+
+    let techMatch = true;
+    if (filterTechnician) {
+      if (item.assignedToUserId !== filterTechnician && item.assignedTo !== filterTechnician) {
+        techMatch = false;
+      }
+    }
+      
+    return statusMatch && searchMatch && dateMatch && techMatch;
   });
 
   const companyMap = initialRecords.reduce((acc, record) => {
@@ -153,6 +189,7 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
           {[
             { id: 'PENDING' as const, label: 'รอประเมิน', icon: <Clock size={14} /> },
             { id: 'ESTIMATED' as const, label: 'ประเมินแล้ว', icon: <CheckCircle2 size={14} /> },
+            { id: 'MONTHLY' as const, label: 'รายเดือน', icon: <CalendarDays size={14} /> },
             { id: 'COMPANY' as const, label: 'แยกตามลูกค้า/บริษัท', icon: <Building2 size={14} /> },
             { id: 'TECHNICIAN' as const, label: 'รายงานตามช่าง', icon: <Users size={14} /> },
           ].map(tab => (
@@ -173,22 +210,67 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
 
       {/* ── Content ── */}
       <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50/30 p-8 space-y-6">
-        {/* Search */}
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-          <div className="relative w-full max-w-sm">
+        {/* Search & Manager Filters */}
+        <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between w-full animate-in fade-in zoom-in-95">
+          {/* Search */}
+          <div className="relative w-full max-w-sm shrink-0">
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="ค้นหาบริษัท, พนักงานขาย..."
-              className="w-full pl-9 pr-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] placeholder-gray-300 transition-all"
+              className="w-full pl-9 pr-4 py-2 text-sm font-medium border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-[#ff2301] placeholder-gray-400 transition-all"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
+
+          {/* Manager Advanced Filters */}
+          {isManager && (
+            <div className="flex flex-wrap gap-4 items-center flex-1 xl:justify-end w-full xl:w-auto">
+              <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-gray-500 uppercase">ตัวกรอง (MGR):</span>
+            </div>
+            
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold text-gray-400">ระบุวันที่</label>
+              <input type="date" value={filterDate} onChange={(e) => { setFilterDate(e.target.value); setFilterMonth(''); }} className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-red-500" />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold text-gray-400">เดือน</label>
+              <input type="month" value={filterMonth} onChange={(e) => { setFilterMonth(e.target.value); setFilterDate(''); }} className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-red-500" />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold text-gray-400">ช่าง/วิศวกร</label>
+              <select value={filterTechnician} onChange={(e) => setFilterTechnician(e.target.value)} className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-red-500 min-w-[150px]">
+                <option value="">ทั้งหมด</option>
+                {serviceTeamMembers?.map(member => (
+                  <option key={member.id} value={member.fullName}>{member.fullName}</option>
+                ))}
+              </select>
+            </div>
+
+            {activeTab === 'MONTHLY' && (
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-gray-400">สถานะ</label>
+                <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-red-500">
+                  <option value="">ทั้งหมด</option>
+                  <option value="PENDING">รอประเมิน</option>
+                  <option value="ESTIMATED">ประเมินแล้ว</option>
+                </select>
+              </div>
+            )}
+            
+            {(filterDate || filterMonth || filterTechnician || filterStatus) && (
+              <button onClick={() => { setFilterDate(''); setFilterMonth(''); setFilterTechnician(''); setFilterStatus(''); }} className="mt-4 text-xs font-bold text-red-500 hover:text-red-700 underline">ล้างตัวกรอง</button>
+            )}
+          </div>
+        )}
         </div>
 
         {/* Cards Grid */}
-        {(activeTab === 'PENDING' || activeTab === 'ESTIMATED') && (
+        {(activeTab === 'PENDING' || activeTab === 'ESTIMATED' || activeTab === 'MONTHLY') && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredRecords.length > 0 ? (
             filteredRecords.map((record: any) => {

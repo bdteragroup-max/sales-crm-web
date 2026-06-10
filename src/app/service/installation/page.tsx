@@ -15,9 +15,10 @@ export default async function ServiceInstallationPage() {
   // Fetch all jobs that involve installation (e.g., jobType contains "ติดตั้ง")
   const installationJobs = await prisma.job.findMany({
     where: {
-      jobType: {
-        contains: 'ติดตั้ง'
-      }
+      OR: [
+        { jobType: { contains: 'ติดตั้ง' } },
+        { jobType: { contains: 'ตรวจเช็ค' } }
+      ]
     },
     orderBy: { createdAt: 'desc' }
   })
