@@ -1255,9 +1255,9 @@ function POTransitionModal({ quotation, isClosedStatus = false, onConfirm, onCan
                 onChange={(e) => setCompanyCode(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm font-black text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
               >
-                <option value="TP">TP (Teragroup)</option>
-                <option value="TG">TG (Tera Global)</option>
-                <option value="TE">TE (Tera Enterprise)</option>
+                <option value="TP">TP (Tera Power)</option>
+                <option value="TG">TG (Tera Group)</option>
+                <option value="TE">TE (Tera Electronics)</option>
               </select>
             </div>
             <div>

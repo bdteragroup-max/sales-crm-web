@@ -44,6 +44,7 @@ export const getUser = cache(async () => {
         role: true,
         employeeId: true,
         isActive: true,
+        employeeSale: true,
       },
     })
   } catch (error) {

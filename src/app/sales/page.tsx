@@ -22,11 +22,24 @@ export default async function SalesPage({ searchParams }: PageProps) {
   const user = await getUser();
   if (!user) redirect('/login');
 
-  const isMarketingManager = (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager' || isMarketingManager;
+  const roleStr = (user.role || '').toLowerCase();
+  const isMarketingManager = roleStr.includes('marketing manager') || roleStr.includes('ผู้จัดการฝ่ายการตลาด') || roleStr.includes('ผู้จัดการการตลาด') || roleStr.includes('ผู้การจัดการตลาด');
+  const isSalesManager = user.role === 'ผู้จัดการ' || roleStr.includes('sales manager') || isMarketingManager;
+  const isServiceManager = roleStr.includes('service engineer mgr');
+  const isManager = isSalesManager || isServiceManager;
+
+  const deptTeraEmployee = await teraDb.employees.findUnique({
+    where: { emp_id: user.employeeId },
+    include: { departments: true }
+  });
+  
+  const resolvedDept = user.employeeSale?.department || deptTeraEmployee?.departments?.name || "sales";
+  const isSalesDept = resolvedDept.toLowerCase().includes('sale') || resolvedDept.toLowerCase().includes('ขาย') || resolvedDept.includes('เซลส์') || resolvedDept.includes('เซลล์');
+  const isSalesRole = roleStr.includes('sale') || roleStr.includes('ขาย') || roleStr.includes('เซลส์') || roleStr.includes('เซลล์');
+  const isSales = isSalesDept || isSalesRole;
 
   let teamMembers: { id: string; fullName: string }[] = [];
-  if (isManager) {
+  if (isSalesManager) {
     const subordinates = await teraDb.employees.findMany({
       where: { supervisor_id: user.employeeId, is_active: true },
       select: { emp_id: true }
@@ -63,10 +76,13 @@ export default async function SalesPage({ searchParams }: PageProps) {
     teamMembers = [{ id: user.id, fullName: user.fullName }];
   }
 
-  // Managers see their team's records + unassigned; Reps see their own + any unassigned
-  const whereClause = isManager
-    ? { OR: [{ salespersonId: { in: teamMembers.map(t => t.id) } }, { salespersonId: null }] }
-    : { OR: [{ salespersonId: user.id }, { salespersonId: null }] };
+  // Managers see their team's records + unassigned; Reps see their own + any unassigned; Non-sales see everything
+  let whereClause: any = {};
+  if (isSalesManager) {
+    whereClause = { OR: [{ salespersonId: { in: teamMembers.map(t => t.id) } }, { salespersonId: null }] };
+  } else if (isSales && !isServiceManager) {
+    whereClause = { OR: [{ salespersonId: user.id }, { salespersonId: null }] };
+  }
 
   // ── Handle editId: load a specific quotation for editing (from pipeline click) ──
   let editingData: any = null;
