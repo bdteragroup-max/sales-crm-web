@@ -121,7 +121,10 @@ export async function createCompany(formData: any) {
     return { success: true, data: result }
   } catch (error: any) {
     console.error('Create company error:', error)
-    return { success: false, message: 'ไม่สามารถสร้างข้อมูลบริษัทได้' }
+    const msg = error.message && error.message.includes('ถูกใช้งานโดย') 
+      ? error.message 
+      : 'ไม่สามารถสร้างข้อมูลบริษัทได้';
+    return { success: false, message: msg }
   }
 }
 
