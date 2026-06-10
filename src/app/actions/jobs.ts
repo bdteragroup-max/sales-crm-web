@@ -56,12 +56,36 @@ export async function createJobFromQuotation(input: CreateJobInput) {
 
   if (!quotation) throw new Error(`Quotation ${quotationId} not found`);
 
-  // Verify no job exists yet for this quotation to prevent duplicates 
-  // if called multiple times
+  // Verify if a job already exists. If so, update it to keep data in sync with Quotation.
   const existingJob = await prisma.job.findFirst({
     where: { quotationId: quotation.id }
   });
-  if (existingJob) return existingJob;
+  if (existingJob) {
+    const updatedJob = await prisma.job.update({
+      where: { id: existingJob.id },
+      data: {
+        customerName: quotation.company?.companyName ?? existingJob.customerName,
+        item: input.workName || quotation.subject || quotation.productType || existingJob.item,
+        quotationNumber: quotation.quotationNumber ?? existingJob.quotationNumber,
+        poNumber: poNumber ?? existingJob.poNumber,
+        sellerName: quotation.salesperson?.fullName ?? existingJob.sellerName,
+        companyCode: inputCompanyCode ?? existingJob.companyCode,
+        jobType: jobType ?? existingJob.jobType,
+        paymentMethod: input.paymentMethod ?? existingJob.paymentMethod,
+        salesOrderDate: input.salesOrderDate ?? existingJob.salesOrderDate,
+        creditTerms: input.creditTerms ?? existingJob.creditTerms,
+        creditDocsUrl: input.creditDocsUrl ?? existingJob.creditDocsUrl,
+        billingRegulations: input.billingRegulations ?? existingJob.billingRegulations,
+        billingDocsUrl: input.billingDocsUrl ?? existingJob.billingDocsUrl,
+        percentageTerms: input.percentageTerms ?? existingJob.percentageTerms,
+        deliveryDate: input.deliveryDate ?? existingJob.deliveryDate,
+        paymentDate: input.paymentDate ?? existingJob.paymentDate,
+        paymentStatus: input.paymentMethod === 'จ่ายแล้ว' ? 'paid' : existingJob.paymentStatus,
+      }
+    });
+    revalidatePath("/jobs"); 
+    return updatedJob;
+  }
 
   // 2. Extract company code from QT number or use provided company code
   const companyCode = inputCompanyCode || extractCompanyCode(quotation.quotationNumber ?? "");

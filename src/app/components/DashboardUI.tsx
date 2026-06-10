@@ -981,6 +981,7 @@ export default function DashboardUI({
                         <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest whitespace-nowrap rounded-tl-xl">รายละเอียดสินค้า (Product Details)</th>
                         <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">รอรับ PO (Pending PO)</th>
                         <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">ปิดยอดเดือนนี้ (Sales Closed)</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">เป้าหมาย (Target)</th>
                         <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap rounded-tr-xl">สัดส่วนเทียบเป้าหมาย (Target Comparison)</th>
                       </tr>
                     </thead>
@@ -1002,6 +1003,11 @@ export default function DashboardUI({
                           <td className="py-4 px-4 text-right">
                             <span className="text-xs font-bold text-emerald-600">
                               ฿{row.closedAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <span className="text-xs font-bold text-gray-600">
+                              ฿{(row.targetAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                           </td>
                           <td className="py-4 px-4 text-right">

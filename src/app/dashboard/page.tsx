@@ -1475,6 +1475,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
                 category: groupName,
                 pendingPoAmount,
                 closedAmount,
+                targetAmount: productTarget,
                 targetComparisonPct
               };
             });

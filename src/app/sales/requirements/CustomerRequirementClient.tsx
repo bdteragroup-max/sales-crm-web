@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FileText, Plus, Search, CheckCircle2, FileSpreadsheet, ClipboardList, Printer, Edit2, Trash2, User, Phone, Send, Calculator, Clock } from 'lucide-react';
+import { FileText, Plus, Search, CheckCircle2, FileSpreadsheet, ClipboardList, Printer, Edit2, Trash2, User, Phone, Send, Calculator, Clock, Copy, Check } from 'lucide-react';
 import CustomerRequirementForm from './CustomerRequirementForm';
 import Link from 'next/link';
 import { deleteCustomerRequirementHistory } from '@/app/actions/requirements';
@@ -19,6 +19,7 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
   const [editingData, setEditingData] = useState<any>(undefined);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isSendingEstimation, setIsSendingEstimation] = useState<string | null>(null);
+  const [copiedNoteId, setCopiedNoteId] = useState<string | null>(null);
 
   const handleSendToService = async (id: string) => {
     setIsSendingEstimation(id);
@@ -255,9 +256,23 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
                                 <Calculator size={10} /> ราคาประเมิน: ฿{record.estimatedPrice?.toLocaleString()}
                               </span>
                               {record.estimationNote && (
-                                <span className="text-[9px] text-emerald-500 max-w-[150px] truncate" title={record.estimationNote}>
-                                  หมายเหตุ: {record.estimationNote}
-                                </span>
+                                <div className="flex items-center gap-1 mt-0.5 max-w-[160px]">
+                                  <span className="text-[9px] text-emerald-500 truncate" title={record.estimationNote}>
+                                    หมายเหตุ: {record.estimationNote}
+                                  </span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigator.clipboard.writeText(record.estimationNote);
+                                      setCopiedNoteId(record.id);
+                                      setTimeout(() => setCopiedNoteId(null), 2000);
+                                    }}
+                                    className="p-1 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-100 rounded transition-colors shrink-0"
+                                    title="คัดลอกหมายเหตุ"
+                                  >
+                                    {copiedNoteId === record.id ? <Check size={10} /> : <Copy size={10} />}
+                                  </button>
+                                </div>
                               )}
                             </div>
                           )}

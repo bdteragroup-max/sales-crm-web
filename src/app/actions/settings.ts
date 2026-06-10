@@ -74,6 +74,7 @@ export async function upsertMonthlyTarget(data: {
 
     revalidatePath('/')
     revalidatePath('/settings')
+    revalidatePath('/dashboard')
     return { success: true, data: target }
   } catch (error) {
     console.error('Error saving target:', error)
