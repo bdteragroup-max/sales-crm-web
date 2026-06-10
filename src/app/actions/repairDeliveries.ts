@@ -39,28 +39,58 @@ export async function createRepairDelivery(jobId?: string, autoData?: any) {
     }
 
     const beYear = getBkkBeYear();
-    const lastRecord = await prisma.repairDelivery.findFirst({
+    
+    // Fetch all records for the current year to find the true maximum number
+    const allRecords = await prisma.repairDelivery.findMany({
       where: { deliveryNumber: { startsWith: `DN${beYear}-` } },
-      orderBy: { deliveryNumber: 'desc' },
+      select: { deliveryNumber: true },
     });
     
-    let nextNumber = 1;
-    if (lastRecord && lastRecord.deliveryNumber) {
-      const parts = lastRecord.deliveryNumber.split('-');
-      if (parts.length === 2) {
-        nextNumber = parseInt(parts[1], 10) + 1;
+    let maxNumber = 0;
+    for (const record of allRecords) {
+      if (record.deliveryNumber) {
+        const parts = record.deliveryNumber.split('-');
+        if (parts.length >= 2) {
+          // Parse the last part as integer
+          const numStr = parts[parts.length - 1];
+          const num = parseInt(numStr, 10);
+          if (!isNaN(num) && num > maxNumber) {
+            maxNumber = num;
+          }
+        }
       }
     }
-    const deliveryNumber = `DN${beYear}-${String(nextNumber).padStart(4, "0")}`;
+    
+    let nextNumber = maxNumber + 1;
+    let newDelivery = null;
+    let attempts = 0;
+    let deliveryNumber = "";
 
-    const newDelivery = await prisma.repairDelivery.create({
-      data: {
-        deliveryNumber,
-        deliveryDate: new Date(),
-        status: "Draft",
-        ...prefill,
-      } as any,
-    });
+    while (!newDelivery && attempts < 10) {
+      deliveryNumber = `DN${beYear}-${String(nextNumber).padStart(4, "0")}`;
+      try {
+        newDelivery = await prisma.repairDelivery.create({
+          data: {
+            deliveryNumber,
+            deliveryDate: new Date(),
+            status: "Draft",
+            ...prefill,
+          } as any,
+        });
+      } catch (error: any) {
+        if (error.code === 'P2002') {
+          // Unique constraint failed, try the next number
+          nextNumber++;
+          attempts++;
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    if (!newDelivery) {
+      throw new Error("Failed to generate a unique delivery number after multiple attempts.");
+    }
 
     return { success: true, repairDeliveryId: newDelivery.id };
   } catch (error: any) {

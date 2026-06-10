@@ -65,7 +65,7 @@ function CompanyBadge({ code }: { code: string }) {
     TE: "bg-amber-50 text-amber-800 border-amber-200", 
   }; 
   return ( 
-    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border ${styles[code] ?? "bg-gray-100 text-gray-700"}`}>
+    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${styles[code] ?? "bg-gray-100 text-gray-700"}`}>
       {code}
     </span>
   );
@@ -85,7 +85,7 @@ function JobTypeBadge({ type }: { type: string }) {
     "งานตู้": "bg-purple-50 text-purple-800 border-purple-200",
   };
   return (
-    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border ${colorMap[type] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}> 
+    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${colorMap[type] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}> 
       {type} 
     </span> 
   );
@@ -173,7 +173,7 @@ function ExpandedRow({
 
   return ( 
     <tr className="animate-in slide-in-from-top-1 fade-in duration-200">
-      <td colSpan={10} className="p-0 border-b border-gray-100">
+      <td colSpan={12} className="p-0 border-b border-gray-100">
         <div className="bg-gray-50/50 p-5 w-full shadow-inner"> 
           <div className="mb-5 pb-5 border-b border-gray-100">
             <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">สถานะการดำเนินงาน (Timeline)</p>
@@ -257,25 +257,32 @@ function ExpandedRow({
 
           <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm mb-4">
             <p className="text-[10px] font-bold text-gray-400 mb-4 uppercase tracking-widest">ข้อมูลงานเบื้องต้น</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4"> 
-              <EditableField label="ประเภทงาน" value={job.jobType} type="select" options={JOB_TYPES as unknown as string[]} onSave={save("jobType")} /> 
-              <div>
-                <p className="text-xs text-gray-400 mb-0.5">หมายเลข PO</p>
-                <p className="text-sm text-gray-800">{job.poNumber || <span className="text-gray-400 italic">—</span>}</p>
-              </div>
-              <EditableField label="วันที่ปิดการขาย" value={new Date(job.dateClosed).toISOString().slice(0, 10)} type="date" onSave={save("dateClosed")} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5"> 
+              {/* Row 1 */}
               <EditableField label="ชื่อลูกค้า" value={job.customerName} onSave={save("customerName")} />
-              <EditableField label="รายการสินค้า" value={job.item ?? ""} onSave={save("item")} />
+              <EditableField label="บริษัท" value={job.companyCode} type="select" options={COMPANY_CODES} onSave={save("companyCode")} />
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">พนักงานขาย</p>
+                <p className="text-sm text-gray-800">{job.sellerName || <span className="text-gray-400 italic">—</span>}</p>
+              </div>
+              <EditableField label="ประเภทงาน" value={job.jobType} type="select" options={JOB_TYPES as unknown as string[]} onSave={save("jobType")} /> 
+
+              {/* Row 2 */}
               <div>
                 <p className="text-xs text-gray-400 mb-0.5">ใบเสนอราคา</p>
                 <p className="text-sm text-gray-800">{job.quotationNumber || <span className="text-gray-400 italic">—</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-400 mb-0.5">พนักงานขาย</p>
-                <p className="text-sm text-gray-800">{job.sellerName || <span className="text-gray-400 italic">—</span>}</p>
+                <p className="text-xs text-gray-400 mb-0.5">หมายเลข PO</p>
+                <p className="text-sm text-gray-800">{job.poNumber || <span className="text-gray-400 italic">—</span>}</p>
               </div>
-              <EditableField label="บริษัท" value={job.companyCode} type="select" options={COMPANY_CODES} onSave={save("companyCode")} />
+              <EditableField label="วันที่ปิดการขาย" value={new Date(job.dateClosed).toISOString().slice(0, 10)} type="date" onSave={save("dateClosed")} />
               <EditableField label="วันที่ต้องการจัดส่ง" value={job.deliveryDate ? new Date(job.deliveryDate).toISOString().slice(0, 10) : ""} type="date" onSave={save("deliveryDate")} />
+
+              {/* Row 3 */}
+              <div className="sm:col-span-2">
+                <EditableField label="รายการสินค้า" value={job.item ?? ""} onSave={save("item")} />
+              </div>
               <EditableField label="รูปแบบการชำระเงิน" value={job.paymentMethod ?? ""} onSave={save("paymentMethod")} />
               <EditableField label="วันที่ชำระเงิน" value={job.paymentDate ? new Date(job.paymentDate).toISOString().slice(0, 10) : ""} type="date" onSave={save("paymentDate")} />
             </div>
@@ -737,10 +744,10 @@ export default function JobsClientPage({
                         </span>
                       )}
                     </td>
-                    <td className="px-5 py-4"> 
+                    <td className="px-5 py-4 whitespace-nowrap"> 
                       <CompanyBadge code={job.companyCode} /> 
                     </td> 
-                    <td className="px-5 py-4"> 
+                    <td className="px-5 py-4 whitespace-nowrap"> 
                       <JobTypeBadge type={job.jobType} /> 
                     </td> 
                     <td className="px-5 py-4"> 
@@ -793,7 +800,7 @@ export default function JobsClientPage({
                       {job.poNumber ?? <span className="text-gray-300">—</span>}
                     </td>
                     <td className="px-5 py-4">
-                      <p className="text-[11px] font-bold text-gray-600">
+                      <p className="text-[11px] font-bold text-gray-600 whitespace-nowrap">
                         {job.sellerName ?? "—"}
                       </p>
                     </td>
