@@ -121,7 +121,7 @@ function EditableField({
               onBlur={commit} 
               className="text-sm border rounded px-2 py-1 bg-white" 
             > 
-              {options?.map((o) => <option key={o}>{o}</option>)} 
+              {options?.map((o) => <option key={o} value={o}>{o}</option>)} 
             </select> 
           ) : ( 
             <input 
@@ -569,7 +569,7 @@ export default function JobsClientPage({
           className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
         > 
           <option value="">ทุกบริษัท</option> 
-          {COMPANY_CODES.map((c) => <option key={c}>{c}</option>)} 
+          {COMPANY_CODES.map((c) => <option key={c} value={c}>{c}</option>)} 
         </select> 
         <select 
           value={filterType} 
@@ -577,7 +577,7 @@ export default function JobsClientPage({
           className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
         > 
           <option value="">งานทุกประเภท</option> 
-          {JOB_TYPES.map((t) => <option key={t}>{t}</option>)} 
+          {JOB_TYPES.map((t) => <option key={t} value={t}>{t}</option>)} 
         </select> 
         <select 
           value={filterMonth} 

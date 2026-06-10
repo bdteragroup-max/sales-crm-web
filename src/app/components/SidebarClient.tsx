@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
+import { getPendingInstallationCount } from '@/app/actions/installationOrders';
 
 type SidebarProps = {
   activeRoute?: string;
@@ -92,6 +93,7 @@ function ResponsiveSidebar({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isService, setIsService] = useState(false);
   const [unpaidCount, setUnpaidCount] = useState(0);
+  const [pendingInstallationCount, setPendingInstallationCount] = useState(0);
   
   const [tooltip, setTooltip] = useState<{ label: string; y: number } | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -115,6 +117,11 @@ function ResponsiveSidebar({
     const isAccounting = ['accounting', 'บัญชี', 'finance', 'การเงิน', 'ผู้จัดการ'].some(r => roleStr.includes(r));
     if (isAccounting) {
       getPendingPaymentTaskCount().then(setUnpaidCount).catch(() => {});
+    }
+
+    const isServiceUser = roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง') || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด';
+    if (isServiceUser) {
+      getPendingInstallationCount().then(setPendingInstallationCount).catch(() => {});
     }
   }, [router, nav, userRole]);
 
@@ -195,6 +202,11 @@ function ResponsiveSidebar({
                   {href === '/accounting' && unpaidCount > 0 && (
                     <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
                       {unpaidCount > 99 ? '99+' : unpaidCount}
+                    </span>
+                  )}
+                  {href === '/service/installation' && pendingInstallationCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
+                      {pendingInstallationCount > 99 ? '99+' : pendingInstallationCount}
                     </span>
                   )}
                 </Link>
@@ -358,6 +370,11 @@ function ResponsiveSidebar({
                     {href === '/accounting' && unpaidCount > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
                         {unpaidCount > 99 ? '99+' : unpaidCount}
+                      </span>
+                    )}
+                    {href === '/service/installation' && pendingInstallationCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingInstallationCount > 99 ? '99+' : pendingInstallationCount}
                       </span>
                     )}
                   </div>

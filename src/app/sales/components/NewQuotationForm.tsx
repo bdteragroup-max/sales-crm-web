@@ -495,17 +495,17 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                   className="flex-1 border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none bg-white transition-all"
                 >
                   <option value="">- เลือกสถานะ -</option>
-                  <option>เปิดบิลแล้ว</option>
-                  <option>รอจัดทำ PO</option>
-                  <option>PO แล้วรอสินค้า</option>
-                  <option>PO แล้วรอมัดจำ</option>
-                  <option>PO แล้วรอเงินโอน</option>
-                  <option>เสนอราคา</option>
-                  <option>ปฏิเสธ-ได้ที่อื่นแล้ว</option>
-                  <option>ปฏิเสธ-ยกเลิกสินค้า</option>
-                  <option>ปฏิเสธ-อื่นๆ</option>
-                  <option>รอใบประเมินราคา</option>
-                  <option>ยกเลิก-Revise</option>
+                  <option value="เปิดบิลแล้ว">เปิดบิลแล้ว</option>
+                  <option value="รอจัดทำ PO">รอจัดทำ PO</option>
+                  <option value="PO แล้วรอสินค้า">PO แล้วรอสินค้า</option>
+                  <option value="PO แล้วรอมัดจำ">PO แล้วรอมัดจำ</option>
+                  <option value="PO แล้วรอเงินโอน">PO แล้วรอเงินโอน</option>
+                  <option value="เสนอราคา">เสนอราคา</option>
+                  <option value="ปฏิเสธ-ได้ที่อื่นแล้ว">ปฏิเสธ-ได้ที่อื่นแล้ว</option>
+                  <option value="ปฏิเสธ-ยกเลิกสินค้า">ปฏิเสธ-ยกเลิกสินค้า</option>
+                  <option value="ปฏิเสธ-อื่นๆ">ปฏิเสธ-อื่นๆ</option>
+                  <option value="รอใบประเมินราคา">รอใบประเมินราคา</option>
+                  <option value="ยกเลิก-Revise">ยกเลิก-Revise</option>
                 </select>
               </div>
               {isLostStatus && (

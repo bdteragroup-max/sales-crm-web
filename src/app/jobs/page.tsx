@@ -28,7 +28,10 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
     redirect('/')
   }
 
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase().includes('service engineer mgr'); 
+  const roleStr = (user.role || '').toLowerCase();
+  const isSalesManager = user.role === 'ผู้จัดการ' || roleStr.includes('sales manager') || roleStr.includes('marketing manager') || roleStr.includes('ผู้จัดการฝ่ายการตลาด') || roleStr.includes('ผู้จัดการการตลาด');
+  const isServiceManager = roleStr.includes('service engineer mgr');
+  const isManager = isSalesManager || isServiceManager; 
   
   const teraEmployee = await teraDb.employees.findUnique({
     where: { emp_id: user.employeeId },
@@ -37,12 +40,12 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
   
   const resolvedDept = user.employeeSale?.department || teraEmployee?.departments?.name || "sales";
   const isSalesDept = resolvedDept.toLowerCase().includes('sale') || resolvedDept.toLowerCase().includes('ขาย') || resolvedDept.includes('เซลส์') || resolvedDept.includes('เซลล์');
-  const isSalesRole = user.role.toLowerCase().includes('sale') || user.role.toLowerCase().includes('ขาย') || user.role.includes('เซลส์') || user.role.includes('เซลล์');
+  const isSalesRole = roleStr.includes('sale') || roleStr.includes('ขาย') || roleStr.includes('เซลส์') || roleStr.includes('เซลล์');
   const isSales = isSalesDept || isSalesRole;
 
   let whereClause: any = {}; // Default to all jobs for non-sales (like Store, Accounting)
   
-  if (isManager) {
+  if (isSalesManager) {
     const subordinates = await teraDb.employees.findMany({
       where: { supervisor_id: user.employeeId, is_active: true },
       select: { emp_id: true }
@@ -62,7 +65,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
         { sellerName: "" }
       ]
     };
-  } else if (isSales) {
+  } else if (isSales && !isServiceManager) {
     whereClause = { OR: [{ sellerName: user.fullName ?? "" }, { sellerName: null }, { sellerName: "" }] };
   }
 

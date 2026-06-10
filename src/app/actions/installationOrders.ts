@@ -180,3 +180,29 @@ export async function updateInstallationPlan(orderId: string, data: any) {
     return { success: false, error: error.message };
   }
 }
+
+export async function getPendingInstallationCount() {
+  try {
+    const existingOrders = await prisma.installationOrder.findMany({
+      select: { jobId: true }
+    });
+    
+    const existingJobIds = existingOrders.map(o => o.jobId).filter(Boolean) as string[];
+
+    const pendingJobsCount = await prisma.job.count({
+      where: {
+        jobType: {
+          contains: 'ติดตั้ง'
+        },
+        id: {
+          notIn: existingJobIds
+        }
+      }
+    });
+
+    return pendingJobsCount;
+  } catch (error) {
+    console.error("Failed to get pending installation count:", error);
+    return 0;
+  }
+}

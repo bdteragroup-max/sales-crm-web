@@ -6,6 +6,7 @@ import { FileSignature, Save, ArrowLeft, Loader2, Building2, Users, ClipboardLis
 import Link from "next/link"
 import { createInstallationOrder, updateInstallationOrder } from "@/app/actions/installationOrders"
 import SearchableSelect from "@/app/components/SearchableSelect"
+import SearchableMultiSelect from "@/app/components/SearchableMultiSelect"
 
 export default function ManageInstallationForm({ initialData, isEdit, currentUser, technicians = [] }: { initialData: any, isEdit: boolean, currentUser: any, technicians?: { fullName: string, phoneNumber: string | null }[] }) {
   const router = useRouter()
@@ -159,18 +160,19 @@ export default function ManageInstallationForm({ initialData, isEdit, currentUse
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-1.5">ช่าง/วิศวกร (Technician / Engineer)</label>
-              <SearchableSelect 
-                value={formData.technician}
-                onChange={(val) => {
-                  const selectedTech = technicians.find(t => t.fullName === val)
+              <SearchableMultiSelect 
+                values={formData.technician ? formData.technician.split(",").map(t => t.trim()).filter(Boolean) : []}
+                onChange={(vals) => {
+                  const selectedTechs = vals.map(v => technicians.find(t => t.fullName === v)).filter(Boolean)
+                  const phones = selectedTechs.map(t => t?.phoneNumber).filter(Boolean).join(", ")
                   setFormData(prev => ({
                     ...prev,
-                    technician: val,
-                    technicianPhone: selectedTech?.phoneNumber || prev.technicianPhone
+                    technician: vals.join(", "),
+                    technicianPhone: phones || prev.technicianPhone
                   }))
                 }}
                 options={technicians.map(t => ({ label: t.fullName, value: t.fullName }))}
-                placeholder="-- เลือกช่าง/วิศวกร --"
+                placeholder="-- เลือกช่าง/วิศวกร (เลือกได้หลายคน) --"
               />
             </div>
             <div>
