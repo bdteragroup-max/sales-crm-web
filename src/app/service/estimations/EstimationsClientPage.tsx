@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Calculator, CheckCircle2, Clock, FileText, Search, User, X, Printer } from 'lucide-react';
+import { Calculator, CheckCircle2, Clock, FileText, Search, User, X, Printer, Building2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { submitEstimation, assignEstimation } from '@/app/actions/estimations';
 
@@ -13,7 +13,7 @@ interface EstimationsClientPageProps {
 }
 
 export default function EstimationsClientPage({ currentUser, initialRecords, serviceTeamMembers, isManager }: EstimationsClientPageProps) {
-  const [activeTab, setActiveTab] = useState<'PENDING' | 'ESTIMATED'>('PENDING');
+  const [activeTab, setActiveTab] = useState<'PENDING' | 'ESTIMATED' | 'COMPANY' | 'TECHNICIAN'>('PENDING');
   const [searchTerm, setSearchTerm] = useState('');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,6 +40,32 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
       
     return statusMatch && searchMatch;
   });
+
+  const companyMap = initialRecords.reduce((acc, record) => {
+    const comp = record.companyName || "ไม่ระบุบริษัท"
+    if (!acc[comp]) acc[comp] = []
+    acc[comp].push(record)
+    return acc
+  }, {} as Record<string, any[]>)
+
+  const companyData = Object.keys(companyMap).map(key => ({
+    company: key,
+    count: companyMap[key].length,
+    records: companyMap[key]
+  })).sort((a, b) => b.count - a.count)
+
+  const techMap = initialRecords.reduce((acc, record) => {
+    const tech = record.assignedTo || "ไม่ได้มอบหมาย"
+    if (!acc[tech]) acc[tech] = []
+    acc[tech].push(record)
+    return acc
+  }, {} as Record<string, any[]>)
+
+  const techData = Object.keys(techMap).map(key => ({
+    technician: key,
+    count: techMap[key].length,
+    records: techMap[key]
+  })).sort((a, b) => b.count - a.count)
 
   const handleOpenModal = (req: any) => {
     setSelectedReq(req);
@@ -127,6 +153,8 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
           {[
             { id: 'PENDING' as const, label: 'รอประเมิน', icon: <Clock size={14} /> },
             { id: 'ESTIMATED' as const, label: 'ประเมินแล้ว', icon: <CheckCircle2 size={14} /> },
+            { id: 'COMPANY' as const, label: 'แยกตามลูกค้า/บริษัท', icon: <Building2 size={14} /> },
+            { id: 'TECHNICIAN' as const, label: 'รายงานตามช่าง', icon: <Users size={14} /> },
           ].map(tab => (
             <button
               key={tab.id}
@@ -160,7 +188,8 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
         </div>
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {(activeTab === 'PENDING' || activeTab === 'ESTIMATED') && (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredRecords.length > 0 ? (
             filteredRecords.map((record: any) => {
               const products = [];
@@ -342,7 +371,72 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
               </div>
             </div>
           )}
-        </div>
+          </div>
+        )}
+        {activeTab === 'COMPANY' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {companyData.length === 0 ? (
+              <div className="col-span-full py-8 text-center text-gray-400">ยังไม่มีข้อมูล</div>
+            ) : companyData.map((item, idx) => (
+              <div key={idx} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="font-bold text-gray-800 line-clamp-2">{item.company}</h3>
+                  <span className="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full text-xs font-bold shrink-0">{item.count} งาน</span>
+                </div>
+                <div className="space-y-3">
+                  {item.records.slice(0, 3).map((o: any, i: number) => (
+                    <div key={i} className="text-sm">
+                      <span className="text-red-600 font-medium text-xs block">
+                        {o.requirementNumber || 'ไม่มีหมายเลข'}
+                      </span>
+                      <span className="text-gray-500 text-xs truncate block">เซลล์: {o.salesperson || '-'}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${o.estimationStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'} mt-1 inline-block`}>
+                        {o.estimationStatus === 'PENDING' ? 'รอประเมิน' : 'ประเมินแล้ว'}
+                      </span>
+                    </div>
+                  ))}
+                  {item.count > 3 && <div className="text-xs text-gray-400 pt-2">และอีก {item.count - 3} รายการ...</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'TECHNICIAN' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {techData.length === 0 ? (
+              <div className="col-span-full py-8 text-center text-gray-400">ยังไม่มีข้อมูล</div>
+            ) : techData.map((item, idx) => (
+              <div key={idx} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center shrink-0">
+                    <Users size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800">{item.technician}</h3>
+                    <p className="text-xs text-gray-500">{item.count} งานประเมิน</p>
+                  </div>
+                </div>
+                <div className="space-y-3 pt-3 border-t border-gray-100">
+                  {item.records.slice(0, 3).map((o: any, i: number) => (
+                    <div key={i} className="flex flex-col gap-1 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 truncate mr-2 font-medium">{o.companyName || 'ไม่ระบุบริษัท'}</span>
+                        <span className={`px-2 py-0.5 rounded-full font-bold shrink-0 text-[10px] ${o.estimationStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                          {o.estimationStatus === 'PENDING' ? 'รอประเมิน' : 'เสร็จสิ้น'}
+                        </span>
+                      </div>
+                      <span className="text-gray-400 text-[10px]">
+                        กำหนดส่ง: {o.estimationDueDate ? new Date(o.estimationDueDate).toLocaleDateString('th-TH') : '-'}
+                      </span>
+                    </div>
+                  ))}
+                  {item.count > 3 && <div className="text-xs text-gray-400 pt-2 text-center">ดูเพิ่มเติม...</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Estimation Modal */}

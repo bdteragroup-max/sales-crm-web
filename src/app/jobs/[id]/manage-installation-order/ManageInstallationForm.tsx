@@ -161,7 +161,7 @@ export default function ManageInstallationForm({ initialData, isEdit, currentUse
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-1.5">ช่าง/วิศวกร (Technician / Engineer)</label>
               <SearchableMultiSelect 
-                values={formData.technician ? formData.technician.split(",").map(t => t.trim()).filter(Boolean) : []}
+                values={formData.technician ? formData.technician.split(",").map((t: string) => t.trim()).filter(Boolean) : []}
                 onChange={(vals) => {
                   const selectedTechs = vals.map(v => technicians.find(t => t.fullName === v)).filter(Boolean)
                   const phones = selectedTechs.map(t => t?.phoneNumber).filter(Boolean).join(", ")
