@@ -39,8 +39,9 @@ export default function NewRepairOrderForm({
   const [workType, setWorkType] = useState("ซ่อม");
   const [invoiceNo, setInvoiceNo] = useState("");
   const [receiverId, setReceiverId] = useState(currentUserId);
-  const [forwardedBy, setForwardedBy] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [forwardedBy, setForwardedBy] = useState(initialData?.forwardedBy || "");
+  const [salesPerson, setSalesPerson] = useState(initialData?.salesPerson || "");
+  const [phoneNumber, setPhoneNumber] = useState(initialData?.phoneNumber || "");
   const [deliveryNoteNo, setDeliveryNoteNo] = useState("");
 
   // Customer State
@@ -297,7 +298,7 @@ export default function NewRepairOrderForm({
         deliveryNoteNo,
         customerCompany,
         company: serviceProviderCompany,
-        salesPerson: initialData?.salesPerson,
+        salesPerson: salesPerson,
         customerAddress: `${customerAddress} ${subDistrict} ${district} ${province} ${postalCode}`.trim(),
         items: items.map(i => ({
           type: i.type, brand: i.brand, model: i.model, size: i.size, serial: i.serial, qty: i.qty, remark: i.remark
@@ -406,6 +407,10 @@ export default function NewRepairOrderForm({
                   <option key={u.id} value={u.id}>{u.name} ({u.position})</option>
                 ))}
               </select>
+            </div>
+            <div>
+              <label className={labelClass}>เซลล์ที่รับผิดชอบ (Salesperson)</label>
+              <input type="text" value={salesPerson} onChange={(e) => setSalesPerson(e.target.value)} className={inputClass} />
             </div>
             <div>
               <label className={labelClass}>ส่งต่อโดย (Forwarded By)</label>
