@@ -30,11 +30,12 @@ type Props = {
   paymentTasks?: any[]
   installationOrders?: any[]
   repairOrder?: any
+  project?: any
 }
 
 export default function JobTimeline({
   jobId, jobType, currentStep, flowVariant, stepLogs, userName, userDept, userRole, isManager,
-  jobNumber, customerName, sellerName, paymentTasks, installationOrders, repairOrder
+  jobNumber, customerName, sellerName, paymentTasks, installationOrders, repairOrder, project
 }: Props) {
   const [isPending, startTransition] = useTransition()
   const [showVariantModal, setShowVariantModal] = useState(false)
@@ -212,6 +213,7 @@ export default function JobTimeline({
     const isService = roleLower.includes('service') || roleLower.includes('ซ่อม') || roleLower.includes('บริการ') || deptLower.includes('service') || deptLower.includes('ซ่อม') || deptLower.includes('บริการ')
     const isPurchase = roleLower.includes('purchase') || roleLower.includes('จัดซื้อ') || deptLower.includes('purchase') || deptLower.includes('จัดซื้อ')
     const isProduction = roleLower.includes('production') || roleLower.includes('ผลิต') || deptLower.includes('production') || deptLower.includes('ผลิต')
+    const isProject = roleLower.includes('project') || roleLower.includes('โปรเจค') || deptLower.includes('project') || deptLower.includes('โปรเจค')
     
     const isDeliveryRole = roleLower.includes('delivery') || roleLower.includes('transport') || roleLower.includes('จัดส่ง') || roleLower.includes('ขนส่ง') || roleLower.includes('driver') || roleLower.includes('คนขับ')
     const isStoreRole = roleLower.includes('store') || roleLower.includes('warehouse') || roleLower.includes('สโตร์') || roleLower.includes('คลัง')
@@ -227,6 +229,7 @@ export default function JobTimeline({
     if (isService) depts.push("service")
     if (isPurchase) depts.push("purchase")
     if (isProduction) depts.push("production")
+    if (isProject) depts.push("project")
     
     if (depts.length === 0) depts.push(deptLower)
     return depts
@@ -578,6 +581,30 @@ export default function JobTimeline({
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
                 พิมพ์ใบติดตั้ง (PDF)
               </Link>
+            </>
+          )}
+
+          {/* Project Buttons */}
+          {jobType === "งานโปรเจค" && (normalizedDept.includes("project") || normalizedDept.includes("sales") || isManager) && (
+            <>
+              <div className="w-full h-px bg-gray-100 my-1"></div>
+              {project ? (
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="w-full bg-indigo-600 border border-transparent text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-all shadow-sm flex justify-center items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                  จัดการโปรเจค ({project.projectNumber})
+                </Link>
+              ) : (
+                <Link
+                  href={`/projects/new?jobId=${jobId}`}
+                  className="w-full bg-blue-600 border border-transparent text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm flex justify-center items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  สร้างโปรเจคสำหรับงานนี้
+                </Link>
+              )}
             </>
           )}
         </div>

@@ -30,6 +30,10 @@ model User {
   telesalesKPIs        TelesalesKPI[]
   employeeSale         EmployeeSale?
   customerRequirements CustomerRequirement[]
+  managedProjects      Project[]             @relation("ProjectManager")
+  projectMembers       ProjectMember[]
+  assignedTasks        ProjectTask[]
+  reportedDailyLogs    ProjectDailyLog[]
 }
 
 model MonthlyTarget {
@@ -347,6 +351,7 @@ model Job {
   outsourceRepairs   OutsourceRepair[]
   purchaseOrders     PurchaseOrder[]
   installationOrders InstallationOrder[]
+  project            Project?
 
   @@map("jobs")
 }
@@ -1295,4 +1300,122 @@ model PurchaseOrder {
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
   @@map("purchase_orders")
+}
+
+model Project {
+  id            String  @id @default(cuid())
+  projectNumber String  @unique // e.g., PJ69-0001
+  jobId         String? @unique
+  job           Job?    @relation(fields: [jobId], references: [id])
+
+  name        String
+  description String?
+  clientName  String?
+  siteAddress String?
+
+  managerId String?
+  manager   User?   @relation("ProjectManager", fields: [managerId], references: [id])
+
+  startDate           DateTime? @db.Timestamptz(6)
+  endDate             DateTime? @db.Timestamptz(6)
+  budget              Float?
+  externalTechnicians String?
+
+  status String @default("Planning")
+  // Planning | In progress | Paused | Completed | Cancelled
+
+  tasks     ProjectTask[]
+  members   ProjectMember[]
+  dailyLogs ProjectDailyLog[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}
+
+model ProjectMember {
+  id        String  @id @default(cuid())
+  projectId String
+  userId    String
+  role      String // "manager" | "engineer" | "admin" 
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+}
+
+model ProjectTask {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  category    String? // Work category
+  assigneeId  String?
+  assignee    User?   @relation(fields: [assigneeId], references: [id])
+
+  planStart   DateTime? @db.Timestamptz(6)
+  planEnd     DateTime? @db.Timestamptz(6)
+  actualStart DateTime? @db.Timestamptz(6)
+  actualEnd   DateTime? @db.Timestamptz(6)
+
+  planPct   Float @default(0) // % plan
+  actualPct Float @default(0) // % actual
+  weight    Float @default(1) // task weight
+
+  status String @default("Pending")
+  // Pending | In progress | Problematic | Completed
+
+  priority String @default("Normal")
+  order    Int    @default(0)
+
+  parentTaskId String?
+  subtasks     ProjectTask[] @relation("SubTasks")
+  parentTask   ProjectTask?  @relation("SubTasks", fields: [parentTaskId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}
+
+model ProjectDailyLog {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  reportedBy String
+  reporter   User   @relation(fields: [reportedBy], references: [id])
+
+  date DateTime @db.Date
+
+  // Weather
+  weather     String?
+  temperature Int?
+
+  // Workers
+  workerCount Int?
+  workerNote  String?
+
+  // Work done today
+  workSummary String?
+  issues      String?
+  solutions   String?
+  nextPlan    String?
+
+  // Safety
+  safetyNote String?
+  incidents  Int     @default(0)
+
+  // Progress Updates & Media
+  taskUpdates Json?
+  imageUrls   Json?
+
+  // Signatures
+  reporterSigUrl   String?
+  supervisorSigUrl String?
+  supervisorName   String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([projectId, date, reportedBy])
 }

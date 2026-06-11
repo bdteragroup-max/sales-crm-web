@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, PhoneCall,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen
 } from 'lucide-react';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
@@ -54,6 +54,10 @@ const backofficeNav = [
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
 ];
 
+const projectNav = [
+  { icon: FolderOpen, label: 'โครงการของฉัน', href: '/projects' },
+];
+
 export default function SidebarClient(props: SidebarProps) {
   let nav = repNav;
   const roleStr = (props.userRole || '').toLowerCase();
@@ -68,7 +72,7 @@ export default function SidebarClient(props: SidebarProps) {
       { icon: DollarSign, label: 'งานการเงิน/บัญชี', href: '/accounting' },
     ];
   } else if (['project', 'โปรเจค', 'โปรเจกต์'].some(r => roleStr.includes(r))) {
-    nav = []; // Project users only need the Jobs Directory at the bottom
+    nav = projectNav; // Project users see their projects
   } else if (['purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin', 'ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
     nav = backofficeNav; // Back-office non-sales see their own department queue
   }

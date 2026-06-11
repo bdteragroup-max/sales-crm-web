@@ -43,8 +43,26 @@ async function generateRepairOrderNumber() {
     new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })
   );
   const beYear = (now.getFullYear() + 543).toString().slice(-2);
-  const count = await prisma.repairOrder.count();
-  return `RO${beYear}-${String(count + 1).padStart(4, '0')}`;
+  const prefix = `RO${beYear}-`;
+
+  const lastJob = await prisma.job.findFirst({
+    where: { jobNumber: { startsWith: prefix } },
+    orderBy: { jobNumber: 'desc' },
+  });
+
+  let nextNum = 1;
+  if (lastJob) {
+    const lastNumStr = lastJob.jobNumber.replace(prefix, '');
+    const lastNum = parseInt(lastNumStr, 10);
+    if (!isNaN(lastNum)) {
+      nextNum = lastNum + 1;
+    }
+  } else {
+    const count = await prisma.repairOrder.count();
+    nextNum = count + 1;
+  }
+
+  return `${prefix}${String(nextNum).padStart(4, '0')}`;
 }
 
 export async function createRepairOrder(formData: RepairOrderFormData) {

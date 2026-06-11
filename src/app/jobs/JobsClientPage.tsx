@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useTransition, useEffect, useRef } from "react";
-import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight, X, Wrench, CheckCircle2 } from "lucide-react";
+import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight, X, Wrench, CheckCircle2, FolderOpen, Plus } from "lucide-react";
 import { updateJob, deleteJob, UpdateJobPayload, createStandaloneJob } from "./actions";
 import { JOB_TYPES } from "@/constants/job-types";
 import { useRouter } from "next/navigation";
@@ -43,6 +43,7 @@ type Job = {
   paymentTasks?: any[];
   installationOrders?: any[];
   repairOrder?: any;
+  project?: any;
 };
 
 const COMPANY_CODES = ["TP", "TG", "TE"];
@@ -194,6 +195,7 @@ function ExpandedRow({
                 paymentTasks={job.paymentTasks}
                 installationOrders={job.installationOrders}
                 repairOrder={job.repairOrder}
+                project={job.project}
               />
             </div>
 
@@ -315,6 +317,7 @@ export default function JobsClientPage({
   userRole,
   actionParam,
   targetJobId,
+  initialSearch,
 }: { 
   jobs: Job[]; 
   isManager: boolean; 
@@ -323,6 +326,7 @@ export default function JobsClientPage({
   userRole: string;
   actionParam?: string;
   targetJobId?: string;
+  initialSearch?: string;
 }) { 
   const router = useRouter();
   const [showQuickRepair, setShowQuickRepair] = useState(actionParam === "new-repair");
@@ -340,7 +344,7 @@ export default function JobsClientPage({
     setJobs(initialJobs);
   }, [initialJobs]);
   const [expanded, setExpanded] = useState<string | null>(targetJobId || null); 
-  const [search, setSearch] = useState(""); 
+  const [search, setSearch] = useState(initialSearch || ""); 
   const [filterCo, setFilterCo] = useState(""); 
   const [filterType, setFilterType] = useState(""); 
   const [filterMonth, setFilterMonth] = useState(""); 
@@ -359,6 +363,7 @@ export default function JobsClientPage({
     const isService = roleLower.includes('service') || roleLower.includes('ซ่อม') || roleLower.includes('บริการ') || d.includes('service') || d.includes('ซ่อม') || d.includes('บริการ')
     const isPurchase = roleLower.includes('purchase') || roleLower.includes('จัดซื้อ') || d.includes('purchase') || d.includes('จัดซื้อ')
     const isProduction = roleLower.includes('production') || roleLower.includes('ผลิต') || d.includes('production') || d.includes('ผลิต')
+    const isProject = roleLower.includes('project') || roleLower.includes('โปรเจค') || d.includes('project') || d.includes('โปรเจค')
     
     const isDeliveryRole = roleLower.includes('delivery') || roleLower.includes('transport') || roleLower.includes('จัดส่ง') || roleLower.includes('ขนส่ง') || roleLower.includes('driver') || roleLower.includes('คนขับ')
     const isStoreRole = roleLower.includes('store') || roleLower.includes('warehouse') || roleLower.includes('สโตร์') || roleLower.includes('คลัง')
@@ -374,6 +379,7 @@ export default function JobsClientPage({
     if (isService) depts.push("service")
     if (isPurchase) depts.push("purchase")
     if (isProduction) depts.push("production")
+    if (isProject) depts.push("project")
     
     if (depts.length === 0) depts.push(d)
     return depts
@@ -748,7 +754,20 @@ export default function JobsClientPage({
                       <CompanyBadge code={job.companyCode} /> 
                     </td> 
                     <td className="px-5 py-4 whitespace-nowrap"> 
-                      <JobTypeBadge type={job.jobType} /> 
+                      <div className="flex flex-col gap-1">
+                        <JobTypeBadge type={job.jobType} /> 
+                        {(job.jobType === 'Project' || job.jobType === 'งานโปรเจค') && (
+                          job.project ? (
+                            <a href={`/projects/${job.project.id}`} className="text-[10px] font-bold text-brand-red hover:underline flex items-center gap-1 w-fit">
+                              <FolderOpen className="w-3 h-3" /> เปิดโครงการ
+                            </a>
+                          ) : (normalizedDept.includes('project') || isManager) ? (
+                            <a href={`/projects/new?jobId=${job.id}`} className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1 w-fit">
+                              <Plus className="w-3 h-3" /> สร้างโครงการ
+                            </a>
+                          ) : null
+                        )}
+                      </div>
                     </td> 
                     <td className="px-5 py-4"> 
                       <span className="text-[11px] font-bold text-gray-400 whitespace-nowrap">

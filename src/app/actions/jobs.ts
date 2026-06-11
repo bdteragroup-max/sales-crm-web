@@ -228,6 +228,27 @@ export async function confirmJobStep(payload: {
     },
   })
 
+  // === AUTO-CREATE PROJECT ===
+  if (stepKey === "sales" && ["งานโปรเจค", "งานติดตั้ง", "งานขาย + ติดตั้ง"].includes(job.jobType)) {
+    // Check if project already exists for this job
+    const existingProject = await prisma.project.findFirst({ where: { jobId: job.id } });
+    if (!existingProject) {
+      try {
+        const { createProject } = await import("@/app/actions/projects");
+        const manager = await prisma.user.findFirst({ where: { role: { contains: 'manager', mode: 'insensitive' } } });
+        
+        await createProject({
+          name: `Project: ${job.customerName || job.jobNumber}`,
+          clientName: job.customerName || undefined,
+          jobId: job.id,
+          managerId: manager?.id,
+        });
+      } catch (err) {
+        console.error("Failed to auto-create project", err);
+      }
+    }
+  }
+
   // === PURCHASE FLOW LOGIC ===
   if (stepKey === "sales_pr" && payload.prItems) {
     await prisma.purchaseOrder.create({

@@ -14,7 +14,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const userRoleStr = (user.role || '').toLowerCase();
   const isMarketingManager = userRoleStr === 'marketing manager' || userRoleStr === 'ผู้จัดการฝ่ายการตลาด' || userRoleStr === 'ผู้จัดการการตลาด' || userRoleStr === 'ผู้การจัดการตลาด';
 
-  if (user.role === 'อื่นๆ' || !isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin'].some((r) => userRoleStr.includes(r))) {
+  if (user.role === 'อื่นๆ' || !isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin', 'project', 'โครงการ'].some((r) => userRoleStr.includes(r))) {
     redirect('/department');
   }
 
@@ -122,7 +122,9 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
           { role: { contains: 'warehouse' } },
           { role: { contains: 'คลังสินค้า' } },
           { role: { contains: 'service' } },
-          { role: { contains: 'บริการ' } }]
+          { role: { contains: 'บริการ' } },
+          { role: { contains: 'project' } },
+          { role: { contains: 'โครงการ' } }]
 
         }
       } : {

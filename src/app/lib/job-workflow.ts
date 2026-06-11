@@ -1,4 +1,4 @@
-export type Department = "sales" | "store" | "service" | "purchase" | "accounting" | "delivery" | "production"
+export type Department = "sales" | "store" | "service" | "purchase" | "accounting" | "delivery" | "production" | "project"
 
 export type StepDef = {
   key:         string
@@ -193,9 +193,36 @@ export const WORKFLOWS: WorkflowDef[] = [
   // 6. งานโปรเจค
   {
     jobType: "งานโปรเจค",
+    variantQuestion: {
+      question: "มีอุปกรณ์ที่ต้องสั่งซื้อหรือไม่?",
+      askedAtStep: "store",
+      options: [
+        { label: "ไม่มี (พร้อมดำเนินการ)", value: "no_purchase", icon: "CheckCircle2" },
+        { label: "มี (ต้องสั่งซื้อเพิ่ม)", value: "need_purchase", icon: "ShoppingCart" },
+      ],
+    },
     flows: {
       default: [
         { key: "sales",      label: "ฝ่ายขาย (QT)", department: ["sales"], note: "ต้องมีเลข QT" },
+        { key: "store",      label: "สโตร์", department: ["store"] },
+        { key: "pending_variant", label: "รอเช็คการสั่งซื้อ...", department: [] },
+      ],
+      no_purchase: [
+        { key: "sales",      label: "ฝ่ายขาย (QT)", department: ["sales"], note: "ต้องมีเลข QT" },
+        { key: "store",      label: "สโตร์", department: ["store"] },
+        { key: "project",    label: "โปรเจค", department: ["project"] },
+        { key: "accounting", label: "บัญชี",       department: ["accounting"] },
+      ],
+      need_purchase: [
+        { key: "sales",      label: "ฝ่ายขาย (QT)", department: ["sales"], note: "ต้องมีเลข QT" },
+        { key: "store",      label: "สโตร์", department: ["store"] },
+        { key: "sales_pr",   label: "ฝ่ายขาย - เปิด PR", department: ["sales"] },
+        { key: "purchase_find_supplier", label: "จัดซื้อ - หาร้านค้า/Supplier", department: ["purchase"] },
+        { key: "purchase_po", label: "จัดซื้อ - บันทึก PO", department: ["purchase"] },
+        { key: "sales_acknowledge_po", label: "ฝ่ายขาย - รับทราบ PO", department: ["sales"] },
+        { key: "purchase_waiting", label: "จัดซื้อ - รอสินค้า", department: ["purchase"] },
+        { key: "store_receive", label: "สโตร์ - รับและตรวจสอบสินค้า", department: ["store"] },
+        { key: "project",    label: "โปรเจค", department: ["project"] },
         { key: "accounting", label: "บัญชี",       department: ["accounting"] },
       ],
     },
@@ -317,4 +344,5 @@ export const DEPT_LABELS: Record<Department, string> = {
   accounting: "บัญชี",
   delivery:   "จัดส่ง",
   production: "Production",
+  project:    "โปรเจค",
 }

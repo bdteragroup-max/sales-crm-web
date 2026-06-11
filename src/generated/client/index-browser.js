@@ -1118,6 +1118,77 @@ exports.Prisma.PurchaseOrderScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ProjectScalarFieldEnum = {
+  id: 'id',
+  projectNumber: 'projectNumber',
+  jobId: 'jobId',
+  name: 'name',
+  description: 'description',
+  clientName: 'clientName',
+  siteAddress: 'siteAddress',
+  managerId: 'managerId',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  budget: 'budget',
+  externalTechnicians: 'externalTechnicians',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProjectMemberScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  userId: 'userId',
+  role: 'role'
+};
+
+exports.Prisma.ProjectTaskScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  title: 'title',
+  description: 'description',
+  category: 'category',
+  assigneeId: 'assigneeId',
+  planStart: 'planStart',
+  planEnd: 'planEnd',
+  actualStart: 'actualStart',
+  actualEnd: 'actualEnd',
+  planPct: 'planPct',
+  actualPct: 'actualPct',
+  weight: 'weight',
+  status: 'status',
+  priority: 'priority',
+  order: 'order',
+  parentTaskId: 'parentTaskId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProjectDailyLogScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  reportedBy: 'reportedBy',
+  date: 'date',
+  weather: 'weather',
+  temperature: 'temperature',
+  workerCount: 'workerCount',
+  workerNote: 'workerNote',
+  workSummary: 'workSummary',
+  issues: 'issues',
+  solutions: 'solutions',
+  nextPlan: 'nextPlan',
+  safetyNote: 'safetyNote',
+  incidents: 'incidents',
+  taskUpdates: 'taskUpdates',
+  imageUrls: 'imageUrls',
+  reporterSigUrl: 'reporterSigUrl',
+  supervisorSigUrl: 'supervisorSigUrl',
+  supervisorName: 'supervisorName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1206,7 +1277,11 @@ exports.Prisma.ModelName = {
   sessions: 'sessions',
   travel_claims: 'travel_claims',
   employee_trainings: 'employee_trainings',
-  PurchaseOrder: 'PurchaseOrder'
+  PurchaseOrder: 'PurchaseOrder',
+  Project: 'Project',
+  ProjectMember: 'ProjectMember',
+  ProjectTask: 'ProjectTask',
+  ProjectDailyLog: 'ProjectDailyLog'
 };
 
 /**

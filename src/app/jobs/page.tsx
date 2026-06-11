@@ -77,6 +77,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
       paymentTasks: true,
       installationOrders: { orderBy: { createdAt: "desc" } },
       repairOrder: true,
+      project: true,
     }, 
     orderBy: { dateClosed: "desc" }, 
   }); 
@@ -98,6 +99,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
           userRole={user.role}
           actionParam={actionParam}
           targetJobId={targetJobId}
+          initialSearch={searchParams.search}
         />
       </main>
     </div>
