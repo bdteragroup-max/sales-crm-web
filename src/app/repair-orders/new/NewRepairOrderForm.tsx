@@ -315,8 +315,8 @@ export default function NewRepairOrderForm({
       const result = await createRepairOrder(formData);
 
       if (result.success) {
-        if (action === "print" && result.repairOrderId) {
-          router.push(`/repair-orders/${result.repairOrderId}/print`);
+        if (action === "print" && result.jobId) {
+          router.push(`/repair-orders/${result.jobId}/print`);
         } else {
           router.push("/repair-orders");
         }

@@ -134,7 +134,11 @@ export default function InstallationDashboardClient({ orders, users, currentUser
   const isCompleted = (status: string) => status === 'Completed' || status === 'เสร็จสิ้น' || status === 'ปิด Job - ติดตั้งเสร็จสิ้น' || status === 'ปิด Job - ตรวจเช็คเสร็จสิ้น';
 
   const isOwnerOrAdmin = (order: any) => {
-    return order.technician === currentUser?.fullName || currentUser?.role === 'Admin' || currentUser?.role === 'ผู้ดูแลระบบ';
+    const roleStr = (currentUser?.role || '').toLowerCase();
+    return order.technician === currentUser?.fullName || 
+           roleStr === 'admin' || 
+           roleStr === 'ผู้ดูแลระบบ' || 
+           roleStr.includes('service engineer mgr');
   };
 
   const outstandingOrders = orders.filter(o => 
