@@ -176,7 +176,27 @@ export async function updateJob(
     where: { id: jobId },
     data,
   });
+
+  if (data.jobType && ["งานโปรเจค", "งานติดตั้ง", "งานขาย + ติดตั้ง"].includes(data.jobType)) {
+    const existingProject = await prisma.project.findFirst({ where: { jobId: job.id } });
+    if (!existingProject) {
+      try {
+        const { createProject } = await import("@/app/actions/projects");
+        const manager = await prisma.user.findFirst({ where: { role: { contains: 'manager', mode: 'insensitive' } } });
+        await createProject({
+          name: `Project: ${job.customerName || job.jobNumber}`,
+          clientName: job.customerName || undefined,
+          jobId: job.id,
+          managerId: manager?.id,
+        });
+      } catch (err) {
+        console.error("Failed to auto-create project", err);
+      }
+    }
+  }
+
   revalidatePath("/jobs");
+  revalidatePath("/projects");
   return job;
 }
 

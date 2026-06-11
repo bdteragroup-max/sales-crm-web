@@ -363,7 +363,7 @@ export default function JobsClientPage({
     const isService = roleLower.includes('service') || roleLower.includes('ซ่อม') || roleLower.includes('บริการ') || d.includes('service') || d.includes('ซ่อม') || d.includes('บริการ')
     const isPurchase = roleLower.includes('purchase') || roleLower.includes('จัดซื้อ') || d.includes('purchase') || d.includes('จัดซื้อ')
     const isProduction = roleLower.includes('production') || roleLower.includes('ผลิต') || d.includes('production') || d.includes('ผลิต')
-    const isProject = roleLower.includes('project') || roleLower.includes('โปรเจค') || d.includes('project') || d.includes('โปรเจค')
+    const isProject = roleLower.includes('project') || roleLower.includes('โปรเจค') || roleLower.includes('service engineer mgr') || d.includes('project') || d.includes('โปรเจค')
     
     const isDeliveryRole = roleLower.includes('delivery') || roleLower.includes('transport') || roleLower.includes('จัดส่ง') || roleLower.includes('ขนส่ง') || roleLower.includes('driver') || roleLower.includes('คนขับ')
     const isStoreRole = roleLower.includes('store') || roleLower.includes('warehouse') || roleLower.includes('สโตร์') || roleLower.includes('คลัง')
@@ -426,7 +426,7 @@ export default function JobsClientPage({
       if (filterStatus === "pending") {
         if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)) return false;
         const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant, j.stepLogs);
-        if (!stepDef?.department.some(dept => normalizedDept.includes(dept))) return false;
+        if (!stepDef?.department?.some(dept => normalizedDept.includes(dept))) return false;
       }
       return true; 
     }); 
@@ -468,7 +468,7 @@ export default function JobsClientPage({
     return jobs.filter((j) => {
       if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)) return false;
       const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant, j.stepLogs);
-      return stepDef?.department.some(dept => normalizedDept.includes(dept));
+      return stepDef?.department?.some(dept => normalizedDept.includes(dept));
     }).length;
   }, [jobs, normalizedDept]);
 

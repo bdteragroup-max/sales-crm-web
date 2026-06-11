@@ -49,7 +49,8 @@ export default async function ProjectDetailPage(props: { params: Promise<{ id: s
   if (!project) redirect('/projects')
 
   // Check access permission
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase().includes('manager') || user.role === 'Admin' || (user.role || '').toLowerCase().includes('admin');
+  const roleLower = (user.role || '').toLowerCase();
+  const isManager = user.role === 'ผู้จัดการ' || roleLower.includes('manager') || roleLower.includes('mgr') || user.role === 'Admin' || roleLower.includes('admin');
   const isMember = project.members.some(m => m.userId === user.id) || project.managerId === user.id;
 
   if (!isManager && !isMember) redirect('/projects')

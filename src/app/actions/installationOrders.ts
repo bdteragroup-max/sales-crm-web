@@ -137,7 +137,8 @@ export async function updateInstallationPlan(orderId: string, data: any) {
     const role = (session.role || '').toLowerCase();
     const isOwnerOrAdmin = 
       existingOrder.technician === session.fullName || 
-      ['admin', 'ผู้ดูแลระบบ', 'ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด'].includes(role);
+      role.includes('admin') || role === 'ผู้ดูแลระบบ' || role === 'ผู้จัดการ' || 
+      role.includes('manager') || role.includes('mgr');
     if (!isOwnerOrAdmin) {
       return { success: false, error: "Unauthorized. เฉพาะช่างผู้รับผิดชอบงาน, ผู้จัดการ หรือผู้ดูแลระบบเท่านั้นที่สามารถแก้ไขแผนงานได้" };
     }

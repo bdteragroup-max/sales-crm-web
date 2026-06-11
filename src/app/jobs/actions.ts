@@ -29,7 +29,27 @@ export async function updateJob(jobId: string, data: UpdateJobPayload) {
       ...(paymentDate !== undefined && { paymentDate: paymentDate ? new Date(paymentDate) : null }),
     }, 
   }); 
+
+  if (data.jobType && ["งานโปรเจค", "งานติดตั้ง", "งานขาย + ติดตั้ง"].includes(data.jobType)) {
+    const existingProject = await prisma.project.findFirst({ where: { jobId } });
+    if (!existingProject) {
+      try {
+        const { createProject } = await import("@/app/actions/projects");
+        const manager = await prisma.user.findFirst({ where: { role: { contains: 'manager', mode: 'insensitive' } } });
+        await createProject({
+          name: `Project: ${updated.customerName || updated.jobNumber}`,
+          clientName: updated.customerName || undefined,
+          jobId: updated.id,
+          managerId: manager?.id,
+        });
+      } catch (err) {
+        console.error("Failed to auto-create project", err);
+      }
+    }
+  }
+
   revalidatePath("/jobs"); 
+  revalidatePath("/projects");
   return updated;
 }
 
@@ -56,6 +76,23 @@ export async function createStandaloneJob(data: { customerName: string; item: st
       currentStep: "service_receive", // Default to service step so they can confirm it
     }
   });
+
+  if (["งานโปรเจค", "งานติดตั้ง", "งานขาย + ติดตั้ง"].includes(data.jobType)) {
+    try {
+      const { createProject } = await import("@/app/actions/projects");
+      const manager = await prisma.user.findFirst({ where: { role: { contains: 'manager', mode: 'insensitive' } } });
+      await createProject({
+        name: `Project: ${job.customerName || job.jobNumber}`,
+        clientName: job.customerName || undefined,
+        jobId: job.id,
+        managerId: manager?.id,
+      });
+    } catch (err) {
+      console.error("Failed to auto-create project", err);
+    }
+  }
+
   revalidatePath("/jobs");
+  revalidatePath("/projects");
   return job;
 }

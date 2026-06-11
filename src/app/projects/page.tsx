@@ -23,7 +23,8 @@ export default async function ProjectsPage() {
     redirect('/')
   }
 
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase().includes('manager') || user.role === 'Admin' || (user.role || '').toLowerCase().includes('admin');
+  const roleLower = (user.role || '').toLowerCase();
+  const isManager = user.role === 'ผู้จัดการ' || roleLower.includes('manager') || roleLower.includes('mgr') || user.role === 'Admin' || roleLower.includes('admin');
 
   const whereClause = isManager ? {} : {
     members: {
