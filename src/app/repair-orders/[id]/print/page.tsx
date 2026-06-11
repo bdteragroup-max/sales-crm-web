@@ -58,17 +58,17 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
   const rrP = dp(returnSentDate);
 
   const CHECKLIST_DEF = [
-    { key: 'frontPanel', label: 'ด้านหน้า' },
-    { key: 'topPanel', label: 'ด้านบน' },
-    { key: 'leftSide', label: 'ด้านข้าง (ซ้าย)' },
-    { key: 'rightSide', label: 'ด้านข้าง (ขวา)' },
-    { key: 'inside', label: 'ด้านใน' },
-    { key: 'nameplate', label: 'Nameplate' },
-    { key: 'bottom', label: 'ด้านล่าง' },
-    { key: 'terminalNut', label: 'Terminal / Nut' },
-    { key: 'termCover', label: 'Term. cover' },
-    { key: 'cover', label: 'ฝาครอบ / Cover' },
-    { key: 'video', label: 'Video' }
+    { key: 'Front', label: 'ด้านหน้า' },
+    { key: 'Top', label: 'ด้านบน' },
+    { key: 'SideLeft', label: 'ด้านข้าง (ซ้าย)' },
+    { key: 'SideRight', label: 'ด้านข้าง (ขวา)' },
+    { key: 'Inside', label: 'ด้านใน' },
+    { key: 'Nameplate', label: 'Nameplate' },
+    { key: 'Bottom', label: 'ด้านล่าง' },
+    { key: 'TerminalNut', label: 'Terminal / Nut' },
+    { key: 'TermCover', label: 'Term. cover' },
+    { key: 'Cover', label: 'ฝาครอบ / Cover' },
+    { key: 'Video', label: 'Video' }
   ];
 
   const items = data?.items || [];
@@ -140,8 +140,16 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
         <div className="ro-info-row"><span className="ro-lbl">เบอร์โทร:</span><span className="ro-val">{data?.phoneNumber || '-'}</span></div>
         <div className="ro-info-row"><span className="ro-lbl">ชื่อลูกค้า:</span><span className="ro-val">{data?.customerCompany || '-'}</span></div>
         <div className="ro-info-row"><span className="ro-lbl">รูปแบบงาน:</span><span className="ro-val">{data?.workType || '-'}</span></div>
-        <div className="ro-info-row"><span className="ro-lbl">เลขที่ JOB:</span><span className="ro-val">{data?.job?.jobNumber || '-'}</span></div>
-        <div className="ro-info-row"><span className="ro-lbl">เลขที่ใบส่งสินค้า:</span><span className="ro-val">{data?.deliveryNoteNo || '-'}</span></div>
+        <div className="ro-info-row"><span className="ro-lbl">เลขที่ JOB:</span><span className="ro-val">
+          {data?.deliveryNoteNo?.toUpperCase().startsWith('JB') 
+            ? data.deliveryNoteNo 
+            : (data?.job?.jobNumber && !data.job.jobNumber.startsWith('RO') ? data.job.jobNumber : '-')}
+        </span></div>
+        <div className="ro-info-row"><span className="ro-lbl">เลขที่ใบส่งสินค้า:</span><span className="ro-val">
+          {data?.deliveryNoteNo?.toUpperCase().startsWith('JB') 
+            ? '-' 
+            : (data?.deliveryNoteNo || '-')}
+        </span></div>
         <div className="ro-info-row"><span className="ro-lbl">เลขที่ Invoice:</span><span className="ro-val">{data?.invoiceNo || '-'}</span></div>
         <div className="ro-info-row"><span className="ro-lbl">ผู้รับซ่อม:</span><span className="ro-val">{data?.receiverName || '-'}</span></div>
         <div className="ro-info-row"><span className="ro-lbl">ส่งซ่อมโดย:</span><span className="ro-val">{data?.senderName || '-'}</span></div>
@@ -307,7 +315,7 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
   );
 
   return (
-    <div className="ro-print-wrapper">
+    <div className="ro-print-wrapper w-full h-full overflow-y-auto print:overflow-visible print:h-auto">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
 

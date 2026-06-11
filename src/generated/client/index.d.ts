@@ -35104,6 +35104,7 @@ export namespace Prisma {
   export type CustomerRequirementMinAggregateOutputType = {
     id: string | null
     requirementNumber: string | null
+    boqNumber: string | null
     userId: string | null
     companyName: string | null
     contactName: string | null
@@ -35124,6 +35125,7 @@ export namespace Prisma {
   export type CustomerRequirementMaxAggregateOutputType = {
     id: string | null
     requirementNumber: string | null
+    boqNumber: string | null
     userId: string | null
     companyName: string | null
     contactName: string | null
@@ -35144,6 +35146,7 @@ export namespace Prisma {
   export type CustomerRequirementCountAggregateOutputType = {
     id: number
     requirementNumber: number
+    boqNumber: number
     userId: number
     companyName: number
     contactName: number
@@ -35175,6 +35178,7 @@ export namespace Prisma {
   export type CustomerRequirementMinAggregateInputType = {
     id?: true
     requirementNumber?: true
+    boqNumber?: true
     userId?: true
     companyName?: true
     contactName?: true
@@ -35195,6 +35199,7 @@ export namespace Prisma {
   export type CustomerRequirementMaxAggregateInputType = {
     id?: true
     requirementNumber?: true
+    boqNumber?: true
     userId?: true
     companyName?: true
     contactName?: true
@@ -35215,6 +35220,7 @@ export namespace Prisma {
   export type CustomerRequirementCountAggregateInputType = {
     id?: true
     requirementNumber?: true
+    boqNumber?: true
     userId?: true
     companyName?: true
     contactName?: true
@@ -35323,6 +35329,7 @@ export namespace Prisma {
   export type CustomerRequirementGroupByOutputType = {
     id: string
     requirementNumber: string | null
+    boqNumber: string | null
     userId: string | null
     companyName: string
     contactName: string
@@ -35363,6 +35370,7 @@ export namespace Prisma {
   export type CustomerRequirementSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     requirementNumber?: boolean
+    boqNumber?: boolean
     userId?: boolean
     companyName?: boolean
     contactName?: boolean
@@ -35385,6 +35393,7 @@ export namespace Prisma {
   export type CustomerRequirementSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     requirementNumber?: boolean
+    boqNumber?: boolean
     userId?: boolean
     companyName?: boolean
     contactName?: boolean
@@ -35407,6 +35416,7 @@ export namespace Prisma {
   export type CustomerRequirementSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     requirementNumber?: boolean
+    boqNumber?: boolean
     userId?: boolean
     companyName?: boolean
     contactName?: boolean
@@ -35429,6 +35439,7 @@ export namespace Prisma {
   export type CustomerRequirementSelectScalar = {
     id?: boolean
     requirementNumber?: boolean
+    boqNumber?: boolean
     userId?: boolean
     companyName?: boolean
     contactName?: boolean
@@ -35447,7 +35458,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type CustomerRequirementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requirementNumber" | "userId" | "companyName" | "contactName" | "salesperson" | "date" | "formData" | "isSentToService" | "estimationStatus" | "estimatedPrice" | "estimationNote" | "estimatedBy" | "estimatedAt" | "assignedTo" | "assignedToUserId" | "estimationDueDate" | "createdAt", ExtArgs["result"]["customerRequirement"]>
+  export type CustomerRequirementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requirementNumber" | "boqNumber" | "userId" | "companyName" | "contactName" | "salesperson" | "date" | "formData" | "isSentToService" | "estimationStatus" | "estimatedPrice" | "estimationNote" | "estimatedBy" | "estimatedAt" | "assignedTo" | "assignedToUserId" | "estimationDueDate" | "createdAt", ExtArgs["result"]["customerRequirement"]>
   export type CustomerRequirementInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }
@@ -35466,6 +35477,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       requirementNumber: string | null
+      boqNumber: string | null
       userId: string | null
       companyName: string
       contactName: string
@@ -35908,6 +35920,7 @@ export namespace Prisma {
   interface CustomerRequirementFieldRefs {
     readonly id: FieldRef<"CustomerRequirement", 'String'>
     readonly requirementNumber: FieldRef<"CustomerRequirement", 'String'>
+    readonly boqNumber: FieldRef<"CustomerRequirement", 'String'>
     readonly userId: FieldRef<"CustomerRequirement", 'String'>
     readonly companyName: FieldRef<"CustomerRequirement", 'String'>
     readonly contactName: FieldRef<"CustomerRequirement", 'String'>
@@ -84284,6 +84297,7 @@ export namespace Prisma {
   export const CustomerRequirementScalarFieldEnum: {
     id: 'id',
     requirementNumber: 'requirementNumber',
+    boqNumber: 'boqNumber',
     userId: 'userId',
     companyName: 'companyName',
     contactName: 'contactName',
@@ -87732,6 +87746,7 @@ export namespace Prisma {
     NOT?: CustomerRequirementWhereInput | CustomerRequirementWhereInput[]
     id?: StringFilter<"CustomerRequirement"> | string
     requirementNumber?: StringNullableFilter<"CustomerRequirement"> | string | null
+    boqNumber?: StringNullableFilter<"CustomerRequirement"> | string | null
     userId?: StringNullableFilter<"CustomerRequirement"> | string | null
     companyName?: StringFilter<"CustomerRequirement"> | string
     contactName?: StringFilter<"CustomerRequirement"> | string
@@ -87754,6 +87769,7 @@ export namespace Prisma {
   export type CustomerRequirementOrderByWithRelationInput = {
     id?: SortOrder
     requirementNumber?: SortOrderInput | SortOrder
+    boqNumber?: SortOrderInput | SortOrder
     userId?: SortOrderInput | SortOrder
     companyName?: SortOrder
     contactName?: SortOrder
@@ -87776,6 +87792,7 @@ export namespace Prisma {
   export type CustomerRequirementWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     requirementNumber?: string
+    boqNumber?: string
     AND?: CustomerRequirementWhereInput | CustomerRequirementWhereInput[]
     OR?: CustomerRequirementWhereInput[]
     NOT?: CustomerRequirementWhereInput | CustomerRequirementWhereInput[]
@@ -87796,11 +87813,12 @@ export namespace Prisma {
     estimationDueDate?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
     createdAt?: DateTimeFilter<"CustomerRequirement"> | Date | string
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-  }, "id" | "requirementNumber">
+  }, "id" | "requirementNumber" | "boqNumber">
 
   export type CustomerRequirementOrderByWithAggregationInput = {
     id?: SortOrder
     requirementNumber?: SortOrderInput | SortOrder
+    boqNumber?: SortOrderInput | SortOrder
     userId?: SortOrderInput | SortOrder
     companyName?: SortOrder
     contactName?: SortOrder
@@ -87830,6 +87848,7 @@ export namespace Prisma {
     NOT?: CustomerRequirementScalarWhereWithAggregatesInput | CustomerRequirementScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"CustomerRequirement"> | string
     requirementNumber?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
+    boqNumber?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
     userId?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
     companyName?: StringWithAggregatesFilter<"CustomerRequirement"> | string
     contactName?: StringWithAggregatesFilter<"CustomerRequirement"> | string
@@ -94795,6 +94814,7 @@ export namespace Prisma {
   export type CustomerRequirementCreateInput = {
     id?: string
     requirementNumber?: string | null
+    boqNumber?: string | null
     companyName: string
     contactName: string
     salesperson: string
@@ -94816,6 +94836,7 @@ export namespace Prisma {
   export type CustomerRequirementUncheckedCreateInput = {
     id?: string
     requirementNumber?: string | null
+    boqNumber?: string | null
     userId?: string | null
     companyName: string
     contactName: string
@@ -94837,6 +94858,7 @@ export namespace Prisma {
   export type CustomerRequirementUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
     companyName?: StringFieldUpdateOperationsInput | string
     contactName?: StringFieldUpdateOperationsInput | string
     salesperson?: StringFieldUpdateOperationsInput | string
@@ -94858,6 +94880,7 @@ export namespace Prisma {
   export type CustomerRequirementUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyName?: StringFieldUpdateOperationsInput | string
     contactName?: StringFieldUpdateOperationsInput | string
@@ -94879,6 +94902,7 @@ export namespace Prisma {
   export type CustomerRequirementCreateManyInput = {
     id?: string
     requirementNumber?: string | null
+    boqNumber?: string | null
     userId?: string | null
     companyName: string
     contactName: string
@@ -94900,6 +94924,7 @@ export namespace Prisma {
   export type CustomerRequirementUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
     companyName?: StringFieldUpdateOperationsInput | string
     contactName?: StringFieldUpdateOperationsInput | string
     salesperson?: StringFieldUpdateOperationsInput | string
@@ -94920,6 +94945,7 @@ export namespace Prisma {
   export type CustomerRequirementUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyName?: StringFieldUpdateOperationsInput | string
     contactName?: StringFieldUpdateOperationsInput | string
@@ -101401,6 +101427,7 @@ export namespace Prisma {
   export type CustomerRequirementCountOrderByAggregateInput = {
     id?: SortOrder
     requirementNumber?: SortOrder
+    boqNumber?: SortOrder
     userId?: SortOrder
     companyName?: SortOrder
     contactName?: SortOrder
@@ -101426,6 +101453,7 @@ export namespace Prisma {
   export type CustomerRequirementMaxOrderByAggregateInput = {
     id?: SortOrder
     requirementNumber?: SortOrder
+    boqNumber?: SortOrder
     userId?: SortOrder
     companyName?: SortOrder
     contactName?: SortOrder
@@ -101446,6 +101474,7 @@ export namespace Prisma {
   export type CustomerRequirementMinOrderByAggregateInput = {
     id?: SortOrder
     requirementNumber?: SortOrder
+    boqNumber?: SortOrder
     userId?: SortOrder
     companyName?: SortOrder
     contactName?: SortOrder
@@ -109034,6 +109063,7 @@ export namespace Prisma {
   export type CustomerRequirementCreateWithoutUserInput = {
     id?: string
     requirementNumber?: string | null
+    boqNumber?: string | null
     companyName: string
     contactName: string
     salesperson: string
@@ -109054,6 +109084,7 @@ export namespace Prisma {
   export type CustomerRequirementUncheckedCreateWithoutUserInput = {
     id?: string
     requirementNumber?: string | null
+    boqNumber?: string | null
     companyName: string
     contactName: string
     salesperson: string
@@ -109602,6 +109633,7 @@ export namespace Prisma {
     NOT?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
     id?: StringFilter<"CustomerRequirement"> | string
     requirementNumber?: StringNullableFilter<"CustomerRequirement"> | string | null
+    boqNumber?: StringNullableFilter<"CustomerRequirement"> | string | null
     userId?: StringNullableFilter<"CustomerRequirement"> | string | null
     companyName?: StringFilter<"CustomerRequirement"> | string
     contactName?: StringFilter<"CustomerRequirement"> | string
@@ -126032,6 +126064,7 @@ export namespace Prisma {
   export type CustomerRequirementCreateManyUserInput = {
     id?: string
     requirementNumber?: string | null
+    boqNumber?: string | null
     companyName: string
     contactName: string
     salesperson: string
@@ -126551,6 +126584,7 @@ export namespace Prisma {
   export type CustomerRequirementUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
     companyName?: StringFieldUpdateOperationsInput | string
     contactName?: StringFieldUpdateOperationsInput | string
     salesperson?: StringFieldUpdateOperationsInput | string
@@ -126571,6 +126605,7 @@ export namespace Prisma {
   export type CustomerRequirementUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
     companyName?: StringFieldUpdateOperationsInput | string
     contactName?: StringFieldUpdateOperationsInput | string
     salesperson?: StringFieldUpdateOperationsInput | string
@@ -126591,6 +126626,7 @@ export namespace Prisma {
   export type CustomerRequirementUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
     companyName?: StringFieldUpdateOperationsInput | string
     contactName?: StringFieldUpdateOperationsInput | string
     salesperson?: StringFieldUpdateOperationsInput | string

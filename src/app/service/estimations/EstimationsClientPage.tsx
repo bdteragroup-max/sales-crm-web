@@ -284,11 +284,20 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
                 <div key={record.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col group overflow-hidden">
                   {/* Card Header */}
                   <div className="p-5 border-b border-gray-100 flex justify-between items-start bg-gradient-to-br from-gray-50/50 to-white">
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 font-bold text-xs shadow-sm">
                         <FileText size={12} className="text-[#ff2301]" />
-                        {record.requirementNumber || <span className="text-gray-400 italic">ไม่มีข้อมูล</span>}
+                        {record.boqNumber ? (
+                          <span className="text-[#ff2301]">{record.boqNumber}</span>
+                        ) : (
+                          record.requirementNumber || <span className="text-gray-400 italic">ไม่มีข้อมูล</span>
+                        )}
                       </span>
+                      {record.boqNumber && record.requirementNumber && (
+                        <span className="text-[10px] text-gray-400 font-medium pl-1">
+                          Ref: {record.requirementNumber}
+                        </span>
+                      )}
                     </div>
                     <div className="text-right">
                       <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-0.5">วันที่รับเรื่อง</span>
@@ -469,7 +478,7 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
                   {item.records.slice(0, 3).map((o: any, i: number) => (
                     <div key={i} className="text-sm">
                       <span className="text-red-600 font-medium text-xs block">
-                        {o.requirementNumber || 'ไม่มีหมายเลข'}
+                        {o.boqNumber || o.requirementNumber || 'ไม่มีหมายเลข'}
                       </span>
                       <span className="text-gray-500 text-xs truncate block">เซลล์: {o.salesperson || '-'}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${o.estimationStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'} mt-1 inline-block`}>

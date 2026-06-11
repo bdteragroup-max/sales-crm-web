@@ -60,11 +60,45 @@ export async function sendRequirementForEstimation(requirementId: string) {
   return { success: true };
 }
 
+async function generateBoqNumber(): Promise<string> {
+  const now = new Date(
+    new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })
+  );
+  
+  const year = now.getFullYear().toString().slice(-2);
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const prefix = `BOQ-${year}${month}-`;
+
+  const highestBoq = await prisma.customerRequirement.findFirst({
+    where: {
+      boqNumber: {
+        startsWith: prefix,
+      },
+    },
+    orderBy: {
+      boqNumber: 'desc',
+    },
+  });
+
+  let nextSequence = 1;
+  if (highestBoq && highestBoq.boqNumber) {
+    const sequencePart = highestBoq.boqNumber.replace(prefix, '');
+    const currentSequence = parseInt(sequencePart, 10);
+    if (!isNaN(currentSequence)) {
+      nextSequence = currentSequence + 1;
+    }
+  }
+
+  return `${prefix}${nextSequence.toString().padStart(3, '0')}`;
+}
+
 export async function submitEstimation(
   requirementId: string,
   data: { estimatedPrice: number; estimationNote: string },
   servicePersonName: string
 ) {
+  const boqNumber = await generateBoqNumber();
+
   const req = await prisma.customerRequirement.update({
     where: { id: requirementId },
     data: {
@@ -73,6 +107,7 @@ export async function submitEstimation(
       estimationNote: data.estimationNote,
       estimatedBy: servicePersonName,
       estimatedAt: new Date(),
+      boqNumber: boqNumber,
     },
   });
 

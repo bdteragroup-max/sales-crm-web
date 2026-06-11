@@ -555,6 +555,7 @@ model OutsourceRepair {
 model CustomerRequirement {
   id                String    @id @default(cuid())
   requirementNumber String?   @unique
+  boqNumber         String?   @unique
   userId            String?
   companyName       String
   contactName       String

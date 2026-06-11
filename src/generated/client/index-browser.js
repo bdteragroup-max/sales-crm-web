@@ -535,6 +535,7 @@ exports.Prisma.OutsourceRepairScalarFieldEnum = {
 exports.Prisma.CustomerRequirementScalarFieldEnum = {
   id: 'id',
   requirementNumber: 'requirementNumber',
+  boqNumber: 'boqNumber',
   userId: 'userId',
   companyName: 'companyName',
   contactName: 'contactName',

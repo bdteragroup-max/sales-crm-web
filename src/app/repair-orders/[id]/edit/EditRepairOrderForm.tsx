@@ -11,17 +11,17 @@ import Card from '@/app/sales/components/Card';
 import { useRouter } from 'next/navigation';
 
 const CHECKLIST_OPTIONS = [
-  { key: 'frontPanel', label: 'ด้านหน้า / Front' },
-  { key: 'topPanel', label: 'ด้านบน / Top' },
-  { key: 'leftSide', label: 'ด้านข้าง (ซ้าย) / Side Left' },
-  { key: 'rightSide', label: 'ด้านข้าง (ขวา) / Side Right' },
-  { key: 'inside', label: 'ด้านใน / Inside' },
-  { key: 'nameplate', label: 'Nameplate' },
-  { key: 'bottom', label: 'ด้านล่าง / Bottom' },
-  { key: 'terminalNut', label: 'Terminal / Nut' },
-  { key: 'termCover', label: 'Term. cover' },
-  { key: 'cover', label: 'ฝาครอบ / Cover' },
-  { key: 'video', label: 'Video' },
+  { key: 'Front', label: 'ด้านหน้า / Front' },
+  { key: 'Top', label: 'ด้านบน / Top' },
+  { key: 'SideLeft', label: 'ด้านข้าง (ซ้าย) / Side Left' },
+  { key: 'SideRight', label: 'ด้านข้าง (ขวา) / Side Right' },
+  { key: 'Inside', label: 'ด้านใน / Inside' },
+  { key: 'Nameplate', label: 'Nameplate' },
+  { key: 'Bottom', label: 'ด้านล่าง / Bottom' },
+  { key: 'TerminalNut', label: 'Terminal / Nut' },
+  { key: 'TermCover', label: 'Term. cover' },
+  { key: 'Cover', label: 'ฝาครอบ / Cover' },
+  { key: 'Video', label: 'Video' },
 ];
 
 export default function EditRepairOrderForm({ companies = [], users = [], initialData }: { companies: any[], users: any[], initialData: any }) {
@@ -80,6 +80,9 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
         customerAddress: initialData.customerAddress || '',
         salesPerson: initialData.salesPerson || initialData.job?.sellerName || '',
       });
+      if (initialData.senderName) {
+        setContactSearchQuery(initialData.senderName);
+      }
     }
   }, [initialData]);
 
@@ -310,7 +313,7 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
             <InputField name="forwardedBy" label="ส่งต่อโดย (Forwarder) :" type="text" value={formData.forwardedBy || ''} onChange={handleInputChange} />
             
             <InputField name="phoneNumber" label="เบอร์โทรผู้ติดต่อ :" type="text" value={formData.phoneNumber || ''} onChange={handleInputChange} />
-            <InputField name="deliveryNoteNo" label="Delivery Note No :" type="text" value={formData.deliveryNoteNo || ''} onChange={handleInputChange} />
+            <InputField name="deliveryNoteNo" label="Delivery Note / Ref Job No :" type="text" value={formData.deliveryNoteNo || ''} onChange={handleInputChange} />
           </div>
         </Card>
 
@@ -428,14 +431,14 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
               {formData.items.map((item: any, idx: number) => (
                 <tr key={idx} className="group relative bg-white">
                   <td className="py-3 px-4 font-medium text-slate-500 text-center">{idx + 1}</td>
-                  <td className="py-2 px-2"><input type="text" value={item.type} onChange={e => handleItemChange(idx, 'type', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" /></td>
-                  <td className="py-2 px-2"><input type="text" value={item.brand} onChange={e => handleItemChange(idx, 'brand', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" /></td>
-                  <td className="py-2 px-2"><input type="text" value={item.model} onChange={e => handleItemChange(idx, 'model', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" /></td>
-                  <td className="py-2 px-2"><input type="text" value={item.size} onChange={e => handleItemChange(idx, 'size', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" /></td>
-                  <td className="py-2 px-2"><input type="text" value={item.serial} onChange={e => handleItemChange(idx, 'serial', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" /></td>
-                  <td className="py-2 px-2"><input type="number" value={item.qty} onChange={e => handleItemChange(idx, 'qty', parseInt(e.target.value)||1)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-center" /></td>
+                  <td className="py-2 px-2"><input type="text" value={item.type || ''} onChange={e => handleItemChange(idx, 'type', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" /></td>
+                  <td className="py-2 px-2"><input type="text" value={item.brand || ''} onChange={e => handleItemChange(idx, 'brand', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" /></td>
+                  <td className="py-2 px-2"><input type="text" value={item.model || ''} onChange={e => handleItemChange(idx, 'model', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" /></td>
+                  <td className="py-2 px-2"><input type="text" value={item.size || ''} onChange={e => handleItemChange(idx, 'size', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" /></td>
+                  <td className="py-2 px-2"><input type="text" value={item.serial || ''} onChange={e => handleItemChange(idx, 'serial', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" /></td>
+                  <td className="py-2 px-2"><input type="number" value={item.qty || ''} onChange={e => handleItemChange(idx, 'qty', parseInt(e.target.value)||1)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none text-center" /></td>
                   <td className="py-2 px-2 relative">
-                    <input type="text" value={item.remark} onChange={e => handleItemChange(idx, 'remark', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" />
+                    <input type="text" value={item.remark || ''} onChange={e => handleItemChange(idx, 'remark', e.target.value)} className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none" />
                     {formData.items.length > 1 && (
                       <button type="button" onClick={() => removeItem(idx)} className="absolute -right-8 top-1/2 -translate-y-1/2 text-slate-300 hover:text-red-500 transition-colors">
                         <Trash2 size={16} />

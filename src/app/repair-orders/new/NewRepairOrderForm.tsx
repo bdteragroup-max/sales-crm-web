@@ -383,7 +383,7 @@ export default function NewRepairOrderForm({
               <input type="text" value={invoiceNo} onChange={(e) => setInvoiceNo(e.target.value)} className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>Delivery Note No.</label>
+              <label className={labelClass}>Delivery Note / Ref Job No.</label>
               <input type="text" value={deliveryNoteNo} onChange={(e) => setDeliveryNoteNo(e.target.value)} className={inputClass} />
             </div>
             <div>
