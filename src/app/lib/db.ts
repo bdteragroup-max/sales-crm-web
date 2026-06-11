@@ -23,9 +23,9 @@ const prismaClientSingleton = () => {
 
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 2, // Reduced to 2 to prevent EMAXCONNSESSION in highly concurrent serverless environments
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
+    max: 50, // Increased to 50 for heavy multi-tab usage
+    idleTimeoutMillis: 10000, // Free up unused connections faster
+    connectionTimeoutMillis: 10000,
   })
   const adapter = new PrismaPg(pool)
   const client = new PrismaClient({

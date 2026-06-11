@@ -1,5 +1,31 @@
 import prisma from './src/app/lib/db';
-import { generateBoqNumberForDate } from './generateBoqNumberForDate';
+async function generateBoqNumberForDate(date: Date): Promise<string> {
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const prefix = `BOQ-${year}${month}-`;
+
+  const highestBoq = await prisma.customerRequirement.findFirst({
+    where: {
+      boqNumber: {
+        startsWith: prefix,
+      },
+    },
+    orderBy: {
+      boqNumber: 'desc',
+    },
+  });
+
+  let nextSequence = 1;
+  if (highestBoq && highestBoq.boqNumber) {
+    const sequencePart = highestBoq.boqNumber.replace(prefix, '');
+    const currentSequence = parseInt(sequencePart, 10);
+    if (!isNaN(currentSequence)) {
+      nextSequence = currentSequence + 1;
+    }
+  }
+
+  return `${prefix}${nextSequence.toString().padStart(3, '0')}`;
+}
 
 async function main() {
   console.log("Backfilling boqNumber for existing estimations...");

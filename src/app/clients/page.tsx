@@ -197,6 +197,10 @@ export default async function ClientsPage({ searchParams }: PageProps) {
           select: {
             createdAt: true,
             quotationDate: true,
+            followUp1: true,
+            followUp2: true,
+            followUp3: true,
+            followUp4: true,
             status: true,
             salesperson: {
               select: {

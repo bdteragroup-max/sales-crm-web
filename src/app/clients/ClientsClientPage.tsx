@@ -54,6 +54,10 @@ interface Company {
   quotations: {
     createdAt: string;
     quotationDate?: string | null;
+    followUp1?: string | null;
+    followUp2?: string | null;
+    followUp3?: string | null;
+    followUp4?: string | null;
     salesperson?: {
       id: string;
       fullName: string;
@@ -713,7 +717,7 @@ export default function ClientsClientPage({
                           {company.customerStatus}
                         </span>
                       )}
-                      {company.branchOrHeadOffice && (
+                      {company.customerType !== 'บุคคลธรรมดา' && company.branchOrHeadOffice && (
                         <span className="text-[11px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full font-medium">
                           {company.branchOrHeadOffice}
                         </span>
@@ -744,8 +748,12 @@ export default function ClientsClientPage({
                       {(() => {
                         const lastTele = company.telesales?.[0]?.callDate || company.telesales?.[0]?.createdAt;
                         const lastQuot = company.quotations?.[0]?.quotationDate || company.quotations?.[0]?.createdAt;
+                        const f1 = company.quotations?.[0]?.followUp1;
+                        const f2 = company.quotations?.[0]?.followUp2;
+                        const f3 = company.quotations?.[0]?.followUp3;
+                        const f4 = company.quotations?.[0]?.followUp4;
                         
-                        const lastDate = [lastTele, lastQuot]
+                        const lastDate = [lastTele, lastQuot, f1, f2, f3, f4]
                           .filter(Boolean)
                           .map(d => new Date(d as string))
                           .sort((a, b) => b.getTime() - a.getTime())[0];
@@ -1151,6 +1159,12 @@ export default function ClientsClientPage({
                     <option value="บุคคลธรรมดา">บุคคลธรรมดา (Individual)</option>
                   </select>
                 </div>
+                {createCustomerType !== 'บุคคลธรรมดา' && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สาขา / สำนักงานใหญ่</label>
+                    <input name="branchOrHeadOffice" defaultValue="สำนักงานใหญ่" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="สำนักงานใหญ่ หรือ สาขา 00001" />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทธุรกิจ (Business Type) *</label>
                   <select 
@@ -1631,6 +1645,12 @@ export default function ClientsClientPage({
                     <option value="บุคคลธรรมดา">บุคคลธรรมดา (Individual)</option>
                   </select>
                 </div>
+                {editCustomerType !== 'บุคคลธรรมดา' && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สาขา / สำนักงานใหญ่</label>
+                    <input name="branchOrHeadOffice" defaultValue={editingCompany.branchOrHeadOffice || 'สำนักงานใหญ่'} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="สำนักงานใหญ่ หรือ สาขา 00001" />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทธุรกิจ (Business Type) *</label>
                   <select 

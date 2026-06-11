@@ -29,9 +29,9 @@ const prismaClientSingleton = () => {
 
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 2,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
+    max: 50, // Increased to prevent slow loading with multi-tabs
+    idleTimeoutMillis: 10000,
+    connectionTimeoutMillis: 10000,
   })
   const adapter = new PrismaPg(pool)
   return new PrismaClient({ adapter })

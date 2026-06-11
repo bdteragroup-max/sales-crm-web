@@ -8,7 +8,7 @@ import {
   Users, Briefcase, ChevronDown, Check, Calendar, Clock,
   PieChart as PieIcon, LineChart as LineIcon, AlertCircle,
   Zap, Package, DollarSign, ArrowRight,
-  Lock, TrendingDown, AlertTriangle, RefreshCw
+  Lock, TrendingDown, AlertTriangle, RefreshCw, Loader2
 } from 'lucide-react';
 import { 
   SalesOverviewChart, ProductMixPieChart, 
@@ -145,11 +145,15 @@ export default function DashboardUI({
   const searchParams = useSearchParams();
   const [isSalespersonDropdownOpen, setIsSalespersonDropdownOpen] = React.useState(false);
 
+  const [isPending, startTransition] = React.useTransition();
+
   const handleFilterChange = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
     else params.delete(key);
-    router.push(`${pathname}?${params.toString()}`);
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
   };
 
   const handleMultiFilterChange = (updates: Record<string, string>) => {
@@ -158,7 +162,9 @@ export default function DashboardUI({
       if (value) params.set(key, value);
       else params.delete(key);
     });
-    router.push(`${pathname}?${params.toString()}`);
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
   };
 
   const toggleSalesperson = (id: string) => {
@@ -287,7 +293,15 @@ export default function DashboardUI({
   });
 
   return (
-    <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 bg-gray-50/50 animate-fade-in pb-24 md:pb-4">
+    <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 bg-gray-50/50 animate-fade-in pb-24 md:pb-4 relative">
+      {isPending && (
+        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-white/50 backdrop-blur-[2px] rounded-3xl m-4">
+          <div className="flex flex-col items-center gap-3 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+            <Loader2 className="w-8 h-8 text-brand-red animate-spin" />
+            <p className="text-sm font-bold text-gray-700">กำลังโหลดข้อมูล...</p>
+          </div>
+        </div>
+      )}
       <div 
         className="md:h-full min-h-screen md:min-h-0 w-full bg-white rounded-3xl border border-gray-100 shadow-xl flex flex-col md:overflow-hidden overflow-visible" 
         onClick={() => isSalespersonDropdownOpen && setIsSalespersonDropdownOpen(false)}

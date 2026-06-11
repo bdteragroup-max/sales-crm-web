@@ -57,6 +57,7 @@ export default function NewRepairOrderForm({
   const contactSearchRef = useRef<HTMLDivElement>(null);
 
   const [customerCompany, setCustomerCompany] = useState(initialData?.customerCompany || "");
+  const [serviceProviderCompany, setServiceProviderCompany] = useState(initialData?.company || "TERA GROUP");
   const [customerAddress, setCustomerAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [subDistrict, setSubDistrict] = useState("");
@@ -295,7 +296,7 @@ export default function NewRepairOrderForm({
         phoneNumber,
         deliveryNoteNo,
         customerCompany,
-        company: initialData?.company,
+        company: serviceProviderCompany,
         salesPerson: initialData?.salesPerson,
         customerAddress: `${customerAddress} ${subDistrict} ${district} ${province} ${postalCode}`.trim(),
         items: items.map(i => ({
@@ -363,10 +364,22 @@ export default function NewRepairOrderForm({
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             <div>
+              <label className={labelClass}>บริษัทผู้รับบริการ</label>
+              <select 
+                value={serviceProviderCompany} 
+                onChange={(e) => setServiceProviderCompany(e.target.value)} 
+                className={inputClass}
+              >
+                <option value="TERA GROUP">TERA GROUP</option>
+                <option value="TERA ELECTRIC">TERA ELECTRIC</option>
+                <option value="TERA POWER">TERA POWER</option>
+              </select>
+            </div>
+            <div>
               <label className={labelClass}>วันที่รับซ่อม</label>
               <input type="date" value={receivedDate} onChange={(e) => setReceivedDate(e.target.value)} className={inputClass} />
             </div>
-            <div className="lg:col-span-2">
+            <div>
               <label className={labelClass}>รูปแบบงาน</label>
               <div className="flex items-center gap-6 py-2">
                 {["ซ่อม", "เคลม", "ไม่ซ่อม/คืนสินค้า"].map((opt) => (
