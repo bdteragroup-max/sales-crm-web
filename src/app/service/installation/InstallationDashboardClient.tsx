@@ -32,8 +32,9 @@ export default function InstallationDashboardClient({ orders, users, currentUser
 
   const getOrdersForDay = (day: number) => {
     return orders.filter(o => {
-      if (!o.installationDate) return false;
-      const d = new Date(o.installationDate);
+      const targetDate = o.plannedStartDate || o.installationDate;
+      if (!targetDate) return false;
+      const d = new Date(targetDate);
       return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
     });
   };

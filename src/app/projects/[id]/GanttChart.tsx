@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { format, differenceInDays, addDays, min, max, isAfter, startOfDay, isBefore } from 'date-fns';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { updateTask } from '@/app/actions/projects';
 import { Loader2 } from 'lucide-react';
 
@@ -128,9 +128,74 @@ export default function GanttChart({ project, currentUser, isManager }: GanttCha
     });
   }, [tasks, dateRange.dates]);
 
-  const handleDragStart = (e: React.DragEvent, taskId: string, type: 'move' | 'resize-left' | 'resize-right', start: Date, end: Date) => {
+  // Handle Dragging
+  React.useEffect(() => {
+    if (!dragging) return;
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const deltaX = e.clientX - dragging.startX;
+      const daysShift = Math.round(deltaX / dayWidth);
+      
+      setTasks((prev: any) => prev.map((t: any) => {
+        if (t.id === dragging.taskId) {
+          if (dragging.type === 'move') {
+            return {
+              ...t,
+              planStart: addDays(dragging.originalStart, daysShift),
+              planEnd: addDays(dragging.originalEnd, daysShift),
+            };
+          } else if (dragging.type === 'resize-left') {
+            const newStart = addDays(dragging.originalStart, daysShift);
+            if (!isAfter(newStart, t.planEnd)) {
+              return { ...t, planStart: newStart };
+            }
+          } else if (dragging.type === 'resize-right') {
+            const newEnd = addDays(dragging.originalEnd, daysShift);
+            if (!isBefore(newEnd, t.planStart)) {
+              return { ...t, planEnd: newEnd };
+            }
+          }
+        }
+        return t;
+      }));
+    };
+
+    const handlePointerUp = async () => {
+      if (!dragging) return;
+      const task = tasks.find((t: any) => t.id === dragging.taskId);
+      setDragging(null);
+      if (task) {
+        setIsSaving(true);
+        try {
+          await updateTask(task.id, { planStart: task.planStart, planEnd: task.planEnd });
+        } catch (err) {
+          console.error(err);
+          alert("Failed to update schedule");
+        } finally {
+          setIsSaving(false);
+        }
+      }
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+  }, [dragging, dayWidth, tasks]);
+
+  const handlePointerDown = (e: React.PointerEvent, taskId: string, type: 'move' | 'resize-left' | 'resize-right', start: Date, end: Date) => {
     e.stopPropagation();
-    // Only allow drag if no drag image needed, we will just use drag events or mouse events
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    setDragging({
+      taskId,
+      type,
+      startX: e.clientX,
+      originalStart: new Date(start),
+      originalEnd: new Date(end)
+    });
   };
 
   const handleSaveProgress = async (pct: number) => {
@@ -222,21 +287,37 @@ export default function GanttChart({ project, currentUser, isManager }: GanttCha
                ))}
             </div>
 
+            {/* Today Line */}
+            {(() => {
+              const todayOffset = differenceInDays(startOfDay(new Date()), dateRange.minDate);
+              if (todayOffset >= 0 && todayOffset <= dateRange.days) {
+                return (
+                  <div 
+                    className="absolute top-0 bottom-0 border-l-2 border-dashed border-brand-red z-20 pointer-events-none"
+                    style={{ left: todayOffset * dayWidth + dayWidth / 2 }}
+                  >
+                    <div className="absolute -top-3 -left-6 bg-brand-red text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm whitespace-nowrap">
+                      Today
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
             {/* Task Bars */}
             {structuredTasks.map((parent: any) => (
               <React.Fragment key={`bar-${parent.id}`}>
                 {/* Parent Bar */}
                 <div className="h-10 border-b border-transparent relative flex items-center">
                   <div 
-                    className="absolute h-4 bg-brand-red/70 rounded-sm shadow-sm"
+                    className="absolute h-2 border-t-2 border-l-2 border-r-2 border-gray-400 rounded-t-sm opacity-60 pointer-events-none"
                     style={{
                       left: Math.max(0, differenceInDays(parent.displayStart, dateRange.minDate)) * dayWidth,
                       width: Math.max(1, differenceInDays(parent.displayEnd, parent.displayStart)) * dayWidth,
+                      top: '50%'
                     }}
-                  >
-                    <div className="absolute -left-1 top-0 bottom-0 w-2 bg-brand-red rounded-l-sm"></div>
-                    <div className="absolute -right-1 top-0 bottom-0 w-2 bg-brand-red rounded-r-sm"></div>
-                  </div>
+                  />
                 </div>
 
                 {/* Subtask Bars */}
@@ -246,8 +327,8 @@ export default function GanttChart({ project, currentUser, isManager }: GanttCha
                   return (
                     <div key={`bar-${sub.id}`} className="h-10 border-b border-transparent relative flex items-center group">
                       <div 
-                        onClick={() => setEditingTask(sub)}
-                        className="absolute h-6 bg-blue-500 rounded-md shadow-sm cursor-pointer transition-all hover:bg-blue-600 group-hover:ring-2 ring-blue-300"
+                        onPointerDown={(e) => handlePointerDown(e, sub.id, 'move', sub.planStart, sub.planEnd)}
+                        className="absolute h-6 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full shadow-md cursor-grab active:cursor-grabbing transition-shadow hover:shadow-lg hover:ring-2 ring-indigo-300 group-hover:z-30"
                         style={{
                           left: startOffset * dayWidth,
                           width: duration * dayWidth,
@@ -255,12 +336,29 @@ export default function GanttChart({ project, currentUser, isManager }: GanttCha
                       >
                          {/* Actual Progress Overlay */}
                          <div 
-                           className="absolute top-0 bottom-0 left-0 bg-green-500 rounded-l-md opacity-80"
+                           className="absolute top-0 bottom-0 left-0 bg-white/20 rounded-l-full pointer-events-none"
                            style={{ width: `${sub.actualPct || 0}%` }}
                          />
-                         <span className="absolute inset-0 flex items-center justify-center text-[10px] text-white font-bold drop-shadow-md overflow-hidden whitespace-nowrap px-1">
+                         
+                         {/* Text and interaction area to update progress */}
+                         <div 
+                           onClick={(e) => { e.stopPropagation(); setEditingTask(sub); }}
+                           className="absolute inset-0 flex items-center justify-center text-[10px] text-white font-bold drop-shadow-md overflow-hidden whitespace-nowrap px-1 cursor-pointer"
+                           title={`${sub.title}\nStart: ${format(new Date(sub.planStart), 'dd/MM/yyyy')}\nEnd: ${format(new Date(sub.planEnd), 'dd/MM/yyyy')}\nActual: ${sub.actualPct || 0}%`}
+                         >
                            {sub.actualPct || 0}%
-                         </span>
+                         </div>
+
+                         {/* Left Drag Handle */}
+                         <div 
+                           onPointerDown={(e) => { e.stopPropagation(); handlePointerDown(e, sub.id, 'resize-left', sub.planStart, sub.planEnd); }}
+                           className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize opacity-0 group-hover:opacity-100 hover:bg-white/30 rounded-l-full" 
+                         />
+                         {/* Right Drag Handle */}
+                         <div 
+                           onPointerDown={(e) => { e.stopPropagation(); handlePointerDown(e, sub.id, 'resize-right', sub.planStart, sub.planEnd); }}
+                           className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize opacity-0 group-hover:opacity-100 hover:bg-white/30 rounded-r-full" 
+                         />
                       </div>
                     </div>
                   );
@@ -275,7 +373,7 @@ export default function GanttChart({ project, currentUser, isManager }: GanttCha
       <div className="h-[250px] border-t border-gray-200 bg-white p-4">
         <h3 className="text-sm font-bold text-gray-800 mb-2">S-Curve (% Plan vs % Actual)</h3>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={sCurveData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+          <AreaChart data={sCurveData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
             <XAxis dataKey="date" tick={{fontSize: 10}} tickMargin={10} stroke="#9CA3AF" />
             <YAxis tick={{fontSize: 10}} stroke="#9CA3AF" domain={[0, 100]} />
@@ -283,9 +381,9 @@ export default function GanttChart({ project, currentUser, isManager }: GanttCha
               contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
             />
             <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-            <Line type="monotone" dataKey="planPct" name="% Plan" stroke="#3B82F6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-            <Line type="monotone" dataKey="actualPct" name="% Actual" stroke="#10B981" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-          </LineChart>
+            <Area type="monotone" dataKey="planPct" name="% Plan" stroke="#3B82F6" fillOpacity={0.2} fill="#3B82F6" strokeWidth={3} activeDot={{ r: 6 }} />
+            <Area type="monotone" dataKey="actualPct" name="% Actual" stroke="#10B981" fillOpacity={0.2} fill="#10B981" strokeWidth={3} activeDot={{ r: 6 }} />
+          </AreaChart>
         </ResponsiveContainer>
       </div>
 

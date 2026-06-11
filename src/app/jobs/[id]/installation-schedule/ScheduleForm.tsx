@@ -75,12 +75,9 @@ export default function ScheduleForm({ order, currentUser }: { order: any, curre
     setError("")
 
     try {
-      const startDateTime = `${formData.startDate}T${formData.startHour}:${formData.startMinute}:00`
-      const endDateTime = `${formData.endDate}T${formData.endHour}:${formData.endMinute}:00`
-
       const payload = {
-        plannedStartDate: startDateTime,
-        plannedEndDate: endDateTime,
+        plannedStartDate: formData.startDate ? `${formData.startDate}T${formData.startHour}:${formData.startMinute}:00` : null,
+        plannedEndDate: formData.endDate ? `${formData.endDate}T${formData.endHour}:${formData.endMinute}:00` : null,
         workLocation: formData.workLocation,
         workPlan: tasks.filter(t => t.trim() !== "").join('\n'),
         technicianNote: equipments.filter(e => e.trim() !== "").join('\n')

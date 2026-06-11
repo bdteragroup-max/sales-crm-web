@@ -331,6 +331,8 @@ export default function JobsClientPage({
   const router = useRouter();
   const [showQuickRepair, setShowQuickRepair] = useState(actionParam === "new-repair");
   const [quickRepairLoading, setQuickRepairLoading] = useState(false);
+  const [showQuickProject, setShowQuickProject] = useState(false);
+  const [quickProjectLoading, setQuickProjectLoading] = useState(false);
 
   useEffect(() => {
     if (actionParam === "new-repair") {
@@ -553,9 +555,69 @@ export default function JobsClientPage({
     );
   }
 
+  function QuickProjectModal() {
+    const [customerName, setCustomerName] = useState("");
+    const [item, setItem] = useState("");
+    const [companyCode, setCompanyCode] = useState("TP");
+
+    async function handleCreate(e: React.FormEvent) {
+      e.preventDefault();
+      if (!customerName || !item) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      setQuickProjectLoading(true);
+      try {
+        const newJob = await createStandaloneJob({ customerName, item, companyCode, jobType: "งานโปรเจค" });
+        setJobs(prev => [newJob as any, ...prev]);
+        setShowQuickProject(false);
+        router.push(`/projects`);
+      } catch (err) {
+        alert("เกิดข้อผิดพลาด");
+      } finally {
+        setQuickProjectLoading(false);
+      }
+    }
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+          <div className="p-4 border-b border-gray-100 flex justify-between items-center">
+            <h2 className="font-bold text-gray-800 flex items-center gap-2">
+              <FolderOpen size={18} className="text-blue-600" />
+              สร้างงานโปรเจคด่วน (Quick Project)
+            </h2>
+            <button onClick={() => setShowQuickProject(false)} className="text-gray-400 hover:text-gray-600">
+              <X size={20} />
+            </button>
+          </div>
+          <form onSubmit={handleCreate} className="p-5 space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">ชื่อลูกค้า / ชื่อโปรเจค</label>
+              <input autoFocus required type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">รายละเอียดงาน</label>
+              <input required type="text" value={item} onChange={e => setItem(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">บริษัท</label>
+              <select value={companyCode} onChange={e => setCompanyCode(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                <option value="TP">TP</option>
+                <option value="TG">TG</option>
+                <option value="TE">TE</option>
+              </select>
+            </div>
+            <button disabled={quickProjectLoading} type="submit" className="w-full mt-2 bg-blue-600 text-white py-2.5 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-blue-700 transition-colors shadow-md shadow-blue-200 flex items-center justify-center gap-2">
+              {quickProjectLoading ? "กำลังสร้าง..." : "สร้างโปรเจค"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return ( 
     <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm md:overflow-hidden overflow-visible"> 
       {showQuickRepair && <QuickRepairModal />}
+      {showQuickProject && <QuickProjectModal />}
 
       {/* ── Top Header Bar ── */}
       <header className="shrink-0 md:h-20 py-4 md:py-0 border-b border-gray-100 px-6 md:px-8 flex flex-col md:flex-row gap-4 items-center justify-between bg-white w-full">
@@ -569,6 +631,26 @@ export default function JobsClientPage({
               {isManager ? "แสดงงานทั้งหมดในระบบ" : `แสดงเฉพาะงานของ ${currentUser}`}
             </p>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {(normalizedDept.includes('project') || normalizedDept.includes('sales') || isManager) && (
+            <button 
+              onClick={() => setShowQuickProject(true)}
+              className="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors flex items-center gap-2"
+            >
+              <FolderOpen size={14} />
+              สร้างงานโปรเจค
+            </button>
+          )}
+          {(normalizedDept.includes('service') || isManager) && (
+            <button 
+              onClick={() => setShowQuickRepair(true)}
+              className="px-4 py-2 bg-brand-red/10 text-brand-red hover:bg-brand-red/20 rounded-lg text-xs font-bold transition-colors flex items-center gap-2"
+            >
+              <Wrench size={14} />
+              เปิดงานซ่อมด่วน
+            </button>
+          )}
         </div>
       </header>
 
