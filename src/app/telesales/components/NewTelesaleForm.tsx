@@ -228,6 +228,69 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
     setIsSubmitting(false);
   }
 
+  const renderDateTimeField = (name: string, label: string) => {
+    const dt = formData[name] || '';
+    const datePart = dt ? dt.split('T')[0] : '';
+    const timePart = dt ? dt.split('T')[1] : '';
+    const h = timePart ? timePart.split(':')[0] : '09';
+    const m = timePart ? timePart.split(':')[1] : '00';
+
+    return (
+      <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-4 w-full">
+        <label className="w-full md:w-1/3 text-left md:text-right text-xs md:text-sm font-semibold md:font-medium text-slate-500 md:text-gray-600 ml-1 md:ml-0 shrink-0">
+          {label}
+        </label>
+        <div className="flex-1 flex items-center gap-1.5 w-full min-w-0">
+          <input 
+            type="date" 
+            value={datePart}
+            onChange={(e) => {
+              const newDate = e.target.value;
+              if (!newDate) {
+                setFormData((prev: any) => ({ ...prev, [name]: '' }));
+              } else {
+                setFormData((prev: any) => ({ ...prev, [name]: `${newDate}T${h}:${m}` }));
+              }
+            }}
+            className="w-1/2 border border-slate-200 rounded-xl p-2.5 text-sm outline-none bg-white hover:border-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200 min-w-0"
+          />
+          <div className="w-1/2 flex items-center gap-1 min-w-0">
+            <select 
+              value={dt ? h : ''}
+              onChange={(e) => {
+                const newH = e.target.value;
+                setFormData((prev: any) => ({ ...prev, [name]: `${datePart || formatDateForInput(new Date())}T${newH}:${m}` }));
+              }}
+              className="flex-1 border border-slate-200 rounded-xl p-2.5 text-sm outline-none bg-white hover:border-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200 text-center px-1 min-w-0"
+            >
+              <option value="" disabled>ชม.</option>
+              {Array.from({length: 24}).map((_, i) => {
+                const val = i.toString().padStart(2, '0');
+                return <option key={val} value={val}>{val}</option>;
+              })}
+            </select>
+            <span className="self-center font-bold text-gray-400">:</span>
+            <select 
+              value={dt ? m : ''}
+              onChange={(e) => {
+                const newM = e.target.value;
+                setFormData((prev: any) => ({ ...prev, [name]: `${datePart || formatDateForInput(new Date())}T${h}:${newM}` }));
+              }}
+              className="flex-1 border border-slate-200 rounded-xl p-2.5 text-sm outline-none bg-white hover:border-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200 text-center px-1 min-w-0"
+            >
+              <option value="" disabled>นาที</option>
+              {Array.from({length: 60}).map((_, i) => {
+                const val = i.toString().padStart(2, '0');
+                return <option key={val} value={val}>{val}</option>;
+              })}
+            </select>
+          </div>
+          <input type="hidden" name={name} value={dt} />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* ── Action Bar ── */}
@@ -296,7 +359,7 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
                   placeholder="ระบุสิ่งที่ลูกค้าต้องการ / ปัญหา..."
                 ></textarea>
               </div>
-              <InputField name="callbackAt" label="นัดโทรกลับ :" type="datetime-local" value={formData.callbackAt || ''} onChange={handleInputChange} />
+              {renderDateTimeField('callbackAt', 'นัดโทรกลับ :')}
               <SelectField 
                 name="meetingObjectiveSelect" 
                 label="วัตถุประสงค์เข้าพบ :" 
@@ -316,13 +379,7 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
                 />
               )}
               <input type="hidden" name="meetingObjective" value={formData.meetingObjective || ''} />
-              <InputField 
-                name="visitDate" 
-                label="วันนัดเข้าพบ (Visit Date) :" 
-                type="datetime-local" 
-                value={formData.visitDate || ''} 
-                onChange={handleInputChange} 
-              />
+              {renderDateTimeField('visitDate', 'วันนัดเข้าพบ (Visit Date) :')}
             </div>
           </Card>
         </div>

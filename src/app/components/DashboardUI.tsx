@@ -18,7 +18,8 @@ import {
   ComposedActivityCorrelationChart, PipelineComposedStageChart,
   ProductPerformanceComposedChart, RegionalComposedChart,
   LostReasonSummaryChart, LostReasonByProductChart,
-  ForecastAccuracyChart, TelesalesComposedChart, TelesalesFunnelChart
+  ForecastAccuracyChart, TelesalesComposedChart, TelesalesFunnelChart,
+  ProductGroupTargetChart, BranchPerformanceChart
 } from './DashboardCharts';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -67,6 +68,10 @@ interface DashboardUIProps {
     };
     orderMetrics?: any[];
     jobMetrics?: any[];
+    productGroupTargets?: Record<string, number>;
+    productGroupSales?: Record<string, number>;
+    branchPerformance?: { branch: string; sales: number; expenses: number }[];
+    individualPerformance?: { salespersonId: string; name: string; branch: string; sales: number; expenses: number }[];
   };
   recentActivities: any[];
   nextMeetings: any[];
@@ -533,7 +538,57 @@ export default function DashboardUI({
             </section>
           )}
 
+          {/* 1.3 PRODUCT GROUP TARGETS */}
+          {metrics.productGroupTargets && metrics.productGroupSales && (
+            <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 mt-2">
+              <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                <Target size={16} className="text-brand-red" />
+                เป้าหมายและการขายแบ่งตามกลุ่มสินค้า (Product Group Targets vs Sales)
+              </h3>
+              <div className="h-[300px]">
+                <ProductGroupTargetChart data={
+                  ['Inverter & automation', 'Solar Roof', 'Solar Pump', 'Overall'].map(key => ({
+                    name: key === 'Overall' ? 'รวมทั้งหมด' : key,
+                    sales: key === 'Overall' 
+                      ? Object.values(metrics.productGroupSales || {}).reduce((a,b)=>a+b,0)
+                      : (metrics.productGroupSales?.[key] || 0),
+                    target: metrics.productGroupTargets?.[key] || 0
+                  }))
+                } />
+              </div>
+            </section>
+          )}
 
+
+          {/* 1.4 INDIVIDUAL PERFORMANCE (SALES) */}
+          {metrics.individualPerformance && metrics.individualPerformance.length > 0 && (
+            <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 mt-2">
+              <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                <Users size={16} className="text-blue-600" />
+                ยอดขายรายบุคคล (Individual Sales)
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                      <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase">พนักงานขาย</th>
+                      <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase">สาขา</th>
+                      <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase text-right">ยอดขาย (Sales)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {metrics.individualPerformance.map((ind) => (
+                      <tr key={ind.salespersonId} className="border-b border-gray-50 hover:bg-gray-50/50">
+                        <td className="px-4 py-3 text-xs font-bold text-gray-900">{ind.name}</td>
+                        <td className="px-4 py-3 text-[10px] font-bold text-gray-500">{ind.branch}</td>
+                        <td className="px-4 py-3 text-xs font-black text-green-600 text-right">฿{ind.sales.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
           {/* 1.5 PRIORITIZED ALERTS BANNER */}
           {alerts.length > 0 && (
             <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">

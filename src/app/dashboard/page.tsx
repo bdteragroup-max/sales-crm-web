@@ -1372,7 +1372,79 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       if (a.priority !== b.priority) return a.priority === 'critical' ? -1 : 1;
       return b.value - a.value;
     });
-  }
+  } // end if (isManager && employeePerformance.length > 0)
+  
+  // NEW ENHANCEMENTS: Branch/Individual Expenses and Product Group Targets
+  const branchExpenses = await prisma.branchExpense.findMany({
+    where: { date: { gte: filterStart, lte: filterEnd } }
+  });
+
+  const totalActiveRepsCount = await prisma.user.count({ where: { isActive: true } });
+  
+  const isViewingAll = isManager && salespersonIds.length === 0;
+  const headcountProportion = isViewingAll ? 1 : (Math.max(1, filterIds.length) / Math.max(1, totalActiveRepsCount));
+
+  const productGroupTargets = {
+    'Inverter & automation': 22000000 * headcountProportion,
+    'Solar Roof': 15000000 * headcountProportion,
+    'Solar Pump': 12000000 * headcountProportion,
+    'Overall': (22000000 + 15000000 + 12000000) * headcountProportion
+  };
+
+  const branchPerformanceMap: Record<string, { branch: string; sales: number; expenses: number }> = {};
+  const individualPerformanceMap: Record<string, { salespersonId: string; name: string; branch: string; sales: number; expenses: number }> = {};
+
+  salesReps.forEach((r: any) => {
+    const b = r.hrBranch || 'Head Office';
+    if (!branchPerformanceMap[b]) branchPerformanceMap[b] = { branch: b, sales: 0, expenses: 0 };
+    individualPerformanceMap[r.id] = { salespersonId: r.id, name: r.fullName, branch: b, sales: 0, expenses: 0 };
+  });
+
+  analyticalData.forEach((q: any) => {
+    if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) {
+      const amt = q.actualClosingAmount || q.totalAmountBeforeVat || 0;
+      const sellerId = q.salespersonId;
+      if (sellerId && individualPerformanceMap[sellerId]) {
+        individualPerformanceMap[sellerId].sales += amt;
+        const b = individualPerformanceMap[sellerId].branch;
+        if (branchPerformanceMap[b]) branchPerformanceMap[b].sales += amt;
+      }
+    }
+  });
+
+  branchExpenses.forEach((exp) => {
+    const b = exp.branch;
+    if (!branchPerformanceMap[b]) {
+       branchPerformanceMap[b] = { branch: b, sales: 0, expenses: 0 };
+    }
+    branchPerformanceMap[b].expenses += exp.amount;
+
+    if (exp.salespersonId && individualPerformanceMap[exp.salespersonId]) {
+      individualPerformanceMap[exp.salespersonId].expenses += exp.amount;
+    }
+  });
+
+  const branchPerformance = Object.values(branchPerformanceMap).sort((a, b) => b.sales - a.sales);
+  const individualPerformance = Object.values(individualPerformanceMap).sort((a, b) => b.sales - a.sales);
+  
+  const groupSales = {
+    'Inverter & automation': 0,
+    'Solar Roof': 0,
+    'Solar Pump': 0,
+    'Others': 0
+  };
+  analyticalData.forEach((q: any) => {
+    if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) {
+      const amt = q.actualClosingAmount || q.totalAmountBeforeVat || 0;
+      const pType = (q.productType || '').toLowerCase();
+      if (pType.includes('inverter') || pType.includes('automation') || pType.includes('อินเวอร์เตอร์')) groupSales['Inverter & automation'] += amt;
+      else if (pType.includes('roof') || pType.includes('หลังคา') || pType.includes('โซล่ารูฟ')) groupSales['Solar Roof'] += amt;
+      else if (pType.includes('pump') || pType.includes('ปั๊ม') || pType.includes('โซล่าปั๊ม')) groupSales['Solar Pump'] += amt;
+      else groupSales['Others'] += amt;
+    }
+  });
+
+  const productGroupSales = groupSales;
 
   return (
     <main className="flex-1 overflow-y-auto bg-gray-50 pb-20 md:pb-10 relative">
@@ -1413,7 +1485,11 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
               connectionRateMin
             },
             orderMetrics: ordersAgg,
-            jobMetrics: jobsAgg
+            jobMetrics: jobsAgg,
+            productGroupTargets,
+            productGroupSales,
+            branchPerformance,
+            individualPerformance
           } as any}
           recentActivities={recentQ}
           nextMeetings={nextM}

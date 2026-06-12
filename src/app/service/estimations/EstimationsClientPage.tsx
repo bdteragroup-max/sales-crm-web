@@ -388,6 +388,11 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
                               <strong className="text-gray-800">Note จากเซลล์:</strong> {record.note}
                             </div>
                           )}
+                          {record.formData["งบประมาณลูกค้า"] && (
+                            <div className="text-[11px] bg-emerald-50/50 p-2 rounded-lg border border-emerald-100/50 text-emerald-700 mt-2">
+                              <strong className="text-emerald-800">งบประมาณลูกค้า:</strong> {record.formData["งบประมาณลูกค้า"]}
+                            </div>
+                          )}
                         </div>
                       )}
                       

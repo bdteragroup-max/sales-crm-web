@@ -318,6 +318,11 @@ export type ProjectTask = $Result.DefaultSelection<Prisma.$ProjectTaskPayload>
  * 
  */
 export type ProjectDailyLog = $Result.DefaultSelection<Prisma.$ProjectDailyLogPayload>
+/**
+ * Model BranchExpense
+ * 
+ */
+export type BranchExpense = $Result.DefaultSelection<Prisma.$BranchExpensePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1049,6 +1054,16 @@ export class PrismaClient<
     * ```
     */
   get projectDailyLog(): Prisma.ProjectDailyLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.branchExpense`: Exposes CRUD operations for the **BranchExpense** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BranchExpenses
+    * const branchExpenses = await prisma.branchExpense.findMany()
+    * ```
+    */
+  get branchExpense(): Prisma.BranchExpenseDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1543,7 +1558,8 @@ export namespace Prisma {
     Project: 'Project',
     ProjectMember: 'ProjectMember',
     ProjectTask: 'ProjectTask',
-    ProjectDailyLog: 'ProjectDailyLog'
+    ProjectDailyLog: 'ProjectDailyLog',
+    BranchExpense: 'BranchExpense'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1559,7 +1575,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder" | "project" | "projectMember" | "projectTask" | "projectDailyLog"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder" | "project" | "projectMember" | "projectTask" | "projectDailyLog" | "branchExpense"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -6077,6 +6093,80 @@ export namespace Prisma {
           }
         }
       }
+      BranchExpense: {
+        payload: Prisma.$BranchExpensePayload<ExtArgs>
+        fields: Prisma.BranchExpenseFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BranchExpenseFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BranchExpenseFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload>
+          }
+          findFirst: {
+            args: Prisma.BranchExpenseFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BranchExpenseFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload>
+          }
+          findMany: {
+            args: Prisma.BranchExpenseFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload>[]
+          }
+          create: {
+            args: Prisma.BranchExpenseCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload>
+          }
+          createMany: {
+            args: Prisma.BranchExpenseCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BranchExpenseCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload>[]
+          }
+          delete: {
+            args: Prisma.BranchExpenseDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload>
+          }
+          update: {
+            args: Prisma.BranchExpenseUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload>
+          }
+          deleteMany: {
+            args: Prisma.BranchExpenseDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BranchExpenseUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BranchExpenseUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload>[]
+          }
+          upsert: {
+            args: Prisma.BranchExpenseUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BranchExpensePayload>
+          }
+          aggregate: {
+            args: Prisma.BranchExpenseAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBranchExpense>
+          }
+          groupBy: {
+            args: Prisma.BranchExpenseGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BranchExpenseGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BranchExpenseCountArgs<ExtArgs>
+            result: $Utils.Optional<BranchExpenseCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -6246,6 +6336,7 @@ export namespace Prisma {
     projectMember?: ProjectMemberOmit
     projectTask?: ProjectTaskOmit
     projectDailyLog?: ProjectDailyLogOmit
+    branchExpense?: BranchExpenseOmit
   }
 
   /* Types for Logging */
@@ -29652,6 +29743,7 @@ export namespace Prisma {
     phoneNumber: string | null
     workType: string | null
     forwardedBy: string | null
+    technicianName: string | null
     symptoms: string | null
     settings: string | null
     receivedDate: Date | null
@@ -29676,6 +29768,7 @@ export namespace Prisma {
     phoneNumber: string | null
     workType: string | null
     forwardedBy: string | null
+    technicianName: string | null
     symptoms: string | null
     settings: string | null
     receivedDate: Date | null
@@ -29700,6 +29793,7 @@ export namespace Prisma {
     phoneNumber: number
     workType: number
     forwardedBy: number
+    technicianName: number
     items: number
     symptoms: number
     settings: number
@@ -29729,6 +29823,7 @@ export namespace Prisma {
     phoneNumber?: true
     workType?: true
     forwardedBy?: true
+    technicianName?: true
     symptoms?: true
     settings?: true
     receivedDate?: true
@@ -29753,6 +29848,7 @@ export namespace Prisma {
     phoneNumber?: true
     workType?: true
     forwardedBy?: true
+    technicianName?: true
     symptoms?: true
     settings?: true
     receivedDate?: true
@@ -29777,6 +29873,7 @@ export namespace Prisma {
     phoneNumber?: true
     workType?: true
     forwardedBy?: true
+    technicianName?: true
     items?: true
     symptoms?: true
     settings?: true
@@ -29877,6 +29974,7 @@ export namespace Prisma {
     phoneNumber: string | null
     workType: string | null
     forwardedBy: string | null
+    technicianName: string | null
     items: JsonValue
     symptoms: string | null
     settings: string | null
@@ -29921,6 +30019,7 @@ export namespace Prisma {
     phoneNumber?: boolean
     workType?: boolean
     forwardedBy?: boolean
+    technicianName?: boolean
     items?: boolean
     symptoms?: boolean
     settings?: boolean
@@ -29949,6 +30048,7 @@ export namespace Prisma {
     phoneNumber?: boolean
     workType?: boolean
     forwardedBy?: boolean
+    technicianName?: boolean
     items?: boolean
     symptoms?: boolean
     settings?: boolean
@@ -29977,6 +30077,7 @@ export namespace Prisma {
     phoneNumber?: boolean
     workType?: boolean
     forwardedBy?: boolean
+    technicianName?: boolean
     items?: boolean
     symptoms?: boolean
     settings?: boolean
@@ -30005,6 +30106,7 @@ export namespace Prisma {
     phoneNumber?: boolean
     workType?: boolean
     forwardedBy?: boolean
+    technicianName?: boolean
     items?: boolean
     symptoms?: boolean
     settings?: boolean
@@ -30020,7 +30122,7 @@ export namespace Prisma {
     salesPerson?: boolean
   }
 
-  export type RepairOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "invoiceNo" | "deliveryMethod" | "deliveryNoteNo" | "receiverName" | "senderName" | "handoverRef" | "phoneNumber" | "workType" | "forwardedBy" | "items" | "symptoms" | "settings" | "checklist" | "receivedDate" | "sentDate" | "createdAt" | "updatedAt" | "checklistImages" | "company" | "customerAddress" | "customerCompany" | "salesPerson", ExtArgs["result"]["repairOrder"]>
+  export type RepairOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "invoiceNo" | "deliveryMethod" | "deliveryNoteNo" | "receiverName" | "senderName" | "handoverRef" | "phoneNumber" | "workType" | "forwardedBy" | "technicianName" | "items" | "symptoms" | "settings" | "checklist" | "receivedDate" | "sentDate" | "createdAt" | "updatedAt" | "checklistImages" | "company" | "customerAddress" | "customerCompany" | "salesPerson", ExtArgs["result"]["repairOrder"]>
   export type RepairOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | JobDefaultArgs<ExtArgs>
   }
@@ -30048,6 +30150,7 @@ export namespace Prisma {
       phoneNumber: string | null
       workType: string | null
       forwardedBy: string | null
+      technicianName: string | null
       items: Prisma.JsonValue
       symptoms: string | null
       settings: string | null
@@ -30496,6 +30599,7 @@ export namespace Prisma {
     readonly phoneNumber: FieldRef<"RepairOrder", 'String'>
     readonly workType: FieldRef<"RepairOrder", 'String'>
     readonly forwardedBy: FieldRef<"RepairOrder", 'String'>
+    readonly technicianName: FieldRef<"RepairOrder", 'String'>
     readonly items: FieldRef<"RepairOrder", 'Json'>
     readonly symptoms: FieldRef<"RepairOrder", 'String'>
     readonly settings: FieldRef<"RepairOrder", 'String'>
@@ -83803,6 +83907,1092 @@ export namespace Prisma {
 
 
   /**
+   * Model BranchExpense
+   */
+
+  export type AggregateBranchExpense = {
+    _count: BranchExpenseCountAggregateOutputType | null
+    _avg: BranchExpenseAvgAggregateOutputType | null
+    _sum: BranchExpenseSumAggregateOutputType | null
+    _min: BranchExpenseMinAggregateOutputType | null
+    _max: BranchExpenseMaxAggregateOutputType | null
+  }
+
+  export type BranchExpenseAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type BranchExpenseSumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type BranchExpenseMinAggregateOutputType = {
+    id: string | null
+    branch: string | null
+    salespersonId: string | null
+    expenseType: string | null
+    amount: number | null
+    date: Date | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BranchExpenseMaxAggregateOutputType = {
+    id: string | null
+    branch: string | null
+    salespersonId: string | null
+    expenseType: string | null
+    amount: number | null
+    date: Date | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BranchExpenseCountAggregateOutputType = {
+    id: number
+    branch: number
+    salespersonId: number
+    expenseType: number
+    amount: number
+    date: number
+    notes: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BranchExpenseAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type BranchExpenseSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type BranchExpenseMinAggregateInputType = {
+    id?: true
+    branch?: true
+    salespersonId?: true
+    expenseType?: true
+    amount?: true
+    date?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BranchExpenseMaxAggregateInputType = {
+    id?: true
+    branch?: true
+    salespersonId?: true
+    expenseType?: true
+    amount?: true
+    date?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BranchExpenseCountAggregateInputType = {
+    id?: true
+    branch?: true
+    salespersonId?: true
+    expenseType?: true
+    amount?: true
+    date?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BranchExpenseAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BranchExpense to aggregate.
+     */
+    where?: BranchExpenseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BranchExpenses to fetch.
+     */
+    orderBy?: BranchExpenseOrderByWithRelationInput | BranchExpenseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BranchExpenseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BranchExpenses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BranchExpenses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BranchExpenses
+    **/
+    _count?: true | BranchExpenseCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BranchExpenseAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BranchExpenseSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BranchExpenseMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BranchExpenseMaxAggregateInputType
+  }
+
+  export type GetBranchExpenseAggregateType<T extends BranchExpenseAggregateArgs> = {
+        [P in keyof T & keyof AggregateBranchExpense]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBranchExpense[P]>
+      : GetScalarType<T[P], AggregateBranchExpense[P]>
+  }
+
+
+
+
+  export type BranchExpenseGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BranchExpenseWhereInput
+    orderBy?: BranchExpenseOrderByWithAggregationInput | BranchExpenseOrderByWithAggregationInput[]
+    by: BranchExpenseScalarFieldEnum[] | BranchExpenseScalarFieldEnum
+    having?: BranchExpenseScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BranchExpenseCountAggregateInputType | true
+    _avg?: BranchExpenseAvgAggregateInputType
+    _sum?: BranchExpenseSumAggregateInputType
+    _min?: BranchExpenseMinAggregateInputType
+    _max?: BranchExpenseMaxAggregateInputType
+  }
+
+  export type BranchExpenseGroupByOutputType = {
+    id: string
+    branch: string
+    salespersonId: string | null
+    expenseType: string
+    amount: number
+    date: Date
+    notes: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: BranchExpenseCountAggregateOutputType | null
+    _avg: BranchExpenseAvgAggregateOutputType | null
+    _sum: BranchExpenseSumAggregateOutputType | null
+    _min: BranchExpenseMinAggregateOutputType | null
+    _max: BranchExpenseMaxAggregateOutputType | null
+  }
+
+  type GetBranchExpenseGroupByPayload<T extends BranchExpenseGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BranchExpenseGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BranchExpenseGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BranchExpenseGroupByOutputType[P]>
+            : GetScalarType<T[P], BranchExpenseGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BranchExpenseSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    branch?: boolean
+    salespersonId?: boolean
+    expenseType?: boolean
+    amount?: boolean
+    date?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["branchExpense"]>
+
+  export type BranchExpenseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    branch?: boolean
+    salespersonId?: boolean
+    expenseType?: boolean
+    amount?: boolean
+    date?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["branchExpense"]>
+
+  export type BranchExpenseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    branch?: boolean
+    salespersonId?: boolean
+    expenseType?: boolean
+    amount?: boolean
+    date?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["branchExpense"]>
+
+  export type BranchExpenseSelectScalar = {
+    id?: boolean
+    branch?: boolean
+    salespersonId?: boolean
+    expenseType?: boolean
+    amount?: boolean
+    date?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type BranchExpenseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "branch" | "salespersonId" | "expenseType" | "amount" | "date" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["branchExpense"]>
+
+  export type $BranchExpensePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BranchExpense"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      branch: string
+      salespersonId: string | null
+      expenseType: string
+      amount: number
+      date: Date
+      notes: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["branchExpense"]>
+    composites: {}
+  }
+
+  type BranchExpenseGetPayload<S extends boolean | null | undefined | BranchExpenseDefaultArgs> = $Result.GetResult<Prisma.$BranchExpensePayload, S>
+
+  type BranchExpenseCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BranchExpenseFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BranchExpenseCountAggregateInputType | true
+    }
+
+  export interface BranchExpenseDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BranchExpense'], meta: { name: 'BranchExpense' } }
+    /**
+     * Find zero or one BranchExpense that matches the filter.
+     * @param {BranchExpenseFindUniqueArgs} args - Arguments to find a BranchExpense
+     * @example
+     * // Get one BranchExpense
+     * const branchExpense = await prisma.branchExpense.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BranchExpenseFindUniqueArgs>(args: SelectSubset<T, BranchExpenseFindUniqueArgs<ExtArgs>>): Prisma__BranchExpenseClient<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BranchExpense that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BranchExpenseFindUniqueOrThrowArgs} args - Arguments to find a BranchExpense
+     * @example
+     * // Get one BranchExpense
+     * const branchExpense = await prisma.branchExpense.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BranchExpenseFindUniqueOrThrowArgs>(args: SelectSubset<T, BranchExpenseFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BranchExpenseClient<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BranchExpense that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BranchExpenseFindFirstArgs} args - Arguments to find a BranchExpense
+     * @example
+     * // Get one BranchExpense
+     * const branchExpense = await prisma.branchExpense.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BranchExpenseFindFirstArgs>(args?: SelectSubset<T, BranchExpenseFindFirstArgs<ExtArgs>>): Prisma__BranchExpenseClient<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BranchExpense that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BranchExpenseFindFirstOrThrowArgs} args - Arguments to find a BranchExpense
+     * @example
+     * // Get one BranchExpense
+     * const branchExpense = await prisma.branchExpense.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BranchExpenseFindFirstOrThrowArgs>(args?: SelectSubset<T, BranchExpenseFindFirstOrThrowArgs<ExtArgs>>): Prisma__BranchExpenseClient<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BranchExpenses that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BranchExpenseFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BranchExpenses
+     * const branchExpenses = await prisma.branchExpense.findMany()
+     * 
+     * // Get first 10 BranchExpenses
+     * const branchExpenses = await prisma.branchExpense.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const branchExpenseWithIdOnly = await prisma.branchExpense.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BranchExpenseFindManyArgs>(args?: SelectSubset<T, BranchExpenseFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BranchExpense.
+     * @param {BranchExpenseCreateArgs} args - Arguments to create a BranchExpense.
+     * @example
+     * // Create one BranchExpense
+     * const BranchExpense = await prisma.branchExpense.create({
+     *   data: {
+     *     // ... data to create a BranchExpense
+     *   }
+     * })
+     * 
+     */
+    create<T extends BranchExpenseCreateArgs>(args: SelectSubset<T, BranchExpenseCreateArgs<ExtArgs>>): Prisma__BranchExpenseClient<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BranchExpenses.
+     * @param {BranchExpenseCreateManyArgs} args - Arguments to create many BranchExpenses.
+     * @example
+     * // Create many BranchExpenses
+     * const branchExpense = await prisma.branchExpense.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BranchExpenseCreateManyArgs>(args?: SelectSubset<T, BranchExpenseCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BranchExpenses and returns the data saved in the database.
+     * @param {BranchExpenseCreateManyAndReturnArgs} args - Arguments to create many BranchExpenses.
+     * @example
+     * // Create many BranchExpenses
+     * const branchExpense = await prisma.branchExpense.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BranchExpenses and only return the `id`
+     * const branchExpenseWithIdOnly = await prisma.branchExpense.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BranchExpenseCreateManyAndReturnArgs>(args?: SelectSubset<T, BranchExpenseCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BranchExpense.
+     * @param {BranchExpenseDeleteArgs} args - Arguments to delete one BranchExpense.
+     * @example
+     * // Delete one BranchExpense
+     * const BranchExpense = await prisma.branchExpense.delete({
+     *   where: {
+     *     // ... filter to delete one BranchExpense
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BranchExpenseDeleteArgs>(args: SelectSubset<T, BranchExpenseDeleteArgs<ExtArgs>>): Prisma__BranchExpenseClient<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BranchExpense.
+     * @param {BranchExpenseUpdateArgs} args - Arguments to update one BranchExpense.
+     * @example
+     * // Update one BranchExpense
+     * const branchExpense = await prisma.branchExpense.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BranchExpenseUpdateArgs>(args: SelectSubset<T, BranchExpenseUpdateArgs<ExtArgs>>): Prisma__BranchExpenseClient<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BranchExpenses.
+     * @param {BranchExpenseDeleteManyArgs} args - Arguments to filter BranchExpenses to delete.
+     * @example
+     * // Delete a few BranchExpenses
+     * const { count } = await prisma.branchExpense.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BranchExpenseDeleteManyArgs>(args?: SelectSubset<T, BranchExpenseDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BranchExpenses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BranchExpenseUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BranchExpenses
+     * const branchExpense = await prisma.branchExpense.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BranchExpenseUpdateManyArgs>(args: SelectSubset<T, BranchExpenseUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BranchExpenses and returns the data updated in the database.
+     * @param {BranchExpenseUpdateManyAndReturnArgs} args - Arguments to update many BranchExpenses.
+     * @example
+     * // Update many BranchExpenses
+     * const branchExpense = await prisma.branchExpense.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BranchExpenses and only return the `id`
+     * const branchExpenseWithIdOnly = await prisma.branchExpense.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BranchExpenseUpdateManyAndReturnArgs>(args: SelectSubset<T, BranchExpenseUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BranchExpense.
+     * @param {BranchExpenseUpsertArgs} args - Arguments to update or create a BranchExpense.
+     * @example
+     * // Update or create a BranchExpense
+     * const branchExpense = await prisma.branchExpense.upsert({
+     *   create: {
+     *     // ... data to create a BranchExpense
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BranchExpense we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BranchExpenseUpsertArgs>(args: SelectSubset<T, BranchExpenseUpsertArgs<ExtArgs>>): Prisma__BranchExpenseClient<$Result.GetResult<Prisma.$BranchExpensePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BranchExpenses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BranchExpenseCountArgs} args - Arguments to filter BranchExpenses to count.
+     * @example
+     * // Count the number of BranchExpenses
+     * const count = await prisma.branchExpense.count({
+     *   where: {
+     *     // ... the filter for the BranchExpenses we want to count
+     *   }
+     * })
+    **/
+    count<T extends BranchExpenseCountArgs>(
+      args?: Subset<T, BranchExpenseCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BranchExpenseCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BranchExpense.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BranchExpenseAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BranchExpenseAggregateArgs>(args: Subset<T, BranchExpenseAggregateArgs>): Prisma.PrismaPromise<GetBranchExpenseAggregateType<T>>
+
+    /**
+     * Group by BranchExpense.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BranchExpenseGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BranchExpenseGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BranchExpenseGroupByArgs['orderBy'] }
+        : { orderBy?: BranchExpenseGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BranchExpenseGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBranchExpenseGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BranchExpense model
+   */
+  readonly fields: BranchExpenseFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BranchExpense.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BranchExpenseClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BranchExpense model
+   */
+  interface BranchExpenseFieldRefs {
+    readonly id: FieldRef<"BranchExpense", 'String'>
+    readonly branch: FieldRef<"BranchExpense", 'String'>
+    readonly salespersonId: FieldRef<"BranchExpense", 'String'>
+    readonly expenseType: FieldRef<"BranchExpense", 'String'>
+    readonly amount: FieldRef<"BranchExpense", 'Float'>
+    readonly date: FieldRef<"BranchExpense", 'DateTime'>
+    readonly notes: FieldRef<"BranchExpense", 'String'>
+    readonly createdAt: FieldRef<"BranchExpense", 'DateTime'>
+    readonly updatedAt: FieldRef<"BranchExpense", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BranchExpense findUnique
+   */
+  export type BranchExpenseFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * Filter, which BranchExpense to fetch.
+     */
+    where: BranchExpenseWhereUniqueInput
+  }
+
+  /**
+   * BranchExpense findUniqueOrThrow
+   */
+  export type BranchExpenseFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * Filter, which BranchExpense to fetch.
+     */
+    where: BranchExpenseWhereUniqueInput
+  }
+
+  /**
+   * BranchExpense findFirst
+   */
+  export type BranchExpenseFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * Filter, which BranchExpense to fetch.
+     */
+    where?: BranchExpenseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BranchExpenses to fetch.
+     */
+    orderBy?: BranchExpenseOrderByWithRelationInput | BranchExpenseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BranchExpenses.
+     */
+    cursor?: BranchExpenseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BranchExpenses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BranchExpenses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BranchExpenses.
+     */
+    distinct?: BranchExpenseScalarFieldEnum | BranchExpenseScalarFieldEnum[]
+  }
+
+  /**
+   * BranchExpense findFirstOrThrow
+   */
+  export type BranchExpenseFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * Filter, which BranchExpense to fetch.
+     */
+    where?: BranchExpenseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BranchExpenses to fetch.
+     */
+    orderBy?: BranchExpenseOrderByWithRelationInput | BranchExpenseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BranchExpenses.
+     */
+    cursor?: BranchExpenseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BranchExpenses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BranchExpenses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BranchExpenses.
+     */
+    distinct?: BranchExpenseScalarFieldEnum | BranchExpenseScalarFieldEnum[]
+  }
+
+  /**
+   * BranchExpense findMany
+   */
+  export type BranchExpenseFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * Filter, which BranchExpenses to fetch.
+     */
+    where?: BranchExpenseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BranchExpenses to fetch.
+     */
+    orderBy?: BranchExpenseOrderByWithRelationInput | BranchExpenseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BranchExpenses.
+     */
+    cursor?: BranchExpenseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BranchExpenses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BranchExpenses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BranchExpenses.
+     */
+    distinct?: BranchExpenseScalarFieldEnum | BranchExpenseScalarFieldEnum[]
+  }
+
+  /**
+   * BranchExpense create
+   */
+  export type BranchExpenseCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * The data needed to create a BranchExpense.
+     */
+    data: XOR<BranchExpenseCreateInput, BranchExpenseUncheckedCreateInput>
+  }
+
+  /**
+   * BranchExpense createMany
+   */
+  export type BranchExpenseCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BranchExpenses.
+     */
+    data: BranchExpenseCreateManyInput | BranchExpenseCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BranchExpense createManyAndReturn
+   */
+  export type BranchExpenseCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * The data used to create many BranchExpenses.
+     */
+    data: BranchExpenseCreateManyInput | BranchExpenseCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BranchExpense update
+   */
+  export type BranchExpenseUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * The data needed to update a BranchExpense.
+     */
+    data: XOR<BranchExpenseUpdateInput, BranchExpenseUncheckedUpdateInput>
+    /**
+     * Choose, which BranchExpense to update.
+     */
+    where: BranchExpenseWhereUniqueInput
+  }
+
+  /**
+   * BranchExpense updateMany
+   */
+  export type BranchExpenseUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BranchExpenses.
+     */
+    data: XOR<BranchExpenseUpdateManyMutationInput, BranchExpenseUncheckedUpdateManyInput>
+    /**
+     * Filter which BranchExpenses to update
+     */
+    where?: BranchExpenseWhereInput
+    /**
+     * Limit how many BranchExpenses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BranchExpense updateManyAndReturn
+   */
+  export type BranchExpenseUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * The data used to update BranchExpenses.
+     */
+    data: XOR<BranchExpenseUpdateManyMutationInput, BranchExpenseUncheckedUpdateManyInput>
+    /**
+     * Filter which BranchExpenses to update
+     */
+    where?: BranchExpenseWhereInput
+    /**
+     * Limit how many BranchExpenses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BranchExpense upsert
+   */
+  export type BranchExpenseUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * The filter to search for the BranchExpense to update in case it exists.
+     */
+    where: BranchExpenseWhereUniqueInput
+    /**
+     * In case the BranchExpense found by the `where` argument doesn't exist, create a new BranchExpense with this data.
+     */
+    create: XOR<BranchExpenseCreateInput, BranchExpenseUncheckedCreateInput>
+    /**
+     * In case the BranchExpense was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BranchExpenseUpdateInput, BranchExpenseUncheckedUpdateInput>
+  }
+
+  /**
+   * BranchExpense delete
+   */
+  export type BranchExpenseDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+    /**
+     * Filter which BranchExpense to delete.
+     */
+    where: BranchExpenseWhereUniqueInput
+  }
+
+  /**
+   * BranchExpense deleteMany
+   */
+  export type BranchExpenseDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BranchExpenses to delete
+     */
+    where?: BranchExpenseWhereInput
+    /**
+     * Limit how many BranchExpenses to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BranchExpense without action
+   */
+  export type BranchExpenseDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchExpense
+     */
+    select?: BranchExpenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchExpense
+     */
+    omit?: BranchExpenseOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -84172,6 +85362,7 @@ export namespace Prisma {
     phoneNumber: 'phoneNumber',
     workType: 'workType',
     forwardedBy: 'forwardedBy',
+    technicianName: 'technicianName',
     items: 'items',
     symptoms: 'symptoms',
     settings: 'settings',
@@ -85067,6 +86258,21 @@ export namespace Prisma {
   };
 
   export type ProjectDailyLogScalarFieldEnum = (typeof ProjectDailyLogScalarFieldEnum)[keyof typeof ProjectDailyLogScalarFieldEnum]
+
+
+  export const BranchExpenseScalarFieldEnum: {
+    id: 'id',
+    branch: 'branch',
+    salespersonId: 'salespersonId',
+    expenseType: 'expenseType',
+    amount: 'amount',
+    date: 'date',
+    notes: 'notes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BranchExpenseScalarFieldEnum = (typeof BranchExpenseScalarFieldEnum)[keyof typeof BranchExpenseScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -87085,6 +88291,7 @@ export namespace Prisma {
     phoneNumber?: StringNullableFilter<"RepairOrder"> | string | null
     workType?: StringNullableFilter<"RepairOrder"> | string | null
     forwardedBy?: StringNullableFilter<"RepairOrder"> | string | null
+    technicianName?: StringNullableFilter<"RepairOrder"> | string | null
     items?: JsonFilter<"RepairOrder">
     symptoms?: StringNullableFilter<"RepairOrder"> | string | null
     settings?: StringNullableFilter<"RepairOrder"> | string | null
@@ -87113,6 +88320,7 @@ export namespace Prisma {
     phoneNumber?: SortOrderInput | SortOrder
     workType?: SortOrderInput | SortOrder
     forwardedBy?: SortOrderInput | SortOrder
+    technicianName?: SortOrderInput | SortOrder
     items?: SortOrder
     symptoms?: SortOrderInput | SortOrder
     settings?: SortOrderInput | SortOrder
@@ -87144,6 +88352,7 @@ export namespace Prisma {
     phoneNumber?: StringNullableFilter<"RepairOrder"> | string | null
     workType?: StringNullableFilter<"RepairOrder"> | string | null
     forwardedBy?: StringNullableFilter<"RepairOrder"> | string | null
+    technicianName?: StringNullableFilter<"RepairOrder"> | string | null
     items?: JsonFilter<"RepairOrder">
     symptoms?: StringNullableFilter<"RepairOrder"> | string | null
     settings?: StringNullableFilter<"RepairOrder"> | string | null
@@ -87172,6 +88381,7 @@ export namespace Prisma {
     phoneNumber?: SortOrderInput | SortOrder
     workType?: SortOrderInput | SortOrder
     forwardedBy?: SortOrderInput | SortOrder
+    technicianName?: SortOrderInput | SortOrder
     items?: SortOrder
     symptoms?: SortOrderInput | SortOrder
     settings?: SortOrderInput | SortOrder
@@ -87205,6 +88415,7 @@ export namespace Prisma {
     phoneNumber?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     workType?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     forwardedBy?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
+    technicianName?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     items?: JsonWithAggregatesFilter<"RepairOrder">
     symptoms?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
     settings?: StringNullableWithAggregatesFilter<"RepairOrder"> | string | null
@@ -91827,6 +93038,80 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"ProjectDailyLog"> | Date | string
   }
 
+  export type BranchExpenseWhereInput = {
+    AND?: BranchExpenseWhereInput | BranchExpenseWhereInput[]
+    OR?: BranchExpenseWhereInput[]
+    NOT?: BranchExpenseWhereInput | BranchExpenseWhereInput[]
+    id?: StringFilter<"BranchExpense"> | string
+    branch?: StringFilter<"BranchExpense"> | string
+    salespersonId?: StringNullableFilter<"BranchExpense"> | string | null
+    expenseType?: StringFilter<"BranchExpense"> | string
+    amount?: FloatFilter<"BranchExpense"> | number
+    date?: DateTimeFilter<"BranchExpense"> | Date | string
+    notes?: StringNullableFilter<"BranchExpense"> | string | null
+    createdAt?: DateTimeFilter<"BranchExpense"> | Date | string
+    updatedAt?: DateTimeFilter<"BranchExpense"> | Date | string
+  }
+
+  export type BranchExpenseOrderByWithRelationInput = {
+    id?: SortOrder
+    branch?: SortOrder
+    salespersonId?: SortOrderInput | SortOrder
+    expenseType?: SortOrder
+    amount?: SortOrder
+    date?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BranchExpenseWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BranchExpenseWhereInput | BranchExpenseWhereInput[]
+    OR?: BranchExpenseWhereInput[]
+    NOT?: BranchExpenseWhereInput | BranchExpenseWhereInput[]
+    branch?: StringFilter<"BranchExpense"> | string
+    salespersonId?: StringNullableFilter<"BranchExpense"> | string | null
+    expenseType?: StringFilter<"BranchExpense"> | string
+    amount?: FloatFilter<"BranchExpense"> | number
+    date?: DateTimeFilter<"BranchExpense"> | Date | string
+    notes?: StringNullableFilter<"BranchExpense"> | string | null
+    createdAt?: DateTimeFilter<"BranchExpense"> | Date | string
+    updatedAt?: DateTimeFilter<"BranchExpense"> | Date | string
+  }, "id">
+
+  export type BranchExpenseOrderByWithAggregationInput = {
+    id?: SortOrder
+    branch?: SortOrder
+    salespersonId?: SortOrderInput | SortOrder
+    expenseType?: SortOrder
+    amount?: SortOrder
+    date?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BranchExpenseCountOrderByAggregateInput
+    _avg?: BranchExpenseAvgOrderByAggregateInput
+    _max?: BranchExpenseMaxOrderByAggregateInput
+    _min?: BranchExpenseMinOrderByAggregateInput
+    _sum?: BranchExpenseSumOrderByAggregateInput
+  }
+
+  export type BranchExpenseScalarWhereWithAggregatesInput = {
+    AND?: BranchExpenseScalarWhereWithAggregatesInput | BranchExpenseScalarWhereWithAggregatesInput[]
+    OR?: BranchExpenseScalarWhereWithAggregatesInput[]
+    NOT?: BranchExpenseScalarWhereWithAggregatesInput | BranchExpenseScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BranchExpense"> | string
+    branch?: StringWithAggregatesFilter<"BranchExpense"> | string
+    salespersonId?: StringNullableWithAggregatesFilter<"BranchExpense"> | string | null
+    expenseType?: StringWithAggregatesFilter<"BranchExpense"> | string
+    amount?: FloatWithAggregatesFilter<"BranchExpense"> | number
+    date?: DateTimeWithAggregatesFilter<"BranchExpense"> | Date | string
+    notes?: StringNullableWithAggregatesFilter<"BranchExpense"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"BranchExpense"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BranchExpense"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     employeeId: string
@@ -93972,6 +95257,7 @@ export namespace Prisma {
     phoneNumber?: string | null
     workType?: string | null
     forwardedBy?: string | null
+    technicianName?: string | null
     items: JsonNullValueInput | InputJsonValue
     symptoms?: string | null
     settings?: string | null
@@ -94000,6 +95286,7 @@ export namespace Prisma {
     phoneNumber?: string | null
     workType?: string | null
     forwardedBy?: string | null
+    technicianName?: string | null
     items: JsonNullValueInput | InputJsonValue
     symptoms?: string | null
     settings?: string | null
@@ -94026,6 +95313,7 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianName?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
@@ -94054,6 +95342,7 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianName?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
@@ -94081,6 +95370,7 @@ export namespace Prisma {
     phoneNumber?: string | null
     workType?: string | null
     forwardedBy?: string | null
+    technicianName?: string | null
     items: JsonNullValueInput | InputJsonValue
     symptoms?: string | null
     settings?: string | null
@@ -94107,6 +95397,7 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianName?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
@@ -94134,6 +95425,7 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianName?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
@@ -99459,6 +100751,90 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type BranchExpenseCreateInput = {
+    id?: string
+    branch: string
+    salespersonId?: string | null
+    expenseType: string
+    amount?: number
+    date: Date | string
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BranchExpenseUncheckedCreateInput = {
+    id?: string
+    branch: string
+    salespersonId?: string | null
+    expenseType: string
+    amount?: number
+    date: Date | string
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BranchExpenseUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    branch?: StringFieldUpdateOperationsInput | string
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseType?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BranchExpenseUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    branch?: StringFieldUpdateOperationsInput | string
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseType?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BranchExpenseCreateManyInput = {
+    id?: string
+    branch: string
+    salespersonId?: string | null
+    expenseType: string
+    amount?: number
+    date: Date | string
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BranchExpenseUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    branch?: StringFieldUpdateOperationsInput | string
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseType?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BranchExpenseUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    branch?: StringFieldUpdateOperationsInput | string
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseType?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -101027,6 +102403,7 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     workType?: SortOrder
     forwardedBy?: SortOrder
+    technicianName?: SortOrder
     items?: SortOrder
     symptoms?: SortOrder
     settings?: SortOrder
@@ -101054,6 +102431,7 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     workType?: SortOrder
     forwardedBy?: SortOrder
+    technicianName?: SortOrder
     symptoms?: SortOrder
     settings?: SortOrder
     receivedDate?: SortOrder
@@ -101078,6 +102456,7 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     workType?: SortOrder
     forwardedBy?: SortOrder
+    technicianName?: SortOrder
     symptoms?: SortOrder
     settings?: SortOrder
     receivedDate?: SortOrder
@@ -104317,6 +105696,50 @@ export namespace Prisma {
     temperature?: SortOrder
     workerCount?: SortOrder
     incidents?: SortOrder
+  }
+
+  export type BranchExpenseCountOrderByAggregateInput = {
+    id?: SortOrder
+    branch?: SortOrder
+    salespersonId?: SortOrder
+    expenseType?: SortOrder
+    amount?: SortOrder
+    date?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BranchExpenseAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type BranchExpenseMaxOrderByAggregateInput = {
+    id?: SortOrder
+    branch?: SortOrder
+    salespersonId?: SortOrder
+    expenseType?: SortOrder
+    amount?: SortOrder
+    date?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BranchExpenseMinOrderByAggregateInput = {
+    id?: SortOrder
+    branch?: SortOrder
+    salespersonId?: SortOrder
+    expenseType?: SortOrder
+    amount?: SortOrder
+    date?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BranchExpenseSumOrderByAggregateInput = {
+    amount?: SortOrder
   }
 
   export type CompanyCreateNestedManyWithoutAssignedUserInput = {
@@ -112810,6 +114233,7 @@ export namespace Prisma {
     phoneNumber?: string | null
     workType?: string | null
     forwardedBy?: string | null
+    technicianName?: string | null
     items: JsonNullValueInput | InputJsonValue
     symptoms?: string | null
     settings?: string | null
@@ -112836,6 +114260,7 @@ export namespace Prisma {
     phoneNumber?: string | null
     workType?: string | null
     forwardedBy?: string | null
+    technicianName?: string | null
     items: JsonNullValueInput | InputJsonValue
     symptoms?: string | null
     settings?: string | null
@@ -113324,6 +114749,7 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianName?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null
@@ -113350,6 +114776,7 @@ export namespace Prisma {
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     workType?: NullableStringFieldUpdateOperationsInput | string | null
     forwardedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianName?: NullableStringFieldUpdateOperationsInput | string | null
     items?: JsonNullValueInput | InputJsonValue
     symptoms?: NullableStringFieldUpdateOperationsInput | string | null
     settings?: NullableStringFieldUpdateOperationsInput | string | null

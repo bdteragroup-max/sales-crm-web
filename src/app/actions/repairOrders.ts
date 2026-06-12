@@ -2,6 +2,7 @@
 
 import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
+import { getUser } from "@/app/lib/dal";
 
 export interface RepairOrderItem {
   type?: string;
@@ -25,6 +26,7 @@ export interface RepairOrderFormData {
   phoneNumber?: string;
   workType?: string;
   forwardedBy?: string;
+  technicianName?: string;
   company?: string;
   customerCompany?: string;
   customerAddress?: string;
@@ -102,6 +104,7 @@ export async function createRepairOrder(formData: RepairOrderFormData) {
       phoneNumber: formData.phoneNumber,
       workType: formData.workType,
       forwardedBy: formData.forwardedBy,
+      technicianName: formData.technicianName,
       company: formData.company,
       customerCompany: formData.customerCompany,
       customerAddress: formData.customerAddress,
@@ -139,5 +142,58 @@ export async function deleteRepairOrder(id: string) {
   } catch (error: unknown) {
     console.error("Error deleting repair order:", error);
     return { success: false, error: error instanceof Error ? error.message : "เกิดข้อผิดพลาด" };
+  }
+}
+
+export async function updateRepairOrderStatus(jobId: string, newStep: string) {
+  try {
+    const session = await getUser();
+    const userName = session?.fullName || "System";
+
+    const job = await prisma.job.findUnique({ where: { id: jobId } });
+    if (!job) throw new Error("Job not found");
+
+    // Update the job step
+    await prisma.job.update({
+      where: { id: jobId },
+      data: { currentStep: newStep },
+    });
+
+    // Log the step change
+    await prisma.jobStepLog.create({
+      data: {
+        jobId,
+        step: newStep,
+        completedBy: userName,
+        department: "Service",
+        note: "อัปเดตสถานะจากหน้ารายการใบรับซ่อม",
+      },
+    });
+
+    revalidatePath("/repair-orders");
+    revalidatePath("/service/dashboard");
+    return { success: true };
+  } catch (error: unknown) {
+    console.error("Error updating repair order status:", error);
+    return { success: false, error: error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการอัปเดตสถานะ" };
+  }
+}
+
+export async function updateRepairOrderTechnician(jobId: string, technicianName: string) {
+  try {
+    const job = await prisma.job.findUnique({ where: { id: jobId } });
+    if (!job) throw new Error("Job not found");
+
+    await prisma.repairOrder.update({
+      where: { jobId },
+      data: { technicianName },
+    });
+
+    revalidatePath("/repair-orders");
+    revalidatePath("/service/dashboard");
+    return { success: true };
+  } catch (error: unknown) {
+    console.error("Error updating repair order technician:", error);
+    return { success: false, error: error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการอัปเดตผู้ซ่อม" };
   }
 }

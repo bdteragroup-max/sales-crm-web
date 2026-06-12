@@ -15,21 +15,21 @@ interface SalespersonResult {
   employeeSale?: { position: string | null; nickname: string | null } | null
 }
 
-export default function NewDeliveryForm({ currentUser }: { currentUser: any }) {
+export default function NewDeliveryForm({ currentUser, initialData }: { currentUser: any, initialData?: any }) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [formData, setFormData] = useState({
-    company: "",
-    jobName: "",
-    customer: "",
+    company: initialData?.company || "",
+    jobName: initialData?.jobName || "",
+    customer: initialData?.customer || "",
     customerPosition: "",
-    address: "",
+    address: initialData?.address || "",
     siteAddress: "",
-    quotationNo: "",
-    sender: currentUser?.fullName || "",
+    quotationNo: initialData?.quotationNo || "",
+    sender: initialData?.sender || currentUser?.fullName || "",
     senderPhone: "",
-    technician: "",
+    technician: initialData?.technician || "",
     technicianPhone: "",
     workInspect: false,
     workInspectDetails: "",
@@ -44,7 +44,7 @@ export default function NewDeliveryForm({ currentUser }: { currentUser: any }) {
   })
 
   // Salesperson search state
-  const [senderSearchQuery, setSenderSearchQuery] = useState(currentUser?.fullName || "")
+  const [senderSearchQuery, setSenderSearchQuery] = useState(initialData?.sender || currentUser?.fullName || "")
   const [senderResults, setSenderResults] = useState<SalespersonResult[]>([])
   const [isSenderSearching, setIsSenderSearching] = useState(false)
   const [showSenderDropdown, setShowSenderDropdown] = useState(false)
@@ -128,7 +128,7 @@ export default function NewDeliveryForm({ currentUser }: { currentUser: any }) {
       }
 
       // First create the record
-      const res = await createRepairDelivery(undefined, payload)
+      const res = await createRepairDelivery(initialData?.jobId, payload)
       if (res.success) {
         router.push("/repair-deliveries")
         router.refresh()

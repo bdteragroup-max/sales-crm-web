@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { CalendarDays, Plus, Search, Edit2, Calendar, CheckCircle2, Clock, XCircle, LayoutList, FileSignature } from 'lucide-react'
+import { CalendarDays, Plus, Search, Edit2, Calendar, CheckCircle2, Clock, XCircle, LayoutList, FileSignature, Trash2 } from 'lucide-react'
+import { deleteSchedule } from '@/app/actions/schedule'
 import NewScheduleForm from './components/NewScheduleForm'
 import UpdateScheduleForm from './components/UpdateScheduleForm'
 import ScheduleCalendar from './components/ScheduleCalendar'
@@ -54,6 +55,16 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
 
   const handleDeleteSuccess = (id: string) => {
     setSchedules(prev => prev.filter(s => s.id !== id))
+  }
+
+  const handleDeleteListItem = async (id: string) => {
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบตารางงานนี้?')) return
+    const res = await deleteSchedule(id)
+    if (res.success) {
+      handleDeleteSuccess(id)
+    } else {
+      alert(res.error || 'Failed to delete schedule')
+    }
   }
 
   const filteredSchedules = schedules.filter(s =>
@@ -298,6 +309,13 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
                               title="แก้ไข / บันทึกผล"
                             >
                               <Edit2 size={15} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteListItem(schedule.id)}
+                              className="p-2 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all group-hover:text-gray-500"
+                              title="ลบ"
+                            >
+                              <Trash2 size={15} />
                             </button>
                           </div>
                         </td>

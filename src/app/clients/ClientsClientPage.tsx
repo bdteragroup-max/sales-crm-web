@@ -322,6 +322,25 @@ export default function ClientsClientPage({
     setCreateTaxId('');
     setTaxIdWarning(null);
     setIsCheckingTaxId(false);
+    setCreateCustomerType('นิติบุคคล');
+    setShowNewBusinessTypeInput(false);
+    setSelectedProvince('');
+    setSelectedDistrict('');
+    setSelectedSubDistrict('');
+    setAutoPostalCode('');
+    setDistricts([]);
+    setSubDistricts([]);
+    setBillingAddress('');
+    setBillingProvince('');
+    setBillingDistrict('');
+    setBillingSubDistrict('');
+    setBillingPostalCode('');
+    setShippingAddress('');
+    setShippingProvince('');
+    setShippingDistrict('');
+    setShippingSubDistrict('');
+    setShippingPostalCode('');
+    setPaymentMethod('');
     setIsCompanyModalOpen(true);
   };
 
@@ -528,21 +547,29 @@ export default function ClientsClientPage({
       const triggerAutofill = async () => {
         const locations = await getLocationsByPostalCode(autoPostalCode);
         if (locations && locations.length > 0) {
-          const first = locations[0];
-          setSelectedProvince(first.province);
+          const isValidCurrentSelection = locations.some(loc => 
+            loc.province === selectedProvince && 
+            loc.district === selectedDistrict && 
+            loc.subDistrict === selectedSubDistrict
+          );
           
-          const dists = await getDistricts(first.province);
-          setDistricts(dists.map(d => d.district as string));
-          setSelectedDistrict(first.district);
+          if (!isValidCurrentSelection) {
+            const first = locations[0];
+            setSelectedProvince(first.province);
+            
+            const dists = await getDistricts(first.province);
+            setDistricts(dists.map(d => d.district as string));
+            setSelectedDistrict(first.district);
 
-          const subs = await getSubDistricts(first.province, first.district);
-          setSubDistricts(subs.map(s => ({ subDistrict: s.subDistrict as string, postalCode: s.postalCode as string })));
-          setSelectedSubDistrict(first.subDistrict);
+            const subs = await getSubDistricts(first.province, first.district);
+            setSubDistricts(subs.map(s => ({ subDistrict: s.subDistrict as string, postalCode: s.postalCode as string })));
+            setSelectedSubDistrict(first.subDistrict);
+          }
         }
       };
       triggerAutofill();
     }
-  }, [autoPostalCode]);
+  }, [autoPostalCode, selectedProvince, selectedDistrict, selectedSubDistrict]);
 
   // Postal code auto-fill for Edit Company main address
   React.useEffect(() => {
@@ -550,21 +577,29 @@ export default function ClientsClientPage({
       const triggerAutofill = async () => {
         const locations = await getLocationsByPostalCode(editAutoPostalCode);
         if (locations && locations.length > 0) {
-          const first = locations[0];
-          setEditSelectedProvince(first.province);
-          
-          const dists = await getDistricts(first.province);
-          setEditDistricts(dists.map(d => d.district as string));
-          setEditSelectedDistrict(first.district);
+          const isValidCurrentSelection = locations.some(loc => 
+            loc.province === editSelectedProvince && 
+            loc.district === editSelectedDistrict && 
+            loc.subDistrict === editSelectedSubDistrict
+          );
 
-          const subs = await getSubDistricts(first.province, first.district);
-          setEditSubDistricts(subs.map(s => ({ subDistrict: s.subDistrict as string, postalCode: s.postalCode as string })));
-          setEditSelectedSubDistrict(first.subDistrict);
+          if (!isValidCurrentSelection) {
+            const first = locations[0];
+            setEditSelectedProvince(first.province);
+            
+            const dists = await getDistricts(first.province);
+            setEditDistricts(dists.map(d => d.district as string));
+            setEditSelectedDistrict(first.district);
+
+            const subs = await getSubDistricts(first.province, first.district);
+            setEditSubDistricts(subs.map(s => ({ subDistrict: s.subDistrict as string, postalCode: s.postalCode as string })));
+            setEditSelectedSubDistrict(first.subDistrict);
+          }
         }
       };
       triggerAutofill();
     }
-  }, [editAutoPostalCode]);
+  }, [editAutoPostalCode, editSelectedProvince, editSelectedDistrict, editSelectedSubDistrict]);
 
   // ─── Filtered data ───────────────────────────────────────────────────
   const filteredCompanies = initialCompanies;
@@ -574,9 +609,9 @@ export default function ClientsClientPage({
     const date = new Date(dateStr);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays < 1) return 'วันนี้';
+    if (diffDays === 0) return 'วันนี้';
     if (diffDays < 30) return `${diffDays} วันที่แล้ว`;
     
     const diffMonths = Math.floor(diffDays / 30);
@@ -746,27 +781,40 @@ export default function ClientsClientPage({
                     <div className="text-right pr-4 border-r border-gray-100 min-w-[100px]">
                       <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">ติดต่อล่าสุด</p>
                       {(() => {
-                        const lastTele = company.telesales?.[0]?.callDate || company.telesales?.[0]?.createdAt;
-                        const lastQuot = company.quotations?.[0]?.quotationDate || company.quotations?.[0]?.createdAt;
-                        const f1 = company.quotations?.[0]?.followUp1;
-                        const f2 = company.quotations?.[0]?.followUp2;
-                        const f3 = company.quotations?.[0]?.followUp3;
-                        const f4 = company.quotations?.[0]?.followUp4;
-                        
-                        const lastDate = [lastTele, lastQuot, f1, f2, f3, f4]
-                          .filter(Boolean)
-                          .map(d => new Date(d as string))
-                          .sort((a, b) => b.getTime() - a.getTime())[0];
+                        const telesale = company.telesales?.[0];
+                        const quotation = company.quotations?.[0];
 
-                        if (!lastDate) {
+                        const activities = [
+                          { date: telesale?.callDate || telesale?.createdAt, type: 'บันทึกการโทร' },
+                          { date: quotation?.quotationDate || quotation?.createdAt, type: 'ใบเสนอราคา' },
+                          { date: quotation?.followUp1, type: 'ติดตามงาน' },
+                          { date: quotation?.followUp2, type: 'ติดตามงาน' },
+                          { date: quotation?.followUp3, type: 'ติดตามงาน' },
+                          { date: quotation?.followUp4, type: 'ติดตามงาน' },
+                        ].filter(a => a.date);
+                        
+                        const now = new Date();
+                        const validActivities = activities
+                          .map(a => ({ ...a, parsed: new Date(a.date as string) }))
+                          .filter(a => !isNaN(a.parsed.getTime()) && a.parsed.getTime() <= now.getTime() + 1000 * 60 * 60 * 24 && a.parsed.getFullYear() >= 2000)
+                          .sort((a, b) => b.parsed.getTime() - a.parsed.getTime());
+
+                        const latestActivity = validActivities[0];
+
+                        if (!latestActivity) {
                           return <p className="text-[11px] font-bold mt-0.5 text-gray-300">ยังไม่เคยติดต่อ</p>;
                         }
 
-                        const isOld = new Date().getTime() - lastDate.getTime() > 1000 * 60 * 60 * 24 * 30;
+                        const isOld = now.getTime() - latestActivity.parsed.getTime() > 1000 * 60 * 60 * 24 * 30;
                         return (
-                          <p className={`text-[11px] font-bold mt-0.5 ${isOld ? 'text-amber-600' : 'text-green-600'}`}>
-                            {getTimeSince(lastDate.toISOString())}
-                          </p>
+                          <div className="flex flex-col items-end">
+                            <p className={`text-[11px] font-bold mt-0.5 ${isOld ? 'text-amber-600' : 'text-green-600'}`}>
+                              {getTimeSince(latestActivity.parsed.toISOString())}
+                            </p>
+                            <p className="text-[9px] text-gray-500 font-medium mt-0.5 truncate max-w-[100px]">
+                              {latestActivity.type}
+                            </p>
+                          </div>
                         );
                       })()}
                     </div>
@@ -1123,7 +1171,7 @@ export default function ClientsClientPage({
                       name="taxId" 
                       value={createTaxId}
                       onChange={(e) => {
-                        const val = e.target.value;
+                        const val = e.target.value.replace(/\D/g, '');
                         setCreateTaxId(val);
                         if (!val || val.trim() === '') {
                           setTaxIdWarning(null);

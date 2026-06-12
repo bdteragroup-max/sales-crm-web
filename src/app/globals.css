@@ -63,3 +63,18 @@ body {
 .animate-fade-in {
   animation: fadeIn 0.8s ease-out forwards;
 }
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: white !important;
+  }
+  aside, .sidebar-container {
+    display: none !important;
+  }
+  .flex-1, .overflow-y-auto, .overflow-hidden, .custom-scrollbar {
+    overflow: visible !important;
+    height: auto !important;
+  }
+}

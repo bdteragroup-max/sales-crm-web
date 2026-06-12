@@ -78,6 +78,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
       installationOrders: { orderBy: { createdAt: "desc" } },
       repairOrder: true,
       project: true,
+      repairDeliveries: { orderBy: { createdAt: "desc" } },
     }, 
     orderBy: { dateClosed: "desc" }, 
   }); 

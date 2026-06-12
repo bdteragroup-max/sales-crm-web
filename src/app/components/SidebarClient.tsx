@@ -42,6 +42,7 @@ const repNav = [
 ];
 
 const serviceNav = [
+  { icon: LayoutDashboard, label: 'ภาพรวมฝ่ายบริการ', href: '/service/dashboard' },
   { icon: Wrench, label: 'ใบรับซ่อม (ซ่อมใน)', href: '/repair-orders' },
   { icon: ExternalLink, label: 'ใบส่งซ่อม (ซ่อมภายนอก)', href: '/outsource-repairs' },
   { icon: FileSignature, label: 'ใบส่งมอบงาน', href: '/repair-deliveries' },

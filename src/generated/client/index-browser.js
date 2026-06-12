@@ -422,6 +422,7 @@ exports.Prisma.RepairOrderScalarFieldEnum = {
   phoneNumber: 'phoneNumber',
   workType: 'workType',
   forwardedBy: 'forwardedBy',
+  technicianName: 'technicianName',
   items: 'items',
   symptoms: 'symptoms',
   settings: 'settings',
@@ -1190,6 +1191,18 @@ exports.Prisma.ProjectDailyLogScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.BranchExpenseScalarFieldEnum = {
+  id: 'id',
+  branch: 'branch',
+  salespersonId: 'salespersonId',
+  expenseType: 'expenseType',
+  amount: 'amount',
+  date: 'date',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1282,7 +1295,8 @@ exports.Prisma.ModelName = {
   Project: 'Project',
   ProjectMember: 'ProjectMember',
   ProjectTask: 'ProjectTask',
-  ProjectDailyLog: 'ProjectDailyLog'
+  ProjectDailyLog: 'ProjectDailyLog',
+  BranchExpense: 'BranchExpense'
 };
 
 /**

@@ -422,15 +422,21 @@ export default function TelesalesClientPage({
                           <td className="py-4 px-5 text-center">
                             <button 
                               onClick={() => {
-                                if (primaryContact && primaryContact.mobilePhone) {
-                                  // 1. Open native dialer
-                                  window.location.href = `tel:${primaryContact.mobilePhone}`;
-                                  // 2. Redirect to log page after 1200ms
-                                  setTimeout(() => {
+                                if (primaryContact) {
+                                  if (primaryContact.mobilePhone) {
+                                    // 1. Open native dialer
+                                    window.location.href = `tel:${primaryContact.mobilePhone}`;
+                                    // 2. Redirect to log page after 1200ms
+                                    setTimeout(() => {
+                                      window.location.href = `/telesales/log?contactId=${primaryContact.id}&companyId=${record.companyId}&telesaleId=${record.id}&returnTo=/telesales?tab=callbacks`;
+                                    }, 1200);
+                                  } else {
+                                    // Redirect to log page anyway (without auto-dialing)
                                     window.location.href = `/telesales/log?contactId=${primaryContact.id}&companyId=${record.companyId}&telesaleId=${record.id}&returnTo=/telesales?tab=callbacks`;
-                                  }, 1200);
+                                  }
                                 } else {
-                                  // Redirect to logger anyway or clients to set contact info
+                                  // Cannot log without contact. Alert and redirect to clients.
+                                  alert('ไม่พบข้อมูลผู้ติดต่อหลัก กรุณาเพิ่มผู้ติดต่อในเมนูฐานข้อมูลลูกค้าก่อนทำการบันทึกการโทร');
                                   window.location.href = `/clients?page=1`;
                                 }
                               }}

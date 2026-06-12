@@ -273,6 +273,10 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
                   <label className="block text-xs font-bold text-gray-600 mb-1">ต้องการใบเสนอราคาภายใน (วันที่)</label>
                   <input type="date" name="ภายในวันที่_ใบเสนอราคา" value={data["ภายในวันที่_ใบเสนอราคา"] || ""} onChange={handleChange} className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" />
                 </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-gray-600 mb-1">งบประมาณลูกค้า (Customer Budget)</label>
+                  <input type="text" name="งบประมาณลูกค้า" value={data["งบประมาณลูกค้า"] || ""} onChange={handleChange} placeholder="ระบุงบประมาณลูกค้า (ไม่จำเป็นต้องระบุ)" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm" />
+                </div>
 
                 <div className="md:col-span-2 pt-2">
                   <label className="block text-xs font-bold text-gray-600 mb-2">ประเภทลูกค้า</label>

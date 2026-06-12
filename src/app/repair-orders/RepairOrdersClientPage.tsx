@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Wrench, Plus, Search, FileText, CheckCircle2, Clock, Trash2, Edit2, FileDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { deleteRepairOrder } from "@/app/actions/repairOrders";
+import { deleteRepairOrder, updateRepairOrderStatus, updateRepairOrderTechnician } from "@/app/actions/repairOrders";
 import { getCurrentStepDef } from "@/app/lib/job-workflow";
 
 interface RepairOrdersClientPageProps {
@@ -23,11 +23,14 @@ export default function RepairOrdersClientPage({
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [isUpdating, setIsUpdating] = useState<string | null>(null);
+  const [isUpdatingTech, setIsUpdatingTech] = useState<string | null>(null);
 
   const filteredRepairs = initialRepairOrders.filter((ro) => {
     const term = searchTerm.toLowerCase();
     const matchJob = ro.job?.jobNumber?.toLowerCase().includes(term);
     const matchCompany = ro.customerCompany?.toLowerCase().includes(term) || ro.company?.toLowerCase().includes(term) || ro.job?.customerName?.toLowerCase().includes(term);
+    const matchTech = ro.technicianName?.toLowerCase().includes(term);
     
     // Status filter mapping:
     let matchStatus = true;
@@ -37,7 +40,7 @@ export default function RepairOrdersClientPage({
     else if (statusFilter === "Completed") matchStatus = ["service_return", "accounting"].includes(step) || !!ro.sentDate;
     else if (statusFilter === "Returned") matchStatus = !!ro.sentDate;
 
-    return (matchJob || matchCompany) && matchStatus;
+    return (matchJob || matchCompany || matchTech) && matchStatus;
   });
 
   const totalCount = initialRepairOrders.length;
@@ -48,6 +51,30 @@ export default function RepairOrdersClientPage({
   const handleDelete = async (id: string) => {
     if (confirm('คุณต้องการลบใบรับซ่อมนี้ใช่หรือไม่?')) {
       await deleteRepairOrder(id);
+    }
+  };
+
+  const handleStatusChange = async (jobId: string, newStep: string) => {
+    if (!jobId) return;
+    setIsUpdating(jobId);
+    try {
+      await updateRepairOrderStatus(jobId, newStep);
+    } catch (error) {
+      alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+    } finally {
+      setIsUpdating(null);
+    }
+  };
+
+  const handleTechnicianChange = async (jobId: string, techName: string) => {
+    if (!jobId) return;
+    setIsUpdatingTech(jobId);
+    try {
+      await updateRepairOrderTechnician(jobId, techName);
+    } catch (error) {
+      alert("เกิดข้อผิดพลาดในการอัปเดตช่าง");
+    } finally {
+      setIsUpdatingTech(null);
     }
   };
 
@@ -114,7 +141,7 @@ export default function RepairOrdersClientPage({
                 <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="ค้นหาชื่อบริษัท, เลขที่งานซ่อม..."
+                  placeholder="ค้นหาชื่อบริษัท, เลขที่งานซ่อม, ชื่อช่างซ่อม..."
                   className="w-full pl-9 pr-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] placeholder-gray-300 transition-all"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -132,6 +159,16 @@ export default function RepairOrdersClientPage({
                 <option value="Returned">ส่งคืนแล้ว (Returned)</option>
               </select>
             </div>
+
+            {/* Datalist for technicians */}
+            <datalist id="technician-list">
+              {users?.filter(u => u.role?.toLowerCase().includes("service") || u.role?.toLowerCase().includes("ช่าง") || u.role?.toLowerCase().includes("บริการ")).map((u: any) => (
+                <option key={u.id} value={u.fullName} />
+              ))}
+              {users?.filter(u => !u.role?.toLowerCase().includes("service") && !u.role?.toLowerCase().includes("ช่าง") && !u.role?.toLowerCase().includes("บริการ")).map((u: any) => (
+                <option key={u.id} value={u.fullName} />
+              ))}
+            </datalist>
 
             {/* Table */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
@@ -152,6 +189,9 @@ export default function RepairOrdersClientPage({
                     </th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">
                       ผู้รับซ่อม
+                    </th>
+                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                      ช่างซ่อม
                     </th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">
                       สถานะ
@@ -201,15 +241,63 @@ export default function RepairOrdersClientPage({
                           </p>
                         </td>
                         <td className="py-4 px-5">
-                          <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                            ["service_return", "accounting"].includes(record.job?.currentStep) || record.sentDate ? 'bg-emerald-100 text-emerald-600' :
-                            ["service_repair", "service_outsource", "purchase_followup", "service_receive_back", "service_qc"].includes(record.job?.currentStep) ? 'bg-blue-100 text-blue-600' :
-                            'bg-amber-100 text-amber-600'
-                          }`}>
-                            {record.job?.currentStep ? (
-                              getCurrentStepDef("งานซ่อม", record.job.currentStep, record.job.flowVariant)?.label || record.job.currentStep
-                            ) : "รอรับซ่อม"}
-                          </span>
+                          {record.jobId ? (
+                            <div className="relative inline-block">
+                              <input
+                                type="text"
+                                list="technician-list"
+                                defaultValue={record.technicianName || ""}
+                                onBlur={(e) => {
+                                  if (e.target.value !== (record.technicianName || "")) {
+                                    handleTechnicianChange(record.jobId, e.target.value);
+                                  }
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.currentTarget.blur();
+                                  }
+                                }}
+                                disabled={isUpdatingTech === record.jobId}
+                                placeholder="ระบุช่างซ่อม..."
+                                className={`inline-flex px-2.5 py-1 rounded-xl text-[11px] font-bold tracking-wide outline-none bg-purple-50 text-purple-700 border border-purple-100 focus:ring-2 focus:ring-purple-300 w-[140px] ${isUpdatingTech === record.jobId ? "opacity-50" : ""}`}
+                              />
+                            </div>
+                          ) : (
+                            <span className="text-[11px] font-bold text-gray-400">
+                              {record.technicianName || "—"}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-4 px-5">
+                          {record.jobId ? (
+                            <div className="relative inline-block">
+                              <select
+                                value={record.job?.currentStep || ""}
+                                onChange={(e) => handleStatusChange(record.jobId, e.target.value)}
+                                disabled={isUpdating === record.jobId}
+                                className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider appearance-none cursor-pointer outline-none pr-6 ${
+                                  ["service_return", "accounting", "closed"].includes(record.job?.currentStep) || record.sentDate ? 'bg-emerald-100 text-emerald-600' :
+                                  ["service_repair", "service_outsource", "purchase_followup", "service_receive_back", "service_qc"].includes(record.job?.currentStep) ? 'bg-blue-100 text-blue-600' :
+                                  'bg-amber-100 text-amber-600'
+                                } ${isUpdating === record.jobId ? "opacity-50" : ""}`}
+                              >
+                                <option value="service_receive">รอรับซ่อม</option>
+                                <option value="service_repair">กำลังซ่อม</option>
+                                <option value="service_outsource">ส่งซ่อมภายนอก</option>
+                                <option value="service_qc">ตรวจสอบคุณภาพ (QC)</option>
+                                <option value="service_return">ส่งคืนแล้ว</option>
+                                <option value="closed">เสร็จสิ้น (Closed)</option>
+                                <option value="accounting">รอบัญชีออกบิล</option>
+                              </select>
+                              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1 text-gray-500">
+                                <svg className="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-100 text-gray-500">
+                              รอรับซ่อม
+                            </span>
+                          )}
                         </td>
                         <td className="py-4 px-5 text-center">
                           <div className="flex items-center justify-center gap-2">

@@ -410,6 +410,7 @@ model RepairOrder {
   phoneNumber     String?
   workType        String?
   forwardedBy     String?
+  technicianName  String?
   items           Json
   symptoms        String?
   settings        String?
@@ -1419,4 +1420,20 @@ model ProjectDailyLog {
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
   @@unique([projectId, date, reportedBy])
+}
+
+model BranchExpense {
+  id            String   @id @default(cuid())
+  branch        String   @db.VarChar(100)
+  salespersonId String? // Optional, if tied to a specific salesperson
+  expenseType   String   @db.VarChar(100) // e.g. "Travel", "Meals", "Marketing", "Operations"
+  amount        Float    @default(0)
+  date          DateTime @db.Date
+  notes         String?
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@index([branch])
+  @@index([salespersonId])
+  @@index([date])
 }

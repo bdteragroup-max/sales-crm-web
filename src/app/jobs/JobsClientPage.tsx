@@ -44,6 +44,7 @@ type Job = {
   installationOrders?: any[];
   repairOrder?: any;
   project?: any;
+  repairDeliveries?: any[];
 };
 
 const COMPANY_CODES = ["TP", "TG", "TE"];
@@ -196,6 +197,7 @@ function ExpandedRow({
                 installationOrders={job.installationOrders}
                 repairOrder={job.repairOrder}
                 project={job.project}
+                repairDeliveries={job.repairDeliveries}
               />
             </div>
 

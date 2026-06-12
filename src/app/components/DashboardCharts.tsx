@@ -1161,3 +1161,67 @@ export function TelesalesFunnelChart({
     </div>
   );
 }
+
+// -------------------------------------------------------------
+// NEW: ProductGroupTargetChart
+// -------------------------------------------------------------
+export function ProductGroupTargetChart({ data }: { data: any[] }) {
+  if (!data || data.length === 0) return <div className="h-full flex items-center justify-center text-gray-400 text-[10px]">ไม่มีข้อมูลเป้าหมายสินค้า</div>;
+
+  return (
+    <div className="h-full w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={data} margin={{ top: 20, right: 20, left: 10, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} />
+          <YAxis 
+            yAxisId="left"
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: '#475569', fontSize: 10 }}
+            tickFormatter={(val) => `฿${(val / 1000000).toFixed(1)}M`}
+          />
+          <RechartsTooltip 
+            formatter={(value: any, name: any) => [`฿${value.toLocaleString()}`, name]}
+            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
+          />
+          <Legend verticalAlign="top" align="center" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '10px' }} />
+          <Bar yAxisId="left" dataKey="sales" name="ยอดขายจริง" fill="#ff2301" radius={[4, 4, 0, 0]} barSize={40} opacity={0.8} />
+          <Bar yAxisId="left" dataKey="target" name="เป้าหมาย" fill="#D4AF37" radius={[4, 4, 0, 0]} barSize={40} opacity={0.8} />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+// -------------------------------------------------------------
+// NEW: BranchPerformanceChart
+// -------------------------------------------------------------
+export function BranchPerformanceChart({ data }: { data: any[] }) {
+  if (!data || data.length === 0) return <div className="h-full flex items-center justify-center text-gray-400 text-[10px]">ไม่มีข้อมูลสาขา</div>;
+
+  return (
+    <div className="h-full w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={data} margin={{ top: 20, right: 20, left: 10, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+          <XAxis dataKey="branch" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10, fontWeight: 'bold' }} />
+          <YAxis 
+            yAxisId="left"
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: '#475569', fontSize: 10 }}
+            tickFormatter={(val) => `฿${(val / 1000000).toFixed(1)}M`}
+          />
+          <RechartsTooltip 
+            formatter={(value: any, name: any) => [`฿${value.toLocaleString()}`, name]}
+            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
+          />
+          <Legend verticalAlign="top" align="center" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '10px' }} />
+          <Bar yAxisId="left" dataKey="sales" name="ยอดขายรวม" fill="#10b981" radius={[4, 4, 0, 0]} barSize={40} opacity={0.8} />
+          <Bar yAxisId="left" dataKey="expenses" name="ค่าใช้จ่าย" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={40} opacity={0.8} />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}

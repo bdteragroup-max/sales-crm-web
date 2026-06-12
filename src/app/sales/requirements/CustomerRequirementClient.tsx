@@ -245,8 +245,15 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
                           )}
 
                           {record.isSentToService && record.estimationStatus === 'PENDING' && (
-                            <div className="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-50 text-yellow-600 border border-yellow-200 text-[11px] font-black uppercase tracking-wider rounded-xl cursor-default">
-                              <Clock size={14} /> รอช่างประเมินราคา
+                            <div className="flex flex-col items-end gap-1">
+                              <div className="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-50 text-yellow-600 border border-yellow-200 text-[11px] font-black uppercase tracking-wider rounded-xl cursor-default">
+                                <Clock size={14} /> รอช่างประเมินราคา
+                              </div>
+                              {record.assignedTo && (
+                                <span className="text-[10px] text-blue-600 font-bold uppercase mr-2 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 flex items-center gap-1">
+                                  <User size={10} /> ผู้รับผิดชอบ: {record.assignedTo}
+                                </span>
+                              )}
                             </div>
                           )}
 
@@ -255,6 +262,11 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
                               <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 flex items-center gap-1">
                                 <Calculator size={10} /> ราคาประเมิน: ฿{record.estimatedPrice?.toLocaleString()}
                               </span>
+                              {(record.estimatedBy || record.assignedTo) && (
+                                <span className="text-[9px] text-emerald-600 font-bold uppercase flex items-center gap-1">
+                                  <User size={9} /> ผู้ประเมิน: {record.estimatedBy || record.assignedTo}
+                                </span>
+                              )}
                               {record.estimationNote && (
                                 <div className="flex items-center gap-1 mt-0.5 max-w-[160px]">
                                   <span className="text-[9px] text-emerald-500 truncate" title={record.estimationNote}>
