@@ -93,6 +93,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
         company: true,
         contact: true,
         salesperson: { include: { employeeSale: true } },
+        jobs: { include: { paymentTasks: true } },
       },
     });
     // Only allow edit if the user owns it or is a manager

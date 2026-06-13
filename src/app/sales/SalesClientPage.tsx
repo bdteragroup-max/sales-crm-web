@@ -5,7 +5,26 @@ import { FileText, FileSpreadsheet, Plus, Search, Edit2, Trash2, TrendingUp, Che
 import NewQuotationForm from './components/NewQuotationForm';
 import BulkUploadModal from './components/BulkUploadModal';
 import { deleteQuotation } from '@/app/actions/sales';
+import { updateQuotationStatus } from '@/app/actions/pipeline';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { POTransitionModal, QuotationTransitionModal, AppointmentTransitionModal } from '@/app/pipeline/components/PipelineModals';
+
+const ALL_STATUSES = [
+  'ความสนใจ',
+  'นัดหมาย',
+  'เสนอราคา',
+  'รอจัดทำ PO',
+  'PO แล้วรอสินค้า',
+  'PO แล้วรอมัดจำ',
+  'PO แล้วรอเงินโอน',
+  'เปิดบิลแล้ว',
+  'ปฏิเสธ-ได้ที่อื่นแล้ว',
+  'ปฏิเสธ-ยกเลิกสินค้า',
+  'ปฏิเสธ-อื่นๆ',
+  'รอใบประเมินราคา',
+  'ยกเลิก-Revise'
+];
 
 interface SalesClientPageProps {
   initialQuotations?: any[];
@@ -23,14 +42,14 @@ interface SalesClientPageProps {
 }
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
-  'เปิดบิลแล้ว':         { label: 'เปิดบิลแล้ว',         cls: 'bg-emerald-500 text-white' },
-  'รอจัดทำ PO':          { label: 'รอจัดทำ PO',           cls: 'bg-amber-400 text-white' },
-  'PO แล้วรอสินค้า':     { label: 'PO รอสินค้า',          cls: 'bg-amber-400 text-white' },
-  'PO แล้วรอมัดจำ':      { label: 'PO รอมัดจำ',           cls: 'bg-amber-400 text-white' },
-  'PO แล้วรอเงินโอน':    { label: 'PO รอเงินโอน',         cls: 'bg-amber-400 text-white' },
-  'เสนอราคา':            { label: 'เสนอราคา',             cls: 'bg-brand-red text-white' },
-  'รอใบประเมินราคา':     { label: 'รอประเมิน',            cls: 'bg-sky-500 text-white' },
-  'ยกเลิก-Revise':       { label: 'Revise',               cls: 'bg-gray-200 text-gray-500' },
+  'เปิดบิลแล้ว': { label: 'เปิดบิลแล้ว', cls: 'bg-emerald-500 text-white' },
+  'รอจัดทำ PO': { label: 'รอจัดทำ PO', cls: 'bg-amber-400 text-white' },
+  'PO แล้วรอสินค้า': { label: 'PO รอสินค้า', cls: 'bg-amber-400 text-white' },
+  'PO แล้วรอมัดจำ': { label: 'PO รอมัดจำ', cls: 'bg-amber-400 text-white' },
+  'PO แล้วรอเงินโอน': { label: 'PO รอเงินโอน', cls: 'bg-amber-400 text-white' },
+  'เสนอราคา': { label: 'เสนอราคา', cls: 'bg-brand-red text-white' },
+  'รอใบประเมินราคา': { label: 'รอประเมิน', cls: 'bg-sky-500 text-white' },
+  'ยกเลิก-Revise': { label: 'Revise', cls: 'bg-gray-200 text-gray-500' },
 };
 
 function statusBadge(status: string) {
@@ -50,29 +69,67 @@ function statusBadge(status: string) {
 }
 
 export default function SalesClientPage({ initialQuotations = [], businessTypes = [], currentUserSale, prefillData, editingQuotation }: SalesClientPageProps) {
+  const router = useRouter();
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
 
   // If a full quotation was passed in for editing (from pipeline), open on the edit form immediately
   const [activeTab, setActiveTab] = useState<'new' | 'list'>(editingQuotation ? 'new' : 'new');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingData, setEditingData] = useState<any>(() => {
-    // Priority 1: a specific quotation to edit (from pipeline ?editId=)
-    if (editingQuotation) return editingQuotation;
-    // Priority 2: prefill for a brand-new quotation
-    if (prefillData) {
+    if (editingQuotation) {
       return {
-        company: prefillData.company,
-        contact: prefillData.contact,
-        companyId: prefillData.company?.id || null,
-        requirementNumber: prefillData.requirementNumber,
-        requirementDate: prefillData.requirementDate,
-        productType: prefillData.productType,
-        productInterest: prefillData.productInterest,
-        isPrefilled: true
+        ...editingQuotation,
+        companyId: editingQuotation.company?.id || '',
+        contactId: editingQuotation.contact?.id || '',
       };
     }
-    return null;
+    return prefillData || null;
   });
+
+  const [pendingTransition, setPendingTransition] = useState<{
+    id: string;
+    quotation: any;
+    nextDbStatus: string;
+    type: 'po' | 'closed' | 'quotation' | 'appointment';
+  } | null>(null);
+
+  const executeMove = async (id: string, status: string, extraData?: any) => {
+    try {
+      await updateQuotationStatus(id, status, extraData);
+      router.refresh();
+    } catch (e) {
+      console.error(e);
+      alert('Failed to update status');
+    }
+  }
+
+  const handleStatusChange = (record: any, newStatus: string) => {
+    if (newStatus === record.status) return;
+
+    if (newStatus === 'รอจัดทำ PO' || newStatus === 'PO แล้วรอสินค้า' || newStatus === 'PO แล้วรอมัดจำ' || newStatus === 'PO แล้วรอเงินโอน') {
+      setPendingTransition({ id: record.id, quotation: record, nextDbStatus: newStatus, type: 'po' });
+      return;
+    }
+
+    if (newStatus === 'เปิดบิลแล้ว') {
+      setPendingTransition({ id: record.id, quotation: record, nextDbStatus: newStatus, type: 'closed' });
+      return;
+    }
+
+    if (newStatus === 'เสนอราคา' && !record.quotationNumber) {
+      setPendingTransition({ id: record.id, quotation: record, nextDbStatus: newStatus, type: 'quotation' });
+      return;
+    }
+
+    if (newStatus === 'นัดหมาย') {
+      setPendingTransition({ id: record.id, quotation: record, nextDbStatus: newStatus, type: 'appointment' });
+      return;
+    }
+
+    // Otherwise simple move
+    executeMove(record.id, newStatus);
+  };
+
   const [statusFilter, setStatusFilter] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
@@ -88,7 +145,7 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
 
   const sortedQuotations = [...filteredQuotations].sort((a, b) => {
     if (!sortConfig) return 0;
-    
+
     let aValue: any;
     let bValue: any;
 
@@ -119,10 +176,10 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
     return 0;
   });
 
-  const wonCount   = initialQuotations.filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).length;
-  const openCount  = initialQuotations.filter(q => q.status === 'เสนอราคา').length;
-  const lostCount  = initialQuotations.filter(q => q.status?.startsWith('ปฏิเสธ')).length;
-  const wonValue   = initialQuotations
+  const wonCount = initialQuotations.filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).length;
+  const openCount = initialQuotations.filter(q => q.status === 'เสนอราคา').length;
+  const lostCount = initialQuotations.filter(q => q.status?.startsWith('ปฏิเสธ')).length;
+  const wonValue = initialQuotations
     .filter(q => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO'))
     .reduce((s, q) => s + (Number(q.actualClosingAmount) || Number(q.totalAmountBeforeVat) || 0), 0);
 
@@ -168,10 +225,10 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
       {activeTab === 'list' && (
         <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 border-b border-gray-100 divide-x divide-y md:divide-y-0 divide-gray-100">
           {[
-            { label: 'ทั้งหมด',        value: initialQuotations.length, icon: <FileText size={14} />, color: 'text-gray-400', bg: 'bg-gray-50' },
-            { label: 'ปิดได้ (Won)',    value: wonCount,                  icon: <CheckCircle2 size={14} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-            { label: 'รออยู่ระหว่างดำเนินการ', value: openCount,          icon: <Clock size={14} />, color: 'text-amber-500', bg: 'bg-amber-50' },
-            { label: 'ยอด Won รวม',     value: `฿${(wonValue/1000000).toFixed(2)}M`, icon: <TrendingUp size={14} />, color: 'text-brand-red', bg: 'bg-red-50' },
+            { label: 'ทั้งหมด', value: initialQuotations.length, icon: <FileText size={14} />, color: 'text-gray-400', bg: 'bg-gray-50' },
+            { label: 'ปิดได้ (Won)', value: wonCount, icon: <CheckCircle2 size={14} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+            { label: 'รออยู่ระหว่างดำเนินการ', value: openCount, icon: <Clock size={14} />, color: 'text-amber-500', bg: 'bg-amber-50' },
+            { label: 'ยอด Won รวม', value: `฿${(wonValue / 1000000).toFixed(2)}M`, icon: <TrendingUp size={14} />, color: 'text-brand-red', bg: 'bg-red-50' },
           ].map(k => (
             <div key={k.label} className={`flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 ${k.bg}`}>
               <span className={k.color}>{k.icon}</span>
@@ -194,11 +251,10 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
             <button
               key={tab.id}
               onClick={tab.action}
-              className={`flex items-center gap-2 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-t-xl border-b-2 transition-all ${
-                activeTab === tab.id
-                  ? 'text-brand-red border-brand-red bg-red-50/50'
-                  : 'text-gray-400 border-transparent hover:text-gray-700 hover:bg-gray-50'
-              }`}
+              className={`flex items-center gap-2 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-t-xl border-b-2 transition-all ${activeTab === tab.id
+                ? 'text-brand-red border-brand-red bg-red-50/50'
+                : 'text-gray-400 border-transparent hover:text-gray-700 hover:bg-gray-50'
+                }`}
             >
               {tab.icon} {tab.label}
             </button>
@@ -211,12 +267,122 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
             href="/pipeline"
             className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-red hover:bg-red-50 border border-gray-200 rounded-xl transition-all mb-1"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
             กลับ Pipeline
           </a>
         )}
       </div>
 
+      {/* ── Modals for Status Transition ── */}
+      {pendingTransition?.type === 'quotation' && (
+        <QuotationTransitionModal
+          quotation={pendingTransition.quotation}
+          onConfirm={(qtNumber) => {
+            executeMove(pendingTransition.id, pendingTransition.nextDbStatus, { quotationNumber: qtNumber });
+            setPendingTransition(null);
+          }}
+          onCancel={() => setPendingTransition(null)}
+        />
+      )}
+      {pendingTransition?.type === 'po' && (
+        <POTransitionModal
+          quotation={pendingTransition.quotation}
+          isClosedStatus={false}
+          onConfirm={(data) => {
+            executeMove(pendingTransition.id, data.subStatus, {
+              poNumber: data.poNumber,
+              poDate: data.poDate,
+              jobType: data.jobType,
+              paymentMethod: data.paymentMethod,
+              installments: data.installments,
+              salesOrderDate: data.salesOrderDate,
+              deliveryDate: data.deliveryDate,
+              creditTerms: data.creditTerms,
+              creditDocsUrl: data.creditDocsUrl,
+              billingRegulations: data.billingRegulations,
+              percentageTerms: data.percentageTerms,
+              paymentDate: data.paymentDate,
+              companyId: data.companyId,
+              companyCode: data.companyCode
+            });
+            setPendingTransition(null);
+          }}
+          onCancel={() => setPendingTransition(null)}
+        />
+      )}
+      {pendingTransition?.type === 'closed' && (
+        <POTransitionModal
+          quotation={pendingTransition.quotation}
+          isClosedStatus={true}
+          onConfirm={(data) => {
+            executeMove(pendingTransition.id, 'เปิดบิลแล้ว', {
+              poNumber: data.poNumber,
+              poDate: data.poDate,
+              jobType: data.jobType,
+              paymentMethod: data.paymentMethod,
+              installments: data.installments,
+              salesOrderDate: data.salesOrderDate,
+              deliveryDate: data.deliveryDate,
+              creditTerms: data.creditTerms,
+              creditDocsUrl: data.creditDocsUrl,
+              billingRegulations: data.billingRegulations,
+              percentageTerms: data.percentageTerms,
+              paymentDate: data.paymentDate,
+              companyId: data.companyId,
+              companyCode: data.companyCode
+            });
+            setPendingTransition(null);
+          }}
+          onCancel={() => setPendingTransition(null)}
+        />
+      )}
+      {pendingTransition?.type === 'appointment' && (
+        <AppointmentTransitionModal
+          quotation={pendingTransition.quotation}
+          onConfirm={(data) => {
+            executeMove(pendingTransition.id, pendingTransition.nextDbStatus, {
+              appointmentDate: data.appointmentDate,
+              appointmentNote: data.appointmentNote
+            });
+            setPendingTransition(null);
+          }}
+          onCancel={() => setPendingTransition(null)}
+        />
+      )}
+
+      {/* ── Fixed Search + Filter row (List Tab) ── */}
+      {activeTab === 'list' && (
+        <div className="shrink-0 px-8 py-4 bg-white/95 backdrop-blur-sm border-b border-gray-100 z-10 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+          <div className="relative w-full max-w-sm">
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="ค้นหาบริษัท, เลขที่ใบเสนอราคา..."
+              className="w-full pl-9 pr-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            className="text-[11px] font-black uppercase tracking-widest border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+          >
+            <option value="">สถานะทั้งหมด</option>
+            <option value="เปิดบิลแล้ว">เปิดบิลแล้ว</option>
+            <option value="รอจัดทำ PO">รอจัดทำ PO</option>
+            <option value="PO แล้วรอสินค้า">PO แล้วรอสินค้า</option>
+            <option value="PO แล้วรอมัดจำ">PO แล้วรอมัดจำ</option>
+            <option value="PO แล้วรอเงินโอน">PO แล้วรอเงินโอน</option>
+            <option value="เสนอราคา">เสนอราคา</option>
+            <option value="ปฏิเสธ-ได้ที่อื่นแล้ว">ปฏิเสธ-ได้ที่อื่นแล้ว</option>
+            <option value="ปฏิเสธ-ยกเลิกสินค้า">ปฏิเสธ-ยกเลิกสินค้า</option>
+            <option value="ปฏิเสธ-อื่นๆ">ปฏิเสธ-อื่นๆ</option>
+            <option value="รอใบประเมินราคา">รอใบประเมินราคา</option>
+            <option value="ยกเลิก-Revise">ยกเลิก-Revise</option>
+          </select>
+        </div>
+      )}
 
       {/* ── Content ── */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -226,44 +392,18 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
               businessTypes={businessTypes}
               initialData={editingData}
               currentUserSale={currentUserSale}
-              onSuccess={() => { setEditingData(null); setActiveTab('list'); }}
+              onSuccess={() => {
+                if (editingQuotation) {
+                  router.push('/pipeline');
+                } else {
+                  setEditingData(null);
+                  setActiveTab('list');
+                }
+              }}
             />
           </div>
         ) : (
           <div className="p-8 space-y-6">
-
-            {/* Search + Filter row */}
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-              <div className="relative w-full max-w-sm">
-                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="ค้นหาบริษัท, เลขที่ใบเสนอราคา..."
-                  className="w-full pl-9 pr-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <select
-                value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
-                className="text-[11px] font-black uppercase tracking-widest border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
-              >
-                <option value="">สถานะทั้งหมด</option>
-                <option value="เปิดบิลแล้ว">เปิดบิลแล้ว</option>
-                <option value="รอจัดทำ PO">รอจัดทำ PO</option>
-                <option value="PO แล้วรอสินค้า">PO แล้วรอสินค้า</option>
-                <option value="PO แล้วรอมัดจำ">PO แล้วรอมัดจำ</option>
-                <option value="PO แล้วรอเงินโอน">PO แล้วรอเงินโอน</option>
-                <option value="เสนอราคา">เสนอราคา</option>
-                <option value="ปฏิเสธ-ได้ที่อื่นแล้ว">ปฏิเสธ-ได้ที่อื่นแล้ว</option>
-                <option value="ปฏิเสธ-ยกเลิกสินค้า">ปฏิเสธ-ยกเลิกสินค้า</option>
-                <option value="ปฏิเสธ-อื่นๆ">ปฏิเสธ-อื่นๆ</option>
-                <option value="รอใบประเมินราคา">รอใบประเมินราคา</option>
-                <option value="ยกเลิก-Revise">ยกเลิก-Revise</option>
-              </select>
-            </div>
-
             {/* Table */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
               <table className="w-full text-left text-sm min-w-[800px]">
@@ -330,7 +470,17 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
                             {record.actualClosingAmount ? `฿${Number(record.actualClosingAmount).toLocaleString('th-TH', { maximumFractionDigits: 0 })}` : '—'}
                           </span>
                         </td>
-                        <td className="py-4 px-5">{statusBadge(record.status)}</td>
+                        <td className="py-4 px-5">
+                          <select
+                            value={record.status || ''}
+                            onChange={(e) => handleStatusChange(record, e.target.value)}
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-red ${STATUS_MAP[record.status]?.cls ?? 'bg-gray-100 text-gray-500'} bg-none`}
+                            style={{ backgroundImage: 'none' }}
+                          >
+                            <option value={record.status} className="hidden">{record.status}</option>
+                            {ALL_STATUSES.map(s => <option key={s} value={s} className="bg-white text-gray-800">{s}</option>)}
+                          </select>
+                        </td>
                         <td className="py-4 px-5">
                           <p className="text-[11px] font-bold text-gray-600">{record.contact?.contactName || '—'}</p>
                         </td>
@@ -382,7 +532,7 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
       <BulkUploadModal
         isOpen={isBulkUploadOpen}
         onClose={() => setIsBulkUploadOpen(false)}
-        onSuccess={() => {}}
+        onSuccess={() => { }}
       />
     </div>
   );

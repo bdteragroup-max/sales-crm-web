@@ -41,7 +41,7 @@ export async function getProvinces() {
 }
 
 interface PageProps {
-  searchParams: Promise<{ page?: string; search?: string; tab?: string; handler?: string }>;
+  searchParams: Promise<{ page?: string; search?: string; tab?: string; handler?: string; province?: string }>;
 }
 
 export default async function ClientsPage({ searchParams }: PageProps) {
@@ -51,6 +51,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   const page = parseInt(params.page || '1', 10);
   const search = (params.search || '').trim();
   const handler = (params.handler || '').trim();
+  const province = (params.province || '').trim();
   
   const limit = 10;
   const skip = (page - 1) * limit;
@@ -64,6 +65,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   const companySearchFilter: any = {
     AND: [
       roleWhere,
+      ...(province ? [{ province }] : []),
       ...(search ? [{
         OR: [
           { companyName: { contains: search, mode: 'insensitive' as const } },

@@ -178,10 +178,18 @@ export default function DashboardUI({
   };
 
   const toggleSalesperson = (id: string) => {
-    let newIds = [...salespersonIds];
-    if (newIds.includes(id)) newIds = newIds.filter(i => i !== id);
-    else newIds.push(id);
-    handleFilterChange('salespersonId', newIds.join(','));
+    let newIds = salespersonIds.length === 0 ? salesReps.map(r => r.id) : [...salespersonIds];
+    if (newIds.includes(id)) {
+      newIds = newIds.filter(x => x !== id);
+    } else {
+      newIds.push(id);
+    }
+    
+    if (newIds.length === salesReps.length || newIds.length === 0) {
+      handleFilterChange('salespersonId', '');
+    } else {
+      handleFilterChange('salespersonId', newIds.join(','));
+    }
   };
 
   const [visibleSeries, setVisibleSeries] = React.useState({
@@ -399,10 +407,10 @@ export default function DashboardUI({
                         onClick={() => toggleSalesperson(rep.id)}
                       >
                         <div className="flex flex-col">
-                          <span className={`text-[11px] font-black ${salespersonIds.includes(rep.id) ? 'text-brand-red' : 'text-gray-700'}`}>{rep.fullName}</span>
+                          <span className={`text-[11px] font-black ${salespersonIds.length === 0 || salespersonIds.includes(rep.id) ? 'text-brand-red' : 'text-gray-700'}`}>{rep.fullName}</span>
                           <span className="text-[9px] text-gray-400 font-bold uppercase">{rep.role}</span>
                         </div>
-                        {salespersonIds.includes(rep.id) && <Check size={14} className="text-brand-red" />}
+                        {(salespersonIds.length === 0 || salespersonIds.includes(rep.id)) && <Check size={14} className="text-brand-red" />}
                       </div>
                     ))}
                   </div>

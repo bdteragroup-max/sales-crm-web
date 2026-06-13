@@ -146,6 +146,7 @@ export async function createSchedule(data: { userId: string, title: string, desc
             province: (data as any).province,
             postalCode: (data as any).postalCode,
             businessType: (data as any).businessType,
+            assignedUserId: targetUserId,
           }
         })
       }
@@ -250,6 +251,7 @@ export async function updateSchedule(id: string, data: {
             province: (data as any).province,
             postalCode: (data as any).postalCode,
             businessType: (data as any).businessType,
+            assignedUserId: schedule.userId,
           }
         })
       }

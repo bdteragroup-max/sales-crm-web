@@ -711,6 +711,26 @@ export default function ClientsClientPage({
             ))}
           </select>
         )}
+
+        <select
+          className="border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 max-w-[200px] shadow-sm"
+          value={searchParams.get('province') || ''}
+          onChange={(e) => {
+            const params = new URLSearchParams(searchParams.toString());
+            if (e.target.value) {
+              params.set('province', e.target.value);
+            } else {
+              params.delete('province');
+            }
+            params.set('page', '1');
+            router.push(`${pathname}?${params.toString()}`);
+          }}
+        >
+          <option value="">-- ทุกจังหวัด --</option>
+          {provinces.map((p, idx) => (
+            <option key={idx} value={p}>{p}</option>
+          ))}
+        </select>
       </div>
 
       {/* ─── Companies Tab ───────────────────────────────────────────────── */}
@@ -864,7 +884,15 @@ export default function ClientsClientPage({
                           </div>
                         </div>
                       ) : (company.assignedUser && company.assignedUser.isActive === true) ? (
-                        <div>
+                        <div 
+                          className={`group/reassign relative ${currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
+                          onClick={(e) => {
+                            if (currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager'))) {
+                              e.stopPropagation();
+                              setReassigningCompanyId(company.id);
+                            }
+                          }}
+                        >
                           <p className="text-[11px] font-black text-gray-800 mt-0.5 truncate max-w-[120px]">
                             {company.assignedUser.fullName}
                           </p>
@@ -873,15 +901,31 @@ export default function ClientsClientPage({
                           </p>
                         </div>
                       ) : activeHandler ? (
-                        <div>
+                        <div 
+                          className={`group/reassign relative ${currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
+                          onClick={(e) => {
+                            if (currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager'))) {
+                              e.stopPropagation();
+                              setReassigningCompanyId(company.id);
+                            }
+                          }}
+                        >
                           <p className="text-[11px] font-black text-gray-800 mt-0.5 truncate max-w-[120px]">{activeHandler.fullName}</p>
                           <p className="text-[9px] text-gray-400 font-bold truncate max-w-[120px]">
                             {activeHandler.employeeSale?.position || 'Sales Rep'}
                           </p>
                         </div>
                       ) : (
-                        <div>
-                          <p className="text-[11px] font-bold mt-0.5 text-gray-300">ไม่มีผู้ดูแล</p>
+                        <div 
+                          className={`group/reassign relative ${currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
+                          onClick={(e) => {
+                            if (currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager'))) {
+                              e.stopPropagation();
+                              setReassigningCompanyId(company.id);
+                            }
+                          }}
+                        >
+                          <p className="text-[11px] font-bold mt-0.5 text-gray-300 group-hover/reassign:text-red-400 transition-colors">ไม่มีผู้ดูแล</p>
                         </div>
                       )}
                     </div>

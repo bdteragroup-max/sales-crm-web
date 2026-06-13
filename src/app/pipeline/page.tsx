@@ -139,6 +139,11 @@ export default async function PipelinePage({
           companyName: true,
           businessType: true
         }
+      },
+      jobs: {
+        include: {
+          paymentTasks: true
+        }
       }
     }
   })

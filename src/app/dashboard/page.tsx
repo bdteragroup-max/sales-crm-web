@@ -22,6 +22,42 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const rawSalespersonId = typeof searchParams.salespersonId === 'string' ? searchParams.salespersonId : undefined;
   const salespersonIds = rawSalespersonId ? rawSalespersonId.split(',') : [];
   const province = typeof searchParams.province === 'string' ? searchParams.province : undefined;
+  const PROVINCE_MAPPING: Record<string, string> = {
+    'กรุงเทพ': 'กรุงเทพมหานคร',
+    'กรุงเทพฯ': 'กรุงเทพมหานคร',
+    'ลาดพร้าว': 'กรุงเทพมหานคร',
+    'โคราช': 'นครราชสีมา',
+    'จันทบุร': 'จันทบุรี',
+    'ปทุมธานนี': 'ปทุมธานี',
+    'สุพรณบุรี': 'สุพรรณบุรี',
+    'เพชบูรณ์': 'เพชรบูรณ์',
+    'เพชรบู รณ์': 'เพชรบูรณ์',
+    'เพชบุรี': 'เพชรบุรี',
+    'มหาสารคราม': 'มหาสารคาม',
+    'ศรีษะเกษ': 'ศรีสะเกษ',
+    'ประจวบขีรีขันธ์': 'ประจวบคีรีขันธ์',
+    'ประจวบฯ': 'ประจวบคีรีขันธ์',
+    'สุราษร์ธานี': 'สุราษฎร์ธานี',
+    'สุราษฏร์ธานี': 'สุราษฎร์ธานี',
+    'สกสนคร': 'สกลนคร',
+    'หนองบัวลำพู': 'หนองบัวลำภู',
+    'เเพร่': 'แพร่',
+    'Banteay Meanchey , CAMBODIA': 'Banteay Meanchey',
+    'พม่า': 'Myanmar',
+    'ลาว': 'Laos',
+    'นครชัยศรี': 'นครปฐม',
+  };
+
+  const cleanProvinceFilters = province ? (() => {
+    const vars = [province];
+    for (const [raw, clean] of Object.entries(PROVINCE_MAPPING)) {
+      if (clean === province) vars.push(raw);
+    }
+    return vars;
+  })() : undefined;
+  
+  const provinceCondition = cleanProvinceFilters ? { in: cleanProvinceFilters } : undefined;
+
   const atRiskDays = typeof searchParams.atRiskDays === 'string' ? parseInt(searchParams.atRiskDays) : 60;
 
   // Get today's date in Bangkok timezone (Asia/Bangkok) to avoid server-local timezone morning cuts
@@ -186,7 +222,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   // it is counted in its original period of creation/quotation (for data integrity and consistency).
   const getQuotationWhereClause = (start: Date, end: Date) => ({
     salespersonId: { in: filterIds },
-    company: province ? { province } : undefined,
+    company: provinceCondition ? { province: provinceCondition } : undefined,
     OR: [
     {
       status: 'เปิดบิลแล้ว',
@@ -262,7 +298,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       { quotationDate: { lt: thirtyDaysAgoFilter } },
       { quotationDate: null, createdAt: { lt: thirtyDaysAgoFilter } }],
 
-      company: province ? { province } : undefined
+      company: provinceCondition ? { province: provinceCondition } : undefined
     }
   });const prevPeriodAgg = await
   // 3. Previous Period aggregate
@@ -301,7 +337,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     where: {
       userId: { in: filterIds },
       lastMeetingDate: { gte: filterStart, lte: filterEnd },
-      company: province ? { province } : undefined
+      company: provinceCondition ? { province: provinceCondition } : undefined
     },
     take: 4,
     orderBy: { lastMeetingDate: 'asc' },
@@ -379,13 +415,28 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
         }
       }
     }
-  });const allProvinces = await
+  });  const allProvincesRaw = await
   // 15. Count of companies grouped by province for potential and filter list
   prisma.company.groupBy({
     by: ['province'],
     _count: { id: true },
     where: { province: { not: null } }
-  });const prevPeriodQuotations = await
+  });
+  
+  const cleanProvincesSet = new Set<string>();
+  const totalCompaniesMap: Record<string, number> = {};
+  
+  allProvincesRaw.forEach(p => {
+    let clean = p.province?.trim() || '';
+    if (PROVINCE_MAPPING[clean]) clean = PROVINCE_MAPPING[clean];
+    if (clean) {
+      cleanProvincesSet.add(clean);
+      totalCompaniesMap[clean] = (totalCompaniesMap[clean] || 0) + p._count.id;
+    }
+  });
+  const allProvinces = Array.from(cleanProvincesSet).map(p => ({ province: p })).sort((a, b) => a.province.localeCompare(b.province, 'th'));
+  
+  const prevPeriodQuotations = await
   // 16. Previous Period Quotations for Sales Cycle & Flow Benchmarks
   prisma.quotation.findMany({
     where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd),
@@ -448,7 +499,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
         createdAt: { gte: filterStart, lte: filterEnd }
       }],
 
-      company: province ? { province } : undefined
+      company: provinceCondition ? { province: provinceCondition } : undefined
     },
     select: {
       companyId: true,
@@ -488,7 +539,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
 
       }],
 
-      company: province ? { province } : undefined
+      company: provinceCondition ? { province: provinceCondition } : undefined
     },
     select: {
       createdAt: true,
@@ -517,7 +568,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     _sum: { value: true },
     _count: { id: true },
     where: {
-      company: province ? { province } : undefined,
+      company: provinceCondition ? { province: provinceCondition } : undefined,
       OR: []
 
     }
@@ -540,7 +591,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   prisma.quotation.findMany({
     where: {
       salespersonId: { in: filterIds },
-      company: province ? { province } : undefined,
+      company: provinceCondition ? { province: provinceCondition } : undefined,
       status: { in: ['เสนอราคา', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'] }
     },
     include: {
@@ -704,9 +755,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     bizTypePipelineMap[biz] = (bizTypePipelineMap[biz] || 0) + (q.totalAmountBeforeVat || 0);
   });
 
-  const totalCompaniesMap = Object.fromEntries(
-    allProvinces.map((c) => [c.province || 'ไม่ระบุ', c._count.id])
-  );
+  // totalCompaniesMap is now computed earlier with raw province mapping
 
   const enrichedRegions = Object.entries(regionalMetrics).map(([name, data]) => {
     const activeCusts = data.activeCompanies.size;
