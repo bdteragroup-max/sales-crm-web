@@ -147,7 +147,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
         }
       });
       
-      let inferredProductType = 'อื่นๆ';
+      let inferredProductType = 'Other';
       let inferredProductInterest = '';
 
       if (requirement.formData) {

@@ -279,7 +279,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           position: initialData.contact?.position || '',
           mobilePhone: initialData.contact?.mobilePhone || '',
           productInterest: initialData.productInterest || '',
-          productType: initialData.productType || 'อื่นๆ',
+          productType: initialData.productType || 'Other',
           followUp1: '',
           followUp2: '',
           followUp3: '',
@@ -323,7 +323,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           position: initialData.contact?.position || '',
           mobilePhone: initialData.contact?.mobilePhone || '',
           productInterest: initialData.subject || '',
-          productType: initialData.productType || 'อื่นๆ',
+          productType: initialData.productType || 'Other',
           followUp1: formatDateForInput(initialData.followUp1),
           followUp2: formatDateForInput(initialData.followUp2),
           followUp3: formatDateForInput(initialData.followUp3),
@@ -363,7 +363,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
         customerType: 'USER',
         customerStatus: 'ลูกค้าใหม่',
         customerAccessChannel: 'Website',
-        productType: 'อื่นๆ',
+        productType: 'Other',
         companyCode: 'TP',
       });
       setStatus('');
@@ -973,7 +973,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                     placeholder="ระบุสิ่งที่ลูกค้าสนใจ..."
                   ></textarea>
                 </div>
-                <SelectField name="productType" label="ประเภทสินค้า :" options={['Inverter Veichi', 'Motor', 'Pump', 'Solar Roof', 'อื่นๆ']} value={formData.productType} onChange={handleInputChange} />
+                <SelectField name="productType" label="ประเภทสินค้า :" options={['Inverter Veichi', 'Inverter Other', 'Motor', 'Pump', 'Part', 'MDB/DB', 'Solar Roof', 'Solar Pump', 'Other']} value={formData.productType} onChange={handleInputChange} />
               </div>
             </div>
           </Card>

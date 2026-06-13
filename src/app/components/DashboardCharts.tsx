@@ -434,7 +434,7 @@ export function WinRateBarChart({ data }: { data: any[] }) {
         />
         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 8 }} domain={[0, 100]} />
         <RechartsTooltip 
-          formatter={(val: any) => [`${val.toFixed(1)}%`, 'Win Rate']}
+          formatter={(val: any) => [`${val.toFixed(1)}%`, 'อัตราการชนะ']}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
         <Bar dataKey="winRate" fill="#ff2301" radius={[4, 4, 0, 0]} barSize={20}>
@@ -1147,7 +1147,7 @@ export function TelesalesFunnelChart({
           {stage.benchmark !== null && (
             <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold px-1">
               <span>
-                ค่าเฉลี่ยทีม (Team Benchmark): <strong className="text-slate-500">{stage.benchmark.toFixed(1)}%</strong>
+                ค่าเฉลี่ยทีม (เกณฑ์มาตรฐานของทีม): <strong className="text-slate-500">{stage.benchmark.toFixed(1)}%</strong>
               </span>
               {stage.pct >= stage.benchmark ? (
                 <span className="text-emerald-600 font-black">&#8593; สูงกว่าค่าเฉลี่ย (+{(stage.pct - stage.benchmark).toFixed(1)}%)</span>

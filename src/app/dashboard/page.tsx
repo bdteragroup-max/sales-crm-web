@@ -106,7 +106,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
         employeeSale: {
           select: {
             branch: true,
-            position: true
+            position: true,
+            department: true
           }
         }
       },
@@ -168,11 +169,15 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
 
   // TODO: Change to actual data when the accounting system is ready.
   const PRODUCT_MARGINS: Record<string, number> = {
-    'Solar Roof': 15, // Solar Roof has low margin e.g. 15% due to hardware/panel costs
-    'Inverter Veichi': 38, // Veichi Inverter has high margin e.g. 38%
-    'Motor': 30, // Motor has 30%
-    'Pump': 22, // Pump has moderate margin e.g. 22%
-    'อื่นๆ': 25 // Others default is 25%
+    'Solar Roof': 15,
+    'Solar Pump': 20,
+    'Inverter Veichi': 38,
+    'Inverter Other': 25,
+    'Motor': 30,
+    'Pump': 22,
+    'Part': 30,
+    'MDB/DB': 25,
+    'Other': 25
   };
 
   // getQuotationWhereClause filters quotations by date using robust fallbacks for null billing/PO dates.
@@ -1384,10 +1389,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const isViewingAll = isManager && salespersonIds.length === 0;
   const headcountProportion = isViewingAll ? 1 : (Math.max(1, filterIds.length) / Math.max(1, totalActiveRepsCount));
 
-  const productGroupTargets = {
-    'Inverter & automation': 22000000 * headcountProportion,
-    'Solar Roof': 15000000 * headcountProportion,
-    'Solar Pump': 12000000 * headcountProportion,
+  const productGroupTargets: Record<string, number> = {
     'Overall': (22000000 + 15000000 + 12000000) * headcountProportion
   };
 
@@ -1427,20 +1429,26 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const branchPerformance = Object.values(branchPerformanceMap).sort((a, b) => b.sales - a.sales);
   const individualPerformance = Object.values(individualPerformanceMap).sort((a, b) => b.sales - a.sales);
   
-  const groupSales = {
-    'Inverter & automation': 0,
+  const groupSales: Record<string, number> = {
+    'Inverter Veichi': 0,
+    'Inverter Other': 0,
+    'Motor': 0,
+    'Pump': 0,
+    'Part': 0,
+    'MDB/DB': 0,
     'Solar Roof': 0,
     'Solar Pump': 0,
-    'Others': 0
+    'Other': 0
   };
   analyticalData.forEach((q: any) => {
     if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) {
       const amt = q.actualClosingAmount || q.totalAmountBeforeVat || 0;
-      const pType = (q.productType || '').toLowerCase();
-      if (pType.includes('inverter') || pType.includes('automation') || pType.includes('อินเวอร์เตอร์')) groupSales['Inverter & automation'] += amt;
-      else if (pType.includes('roof') || pType.includes('หลังคา') || pType.includes('โซล่ารูฟ')) groupSales['Solar Roof'] += amt;
-      else if (pType.includes('pump') || pType.includes('ปั๊ม') || pType.includes('โซล่าปั๊ม')) groupSales['Solar Pump'] += amt;
-      else groupSales['Others'] += amt;
+      const pType = q.productType || 'Other';
+      if (groupSales[pType] !== undefined) {
+        groupSales[pType] += amt;
+      } else {
+        groupSales['Other'] += amt;
+      }
     }
   });
 
@@ -1501,26 +1509,12 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
           filterStartDate={toBkkDateStr(filterStart)}
           filterEndDate={toBkkDateStr(filterEnd)}
           productPerformance={(() => {
-            const mapProductCategory = (pType: string | null | undefined): string => {
-              if (!pType) return 'Others';
-              const pt = pType.trim().toLowerCase();
+            const allTypes = ['Inverter Veichi', 'Inverter Other', 'Motor', 'Pump', 'Part', 'MDB/DB', 'Solar Roof', 'Solar Pump', 'Other'];
 
-              const isInvOrAuto = ['inverter & automation', 'inverter veichi', 'inverter other', 'inverter powtran', 'inverter', 'motor', 'mdb/db', 'db', 'mdb/db/mcc'].some((x) => pt === x.toLowerCase() || pt.includes(x.toLowerCase())) || pt.includes('automation');
-              if (isInvOrAuto) return 'Inverter & Automation';
-
-              const isSolarRoof = ['solar roof'].some((x) => pt === x.toLowerCase() || pt.includes(x.toLowerCase()));
-              if (isSolarRoof) return 'Solar Roof';
-
-              const isPump = ['solar pump + pump', 'solar pump', 'other pumps', 'pump'].some((x) => pt === x.toLowerCase() || pt.includes(x.toLowerCase()));
-              if (isPump) return 'Solar Pump + Pump';
-
-              return 'Others';
-            };
-
-            return ['Inverter & Automation', 'Solar Roof', 'Solar Pump + Pump', 'Others'].map((groupName) => {
-              const groupQuotes = (analyticalData as any[]).filter((q: any) => mapProductCategory(q.productType) === groupName);
+            return allTypes.map((groupName) => {
+              const groupQuotes = (analyticalData as any[]).filter((q: any) => (q.productType || 'Other') === groupName);
               // Pending PO (ใช้ allActiveQuotations เพื่อให้ข้อมูลตรงกับหน้า Pipeline ที่กรองตามเดือน)
-              const groupPendingQuotes = (allActiveQuotations as any[]).filter((q: any) => mapProductCategory(q.productType) === groupName);
+              const groupPendingQuotes = (allActiveQuotations as any[]).filter((q: any) => (q.productType || 'Other') === groupName);
               const pendingPoQuotes = groupPendingQuotes.filter((q: any) => {
                 const status = q.status || '';
                 return status.includes('รอจัดทำ PO') || status.includes('PO แล้วรอมัดจำ') || status.includes('PO แล้วรอสินค้า') || status.includes('PO แล้วรอเงินโอน');
@@ -1538,15 +1532,9 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
               const closedQuotes = groupQuotes.filter((q: any) => q.status === 'เปิดบิลแล้ว');
               const closedAmount = closedQuotes.reduce((sum: number, q: any) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
 
-              // Target Comparison Pct
-              let productTarget = targetMTD;
-              if (groupName === 'Inverter & Automation') {
-                productTarget = 22000000;
-              } else if (groupName === 'Solar Pump + Pump') {
-                productTarget = 12000000;
-              } else if (groupName === 'Solar Roof') {
-                productTarget = 15000000;
-              }
+              // Target Comparison Pct (Set to 0 since we do not have specific targets for these granular categories)
+              let productTarget = 0;
+
               const targetComparisonPct = productTarget > 0 ? closedAmount / productTarget * 100 : 0;
 
               return {
@@ -1650,7 +1638,9 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
           atRiskDays={atRiskDays}
           alerts={alerts}
           telesalesRecords={historyTelesales}
-          telesalesBenchmark={teamTelesalesBenchmark} />
+          telesalesBenchmark={teamTelesalesBenchmark}
+          branchExpenses={branchExpenses}
+          monthlyTargets={monthlyTargetResult} />
         
       </Suspense>
     </main>);

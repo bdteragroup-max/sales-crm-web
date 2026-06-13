@@ -21,6 +21,7 @@ import {
   ForecastAccuracyChart, TelesalesComposedChart, TelesalesFunnelChart,
   ProductGroupTargetChart, BranchPerformanceChart
 } from './DashboardCharts';
+import ManagerDailySummary from './ManagerDailySummary';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
@@ -103,10 +104,12 @@ interface DashboardUIProps {
   clvTiers: { platinum: { count: number; totalValue: number }; gold: { count: number; totalValue: number }; silver: { count: number; totalValue: number } };
   newVsExisting: { newRevenue: number; existingRevenue: number; newCount: number; existingCount: number; totalRevenue: number };
   atRiskCustomers: any[];
-  atRiskDays: number;
+  atRiskวัน: number;
   alerts: any[];
   telesalesRecords?: any[];
-  telesalesBenchmark?: any[];
+  telesalesเกณฑ์มาตรฐาน?: any[];
+  branchExpenses?: any[];
+  monthlyTargets?: any[];
 }
 
 export default function DashboardUI({
@@ -140,10 +143,12 @@ export default function DashboardUI({
   clvTiers,
   newVsExisting,
   atRiskCustomers,
-  atRiskDays,
+  atRiskวัน,
   alerts,
   telesalesRecords = [],
-  telesalesBenchmark = [],
+  telesalesเกณฑ์มาตรฐาน = [],
+  branchExpenses = [],
+  monthlyTargets = [],
 }: DashboardUIProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -190,7 +195,7 @@ export default function DashboardUI({
   const [showMoMOverlay, setShowMoMOverlay] = React.useState(false);
   const [showAllAlerts, setShowAllAlerts] = React.useState(false);
   const [advancedTab, setAdvancedTab] = React.useState<'customer' | 'forecast'>('customer');
-  const [activeDashboardTab, setActiveDashboardTab] = React.useState<'sales' | 'telesales'>('sales');
+  const [activeDashboardTab, setActiveDashboardTab] = React.useState<'sales' | 'telesales' | 'management'>('sales');
 
   const todayStr = new Date().toLocaleDateString('th-TH', {
     day: 'numeric', month: 'long', year: 'numeric'
@@ -246,32 +251,32 @@ export default function DashboardUI({
   const qualifiedPct = currentFunnel.outreach > 0 ? (currentFunnel.qualified / currentFunnel.outreach) * 100 : 0;
   const forwardedPct = currentFunnel.outreach > 0 ? (currentFunnel.forwarded / currentFunnel.outreach) * 100 : 0;
 
-  // Team Benchmark (All telesales in active period)
-  const uniqueBenchmarkOutreach = new Set<string>();
-  const uniqueBenchmarkConnected = new Set<string>();
-  const uniqueBenchmarkQualified = new Set<string>();
-  const uniqueBenchmarkForwarded = new Set<string>();
+  // Team เกณฑ์มาตรฐาน (All telesales in active period)
+  const uniqueเกณฑ์มาตรฐานOutreach = new Set<string>();
+  const uniqueเกณฑ์มาตรฐานConnected = new Set<string>();
+  const uniqueเกณฑ์มาตรฐานQualified = new Set<string>();
+  const uniqueเกณฑ์มาตรฐานForwarded = new Set<string>();
 
-  telesalesBenchmark.forEach((r: any) => {
+  telesalesเกณฑ์มาตรฐาน.forEach((r: any) => {
     if (r.companyId) {
-      uniqueBenchmarkOutreach.add(r.companyId);
+      uniqueเกณฑ์มาตรฐานOutreach.add(r.companyId);
       if (r.callStatus === 'รับสาย') {
-        uniqueBenchmarkConnected.add(r.companyId);
+        uniqueเกณฑ์มาตรฐานConnected.add(r.companyId);
       }
       if (r.callOutcome === 'สนใจ' || r.callOutcome === 'นัดหมายสำเร็จ') {
-        uniqueBenchmarkQualified.add(r.companyId);
+        uniqueเกณฑ์มาตรฐานQualified.add(r.companyId);
       }
       if (r.forwardTo && r.forwardTo.trim()) {
-        uniqueBenchmarkForwarded.add(r.companyId);
+        uniqueเกณฑ์มาตรฐานForwarded.add(r.companyId);
       }
     }
   });
 
-  const benchmarkOutreachSize = uniqueBenchmarkOutreach.size;
+  const benchmarkOutreachSize = uniqueเกณฑ์มาตรฐานOutreach.size;
   const teamBenchmark = {
-    connectedRate: benchmarkOutreachSize > 0 ? (uniqueBenchmarkConnected.size / benchmarkOutreachSize) * 100 : 0,
-    qualifiedRate: benchmarkOutreachSize > 0 ? (uniqueBenchmarkQualified.size / benchmarkOutreachSize) * 100 : 0,
-    forwardedRate: benchmarkOutreachSize > 0 ? (uniqueBenchmarkForwarded.size / benchmarkOutreachSize) * 100 : 0,
+    connectedRate: benchmarkOutreachSize > 0 ? (uniqueเกณฑ์มาตรฐานConnected.size / benchmarkOutreachSize) * 100 : 0,
+    qualifiedRate: benchmarkOutreachSize > 0 ? (uniqueเกณฑ์มาตรฐานQualified.size / benchmarkOutreachSize) * 100 : 0,
+    forwardedRate: benchmarkOutreachSize > 0 ? (uniqueเกณฑ์มาตรฐานForwarded.size / benchmarkOutreachSize) * 100 : 0,
   };
 
   // Daily composed calls & appointments data
@@ -346,6 +351,19 @@ export default function DashboardUI({
                 <PhoneCall size={12} strokeWidth={2.5} />
                 <span>ประสิทธิภาพเทเลเซลล์</span>
               </button>
+              {['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
+                <button
+                  onClick={() => setActiveDashboardTab('management')}
+                  className={`text-[11px] font-black px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+                    activeDashboardTab === 'management'
+                      ? 'bg-white text-gray-900 shadow-sm border border-slate-200/50'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  <Briefcase size={12} strokeWidth={2.5} />
+                  <span>สรุปข้อมูล (ผู้บริหาร)</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -446,7 +464,16 @@ export default function DashboardUI({
         </div>
 
         <div className="flex-1 overflow-y-auto p-8 space-y-12 custom-scrollbar bg-gray-50/20">
-          {activeDashboardTab === 'sales' ? (
+          {activeDashboardTab === 'management' ? (
+            <ManagerDailySummary
+              productPerformance={productPerformance}
+              branchPerformance={branchPerformance}
+              employeePerformance={employeePerformance}
+              branchExpenses={branchExpenses}
+              salesReps={salesReps}
+              monthlyTargets={monthlyTargets}
+            />
+          ) : activeDashboardTab === 'sales' ? (
             <>
               {/* 1. HIGH-LEVEL KPI STRIP */}
               <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -457,7 +484,7 @@ export default function DashboardUI({
               statusColor={getAchColor(metrics.targetAch.mtd)}
               icon={<Target size={18} />}
               trend={metrics.growth.mom}
-              benchmark={salespersonIds.length > 0 ? `Team: ฿${((metrics.teamGlobal?.revenue?.mtd || 0) / 1000000).toFixed(2)}M` : undefined}
+              benchmark={salespersonIds.length > 0 ? `ทีม: ฿${((metrics.teamGlobal?.revenue?.mtd || 0) / 1000000).toFixed(2)}M` : undefined}
             />
             <KPICard 
               label="อัตราปิดการขายชนะ (Win Rate)" 
@@ -469,14 +496,14 @@ export default function DashboardUI({
             <KPICard 
               label="การเติบโตเทียบปีก่อน (YoY)" 
               value={`${metrics.growth.yoy >= 0 ? '+' : ''}${metrics.growth.yoy.toFixed(1)}%`}
-              subValue="Revenue Growth Rate"
+              subValue="อัตราการเติบโตของรายได้"
               statusColor={metrics.growth.yoy >= 0 ? '#22c55e' : '#ef4444'}
               icon={<TrendingUp size={18} />}
             />
             <KPICard 
               label="คาดการณ์ยอดปิดรวม (Method 3)" 
               value={`฿${(metrics.forecast.value / 1000000).toFixed(2)}M`}
-              subValue="Pipeline-Based (Most Accurate)"
+              subValue="ประเมินจากท่อการขาย (แม่นยำที่สุด)"
               statusColor="#3b82f6"
               icon={<TrendingUp size={18} />}
               benchmark="ยอดสะสม + (ใบเสนอราคาคงค้าง × Win Rate)"
@@ -488,7 +515,7 @@ export default function DashboardUI({
             <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
               <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                 <Package size={16} className="text-blue-600" />
-                สถานะการจัดส่งออเดอร์ (Post-Sales Order Fulfillment)
+                สถานะการจัดส่งออเดอร์ (การปฏิบัติตามคำสั่งซื้อหลังการขาย)
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {['รอยืนยัน', 'กำลังผลิต', 'กำลังจัดส่ง', 'เสร็จสิ้น'].map(status => {
@@ -512,7 +539,7 @@ export default function DashboardUI({
             <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 mt-2">
               <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                 <Briefcase size={16} className="text-indigo-600" />
-                สถานะการเชื่อมต่องาน (Job Connection Status)
+                สถานะการเชื่อมต่องาน (สถานะการเชื่อมต่องาน)
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
                 {[
@@ -543,14 +570,14 @@ export default function DashboardUI({
             <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 mt-2">
               <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                 <Target size={16} className="text-brand-red" />
-                เป้าหมายและการขายแบ่งตามกลุ่มสินค้า (Product Group Targets vs Sales)
+                เป้าหมายและการขายแบ่งตามกลุ่มสินค้า (เป้าหมายยอดขายแต่ละกลุ่มสินค้า)
               </h3>
               <div className="h-[300px]">
                 <ProductGroupTargetChart data={
-                  ['Inverter & automation', 'Solar Roof', 'Solar Pump', 'Overall'].map(key => ({
+                  [...(metrics.productGroupSales ? Object.keys(metrics.productGroupSales) : []), 'Overall'].map(key => ({
                     name: key === 'Overall' ? 'รวมทั้งหมด' : key,
                     sales: key === 'Overall' 
-                      ? Object.values(metrics.productGroupSales || {}).reduce((a,b)=>a+b,0)
+                      ? Object.values(metrics.productGroupSales || {}).reduce((a: any, b: any) => a + b, 0)
                       : (metrics.productGroupSales?.[key] || 0),
                     target: metrics.productGroupTargets?.[key] || 0
                   }))
@@ -565,7 +592,7 @@ export default function DashboardUI({
             <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 mt-2">
               <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                 <Users size={16} className="text-blue-600" />
-                ยอดขายรายบุคคล (Individual Sales)
+                ยอดขายรายบุคคล (ยอดขายรายบุคคล)
               </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
@@ -573,7 +600,7 @@ export default function DashboardUI({
                     <tr className="bg-gray-50 border-b border-gray-100">
                       <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase">พนักงานขาย</th>
                       <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase">สาขา</th>
-                      <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase text-right">ยอดขาย (Sales)</th>
+                      <th className="px-4 py-3 text-[10px] font-black text-gray-500 uppercase text-right">ยอดขาย</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -608,7 +635,7 @@ export default function DashboardUI({
                   <div key={alert.id} className={`rounded-2xl p-4 border-l-4 flex flex-col gap-1 ${alert.priority === 'critical' ? 'bg-red-50/50 border-red-500' : 'bg-amber-50/50 border-amber-400'}`}>
                     <div className="flex items-center gap-2">
                       <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${alert.priority === 'critical' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                        {alert.priority === 'critical' ? 'CRITICAL' : 'WARNING'}
+                        {alert.priority === 'critical' ? 'วิกฤต' : 'เตือน'}
                       </span>
                       <span className="text-[9px] font-bold text-gray-400 flex items-center gap-1.5">
                         {alert.type === 'deal_stuck' ? (
@@ -649,8 +676,8 @@ export default function DashboardUI({
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col h-[520px]">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">แนวโน้มการขายรายวัน (Daily Sales Trend)</h3>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 italic">ยอดขายสะสม vs ปริมาณงาน (Cumulative Sales vs. Workload)</p>
+                  <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">แนวโน้มการขายรายวัน (แนวโน้มยอดขายรายวัน)</h3>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 italic">ยอดขายสะสม vs ปริมาณงาน (ยอดขายสะสมเทียบกับภาระงาน)</p>
                 </div>
                 <div className="flex gap-4">
                   {Object.entries(visibleSeries).map(([key, val]) => (
@@ -680,8 +707,8 @@ export default function DashboardUI({
             {['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
               <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col h-[480px]">
                 <div className="mb-8">
-                  <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">ความสัมพันธ์ของกิจกรรมและยอดขาย (Relationship between Activity and Revenue)</h3>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">เปรียบเทียบจำนวนการโทร/การเข้าพบเฉลี่ยต่อสัปดาห์กับการปิดยอดขายรายบุคคล (Compare average weekly calls/visits with individual sales closes)</p>
+                  <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">ความสัมพันธ์ของกิจกรรมและยอดขาย (ความสัมพันธ์ระหว่างกิจกรรมและรายได้)</h3>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">เปรียบเทียบจำนวนการโทร/การเข้าพบเฉลี่ยต่อสัปดาห์กับการปิดยอดขายรายบุคคล (เปรียบเทียบจำนวนการโทรและการเข้าพบเฉลี่ยต่อสัปดาห์กับยอดขายรายบุคคล)</p>
                 </div>
                 <div className="flex-1 min-h-0">
                   <ComposedActivityCorrelationChart data={employeePerformance} />
@@ -695,7 +722,7 @@ export default function DashboardUI({
             <div>
               <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                 <TrendingUp size={16} className="text-brand-red" />
-                การเคลื่อนไหวของโอกาสทางการขาย (Pipeline Flow Ribbon)
+                การเคลื่อนไหวของโอกาสทางการขาย (การไหลเวียนของโอกาสการขาย)
               </h3>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">เปรียบเทียบความเคลื่อนไหวในรอบเดือนนี้เทียบกับเดือนก่อน (MoM)</p>
             </div>
@@ -703,7 +730,7 @@ export default function DashboardUI({
             <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6 divide-y md:divide-y-0 md:divide-x divide-gray-100">
               {/* New Deals */}
               <div className="flex flex-col gap-2 pt-4 md:pt-0 md:pl-4 first:pl-0">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">ดีลใหม่เข้าท่อ (New)</span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">ดีลใหม่เข้าท่อ</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-black text-gray-900">{metrics.pipelineFlow.current.newDeals} ดีล</span>
                   <span className={`flex items-center gap-0.5 text-[10px] font-black ${metrics.pipelineFlow.mom.newPct >= 0 ? 'text-green-500' : 'text-red-500'}`}>
@@ -715,7 +742,7 @@ export default function DashboardUI({
 
               {/* Active Pipeline */}
               <div className="flex flex-col gap-2 pt-4 md:pt-0 md:pl-6">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">กำลังเจรจา (Active)</span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">กำลังเจรจา</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-black text-gray-900">{metrics.pipeline.count} ดีล</span>
                   <span className="text-[9px] font-bold text-gray-400">มูลค่า ฿{(metrics.pipeline.value / 1000000).toFixed(2)}M</span>
@@ -725,7 +752,7 @@ export default function DashboardUI({
 
               {/* Won Deals */}
               <div className="flex flex-col gap-2 pt-4 md:pt-0 md:pl-6">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">ปิดการขายสำเร็จ (Won)</span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">ปิดการขายสำเร็จ</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-black text-green-600">{metrics.pipelineFlow.current.wonDeals} ดีล</span>
                   <span className={`flex items-center gap-0.5 text-[10px] font-black ${metrics.pipelineFlow.mom.wonPct >= 0 ? 'text-green-500' : 'text-red-500'}`}>
@@ -737,7 +764,7 @@ export default function DashboardUI({
 
               {/* Lost Deals */}
               <div className="flex flex-col gap-2 pt-4 md:pt-0 md:pl-6">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">ปิดไม่สำเร็จ (Lost)</span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">ปิดไม่สำเร็จ</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-black text-red-500">{metrics.pipelineFlow.current.lostDeals} ดีล</span>
                   <span className={`flex items-center gap-0.5 text-[10px] font-black ${metrics.pipelineFlow.mom.lostPct >= 0 ? 'text-red-500' : 'text-green-500'}`}>
@@ -770,14 +797,14 @@ export default function DashboardUI({
               <div>
                 <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                   <Clock size={16} className="text-brand-red" />
-                  การวิเคราะห์วงจรการขาย (Sales Cycle)
+                  การวิเคราะห์วงจรการขาย
                 </h3>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">ระยะเวลาเฉลี่ยตั้งแต่เริ่มเปิดดีลจนปิดผลลัพธ์สำเร็จ/ไม่สำเร็จ</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-6">
                 <div className="bg-green-50/20 border border-green-100 rounded-3xl p-6 flex flex-col relative overflow-hidden">
-                  <span className="text-[9px] font-black text-green-600 uppercase tracking-wider">ระยะเวลาเฉลี่ยที่ชนะ (Avg Time to Win)</span>
+                  <span className="text-[9px] font-black text-green-600 uppercase tracking-wider">ระยะเวลาเฉลี่ยที่ชนะ</span>
                   <span className="text-3xl font-black text-green-700 mt-2">
                     {metrics.salesCycle.avgTimeToWin > 0 ? `${metrics.salesCycle.avgTimeToWin.toFixed(1)} วัน` : 'ไม่มีข้อมูล'}
                   </span>
@@ -792,7 +819,7 @@ export default function DashboardUI({
                 </div>
 
                 <div className="bg-red-50/20 border border-red-100 rounded-3xl p-6 flex flex-col relative overflow-hidden">
-                  <span className="text-[9px] font-black text-red-600 uppercase tracking-wider">ระยะเวลาเฉลี่ยที่แพ้ (Avg Time to Lose)</span>
+                  <span className="text-[9px] font-black text-red-600 uppercase tracking-wider">ระยะเวลาเฉลี่ยที่แพ้</span>
                   <span className="text-3xl font-black text-red-700 mt-2">
                     {metrics.salesCycle.avgTimeToLose > 0 ? `${metrics.salesCycle.avgTimeToLose.toFixed(1)} วัน` : 'ไม่มีข้อมูล'}
                   </span>
@@ -809,18 +836,18 @@ export default function DashboardUI({
 
               {/* Product type breakdown sub-list */}
               <div className="mt-6 border-t border-gray-50 pt-4">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-3">จำแนกตามประเภทผลิตภัณฑ์ (Product Breakdown)</span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-3">จำแนกตามประเภทผลิตภัณฑ์</span>
                 <div className="max-h-40 overflow-y-auto custom-scrollbar space-y-2">
                   {metrics.salesCycle.productBreakdown.map((item) => (
                     <div key={item.productType} className="flex items-center justify-between bg-gray-50 rounded-2xl px-4 py-2 border border-gray-100">
                       <span className="text-[11px] font-black text-gray-800">{item.productType}</span>
                       <div className="flex gap-4">
                         <div className="flex flex-col text-right">
-                          <span className="text-[9px] font-bold text-green-600 uppercase">Avg Win</span>
+                          <span className="text-[9px] font-bold text-green-600 uppercase">ชนะเฉลี่ย</span>
                           <span className="text-[11px] font-black text-gray-900">{item.avgTimeToWin > 0 ? `${item.avgTimeToWin.toFixed(1)} วัน` : '-'}</span>
                         </div>
                         <div className="flex flex-col text-right">
-                          <span className="text-[9px] font-bold text-red-500 uppercase">Avg Lose</span>
+                          <span className="text-[9px] font-bold text-red-500 uppercase">แพ้เฉลี่ย</span>
                           <span className="text-[11px] font-black text-gray-900">{item.avgTimeToLose > 0 ? `${item.avgTimeToLose.toFixed(1)} วัน` : '-'}</span>
                         </div>
                       </div>
@@ -838,7 +865,7 @@ export default function DashboardUI({
               <div>
                 <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                   <AlertCircle size={16} className="text-yellow-600" />
-                  ด่วน! ดีลค้างคาในท่อส่งผลกระทบสูง (High-Impact Aging Deals)
+                  ด่วน! ดีลค้างคาในท่อส่งผลกระทบสูง (ดีลล่าช้าที่มีผลกระทบสูง)
                 </h3>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">รายการดีลที่ล่าช้าเกินเกณฑ์มาตรฐานเฉลี่ย 1.5 เท่า แยกตามชนิดผลิตภัณฑ์</p>
               </div>
@@ -898,19 +925,19 @@ export default function DashboardUI({
             {/* Sales Funnel Composed Stage Chart */}
             <div className="xl:col-span-2 bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col h-[480px]">
               <div className="mb-4">
-                <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">การกระจายตัวของท่อการขาย (Pipeline Stages Breakdown)</h3>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">เปรียบเทียบจำนวน รายรับจริง และมูลค่าที่ถ่วงน้ำหนักความน่าจะเป็นสำเร็จ (Weighted Pipeline Value)</p>
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">การกระจายตัวของท่อการขาย (รายละเอียดขั้นตอนท่อการขาย)</h3>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">เปรียบเทียบจำนวน รายรับจริง และมูลค่าที่ถ่วงน้ำหนักความน่าจะเป็นสำเร็จ (มูลค่าท่อการขายแบบถ่วงน้ำหนัก)</p>
               </div>
               <div className="flex-1 min-h-0">
                 <PipelineComposedStageChart data={metrics.funnelStages} />
               </div>
             </div>
 
-            {/* Stage to Stage Conversion Rates Badge Table */}
+            {/* Stage to Stage อัตราคอนเวอร์ชัน Badge Table */}
             <div className="xl:col-span-1 bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col justify-between h-[480px]">
               <div>
-                <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">อัตราการเปลี่ยนสถานะดีล (Conversion Rates)</h3>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">สถิติประสิทธิภาพการผลักดันดีลผ่านแต่ละขั้นตอนของท่อส่ง (Stage-to-Stage)</p>
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">อัตราการเปลี่ยนสถานะดีล (อัตราคอนเวอร์ชัน)</h3>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">สถิติประสิทธิภาพการผลักดันดีลผ่านแต่ละขั้นตอนของท่อส่ง (จากขั้นตอนก่อนหน้า)</p>
               </div>
 
               <div className="flex-1 mt-6 space-y-4">
@@ -939,7 +966,7 @@ export default function DashboardUI({
               </div>
 
               <div className="border-t border-gray-50 pt-4 flex flex-col gap-1">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">เกณฑ์ชี้วัดมาตรฐานอัตราเปลี่ยนผ่าน (Benchmark)</span>
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">เกณฑ์ชี้วัดมาตรฐานอัตราเปลี่ยนผ่าน (เกณฑ์มาตรฐาน)</span>
                 <div className="flex items-center gap-4 text-[9px] font-bold text-gray-500 mt-1">
                   <div className="flex items-center gap-1">
                     <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
@@ -966,10 +993,10 @@ export default function DashboardUI({
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                     <Package size={16} className="text-brand-red" />
-                    การวิเคราะห์ยอดขายและอัตรากำไรขั้นต้น (Product Margin Analysis)
+                    การวิเคราะห์ยอดขายและอัตรากำไรขั้นต้น (การวิเคราะห์ยอดขายและอัตรากำไรขั้นต้น)
                   </h3>
                   <span className="text-[9px] font-black bg-yellow-50 text-yellow-600 border border-yellow-200 px-2 py-0.5 rounded-full">
-                    ค่าประมาณการ (Estimated Cost)
+                    ค่าประมาณการ (ต้นทุนโดยประมาณ)
                   </span>
                 </div>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
@@ -980,7 +1007,7 @@ export default function DashboardUI({
                 <ProductPerformanceComposedChart data={productMix} />
               </div>
               <div className="mt-2 text-[9px] font-bold text-gray-400 italic">
-                *หมายเหตุ: ข้อมูลอัตรากำไรและกำไรขั้นต้นเป็นค่าประมาณการเบื้องต้น (Based on estimated profit margin)
+                *หมายเหตุ: ข้อมูลอัตรากำไรและกำไรขั้นต้นเป็นค่าประมาณการเบื้องต้น (คำนวณจากประมาณการอัตรากำไร)
                 <span className="block text-[8px] text-gray-300 mt-0.5">// TODO: Change to actual data when the accounting system is ready.</span>
               </div>
             </div>
@@ -990,7 +1017,7 @@ export default function DashboardUI({
               <div className="mb-4">
                 <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                   <Trophy size={16} className="text-iron-gold" />
-                  อัตราการชนะตามชนิดผลิตภัณฑ์ (Product Win Rates)
+                  อัตราการชนะตามชนิดผลิตภัณฑ์ (อัตราการชนะตามชนิดผลิตภัณฑ์)
                 </h3>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
                   สัดส่วนดีลที่สำเร็จจากจำนวนดีลที่ปิดผลลัพธ์ทั้งหมด
@@ -1036,10 +1063,10 @@ export default function DashboardUI({
                 <div className="mb-6">
                   <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                     <Target size={16} className="text-brand-red" />
-                    รายละเอียดสินค้า (Product Performance Dashboard)
+                    รายละเอียดสินค้า (แดชบอร์ดประสิทธิภาพสินค้า)
                   </h3>
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                    ภาพรวมรายผลิตภัณฑ์: รอ PO, ยอดขายปิดเดือนนี้ และสัดส่วนเทียบเป้าหมายองค์กร (Assigned to Marketing Manager View)
+                    ภาพรวมรายผลิตภัณฑ์: รอ PO, ยอดขายปิดเดือนนี้ และสัดส่วนเทียบเป้าหมายองค์กร (มุมมองสำหรับผู้จัดการฝ่ายการตลาด)
                   </p>
                 </div>
 
@@ -1047,11 +1074,11 @@ export default function DashboardUI({
                   <table className="w-full text-left border-collapse min-w-[700px]">
                     <thead>
                       <tr className="border-b border-gray-100 bg-gray-50/50">
-                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest whitespace-nowrap rounded-tl-xl">รายละเอียดสินค้า (Product Details)</th>
-                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">รอรับ PO (Pending PO)</th>
-                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">ปิดยอดเดือนนี้ (Sales Closed)</th>
-                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">เป้าหมาย (Target)</th>
-                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap rounded-tr-xl">สัดส่วนเทียบเป้าหมาย (Target Comparison)</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest whitespace-nowrap rounded-tl-xl">รายละเอียดสินค้า</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">รอรับ PO</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">ปิดยอดเดือนนี้</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">เป้าหมาย</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap rounded-tr-xl">สัดส่วนเทียบเป้าหมาย</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -1108,10 +1135,10 @@ export default function DashboardUI({
                 <div className="mb-6">
                   <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                     <Target size={16} className="text-brand-red" />
-                    ยอดขายตามสาขา (Branch Performance)
+                    ยอดขายตามสาขา
                   </h3>
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                    ภาพรวมรายสาขา: เป้าหมาย, ยอดขายปิดเดือนนี้ และรอ PO (Assigned to Marketing Manager View)
+                    ภาพรวมรายสาขา: เป้าหมาย, ยอดขายปิดเดือนนี้ และรอ PO (มุมมองสำหรับผู้จัดการฝ่ายการตลาด)
                   </p>
                 </div>
 
@@ -1119,10 +1146,10 @@ export default function DashboardUI({
                   <table className="w-full text-left border-collapse min-w-[700px]">
                     <thead>
                       <tr className="border-b border-gray-100 bg-gray-50/50">
-                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest whitespace-nowrap rounded-tl-xl">สาขา (Branch)</th>
-                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">เป้าหมาย (Sales Target)</th>
-                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">ปิดยอดเดือนนี้ (Sales Closed)</th>
-                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap rounded-tr-xl">รอรับ PO (Waiting for PO)</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest whitespace-nowrap rounded-tl-xl">สาขา</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">เป้าหมายการขาย</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap">ปิดยอดเดือนนี้</th>
+                        <th className="py-4 px-4 text-xs font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap rounded-tr-xl">รอรับ PO</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -1166,7 +1193,7 @@ export default function DashboardUI({
                 <div>
                   <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                     <MapPin size={16} className="text-brand-red" />
-                    วิเคราะห์ศักยภาพรายพื้นที่การขาย (Sales Area: Performance vs Potential)
+                    วิเคราะห์ศักยภาพรายพื้นที่การขาย (วิเคราะห์ศักยภาพรายพื้นที่การขาย)
                   </h3>
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
                     เปรียบเทียบยอดขายรวม อัตราการเข้าถึงกลุ่มเป้าหมาย (Penetration %) และยอดขายเฉลี่ยต่อลูกค้ารายจังหวัด
@@ -1252,7 +1279,7 @@ export default function DashboardUI({
               <div>
                 <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                   <AlertCircle size={16} className="text-brand-red" />
-                  สถิติมูลค่าและสาเหตุที่พลาด (Loss Reason Summary & Value)
+                  สถิติมูลค่าและสาเหตุที่พลาด (สถิติมูลค่าและสาเหตุที่พลาด)
                 </h3>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
                   สถิติจำนวนครั้งและมูลค่ารวมดีลที่พลาดจำแนกตามสาเหตุ
@@ -1280,10 +1307,10 @@ export default function DashboardUI({
               <div>
                 <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                   <Package size={16} className="text-gray-500" />
-                  สาเหตุที่พลาดจำแนกรายผลิตภัณฑ์ (Loss Reasons by Product)
+                  สาเหตุที่พลาดจำแนกรายผลิตภัณฑ์ (สาเหตุที่พลาดจำแนกรายผลิตภัณฑ์)
                 </h3>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                  แผนภูมิแท่งซ้อน (Stacked Bar) แสดงสาเหตุที่ดีลไม่สำเร็จจำแนกรายกลุ่มสินค้า
+                  แผนภูมิแท่งซ้อน (แผนภูมิแท่งซ้อน) แสดงสาเหตุที่ดีลไม่สำเร็จจำแนกรายกลุ่มสินค้า
                 </p>
               </div>
 
@@ -1299,7 +1326,7 @@ export default function DashboardUI({
               <div>
                 <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                   <BarChart3 size={16} className="text-brand-red" />
-                  วิเคราะห์เชิงลึก (Advanced Analytics)
+                  วิเคราะห์เชิงลึก (วิเคราะห์เชิงลึก)
                 </h3>
               </div>
               <div className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
@@ -1346,7 +1373,7 @@ export default function DashboardUI({
 
                 {/* Top Customers Table */}
                 <div>
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-3">ลูกค้ามูลค่าสูงสุด Top 10 (All-time CLV)</span>
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-3">ลูกค้ามูลค่าสูงสุด Top 10 (มูลค่าตลอดอายุการใช้งาน (CLV))</span>
                   <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left border-collapse">
                       <thead>
@@ -1382,16 +1409,16 @@ export default function DashboardUI({
                   </div>
                 </div>
 
-                {/* At-Risk Customers */}
+                {/* ความเสี่ยง Customers */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-[10px] font-black text-red-600 uppercase tracking-widest flex items-center gap-1">
-                      <AlertCircle size={12} /> ลูกค้ากลุ่มเสี่ยง (At-Risk) — ไม่ซื้อมากกว่า {atRiskDays} วัน
+                      <AlertCircle size={12} /> ลูกค้ากลุ่มเสี่ยง (ความเสี่ยง) — ไม่ซื้อมากกว่า {atRiskวัน} วัน
                     </span>
                     <select
                       className="text-[10px] font-black bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 outline-none cursor-pointer"
-                      value={atRiskDays}
-                      onChange={(e) => handleFilterChange('atRiskDays', e.target.value)}
+                      value={atRiskวัน}
+                      onChange={(e) => handleFilterChange('atRiskวัน', e.target.value)}
                     >
                       <option value="30">30 วัน</option>
                       <option value="60">60 วัน</option>
