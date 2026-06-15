@@ -9,8 +9,19 @@ export const dynamic = 'force-dynamic';
 
 export default async function TeamPage() {
   const user = await getUser();
-  
-  if (!user || (user.role !== 'ผู้จัดการ' && (user.role || '').toLowerCase() !== 'sales manager' && (user.role || '').toLowerCase() !== 'marketing manager' && (user.role || '').toLowerCase() !== 'ผู้จัดการฝ่ายการตลาด' && (user.role || '').toLowerCase() !== 'ผู้จัดการการตลาด' && (user.role || '').toLowerCase() !== 'ผู้การจัดการตลาด')) {
+  const roleLower = (user?.role || '').toLowerCase();
+  const isTeamManager = user?.role === 'ผู้จัดการ' || 
+                        roleLower === 'sales manager' || 
+                        roleLower === 'marketing manager' || 
+                        roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
+                        roleLower.includes('ผู้จัดการการตลาด') ||
+                        roleLower.includes('ผู้การจัดการตลาด') ||
+                        roleLower.includes('admin') ||
+                        user?.role === 'Admin';
+                        
+  const isProjectAdmin = roleLower.includes('admin project') || roleLower.includes('project admin') || roleLower.includes('admin') || user?.role === 'Admin';
+
+  if (!user || !isTeamManager) {
     redirect('/dashboard');
   }
 
@@ -19,7 +30,7 @@ export default async function TeamPage() {
   try {
     subordinates = await teraDb.employees.findMany({
       where: {
-        supervisor_id: user.employeeId,
+        ...(isProjectAdmin ? {} : { supervisor_id: user.employeeId }),
         is_active: true,
       },
       include: {

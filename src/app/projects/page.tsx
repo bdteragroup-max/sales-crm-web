@@ -27,11 +27,10 @@ export default async function ProjectsPage() {
   const isManager = user.role === 'ผู้จัดการ' || roleLower.includes('manager') || roleLower.includes('mgr') || user.role === 'Admin' || roleLower.includes('admin');
 
   const whereClause = isManager ? {} : {
-    members: {
-      some: {
-        userId: user.id
-      }
-    }
+    OR: [
+      { managerId: user.id },
+      { members: { some: { userId: user.id } } }
+    ]
   };
 
   const projects = await prisma.project.findMany({
@@ -42,7 +41,14 @@ export default async function ProjectsPage() {
         include: { user: true }
       },
       tasks: true,
-      job: true
+      job: true,
+      dailyLogs: {
+        orderBy: { date: 'desc' },
+        take: 5,
+        include: {
+          reporter: { select: { fullName: true } }
+        }
+      }
     },
     orderBy: { createdAt: 'desc' }
   });

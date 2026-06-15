@@ -1438,8 +1438,14 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const isViewingAll = isManager && salespersonIds.length === 0;
   const headcountProportion = isViewingAll ? 1 : (Math.max(1, filterIds.length) / Math.max(1, totalActiveRepsCount));
 
+  const filterDurationDays = Math.max(1, Math.ceil((filterEnd.getTime() - filterStart.getTime()) / (1000 * 60 * 60 * 24)));
+  const monthFraction = filterDurationDays / 30.4375;
+
   const productGroupTargets: Record<string, number> = {
-    'Overall': (22000000 + 15000000 + 12000000) * headcountProportion
+    'Inverter Veichi': 22000000 * headcountProportion * monthFraction,
+    'Solar Roof': 15000000 * headcountProportion * monthFraction,
+    'Solar Pump': 12000000 * headcountProportion * monthFraction,
+    'Overall': (22000000 + 15000000 + 12000000) * headcountProportion * monthFraction
   };
 
   const branchPerformanceMap: Record<string, { branch: string; sales: number; expenses: number }> = {};
@@ -1581,8 +1587,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
               const closedQuotes = groupQuotes.filter((q: any) => q.status === 'เปิดบิลแล้ว');
               const closedAmount = closedQuotes.reduce((sum: number, q: any) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
 
-              // Target Comparison Pct (Set to 0 since we do not have specific targets for these granular categories)
-              let productTarget = 0;
+              // Target Comparison Pct
+              let productTarget = productGroupTargets[groupName] || 0;
 
               const targetComparisonPct = productTarget > 0 ? closedAmount / productTarget * 100 : 0;
 

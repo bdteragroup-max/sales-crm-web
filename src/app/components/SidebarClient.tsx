@@ -61,12 +61,19 @@ const projectNav = [
   { icon: FolderOpen, label: 'โครงการของฉัน', href: '/projects' },
 ];
 
+const projectAdminNav = [
+  { icon: LayoutDashboard, label: 'ภาพรวมโครงการ', href: '/projects/dashboard' },
+  { icon: FolderOpen, label: 'จัดการโครงการ', href: '/projects' },
+];
+
 export default function SidebarClient(props: SidebarProps) {
   let nav = repNav;
   const roleStr = (props.userRole || '').toLowerCase();
   
   if (roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้การจัดการตลาด') {
     nav = managerNav;
+  } else if (roleStr.includes('admin project') || roleStr.includes('project admin')) {
+    nav = projectAdminNav;
   } else if (roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง')) {
     nav = serviceNav; // Service / non-sales departments see repair orders
   } else if (['accounting', 'บัญชี', 'finance', 'การเงิน'].some(r => roleStr.includes(r))) {

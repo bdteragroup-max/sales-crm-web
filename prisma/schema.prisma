@@ -1326,12 +1326,68 @@ model Project {
   status          String          @default("Planning")
   // Planning | In progress | Paused | Completed | Cancelled
   
+  // --- New Project Outline Fields ---
+  projectCategory         String?
+  department              String?
+  province                String?
+  district                String?
+  
+  projectValue            Decimal?  @db.Decimal(15, 2)
+  securityDeposit         Decimal?  @db.Decimal(15, 2)
+  penaltyPerDay           Decimal?  @db.Decimal(15, 2)
+  amountIncludingVat      Decimal?  @db.Decimal(15, 2)
+  
+  installment1            Decimal?  @db.Decimal(15, 2)
+  installment2            Decimal?  @db.Decimal(15, 2)
+  installment3            Decimal?  @db.Decimal(15, 2)
+  installment4            Decimal?  @db.Decimal(15, 2)
+  firstPayment            Decimal?  @db.Decimal(15, 2)
+  secondPayment           Decimal?  @db.Decimal(15, 2)
+  
+  contractNumber          String?
+  documentNumber          String?
+  deliveryDocNumber       String?
+  jbNumber                String?
+  certCompletionRequestNo String?
+  certRequestStatus       String?
+  depositRefundRequestNo  String?
+  contractSignatory       String?
+  contractReturnStatus    String?
+  remarks                 String?
+  pathFolder              String?
+  statusPictureUrl        String?
+  
+  updateCompanyProfile    Boolean   @default(false)
+  
+  projectDuration         Int?
+  projectDurationUnit     String?
+  
+  contractSigningDate     DateTime? @db.Timestamptz(6)
+  deliveryDate            DateTime? @db.Timestamptz(6)
+  paymentDate             DateTime? @db.Timestamptz(6)
+  depositCollectionSchedule DateTime? @db.Timestamptz(6)
+
+  equipment       ProjectEquipment[]
+  // --------------------------------
+
   tasks           ProjectTask[]
   members         ProjectMember[] 
   dailyLogs       ProjectDailyLog[]
   
   createdAt       DateTime        @default(now()) @db.Timestamptz(6) 
   updatedAt       DateTime        @updatedAt @db.Timestamptz(6)
+}
+
+model ProjectEquipment {
+  id                 String   @id @default(cuid())
+  projectId          String
+  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name               String   // e.g., "รถเข็น 1 แผง", "รถลาก 9 แผง"
+  registrationNumber String?  // For vehicle/asset tracking
+  quantity           Int      @default(1)
+  status             String   @default("ใช้งาน") // "ใช้งาน" (Used), "ซ่อม" (Repaired), "ชำรุด" (Damaged)
+  details            String?
+  createdAt          DateTime @default(now()) @db.Timestamptz(6)
 }
 
 model ProjectMember { 

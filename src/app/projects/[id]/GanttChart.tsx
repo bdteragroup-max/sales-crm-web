@@ -18,6 +18,11 @@ export default function GanttChart({ project, currentUser, isManager }: GanttCha
   const [view, setView] = useState<GanttView>('day');
   const [tasks, setTasks] = useState(project.tasks || []);
   const [isSaving, setIsSaving] = useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
   const [dragging, setDragging] = useState<{
     taskId: string;
     type: 'move' | 'resize-left' | 'resize-right';
@@ -212,7 +217,7 @@ export default function GanttChart({ project, currentUser, isManager }: GanttCha
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div className="flex flex-col min-h-[600px] md:h-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
         <div>
@@ -370,21 +375,25 @@ export default function GanttChart({ project, currentUser, isManager }: GanttCha
       </div>
 
       {/* S-Curve Chart */}
-      <div className="h-[250px] border-t border-gray-200 bg-white p-4">
-        <h3 className="text-sm font-bold text-gray-800 mb-2">S-Curve (% Plan vs % Actual)</h3>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={sCurveData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-            <XAxis dataKey="date" tick={{fontSize: 10}} tickMargin={10} stroke="#9CA3AF" />
-            <YAxis tick={{fontSize: 10}} stroke="#9CA3AF" domain={[0, 100]} />
-            <RechartsTooltip 
-              contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-            />
-            <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-            <Area type="monotone" dataKey="planPct" name="% Plan" stroke="#3B82F6" fillOpacity={0.2} fill="#3B82F6" strokeWidth={3} activeDot={{ r: 6 }} />
-            <Area type="monotone" dataKey="actualPct" name="% Actual" stroke="#10B981" fillOpacity={0.2} fill="#10B981" strokeWidth={3} activeDot={{ r: 6 }} />
-          </AreaChart>
-        </ResponsiveContainer>
+      <div className="h-[250px] w-full border-t border-gray-200 bg-white p-4 flex flex-col">
+        <h3 className="text-sm font-bold text-gray-800 mb-2 shrink-0">S-Curve (% Plan vs % Actual)</h3>
+        <div className="flex-1 w-full min-h-0 relative">
+          {mounted && (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={sCurveData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                <XAxis dataKey="date" tick={{fontSize: 10}} tickMargin={10} stroke="#9CA3AF" />
+                <YAxis tick={{fontSize: 10}} stroke="#9CA3AF" domain={[0, 100]} />
+                <RechartsTooltip 
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                <Area type="monotone" dataKey="planPct" name="% Plan" stroke="#3B82F6" fillOpacity={0.2} fill="#3B82F6" strokeWidth={3} activeDot={{ r: 6 }} />
+                <Area type="monotone" dataKey="actualPct" name="% Actual" stroke="#10B981" fillOpacity={0.2} fill="#10B981" strokeWidth={3} activeDot={{ r: 6 }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
       </div>
 
       {/* Progress Popup */}

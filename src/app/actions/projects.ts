@@ -3,36 +3,15 @@
 import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function createProject(data: {
-  projectNumber?: string;
-  name: string;
-  description?: string;
-  clientName?: string;
-  siteAddress?: string;
-  managerId?: string;
-  startDate?: Date;
-  endDate?: Date;
-  budget?: number;
-  jobId?: string;
-  externalTechnicians?: string;
-}) {
+export async function createProject(data: any) {
   try {
     // Generate a default project number if not provided
     const projectNumber = data.projectNumber || `PJ${new Date().getFullYear().toString().slice(-2)}-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const project = await prisma.project.create({
       data: {
+        ...data,
         projectNumber,
-        name: data.name,
-        description: data.description,
-        clientName: data.clientName,
-        siteAddress: data.siteAddress,
-        managerId: data.managerId,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        budget: data.budget,
-        jobId: data.jobId,
-        externalTechnicians: data.externalTechnicians,
       },
     });
     
@@ -184,5 +163,48 @@ export async function updateTaskProgress(taskId: string, actualPct: number) {
   } catch (error) {
     console.error("Error updating task progress:", error);
     throw new Error("Failed to update task progress");
+  }
+}
+
+export async function createProjectEquipment(projectId: string, data: any) {
+  try {
+    const equipment = await prisma.projectEquipment.create({
+      data: {
+        ...data,
+        projectId,
+      },
+    });
+    revalidatePath(`/projects/${projectId}`);
+    return equipment;
+  } catch (error) {
+    console.error("Error creating equipment:", error);
+    throw new Error("Failed to create equipment");
+  }
+}
+
+export async function updateProjectEquipment(id: string, data: any) {
+  try {
+    const equipment = await prisma.projectEquipment.update({
+      where: { id },
+      data,
+    });
+    revalidatePath(`/projects/${equipment.projectId}`);
+    return equipment;
+  } catch (error) {
+    console.error("Error updating equipment:", error);
+    throw new Error("Failed to update equipment");
+  }
+}
+
+export async function deleteProjectEquipment(id: string) {
+  try {
+    const equipment = await prisma.projectEquipment.delete({
+      where: { id },
+    });
+    revalidatePath(`/projects/${equipment.projectId}`);
+    return equipment;
+  } catch (error) {
+    console.error("Error deleting equipment:", error);
+    throw new Error("Failed to delete equipment");
   }
 }

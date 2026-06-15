@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, Calendar, FileText, DollarSign, FolderOpen, MapPin, Search, Check } from 'lucide-react';
 import Link from 'next/link';
 import { createProject, addProjectMember, createTask } from '@/app/actions/projects';
 
@@ -12,21 +12,63 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
   
   const initialJob = jobs.find((j: any) => j.id === initialJobId);
   const [formData, setFormData] = useState({
+    // Basic Info
     name: initialJob ? (initialJob.item || '') : '',
     description: '',
     clientName: initialJob ? initialJob.customerName : '',
+    projectCategory: '',
+    department: '',
+    province: '',
+    district: '',
     siteAddress: '',
     managerId: currentUserId,
     jobId: initialJobId || '',
+
+    // Timeline
     startDate: '',
     endDate: '',
+    projectDuration: '',
+    projectDurationUnit: 'วัน',
+    deliveryDate: '',
+
+    // Contract & Financial
+    contractNumber: '',
+    contractSignatory: '',
+    contractSigningDate: '',
+    contractReturnStatus: '',
+    projectValue: '',
+    securityDeposit: '',
+    depositCollectionSchedule: '',
+    depositRefundRequestNo: '',
+    penaltyPerDay: '',
+    amountIncludingVat: '',
     budget: initialJob && initialJob.quotation
       ? (initialJob.quotation.actualClosingAmount || initialJob.quotation.totalAmountBeforeVat || '').toString() 
       : '',
+
+    // Installments & Payments
+    installment1: '',
+    installment2: '',
+    installment3: '',
+    installment4: '',
+    firstPayment: '',
+    secondPayment: '',
+    paymentDate: '',
+
+    // Documents
+    documentNumber: '',
+    deliveryDocNumber: '',
+    jbNumber: '',
+    certCompletionRequestNo: '',
+    certRequestStatus: '',
+    pathFolder: '',
+    statusPictureUrl: '',
+    updateCompanyProfile: false,
+
     externalTechnicians: '',
   });
 
-  // Section 2: Team (Manager is already in info)
+  // Section 2: Team
   const [engineers, setEngineers] = useState<string[]>([]);
   const [admins, setAdmins] = useState<string[]>([]);
   const [engineerSearch, setEngineerSearch] = useState('');
@@ -34,6 +76,21 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
 
   // Section 3: Tasks
   const [tasks, setTasks] = useState<any[]>([]);
+
+  // Auto-calculate project duration in days if both dates are set
+  useEffect(() => {
+    if (formData.startDate && formData.endDate && formData.projectDurationUnit === 'วัน') {
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+      const diffTime = end.getTime() - start.getTime();
+      if (diffTime >= 0) {
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        // Only set if not already matched to avoid loop or overriding manual input entirely if user edits duration AFTER date
+        // A better UX: we update if it's currently empty, or if we recalculate it directly.
+        setFormData(prev => ({ ...prev, projectDuration: diffDays.toString() }));
+      }
+    }
+  }, [formData.startDate, formData.endDate]);
 
   const handleAddTask = () => {
     setTasks([...tasks, { title: '', category: '', assigneeId: '', planStart: '', planEnd: '', weight: 1 }]);
@@ -54,22 +111,69 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name) return alert("กรุณากรอกชื่อโครงการ (Project Name is required)");
+    if (formData.startDate && formData.endDate) {
+      if (new Date(formData.endDate) < new Date(formData.startDate)) {
+        return alert("วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่ม (End Date cannot be before Start Date)");
+      }
+    }
     
     setIsSubmitting(true);
     try {
-      // 1. Create Project
-      const project = await createProject({
+      const projectData = {
         name: formData.name,
         description: formData.description,
         clientName: formData.clientName,
+        projectCategory: formData.projectCategory || undefined,
+        department: formData.department || undefined,
+        province: formData.province || undefined,
+        district: formData.district || undefined,
         siteAddress: formData.siteAddress,
         managerId: formData.managerId,
         jobId: formData.jobId || undefined,
+
+        // Timeline
         startDate: formData.startDate ? new Date(formData.startDate) : undefined,
         endDate: formData.endDate ? new Date(formData.endDate) : undefined,
+        projectDuration: formData.projectDuration ? parseInt(formData.projectDuration) : undefined,
+        projectDurationUnit: formData.projectDurationUnit,
+        deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : undefined,
+
+        // Contract
+        contractNumber: formData.contractNumber || undefined,
+        contractSignatory: formData.contractSignatory || undefined,
+        contractSigningDate: formData.contractSigningDate ? new Date(formData.contractSigningDate) : undefined,
+        contractReturnStatus: formData.contractReturnStatus || undefined,
+
+        // Financials
+        projectValue: formData.projectValue ? parseFloat(formData.projectValue) : undefined,
+        securityDeposit: formData.securityDeposit ? parseFloat(formData.securityDeposit) : undefined,
+        depositCollectionSchedule: formData.depositCollectionSchedule ? new Date(formData.depositCollectionSchedule) : undefined,
+        depositRefundRequestNo: formData.depositRefundRequestNo || undefined,
+        penaltyPerDay: formData.penaltyPerDay ? parseFloat(formData.penaltyPerDay) : undefined,
+        amountIncludingVat: formData.amountIncludingVat ? parseFloat(formData.amountIncludingVat) : undefined,
         budget: formData.budget ? parseFloat(formData.budget) : undefined,
+
+        installment1: formData.installment1 ? parseFloat(formData.installment1) : undefined,
+        installment2: formData.installment2 ? parseFloat(formData.installment2) : undefined,
+        installment3: formData.installment3 ? parseFloat(formData.installment3) : undefined,
+        installment4: formData.installment4 ? parseFloat(formData.installment4) : undefined,
+        firstPayment: formData.firstPayment ? parseFloat(formData.firstPayment) : undefined,
+        secondPayment: formData.secondPayment ? parseFloat(formData.secondPayment) : undefined,
+        paymentDate: formData.paymentDate ? new Date(formData.paymentDate) : undefined,
+
+        // Docs
+        documentNumber: formData.documentNumber || undefined,
+        deliveryDocNumber: formData.deliveryDocNumber || undefined,
+        jbNumber: formData.jbNumber || undefined,
+        certCompletionRequestNo: formData.certCompletionRequestNo || undefined,
+        certRequestStatus: formData.certRequestStatus || undefined,
+        pathFolder: formData.pathFolder || undefined,
+        statusPictureUrl: formData.statusPictureUrl || undefined,
+        updateCompanyProfile: formData.updateCompanyProfile,
         externalTechnicians: formData.externalTechnicians || undefined,
-      });
+      };
+
+      const project = await createProject(projectData);
 
       // 2. Add Team Members
       const memberPromises: Promise<any>[] = [];
@@ -106,6 +210,12 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target as any;
+    const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    setFormData(prev => ({ ...prev, [name]: val }));
+  };
+
   return (
     <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
@@ -114,62 +224,57 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
         </Link>
         <div>
           <h1 className="text-2xl font-black text-gray-900 tracking-tight">สร้างโครงการใหม่ (New Project)</h1>
-          <p className="text-sm font-medium text-gray-500 mt-1">กรอกข้อมูลโครงการ ทีมงาน และกำหนดงานเริ่มต้น</p>
+          <p className="text-sm font-medium text-gray-500 mt-1">กรอกข้อมูลโครงการตามแบบฟอร์มให้ครบถ้วน</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Section 1: Info */}
+        
+        {/* Section 1: General Info */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-          <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">1. ข้อมูลโครงการ (Project Information)</h2>
+          <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
+            <FolderOpen className="text-brand-red" size={20} />
+            <h2 className="text-lg font-bold text-gray-900">1. ข้อมูลทั่วไป (General Info)</h2>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">ชื่อโครงการ *</label>
-              <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-1.5 lg:col-span-2">
+              <label className="text-sm font-bold text-gray-700">ชื่อโครงการ (Project Name) *</label>
+              <input type="text" name="name" required value={formData.name} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
             </div>
             
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-gray-700">ลูกค้า (Client)</label>
-              <input type="text" value={formData.clientName} onChange={e => setFormData({...formData, clientName: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
-            </div>
-
-            <div className="space-y-1.5 md:col-span-2">
-              <label className="text-sm font-bold text-gray-700">สถานที่ (Site Location)</label>
-              <input type="text" value={formData.siteAddress} onChange={e => setFormData({...formData, siteAddress: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+              <input type="text" name="clientName" value={formData.clientName} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">วันที่เริ่ม (Start Date)</label>
-              <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+              <label className="text-sm font-bold text-gray-700">หมวดหมู่โครงการ (Category)</label>
+              <select name="projectCategory" value={formData.projectCategory} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none">
+                <option value="">เลือกหมวดหมู่</option>
+                <option value="Solar Roof">Solar Roof</option>
+                <option value="Solar Pump">Solar Pump</option>
+                <option value="Inverter">Inverter</option>
+                <option value="Other">อื่นๆ (Other)</option>
+              </select>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">วันที่สิ้นสุด (End Date)</label>
-              <input type="date" value={formData.endDate} onChange={e => setFormData({...formData, endDate: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-gray-700">งบประมาณ (Budget)</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">฿</span>
-                <input type="number" step="0.01" value={formData.budget} onChange={e => setFormData({...formData, budget: e.target.value})} className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
-              </div>
-              <p className="text-[10px] text-gray-400">ระบุยอดเงินจากใบเสนอราคา (Actual Closing Amount)</p>
+              <label className="text-sm font-bold text-gray-700">แผนก (Department)</label>
+              <input type="text" name="department" value={formData.department} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-gray-700">เชื่อมโยงกับ Job (Link to Job)</label>
               <select 
+                name="jobId"
                 value={formData.jobId} 
                 onChange={e => {
                   const newJobId = e.target.value;
                   const selectedJob = jobs.find(j => j.id === newJobId);
-                  
                   setFormData(prev => ({
                     ...prev, 
                     jobId: newJobId,
-                    // Auto-fill budget if not set, or override it to match the new job's quotation
                     budget: selectedJob?.quotation 
                       ? (selectedJob.quotation.actualClosingAmount || selectedJob.quotation.totalAmountBeforeVat || '').toString() || prev.budget
                       : prev.budget,
@@ -183,30 +288,193 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
                 {jobs.map(j => <option key={j.id} value={j.id}>{j.jobNumber} - {j.customerName}</option>)}
               </select>
             </div>
-            
-            <div className="space-y-1.5 md:col-span-2">
-              <label className="text-sm font-bold text-gray-700">รายละเอียดเพิ่มเติม (Description)</label>
-              <textarea rows={3} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">จังหวัด (Province)</label>
+              <input type="text" name="province" value={formData.province} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">อำเภอ (District)</label>
+              <input type="text" name="district" value={formData.district} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">ผู้จัดการโครงการ (Project Manager)</label>
+              <select name="managerId" value={formData.managerId} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none">
+                <option value="">เลือกผู้จัดการ</option>
+                {users.map(u => <option key={u.id} value={u.id}>{u.fullName}</option>)}
+              </select>
+            </div>
+
+            <div className="space-y-1.5 lg:col-span-3">
+              <label className="text-sm font-bold text-gray-700">สถานที่ปฏิบัติงาน / รายละเอียด (Site Location / Description)</label>
+              <textarea rows={2} name="siteAddress" value={formData.siteAddress} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
             </div>
           </div>
         </div>
 
-        {/* Section 2: Team */}
+        {/* Section 2: Timeline */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
-          <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">2. ทีมงาน (Team)</h2>
+          <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
+            <Calendar className="text-brand-red" size={20} />
+            <h2 className="text-lg font-bold text-gray-900">2. ระยะเวลาโครงการ (Timeline)</h2>
+          </div>
           
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1.5">
-                <label className="text-sm font-bold text-gray-900">ผู้จัดการโครงการ (Project Manager)</label>
-                <select value={formData.managerId} onChange={e => setFormData({...formData, managerId: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none text-gray-900 bg-gray-50/50">
-                  <option value="">เลือกผู้จัดการโครงการ (Select PM)</option>
-                  {users.map(u => <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>)}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">วันที่เริ่ม (Start Date)</label>
+              <input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">วันที่สิ้นสุด (End Date)</label>
+              <input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">ระยะเวลา (Duration)</label>
+              <div className="flex gap-2">
+                <input type="number" name="projectDuration" placeholder="ตัวเลข" value={formData.projectDuration} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+                <select name="projectDurationUnit" value={formData.projectDurationUnit} onChange={handleInputChange} className="w-24 px-2 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none">
+                  <option value="วัน">วัน</option>
+                  <option value="เดือน">เดือน</option>
+                  <option value="ปี">ปี</option>
                 </select>
               </div>
             </div>
 
-            <div className="space-y-2 border-t border-gray-100 pt-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">วันที่ส่งมอบ (Delivery Date)</label>
+              <input type="date" name="deliveryDate" value={formData.deliveryDate} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Contract & Financials */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+          <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
+            <DollarSign className="text-brand-red" size={20} />
+            <h2 className="text-lg font-bold text-gray-900">3. สัญญาและการเงิน (Contract & Financials)</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">เลขที่สัญญา (Contract No.)</label>
+              <input type="text" name="contractNumber" value={formData.contractNumber} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+            
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">ผู้เซ็นสัญญา (Signatory)</label>
+              <input type="text" name="contractSignatory" value={formData.contractSignatory} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">วันที่เซ็นสัญญา (Sign Date)</label>
+              <input type="date" name="contractSigningDate" value={formData.contractSigningDate} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">มูลค่าโครงการ รวม VAT (Project Value)</label>
+              <input type="number" step="0.01" name="projectValue" value={formData.projectValue} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">งบประมาณภายใน (Internal Budget)</label>
+              <input type="number" step="0.01" name="budget" value={formData.budget} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">ค่าปรับ/วัน (Penalty/Day)</label>
+              <input type="number" step="0.01" name="penaltyPerDay" value={formData.penaltyPerDay} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">เงินค้ำประกัน 5% (Security Deposit)</label>
+              <input type="number" step="0.01" name="securityDeposit" value={formData.securityDeposit} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">กำหนดเก็บเงินค้ำประกัน (Deposit Collection)</label>
+              <input type="date" name="depositCollectionSchedule" value={formData.depositCollectionSchedule} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">เลขขอคืนเงินค้ำประกัน (Refund Req No.)</label>
+              <input type="text" name="depositRefundRequestNo" value={formData.depositRefundRequestNo} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+          </div>
+
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="text-sm font-bold text-gray-800 mb-4">การแบ่งชำระ (Installments)</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700">งวดที่ 1</label>
+                <input type="number" step="0.01" name="installment1" value={formData.installment1} onChange={handleInputChange} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700">งวดที่ 2</label>
+                <input type="number" step="0.01" name="installment2" value={formData.installment2} onChange={handleInputChange} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700">งวดที่ 3</label>
+                <input type="number" step="0.01" name="installment3" value={formData.installment3} onChange={handleInputChange} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700">งวดที่ 4</label>
+                <input type="number" step="0.01" name="installment4" value={formData.installment4} onChange={handleInputChange} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 4: Documents */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+          <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
+            <FileText className="text-brand-red" size={20} />
+            <h2 className="text-lg font-bold text-gray-900">4. เอกสาร (Documents)</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">เลขที่เอกสาร (Doc No.)</label>
+              <input type="text" name="documentNumber" value={formData.documentNumber} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">เลขที่ใบส่งมอบ (Delivery Doc No.)</label>
+              <input type="text" name="deliveryDocNumber" value={formData.deliveryDocNumber} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">JB Number</label>
+              <input type="text" name="jbNumber" value={formData.jbNumber} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+            </div>
+            
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">เลขที่ขอใบรับรองงานเสร็จ</label>
+              <input type="text" name="certCompletionRequestNo" value={formData.certCompletionRequestNo} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">สถานะการขอใบรับรอง</label>
+              <input type="text" name="certRequestStatus" value={formData.certRequestStatus} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">การคืนสัญญา (Contract Return)</label>
+              <input type="text" name="contractReturnStatus" value={formData.contractReturnStatus} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+            </div>
+
+            <div className="space-y-1.5 md:col-span-3">
+              <label className="text-sm font-bold text-gray-700">Path Folder (ลิงก์จัดเก็บเอกสาร)</label>
+              <input type="text" name="pathFolder" value={formData.pathFolder} onChange={handleInputChange} placeholder="https://drive.google.com/..." className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 outline-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* Section 5: Team */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+          <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2">5. ทีมงานเพิ่มเติม (Additional Team)</h2>
+          
+          <div className="space-y-6">
+            <div className="space-y-2 border-gray-100">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-3">
                   <label className="text-sm font-bold text-gray-900">วิศวกร (Engineers)</label>
@@ -215,7 +483,7 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
                   </span>
                 </div>
                 <div className="relative w-full sm:w-64">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                   <input 
                     type="text" 
                     placeholder="ค้นหาวิศวกร (Search...)" 
@@ -243,7 +511,7 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
                       }`}
                     >
                       {u.fullName}
-                      {isSelected && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 ml-0.5"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                      {isSelected && <Check size={12} />}
                     </button>
                   );
                 })}
@@ -259,7 +527,7 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
                   </span>
                 </div>
                 <div className="relative w-full sm:w-64">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                   <input 
                     type="text" 
                     placeholder="ค้นหาแอดมิน (Search...)" 
@@ -287,19 +555,20 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
                       }`}
                     >
                       {u.fullName}
-                      {isSelected && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 ml-0.5"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                      {isSelected && <Check size={12} />}
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <div className="space-y-1.5 md:col-span-3">
+            <div className="space-y-1.5 border-t border-gray-100 pt-4">
               <label className="text-sm font-bold text-gray-700">ช่างภายนอก (External Technicians)</label>
               <textarea 
                 rows={2} 
+                name="externalTechnicians"
                 value={formData.externalTechnicians} 
-                onChange={e => setFormData({...formData, externalTechnicians: e.target.value})} 
+                onChange={handleInputChange} 
                 placeholder="ระบุชื่อช่างภายนอก (Enter names of external technicians, separated by commas)"
                 className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" 
               />
@@ -307,10 +576,10 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
           </div>
         </div>
 
-        {/* Section 3: Initial Tasks */}
+        {/* Section 6: Initial Tasks */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
           <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-            <h2 className="text-lg font-bold text-gray-900">3. งานเริ่มต้น (Initial Tasks)</h2>
+            <h2 className="text-lg font-bold text-gray-900">6. งานเริ่มต้น (Initial Tasks)</h2>
             <button type="button" onClick={handleAddTask} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-colors">
               <Plus size={14} /> เพิ่มงาน (Add Task)
             </button>

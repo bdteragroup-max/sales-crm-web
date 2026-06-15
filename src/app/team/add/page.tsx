@@ -8,7 +8,17 @@ export const dynamic = 'force-dynamic';
 
 export default async function AddTeamMemberPage() {
   const user = await getUser();
-  if (!user || user.role !== 'ผู้จัดการ') {
+  const roleLower = (user?.role || '').toLowerCase();
+  const isTeamManager = user?.role === 'ผู้จัดการ' || 
+                        roleLower === 'sales manager' || 
+                        roleLower === 'marketing manager' || 
+                        roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
+                        roleLower.includes('ผู้จัดการการตลาด') ||
+                        roleLower.includes('ผู้การจัดการตลาด') ||
+                        roleLower.includes('admin') ||
+                        user?.role === 'Admin';
+                        
+  if (!user || !isTeamManager) {
     redirect('/dashboard');
   }
 

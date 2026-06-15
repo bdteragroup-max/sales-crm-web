@@ -11,7 +11,19 @@ export const dynamic = 'force-dynamic';
 export default async function MemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await getUser();
-  if (!user || user.role !== 'ผู้จัดการ') {
+  const roleLower = (user?.role || '').toLowerCase();
+  const isTeamManager = user?.role === 'ผู้จัดการ' || 
+                        roleLower === 'sales manager' || 
+                        roleLower === 'marketing manager' || 
+                        roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
+                        roleLower.includes('ผู้จัดการการตลาด') ||
+                        roleLower.includes('ผู้การจัดการตลาด') ||
+                        roleLower.includes('admin') ||
+                        user?.role === 'Admin';
+                        
+  const isProjectAdmin = roleLower.includes('admin project') || roleLower.includes('project admin') || roleLower.includes('admin') || user?.role === 'Admin';
+
+  if (!user || !isTeamManager) {
     redirect('/dashboard');
   }
 
@@ -26,11 +38,9 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
   }
 
   // Security Check: Only the Manager (Team Leader) can edit their subordinates
-  // Or if the manager name matches the team leader field
-  if (member.employeeSale?.teamLeader !== user.fullName && member.id !== user.id) {
-     // In a real app, you might want to allow all Managers to see all, 
-     // but here we follow the "Team Leader" logic from team/page.tsx
-     // redirect('/team'); 
+  // Project Admins can edit anyone
+  if (!isProjectAdmin && member.employeeSale?.teamLeader !== user.fullName && member.id !== user.id) {
+     redirect('/team'); 
   }
 
   return (

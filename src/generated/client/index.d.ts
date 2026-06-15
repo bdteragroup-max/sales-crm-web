@@ -304,6 +304,11 @@ export type PurchaseOrder = $Result.DefaultSelection<Prisma.$PurchaseOrderPayloa
  */
 export type Project = $Result.DefaultSelection<Prisma.$ProjectPayload>
 /**
+ * Model ProjectEquipment
+ * 
+ */
+export type ProjectEquipment = $Result.DefaultSelection<Prisma.$ProjectEquipmentPayload>
+/**
  * Model ProjectMember
  * 
  */
@@ -1026,6 +1031,16 @@ export class PrismaClient<
   get project(): Prisma.ProjectDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.projectEquipment`: Exposes CRUD operations for the **ProjectEquipment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProjectEquipments
+    * const projectEquipments = await prisma.projectEquipment.findMany()
+    * ```
+    */
+  get projectEquipment(): Prisma.ProjectEquipmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.projectMember`: Exposes CRUD operations for the **ProjectMember** model.
     * Example usage:
     * ```ts
@@ -1556,6 +1571,7 @@ export namespace Prisma {
     employee_trainings: 'employee_trainings',
     PurchaseOrder: 'PurchaseOrder',
     Project: 'Project',
+    ProjectEquipment: 'ProjectEquipment',
     ProjectMember: 'ProjectMember',
     ProjectTask: 'ProjectTask',
     ProjectDailyLog: 'ProjectDailyLog',
@@ -1575,7 +1591,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder" | "project" | "projectMember" | "projectTask" | "projectDailyLog" | "branchExpense"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "projectDailyLog" | "branchExpense"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5871,6 +5887,80 @@ export namespace Prisma {
           }
         }
       }
+      ProjectEquipment: {
+        payload: Prisma.$ProjectEquipmentPayload<ExtArgs>
+        fields: Prisma.ProjectEquipmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProjectEquipmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProjectEquipmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload>
+          }
+          findFirst: {
+            args: Prisma.ProjectEquipmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProjectEquipmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload>
+          }
+          findMany: {
+            args: Prisma.ProjectEquipmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload>[]
+          }
+          create: {
+            args: Prisma.ProjectEquipmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload>
+          }
+          createMany: {
+            args: Prisma.ProjectEquipmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProjectEquipmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload>[]
+          }
+          delete: {
+            args: Prisma.ProjectEquipmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload>
+          }
+          update: {
+            args: Prisma.ProjectEquipmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProjectEquipmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProjectEquipmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProjectEquipmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProjectEquipmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProjectEquipmentPayload>
+          }
+          aggregate: {
+            args: Prisma.ProjectEquipmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProjectEquipment>
+          }
+          groupBy: {
+            args: Prisma.ProjectEquipmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProjectEquipmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProjectEquipmentCountArgs<ExtArgs>
+            result: $Utils.Optional<ProjectEquipmentCountAggregateOutputType> | number
+          }
+        }
+      }
       ProjectMember: {
         payload: Prisma.$ProjectMemberPayload<ExtArgs>
         fields: Prisma.ProjectMemberFieldRefs
@@ -6333,6 +6423,7 @@ export namespace Prisma {
     employee_trainings?: employee_trainingsOmit
     purchaseOrder?: PurchaseOrderOmit
     project?: ProjectOmit
+    projectEquipment?: ProjectEquipmentOmit
     projectMember?: ProjectMemberOmit
     projectTask?: ProjectTaskOmit
     projectDailyLog?: ProjectDailyLogOmit
@@ -7362,12 +7453,14 @@ export namespace Prisma {
    */
 
   export type ProjectCountOutputType = {
+    equipment: number
     tasks: number
     members: number
     dailyLogs: number
   }
 
   export type ProjectCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    equipment?: boolean | ProjectCountOutputTypeCountEquipmentArgs
     tasks?: boolean | ProjectCountOutputTypeCountTasksArgs
     members?: boolean | ProjectCountOutputTypeCountMembersArgs
     dailyLogs?: boolean | ProjectCountOutputTypeCountDailyLogsArgs
@@ -7382,6 +7475,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the ProjectCountOutputType
      */
     select?: ProjectCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProjectCountOutputType without action
+   */
+  export type ProjectCountOutputTypeCountEquipmentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectEquipmentWhereInput
   }
 
   /**
@@ -78815,10 +78915,32 @@ export namespace Prisma {
 
   export type ProjectAvgAggregateOutputType = {
     budget: number | null
+    projectValue: Decimal | null
+    securityDeposit: Decimal | null
+    penaltyPerDay: Decimal | null
+    amountIncludingVat: Decimal | null
+    installment1: Decimal | null
+    installment2: Decimal | null
+    installment3: Decimal | null
+    installment4: Decimal | null
+    firstPayment: Decimal | null
+    secondPayment: Decimal | null
+    projectDuration: number | null
   }
 
   export type ProjectSumAggregateOutputType = {
     budget: number | null
+    projectValue: Decimal | null
+    securityDeposit: Decimal | null
+    penaltyPerDay: Decimal | null
+    amountIncludingVat: Decimal | null
+    installment1: Decimal | null
+    installment2: Decimal | null
+    installment3: Decimal | null
+    installment4: Decimal | null
+    firstPayment: Decimal | null
+    secondPayment: Decimal | null
+    projectDuration: number | null
   }
 
   export type ProjectMinAggregateOutputType = {
@@ -78835,6 +78957,39 @@ export namespace Prisma {
     budget: number | null
     externalTechnicians: string | null
     status: string | null
+    projectCategory: string | null
+    department: string | null
+    province: string | null
+    district: string | null
+    projectValue: Decimal | null
+    securityDeposit: Decimal | null
+    penaltyPerDay: Decimal | null
+    amountIncludingVat: Decimal | null
+    installment1: Decimal | null
+    installment2: Decimal | null
+    installment3: Decimal | null
+    installment4: Decimal | null
+    firstPayment: Decimal | null
+    secondPayment: Decimal | null
+    contractNumber: string | null
+    documentNumber: string | null
+    deliveryDocNumber: string | null
+    jbNumber: string | null
+    certCompletionRequestNo: string | null
+    certRequestStatus: string | null
+    depositRefundRequestNo: string | null
+    contractSignatory: string | null
+    contractReturnStatus: string | null
+    remarks: string | null
+    pathFolder: string | null
+    statusPictureUrl: string | null
+    updateCompanyProfile: boolean | null
+    projectDuration: number | null
+    projectDurationUnit: string | null
+    contractSigningDate: Date | null
+    deliveryDate: Date | null
+    paymentDate: Date | null
+    depositCollectionSchedule: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -78853,6 +79008,39 @@ export namespace Prisma {
     budget: number | null
     externalTechnicians: string | null
     status: string | null
+    projectCategory: string | null
+    department: string | null
+    province: string | null
+    district: string | null
+    projectValue: Decimal | null
+    securityDeposit: Decimal | null
+    penaltyPerDay: Decimal | null
+    amountIncludingVat: Decimal | null
+    installment1: Decimal | null
+    installment2: Decimal | null
+    installment3: Decimal | null
+    installment4: Decimal | null
+    firstPayment: Decimal | null
+    secondPayment: Decimal | null
+    contractNumber: string | null
+    documentNumber: string | null
+    deliveryDocNumber: string | null
+    jbNumber: string | null
+    certCompletionRequestNo: string | null
+    certRequestStatus: string | null
+    depositRefundRequestNo: string | null
+    contractSignatory: string | null
+    contractReturnStatus: string | null
+    remarks: string | null
+    pathFolder: string | null
+    statusPictureUrl: string | null
+    updateCompanyProfile: boolean | null
+    projectDuration: number | null
+    projectDurationUnit: string | null
+    contractSigningDate: Date | null
+    deliveryDate: Date | null
+    paymentDate: Date | null
+    depositCollectionSchedule: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -78871,6 +79059,39 @@ export namespace Prisma {
     budget: number
     externalTechnicians: number
     status: number
+    projectCategory: number
+    department: number
+    province: number
+    district: number
+    projectValue: number
+    securityDeposit: number
+    penaltyPerDay: number
+    amountIncludingVat: number
+    installment1: number
+    installment2: number
+    installment3: number
+    installment4: number
+    firstPayment: number
+    secondPayment: number
+    contractNumber: number
+    documentNumber: number
+    deliveryDocNumber: number
+    jbNumber: number
+    certCompletionRequestNo: number
+    certRequestStatus: number
+    depositRefundRequestNo: number
+    contractSignatory: number
+    contractReturnStatus: number
+    remarks: number
+    pathFolder: number
+    statusPictureUrl: number
+    updateCompanyProfile: number
+    projectDuration: number
+    projectDurationUnit: number
+    contractSigningDate: number
+    deliveryDate: number
+    paymentDate: number
+    depositCollectionSchedule: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -78879,10 +79100,32 @@ export namespace Prisma {
 
   export type ProjectAvgAggregateInputType = {
     budget?: true
+    projectValue?: true
+    securityDeposit?: true
+    penaltyPerDay?: true
+    amountIncludingVat?: true
+    installment1?: true
+    installment2?: true
+    installment3?: true
+    installment4?: true
+    firstPayment?: true
+    secondPayment?: true
+    projectDuration?: true
   }
 
   export type ProjectSumAggregateInputType = {
     budget?: true
+    projectValue?: true
+    securityDeposit?: true
+    penaltyPerDay?: true
+    amountIncludingVat?: true
+    installment1?: true
+    installment2?: true
+    installment3?: true
+    installment4?: true
+    firstPayment?: true
+    secondPayment?: true
+    projectDuration?: true
   }
 
   export type ProjectMinAggregateInputType = {
@@ -78899,6 +79142,39 @@ export namespace Prisma {
     budget?: true
     externalTechnicians?: true
     status?: true
+    projectCategory?: true
+    department?: true
+    province?: true
+    district?: true
+    projectValue?: true
+    securityDeposit?: true
+    penaltyPerDay?: true
+    amountIncludingVat?: true
+    installment1?: true
+    installment2?: true
+    installment3?: true
+    installment4?: true
+    firstPayment?: true
+    secondPayment?: true
+    contractNumber?: true
+    documentNumber?: true
+    deliveryDocNumber?: true
+    jbNumber?: true
+    certCompletionRequestNo?: true
+    certRequestStatus?: true
+    depositRefundRequestNo?: true
+    contractSignatory?: true
+    contractReturnStatus?: true
+    remarks?: true
+    pathFolder?: true
+    statusPictureUrl?: true
+    updateCompanyProfile?: true
+    projectDuration?: true
+    projectDurationUnit?: true
+    contractSigningDate?: true
+    deliveryDate?: true
+    paymentDate?: true
+    depositCollectionSchedule?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -78917,6 +79193,39 @@ export namespace Prisma {
     budget?: true
     externalTechnicians?: true
     status?: true
+    projectCategory?: true
+    department?: true
+    province?: true
+    district?: true
+    projectValue?: true
+    securityDeposit?: true
+    penaltyPerDay?: true
+    amountIncludingVat?: true
+    installment1?: true
+    installment2?: true
+    installment3?: true
+    installment4?: true
+    firstPayment?: true
+    secondPayment?: true
+    contractNumber?: true
+    documentNumber?: true
+    deliveryDocNumber?: true
+    jbNumber?: true
+    certCompletionRequestNo?: true
+    certRequestStatus?: true
+    depositRefundRequestNo?: true
+    contractSignatory?: true
+    contractReturnStatus?: true
+    remarks?: true
+    pathFolder?: true
+    statusPictureUrl?: true
+    updateCompanyProfile?: true
+    projectDuration?: true
+    projectDurationUnit?: true
+    contractSigningDate?: true
+    deliveryDate?: true
+    paymentDate?: true
+    depositCollectionSchedule?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -78935,6 +79244,39 @@ export namespace Prisma {
     budget?: true
     externalTechnicians?: true
     status?: true
+    projectCategory?: true
+    department?: true
+    province?: true
+    district?: true
+    projectValue?: true
+    securityDeposit?: true
+    penaltyPerDay?: true
+    amountIncludingVat?: true
+    installment1?: true
+    installment2?: true
+    installment3?: true
+    installment4?: true
+    firstPayment?: true
+    secondPayment?: true
+    contractNumber?: true
+    documentNumber?: true
+    deliveryDocNumber?: true
+    jbNumber?: true
+    certCompletionRequestNo?: true
+    certRequestStatus?: true
+    depositRefundRequestNo?: true
+    contractSignatory?: true
+    contractReturnStatus?: true
+    remarks?: true
+    pathFolder?: true
+    statusPictureUrl?: true
+    updateCompanyProfile?: true
+    projectDuration?: true
+    projectDurationUnit?: true
+    contractSigningDate?: true
+    deliveryDate?: true
+    paymentDate?: true
+    depositCollectionSchedule?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -79040,6 +79382,39 @@ export namespace Prisma {
     budget: number | null
     externalTechnicians: string | null
     status: string
+    projectCategory: string | null
+    department: string | null
+    province: string | null
+    district: string | null
+    projectValue: Decimal | null
+    securityDeposit: Decimal | null
+    penaltyPerDay: Decimal | null
+    amountIncludingVat: Decimal | null
+    installment1: Decimal | null
+    installment2: Decimal | null
+    installment3: Decimal | null
+    installment4: Decimal | null
+    firstPayment: Decimal | null
+    secondPayment: Decimal | null
+    contractNumber: string | null
+    documentNumber: string | null
+    deliveryDocNumber: string | null
+    jbNumber: string | null
+    certCompletionRequestNo: string | null
+    certRequestStatus: string | null
+    depositRefundRequestNo: string | null
+    contractSignatory: string | null
+    contractReturnStatus: string | null
+    remarks: string | null
+    pathFolder: string | null
+    statusPictureUrl: string | null
+    updateCompanyProfile: boolean
+    projectDuration: number | null
+    projectDurationUnit: string | null
+    contractSigningDate: Date | null
+    deliveryDate: Date | null
+    paymentDate: Date | null
+    depositCollectionSchedule: Date | null
     createdAt: Date
     updatedAt: Date
     _count: ProjectCountAggregateOutputType | null
@@ -79077,10 +79452,44 @@ export namespace Prisma {
     budget?: boolean
     externalTechnicians?: boolean
     status?: boolean
+    projectCategory?: boolean
+    department?: boolean
+    province?: boolean
+    district?: boolean
+    projectValue?: boolean
+    securityDeposit?: boolean
+    penaltyPerDay?: boolean
+    amountIncludingVat?: boolean
+    installment1?: boolean
+    installment2?: boolean
+    installment3?: boolean
+    installment4?: boolean
+    firstPayment?: boolean
+    secondPayment?: boolean
+    contractNumber?: boolean
+    documentNumber?: boolean
+    deliveryDocNumber?: boolean
+    jbNumber?: boolean
+    certCompletionRequestNo?: boolean
+    certRequestStatus?: boolean
+    depositRefundRequestNo?: boolean
+    contractSignatory?: boolean
+    contractReturnStatus?: boolean
+    remarks?: boolean
+    pathFolder?: boolean
+    statusPictureUrl?: boolean
+    updateCompanyProfile?: boolean
+    projectDuration?: boolean
+    projectDurationUnit?: boolean
+    contractSigningDate?: boolean
+    deliveryDate?: boolean
+    paymentDate?: boolean
+    depositCollectionSchedule?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     job?: boolean | Project$jobArgs<ExtArgs>
     manager?: boolean | Project$managerArgs<ExtArgs>
+    equipment?: boolean | Project$equipmentArgs<ExtArgs>
     tasks?: boolean | Project$tasksArgs<ExtArgs>
     members?: boolean | Project$membersArgs<ExtArgs>
     dailyLogs?: boolean | Project$dailyLogsArgs<ExtArgs>
@@ -79101,6 +79510,39 @@ export namespace Prisma {
     budget?: boolean
     externalTechnicians?: boolean
     status?: boolean
+    projectCategory?: boolean
+    department?: boolean
+    province?: boolean
+    district?: boolean
+    projectValue?: boolean
+    securityDeposit?: boolean
+    penaltyPerDay?: boolean
+    amountIncludingVat?: boolean
+    installment1?: boolean
+    installment2?: boolean
+    installment3?: boolean
+    installment4?: boolean
+    firstPayment?: boolean
+    secondPayment?: boolean
+    contractNumber?: boolean
+    documentNumber?: boolean
+    deliveryDocNumber?: boolean
+    jbNumber?: boolean
+    certCompletionRequestNo?: boolean
+    certRequestStatus?: boolean
+    depositRefundRequestNo?: boolean
+    contractSignatory?: boolean
+    contractReturnStatus?: boolean
+    remarks?: boolean
+    pathFolder?: boolean
+    statusPictureUrl?: boolean
+    updateCompanyProfile?: boolean
+    projectDuration?: boolean
+    projectDurationUnit?: boolean
+    contractSigningDate?: boolean
+    deliveryDate?: boolean
+    paymentDate?: boolean
+    depositCollectionSchedule?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     job?: boolean | Project$jobArgs<ExtArgs>
@@ -79121,6 +79563,39 @@ export namespace Prisma {
     budget?: boolean
     externalTechnicians?: boolean
     status?: boolean
+    projectCategory?: boolean
+    department?: boolean
+    province?: boolean
+    district?: boolean
+    projectValue?: boolean
+    securityDeposit?: boolean
+    penaltyPerDay?: boolean
+    amountIncludingVat?: boolean
+    installment1?: boolean
+    installment2?: boolean
+    installment3?: boolean
+    installment4?: boolean
+    firstPayment?: boolean
+    secondPayment?: boolean
+    contractNumber?: boolean
+    documentNumber?: boolean
+    deliveryDocNumber?: boolean
+    jbNumber?: boolean
+    certCompletionRequestNo?: boolean
+    certRequestStatus?: boolean
+    depositRefundRequestNo?: boolean
+    contractSignatory?: boolean
+    contractReturnStatus?: boolean
+    remarks?: boolean
+    pathFolder?: boolean
+    statusPictureUrl?: boolean
+    updateCompanyProfile?: boolean
+    projectDuration?: boolean
+    projectDurationUnit?: boolean
+    contractSigningDate?: boolean
+    deliveryDate?: boolean
+    paymentDate?: boolean
+    depositCollectionSchedule?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     job?: boolean | Project$jobArgs<ExtArgs>
@@ -79141,14 +79616,48 @@ export namespace Prisma {
     budget?: boolean
     externalTechnicians?: boolean
     status?: boolean
+    projectCategory?: boolean
+    department?: boolean
+    province?: boolean
+    district?: boolean
+    projectValue?: boolean
+    securityDeposit?: boolean
+    penaltyPerDay?: boolean
+    amountIncludingVat?: boolean
+    installment1?: boolean
+    installment2?: boolean
+    installment3?: boolean
+    installment4?: boolean
+    firstPayment?: boolean
+    secondPayment?: boolean
+    contractNumber?: boolean
+    documentNumber?: boolean
+    deliveryDocNumber?: boolean
+    jbNumber?: boolean
+    certCompletionRequestNo?: boolean
+    certRequestStatus?: boolean
+    depositRefundRequestNo?: boolean
+    contractSignatory?: boolean
+    contractReturnStatus?: boolean
+    remarks?: boolean
+    pathFolder?: boolean
+    statusPictureUrl?: boolean
+    updateCompanyProfile?: boolean
+    projectDuration?: boolean
+    projectDurationUnit?: boolean
+    contractSigningDate?: boolean
+    deliveryDate?: boolean
+    paymentDate?: boolean
+    depositCollectionSchedule?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectNumber" | "jobId" | "name" | "description" | "clientName" | "siteAddress" | "managerId" | "startDate" | "endDate" | "budget" | "externalTechnicians" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectNumber" | "jobId" | "name" | "description" | "clientName" | "siteAddress" | "managerId" | "startDate" | "endDate" | "budget" | "externalTechnicians" | "status" | "projectCategory" | "department" | "province" | "district" | "projectValue" | "securityDeposit" | "penaltyPerDay" | "amountIncludingVat" | "installment1" | "installment2" | "installment3" | "installment4" | "firstPayment" | "secondPayment" | "contractNumber" | "documentNumber" | "deliveryDocNumber" | "jbNumber" | "certCompletionRequestNo" | "certRequestStatus" | "depositRefundRequestNo" | "contractSignatory" | "contractReturnStatus" | "remarks" | "pathFolder" | "statusPictureUrl" | "updateCompanyProfile" | "projectDuration" | "projectDurationUnit" | "contractSigningDate" | "deliveryDate" | "paymentDate" | "depositCollectionSchedule" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | Project$jobArgs<ExtArgs>
     manager?: boolean | Project$managerArgs<ExtArgs>
+    equipment?: boolean | Project$equipmentArgs<ExtArgs>
     tasks?: boolean | Project$tasksArgs<ExtArgs>
     members?: boolean | Project$membersArgs<ExtArgs>
     dailyLogs?: boolean | Project$dailyLogsArgs<ExtArgs>
@@ -79168,6 +79677,7 @@ export namespace Prisma {
     objects: {
       job: Prisma.$JobPayload<ExtArgs> | null
       manager: Prisma.$UserPayload<ExtArgs> | null
+      equipment: Prisma.$ProjectEquipmentPayload<ExtArgs>[]
       tasks: Prisma.$ProjectTaskPayload<ExtArgs>[]
       members: Prisma.$ProjectMemberPayload<ExtArgs>[]
       dailyLogs: Prisma.$ProjectDailyLogPayload<ExtArgs>[]
@@ -79186,6 +79696,39 @@ export namespace Prisma {
       budget: number | null
       externalTechnicians: string | null
       status: string
+      projectCategory: string | null
+      department: string | null
+      province: string | null
+      district: string | null
+      projectValue: Prisma.Decimal | null
+      securityDeposit: Prisma.Decimal | null
+      penaltyPerDay: Prisma.Decimal | null
+      amountIncludingVat: Prisma.Decimal | null
+      installment1: Prisma.Decimal | null
+      installment2: Prisma.Decimal | null
+      installment3: Prisma.Decimal | null
+      installment4: Prisma.Decimal | null
+      firstPayment: Prisma.Decimal | null
+      secondPayment: Prisma.Decimal | null
+      contractNumber: string | null
+      documentNumber: string | null
+      deliveryDocNumber: string | null
+      jbNumber: string | null
+      certCompletionRequestNo: string | null
+      certRequestStatus: string | null
+      depositRefundRequestNo: string | null
+      contractSignatory: string | null
+      contractReturnStatus: string | null
+      remarks: string | null
+      pathFolder: string | null
+      statusPictureUrl: string | null
+      updateCompanyProfile: boolean
+      projectDuration: number | null
+      projectDurationUnit: string | null
+      contractSigningDate: Date | null
+      deliveryDate: Date | null
+      paymentDate: Date | null
+      depositCollectionSchedule: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["project"]>
@@ -79584,6 +80127,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     job<T extends Project$jobArgs<ExtArgs> = {}>(args?: Subset<T, Project$jobArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     manager<T extends Project$managerArgs<ExtArgs> = {}>(args?: Subset<T, Project$managerArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    equipment<T extends Project$equipmentArgs<ExtArgs> = {}>(args?: Subset<T, Project$equipmentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tasks<T extends Project$tasksArgs<ExtArgs> = {}>(args?: Subset<T, Project$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     members<T extends Project$membersArgs<ExtArgs> = {}>(args?: Subset<T, Project$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     dailyLogs<T extends Project$dailyLogsArgs<ExtArgs> = {}>(args?: Subset<T, Project$dailyLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectDailyLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -79629,6 +80173,39 @@ export namespace Prisma {
     readonly budget: FieldRef<"Project", 'Float'>
     readonly externalTechnicians: FieldRef<"Project", 'String'>
     readonly status: FieldRef<"Project", 'String'>
+    readonly projectCategory: FieldRef<"Project", 'String'>
+    readonly department: FieldRef<"Project", 'String'>
+    readonly province: FieldRef<"Project", 'String'>
+    readonly district: FieldRef<"Project", 'String'>
+    readonly projectValue: FieldRef<"Project", 'Decimal'>
+    readonly securityDeposit: FieldRef<"Project", 'Decimal'>
+    readonly penaltyPerDay: FieldRef<"Project", 'Decimal'>
+    readonly amountIncludingVat: FieldRef<"Project", 'Decimal'>
+    readonly installment1: FieldRef<"Project", 'Decimal'>
+    readonly installment2: FieldRef<"Project", 'Decimal'>
+    readonly installment3: FieldRef<"Project", 'Decimal'>
+    readonly installment4: FieldRef<"Project", 'Decimal'>
+    readonly firstPayment: FieldRef<"Project", 'Decimal'>
+    readonly secondPayment: FieldRef<"Project", 'Decimal'>
+    readonly contractNumber: FieldRef<"Project", 'String'>
+    readonly documentNumber: FieldRef<"Project", 'String'>
+    readonly deliveryDocNumber: FieldRef<"Project", 'String'>
+    readonly jbNumber: FieldRef<"Project", 'String'>
+    readonly certCompletionRequestNo: FieldRef<"Project", 'String'>
+    readonly certRequestStatus: FieldRef<"Project", 'String'>
+    readonly depositRefundRequestNo: FieldRef<"Project", 'String'>
+    readonly contractSignatory: FieldRef<"Project", 'String'>
+    readonly contractReturnStatus: FieldRef<"Project", 'String'>
+    readonly remarks: FieldRef<"Project", 'String'>
+    readonly pathFolder: FieldRef<"Project", 'String'>
+    readonly statusPictureUrl: FieldRef<"Project", 'String'>
+    readonly updateCompanyProfile: FieldRef<"Project", 'Boolean'>
+    readonly projectDuration: FieldRef<"Project", 'Int'>
+    readonly projectDurationUnit: FieldRef<"Project", 'String'>
+    readonly contractSigningDate: FieldRef<"Project", 'DateTime'>
+    readonly deliveryDate: FieldRef<"Project", 'DateTime'>
+    readonly paymentDate: FieldRef<"Project", 'DateTime'>
+    readonly depositCollectionSchedule: FieldRef<"Project", 'DateTime'>
     readonly createdAt: FieldRef<"Project", 'DateTime'>
     readonly updatedAt: FieldRef<"Project", 'DateTime'>
   }
@@ -80070,6 +80647,30 @@ export namespace Prisma {
   }
 
   /**
+   * Project.equipment
+   */
+  export type Project$equipmentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
+    where?: ProjectEquipmentWhereInput
+    orderBy?: ProjectEquipmentOrderByWithRelationInput | ProjectEquipmentOrderByWithRelationInput[]
+    cursor?: ProjectEquipmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProjectEquipmentScalarFieldEnum | ProjectEquipmentScalarFieldEnum[]
+  }
+
+  /**
    * Project.tasks
    */
   export type Project$tasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -80157,6 +80758,1142 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ProjectInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProjectEquipment
+   */
+
+  export type AggregateProjectEquipment = {
+    _count: ProjectEquipmentCountAggregateOutputType | null
+    _avg: ProjectEquipmentAvgAggregateOutputType | null
+    _sum: ProjectEquipmentSumAggregateOutputType | null
+    _min: ProjectEquipmentMinAggregateOutputType | null
+    _max: ProjectEquipmentMaxAggregateOutputType | null
+  }
+
+  export type ProjectEquipmentAvgAggregateOutputType = {
+    quantity: number | null
+  }
+
+  export type ProjectEquipmentSumAggregateOutputType = {
+    quantity: number | null
+  }
+
+  export type ProjectEquipmentMinAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    name: string | null
+    registrationNumber: string | null
+    quantity: number | null
+    status: string | null
+    details: string | null
+    createdAt: Date | null
+  }
+
+  export type ProjectEquipmentMaxAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    name: string | null
+    registrationNumber: string | null
+    quantity: number | null
+    status: string | null
+    details: string | null
+    createdAt: Date | null
+  }
+
+  export type ProjectEquipmentCountAggregateOutputType = {
+    id: number
+    projectId: number
+    name: number
+    registrationNumber: number
+    quantity: number
+    status: number
+    details: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ProjectEquipmentAvgAggregateInputType = {
+    quantity?: true
+  }
+
+  export type ProjectEquipmentSumAggregateInputType = {
+    quantity?: true
+  }
+
+  export type ProjectEquipmentMinAggregateInputType = {
+    id?: true
+    projectId?: true
+    name?: true
+    registrationNumber?: true
+    quantity?: true
+    status?: true
+    details?: true
+    createdAt?: true
+  }
+
+  export type ProjectEquipmentMaxAggregateInputType = {
+    id?: true
+    projectId?: true
+    name?: true
+    registrationNumber?: true
+    quantity?: true
+    status?: true
+    details?: true
+    createdAt?: true
+  }
+
+  export type ProjectEquipmentCountAggregateInputType = {
+    id?: true
+    projectId?: true
+    name?: true
+    registrationNumber?: true
+    quantity?: true
+    status?: true
+    details?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ProjectEquipmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProjectEquipment to aggregate.
+     */
+    where?: ProjectEquipmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectEquipments to fetch.
+     */
+    orderBy?: ProjectEquipmentOrderByWithRelationInput | ProjectEquipmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProjectEquipmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectEquipments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectEquipments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProjectEquipments
+    **/
+    _count?: true | ProjectEquipmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProjectEquipmentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProjectEquipmentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProjectEquipmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProjectEquipmentMaxAggregateInputType
+  }
+
+  export type GetProjectEquipmentAggregateType<T extends ProjectEquipmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateProjectEquipment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProjectEquipment[P]>
+      : GetScalarType<T[P], AggregateProjectEquipment[P]>
+  }
+
+
+
+
+  export type ProjectEquipmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectEquipmentWhereInput
+    orderBy?: ProjectEquipmentOrderByWithAggregationInput | ProjectEquipmentOrderByWithAggregationInput[]
+    by: ProjectEquipmentScalarFieldEnum[] | ProjectEquipmentScalarFieldEnum
+    having?: ProjectEquipmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProjectEquipmentCountAggregateInputType | true
+    _avg?: ProjectEquipmentAvgAggregateInputType
+    _sum?: ProjectEquipmentSumAggregateInputType
+    _min?: ProjectEquipmentMinAggregateInputType
+    _max?: ProjectEquipmentMaxAggregateInputType
+  }
+
+  export type ProjectEquipmentGroupByOutputType = {
+    id: string
+    projectId: string
+    name: string
+    registrationNumber: string | null
+    quantity: number
+    status: string
+    details: string | null
+    createdAt: Date
+    _count: ProjectEquipmentCountAggregateOutputType | null
+    _avg: ProjectEquipmentAvgAggregateOutputType | null
+    _sum: ProjectEquipmentSumAggregateOutputType | null
+    _min: ProjectEquipmentMinAggregateOutputType | null
+    _max: ProjectEquipmentMaxAggregateOutputType | null
+  }
+
+  type GetProjectEquipmentGroupByPayload<T extends ProjectEquipmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProjectEquipmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProjectEquipmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProjectEquipmentGroupByOutputType[P]>
+            : GetScalarType<T[P], ProjectEquipmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProjectEquipmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    registrationNumber?: boolean
+    quantity?: boolean
+    status?: boolean
+    details?: boolean
+    createdAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["projectEquipment"]>
+
+  export type ProjectEquipmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    registrationNumber?: boolean
+    quantity?: boolean
+    status?: boolean
+    details?: boolean
+    createdAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["projectEquipment"]>
+
+  export type ProjectEquipmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    registrationNumber?: boolean
+    quantity?: boolean
+    status?: boolean
+    details?: boolean
+    createdAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["projectEquipment"]>
+
+  export type ProjectEquipmentSelectScalar = {
+    id?: boolean
+    projectId?: boolean
+    name?: boolean
+    registrationNumber?: boolean
+    quantity?: boolean
+    status?: boolean
+    details?: boolean
+    createdAt?: boolean
+  }
+
+  export type ProjectEquipmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "registrationNumber" | "quantity" | "status" | "details" | "createdAt", ExtArgs["result"]["projectEquipment"]>
+  export type ProjectEquipmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }
+  export type ProjectEquipmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }
+  export type ProjectEquipmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+  }
+
+  export type $ProjectEquipmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProjectEquipment"
+    objects: {
+      project: Prisma.$ProjectPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      projectId: string
+      name: string
+      registrationNumber: string | null
+      quantity: number
+      status: string
+      details: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["projectEquipment"]>
+    composites: {}
+  }
+
+  type ProjectEquipmentGetPayload<S extends boolean | null | undefined | ProjectEquipmentDefaultArgs> = $Result.GetResult<Prisma.$ProjectEquipmentPayload, S>
+
+  type ProjectEquipmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProjectEquipmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProjectEquipmentCountAggregateInputType | true
+    }
+
+  export interface ProjectEquipmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProjectEquipment'], meta: { name: 'ProjectEquipment' } }
+    /**
+     * Find zero or one ProjectEquipment that matches the filter.
+     * @param {ProjectEquipmentFindUniqueArgs} args - Arguments to find a ProjectEquipment
+     * @example
+     * // Get one ProjectEquipment
+     * const projectEquipment = await prisma.projectEquipment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProjectEquipmentFindUniqueArgs>(args: SelectSubset<T, ProjectEquipmentFindUniqueArgs<ExtArgs>>): Prisma__ProjectEquipmentClient<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProjectEquipment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProjectEquipmentFindUniqueOrThrowArgs} args - Arguments to find a ProjectEquipment
+     * @example
+     * // Get one ProjectEquipment
+     * const projectEquipment = await prisma.projectEquipment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProjectEquipmentFindUniqueOrThrowArgs>(args: SelectSubset<T, ProjectEquipmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProjectEquipmentClient<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProjectEquipment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectEquipmentFindFirstArgs} args - Arguments to find a ProjectEquipment
+     * @example
+     * // Get one ProjectEquipment
+     * const projectEquipment = await prisma.projectEquipment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProjectEquipmentFindFirstArgs>(args?: SelectSubset<T, ProjectEquipmentFindFirstArgs<ExtArgs>>): Prisma__ProjectEquipmentClient<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProjectEquipment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectEquipmentFindFirstOrThrowArgs} args - Arguments to find a ProjectEquipment
+     * @example
+     * // Get one ProjectEquipment
+     * const projectEquipment = await prisma.projectEquipment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProjectEquipmentFindFirstOrThrowArgs>(args?: SelectSubset<T, ProjectEquipmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProjectEquipmentClient<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProjectEquipments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectEquipmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProjectEquipments
+     * const projectEquipments = await prisma.projectEquipment.findMany()
+     * 
+     * // Get first 10 ProjectEquipments
+     * const projectEquipments = await prisma.projectEquipment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const projectEquipmentWithIdOnly = await prisma.projectEquipment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProjectEquipmentFindManyArgs>(args?: SelectSubset<T, ProjectEquipmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProjectEquipment.
+     * @param {ProjectEquipmentCreateArgs} args - Arguments to create a ProjectEquipment.
+     * @example
+     * // Create one ProjectEquipment
+     * const ProjectEquipment = await prisma.projectEquipment.create({
+     *   data: {
+     *     // ... data to create a ProjectEquipment
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProjectEquipmentCreateArgs>(args: SelectSubset<T, ProjectEquipmentCreateArgs<ExtArgs>>): Prisma__ProjectEquipmentClient<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProjectEquipments.
+     * @param {ProjectEquipmentCreateManyArgs} args - Arguments to create many ProjectEquipments.
+     * @example
+     * // Create many ProjectEquipments
+     * const projectEquipment = await prisma.projectEquipment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProjectEquipmentCreateManyArgs>(args?: SelectSubset<T, ProjectEquipmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProjectEquipments and returns the data saved in the database.
+     * @param {ProjectEquipmentCreateManyAndReturnArgs} args - Arguments to create many ProjectEquipments.
+     * @example
+     * // Create many ProjectEquipments
+     * const projectEquipment = await prisma.projectEquipment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProjectEquipments and only return the `id`
+     * const projectEquipmentWithIdOnly = await prisma.projectEquipment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProjectEquipmentCreateManyAndReturnArgs>(args?: SelectSubset<T, ProjectEquipmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProjectEquipment.
+     * @param {ProjectEquipmentDeleteArgs} args - Arguments to delete one ProjectEquipment.
+     * @example
+     * // Delete one ProjectEquipment
+     * const ProjectEquipment = await prisma.projectEquipment.delete({
+     *   where: {
+     *     // ... filter to delete one ProjectEquipment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProjectEquipmentDeleteArgs>(args: SelectSubset<T, ProjectEquipmentDeleteArgs<ExtArgs>>): Prisma__ProjectEquipmentClient<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProjectEquipment.
+     * @param {ProjectEquipmentUpdateArgs} args - Arguments to update one ProjectEquipment.
+     * @example
+     * // Update one ProjectEquipment
+     * const projectEquipment = await prisma.projectEquipment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProjectEquipmentUpdateArgs>(args: SelectSubset<T, ProjectEquipmentUpdateArgs<ExtArgs>>): Prisma__ProjectEquipmentClient<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProjectEquipments.
+     * @param {ProjectEquipmentDeleteManyArgs} args - Arguments to filter ProjectEquipments to delete.
+     * @example
+     * // Delete a few ProjectEquipments
+     * const { count } = await prisma.projectEquipment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProjectEquipmentDeleteManyArgs>(args?: SelectSubset<T, ProjectEquipmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProjectEquipments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectEquipmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProjectEquipments
+     * const projectEquipment = await prisma.projectEquipment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProjectEquipmentUpdateManyArgs>(args: SelectSubset<T, ProjectEquipmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProjectEquipments and returns the data updated in the database.
+     * @param {ProjectEquipmentUpdateManyAndReturnArgs} args - Arguments to update many ProjectEquipments.
+     * @example
+     * // Update many ProjectEquipments
+     * const projectEquipment = await prisma.projectEquipment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProjectEquipments and only return the `id`
+     * const projectEquipmentWithIdOnly = await prisma.projectEquipment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProjectEquipmentUpdateManyAndReturnArgs>(args: SelectSubset<T, ProjectEquipmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProjectEquipment.
+     * @param {ProjectEquipmentUpsertArgs} args - Arguments to update or create a ProjectEquipment.
+     * @example
+     * // Update or create a ProjectEquipment
+     * const projectEquipment = await prisma.projectEquipment.upsert({
+     *   create: {
+     *     // ... data to create a ProjectEquipment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProjectEquipment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProjectEquipmentUpsertArgs>(args: SelectSubset<T, ProjectEquipmentUpsertArgs<ExtArgs>>): Prisma__ProjectEquipmentClient<$Result.GetResult<Prisma.$ProjectEquipmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProjectEquipments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectEquipmentCountArgs} args - Arguments to filter ProjectEquipments to count.
+     * @example
+     * // Count the number of ProjectEquipments
+     * const count = await prisma.projectEquipment.count({
+     *   where: {
+     *     // ... the filter for the ProjectEquipments we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProjectEquipmentCountArgs>(
+      args?: Subset<T, ProjectEquipmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProjectEquipmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProjectEquipment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectEquipmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProjectEquipmentAggregateArgs>(args: Subset<T, ProjectEquipmentAggregateArgs>): Prisma.PrismaPromise<GetProjectEquipmentAggregateType<T>>
+
+    /**
+     * Group by ProjectEquipment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProjectEquipmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProjectEquipmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProjectEquipmentGroupByArgs['orderBy'] }
+        : { orderBy?: ProjectEquipmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProjectEquipmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProjectEquipmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProjectEquipment model
+   */
+  readonly fields: ProjectEquipmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProjectEquipment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProjectEquipmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProjectEquipment model
+   */
+  interface ProjectEquipmentFieldRefs {
+    readonly id: FieldRef<"ProjectEquipment", 'String'>
+    readonly projectId: FieldRef<"ProjectEquipment", 'String'>
+    readonly name: FieldRef<"ProjectEquipment", 'String'>
+    readonly registrationNumber: FieldRef<"ProjectEquipment", 'String'>
+    readonly quantity: FieldRef<"ProjectEquipment", 'Int'>
+    readonly status: FieldRef<"ProjectEquipment", 'String'>
+    readonly details: FieldRef<"ProjectEquipment", 'String'>
+    readonly createdAt: FieldRef<"ProjectEquipment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProjectEquipment findUnique
+   */
+  export type ProjectEquipmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectEquipment to fetch.
+     */
+    where: ProjectEquipmentWhereUniqueInput
+  }
+
+  /**
+   * ProjectEquipment findUniqueOrThrow
+   */
+  export type ProjectEquipmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectEquipment to fetch.
+     */
+    where: ProjectEquipmentWhereUniqueInput
+  }
+
+  /**
+   * ProjectEquipment findFirst
+   */
+  export type ProjectEquipmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectEquipment to fetch.
+     */
+    where?: ProjectEquipmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectEquipments to fetch.
+     */
+    orderBy?: ProjectEquipmentOrderByWithRelationInput | ProjectEquipmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProjectEquipments.
+     */
+    cursor?: ProjectEquipmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectEquipments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectEquipments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProjectEquipments.
+     */
+    distinct?: ProjectEquipmentScalarFieldEnum | ProjectEquipmentScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectEquipment findFirstOrThrow
+   */
+  export type ProjectEquipmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectEquipment to fetch.
+     */
+    where?: ProjectEquipmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectEquipments to fetch.
+     */
+    orderBy?: ProjectEquipmentOrderByWithRelationInput | ProjectEquipmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProjectEquipments.
+     */
+    cursor?: ProjectEquipmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectEquipments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectEquipments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProjectEquipments.
+     */
+    distinct?: ProjectEquipmentScalarFieldEnum | ProjectEquipmentScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectEquipment findMany
+   */
+  export type ProjectEquipmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
+    /**
+     * Filter, which ProjectEquipments to fetch.
+     */
+    where?: ProjectEquipmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProjectEquipments to fetch.
+     */
+    orderBy?: ProjectEquipmentOrderByWithRelationInput | ProjectEquipmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProjectEquipments.
+     */
+    cursor?: ProjectEquipmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProjectEquipments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProjectEquipments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProjectEquipments.
+     */
+    distinct?: ProjectEquipmentScalarFieldEnum | ProjectEquipmentScalarFieldEnum[]
+  }
+
+  /**
+   * ProjectEquipment create
+   */
+  export type ProjectEquipmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProjectEquipment.
+     */
+    data: XOR<ProjectEquipmentCreateInput, ProjectEquipmentUncheckedCreateInput>
+  }
+
+  /**
+   * ProjectEquipment createMany
+   */
+  export type ProjectEquipmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProjectEquipments.
+     */
+    data: ProjectEquipmentCreateManyInput | ProjectEquipmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProjectEquipment createManyAndReturn
+   */
+  export type ProjectEquipmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProjectEquipments.
+     */
+    data: ProjectEquipmentCreateManyInput | ProjectEquipmentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProjectEquipment update
+   */
+  export type ProjectEquipmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProjectEquipment.
+     */
+    data: XOR<ProjectEquipmentUpdateInput, ProjectEquipmentUncheckedUpdateInput>
+    /**
+     * Choose, which ProjectEquipment to update.
+     */
+    where: ProjectEquipmentWhereUniqueInput
+  }
+
+  /**
+   * ProjectEquipment updateMany
+   */
+  export type ProjectEquipmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProjectEquipments.
+     */
+    data: XOR<ProjectEquipmentUpdateManyMutationInput, ProjectEquipmentUncheckedUpdateManyInput>
+    /**
+     * Filter which ProjectEquipments to update
+     */
+    where?: ProjectEquipmentWhereInput
+    /**
+     * Limit how many ProjectEquipments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProjectEquipment updateManyAndReturn
+   */
+  export type ProjectEquipmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * The data used to update ProjectEquipments.
+     */
+    data: XOR<ProjectEquipmentUpdateManyMutationInput, ProjectEquipmentUncheckedUpdateManyInput>
+    /**
+     * Filter which ProjectEquipments to update
+     */
+    where?: ProjectEquipmentWhereInput
+    /**
+     * Limit how many ProjectEquipments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProjectEquipment upsert
+   */
+  export type ProjectEquipmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProjectEquipment to update in case it exists.
+     */
+    where: ProjectEquipmentWhereUniqueInput
+    /**
+     * In case the ProjectEquipment found by the `where` argument doesn't exist, create a new ProjectEquipment with this data.
+     */
+    create: XOR<ProjectEquipmentCreateInput, ProjectEquipmentUncheckedCreateInput>
+    /**
+     * In case the ProjectEquipment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProjectEquipmentUpdateInput, ProjectEquipmentUncheckedUpdateInput>
+  }
+
+  /**
+   * ProjectEquipment delete
+   */
+  export type ProjectEquipmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
+    /**
+     * Filter which ProjectEquipment to delete.
+     */
+    where: ProjectEquipmentWhereUniqueInput
+  }
+
+  /**
+   * ProjectEquipment deleteMany
+   */
+  export type ProjectEquipmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProjectEquipments to delete
+     */
+    where?: ProjectEquipmentWhereInput
+    /**
+     * Limit how many ProjectEquipments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProjectEquipment without action
+   */
+  export type ProjectEquipmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectEquipment
+     */
+    select?: ProjectEquipmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProjectEquipment
+     */
+    omit?: ProjectEquipmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectEquipmentInclude<ExtArgs> | null
   }
 
 
@@ -86191,11 +87928,58 @@ export namespace Prisma {
     budget: 'budget',
     externalTechnicians: 'externalTechnicians',
     status: 'status',
+    projectCategory: 'projectCategory',
+    department: 'department',
+    province: 'province',
+    district: 'district',
+    projectValue: 'projectValue',
+    securityDeposit: 'securityDeposit',
+    penaltyPerDay: 'penaltyPerDay',
+    amountIncludingVat: 'amountIncludingVat',
+    installment1: 'installment1',
+    installment2: 'installment2',
+    installment3: 'installment3',
+    installment4: 'installment4',
+    firstPayment: 'firstPayment',
+    secondPayment: 'secondPayment',
+    contractNumber: 'contractNumber',
+    documentNumber: 'documentNumber',
+    deliveryDocNumber: 'deliveryDocNumber',
+    jbNumber: 'jbNumber',
+    certCompletionRequestNo: 'certCompletionRequestNo',
+    certRequestStatus: 'certRequestStatus',
+    depositRefundRequestNo: 'depositRefundRequestNo',
+    contractSignatory: 'contractSignatory',
+    contractReturnStatus: 'contractReturnStatus',
+    remarks: 'remarks',
+    pathFolder: 'pathFolder',
+    statusPictureUrl: 'statusPictureUrl',
+    updateCompanyProfile: 'updateCompanyProfile',
+    projectDuration: 'projectDuration',
+    projectDurationUnit: 'projectDurationUnit',
+    contractSigningDate: 'contractSigningDate',
+    deliveryDate: 'deliveryDate',
+    paymentDate: 'paymentDate',
+    depositCollectionSchedule: 'depositCollectionSchedule',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+  export const ProjectEquipmentScalarFieldEnum: {
+    id: 'id',
+    projectId: 'projectId',
+    name: 'name',
+    registrationNumber: 'registrationNumber',
+    quantity: 'quantity',
+    status: 'status',
+    details: 'details',
+    createdAt: 'createdAt'
+  };
+
+  export type ProjectEquipmentScalarFieldEnum = (typeof ProjectEquipmentScalarFieldEnum)[keyof typeof ProjectEquipmentScalarFieldEnum]
 
 
   export const ProjectMemberScalarFieldEnum: {
@@ -92605,10 +94389,44 @@ export namespace Prisma {
     budget?: FloatNullableFilter<"Project"> | number | null
     externalTechnicians?: StringNullableFilter<"Project"> | string | null
     status?: StringFilter<"Project"> | string
+    projectCategory?: StringNullableFilter<"Project"> | string | null
+    department?: StringNullableFilter<"Project"> | string | null
+    province?: StringNullableFilter<"Project"> | string | null
+    district?: StringNullableFilter<"Project"> | string | null
+    projectValue?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment1?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment2?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment3?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment4?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: StringNullableFilter<"Project"> | string | null
+    documentNumber?: StringNullableFilter<"Project"> | string | null
+    deliveryDocNumber?: StringNullableFilter<"Project"> | string | null
+    jbNumber?: StringNullableFilter<"Project"> | string | null
+    certCompletionRequestNo?: StringNullableFilter<"Project"> | string | null
+    certRequestStatus?: StringNullableFilter<"Project"> | string | null
+    depositRefundRequestNo?: StringNullableFilter<"Project"> | string | null
+    contractSignatory?: StringNullableFilter<"Project"> | string | null
+    contractReturnStatus?: StringNullableFilter<"Project"> | string | null
+    remarks?: StringNullableFilter<"Project"> | string | null
+    pathFolder?: StringNullableFilter<"Project"> | string | null
+    statusPictureUrl?: StringNullableFilter<"Project"> | string | null
+    updateCompanyProfile?: BoolFilter<"Project"> | boolean
+    projectDuration?: IntNullableFilter<"Project"> | number | null
+    projectDurationUnit?: StringNullableFilter<"Project"> | string | null
+    contractSigningDate?: DateTimeNullableFilter<"Project"> | Date | string | null
+    deliveryDate?: DateTimeNullableFilter<"Project"> | Date | string | null
+    paymentDate?: DateTimeNullableFilter<"Project"> | Date | string | null
+    depositCollectionSchedule?: DateTimeNullableFilter<"Project"> | Date | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
     job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
     manager?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    equipment?: ProjectEquipmentListRelationFilter
     tasks?: ProjectTaskListRelationFilter
     members?: ProjectMemberListRelationFilter
     dailyLogs?: ProjectDailyLogListRelationFilter
@@ -92628,10 +94446,44 @@ export namespace Prisma {
     budget?: SortOrderInput | SortOrder
     externalTechnicians?: SortOrderInput | SortOrder
     status?: SortOrder
+    projectCategory?: SortOrderInput | SortOrder
+    department?: SortOrderInput | SortOrder
+    province?: SortOrderInput | SortOrder
+    district?: SortOrderInput | SortOrder
+    projectValue?: SortOrderInput | SortOrder
+    securityDeposit?: SortOrderInput | SortOrder
+    penaltyPerDay?: SortOrderInput | SortOrder
+    amountIncludingVat?: SortOrderInput | SortOrder
+    installment1?: SortOrderInput | SortOrder
+    installment2?: SortOrderInput | SortOrder
+    installment3?: SortOrderInput | SortOrder
+    installment4?: SortOrderInput | SortOrder
+    firstPayment?: SortOrderInput | SortOrder
+    secondPayment?: SortOrderInput | SortOrder
+    contractNumber?: SortOrderInput | SortOrder
+    documentNumber?: SortOrderInput | SortOrder
+    deliveryDocNumber?: SortOrderInput | SortOrder
+    jbNumber?: SortOrderInput | SortOrder
+    certCompletionRequestNo?: SortOrderInput | SortOrder
+    certRequestStatus?: SortOrderInput | SortOrder
+    depositRefundRequestNo?: SortOrderInput | SortOrder
+    contractSignatory?: SortOrderInput | SortOrder
+    contractReturnStatus?: SortOrderInput | SortOrder
+    remarks?: SortOrderInput | SortOrder
+    pathFolder?: SortOrderInput | SortOrder
+    statusPictureUrl?: SortOrderInput | SortOrder
+    updateCompanyProfile?: SortOrder
+    projectDuration?: SortOrderInput | SortOrder
+    projectDurationUnit?: SortOrderInput | SortOrder
+    contractSigningDate?: SortOrderInput | SortOrder
+    deliveryDate?: SortOrderInput | SortOrder
+    paymentDate?: SortOrderInput | SortOrder
+    depositCollectionSchedule?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     job?: JobOrderByWithRelationInput
     manager?: UserOrderByWithRelationInput
+    equipment?: ProjectEquipmentOrderByRelationAggregateInput
     tasks?: ProjectTaskOrderByRelationAggregateInput
     members?: ProjectMemberOrderByRelationAggregateInput
     dailyLogs?: ProjectDailyLogOrderByRelationAggregateInput
@@ -92654,10 +94506,44 @@ export namespace Prisma {
     budget?: FloatNullableFilter<"Project"> | number | null
     externalTechnicians?: StringNullableFilter<"Project"> | string | null
     status?: StringFilter<"Project"> | string
+    projectCategory?: StringNullableFilter<"Project"> | string | null
+    department?: StringNullableFilter<"Project"> | string | null
+    province?: StringNullableFilter<"Project"> | string | null
+    district?: StringNullableFilter<"Project"> | string | null
+    projectValue?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment1?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment2?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment3?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment4?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: StringNullableFilter<"Project"> | string | null
+    documentNumber?: StringNullableFilter<"Project"> | string | null
+    deliveryDocNumber?: StringNullableFilter<"Project"> | string | null
+    jbNumber?: StringNullableFilter<"Project"> | string | null
+    certCompletionRequestNo?: StringNullableFilter<"Project"> | string | null
+    certRequestStatus?: StringNullableFilter<"Project"> | string | null
+    depositRefundRequestNo?: StringNullableFilter<"Project"> | string | null
+    contractSignatory?: StringNullableFilter<"Project"> | string | null
+    contractReturnStatus?: StringNullableFilter<"Project"> | string | null
+    remarks?: StringNullableFilter<"Project"> | string | null
+    pathFolder?: StringNullableFilter<"Project"> | string | null
+    statusPictureUrl?: StringNullableFilter<"Project"> | string | null
+    updateCompanyProfile?: BoolFilter<"Project"> | boolean
+    projectDuration?: IntNullableFilter<"Project"> | number | null
+    projectDurationUnit?: StringNullableFilter<"Project"> | string | null
+    contractSigningDate?: DateTimeNullableFilter<"Project"> | Date | string | null
+    deliveryDate?: DateTimeNullableFilter<"Project"> | Date | string | null
+    paymentDate?: DateTimeNullableFilter<"Project"> | Date | string | null
+    depositCollectionSchedule?: DateTimeNullableFilter<"Project"> | Date | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
     job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
     manager?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    equipment?: ProjectEquipmentListRelationFilter
     tasks?: ProjectTaskListRelationFilter
     members?: ProjectMemberListRelationFilter
     dailyLogs?: ProjectDailyLogListRelationFilter
@@ -92677,6 +94563,39 @@ export namespace Prisma {
     budget?: SortOrderInput | SortOrder
     externalTechnicians?: SortOrderInput | SortOrder
     status?: SortOrder
+    projectCategory?: SortOrderInput | SortOrder
+    department?: SortOrderInput | SortOrder
+    province?: SortOrderInput | SortOrder
+    district?: SortOrderInput | SortOrder
+    projectValue?: SortOrderInput | SortOrder
+    securityDeposit?: SortOrderInput | SortOrder
+    penaltyPerDay?: SortOrderInput | SortOrder
+    amountIncludingVat?: SortOrderInput | SortOrder
+    installment1?: SortOrderInput | SortOrder
+    installment2?: SortOrderInput | SortOrder
+    installment3?: SortOrderInput | SortOrder
+    installment4?: SortOrderInput | SortOrder
+    firstPayment?: SortOrderInput | SortOrder
+    secondPayment?: SortOrderInput | SortOrder
+    contractNumber?: SortOrderInput | SortOrder
+    documentNumber?: SortOrderInput | SortOrder
+    deliveryDocNumber?: SortOrderInput | SortOrder
+    jbNumber?: SortOrderInput | SortOrder
+    certCompletionRequestNo?: SortOrderInput | SortOrder
+    certRequestStatus?: SortOrderInput | SortOrder
+    depositRefundRequestNo?: SortOrderInput | SortOrder
+    contractSignatory?: SortOrderInput | SortOrder
+    contractReturnStatus?: SortOrderInput | SortOrder
+    remarks?: SortOrderInput | SortOrder
+    pathFolder?: SortOrderInput | SortOrder
+    statusPictureUrl?: SortOrderInput | SortOrder
+    updateCompanyProfile?: SortOrder
+    projectDuration?: SortOrderInput | SortOrder
+    projectDurationUnit?: SortOrderInput | SortOrder
+    contractSigningDate?: SortOrderInput | SortOrder
+    deliveryDate?: SortOrderInput | SortOrder
+    paymentDate?: SortOrderInput | SortOrder
+    depositCollectionSchedule?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ProjectCountOrderByAggregateInput
@@ -92703,8 +94622,113 @@ export namespace Prisma {
     budget?: FloatNullableWithAggregatesFilter<"Project"> | number | null
     externalTechnicians?: StringNullableWithAggregatesFilter<"Project"> | string | null
     status?: StringWithAggregatesFilter<"Project"> | string
+    projectCategory?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    department?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    province?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    district?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    projectValue?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment1?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment2?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment3?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment4?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    documentNumber?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    deliveryDocNumber?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    jbNumber?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    certCompletionRequestNo?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    certRequestStatus?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    depositRefundRequestNo?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    contractSignatory?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    contractReturnStatus?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    remarks?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    pathFolder?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    statusPictureUrl?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    updateCompanyProfile?: BoolWithAggregatesFilter<"Project"> | boolean
+    projectDuration?: IntNullableWithAggregatesFilter<"Project"> | number | null
+    projectDurationUnit?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    contractSigningDate?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
+    deliveryDate?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
+    paymentDate?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
+    depositCollectionSchedule?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
+  }
+
+  export type ProjectEquipmentWhereInput = {
+    AND?: ProjectEquipmentWhereInput | ProjectEquipmentWhereInput[]
+    OR?: ProjectEquipmentWhereInput[]
+    NOT?: ProjectEquipmentWhereInput | ProjectEquipmentWhereInput[]
+    id?: StringFilter<"ProjectEquipment"> | string
+    projectId?: StringFilter<"ProjectEquipment"> | string
+    name?: StringFilter<"ProjectEquipment"> | string
+    registrationNumber?: StringNullableFilter<"ProjectEquipment"> | string | null
+    quantity?: IntFilter<"ProjectEquipment"> | number
+    status?: StringFilter<"ProjectEquipment"> | string
+    details?: StringNullableFilter<"ProjectEquipment"> | string | null
+    createdAt?: DateTimeFilter<"ProjectEquipment"> | Date | string
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+  }
+
+  export type ProjectEquipmentOrderByWithRelationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    registrationNumber?: SortOrderInput | SortOrder
+    quantity?: SortOrder
+    status?: SortOrder
+    details?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    project?: ProjectOrderByWithRelationInput
+  }
+
+  export type ProjectEquipmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ProjectEquipmentWhereInput | ProjectEquipmentWhereInput[]
+    OR?: ProjectEquipmentWhereInput[]
+    NOT?: ProjectEquipmentWhereInput | ProjectEquipmentWhereInput[]
+    projectId?: StringFilter<"ProjectEquipment"> | string
+    name?: StringFilter<"ProjectEquipment"> | string
+    registrationNumber?: StringNullableFilter<"ProjectEquipment"> | string | null
+    quantity?: IntFilter<"ProjectEquipment"> | number
+    status?: StringFilter<"ProjectEquipment"> | string
+    details?: StringNullableFilter<"ProjectEquipment"> | string | null
+    createdAt?: DateTimeFilter<"ProjectEquipment"> | Date | string
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+  }, "id">
+
+  export type ProjectEquipmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    registrationNumber?: SortOrderInput | SortOrder
+    quantity?: SortOrder
+    status?: SortOrder
+    details?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ProjectEquipmentCountOrderByAggregateInput
+    _avg?: ProjectEquipmentAvgOrderByAggregateInput
+    _max?: ProjectEquipmentMaxOrderByAggregateInput
+    _min?: ProjectEquipmentMinOrderByAggregateInput
+    _sum?: ProjectEquipmentSumOrderByAggregateInput
+  }
+
+  export type ProjectEquipmentScalarWhereWithAggregatesInput = {
+    AND?: ProjectEquipmentScalarWhereWithAggregatesInput | ProjectEquipmentScalarWhereWithAggregatesInput[]
+    OR?: ProjectEquipmentScalarWhereWithAggregatesInput[]
+    NOT?: ProjectEquipmentScalarWhereWithAggregatesInput | ProjectEquipmentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProjectEquipment"> | string
+    projectId?: StringWithAggregatesFilter<"ProjectEquipment"> | string
+    name?: StringWithAggregatesFilter<"ProjectEquipment"> | string
+    registrationNumber?: StringNullableWithAggregatesFilter<"ProjectEquipment"> | string | null
+    quantity?: IntWithAggregatesFilter<"ProjectEquipment"> | number
+    status?: StringWithAggregatesFilter<"ProjectEquipment"> | string
+    details?: StringNullableWithAggregatesFilter<"ProjectEquipment"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ProjectEquipment"> | Date | string
   }
 
   export type ProjectMemberWhereInput = {
@@ -100259,10 +102283,44 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     job?: JobCreateNestedOneWithoutProjectInput
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
+    equipment?: ProjectEquipmentCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskCreateNestedManyWithoutProjectInput
     members?: ProjectMemberCreateNestedManyWithoutProjectInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
@@ -100282,8 +102340,42 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
@@ -100301,10 +102393,44 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     job?: JobUpdateOneWithoutProjectNestedInput
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
+    equipment?: ProjectEquipmentUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUpdateManyWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
@@ -100324,8 +102450,42 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
@@ -100345,6 +102505,39 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -100361,6 +102554,39 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -100379,8 +102605,117 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProjectEquipmentCreateInput = {
+    id?: string
+    name: string
+    registrationNumber?: string | null
+    quantity?: number
+    status?: string
+    details?: string | null
+    createdAt?: Date | string
+    project: ProjectCreateNestedOneWithoutEquipmentInput
+  }
+
+  export type ProjectEquipmentUncheckedCreateInput = {
+    id?: string
+    projectId: string
+    name: string
+    registrationNumber?: string | null
+    quantity?: number
+    status?: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProjectEquipmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    registrationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectUpdateOneRequiredWithoutEquipmentNestedInput
+  }
+
+  export type ProjectEquipmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    registrationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProjectEquipmentCreateManyInput = {
+    id?: string
+    projectId: string
+    name: string
+    registrationNumber?: string | null
+    quantity?: number
+    status?: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProjectEquipmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    registrationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProjectEquipmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    registrationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProjectMemberCreateInput = {
@@ -105434,6 +107769,16 @@ export namespace Prisma {
     totalAmount?: SortOrder
   }
 
+  export type ProjectEquipmentListRelationFilter = {
+    every?: ProjectEquipmentWhereInput
+    some?: ProjectEquipmentWhereInput
+    none?: ProjectEquipmentWhereInput
+  }
+
+  export type ProjectEquipmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type ProjectCountOrderByAggregateInput = {
     id?: SortOrder
     projectNumber?: SortOrder
@@ -105448,12 +107793,56 @@ export namespace Prisma {
     budget?: SortOrder
     externalTechnicians?: SortOrder
     status?: SortOrder
+    projectCategory?: SortOrder
+    department?: SortOrder
+    province?: SortOrder
+    district?: SortOrder
+    projectValue?: SortOrder
+    securityDeposit?: SortOrder
+    penaltyPerDay?: SortOrder
+    amountIncludingVat?: SortOrder
+    installment1?: SortOrder
+    installment2?: SortOrder
+    installment3?: SortOrder
+    installment4?: SortOrder
+    firstPayment?: SortOrder
+    secondPayment?: SortOrder
+    contractNumber?: SortOrder
+    documentNumber?: SortOrder
+    deliveryDocNumber?: SortOrder
+    jbNumber?: SortOrder
+    certCompletionRequestNo?: SortOrder
+    certRequestStatus?: SortOrder
+    depositRefundRequestNo?: SortOrder
+    contractSignatory?: SortOrder
+    contractReturnStatus?: SortOrder
+    remarks?: SortOrder
+    pathFolder?: SortOrder
+    statusPictureUrl?: SortOrder
+    updateCompanyProfile?: SortOrder
+    projectDuration?: SortOrder
+    projectDurationUnit?: SortOrder
+    contractSigningDate?: SortOrder
+    deliveryDate?: SortOrder
+    paymentDate?: SortOrder
+    depositCollectionSchedule?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type ProjectAvgOrderByAggregateInput = {
     budget?: SortOrder
+    projectValue?: SortOrder
+    securityDeposit?: SortOrder
+    penaltyPerDay?: SortOrder
+    amountIncludingVat?: SortOrder
+    installment1?: SortOrder
+    installment2?: SortOrder
+    installment3?: SortOrder
+    installment4?: SortOrder
+    firstPayment?: SortOrder
+    secondPayment?: SortOrder
+    projectDuration?: SortOrder
   }
 
   export type ProjectMaxOrderByAggregateInput = {
@@ -105470,6 +107859,39 @@ export namespace Prisma {
     budget?: SortOrder
     externalTechnicians?: SortOrder
     status?: SortOrder
+    projectCategory?: SortOrder
+    department?: SortOrder
+    province?: SortOrder
+    district?: SortOrder
+    projectValue?: SortOrder
+    securityDeposit?: SortOrder
+    penaltyPerDay?: SortOrder
+    amountIncludingVat?: SortOrder
+    installment1?: SortOrder
+    installment2?: SortOrder
+    installment3?: SortOrder
+    installment4?: SortOrder
+    firstPayment?: SortOrder
+    secondPayment?: SortOrder
+    contractNumber?: SortOrder
+    documentNumber?: SortOrder
+    deliveryDocNumber?: SortOrder
+    jbNumber?: SortOrder
+    certCompletionRequestNo?: SortOrder
+    certRequestStatus?: SortOrder
+    depositRefundRequestNo?: SortOrder
+    contractSignatory?: SortOrder
+    contractReturnStatus?: SortOrder
+    remarks?: SortOrder
+    pathFolder?: SortOrder
+    statusPictureUrl?: SortOrder
+    updateCompanyProfile?: SortOrder
+    projectDuration?: SortOrder
+    projectDurationUnit?: SortOrder
+    contractSigningDate?: SortOrder
+    deliveryDate?: SortOrder
+    paymentDate?: SortOrder
+    depositCollectionSchedule?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -105488,17 +107910,102 @@ export namespace Prisma {
     budget?: SortOrder
     externalTechnicians?: SortOrder
     status?: SortOrder
+    projectCategory?: SortOrder
+    department?: SortOrder
+    province?: SortOrder
+    district?: SortOrder
+    projectValue?: SortOrder
+    securityDeposit?: SortOrder
+    penaltyPerDay?: SortOrder
+    amountIncludingVat?: SortOrder
+    installment1?: SortOrder
+    installment2?: SortOrder
+    installment3?: SortOrder
+    installment4?: SortOrder
+    firstPayment?: SortOrder
+    secondPayment?: SortOrder
+    contractNumber?: SortOrder
+    documentNumber?: SortOrder
+    deliveryDocNumber?: SortOrder
+    jbNumber?: SortOrder
+    certCompletionRequestNo?: SortOrder
+    certRequestStatus?: SortOrder
+    depositRefundRequestNo?: SortOrder
+    contractSignatory?: SortOrder
+    contractReturnStatus?: SortOrder
+    remarks?: SortOrder
+    pathFolder?: SortOrder
+    statusPictureUrl?: SortOrder
+    updateCompanyProfile?: SortOrder
+    projectDuration?: SortOrder
+    projectDurationUnit?: SortOrder
+    contractSigningDate?: SortOrder
+    deliveryDate?: SortOrder
+    paymentDate?: SortOrder
+    depositCollectionSchedule?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type ProjectSumOrderByAggregateInput = {
     budget?: SortOrder
+    projectValue?: SortOrder
+    securityDeposit?: SortOrder
+    penaltyPerDay?: SortOrder
+    amountIncludingVat?: SortOrder
+    installment1?: SortOrder
+    installment2?: SortOrder
+    installment3?: SortOrder
+    installment4?: SortOrder
+    firstPayment?: SortOrder
+    secondPayment?: SortOrder
+    projectDuration?: SortOrder
   }
 
   export type ProjectScalarRelationFilter = {
     is?: ProjectWhereInput
     isNot?: ProjectWhereInput
+  }
+
+  export type ProjectEquipmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    registrationNumber?: SortOrder
+    quantity?: SortOrder
+    status?: SortOrder
+    details?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProjectEquipmentAvgOrderByAggregateInput = {
+    quantity?: SortOrder
+  }
+
+  export type ProjectEquipmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    registrationNumber?: SortOrder
+    quantity?: SortOrder
+    status?: SortOrder
+    details?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProjectEquipmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    name?: SortOrder
+    registrationNumber?: SortOrder
+    quantity?: SortOrder
+    status?: SortOrder
+    details?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProjectEquipmentSumOrderByAggregateInput = {
+    quantity?: SortOrder
   }
 
   export type ProjectMemberProjectIdUserIdCompoundUniqueInput = {
@@ -109423,6 +111930,13 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type ProjectEquipmentCreateNestedManyWithoutProjectInput = {
+    create?: XOR<ProjectEquipmentCreateWithoutProjectInput, ProjectEquipmentUncheckedCreateWithoutProjectInput> | ProjectEquipmentCreateWithoutProjectInput[] | ProjectEquipmentUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectEquipmentCreateOrConnectWithoutProjectInput | ProjectEquipmentCreateOrConnectWithoutProjectInput[]
+    createMany?: ProjectEquipmentCreateManyProjectInputEnvelope
+    connect?: ProjectEquipmentWhereUniqueInput | ProjectEquipmentWhereUniqueInput[]
+  }
+
   export type ProjectTaskCreateNestedManyWithoutProjectInput = {
     create?: XOR<ProjectTaskCreateWithoutProjectInput, ProjectTaskUncheckedCreateWithoutProjectInput> | ProjectTaskCreateWithoutProjectInput[] | ProjectTaskUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: ProjectTaskCreateOrConnectWithoutProjectInput | ProjectTaskCreateOrConnectWithoutProjectInput[]
@@ -109442,6 +111956,13 @@ export namespace Prisma {
     connectOrCreate?: ProjectDailyLogCreateOrConnectWithoutProjectInput | ProjectDailyLogCreateOrConnectWithoutProjectInput[]
     createMany?: ProjectDailyLogCreateManyProjectInputEnvelope
     connect?: ProjectDailyLogWhereUniqueInput | ProjectDailyLogWhereUniqueInput[]
+  }
+
+  export type ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput = {
+    create?: XOR<ProjectEquipmentCreateWithoutProjectInput, ProjectEquipmentUncheckedCreateWithoutProjectInput> | ProjectEquipmentCreateWithoutProjectInput[] | ProjectEquipmentUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectEquipmentCreateOrConnectWithoutProjectInput | ProjectEquipmentCreateOrConnectWithoutProjectInput[]
+    createMany?: ProjectEquipmentCreateManyProjectInputEnvelope
+    connect?: ProjectEquipmentWhereUniqueInput | ProjectEquipmentWhereUniqueInput[]
   }
 
   export type ProjectTaskUncheckedCreateNestedManyWithoutProjectInput = {
@@ -109483,6 +112004,20 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutManagedProjectsInput, UserUpdateWithoutManagedProjectsInput>, UserUncheckedUpdateWithoutManagedProjectsInput>
+  }
+
+  export type ProjectEquipmentUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<ProjectEquipmentCreateWithoutProjectInput, ProjectEquipmentUncheckedCreateWithoutProjectInput> | ProjectEquipmentCreateWithoutProjectInput[] | ProjectEquipmentUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectEquipmentCreateOrConnectWithoutProjectInput | ProjectEquipmentCreateOrConnectWithoutProjectInput[]
+    upsert?: ProjectEquipmentUpsertWithWhereUniqueWithoutProjectInput | ProjectEquipmentUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: ProjectEquipmentCreateManyProjectInputEnvelope
+    set?: ProjectEquipmentWhereUniqueInput | ProjectEquipmentWhereUniqueInput[]
+    disconnect?: ProjectEquipmentWhereUniqueInput | ProjectEquipmentWhereUniqueInput[]
+    delete?: ProjectEquipmentWhereUniqueInput | ProjectEquipmentWhereUniqueInput[]
+    connect?: ProjectEquipmentWhereUniqueInput | ProjectEquipmentWhereUniqueInput[]
+    update?: ProjectEquipmentUpdateWithWhereUniqueWithoutProjectInput | ProjectEquipmentUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: ProjectEquipmentUpdateManyWithWhereWithoutProjectInput | ProjectEquipmentUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: ProjectEquipmentScalarWhereInput | ProjectEquipmentScalarWhereInput[]
   }
 
   export type ProjectTaskUpdateManyWithoutProjectNestedInput = {
@@ -109527,6 +112062,20 @@ export namespace Prisma {
     deleteMany?: ProjectDailyLogScalarWhereInput | ProjectDailyLogScalarWhereInput[]
   }
 
+  export type ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<ProjectEquipmentCreateWithoutProjectInput, ProjectEquipmentUncheckedCreateWithoutProjectInput> | ProjectEquipmentCreateWithoutProjectInput[] | ProjectEquipmentUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: ProjectEquipmentCreateOrConnectWithoutProjectInput | ProjectEquipmentCreateOrConnectWithoutProjectInput[]
+    upsert?: ProjectEquipmentUpsertWithWhereUniqueWithoutProjectInput | ProjectEquipmentUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: ProjectEquipmentCreateManyProjectInputEnvelope
+    set?: ProjectEquipmentWhereUniqueInput | ProjectEquipmentWhereUniqueInput[]
+    disconnect?: ProjectEquipmentWhereUniqueInput | ProjectEquipmentWhereUniqueInput[]
+    delete?: ProjectEquipmentWhereUniqueInput | ProjectEquipmentWhereUniqueInput[]
+    connect?: ProjectEquipmentWhereUniqueInput | ProjectEquipmentWhereUniqueInput[]
+    update?: ProjectEquipmentUpdateWithWhereUniqueWithoutProjectInput | ProjectEquipmentUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: ProjectEquipmentUpdateManyWithWhereWithoutProjectInput | ProjectEquipmentUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: ProjectEquipmentScalarWhereInput | ProjectEquipmentScalarWhereInput[]
+  }
+
   export type ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput = {
     create?: XOR<ProjectTaskCreateWithoutProjectInput, ProjectTaskUncheckedCreateWithoutProjectInput> | ProjectTaskCreateWithoutProjectInput[] | ProjectTaskUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: ProjectTaskCreateOrConnectWithoutProjectInput | ProjectTaskCreateOrConnectWithoutProjectInput[]
@@ -109567,6 +112116,20 @@ export namespace Prisma {
     update?: ProjectDailyLogUpdateWithWhereUniqueWithoutProjectInput | ProjectDailyLogUpdateWithWhereUniqueWithoutProjectInput[]
     updateMany?: ProjectDailyLogUpdateManyWithWhereWithoutProjectInput | ProjectDailyLogUpdateManyWithWhereWithoutProjectInput[]
     deleteMany?: ProjectDailyLogScalarWhereInput | ProjectDailyLogScalarWhereInput[]
+  }
+
+  export type ProjectCreateNestedOneWithoutEquipmentInput = {
+    create?: XOR<ProjectCreateWithoutEquipmentInput, ProjectUncheckedCreateWithoutEquipmentInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutEquipmentInput
+    connect?: ProjectWhereUniqueInput
+  }
+
+  export type ProjectUpdateOneRequiredWithoutEquipmentNestedInput = {
+    create?: XOR<ProjectCreateWithoutEquipmentInput, ProjectUncheckedCreateWithoutEquipmentInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutEquipmentInput
+    upsert?: ProjectUpsertWithoutEquipmentInput
+    connect?: ProjectWhereUniqueInput
+    update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutEquipmentInput, ProjectUpdateWithoutEquipmentInput>, ProjectUncheckedUpdateWithoutEquipmentInput>
   }
 
   export type ProjectCreateNestedOneWithoutMembersInput = {
@@ -110547,9 +113110,43 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     job?: JobCreateNestedOneWithoutProjectInput
+    equipment?: ProjectEquipmentCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskCreateNestedManyWithoutProjectInput
     members?: ProjectMemberCreateNestedManyWithoutProjectInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
@@ -110568,8 +113165,42 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
@@ -111108,6 +113739,39 @@ export namespace Prisma {
     budget?: FloatNullableFilter<"Project"> | number | null
     externalTechnicians?: StringNullableFilter<"Project"> | string | null
     status?: StringFilter<"Project"> | string
+    projectCategory?: StringNullableFilter<"Project"> | string | null
+    department?: StringNullableFilter<"Project"> | string | null
+    province?: StringNullableFilter<"Project"> | string | null
+    district?: StringNullableFilter<"Project"> | string | null
+    projectValue?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment1?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment2?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment3?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    installment4?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: StringNullableFilter<"Project"> | string | null
+    documentNumber?: StringNullableFilter<"Project"> | string | null
+    deliveryDocNumber?: StringNullableFilter<"Project"> | string | null
+    jbNumber?: StringNullableFilter<"Project"> | string | null
+    certCompletionRequestNo?: StringNullableFilter<"Project"> | string | null
+    certRequestStatus?: StringNullableFilter<"Project"> | string | null
+    depositRefundRequestNo?: StringNullableFilter<"Project"> | string | null
+    contractSignatory?: StringNullableFilter<"Project"> | string | null
+    contractReturnStatus?: StringNullableFilter<"Project"> | string | null
+    remarks?: StringNullableFilter<"Project"> | string | null
+    pathFolder?: StringNullableFilter<"Project"> | string | null
+    statusPictureUrl?: StringNullableFilter<"Project"> | string | null
+    updateCompanyProfile?: BoolFilter<"Project"> | boolean
+    projectDuration?: IntNullableFilter<"Project"> | number | null
+    projectDurationUnit?: StringNullableFilter<"Project"> | string | null
+    contractSigningDate?: DateTimeNullableFilter<"Project"> | Date | string | null
+    deliveryDate?: DateTimeNullableFilter<"Project"> | Date | string | null
+    paymentDate?: DateTimeNullableFilter<"Project"> | Date | string | null
+    depositCollectionSchedule?: DateTimeNullableFilter<"Project"> | Date | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
   }
@@ -114694,9 +117358,43 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
+    equipment?: ProjectEquipmentCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskCreateNestedManyWithoutProjectInput
     members?: ProjectMemberCreateNestedManyWithoutProjectInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
@@ -114715,8 +117413,42 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
@@ -115151,9 +117883,43 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
+    equipment?: ProjectEquipmentUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUpdateManyWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
@@ -115172,8 +117938,42 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
@@ -126164,6 +128964,36 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutManagedProjectsInput, UserUncheckedCreateWithoutManagedProjectsInput>
   }
 
+  export type ProjectEquipmentCreateWithoutProjectInput = {
+    id?: string
+    name: string
+    registrationNumber?: string | null
+    quantity?: number
+    status?: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProjectEquipmentUncheckedCreateWithoutProjectInput = {
+    id?: string
+    name: string
+    registrationNumber?: string | null
+    quantity?: number
+    status?: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProjectEquipmentCreateOrConnectWithoutProjectInput = {
+    where: ProjectEquipmentWhereUniqueInput
+    create: XOR<ProjectEquipmentCreateWithoutProjectInput, ProjectEquipmentUncheckedCreateWithoutProjectInput>
+  }
+
+  export type ProjectEquipmentCreateManyProjectInputEnvelope = {
+    data: ProjectEquipmentCreateManyProjectInput | ProjectEquipmentCreateManyProjectInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ProjectTaskCreateWithoutProjectInput = {
     id?: string
     title: string
@@ -126456,6 +129286,36 @@ export namespace Prisma {
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
   }
 
+  export type ProjectEquipmentUpsertWithWhereUniqueWithoutProjectInput = {
+    where: ProjectEquipmentWhereUniqueInput
+    update: XOR<ProjectEquipmentUpdateWithoutProjectInput, ProjectEquipmentUncheckedUpdateWithoutProjectInput>
+    create: XOR<ProjectEquipmentCreateWithoutProjectInput, ProjectEquipmentUncheckedCreateWithoutProjectInput>
+  }
+
+  export type ProjectEquipmentUpdateWithWhereUniqueWithoutProjectInput = {
+    where: ProjectEquipmentWhereUniqueInput
+    data: XOR<ProjectEquipmentUpdateWithoutProjectInput, ProjectEquipmentUncheckedUpdateWithoutProjectInput>
+  }
+
+  export type ProjectEquipmentUpdateManyWithWhereWithoutProjectInput = {
+    where: ProjectEquipmentScalarWhereInput
+    data: XOR<ProjectEquipmentUpdateManyMutationInput, ProjectEquipmentUncheckedUpdateManyWithoutProjectInput>
+  }
+
+  export type ProjectEquipmentScalarWhereInput = {
+    AND?: ProjectEquipmentScalarWhereInput | ProjectEquipmentScalarWhereInput[]
+    OR?: ProjectEquipmentScalarWhereInput[]
+    NOT?: ProjectEquipmentScalarWhereInput | ProjectEquipmentScalarWhereInput[]
+    id?: StringFilter<"ProjectEquipment"> | string
+    projectId?: StringFilter<"ProjectEquipment"> | string
+    name?: StringFilter<"ProjectEquipment"> | string
+    registrationNumber?: StringNullableFilter<"ProjectEquipment"> | string | null
+    quantity?: IntFilter<"ProjectEquipment"> | number
+    status?: StringFilter<"ProjectEquipment"> | string
+    details?: StringNullableFilter<"ProjectEquipment"> | string | null
+    createdAt?: DateTimeFilter<"ProjectEquipment"> | Date | string
+  }
+
   export type ProjectTaskUpsertWithWhereUniqueWithoutProjectInput = {
     where: ProjectTaskWhereUniqueInput
     update: XOR<ProjectTaskUpdateWithoutProjectInput, ProjectTaskUncheckedUpdateWithoutProjectInput>
@@ -126504,6 +129364,238 @@ export namespace Prisma {
     data: XOR<ProjectDailyLogUpdateManyMutationInput, ProjectDailyLogUncheckedUpdateManyWithoutProjectInput>
   }
 
+  export type ProjectCreateWithoutEquipmentInput = {
+    id?: string
+    projectNumber: string
+    name: string
+    description?: string | null
+    clientName?: string | null
+    siteAddress?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    budget?: number | null
+    externalTechnicians?: string | null
+    status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    job?: JobCreateNestedOneWithoutProjectInput
+    manager?: UserCreateNestedOneWithoutManagedProjectsInput
+    tasks?: ProjectTaskCreateNestedManyWithoutProjectInput
+    members?: ProjectMemberCreateNestedManyWithoutProjectInput
+    dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectUncheckedCreateWithoutEquipmentInput = {
+    id?: string
+    projectNumber: string
+    jobId?: string | null
+    name: string
+    description?: string | null
+    clientName?: string | null
+    siteAddress?: string | null
+    managerId?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    budget?: number | null
+    externalTechnicians?: string | null
+    status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tasks?: ProjectTaskUncheckedCreateNestedManyWithoutProjectInput
+    members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+    dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutEquipmentInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutEquipmentInput, ProjectUncheckedCreateWithoutEquipmentInput>
+  }
+
+  export type ProjectUpsertWithoutEquipmentInput = {
+    update: XOR<ProjectUpdateWithoutEquipmentInput, ProjectUncheckedUpdateWithoutEquipmentInput>
+    create: XOR<ProjectCreateWithoutEquipmentInput, ProjectUncheckedCreateWithoutEquipmentInput>
+    where?: ProjectWhereInput
+  }
+
+  export type ProjectUpdateToOneWithWhereWithoutEquipmentInput = {
+    where?: ProjectWhereInput
+    data: XOR<ProjectUpdateWithoutEquipmentInput, ProjectUncheckedUpdateWithoutEquipmentInput>
+  }
+
+  export type ProjectUpdateWithoutEquipmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectNumber?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    clientName?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneWithoutProjectNestedInput
+    manager?: UserUpdateOneWithoutManagedProjectsNestedInput
+    tasks?: ProjectTaskUpdateManyWithoutProjectNestedInput
+    members?: ProjectMemberUpdateManyWithoutProjectNestedInput
+    dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
+  }
+
+  export type ProjectUncheckedUpdateWithoutEquipmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectNumber?: StringFieldUpdateOperationsInput | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    clientName?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    managerId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tasks?: ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput
+    members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+    dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
   export type ProjectCreateWithoutMembersInput = {
     id?: string
     projectNumber: string
@@ -126516,10 +129608,44 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     job?: JobCreateNestedOneWithoutProjectInput
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
+    equipment?: ProjectEquipmentCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskCreateNestedManyWithoutProjectInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
   }
@@ -126538,8 +129664,42 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskUncheckedCreateNestedManyWithoutProjectInput
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -126633,10 +129793,44 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     job?: JobUpdateOneWithoutProjectNestedInput
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
+    equipment?: ProjectEquipmentUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUpdateManyWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
   }
@@ -126655,8 +129849,42 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -126740,10 +129968,44 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     job?: JobCreateNestedOneWithoutProjectInput
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
+    equipment?: ProjectEquipmentCreateNestedManyWithoutProjectInput
     members?: ProjectMemberCreateNestedManyWithoutProjectInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
   }
@@ -126762,8 +130024,42 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -126960,10 +130256,44 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     job?: JobUpdateOneWithoutProjectNestedInput
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
+    equipment?: ProjectEquipmentUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUpdateManyWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
   }
@@ -126982,8 +130312,42 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -127138,10 +130502,44 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     job?: JobCreateNestedOneWithoutProjectInput
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
+    equipment?: ProjectEquipmentCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskCreateNestedManyWithoutProjectInput
     members?: ProjectMemberCreateNestedManyWithoutProjectInput
   }
@@ -127160,8 +130558,42 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -127255,10 +130687,44 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     job?: JobUpdateOneWithoutProjectNestedInput
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
+    equipment?: ProjectEquipmentUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUpdateManyWithoutProjectNestedInput
   }
@@ -127277,8 +130743,42 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -127522,6 +131022,39 @@ export namespace Prisma {
     budget?: number | null
     externalTechnicians?: string | null
     status?: string
+    projectCategory?: string | null
+    department?: string | null
+    province?: string | null
+    district?: string | null
+    projectValue?: Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: Decimal | DecimalJsLike | number | string | null
+    installment1?: Decimal | DecimalJsLike | number | string | null
+    installment2?: Decimal | DecimalJsLike | number | string | null
+    installment3?: Decimal | DecimalJsLike | number | string | null
+    installment4?: Decimal | DecimalJsLike | number | string | null
+    firstPayment?: Decimal | DecimalJsLike | number | string | null
+    secondPayment?: Decimal | DecimalJsLike | number | string | null
+    contractNumber?: string | null
+    documentNumber?: string | null
+    deliveryDocNumber?: string | null
+    jbNumber?: string | null
+    certCompletionRequestNo?: string | null
+    certRequestStatus?: string | null
+    depositRefundRequestNo?: string | null
+    contractSignatory?: string | null
+    contractReturnStatus?: string | null
+    remarks?: string | null
+    pathFolder?: string | null
+    statusPictureUrl?: string | null
+    updateCompanyProfile?: boolean
+    projectDuration?: number | null
+    projectDurationUnit?: string | null
+    contractSigningDate?: Date | string | null
+    deliveryDate?: Date | string | null
+    paymentDate?: Date | string | null
+    depositCollectionSchedule?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -128083,9 +131616,43 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     job?: JobUpdateOneWithoutProjectNestedInput
+    equipment?: ProjectEquipmentUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUpdateManyWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
@@ -128104,8 +131671,42 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
@@ -128124,6 +131725,39 @@ export namespace Prisma {
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
     externalTechnicians?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    projectCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    projectValue?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    securityDeposit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    penaltyPerDay?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    amountIncludingVat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment3?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    installment4?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    firstPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    secondPayment?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contractNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    documentNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDocNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    jbNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    certCompletionRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    certRequestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    depositRefundRequestNo?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSignatory?: NullableStringFieldUpdateOperationsInput | string | null
+    contractReturnStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    pathFolder?: NullableStringFieldUpdateOperationsInput | string | null
+    statusPictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    updateCompanyProfile?: BoolFieldUpdateOperationsInput | boolean
+    projectDuration?: NullableIntFieldUpdateOperationsInput | number | null
+    projectDurationUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    contractSigningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -132630,6 +136264,16 @@ export namespace Prisma {
     emp_id?: StringFieldUpdateOperationsInput | string
   }
 
+  export type ProjectEquipmentCreateManyProjectInput = {
+    id?: string
+    name: string
+    registrationNumber?: string | null
+    quantity?: number
+    status?: string
+    details?: string | null
+    createdAt?: Date | string
+  }
+
   export type ProjectTaskCreateManyProjectInput = {
     id?: string
     title: string
@@ -132678,6 +136322,36 @@ export namespace Prisma {
     supervisorName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type ProjectEquipmentUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    registrationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProjectEquipmentUncheckedUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    registrationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProjectEquipmentUncheckedUpdateManyWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    registrationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProjectTaskUpdateWithoutProjectInput = {

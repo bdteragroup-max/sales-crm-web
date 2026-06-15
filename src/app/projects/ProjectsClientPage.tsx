@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, FolderOpen, Clock, CheckCircle2, AlertCircle, LayoutDashboard, Search, FileText } from 'lucide-react';
+import { Plus, FolderOpen, Clock, CheckCircle2, AlertCircle, LayoutDashboard, Search, FileText, Download, Settings2, Check } from 'lucide-react';
 
 interface ProjectsClientPageProps {
   currentUser: any;
@@ -12,6 +12,37 @@ interface ProjectsClientPageProps {
 
 export default function ProjectsClientPage({ currentUser, projects, isManager }: ProjectsClientPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showColumnMenu, setShowColumnMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
+    sequence: true,
+    projectNumber: true,
+    name: true,
+    category: true,
+    province: true,
+    client: true,
+    contract: true,
+    value: true,
+    manager: true,
+    timeline: true,
+    progress: true,
+    status: true,
+  });
+
+  const toggleColumn = (key: string) => {
+    setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowColumnMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   
   // KPI stats
   const total = projects.length;
@@ -23,14 +54,64 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
     return new Date(p.endDate) < new Date();
   }).length;
 
+
+
   const filteredProjects = projects.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.projectNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (p.clientName && p.clientName.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const exportToCSV = () => {
+    const headers = [
+      "ลำดับ", "รหัสโครงการ", "ชื่อโครงการ", "หมวดหมู่", "จังหวัด", "ลูกค้า", "เลขที่สัญญา", "มูลค่าโครงการ", "ผู้จัดการ", "สถานะ"
+    ];
+    
+    const data = filteredProjects.map((p, index) => [
+      index + 1,
+      p.projectNumber || "",
+      p.name || "",
+      p.projectCategory || "",
+      p.province || "",
+      p.clientName || "",
+      p.contractNumber || "",
+      p.projectValue ? Number(p.projectValue).toFixed(2) : "",
+      p.manager?.fullName || "",
+      p.status || ""
+    ]);
+    
+    const csvContent = [
+      headers.join(","),
+      ...data.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+    
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `projects_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const columnsList = [
+    { key: 'sequence', label: 'ลำดับ (Seq)' },
+    { key: 'projectNumber', label: 'รหัส (PJ No.)' },
+    { key: 'name', label: 'ชื่อโครงการ (Project Name)' },
+    { key: 'category', label: 'หมวดหมู่ (Category)' },
+    { key: 'province', label: 'จังหวัด (Province)' },
+    { key: 'client', label: 'ลูกค้า (Client)' },
+    { key: 'contract', label: 'เลขที่สัญญา (Contract No.)' },
+    { key: 'value', label: 'มูลค่า (Value)' },
+    { key: 'manager', label: 'ผู้จัดการ (Manager)' },
+    { key: 'timeline', label: 'ระยะเวลา (Timeline)' },
+    { key: 'progress', label: 'ความคืบหน้า (%)' },
+    { key: 'status', label: 'สถานะ (Status)' },
+  ];
+
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-6 md:p-8 max-w-[1600px] mx-auto space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
@@ -49,7 +130,7 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
         )}
       </div>
 
-      {/* KPI Strip */}
+      {/* Standard KPI Strip (Status of all projects) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group hover:border-gray-300 transition-colors">
           <div>
@@ -92,6 +173,8 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
         </div>
       </div>
 
+
+
       {/* Main Content Area */}
       <div className="bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
         <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -105,25 +188,73 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
               className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red"
             />
           </div>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={exportToCSV}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-50 transition-colors"
+            >
+              <Download size={16} />
+              Export
+            </button>
+            <div className="relative" ref={menuRef}>
+              <button 
+                onClick={() => setShowColumnMenu(!showColumnMenu)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                <Settings2 size={16} />
+                Columns
+              </button>
+              {showColumnMenu && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 z-50 py-2">
+                  <div className="px-4 py-2 border-b border-gray-50">
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-wider">แสดง/ซ่อน คอลัมน์</p>
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto p-2 flex flex-col gap-1">
+                    {columnsList.map(col => (
+                      <button
+                        key={col.key}
+                        onClick={() => toggleColumn(col.key)}
+                        className="flex items-center justify-between w-full px-3 py-2 text-sm text-left rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <span className="font-medium text-gray-700">{col.label}</span>
+                        {visibleColumns[col.key] && <Check size={16} className="text-brand-red" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto relative hidden md:block">
+          <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-gray-50/50">
-                <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">รหัส (PJ No.)</th>
-                <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">ชื่อโครงการ (Project Name)</th>
-                <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">ลูกค้า (Client)</th>
-                <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">ผู้จัดการ (Manager)</th>
-                <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">ระยะเวลา (Timeline)</th>
-                <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">ความคืบหน้า (%)</th>
-                <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">สถานะ (Status)</th>
-                <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap text-right">จัดการ</th>
+                {visibleColumns.sequence && (
+                  <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap sticky left-0 z-20 bg-gray-50/95 backdrop-blur shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] w-[60px]">Seq</th>
+                )}
+                {visibleColumns.projectNumber && (
+                  <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap sticky z-20 bg-gray-50/95 backdrop-blur shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] w-[120px]" style={{ left: visibleColumns.sequence ? '60px' : '0' }}>รหัส (PJ No.)</th>
+                )}
+                {visibleColumns.name && (
+                  <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap sticky z-20 bg-gray-50/95 backdrop-blur shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]" style={{ left: (visibleColumns.sequence ? 60 : 0) + (visibleColumns.projectNumber ? 120 : 0) + 'px' }}>ชื่อโครงการ (Project Name)</th>
+                )}
+                {visibleColumns.category && <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">หมวดหมู่</th>}
+                {visibleColumns.province && <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">จังหวัด</th>}
+                {visibleColumns.client && <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">ลูกค้า (Client)</th>}
+                {visibleColumns.contract && <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">เลขที่สัญญา</th>}
+                {visibleColumns.value && <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">มูลค่า</th>}
+                {visibleColumns.manager && <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">ผู้จัดการ (Manager)</th>}
+                {visibleColumns.timeline && <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">ระยะเวลา (Timeline)</th>}
+                {visibleColumns.progress && <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">ความคืบหน้า (%)</th>}
+                {visibleColumns.status && <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap">สถานะ (Status)</th>}
+                <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 whitespace-nowrap text-right sticky right-0 z-20 bg-gray-50/95 backdrop-blur shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.05)]">จัดการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filteredProjects.length > 0 ? (
-                filteredProjects.map((project) => {
+                filteredProjects.map((project, index) => {
                   
                   // Calculate overall progress based on tasks
                   let overallProgress = 0;
@@ -136,64 +267,103 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
                   const isProjectOverdue = project.endDate && new Date(project.endDate) < new Date() && project.status !== 'Completed' && project.status !== 'Cancelled';
                   
                   return (
-                    <tr key={project.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer" onClick={() => window.location.href = `/projects/${project.id}`}>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-100 text-gray-700 font-bold text-[10px]">
-                          <FileText size={10} className="text-gray-400" />
-                          {project.projectNumber}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 min-w-[200px]">
-                        <p className="text-sm font-bold text-gray-900 group-hover:text-brand-red transition-colors">{project.name}</p>
-                        {project.job && (
-                          <Link href={`/jobs?search=${project.job.jobNumber}`} className="text-[10px] text-blue-500 hover:text-blue-700 hover:underline font-medium flex items-center gap-1 mt-0.5">
-                            <FolderOpen size={10} />
-                            โยงกับงาน: {project.job.jobNumber}
-                          </Link>
-                        )}
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <p className="text-xs font-medium text-gray-600">{project.clientName || '-'}</p>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-[10px]">
-                            {project.manager?.fullName?.charAt(0) || '?'}
-                          </div>
-                          <span className="text-xs font-medium text-gray-600">{project.manager?.fullName || 'Unassigned'}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <div className="text-[11px] text-gray-500 font-medium flex flex-col gap-0.5">
-                          <span>S: {project.startDate ? new Date(project.startDate).toLocaleDateString('th-TH') : '-'}</span>
-                          <span className={isProjectOverdue ? 'text-red-500 font-bold' : ''}>
-                            E: {project.endDate ? new Date(project.endDate).toLocaleDateString('th-TH') : '-'}
+                    <tr key={project.id} className="hover:bg-gray-50/80 transition-colors group cursor-pointer bg-white" onClick={() => window.location.href = `/projects/${project.id}`}>
+                      {visibleColumns.sequence && (
+                        <td className="py-3 px-4 whitespace-nowrap sticky left-0 z-10 bg-white group-hover:bg-gray-50/80 transition-colors shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] w-[60px]">
+                          <span className="text-xs font-bold text-gray-500">{index + 1}</span>
+                        </td>
+                      )}
+                      {visibleColumns.projectNumber && (
+                        <td className="py-3 px-4 whitespace-nowrap sticky z-10 bg-white group-hover:bg-gray-50/80 transition-colors shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] w-[120px]" style={{ left: visibleColumns.sequence ? '60px' : '0' }}>
+                          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-100 text-gray-700 font-bold text-[10px]">
+                            <FileText size={10} className="text-gray-400" />
+                            {project.projectNumber}
                           </span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap min-w-[120px]">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full rounded-full ${overallProgress === 100 ? 'bg-emerald-500' : 'bg-brand-red'}`}
-                              style={{ width: `${Math.min(100, Math.max(0, overallProgress))}%` }}
-                            ></div>
+                        </td>
+                      )}
+                      {visibleColumns.name && (
+                        <td className="py-3 px-4 min-w-[200px] sticky z-10 bg-white group-hover:bg-gray-50/80 transition-colors shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]" style={{ left: (visibleColumns.sequence ? 60 : 0) + (visibleColumns.projectNumber ? 120 : 0) + 'px' }}>
+                          <p className="text-sm font-bold text-gray-900 group-hover:text-brand-red transition-colors line-clamp-2">{project.name}</p>
+                          {project.job && (
+                            <Link href={`/jobs?search=${project.job.jobNumber}`} className="text-[10px] text-blue-500 hover:text-blue-700 hover:underline font-medium flex items-center gap-1 mt-0.5" onClick={(e) => e.stopPropagation()}>
+                              <FolderOpen size={10} />
+                              โยงกับงาน: {project.job.jobNumber}
+                            </Link>
+                          )}
+                        </td>
+                      )}
+                      {visibleColumns.category && (
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <p className="text-xs font-medium text-gray-600">{project.projectCategory || '-'}</p>
+                        </td>
+                      )}
+                      {visibleColumns.province && (
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <p className="text-xs font-medium text-gray-600">{project.province || '-'}</p>
+                        </td>
+                      )}
+                      {visibleColumns.client && (
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <p className="text-xs font-medium text-gray-600">{project.clientName || '-'}</p>
+                        </td>
+                      )}
+                      {visibleColumns.contract && (
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <p className="text-xs font-medium text-gray-600">{project.contractNumber || '-'}</p>
+                        </td>
+                      )}
+                      {visibleColumns.value && (
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <p className="text-xs font-bold text-gray-700">{project.projectValue ? `฿${Number(project.projectValue).toLocaleString(undefined, {minimumFractionDigits: 2})}` : '-'}</p>
+                        </td>
+                      )}
+                      {visibleColumns.manager && (
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-[10px]">
+                              {project.manager?.fullName?.charAt(0) || '?'}
+                            </div>
+                            <span className="text-xs font-medium text-gray-600">{project.manager?.fullName || 'Unassigned'}</span>
                           </div>
-                          <span className="text-[10px] font-black text-gray-600 w-6 text-right">{overallProgress}%</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${
-                          project.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
-                          project.status === 'In progress' ? 'bg-blue-50 text-blue-600' :
-                          project.status === 'Planning' ? 'bg-gray-100 text-gray-600' :
-                          project.status === 'Paused' ? 'bg-yellow-50 text-yellow-600' :
-                          'bg-gray-100 text-gray-500'
-                        }`}>
-                          {project.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap text-right">
+                        </td>
+                      )}
+                      {visibleColumns.timeline && (
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <div className="text-[11px] text-gray-500 font-medium flex flex-col gap-0.5">
+                            <span>S: {project.startDate ? new Date(project.startDate).toLocaleDateString('th-TH') : '-'}</span>
+                            <span className={isProjectOverdue ? 'text-red-500 font-bold' : ''}>
+                              E: {project.endDate ? new Date(project.endDate).toLocaleDateString('th-TH') : '-'}
+                            </span>
+                          </div>
+                        </td>
+                      )}
+                      {visibleColumns.progress && (
+                        <td className="py-3 px-4 whitespace-nowrap min-w-[120px]">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full rounded-full ${overallProgress === 100 ? 'bg-emerald-500' : 'bg-brand-red'}`}
+                                style={{ width: `${Math.min(100, Math.max(0, overallProgress))}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-[10px] font-black text-gray-600 w-6 text-right">{overallProgress}%</span>
+                          </div>
+                        </td>
+                      )}
+                      {visibleColumns.status && (
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                            project.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
+                            project.status === 'In progress' ? 'bg-blue-50 text-blue-600' :
+                            project.status === 'Planning' ? 'bg-gray-100 text-gray-600' :
+                            project.status === 'Paused' ? 'bg-yellow-50 text-yellow-600' :
+                            'bg-gray-100 text-gray-500'
+                          }`}>
+                            {project.status}
+                          </span>
+                        </td>
+                      )}
+                      <td className="py-3 px-4 whitespace-nowrap text-right sticky right-0 z-10 bg-white group-hover:bg-gray-50/80 transition-colors shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                         <Link href={`/projects/${project.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex px-3 py-1.5 bg-white border border-gray-200 text-gray-600 hover:text-brand-red hover:border-brand-red/30 hover:bg-red-50 rounded-lg text-[11px] font-bold transition-colors">
                           รายละเอียด
                         </Link>
@@ -203,13 +373,103 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
                 })
               ) : (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-500 text-sm">
+                  <td colSpan={13} className="py-12 text-center text-gray-500 text-sm">
                     {searchTerm ? 'ไม่พบโครงการที่ค้นหา' : 'ยังไม่มีโครงการในระบบ'}
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+        </div>
+        
+        {/* Mobile Card View */}
+        <div className="md:hidden flex flex-col divide-y divide-gray-100">
+          {filteredProjects.length > 0 ? (
+            filteredProjects.map((project, index) => {
+              // Calculate overall progress based on tasks
+              let overallProgress = 0;
+              if (project.tasks && project.tasks.length > 0) {
+                const totalWeight = project.tasks.reduce((sum: number, t: any) => sum + (t.weight || 1), 0);
+                const weightedProgress = project.tasks.reduce((sum: number, t: any) => sum + ((t.actualPct || 0) * (t.weight || 1)), 0);
+                overallProgress = totalWeight > 0 ? Math.round(weightedProgress / totalWeight) : 0;
+              }
+              const isProjectOverdue = project.endDate && new Date(project.endDate) < new Date() && project.status !== 'Completed' && project.status !== 'Cancelled';
+              
+              return (
+                <div key={project.id} className="p-5 hover:bg-gray-50 active:bg-gray-100 transition-colors cursor-pointer space-y-4" onClick={() => window.location.href = `/projects/${project.id}`}>
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600">
+                          <FileText size={10} className="text-gray-400" />
+                          {project.projectNumber}
+                        </span>
+                        <span className={`inline-flex px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                            project.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
+                            project.status === 'In progress' ? 'bg-blue-50 text-blue-600' :
+                            project.status === 'Planning' ? 'bg-gray-100 text-gray-600' :
+                            project.status === 'Paused' ? 'bg-yellow-50 text-yellow-600' :
+                            'bg-gray-100 text-gray-500'
+                          }`}>
+                            {project.status}
+                        </span>
+                      </div>
+                      <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2">{project.name}</h3>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-xs bg-gray-50/50 p-3 rounded-xl border border-gray-100/50">
+                    <div className="space-y-1">
+                      <span className="text-gray-400 font-bold uppercase text-[9px] tracking-widest">ลูกค้า (Client)</span>
+                      <p className="font-bold text-gray-800 line-clamp-1">{project.clientName || '-'}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-gray-400 font-bold uppercase text-[9px] tracking-widest">หมวดหมู่ (Category)</span>
+                      <p className="font-medium text-gray-700 line-clamp-1">{project.projectCategory || '-'}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-gray-400 font-bold uppercase text-[9px] tracking-widest">ผู้จัดการ (Manager)</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 rounded bg-white border border-gray-100 shadow-sm flex items-center justify-center text-gray-600 font-bold text-[9px] shrink-0">
+                          {project.manager?.fullName?.charAt(0) || '?'}
+                        </div>
+                        <p className="font-medium text-gray-700 line-clamp-1">{project.manager?.fullName || 'Unassigned'}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-gray-400 font-bold uppercase text-[9px] tracking-widest">จังหวัด (Province)</span>
+                      <p className="font-medium text-gray-700 line-clamp-1">{project.province || '-'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-gray-100/50 pt-4">
+                    <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                      <Clock size={12} className={isProjectOverdue ? 'text-red-400' : 'text-gray-400'} />
+                      <span className={isProjectOverdue ? 'text-red-500 font-bold' : 'text-gray-600'}>
+                        {project.startDate ? new Date(project.startDate).toLocaleDateString('th-TH') : '-'}
+                        {' - '}
+                        {project.endDate ? new Date(project.endDate).toLocaleDateString('th-TH') : '-'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 min-w-[100px]">
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${overallProgress === 100 ? 'bg-emerald-500' : 'bg-brand-red'}`}
+                          style={{ width: `${Math.min(100, Math.max(0, overallProgress))}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-[10px] font-black text-gray-600 w-8 text-right">{overallProgress}%</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="p-8 text-center text-gray-500 text-sm">
+              {searchTerm ? 'ไม่พบโครงการที่ค้นหา' : 'ยังไม่มีโครงการในระบบ'}
+            </div>
+          )}
         </div>
       </div>
     </div>

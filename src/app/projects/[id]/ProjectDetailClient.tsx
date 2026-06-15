@@ -3,17 +3,19 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ListTodo, Users, BarChart3, Plus, Search, Calendar, User as UserIcon, Tag, Clock, AlertCircle, BarChart2, ClipboardList, TrendingUp } from 'lucide-react';
+import { ArrowLeft, ListTodo, Users, BarChart3, Plus, Search, Calendar, User as UserIcon, Tag, Clock, AlertCircle, BarChart2, ClipboardList, TrendingUp, Wrench, DollarSign, FileText } from 'lucide-react';
 import { updateTaskStatus, updateProject, updateTaskProgress } from '@/app/actions/projects';
 import GanttChart from './GanttChart';
 import DailyLogTab from './DailyLogTab';
 import WeeklyReportTab from './WeeklyReportTab';
+import EquipmentTab from './EquipmentTab';
 
 export default function ProjectDetailClient({ project, currentUser, isManager, allUsers }: { project: any, currentUser: any, isManager: boolean, allUsers: any[] }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'tasks' | 'team' | 'overview' | 'gantt' | 'daily' | 'weekly'>('tasks');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'tasks' | 'reports'>('dashboard');
   const [tasks, setTasks] = useState(project.tasks || []);
-  const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
+  const [showMore, setShowMore] = useState(false);
+  const [taskView, setTaskView] = useState<'list' | 'gantt'>('list');
 
   // Calculate overall progress based on tasks
   let overallProgress = 0;
@@ -24,144 +26,160 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
   }
 
   const columns = [
-    { id: 'Pending', label: 'Pending (รอทำ)', color: 'border-gray-200 bg-gray-50' },
-    { id: 'In progress', label: 'In Progress (กำลังทำ)', color: 'border-blue-200 bg-blue-50' },
-    { id: 'Problematic', label: 'Problematic (ติดปัญหา)', color: 'border-red-200 bg-red-50' },
-    { id: 'Completed', label: 'Completed (เสร็จสิ้น)', color: 'border-emerald-200 bg-emerald-50' }
+    { id: 'Pending', label: 'Pending (รอทำ)' },
+    { id: 'In progress', label: 'In Progress (กำลังทำ)' },
+    { id: 'Problematic', label: 'Problematic (ติดปัญหา)' },
+    { id: 'Completed', label: 'Completed (เสร็จสิ้น)' }
   ];
 
-  const handleDragStart = (e: React.DragEvent, taskId: string) => {
-    setDraggingTaskId(taskId);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = async (e: React.DragEvent, statusId: string) => {
-    e.preventDefault();
-    if (!draggingTaskId) return;
-
+  const handleStatusChange = async (taskId: string, newStatus: string) => {
     // Optimistic update
+    const previousTasks = [...tasks];
     const newTasks = tasks.map((t: any) => {
-      if (t.id === draggingTaskId) {
-        return { ...t, status: statusId, actualPct: statusId === 'Completed' ? 100 : t.actualPct };
+      if (t.id === taskId) {
+        return { ...t, status: newStatus, actualPct: newStatus === 'Completed' ? 100 : t.actualPct };
       }
       return t;
     });
     setTasks(newTasks);
-    setDraggingTaskId(null);
 
-    // Server update
     try {
-      await updateTaskStatus(draggingTaskId, statusId);
-      if (statusId === 'Completed') {
-        await updateTaskProgress(draggingTaskId, 100);
+      await updateTaskStatus(taskId, newStatus);
+      if (newStatus === 'Completed') {
+        await updateTaskProgress(taskId, 100);
       }
     } catch (error) {
       console.error(error);
-      // Revert on error
-      setTasks(project.tasks);
+      setTasks(previousTasks);
       alert("Failed to update task status");
     }
   };
 
-  const renderKanbanBoard = () => {
+  const renderTaskList = () => {
     return (
-      <div className="flex gap-6 h-full min-h-[500px] overflow-x-auto pb-4">
-        {columns.map(col => {
-          const colTasks = tasks.filter((t: any) => t.status === col.id);
-          
-          return (
-            <div 
-              key={col.id} 
-              className={`flex-shrink-0 w-80 rounded-2xl border ${col.color} flex flex-col`}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, col.id)}
-            >
-              <div className="p-4 border-b border-black/5 font-bold text-gray-800 flex justify-between items-center">
-                <span>{col.label}</span>
-                <span className="bg-white/50 px-2 py-0.5 rounded-md text-xs">{colTasks.length}</span>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {/* Mobile View */}
+        <div className="md:hidden divide-y divide-gray-100">
+          {tasks.map((task: any) => (
+            <div key={task.id} className="p-4 space-y-3">
+              <div className="flex justify-between items-start gap-2">
+                <div>
+                  <div className="font-bold text-gray-900">{task.title}</div>
+                  {task.category && <div className="text-[10px] text-gray-500 mt-0.5"><Tag size={10} className="inline mr-1"/>{task.category}</div>}
+                </div>
+                <select 
+                  className="text-xs font-bold border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 cursor-pointer focus:ring-2 focus:ring-brand-red outline-none shrink-0"
+                  value={task.status}
+                  onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                >
+                  {columns.map(col => (
+                    <option key={col.id} value={col.id}>{col.label}</option>
+                  ))}
+                </select>
               </div>
               
-              <div className="flex-1 p-3 flex flex-col gap-3 overflow-y-auto custom-scrollbar">
-                {colTasks.map((task: any) => (
-                  <div 
-                    key={task.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, task.id)}
-                    className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm cursor-grab active:cursor-grabbing hover:border-gray-300 transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-bold text-sm text-gray-900">{task.title}</h4>
-                      {task.priority === 'High' && <span className="bg-red-50 text-red-600 text-[9px] font-black px-1.5 py-0.5 rounded uppercase">High</span>}
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-2 text-[10px] text-gray-500 mb-3">
-                      {task.category && (
-                        <span className="flex items-center gap-1 bg-gray-50 px-1.5 py-0.5 rounded">
-                          <Tag size={10} /> {task.category}
-                        </span>
-                      )}
-                      {(task.planStart || task.planEnd) && (
-                        <span className="flex items-center gap-1 bg-gray-50 px-1.5 py-0.5 rounded">
-                          <Calendar size={10} /> 
-                          {task.planStart ? new Date(task.planStart).toLocaleDateString('th-TH') : '?'} - {task.planEnd ? new Date(task.planEnd).toLocaleDateString('th-TH') : '?'}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-5 h-5 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red font-bold text-[9px]">
-                          {task.assignee?.fullName?.charAt(0) || '?'}
-                        </div>
-                        <span className="text-[10px] font-medium text-gray-600">{task.assignee?.fullName || 'Unassigned'}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${task.actualPct === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${task.actualPct || 0}%` }}></div>
-                        </div>
-                        <span className="text-[9px] font-bold text-gray-500">{task.actualPct || 0}%</span>
-                      </div>
-                    </div>
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <div className="w-6 h-6 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red font-bold text-[9px] shrink-0">
+                    {task.assignee?.fullName?.charAt(0) || '?'}
                   </div>
-                ))}
-                {colTasks.length === 0 && (
-                  <div className="text-center p-4 border-2 border-dashed border-black/10 rounded-xl text-xs font-medium text-gray-400">
-                    ลากงานมาวางที่นี่ (Drop tasks here)
-                  </div>
-                )}
+                  <span className="text-xs">{task.assignee?.fullName || '-'}</span>
+                </div>
+                <div className="text-[11px] text-gray-500">
+                  {task.planStart ? new Date(task.planStart).toLocaleDateString('th-TH', {day: 'numeric', month: 'short'}) : '?'} - {task.planEnd ? new Date(task.planEnd).toLocaleDateString('th-TH', {day: 'numeric', month: 'short'}) : '?'}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 pt-2 border-t border-gray-50">
+                <span className="text-xs font-bold text-gray-500 w-8">{task.actualPct || 0}%</span>
+                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className={`h-full rounded-full ${task.actualPct === 100 ? 'bg-emerald-500' : 'bg-brand-red'}`} style={{ width: `${task.actualPct || 0}%` }}></div>
+                </div>
               </div>
             </div>
-          )
-        })}
+          ))}
+          {tasks.length === 0 && (
+            <div className="p-8 text-center text-sm text-gray-400">ยังไม่มีงานในโครงการนี้</div>
+          )}
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden md:block overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[700px]">
+            <thead>
+              <tr className="bg-gray-50/50">
+              <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">ชื่องาน (Task)</th>
+              <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">ผู้รับผิดชอบ (Assignee)</th>
+              <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">ระยะเวลา (Timeline)</th>
+              <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">สถานะ (Status)</th>
+              <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100 text-right">ความคืบหน้า (%)</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {tasks.map((task: any) => (
+              <tr key={task.id} className="hover:bg-gray-50 transition-colors">
+                <td className="py-3 px-4">
+                  <div className="font-bold text-gray-900">{task.title}</div>
+                  {task.category && <div className="text-[10px] text-gray-500 mt-0.5"><Tag size={10} className="inline mr-1"/>{task.category}</div>}
+                </td>
+                <td className="py-3 px-4 text-sm text-gray-600 flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red font-bold text-[9px] shrink-0">
+                    {task.assignee?.fullName?.charAt(0) || '?'}
+                  </div>
+                  {task.assignee?.fullName || '-'}
+                </td>
+                <td className="py-3 px-4 text-sm text-gray-500">
+                  {task.planStart ? new Date(task.planStart).toLocaleDateString('th-TH') : '?'} - {task.planEnd ? new Date(task.planEnd).toLocaleDateString('th-TH') : '?'}
+                </td>
+                <td className="py-3 px-4">
+                  <select 
+                    className="text-xs font-bold border border-gray-200 rounded-lg px-2 py-1.5 bg-white cursor-pointer focus:ring-2 focus:ring-brand-red outline-none transition-shadow"
+                    value={task.status}
+                    onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                  >
+                    {columns.map(col => (
+                      <option key={col.id} value={col.id}>{col.label}</option>
+                    ))}
+                  </select>
+                </td>
+                <td className="py-3 px-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <span className="text-xs font-bold text-gray-500">{task.actualPct || 0}%</span>
+                    <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${task.actualPct === 100 ? 'bg-emerald-500' : 'bg-brand-red'}`} style={{ width: `${task.actualPct || 0}%` }}></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {tasks.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-sm text-gray-400">ยังไม่มีงานในโครงการนี้</td>
+              </tr>
+            )}
+          </tbody>
+          </table>
+        </div>
       </div>
     );
   };
 
   const renderTeam = () => {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-50/50">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden w-full h-full">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[400px]">
+            <thead>
+              <tr className="bg-gray-50/50">
               <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">ชื่อ (Name)</th>
-              <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">บทบาทในโครงการ (Role)</th>
-              <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">ตำแหน่ง (System Role)</th>
-              <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">ติดต่อ (Contact)</th>
+              <th className="py-3 px-4 text-xs font-black text-gray-500 uppercase tracking-widest border-b border-gray-100">บทบาท (Role)</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-gray-50 text-sm">
             {project.manager && (
               <tr className="hover:bg-gray-50 transition-colors">
                 <td className="py-3 px-4 font-bold text-gray-900">{project.manager.fullName}</td>
                 <td className="py-3 px-4"><span className="px-2 py-1 bg-brand-red/10 text-brand-red text-xs font-bold rounded-md">Project Manager</span></td>
-                <td className="py-3 px-4 text-sm text-gray-500">{project.manager.role}</td>
-                <td className="py-3 px-4 text-sm text-gray-500">{project.manager.phoneNumber || '-'}</td>
               </tr>
             )}
             {project.members.map((member: any) => (
@@ -172,24 +190,19 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
                     {member.role === 'admin' ? 'Project Admin' : 'Engineer'}
                   </span>
                 </td>
-                <td className="py-3 px-4 text-sm text-gray-500">{member.user.role}</td>
-                <td className="py-3 px-4 text-sm text-gray-500">{member.user.phoneNumber || '-'}</td>
               </tr>
             ))}
             {project.externalTechnicians && (
               <tr className="hover:bg-gray-50 transition-colors">
                 <td className="py-3 px-4 font-bold text-gray-900">{project.externalTechnicians}</td>
                 <td className="py-3 px-4">
-                  <span className="px-2 py-1 text-xs font-bold rounded-md bg-orange-50 text-orange-600">
-                    ช่างภายนอก (External)
-                  </span>
+                  <span className="px-2 py-1 text-xs font-bold rounded-md bg-orange-50 text-orange-600">ช่างภายนอก</span>
                 </td>
-                <td className="py-3 px-4 text-sm text-gray-500">ภายนอก</td>
-                <td className="py-3 px-4 text-sm text-gray-500">-</td>
               </tr>
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     );
   };
@@ -200,8 +213,8 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
     const progressTasks = tasks.filter((t: any) => t.status === 'In progress').length;
     
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
           <h3 className="font-bold text-lg text-gray-900">สรุปความคืบหน้า (Progress Summary)</h3>
           
           <div className="space-y-4">
@@ -232,39 +245,137 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-          <h3 className="font-bold text-lg text-gray-900">รายละเอียดโครงการ (Project Details)</h3>
-          
+        <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+          <h3 className="font-bold text-lg text-gray-900">ข้อมูลทั่วไป (General Info)</h3>
           <dl className="space-y-3 text-sm">
-            <div className="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
               <dt className="text-gray-500 font-medium">ลูกค้า (Client):</dt>
               <dd className="col-span-2 font-bold text-gray-900">{project.clientName || '-'}</dd>
             </div>
-            <div className="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
-              <dt className="text-gray-500 font-medium">สถานที่ (Site):</dt>
-              <dd className="col-span-2 font-bold text-gray-900">{project.siteAddress || '-'}</dd>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">หมวดหมู่ (Category):</dt>
+              <dd className="col-span-2 font-bold text-gray-900">{project.projectCategory || '-'}</dd>
             </div>
-            <div className="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">แผนก (Department):</dt>
+              <dd className="col-span-2 font-bold text-gray-900">{project.department || '-'}</dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">สถานที่ / จังหวัด:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">
+                {project.siteAddress || '-'} {project.district ? `อ.${project.district}` : ''} {project.province ? `จ.${project.province}` : ''}
+              </dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
               <dt className="text-gray-500 font-medium">เชื่อมโยงกับ Job:</dt>
               <dd className="col-span-2 font-bold text-gray-900">
                 {project.job ? `${project.job.jobNumber} - ${project.job.customerName}` : '-'}
               </dd>
             </div>
-            <div className="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
-              <dt className="text-gray-500 font-medium">ระยะเวลา:</dt>
-              <dd className="col-span-2 font-bold text-gray-900">
-                {project.startDate ? new Date(project.startDate).toLocaleDateString('th-TH') : '-'} ถึง {project.endDate ? new Date(project.endDate).toLocaleDateString('th-TH') : '-'}
-              </dd>
-            </div>
-            <div className="grid grid-cols-3 gap-2 border-b border-gray-50 pb-2">
-              <dt className="text-gray-500 font-medium">งบประมาณ:</dt>
-              <dd className="col-span-2 font-bold text-emerald-600">
-                {project.budget ? `฿${project.budget.toLocaleString()}` : '-'}
-              </dd>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
               <dt className="text-gray-500 font-medium">คำอธิบาย:</dt>
               <dd className="col-span-2 text-gray-700">{project.description || '-'}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+          <h3 className="font-bold text-lg text-gray-900">สัญญาและการเงิน (Contract & Financials)</h3>
+          <dl className="space-y-3 text-sm">
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">เลขที่สัญญา:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">{project.contractNumber || '-'}</dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">ผู้เซ็นสัญญา:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">{project.contractSignatory || '-'}</dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">วันที่เซ็นสัญญา:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">{project.contractSigningDate ? new Date(project.contractSigningDate).toLocaleDateString('th-TH') : '-'}</dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">มูลค่าโครงการ:</dt>
+              <dd className="col-span-2 font-bold text-brand-red">
+                {project.projectValue ? `฿${Number(project.projectValue).toLocaleString()}` : '-'}
+              </dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">งบประมาณภายใน:</dt>
+              <dd className="col-span-2 font-bold text-emerald-600">
+                {project.budget ? `฿${Number(project.budget).toLocaleString()}` : '-'}
+              </dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">เงินประกัน 5%:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">
+                {project.securityDeposit ? `฿${Number(project.securityDeposit).toLocaleString()}` : '-'} 
+                {project.depositCollectionSchedule ? ` (กำหนดคืน: ${new Date(project.depositCollectionSchedule).toLocaleDateString('th-TH')})` : ''}
+              </dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">ค่าปรับ/วัน:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">
+                {project.penaltyPerDay ? `฿${Number(project.penaltyPerDay).toLocaleString()}` : '-'}
+              </dd>
+            </div>
+            <div className="mt-4 pt-2 border-t border-gray-100">
+              <p className="font-bold text-gray-700 mb-2">การแบ่งชำระ (Installments)</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="text-xs">งวด 1: <span className="font-bold">{project.installment1 ? `฿${Number(project.installment1).toLocaleString()}` : '-'}</span></div>
+                <div className="text-xs">งวด 2: <span className="font-bold">{project.installment2 ? `฿${Number(project.installment2).toLocaleString()}` : '-'}</span></div>
+                <div className="text-xs">งวด 3: <span className="font-bold">{project.installment3 ? `฿${Number(project.installment3).toLocaleString()}` : '-'}</span></div>
+                <div className="text-xs">งวด 4: <span className="font-bold">{project.installment4 ? `฿${Number(project.installment4).toLocaleString()}` : '-'}</span></div>
+              </div>
+            </div>
+          </dl>
+        </div>
+
+        <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+          <h3 className="font-bold text-lg text-gray-900">ระยะเวลาและเอกสาร (Timeline & Docs)</h3>
+          <dl className="space-y-3 text-sm">
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">วันที่เริ่ม:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">{project.startDate ? new Date(project.startDate).toLocaleDateString('th-TH') : '-'}</dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">วันที่สิ้นสุด:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">{project.endDate ? new Date(project.endDate).toLocaleDateString('th-TH') : '-'}</dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">ระยะเวลา:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">
+                {project.projectDuration ? `${project.projectDuration} ${project.projectDurationUnit || 'วัน'}` : '-'}
+              </dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">วันที่ส่งมอบ:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">{project.deliveryDate ? new Date(project.deliveryDate).toLocaleDateString('th-TH') : '-'}</dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">JB Number:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">{project.jbNumber || '-'}</dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">เอกสารส่งมอบ:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">{project.deliveryDocNumber || '-'}</dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">ขอรับรองงานเสร็จ:</dt>
+              <dd className="col-span-2 font-bold text-gray-900">
+                {project.certCompletionRequestNo || '-'}
+                {project.certRequestStatus && ` (${project.certRequestStatus})`}
+              </dd>
+            </div>
+            <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
+              <dt className="text-gray-500 font-medium">Path Folder:</dt>
+              <dd className="col-span-2 font-bold text-blue-500">
+                {project.pathFolder ? (
+                  <a href={project.pathFolder} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">
+                    เปิดโฟลเดอร์
+                  </a>
+                ) : '-'}
+              </dd>
             </div>
           </dl>
         </div>
@@ -272,17 +383,80 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
     );
   };
 
+  const renderDashboard = () => {
+    return (
+      <div className="space-y-6">
+        {renderOverview()}
+        
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <button 
+            onClick={() => setShowMore(!showMore)}
+            className="w-full px-6 py-4 flex justify-between items-center bg-gray-50/50 hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <h3 className="font-bold text-lg text-gray-900">ทีมงาน และ อุปกรณ์</h3>
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-2 py-0.5 bg-gray-200 rounded-full">Additional</span>
+            </div>
+            <span className="text-brand-red font-bold text-sm bg-brand-red/10 px-3 py-1 rounded-lg">{showMore ? 'ซ่อน (Hide)' : 'แสดง (Show)'}</span>
+          </button>
+          
+          {showMore && (
+            <div className="p-6 border-t border-gray-100 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+              <div className="space-y-4">
+                <h4 className="font-bold text-gray-700 flex items-center gap-2"><Users size={16}/> ทีมงาน (Team)</h4>
+                {renderTeam()}
+              </div>
+              <div className="space-y-4 lg:col-span-2">
+                <h4 className="font-bold text-gray-700 flex items-center gap-2"><Wrench size={16}/> อุปกรณ์ (Equipment)</h4>
+                {/* EquipmentTab renders inside its own white box, but here we can just embed it */}
+                <div className="border border-gray-100 rounded-xl overflow-hidden bg-white">
+                  <EquipmentTab project={project} isManager={isManager} />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  const renderReports = () => {
+    return (
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col h-[700px]">
+          <div className="p-6 border-b border-gray-100 shrink-0 bg-gray-50/50">
+            <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2"><ClipboardList size={18} className="text-brand-red"/> บันทึกประจำวัน (Daily Log)</h3>
+            <p className="text-xs text-gray-500 mt-1">อัปเดตหน้างานและภาพรวมประจำวัน</p>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <DailyLogTab project={project} currentUser={currentUser} isManager={isManager} />
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col h-[700px]">
+          <div className="p-6 border-b border-gray-100 shrink-0 bg-gray-50/50">
+            <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2"><TrendingUp size={18} className="text-blue-500"/> รายงานประจำสัปดาห์ (Weekly)</h3>
+            <p className="text-xs text-gray-500 mt-1">สรุปความคืบหน้าของโครงการรายสัปดาห์</p>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <WeeklyReportTab project={project} isManager={isManager} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6 h-full flex flex-col">
+    <div className="p-4 md:p-8 max-w-7xl w-full mx-auto flex-1 flex flex-col overflow-hidden min-h-0">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm shrink-0">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm shrink-0 mb-6">
         <div className="space-y-1 w-full max-w-2xl">
           <Link href="/projects" className="inline-flex items-center text-xs font-bold text-gray-400 hover:text-brand-red mb-2 transition-colors">
             <ArrowLeft size={14} className="mr-1" /> กลับไปหน้าโครงการ
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl font-black text-gray-900 tracking-tight">{project.name}</h1>
-            <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg ${
+            <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg shrink-0 ${
               project.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
               project.status === 'In progress' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
               'bg-gray-100 text-gray-600 border border-gray-200'
@@ -308,69 +482,55 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex items-center gap-2 border-b border-gray-200 shrink-0">
-        <button 
-          onClick={() => setActiveTab('tasks')} 
-          className={`flex items-center gap-2 px-6 py-3 font-bold text-sm border-b-2 transition-colors ${activeTab === 'tasks' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
-        >
-          <ListTodo size={16} /> งาน (Tasks)
-        </button>
-        <button 
-          onClick={() => setActiveTab('team')} 
-          className={`flex items-center gap-2 px-6 py-3 font-bold text-sm border-b-2 transition-colors ${activeTab === 'team' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
-        >
-          <Users size={16} /> ทีม (Team)
-        </button>
-        <button 
-          onClick={() => setActiveTab('overview')} 
-          className={`flex items-center gap-2 px-6 py-3 font-bold text-sm border-b-2 transition-colors ${activeTab === 'overview' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
-        >
-          <BarChart3 size={16} /> สรุป (Overview)
-        </button>
-        <button 
-          onClick={() => setActiveTab('gantt')} 
-          className={`flex items-center gap-2 px-6 py-3 font-bold text-sm border-b-2 transition-colors ${activeTab === 'gantt' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
-        >
-          <BarChart2 size={16} /> แผนงาน (Gantt)
-        </button>
-        <button 
-          onClick={() => setActiveTab('daily')} 
-          className={`flex items-center gap-2 px-6 py-3 font-bold text-sm border-b-2 transition-colors ${activeTab === 'daily' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
-        >
-          <ClipboardList size={16} /> บันทึกประจำวัน (Daily Log)
-        </button>
-        <button 
-          onClick={() => setActiveTab('weekly')} 
-          className={`flex items-center gap-2 px-6 py-3 font-bold text-sm border-b-2 transition-colors ${activeTab === 'weekly' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
-        >
-          <TrendingUp size={16} /> รายงาน (Weekly Report)
-        </button>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 shrink-0 gap-4 sm:gap-0 relative">
+        <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 sm:pb-0 w-full pr-12 sm:pr-0">
+          <button 
+            onClick={() => setActiveTab('dashboard')} 
+            className={`flex items-center gap-2 px-4 py-3 md:px-6 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${activeTab === 'dashboard' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
+          >
+            <BarChart3 size={16} /> แดชบอร์ด
+          </button>
+          <button 
+            onClick={() => setActiveTab('tasks')} 
+            className={`flex items-center gap-2 px-4 py-3 md:px-6 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${activeTab === 'tasks' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
+          >
+            <ListTodo size={16} /> งาน (Tasks)
+          </button>
+          <button 
+            onClick={() => setActiveTab('reports')} 
+            className={`flex items-center gap-2 px-4 py-3 md:px-6 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${activeTab === 'reports' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
+          >
+            <ClipboardList size={16} /> รายงาน
+          </button>
+        </div>
+        
+        {activeTab === 'tasks' && (
+          <div className="flex items-center self-start sm:self-auto absolute right-0 top-0 sm:relative sm:top-auto sm:right-auto bg-white sm:bg-transparent pl-2 pb-1 sm:pb-0">
+            {/* Desktop Toggle */}
+            <div className="hidden sm:flex bg-gray-100 p-1 rounded-lg sm:mr-4 shrink-0">
+              <button onClick={() => setTaskView('list')} className={`px-4 py-1.5 rounded-md text-xs font-bold transition-shadow ${taskView === 'list' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>List</button>
+              <button onClick={() => setTaskView('gantt')} className={`px-4 py-1.5 rounded-md text-xs font-bold transition-shadow ${taskView === 'gantt' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>Gantt</button>
+            </div>
+            
+            {/* Mobile Toggle */}
+            <div className="sm:hidden flex bg-gray-100 p-1 rounded-lg shrink-0 border border-gray-200 mt-1.5">
+              <button onClick={() => setTaskView(taskView === 'list' ? 'gantt' : 'list')} className="p-1.5 bg-white shadow-sm rounded text-gray-900 flex items-center justify-center">
+                {taskView === 'list' ? <BarChart2 size={16}/> : <ListTodo size={16}/>}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-hidden flex flex-col">
-        {activeTab === 'tasks' && renderKanbanBoard()}
-        {activeTab === 'team' && (
-          <div className="overflow-y-auto h-full pb-8">{renderTeam()}</div>
-        )}
-        {activeTab === 'overview' && (
-          <div className="overflow-y-auto h-full pb-8">{renderOverview()}</div>
-        )}
-        {activeTab === 'gantt' && (
-          <div className="h-full pb-4">
-            <GanttChart project={project} currentUser={currentUser} isManager={isManager} />
+      <div className="flex-1 overflow-y-auto pb-8 pt-6 custom-scrollbar pr-2 min-h-0">
+        {activeTab === 'dashboard' && renderDashboard()}
+        {activeTab === 'tasks' && (
+          <div className="h-full min-h-[600px] md:min-h-0">
+            {taskView === 'list' ? renderTaskList() : <GanttChart project={project} currentUser={currentUser} isManager={isManager} />}
           </div>
         )}
-        {activeTab === 'daily' && (
-          <div className="overflow-y-auto h-full pb-8">
-            <DailyLogTab project={project} currentUser={currentUser} isManager={isManager} />
-          </div>
-        )}
-        {activeTab === 'weekly' && (
-          <div className="overflow-y-auto h-full pb-8">
-            <WeeklyReportTab project={project} isManager={isManager} />
-          </div>
-        )}
+        {activeTab === 'reports' && renderReports()}
       </div>
     </div>
   );
