@@ -191,7 +191,7 @@ export default function PipelineClientPage({
     updateFilters({ df: 'updatedAt', pr: '', dFrom: '', dTo: '', search: '' })
   }
 
-  const isManager = ['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase())
+  const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase())
 
   const triggerToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type })

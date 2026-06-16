@@ -26,10 +26,11 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   let roleWhere: any = { OR: [{ userId: user?.id }, { userId: null }] };
   let members: any[] = [];
   const roleLower = (user?.role || '').toLowerCase();
-  const isManager = ['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
+  const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
+  
+  const isMarketingManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
   
   if (isManager) {
-    // If manager, fetch team from TERA DB
     let subEmpIds: string[] = [];
     if (user && user.employeeId) {
       try {
@@ -43,24 +44,39 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
       }
     }
 
-    const teamUsers = await prisma.user.findMany({
-      where: { 
+    if (isMarketingManager) {
+      // Marketing manager sees everyone
+      const teamUsers = await prisma.user.findMany({
+        where: { isActive: true },
+        select: { id: true }
+      });
+      const subUserIds = teamUsers.map(u => u.id);
+      roleWhere = {
         OR: [
-          { employeeId: { in: subEmpIds } },
-          { employeeSale: { teamLeader: user?.fullName || '' } }
+          { userId: { in: subUserIds } },
+          { userId: user?.id || 'NO_USER' },
+          { userId: null }
         ]
-      },
-      select: { id: true }
-    });
-    const subUserIds = teamUsers.map(u => u.id);
-
-    roleWhere = {
-      OR: [
-        { userId: { in: subUserIds } },
-        { userId: user?.id || 'NO_USER' },
-        { userId: null }
-      ]
-    };
+      };
+    } else {
+      const teamUsers = await prisma.user.findMany({
+        where: { 
+          OR: [
+            { employeeId: { in: subEmpIds } },
+            { employeeSale: { teamLeader: user?.fullName || '' } }
+          ]
+        },
+        select: { id: true }
+      });
+      const subUserIds = teamUsers.map(u => u.id);
+      roleWhere = {
+        OR: [
+          { userId: { in: subUserIds } },
+          { userId: user?.id || 'NO_USER' },
+          { userId: null }
+        ]
+      };
+    }
   }
 
   // Calculate timezone-safe "Today" boundaries for Bangkok timezone

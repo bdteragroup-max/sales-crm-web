@@ -174,8 +174,13 @@ export default function RepairDeliveriesClientPage({ initialDeliveries, currentU
                           {delivery.customer || delivery.company || "—"}
                         </p>
                         <p className="text-[10px] text-gray-500 mt-1 line-clamp-2">
-                          {delivery.company && delivery.customer ? delivery.company : "-"}
+                          {delivery.company && delivery.customer ? delivery.company : (delivery.company || "-")}
                         </p>
+                        {delivery.internalCompany && (
+                          <span className="inline-block px-2 py-0.5 mt-1 bg-red-50 text-red-600 text-[9px] font-bold rounded-md">
+                            {delivery.internalCompany}
+                          </span>
+                        )}
                       </td>
 
                       <td className="py-4 px-5 align-top">

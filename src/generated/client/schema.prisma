@@ -437,6 +437,7 @@ model RepairDelivery {
 
   deliveryDate     DateTime? @db.Timestamptz(6)
   company          String?
+  internalCompany  String?
   jobName          String?
   customer         String?
   customerPosition String?

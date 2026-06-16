@@ -12,7 +12,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const user = await getUser();
   if (!user) redirect('/');
   const userRoleStr = (user.role || '').toLowerCase();
-  const isMarketingManager = userRoleStr === 'marketing manager' || userRoleStr === 'ผู้จัดการฝ่ายการตลาด' || userRoleStr === 'ผู้จัดการการตลาด' || userRoleStr === 'ผู้การจัดการตลาด';
+  const isMarketingManager = ['manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ผู้จัดการ'].includes(userRoleStr);
 
   if (user.role === 'อื่นๆ' || !isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin', 'project', 'โครงการ'].some((r) => userRoleStr.includes(r))) {
     redirect('/department');
@@ -94,7 +94,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     filterEnd = bkkEndOfDay(`${year}-${pad(month)}-${pad(lastDay)}`);
   }
 
-  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'sales manager' || (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
+  const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'manager' || (user.role || '').toLowerCase() === 'sales manager' || (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
 
   const thirtyDaysAgoFilter = new Date(filterEnd.getTime() - 30 * 24 * 60 * 60 * 1000);
 
@@ -176,9 +176,9 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
 
   // Fetch branch info from the HR system's employees table for each rep
   const empIds = salesReps.map((r: any) => r.employeeId).filter(Boolean);
-  const hrEmployees = await prisma.employees.findMany({
+  const hrEmployees = await teraDb.employees.findMany({
     where: { emp_id: { in: empIds } },
-    select: { emp_id: true, branches: { select: { name: true } } }
+    select: { emp_id: true, branch_id: true }
   });
 
   // Inject hrBranch into salesReps
@@ -186,7 +186,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     const hrEmp = hrEmployees.find((h) => h.emp_id === r.employeeId);
     return {
       ...r,
-      hrBranch: hrEmp?.branches?.name || r.employeeSale?.branch || 'Head Office'
+      hrBranch: hrEmp?.branch_id || r.employeeSale?.branch || 'Head Office'
     };
   });
 

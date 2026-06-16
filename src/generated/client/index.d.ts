@@ -31270,6 +31270,7 @@ export namespace Prisma {
     jobId: string | null
     deliveryDate: Date | null
     company: string | null
+    internalCompany: string | null
     jobName: string | null
     customer: string | null
     customerPosition: string | null
@@ -31306,6 +31307,7 @@ export namespace Prisma {
     jobId: string | null
     deliveryDate: Date | null
     company: string | null
+    internalCompany: string | null
     jobName: string | null
     customer: string | null
     customerPosition: string | null
@@ -31342,6 +31344,7 @@ export namespace Prisma {
     jobId: number
     deliveryDate: number
     company: number
+    internalCompany: number
     jobName: number
     customer: number
     customerPosition: number
@@ -31380,6 +31383,7 @@ export namespace Prisma {
     jobId?: true
     deliveryDate?: true
     company?: true
+    internalCompany?: true
     jobName?: true
     customer?: true
     customerPosition?: true
@@ -31416,6 +31420,7 @@ export namespace Prisma {
     jobId?: true
     deliveryDate?: true
     company?: true
+    internalCompany?: true
     jobName?: true
     customer?: true
     customerPosition?: true
@@ -31452,6 +31457,7 @@ export namespace Prisma {
     jobId?: true
     deliveryDate?: true
     company?: true
+    internalCompany?: true
     jobName?: true
     customer?: true
     customerPosition?: true
@@ -31561,6 +31567,7 @@ export namespace Prisma {
     jobId: string | null
     deliveryDate: Date | null
     company: string | null
+    internalCompany: string | null
     jobName: string | null
     customer: string | null
     customerPosition: string | null
@@ -31614,6 +31621,7 @@ export namespace Prisma {
     jobId?: boolean
     deliveryDate?: boolean
     company?: boolean
+    internalCompany?: boolean
     jobName?: boolean
     customer?: boolean
     customerPosition?: boolean
@@ -31651,6 +31659,7 @@ export namespace Prisma {
     jobId?: boolean
     deliveryDate?: boolean
     company?: boolean
+    internalCompany?: boolean
     jobName?: boolean
     customer?: boolean
     customerPosition?: boolean
@@ -31688,6 +31697,7 @@ export namespace Prisma {
     jobId?: boolean
     deliveryDate?: boolean
     company?: boolean
+    internalCompany?: boolean
     jobName?: boolean
     customer?: boolean
     customerPosition?: boolean
@@ -31725,6 +31735,7 @@ export namespace Prisma {
     jobId?: boolean
     deliveryDate?: boolean
     company?: boolean
+    internalCompany?: boolean
     jobName?: boolean
     customer?: boolean
     customerPosition?: boolean
@@ -31755,7 +31766,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type RepairDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "deliveryNumber" | "jobId" | "deliveryDate" | "company" | "jobName" | "customer" | "customerPosition" | "address" | "siteAddress" | "quotationNo" | "sender" | "senderPhone" | "technician" | "technicianPhone" | "workInspect" | "workInspectDetails" | "workInstall" | "workInstallDetails" | "workRepair" | "workRepairDetails" | "workTraining" | "workTrainingDetails" | "workOther" | "note" | "sigSenderUrl" | "nameSender" | "sigReceiverUrl" | "nameReceiver" | "status" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["repairDelivery"]>
+  export type RepairDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "deliveryNumber" | "jobId" | "deliveryDate" | "company" | "internalCompany" | "jobName" | "customer" | "customerPosition" | "address" | "siteAddress" | "quotationNo" | "sender" | "senderPhone" | "technician" | "technicianPhone" | "workInspect" | "workInspectDetails" | "workInstall" | "workInstallDetails" | "workRepair" | "workRepairDetails" | "workTraining" | "workTrainingDetails" | "workOther" | "note" | "sigSenderUrl" | "nameSender" | "sigReceiverUrl" | "nameReceiver" | "status" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["repairDelivery"]>
   export type RepairDeliveryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | RepairDelivery$jobArgs<ExtArgs>
   }
@@ -31777,6 +31788,7 @@ export namespace Prisma {
       jobId: string | null
       deliveryDate: Date | null
       company: string | null
+      internalCompany: string | null
       jobName: string | null
       customer: string | null
       customerPosition: string | null
@@ -32234,6 +32246,7 @@ export namespace Prisma {
     readonly jobId: FieldRef<"RepairDelivery", 'String'>
     readonly deliveryDate: FieldRef<"RepairDelivery", 'DateTime'>
     readonly company: FieldRef<"RepairDelivery", 'String'>
+    readonly internalCompany: FieldRef<"RepairDelivery", 'String'>
     readonly jobName: FieldRef<"RepairDelivery", 'String'>
     readonly customer: FieldRef<"RepairDelivery", 'String'>
     readonly customerPosition: FieldRef<"RepairDelivery", 'String'>
@@ -88460,6 +88473,7 @@ export namespace Prisma {
     jobId: 'jobId',
     deliveryDate: 'deliveryDate',
     company: 'company',
+    internalCompany: 'internalCompany',
     jobName: 'jobName',
     customer: 'customer',
     customerPosition: 'customerPosition',
@@ -91578,6 +91592,7 @@ export namespace Prisma {
     jobId?: StringNullableFilter<"RepairDelivery"> | string | null
     deliveryDate?: DateTimeNullableFilter<"RepairDelivery"> | Date | string | null
     company?: StringNullableFilter<"RepairDelivery"> | string | null
+    internalCompany?: StringNullableFilter<"RepairDelivery"> | string | null
     jobName?: StringNullableFilter<"RepairDelivery"> | string | null
     customer?: StringNullableFilter<"RepairDelivery"> | string | null
     customerPosition?: StringNullableFilter<"RepairDelivery"> | string | null
@@ -91615,6 +91630,7 @@ export namespace Prisma {
     jobId?: SortOrderInput | SortOrder
     deliveryDate?: SortOrderInput | SortOrder
     company?: SortOrderInput | SortOrder
+    internalCompany?: SortOrderInput | SortOrder
     jobName?: SortOrderInput | SortOrder
     customer?: SortOrderInput | SortOrder
     customerPosition?: SortOrderInput | SortOrder
@@ -91655,6 +91671,7 @@ export namespace Prisma {
     jobId?: StringNullableFilter<"RepairDelivery"> | string | null
     deliveryDate?: DateTimeNullableFilter<"RepairDelivery"> | Date | string | null
     company?: StringNullableFilter<"RepairDelivery"> | string | null
+    internalCompany?: StringNullableFilter<"RepairDelivery"> | string | null
     jobName?: StringNullableFilter<"RepairDelivery"> | string | null
     customer?: StringNullableFilter<"RepairDelivery"> | string | null
     customerPosition?: StringNullableFilter<"RepairDelivery"> | string | null
@@ -91692,6 +91709,7 @@ export namespace Prisma {
     jobId?: SortOrderInput | SortOrder
     deliveryDate?: SortOrderInput | SortOrder
     company?: SortOrderInput | SortOrder
+    internalCompany?: SortOrderInput | SortOrder
     jobName?: SortOrderInput | SortOrder
     customer?: SortOrderInput | SortOrder
     customerPosition?: SortOrderInput | SortOrder
@@ -91734,6 +91752,7 @@ export namespace Prisma {
     jobId?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     deliveryDate?: DateTimeNullableWithAggregatesFilter<"RepairDelivery"> | Date | string | null
     company?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+    internalCompany?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     jobName?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     customer?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     customerPosition?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
@@ -98919,6 +98938,7 @@ export namespace Prisma {
     deliveryNumber: string
     deliveryDate?: Date | string | null
     company?: string | null
+    internalCompany?: string | null
     jobName?: string | null
     customer?: string | null
     customerPosition?: string | null
@@ -98956,6 +98976,7 @@ export namespace Prisma {
     jobId?: string | null
     deliveryDate?: Date | string | null
     company?: string | null
+    internalCompany?: string | null
     jobName?: string | null
     customer?: string | null
     customerPosition?: string | null
@@ -98991,6 +99012,7 @@ export namespace Prisma {
     deliveryNumber?: StringFieldUpdateOperationsInput | string
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     company?: NullableStringFieldUpdateOperationsInput | string | null
+    internalCompany?: NullableStringFieldUpdateOperationsInput | string | null
     jobName?: NullableStringFieldUpdateOperationsInput | string | null
     customer?: NullableStringFieldUpdateOperationsInput | string | null
     customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
@@ -99028,6 +99050,7 @@ export namespace Prisma {
     jobId?: NullableStringFieldUpdateOperationsInput | string | null
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     company?: NullableStringFieldUpdateOperationsInput | string | null
+    internalCompany?: NullableStringFieldUpdateOperationsInput | string | null
     jobName?: NullableStringFieldUpdateOperationsInput | string | null
     customer?: NullableStringFieldUpdateOperationsInput | string | null
     customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
@@ -99064,6 +99087,7 @@ export namespace Prisma {
     jobId?: string | null
     deliveryDate?: Date | string | null
     company?: string | null
+    internalCompany?: string | null
     jobName?: string | null
     customer?: string | null
     customerPosition?: string | null
@@ -99099,6 +99123,7 @@ export namespace Prisma {
     deliveryNumber?: StringFieldUpdateOperationsInput | string
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     company?: NullableStringFieldUpdateOperationsInput | string | null
+    internalCompany?: NullableStringFieldUpdateOperationsInput | string | null
     jobName?: NullableStringFieldUpdateOperationsInput | string | null
     customer?: NullableStringFieldUpdateOperationsInput | string | null
     customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
@@ -99135,6 +99160,7 @@ export namespace Prisma {
     jobId?: NullableStringFieldUpdateOperationsInput | string | null
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     company?: NullableStringFieldUpdateOperationsInput | string | null
+    internalCompany?: NullableStringFieldUpdateOperationsInput | string | null
     jobName?: NullableStringFieldUpdateOperationsInput | string | null
     customer?: NullableStringFieldUpdateOperationsInput | string | null
     customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106424,6 +106450,7 @@ export namespace Prisma {
     jobId?: SortOrder
     deliveryDate?: SortOrder
     company?: SortOrder
+    internalCompany?: SortOrder
     jobName?: SortOrder
     customer?: SortOrder
     customerPosition?: SortOrder
@@ -106460,6 +106487,7 @@ export namespace Prisma {
     jobId?: SortOrder
     deliveryDate?: SortOrder
     company?: SortOrder
+    internalCompany?: SortOrder
     jobName?: SortOrder
     customer?: SortOrder
     customerPosition?: SortOrder
@@ -106496,6 +106524,7 @@ export namespace Prisma {
     jobId?: SortOrder
     deliveryDate?: SortOrder
     company?: SortOrder
+    internalCompany?: SortOrder
     jobName?: SortOrder
     customer?: SortOrder
     customerPosition?: SortOrder
@@ -118793,6 +118822,7 @@ export namespace Prisma {
     deliveryNumber: string
     deliveryDate?: Date | string | null
     company?: string | null
+    internalCompany?: string | null
     jobName?: string | null
     customer?: string | null
     customerPosition?: string | null
@@ -118828,6 +118858,7 @@ export namespace Prisma {
     deliveryNumber: string
     deliveryDate?: Date | string | null
     company?: string | null
+    internalCompany?: string | null
     jobName?: string | null
     customer?: string | null
     customerPosition?: string | null
@@ -119394,6 +119425,7 @@ export namespace Prisma {
     jobId?: StringNullableFilter<"RepairDelivery"> | string | null
     deliveryDate?: DateTimeNullableFilter<"RepairDelivery"> | Date | string | null
     company?: StringNullableFilter<"RepairDelivery"> | string | null
+    internalCompany?: StringNullableFilter<"RepairDelivery"> | string | null
     jobName?: StringNullableFilter<"RepairDelivery"> | string | null
     customer?: StringNullableFilter<"RepairDelivery"> | string | null
     customerPosition?: StringNullableFilter<"RepairDelivery"> | string | null
@@ -134642,6 +134674,7 @@ export namespace Prisma {
     deliveryNumber: string
     deliveryDate?: Date | string | null
     company?: string | null
+    internalCompany?: string | null
     jobName?: string | null
     customer?: string | null
     customerPosition?: string | null
@@ -134821,6 +134854,7 @@ export namespace Prisma {
     deliveryNumber?: StringFieldUpdateOperationsInput | string
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     company?: NullableStringFieldUpdateOperationsInput | string | null
+    internalCompany?: NullableStringFieldUpdateOperationsInput | string | null
     jobName?: NullableStringFieldUpdateOperationsInput | string | null
     customer?: NullableStringFieldUpdateOperationsInput | string | null
     customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
@@ -134856,6 +134890,7 @@ export namespace Prisma {
     deliveryNumber?: StringFieldUpdateOperationsInput | string
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     company?: NullableStringFieldUpdateOperationsInput | string | null
+    internalCompany?: NullableStringFieldUpdateOperationsInput | string | null
     jobName?: NullableStringFieldUpdateOperationsInput | string | null
     customer?: NullableStringFieldUpdateOperationsInput | string | null
     customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
@@ -134891,6 +134926,7 @@ export namespace Prisma {
     deliveryNumber?: StringFieldUpdateOperationsInput | string
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     company?: NullableStringFieldUpdateOperationsInput | string | null
+    internalCompany?: NullableStringFieldUpdateOperationsInput | string | null
     jobName?: NullableStringFieldUpdateOperationsInput | string | null
     customer?: NullableStringFieldUpdateOperationsInput | string | null
     customerPosition?: NullableStringFieldUpdateOperationsInput | string | null

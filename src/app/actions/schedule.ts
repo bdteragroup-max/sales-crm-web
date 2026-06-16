@@ -24,25 +24,8 @@ export async function getStaffSchedules(preFetchedUser?: any) {
 
     let whereClause: any = { userId: user.id }
     const roleLower = (user.role || '').toLowerCase();
-    if (['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
-      const subordinates = await teraDb.employees.findMany({
-        where: { supervisor_id: user.employeeId, is_active: true },
-        select: { emp_id: true }
-      })
-      const subEmpIds = subordinates.map(s => s.emp_id)
-
-      const teamUsers = await prisma.user.findMany({
-        where: { employeeId: { in: subEmpIds }, isActive: true },
-        select: { id: true }
-      })
-      const subUserIds = teamUsers.map(u => u.id)
-
-      whereClause = {
-        OR: [
-          { userId: { in: subUserIds } },
-          { userId: user.id }
-        ]
-      }
+    if (['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
+      whereClause = {}
     }
 
     const schedules = await prisma.schedule.findMany({
@@ -94,7 +77,7 @@ export async function createSchedule(data: { userId: string, title: string, desc
     // If user is not manager, they can only create for themselves.
     // If user is manager, they can create for themselves or their subordinates.
     const roleLower = (user.role || '').toLowerCase();
-    if (!['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
+    if (!['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
       if (targetUserId !== user.id) {
         return { success: false, error: 'Access Denied. You can only create your own schedule.' }
       }
@@ -212,7 +195,7 @@ export async function updateSchedule(id: string, data: {
 
     // Access check: self or subordinate
     const roleLower = (user.role || '').toLowerCase();
-    if (!['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower) && schedule.userId !== user.id) {
+    if (!['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower) && schedule.userId !== user.id) {
       return { success: false, error: 'Access Denied.' }
     }
 
@@ -312,7 +295,7 @@ export async function deleteSchedule(id: string) {
     }
 
     const roleLower = (user.role || '').toLowerCase();
-    if (!['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower) && schedule.userId !== user.id) {
+    if (!['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower) && schedule.userId !== user.id) {
       return { success: false, error: 'Access Denied.' }
     }
 

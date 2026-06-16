@@ -444,6 +444,7 @@ exports.Prisma.RepairDeliveryScalarFieldEnum = {
   jobId: 'jobId',
   deliveryDate: 'deliveryDate',
   company: 'company',
+  internalCompany: 'internalCompany',
   jobName: 'jobName',
   customer: 'customer',
   customerPosition: 'customerPosition',

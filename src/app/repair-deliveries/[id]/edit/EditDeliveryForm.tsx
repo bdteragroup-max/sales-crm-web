@@ -12,6 +12,7 @@ export default function EditDeliveryForm({ initialData }: { initialData: any }) 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [formData, setFormData] = useState({
+    internalCompany: initialData.internalCompany || "",
     company: initialData.company || "",
     jobName: initialData.jobName || "",
     customer: initialData.customer || "",
@@ -102,13 +103,17 @@ export default function EditDeliveryForm({ initialData }: { initialData: any }) 
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1.5">บริษัท (Company)</label>
-              <select name="company" value={formData.company} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all" required>
-                <option value="">-- เลือกบริษัท --</option>
+              <label className="block text-xs font-bold text-gray-600 mb-1.5">บริษัทผู้รับผิดชอบ (Data Owner)</label>
+              <select name="internalCompany" value={formData.internalCompany} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all" required>
+                <option value="">-- เลือกบริษัทผู้รับผิดชอบ --</option>
                 <option value="TG">TG (Tera Group)</option>
                 <option value="TE">TE (Tera Electric)</option>
                 <option value="TP">TP (Tera Power)</option>
               </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-600 mb-1.5">บริษัทลูกค้า (Customer Company)</label>
+              <input type="text" name="company" value={formData.company} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all" />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-1.5">ลูกค้า (Customer Name)</label>

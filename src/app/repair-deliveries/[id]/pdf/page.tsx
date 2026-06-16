@@ -31,6 +31,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
       deliveryDate: null,
       createdAt: null,
       job: null,
+      internalCompany: '',
       company: '',
       customer: '',
       customerPosition: '',
@@ -75,7 +76,12 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
     }
   }
 
-  const compCode = (typeof delivery.company === 'string' && delivery.company.trim() !== '') ? delivery.company : 'TG';
+  let compCode = 'TG';
+  if (delivery.internalCompany) {
+    compCode = delivery.internalCompany;
+  } else if (delivery.company === 'TG' || delivery.company === 'TE' || delivery.company === 'TP') {
+    compCode = delivery.company;
+  }
   const currentCompany = companyInfoMap[compCode] || companyInfoMap['TG'];
 
   return (
@@ -149,7 +155,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
           <div style={{ display: 'flex', alignItems: 'baseline', fontSize: '13pt', lineHeight: 1.25, marginBottom: '0.8mm' }}>
             <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap', flexShrink: 0, marginRight: '6px' }}>ลูกค้า :</span>
             <span style={{ flex: 1, minHeight: '4.8mm', fontWeight: 'normal', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-              {delivery.company ? `${delivery.company} ${delivery.customer ? `(${delivery.customer})` : ''}` : (delivery.customer || '')}
+              {delivery.company && !['TG', 'TE', 'TP'].includes(delivery.company) ? `${delivery.company} ${delivery.customer ? `(${delivery.customer})` : ''}` : (delivery.customer || '')}
             </span>
           </div>
 

@@ -40,8 +40,9 @@ export default function InstallationDashboardClient({ orders, users, currentUser
   };
 
   // KPIs
+  const isCompleted = (status: string) => status === 'Completed' || status === 'เสร็จสิ้น' || status === 'ปิด Job - ติดตั้งเสร็จสิ้น' || status === 'ปิด Job - ตรวจเช็คเสร็จสิ้น';
   const totalOrders = orders.length
-  const completedOrders = orders.filter(o => o.status === "Completed" || o.status === "เสร็จสิ้น").length
+  const completedOrders = orders.filter(o => isCompleted(o.status)).length
   const inProgressOrders = totalOrders - completedOrders
 
   // Tab 2: By Company Data
@@ -132,8 +133,6 @@ export default function InstallationDashboardClient({ orders, users, currentUser
     }
   }
 
-  const isCompleted = (status: string) => status === 'Completed' || status === 'เสร็จสิ้น' || status === 'ปิด Job - ติดตั้งเสร็จสิ้น' || status === 'ปิด Job - ตรวจเช็คเสร็จสิ้น';
-
   const isOwnerOrAdmin = (order: any) => {
     const roleStr = (currentUser?.role || '').toLowerCase();
     return order.technician === currentUser?.fullName || 
@@ -157,35 +156,35 @@ export default function InstallationDashboardClient({ orders, users, currentUser
 
       {/* KPI Strip */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+        <Link href="?tab=all&status=all" className={`bg-white p-5 rounded-2xl border shadow-sm flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer ${searchParams.get("status") === "all" || !searchParams.get("status") ? "border-blue-500 ring-2 ring-blue-500/20" : "border-gray-100"}`}>
+          <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
             <ClipboardList size={24} />
           </div>
           <div>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">งานติดตั้งทั้งหมด</p>
             <p className="text-2xl font-black text-gray-900">{totalOrders}</p>
           </div>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center">
+        </Link>
+        <Link href="?tab=all&status=in-progress" className={`bg-white p-5 rounded-2xl border shadow-sm flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer ${searchParams.get("status") === "in-progress" ? "border-orange-500 ring-2 ring-orange-500/20" : "border-gray-100"}`}>
+          <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center shrink-0">
             <Clock size={24} />
           </div>
           <div>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">กำลังดำเนินการ</p>
             <p className="text-2xl font-black text-gray-900">{inProgressOrders}</p>
           </div>
-        </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center">
+        </Link>
+        <Link href="?tab=all&status=completed" className={`bg-white p-5 rounded-2xl border shadow-sm flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer ${searchParams.get("status") === "completed" ? "border-green-500 ring-2 ring-green-500/20" : "border-gray-100"}`}>
+          <div className="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center shrink-0">
             <CheckCircle2 size={24} />
           </div>
           <div>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">เสร็จสิ้นแล้ว</p>
             <p className="text-2xl font-black text-gray-900">{completedOrders}</p>
           </div>
-        </div>
-        <div className={`p-5 rounded-2xl border flex items-center gap-4 transition-all ${outstandingOrders.length > 0 ? 'bg-red-50 border-red-200 shadow-sm shadow-red-100/50' : 'bg-emerald-50 border-emerald-200 shadow-sm'}`}>
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${outstandingOrders.length > 0 ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
+        </Link>
+        <Link href="?tab=all&status=outstanding" className={`p-5 rounded-2xl border flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer ${searchParams.get("status") === "outstanding" ? "ring-2 ring-red-500/20" : ""} ${outstandingOrders.length > 0 ? 'bg-red-50 border-red-200 shadow-sm shadow-red-100/50' : 'bg-emerald-50 border-emerald-200 shadow-sm'}`}>
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${outstandingOrders.length > 0 ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'}`}>
             {outstandingOrders.length > 0 ? <AlertTriangle size={24} /> : <CheckCircle2 size={24} />}
           </div>
           <div>
@@ -196,7 +195,7 @@ export default function InstallationDashboardClient({ orders, users, currentUser
               {outstandingOrders.length}
             </p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Tabs */}
@@ -290,7 +289,16 @@ export default function InstallationDashboardClient({ orders, users, currentUser
             </div>
           )}
 
-          {activeTab === "all" && (
+          {activeTab === "all" && (() => {
+            const statusFilter = searchParams.get("status") || "all";
+            const filteredOrders = orders.filter(o => {
+              if (statusFilter === "completed") return isCompleted(o.status);
+              if (statusFilter === "in-progress") return !isCompleted(o.status);
+              if (statusFilter === "outstanding") return outstandingOrders.includes(o);
+              return true;
+            });
+            
+            return (
             <div className="overflow-x-auto pb-4">
               <table className="w-full text-left text-sm min-w-[1200px]">
                 <thead>
@@ -307,9 +315,9 @@ export default function InstallationDashboardClient({ orders, users, currentUser
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {orders.length === 0 ? (
+                  {filteredOrders.length === 0 ? (
                     <tr><td colSpan={9} className="py-8 text-center text-gray-400">ยังไม่มีข้อมูล</td></tr>
-                  ) : orders.map(order => (
+                  ) : filteredOrders.map(order => (
                     <tr key={order.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 whitespace-nowrap">
                         <Link href={`/jobs/${order.jobId}/manage-installation-order`} className="text-orange-600 hover:underline font-medium">
@@ -390,7 +398,8 @@ export default function InstallationDashboardClient({ orders, users, currentUser
                 </tbody>
               </table>
             </div>
-          )}
+            );
+          })()}
 
           {activeTab === "company" && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

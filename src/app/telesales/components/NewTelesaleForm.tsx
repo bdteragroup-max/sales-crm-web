@@ -260,7 +260,9 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
               value={dt ? h : ''}
               onChange={(e) => {
                 const newH = e.target.value;
-                setFormData((prev: any) => ({ ...prev, [name]: `${datePart || formatDateForInput(new Date())}T${newH}:${m}` }));
+                if (datePart) {
+                  setFormData((prev: any) => ({ ...prev, [name]: `${datePart}T${newH}:${m}` }));
+                }
               }}
               className="flex-1 border border-slate-200 rounded-xl p-2.5 text-sm outline-none bg-white hover:border-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200 text-center px-1 min-w-0"
             >
@@ -275,7 +277,9 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
               value={dt ? m : ''}
               onChange={(e) => {
                 const newM = e.target.value;
-                setFormData((prev: any) => ({ ...prev, [name]: `${datePart || formatDateForInput(new Date())}T${h}:${newM}` }));
+                if (datePart) {
+                  setFormData((prev: any) => ({ ...prev, [name]: `${datePart}T${h}:${newM}` }));
+                }
               }}
               className="flex-1 border border-slate-200 rounded-xl p-2.5 text-sm outline-none bg-white hover:border-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200 text-center px-1 min-w-0"
             >
