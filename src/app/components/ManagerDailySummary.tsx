@@ -26,7 +26,9 @@ export default function ManagerDailySummary({
 
   // Aggregate expenses by branch
   const expensesByBranch = branchExpenses.reduce((acc, expense) => {
-    const branch = expense.branch || 'Head Office';
+    // Look up the salesperson's current hrBranch to ensure expenses map to the same branch as their sales
+    const rep = salesReps.find(r => r.id === expense.salespersonId);
+    const branch = (rep ? rep.hrBranch : expense.branch) || 'Head Office';
     if (!acc[branch]) acc[branch] = 0;
     acc[branch] += expense.amount || 0;
     return acc;

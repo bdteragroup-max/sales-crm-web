@@ -359,22 +359,22 @@ exports.Prisma.JobScalarFieldEnum = {
   quotationId: 'quotationId',
   currentStep: 'currentStep',
   flowVariant: 'flowVariant',
-  deliveryMethod: 'deliveryMethod',
-  deliveryDate: 'deliveryDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
   courierCompany: 'courierCompany',
+  deliveryDate: 'deliveryDate',
+  deliveryMethod: 'deliveryMethod',
   trackingNumber: 'trackingNumber',
   trackingPhotoUrl: 'trackingPhotoUrl',
   paymentMethod: 'paymentMethod',
   paymentStatus: 'paymentStatus',
-  paymentDate: 'paymentDate',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  salesOrderDate: 'salesOrderDate',
-  creditTerms: 'creditTerms',
-  creditDocsUrl: 'creditDocsUrl',
   billingRegulations: 'billingRegulations',
-  billingDocsUrl: 'billingDocsUrl',
-  percentageTerms: 'percentageTerms'
+  creditDocsUrl: 'creditDocsUrl',
+  creditTerms: 'creditTerms',
+  percentageTerms: 'percentageTerms',
+  salesOrderDate: 'salesOrderDate',
+  paymentDate: 'paymentDate',
+  billingDocsUrl: 'billingDocsUrl'
 };
 
 exports.Prisma.PaymentTaskScalarFieldEnum = {
@@ -386,11 +386,11 @@ exports.Prisma.PaymentTaskScalarFieldEnum = {
   paidAmount: 'paidAmount',
   paidDate: 'paidDate',
   note: 'note',
-  installmentNo: 'installmentNo',
-  installmentTotal: 'installmentTotal',
-  installmentAmount: 'installmentAmount',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  installmentAmount: 'installmentAmount',
+  installmentNo: 'installmentNo',
+  installmentTotal: 'installmentTotal'
 };
 
 exports.Prisma.JobRunningNumberScalarFieldEnum = {
@@ -422,7 +422,6 @@ exports.Prisma.RepairOrderScalarFieldEnum = {
   phoneNumber: 'phoneNumber',
   workType: 'workType',
   forwardedBy: 'forwardedBy',
-  technicianName: 'technicianName',
   items: 'items',
   symptoms: 'symptoms',
   settings: 'settings',
@@ -435,44 +434,45 @@ exports.Prisma.RepairOrderScalarFieldEnum = {
   company: 'company',
   customerAddress: 'customerAddress',
   customerCompany: 'customerCompany',
-  salesPerson: 'salesPerson'
+  salesPerson: 'salesPerson',
+  technicianName: 'technicianName'
 };
 
 exports.Prisma.RepairDeliveryScalarFieldEnum = {
   id: 'id',
   deliveryNumber: 'deliveryNumber',
-  jobId: 'jobId',
-  deliveryDate: 'deliveryDate',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  address: 'address',
   company: 'company',
-  internalCompany: 'internalCompany',
-  jobName: 'jobName',
   customer: 'customer',
   customerPosition: 'customerPosition',
-  address: 'address',
-  siteAddress: 'siteAddress',
+  deliveryDate: 'deliveryDate',
+  jobId: 'jobId',
+  jobName: 'jobName',
+  nameReceiver: 'nameReceiver',
+  nameSender: 'nameSender',
+  pdfUrl: 'pdfUrl',
   quotationNo: 'quotationNo',
   sender: 'sender',
   senderPhone: 'senderPhone',
+  sigReceiverUrl: 'sigReceiverUrl',
+  sigSenderUrl: 'sigSenderUrl',
+  siteAddress: 'siteAddress',
   technician: 'technician',
   technicianPhone: 'technicianPhone',
   workInspect: 'workInspect',
-  workInspectDetails: 'workInspectDetails',
   workInstall: 'workInstall',
-  workInstallDetails: 'workInstallDetails',
-  workRepair: 'workRepair',
-  workRepairDetails: 'workRepairDetails',
-  workTraining: 'workTraining',
-  workTrainingDetails: 'workTrainingDetails',
   workOther: 'workOther',
-  note: 'note',
-  sigSenderUrl: 'sigSenderUrl',
-  nameSender: 'nameSender',
-  sigReceiverUrl: 'sigReceiverUrl',
-  nameReceiver: 'nameReceiver',
+  workRepair: 'workRepair',
+  workTraining: 'workTraining',
   status: 'status',
-  pdfUrl: 'pdfUrl',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  workInspectDetails: 'workInspectDetails',
+  workInstallDetails: 'workInstallDetails',
+  workRepairDetails: 'workRepairDetails',
+  workTrainingDetails: 'workTrainingDetails',
+  internalCompany: 'internalCompany'
 };
 
 exports.Prisma.InstallationOrderScalarFieldEnum = {
@@ -499,17 +499,17 @@ exports.Prisma.InstallationOrderScalarFieldEnum = {
   nameSender: 'nameSender',
   sigReceiverUrl: 'sigReceiverUrl',
   nameReceiver: 'nameReceiver',
-  plannedStartDate: 'plannedStartDate',
-  plannedEndDate: 'plannedEndDate',
-  workLocation: 'workLocation',
-  workPlan: 'workPlan',
-  technicianNote: 'technicianNote',
-  planUpdatedAt: 'planUpdatedAt',
-  planUpdatedBy: 'planUpdatedBy',
   status: 'status',
   pdfUrl: 'pdfUrl',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  planUpdatedAt: 'planUpdatedAt',
+  planUpdatedBy: 'planUpdatedBy',
+  plannedEndDate: 'plannedEndDate',
+  plannedStartDate: 'plannedStartDate',
+  technicianNote: 'technicianNote',
+  workLocation: 'workLocation',
+  workPlan: 'workPlan'
 };
 
 exports.Prisma.OutsourceRepairScalarFieldEnum = {
@@ -536,24 +536,24 @@ exports.Prisma.OutsourceRepairScalarFieldEnum = {
 
 exports.Prisma.CustomerRequirementScalarFieldEnum = {
   id: 'id',
-  requirementNumber: 'requirementNumber',
-  boqNumber: 'boqNumber',
   userId: 'userId',
   companyName: 'companyName',
   contactName: 'contactName',
   salesperson: 'salesperson',
   date: 'date',
   formData: 'formData',
-  isSentToService: 'isSentToService',
-  estimationStatus: 'estimationStatus',
+  createdAt: 'createdAt',
+  requirementNumber: 'requirementNumber',
+  estimatedAt: 'estimatedAt',
+  estimatedBy: 'estimatedBy',
   estimatedPrice: 'estimatedPrice',
   estimationNote: 'estimationNote',
-  estimatedBy: 'estimatedBy',
-  estimatedAt: 'estimatedAt',
+  estimationStatus: 'estimationStatus',
+  isSentToService: 'isSentToService',
   assignedTo: 'assignedTo',
   assignedToUserId: 'assignedToUserId',
   estimationDueDate: 'estimationDueDate',
-  createdAt: 'createdAt'
+  boqNumber: 'boqNumber'
 };
 
 exports.Prisma.Admin_login_attemptsScalarFieldEnum = {
@@ -1133,8 +1133,10 @@ exports.Prisma.ProjectScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   budget: 'budget',
-  externalTechnicians: 'externalTechnicians',
   status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  externalTechnicians: 'externalTechnicians',
   projectCategory: 'projectCategory',
   department: 'department',
   province: 'province',
@@ -1167,9 +1169,7 @@ exports.Prisma.ProjectScalarFieldEnum = {
   contractSigningDate: 'contractSigningDate',
   deliveryDate: 'deliveryDate',
   paymentDate: 'paymentDate',
-  depositCollectionSchedule: 'depositCollectionSchedule',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  depositCollectionSchedule: 'depositCollectionSchedule'
 };
 
 exports.Prisma.ProjectEquipmentScalarFieldEnum = {
@@ -1237,18 +1237,18 @@ exports.Prisma.ProjectDailyLogScalarFieldEnum = {
   nextPlan: 'nextPlan',
   safetyNote: 'safetyNote',
   incidents: 'incidents',
-  delayCause: 'delayCause',
-  delayResponsible: 'delayResponsible',
-  delayExpectedDate: 'delayExpectedDate',
-  delaySeverity: 'delaySeverity',
-  tasksPerformed: 'tasksPerformed',
   taskUpdates: 'taskUpdates',
   imageUrls: 'imageUrls',
   reporterSigUrl: 'reporterSigUrl',
   supervisorSigUrl: 'supervisorSigUrl',
   supervisorName: 'supervisorName',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  delayCause: 'delayCause',
+  delayExpectedDate: 'delayExpectedDate',
+  delayResponsible: 'delayResponsible',
+  delaySeverity: 'delaySeverity',
+  tasksPerformed: 'tasksPerformed'
 };
 
 exports.Prisma.BranchExpenseScalarFieldEnum = {
@@ -1261,6 +1261,37 @@ exports.Prisma.BranchExpenseScalarFieldEnum = {
   notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.Clothing_itemsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  image_url: 'image_url',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Clothing_requestsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  variant_id: 'variant_id',
+  quantity: 'quantity',
+  reason: 'reason',
+  status: 'status',
+  requested_at: 'requested_at',
+  approved_by: 'approved_by',
+  approved_at: 'approved_at',
+  fulfilled_at: 'fulfilled_at',
+  admin_note: 'admin_note'
+};
+
+exports.Prisma.Clothing_variantsScalarFieldEnum = {
+  id: 'id',
+  item_id: 'item_id',
+  size: 'size',
+  stock_quantity: 'stock_quantity'
 };
 
 exports.Prisma.SortOrder = {
@@ -1358,7 +1389,10 @@ exports.Prisma.ModelName = {
   ProjectTask: 'ProjectTask',
   DailyLogWorker: 'DailyLogWorker',
   ProjectDailyLog: 'ProjectDailyLog',
-  BranchExpense: 'BranchExpense'
+  BranchExpense: 'BranchExpense',
+  clothing_items: 'clothing_items',
+  clothing_requests: 'clothing_requests',
+  clothing_variants: 'clothing_variants'
 };
 
 /**

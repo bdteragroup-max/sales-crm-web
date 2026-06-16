@@ -26,8 +26,20 @@ export default async function SchedulePage() {
   const roleLower = (user.role || '').toLowerCase();
   if (['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
     staffPromise = async () => {
+      const subordinates = await teraDb.employees.findMany({
+        where: { supervisor_id: user.employeeId, is_active: true },
+        select: { emp_id: true }
+      });
+      const subEmpIds = subordinates.map((s: any) => s.emp_id);
+
       return prisma.user.findMany({
-        where: { isActive: true },
+        where: { 
+          isActive: true,
+          OR: [
+            { employeeId: { in: subEmpIds } },
+            { id: user.id }
+          ]
+        },
         select: { id: true, fullName: true },
         orderBy: { fullName: 'asc' }
       });

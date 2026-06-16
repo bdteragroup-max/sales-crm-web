@@ -28,7 +28,7 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   const roleLower = (user?.role || '').toLowerCase();
   const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
   
-  const isMarketingManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
+  const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
   
   if (isManager) {
     let subEmpIds: string[] = [];

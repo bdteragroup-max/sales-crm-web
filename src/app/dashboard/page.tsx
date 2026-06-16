@@ -12,7 +12,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const user = await getUser();
   if (!user) redirect('/');
   const userRoleStr = (user.role || '').toLowerCase();
-  const isMarketingManager = ['manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ผู้จัดการ'].includes(userRoleStr);
+  const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(userRoleStr);
 
   if (user.role === 'อื่นๆ' || !isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin', 'project', 'โครงการ'].some((r) => userRoleStr.includes(r))) {
     redirect('/department');
@@ -1385,7 +1385,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     }
   }
 
-  const employeePerformance = isManager ? salesReps.map((rep: any) => {
+  const employeePerformance = isManager ? salesReps.filter((r: any) => filterIds.includes(r.id)).map((rep: any) => {
     const repQuotes = (historyQuotations as any[]).filter((q) => q.salespersonId === rep.id);
     const repWon = repQuotes.filter((q) => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).reduce((s, q) => s + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
     const repTarget = (monthlyTargetResult as any[]).find((t) => t.userId === rep.id && t.month === currentMonth)?.amount || 0;
@@ -1450,8 +1450,17 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   } // end if (isManager && employeePerformance.length > 0)
   
   // NEW ENHANCEMENTS: Branch/Individual Expenses and Product Group Targets
+  const filteredSalesRepsForExpenses = salesReps.filter((r: any) => filterIds.includes(r.id));
+  const hrBranchesForExpenses = Array.from(new Set(filteredSalesRepsForExpenses.map((r: any) => r.hrBranch || 'Head Office')));
+
   const branchExpenses = await prisma.branchExpense.findMany({
-    where: { date: { gte: filterStart, lte: filterEnd } }
+    where: { 
+      date: { gte: filterStart, lte: filterEnd },
+      OR: [
+        { salespersonId: { in: filterIds } },
+        { branch: { in: hrBranchesForExpenses } }
+      ]
+    }
   });
 
   const totalActiveRepsCount = await prisma.user.count({ where: { isActive: true } });
@@ -1623,9 +1632,15 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
             });
           })()}
           branchPerformance={(() => {
-            const branches = Array.from(new Set(salesReps.map((r: any) => r.hrBranch).filter(Boolean)));
+            const filteredSalesRepsForBranches = salesReps.filter((r: any) => filterIds.includes(r.id));
+            const hrBranches = filteredSalesRepsForBranches.map((r: any) => r.hrBranch || 'Head Office');
+            const expenseBranches = branchExpenses.map((e: any) => {
+              const rep = salesReps.find((r: any) => r.id === e.salespersonId);
+              return (rep ? rep.hrBranch : e.branch) || 'Head Office';
+            });
+            const branches = Array.from(new Set([...hrBranches, ...expenseBranches]));
             return branches.map((branch: any) => {
-              const branchUsers = salesReps.filter((r: any) => r.hrBranch === branch);
+              const branchUsers = filteredSalesRepsForBranches.filter((r: any) => (r.hrBranch || 'Head Office') === branch);
               const branchUserIds = branchUsers.map((u: any) => u.id);
 
               const target = (monthlyTargetResult as any[]).

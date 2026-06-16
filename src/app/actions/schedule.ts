@@ -25,7 +25,23 @@ export async function getStaffSchedules(preFetchedUser?: any) {
     let whereClause: any = { userId: user.id }
     const roleLower = (user.role || '').toLowerCase();
     if (['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
-      whereClause = {}
+      const subordinates = await teraDb.employees.findMany({
+        where: { supervisor_id: user.employeeId, is_active: true },
+        select: { emp_id: true }
+      });
+      const subEmpIds = subordinates.map(s => s.emp_id);
+      
+      const targetUsers = await prisma.user.findMany({
+        where: {
+          employeeId: { in: subEmpIds },
+          isActive: true
+        },
+        select: { id: true }
+      });
+      const targetUserIds = targetUsers.map(u => u.id);
+      targetUserIds.push(user.id);
+
+      whereClause = { userId: { in: targetUserIds } }
     }
 
     const schedules = await prisma.schedule.findMany({

@@ -44,8 +44,7 @@ export default async function ExpensesPage() {
   // Fetch sales reps for the manager dropdown
   const salesRepsRaw = await prisma.user.findMany({
     where: {
-      id: { in: filterIds },
-      role: { in: ['sales', 'manager', 'admin', 'ผู้จัดการ', 'เซลล์', 'ตัวแทนฝ่ายขาย'] }
+      id: { in: filterIds }
     },
     select: {
       id: true,
