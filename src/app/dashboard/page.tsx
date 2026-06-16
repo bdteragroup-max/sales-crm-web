@@ -348,7 +348,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   // 10. Monthly Targets (Fetch for entire year to calculate QTD/YTD targets)
   (prisma as any)['monthlyTarget'] ? (prisma as any)['monthlyTarget'].findMany({
     where: {
-      year: refYear,
+      year: { in: [refYear, filterStart.getFullYear(), filterStart.getFullYear() - 1, prevPeriodStart.getFullYear()] },
       OR: [
       { userId: { in: filterIds } },
       { userId: null }]
@@ -805,14 +805,27 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const todayStr = toBkkDateStr(nowBkk);
   let todayDailyTarget = 0;
 
+  let cumTarget = 0;
+  let prevCumTarget = 0;
+
   for (let i = 0; i < diffDays; i++) {
     const dDate = new Date(filterStart.getTime() + i * 24 * 60 * 60 * 1000);
     const dStr = toBkkDateStr(dDate);
+    const dMonth = dDate.getMonth() + 1;
+    const dYear = dDate.getFullYear();
 
     // Constant daily target based on the calendar month's total days
-    const dayOfMonth = dDate.getDate();
-    const lastDay = new Date(dDate.getFullYear(), dDate.getMonth() + 1, 0).getDate();
-    const rollingTarget = targetMTD > 0 ? targetMTD / lastDay : 0;
+    const lastDay = new Date(dYear, dMonth, 0).getDate();
+    
+    let thisMonthTarget = 0;
+    if (isManager && salespersonIds.length === 0) {
+      thisMonthTarget = (monthlyTargetResult as any[]).filter((t) => t.month === dMonth && t.year === dYear && t.userId !== null && subordinateIds.includes(t.userId)).reduce((sum, t) => sum + (t.amount || 0), 0);
+    } else {
+      thisMonthTarget = (monthlyTargetResult as any[]).filter((t) => t.month === dMonth && t.year === dYear && t.userId !== null && filterIds.includes(t.userId)).reduce((sum, t) => sum + (t.amount || 0), 0);
+    }
+
+    const rollingTarget = thisMonthTarget > 0 ? thisMonthTarget / lastDay : 0;
+    cumTarget += rollingTarget;
 
     if (dStr === todayStr) {
       todayDailyTarget = rollingTarget;
@@ -828,11 +841,19 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     // Previous period overlay: map day i of previous period
     const prevDDate = new Date(prevPeriodStart.getTime() + i * 24 * 60 * 60 * 1000);
     const prevDStr = toBkkDateStr(prevDDate);
+    const prevDMonth = prevDDate.getMonth() + 1;
+    const prevDYear = prevDDate.getFullYear();
 
     // Calculate previous period constant daily target based on its own calendar month's total days
-    const prevDayOfMonth = prevDDate.getDate();
-    const prevLastDay = new Date(prevDDate.getFullYear(), prevDDate.getMonth() + 1, 0).getDate();
-    const prevRollingTarget = prevTargetMTD > 0 ? prevTargetMTD / prevLastDay : 0;
+    const prevLastDay = new Date(prevDYear, prevDMonth, 0).getDate();
+    let prevMonthTarget = 0;
+    if (isManager && salespersonIds.length === 0) {
+      prevMonthTarget = (monthlyTargetResult as any[]).filter((t) => t.month === prevDMonth && t.year === prevDYear && t.userId !== null && subordinateIds.includes(t.userId)).reduce((sum, t) => sum + (t.amount || 0), 0);
+    } else {
+      prevMonthTarget = (monthlyTargetResult as any[]).filter((t) => t.month === prevDMonth && t.year === prevDYear && t.userId !== null && filterIds.includes(t.userId)).reduce((sum, t) => sum + (t.amount || 0), 0);
+    }
+    const prevRollingTarget = prevMonthTarget > 0 ? prevMonthTarget / prevLastDay : 0;
+    prevCumTarget += prevRollingTarget;
 
     const prevDayQuotes = (prevPeriodHistoryQuotations as any[]).filter((q) => toBkkDateStr(new Date(getQuotationDateHelper(q))) === prevDStr);
     const prevDaySales = prevDayQuotes.filter((q) => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).reduce((s, q) => s + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
@@ -846,9 +867,9 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       meetings: dayMeetings.length,
       quotes: dayQuotes.length,
       hitTarget: rollingTarget > 0 ? daySales >= rollingTarget : false,
-      cumulativeTarget: targetMTD > 0 ? dayOfMonth * (targetMTD / lastDay) : 0,
+      cumulativeTarget: cumTarget,
       prevCumulativeSales: prevCumSales,
-      prevCumulativeTarget: prevTargetMTD > 0 ? prevDayOfMonth * (prevTargetMTD / prevLastDay) : 0
+      prevCumulativeTarget: prevCumTarget
     });
   }
 

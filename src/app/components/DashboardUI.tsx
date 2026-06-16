@@ -192,6 +192,25 @@ export default function DashboardUI({
     }
   };
 
+  const toggleBranch = (branchReps: any[]) => {
+    let newIds = salespersonIds.length === 0 ? salesReps.map(r => r.id) : [...salespersonIds];
+    const branchRepIds = branchReps.map(r => r.id);
+    const allBranchRepsSelected = branchRepIds.every(id => newIds.includes(id));
+    
+    if (allBranchRepsSelected) {
+      newIds = newIds.filter(id => !branchRepIds.includes(id));
+    } else {
+      const idsToAdd = branchRepIds.filter(id => !newIds.includes(id));
+      newIds = [...newIds, ...idsToAdd];
+    }
+    
+    if (newIds.length === salesReps.length || newIds.length === 0) {
+      handleFilterChange('salespersonId', '');
+    } else {
+      handleFilterChange('salespersonId', newIds.join(','));
+    }
+  };
+
   const [visibleSeries, setVisibleSeries] = React.useState({
     cumulativeSales: true,
     calls: true,
@@ -359,7 +378,7 @@ export default function DashboardUI({
                 <PhoneCall size={12} strokeWidth={2.5} />
                 <span>ประสิทธิภาพเทเลเซลล์</span>
               </button>
-              {['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
+              {['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
                 <button
                   onClick={() => setActiveDashboardTab('management')}
                   className={`text-[11px] font-black px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
@@ -377,7 +396,7 @@ export default function DashboardUI({
 
           {/* Tier 2: Filter Toolbar Row */}
           <div className="py-3 px-6 md:px-8 bg-gray-50/40 flex flex-wrap items-center gap-3">
-            {['ผู้จัดการ', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
+            {['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase()) && (
               <div className="relative">
                 <button 
                   onClick={(e) => { e.stopPropagation(); setIsSalespersonDropdownOpen(!isSalespersonDropdownOpen); }}
@@ -400,17 +419,41 @@ export default function DashboardUI({
                       {salespersonIds.length === 0 && <Check size={14} className="text-brand-red" />}
                     </div>
                     <div className="h-px bg-gray-50 my-2 mx-4" />
-                    {salesReps.map(rep => (
-                      <div 
-                        key={rep.id} 
-                        className="px-4 py-2 hover:bg-gray-50 flex items-center justify-between cursor-pointer group" 
-                        onClick={() => toggleSalesperson(rep.id)}
-                      >
-                        <div className="flex flex-col">
-                          <span className={`text-[11px] font-black ${salespersonIds.length === 0 || salespersonIds.includes(rep.id) ? 'text-brand-red' : 'text-gray-700'}`}>{rep.fullName}</span>
-                          <span className="text-[9px] text-gray-400 font-bold uppercase">{rep.role}</span>
+                    {Object.entries(
+                      salesReps.reduce((acc, rep) => {
+                        const branch = rep.hrBranch || 'Head Office';
+                        if (!acc[branch]) acc[branch] = [];
+                        acc[branch].push(rep);
+                        return acc;
+                      }, {} as Record<string, any[]>)
+                    )
+                    .sort(([a], [b]) => a.localeCompare(b, 'th'))
+                    .map(([branch, reps]) => (
+                      <div key={branch}>
+                        <div 
+                          className="px-4 py-1.5 bg-gray-50 mt-1 mb-1 border-y border-gray-100 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition-colors group"
+                          onClick={() => toggleBranch(reps as any[])}
+                        >
+                          <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5 group-hover:text-gray-800 transition-colors">
+                            <MapPin size={10} className="text-gray-400 group-hover:text-gray-600 transition-colors" /> สาขา: {branch}
+                          </span>
+                          <span className="text-[9px] font-bold text-gray-400 group-hover:text-gray-600 transition-colors">
+                            {(reps as any[]).every(rep => salespersonIds.length === 0 || salespersonIds.includes(rep.id)) ? 'เอาออกทั้งหมด' : 'เลือกทั้งหมด'}
+                          </span>
                         </div>
-                        {(salespersonIds.length === 0 || salespersonIds.includes(rep.id)) && <Check size={14} className="text-brand-red" />}
+                        {(reps as any[]).map((rep: any) => (
+                          <div 
+                            key={rep.id} 
+                            className="px-4 py-2 hover:bg-gray-50 flex items-center justify-between cursor-pointer group transition-colors" 
+                            onClick={() => toggleSalesperson(rep.id)}
+                          >
+                            <div className="flex flex-col pl-4 border-l-2 border-transparent group-hover:border-brand-red">
+                              <span className={`text-[11px] font-black ${salespersonIds.length === 0 || salespersonIds.includes(rep.id) ? 'text-brand-red' : 'text-gray-700 group-hover:text-gray-900'}`}>{rep.fullName}</span>
+                              <span className="text-[9px] text-gray-400 font-bold uppercase">{rep.role}</span>
+                            </div>
+                            {(salespersonIds.length === 0 || salespersonIds.includes(rep.id)) && <Check size={14} className="text-brand-red" />}
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>

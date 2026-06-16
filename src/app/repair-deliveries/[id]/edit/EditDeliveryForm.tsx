@@ -47,6 +47,7 @@ export default function EditDeliveryForm({ initialData }: { initialData: any }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) return;
     setIsSubmitting(true)
     
     try {

@@ -201,6 +201,7 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (isSubmitting) return;
     setIsSubmitting(true);
     setMessage('');
 

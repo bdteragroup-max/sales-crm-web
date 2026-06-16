@@ -114,6 +114,7 @@ export default function TelesaleLogClient({
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     if (!contactName.trim()) {
       setNotification({ type: "error", message: "กรุณากรอกชื่อผู้ติดต่อ" });
       return;
