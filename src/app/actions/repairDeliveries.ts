@@ -2,6 +2,7 @@
 
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
+import { revalidatePath } from "next/cache";
 
 function getBkkBeYear() {
   const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
@@ -92,6 +93,7 @@ export async function createRepairDelivery(jobId?: string, autoData?: any) {
       throw new Error("Failed to generate a unique delivery number after multiple attempts.");
     }
 
+    revalidatePath("/repair-deliveries");
     return { success: true, repairDeliveryId: newDelivery.id };
   } catch (error: any) {
     console.error("Failed to create delivery note:", error);
@@ -105,6 +107,7 @@ export async function updateRepairDelivery(id: string, data: any) {
       where: { id },
       data,
     });
+    revalidatePath("/repair-deliveries");
     return { success: true };
   } catch (error: any) {
     console.error("Failed to update delivery note:", error);

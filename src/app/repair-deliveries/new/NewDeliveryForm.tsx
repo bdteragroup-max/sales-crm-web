@@ -109,7 +109,7 @@ export default function NewDeliveryForm({ currentUser, initialData }: { currentU
     setShowSenderDropdown(false)
   }, [])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     if (type === "checkbox") {
       setFormData(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }))
@@ -132,12 +132,13 @@ export default function NewDeliveryForm({ currentUser, initialData }: { currentU
       if (res.success) {
         router.push("/repair-deliveries")
         router.refresh()
+        // We do not set isSubmitting(false) here so the loading indicator persists until the page navigates
       } else {
         alert("Error saving: " + res.error)
+        setIsSubmitting(false)
       }
     } catch (err: any) {
       alert("Unexpected error: " + err.message)
-    } finally {
       setIsSubmitting(false)
     }
   }
@@ -174,7 +175,12 @@ export default function NewDeliveryForm({ currentUser, initialData }: { currentU
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-1.5">บริษัท (Company)</label>
-              <input type="text" name="company" value={formData.company} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all" required />
+              <select name="company" value={formData.company} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50/50 text-sm border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all" required>
+                <option value="">-- เลือกบริษัท --</option>
+                <option value="TG">TG (Tera Group)</option>
+                <option value="TE">TE (Tera Electric)</option>
+                <option value="TP">TP (Tera Power)</option>
+              </select>
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-1.5">ลูกค้า (Customer Name)</label>

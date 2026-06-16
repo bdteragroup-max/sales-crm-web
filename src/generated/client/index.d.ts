@@ -319,6 +319,11 @@ export type ProjectMember = $Result.DefaultSelection<Prisma.$ProjectMemberPayloa
  */
 export type ProjectTask = $Result.DefaultSelection<Prisma.$ProjectTaskPayload>
 /**
+ * Model DailyLogWorker
+ * 
+ */
+export type DailyLogWorker = $Result.DefaultSelection<Prisma.$DailyLogWorkerPayload>
+/**
  * Model ProjectDailyLog
  * 
  */
@@ -1061,6 +1066,16 @@ export class PrismaClient<
   get projectTask(): Prisma.ProjectTaskDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.dailyLogWorker`: Exposes CRUD operations for the **DailyLogWorker** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DailyLogWorkers
+    * const dailyLogWorkers = await prisma.dailyLogWorker.findMany()
+    * ```
+    */
+  get dailyLogWorker(): Prisma.DailyLogWorkerDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.projectDailyLog`: Exposes CRUD operations for the **ProjectDailyLog** model.
     * Example usage:
     * ```ts
@@ -1574,6 +1589,7 @@ export namespace Prisma {
     ProjectEquipment: 'ProjectEquipment',
     ProjectMember: 'ProjectMember',
     ProjectTask: 'ProjectTask',
+    DailyLogWorker: 'DailyLogWorker',
     ProjectDailyLog: 'ProjectDailyLog',
     BranchExpense: 'BranchExpense'
   };
@@ -1591,7 +1607,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "projectDailyLog" | "branchExpense"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -6109,6 +6125,80 @@ export namespace Prisma {
           }
         }
       }
+      DailyLogWorker: {
+        payload: Prisma.$DailyLogWorkerPayload<ExtArgs>
+        fields: Prisma.DailyLogWorkerFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DailyLogWorkerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DailyLogWorkerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload>
+          }
+          findFirst: {
+            args: Prisma.DailyLogWorkerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DailyLogWorkerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload>
+          }
+          findMany: {
+            args: Prisma.DailyLogWorkerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload>[]
+          }
+          create: {
+            args: Prisma.DailyLogWorkerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload>
+          }
+          createMany: {
+            args: Prisma.DailyLogWorkerCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DailyLogWorkerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload>[]
+          }
+          delete: {
+            args: Prisma.DailyLogWorkerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload>
+          }
+          update: {
+            args: Prisma.DailyLogWorkerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload>
+          }
+          deleteMany: {
+            args: Prisma.DailyLogWorkerDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DailyLogWorkerUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DailyLogWorkerUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload>[]
+          }
+          upsert: {
+            args: Prisma.DailyLogWorkerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DailyLogWorkerPayload>
+          }
+          aggregate: {
+            args: Prisma.DailyLogWorkerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDailyLogWorker>
+          }
+          groupBy: {
+            args: Prisma.DailyLogWorkerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DailyLogWorkerGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DailyLogWorkerCountArgs<ExtArgs>
+            result: $Utils.Optional<DailyLogWorkerCountAggregateOutputType> | number
+          }
+        }
+      }
       ProjectDailyLog: {
         payload: Prisma.$ProjectDailyLogPayload<ExtArgs>
         fields: Prisma.ProjectDailyLogFieldRefs
@@ -6426,6 +6516,7 @@ export namespace Prisma {
     projectEquipment?: ProjectEquipmentOmit
     projectMember?: ProjectMemberOmit
     projectTask?: ProjectTaskOmit
+    dailyLogWorker?: DailyLogWorkerOmit
     projectDailyLog?: ProjectDailyLogOmit
     branchExpense?: BranchExpenseOmit
   }
@@ -7534,6 +7625,37 @@ export namespace Prisma {
    */
   export type ProjectTaskCountOutputTypeCountSubtasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProjectTaskWhereInput
+  }
+
+
+  /**
+   * Count Type ProjectDailyLogCountOutputType
+   */
+
+  export type ProjectDailyLogCountOutputType = {
+    workers: number
+  }
+
+  export type ProjectDailyLogCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workers?: boolean | ProjectDailyLogCountOutputTypeCountWorkersArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ProjectDailyLogCountOutputType without action
+   */
+  export type ProjectDailyLogCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProjectDailyLogCountOutputType
+     */
+    select?: ProjectDailyLogCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProjectDailyLogCountOutputType without action
+   */
+  export type ProjectDailyLogCountOutputTypeCountWorkersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DailyLogWorkerWhereInput
   }
 
 
@@ -84331,6 +84453,1129 @@ export namespace Prisma {
 
 
   /**
+   * Model DailyLogWorker
+   */
+
+  export type AggregateDailyLogWorker = {
+    _count: DailyLogWorkerCountAggregateOutputType | null
+    _avg: DailyLogWorkerAvgAggregateOutputType | null
+    _sum: DailyLogWorkerSumAggregateOutputType | null
+    _min: DailyLogWorkerMinAggregateOutputType | null
+    _max: DailyLogWorkerMaxAggregateOutputType | null
+  }
+
+  export type DailyLogWorkerAvgAggregateOutputType = {
+    hours: number | null
+  }
+
+  export type DailyLogWorkerSumAggregateOutputType = {
+    hours: number | null
+  }
+
+  export type DailyLogWorkerMinAggregateOutputType = {
+    id: string | null
+    dailyLogId: string | null
+    name: string | null
+    position: string | null
+    hours: number | null
+    status: string | null
+    notes: string | null
+  }
+
+  export type DailyLogWorkerMaxAggregateOutputType = {
+    id: string | null
+    dailyLogId: string | null
+    name: string | null
+    position: string | null
+    hours: number | null
+    status: string | null
+    notes: string | null
+  }
+
+  export type DailyLogWorkerCountAggregateOutputType = {
+    id: number
+    dailyLogId: number
+    name: number
+    position: number
+    hours: number
+    status: number
+    notes: number
+    _all: number
+  }
+
+
+  export type DailyLogWorkerAvgAggregateInputType = {
+    hours?: true
+  }
+
+  export type DailyLogWorkerSumAggregateInputType = {
+    hours?: true
+  }
+
+  export type DailyLogWorkerMinAggregateInputType = {
+    id?: true
+    dailyLogId?: true
+    name?: true
+    position?: true
+    hours?: true
+    status?: true
+    notes?: true
+  }
+
+  export type DailyLogWorkerMaxAggregateInputType = {
+    id?: true
+    dailyLogId?: true
+    name?: true
+    position?: true
+    hours?: true
+    status?: true
+    notes?: true
+  }
+
+  export type DailyLogWorkerCountAggregateInputType = {
+    id?: true
+    dailyLogId?: true
+    name?: true
+    position?: true
+    hours?: true
+    status?: true
+    notes?: true
+    _all?: true
+  }
+
+  export type DailyLogWorkerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DailyLogWorker to aggregate.
+     */
+    where?: DailyLogWorkerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyLogWorkers to fetch.
+     */
+    orderBy?: DailyLogWorkerOrderByWithRelationInput | DailyLogWorkerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DailyLogWorkerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyLogWorkers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyLogWorkers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DailyLogWorkers
+    **/
+    _count?: true | DailyLogWorkerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DailyLogWorkerAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DailyLogWorkerSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DailyLogWorkerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DailyLogWorkerMaxAggregateInputType
+  }
+
+  export type GetDailyLogWorkerAggregateType<T extends DailyLogWorkerAggregateArgs> = {
+        [P in keyof T & keyof AggregateDailyLogWorker]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDailyLogWorker[P]>
+      : GetScalarType<T[P], AggregateDailyLogWorker[P]>
+  }
+
+
+
+
+  export type DailyLogWorkerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DailyLogWorkerWhereInput
+    orderBy?: DailyLogWorkerOrderByWithAggregationInput | DailyLogWorkerOrderByWithAggregationInput[]
+    by: DailyLogWorkerScalarFieldEnum[] | DailyLogWorkerScalarFieldEnum
+    having?: DailyLogWorkerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DailyLogWorkerCountAggregateInputType | true
+    _avg?: DailyLogWorkerAvgAggregateInputType
+    _sum?: DailyLogWorkerSumAggregateInputType
+    _min?: DailyLogWorkerMinAggregateInputType
+    _max?: DailyLogWorkerMaxAggregateInputType
+  }
+
+  export type DailyLogWorkerGroupByOutputType = {
+    id: string
+    dailyLogId: string
+    name: string
+    position: string
+    hours: number | null
+    status: string
+    notes: string | null
+    _count: DailyLogWorkerCountAggregateOutputType | null
+    _avg: DailyLogWorkerAvgAggregateOutputType | null
+    _sum: DailyLogWorkerSumAggregateOutputType | null
+    _min: DailyLogWorkerMinAggregateOutputType | null
+    _max: DailyLogWorkerMaxAggregateOutputType | null
+  }
+
+  type GetDailyLogWorkerGroupByPayload<T extends DailyLogWorkerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DailyLogWorkerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DailyLogWorkerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DailyLogWorkerGroupByOutputType[P]>
+            : GetScalarType<T[P], DailyLogWorkerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DailyLogWorkerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    dailyLogId?: boolean
+    name?: boolean
+    position?: boolean
+    hours?: boolean
+    status?: boolean
+    notes?: boolean
+    dailyLog?: boolean | ProjectDailyLogDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dailyLogWorker"]>
+
+  export type DailyLogWorkerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    dailyLogId?: boolean
+    name?: boolean
+    position?: boolean
+    hours?: boolean
+    status?: boolean
+    notes?: boolean
+    dailyLog?: boolean | ProjectDailyLogDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dailyLogWorker"]>
+
+  export type DailyLogWorkerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    dailyLogId?: boolean
+    name?: boolean
+    position?: boolean
+    hours?: boolean
+    status?: boolean
+    notes?: boolean
+    dailyLog?: boolean | ProjectDailyLogDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dailyLogWorker"]>
+
+  export type DailyLogWorkerSelectScalar = {
+    id?: boolean
+    dailyLogId?: boolean
+    name?: boolean
+    position?: boolean
+    hours?: boolean
+    status?: boolean
+    notes?: boolean
+  }
+
+  export type DailyLogWorkerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "dailyLogId" | "name" | "position" | "hours" | "status" | "notes", ExtArgs["result"]["dailyLogWorker"]>
+  export type DailyLogWorkerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dailyLog?: boolean | ProjectDailyLogDefaultArgs<ExtArgs>
+  }
+  export type DailyLogWorkerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dailyLog?: boolean | ProjectDailyLogDefaultArgs<ExtArgs>
+  }
+  export type DailyLogWorkerIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dailyLog?: boolean | ProjectDailyLogDefaultArgs<ExtArgs>
+  }
+
+  export type $DailyLogWorkerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DailyLogWorker"
+    objects: {
+      dailyLog: Prisma.$ProjectDailyLogPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      dailyLogId: string
+      name: string
+      position: string
+      hours: number | null
+      status: string
+      notes: string | null
+    }, ExtArgs["result"]["dailyLogWorker"]>
+    composites: {}
+  }
+
+  type DailyLogWorkerGetPayload<S extends boolean | null | undefined | DailyLogWorkerDefaultArgs> = $Result.GetResult<Prisma.$DailyLogWorkerPayload, S>
+
+  type DailyLogWorkerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DailyLogWorkerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DailyLogWorkerCountAggregateInputType | true
+    }
+
+  export interface DailyLogWorkerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DailyLogWorker'], meta: { name: 'DailyLogWorker' } }
+    /**
+     * Find zero or one DailyLogWorker that matches the filter.
+     * @param {DailyLogWorkerFindUniqueArgs} args - Arguments to find a DailyLogWorker
+     * @example
+     * // Get one DailyLogWorker
+     * const dailyLogWorker = await prisma.dailyLogWorker.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DailyLogWorkerFindUniqueArgs>(args: SelectSubset<T, DailyLogWorkerFindUniqueArgs<ExtArgs>>): Prisma__DailyLogWorkerClient<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DailyLogWorker that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DailyLogWorkerFindUniqueOrThrowArgs} args - Arguments to find a DailyLogWorker
+     * @example
+     * // Get one DailyLogWorker
+     * const dailyLogWorker = await prisma.dailyLogWorker.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DailyLogWorkerFindUniqueOrThrowArgs>(args: SelectSubset<T, DailyLogWorkerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DailyLogWorkerClient<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DailyLogWorker that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyLogWorkerFindFirstArgs} args - Arguments to find a DailyLogWorker
+     * @example
+     * // Get one DailyLogWorker
+     * const dailyLogWorker = await prisma.dailyLogWorker.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DailyLogWorkerFindFirstArgs>(args?: SelectSubset<T, DailyLogWorkerFindFirstArgs<ExtArgs>>): Prisma__DailyLogWorkerClient<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DailyLogWorker that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyLogWorkerFindFirstOrThrowArgs} args - Arguments to find a DailyLogWorker
+     * @example
+     * // Get one DailyLogWorker
+     * const dailyLogWorker = await prisma.dailyLogWorker.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DailyLogWorkerFindFirstOrThrowArgs>(args?: SelectSubset<T, DailyLogWorkerFindFirstOrThrowArgs<ExtArgs>>): Prisma__DailyLogWorkerClient<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DailyLogWorkers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyLogWorkerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DailyLogWorkers
+     * const dailyLogWorkers = await prisma.dailyLogWorker.findMany()
+     * 
+     * // Get first 10 DailyLogWorkers
+     * const dailyLogWorkers = await prisma.dailyLogWorker.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dailyLogWorkerWithIdOnly = await prisma.dailyLogWorker.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DailyLogWorkerFindManyArgs>(args?: SelectSubset<T, DailyLogWorkerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DailyLogWorker.
+     * @param {DailyLogWorkerCreateArgs} args - Arguments to create a DailyLogWorker.
+     * @example
+     * // Create one DailyLogWorker
+     * const DailyLogWorker = await prisma.dailyLogWorker.create({
+     *   data: {
+     *     // ... data to create a DailyLogWorker
+     *   }
+     * })
+     * 
+     */
+    create<T extends DailyLogWorkerCreateArgs>(args: SelectSubset<T, DailyLogWorkerCreateArgs<ExtArgs>>): Prisma__DailyLogWorkerClient<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DailyLogWorkers.
+     * @param {DailyLogWorkerCreateManyArgs} args - Arguments to create many DailyLogWorkers.
+     * @example
+     * // Create many DailyLogWorkers
+     * const dailyLogWorker = await prisma.dailyLogWorker.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DailyLogWorkerCreateManyArgs>(args?: SelectSubset<T, DailyLogWorkerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DailyLogWorkers and returns the data saved in the database.
+     * @param {DailyLogWorkerCreateManyAndReturnArgs} args - Arguments to create many DailyLogWorkers.
+     * @example
+     * // Create many DailyLogWorkers
+     * const dailyLogWorker = await prisma.dailyLogWorker.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DailyLogWorkers and only return the `id`
+     * const dailyLogWorkerWithIdOnly = await prisma.dailyLogWorker.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DailyLogWorkerCreateManyAndReturnArgs>(args?: SelectSubset<T, DailyLogWorkerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DailyLogWorker.
+     * @param {DailyLogWorkerDeleteArgs} args - Arguments to delete one DailyLogWorker.
+     * @example
+     * // Delete one DailyLogWorker
+     * const DailyLogWorker = await prisma.dailyLogWorker.delete({
+     *   where: {
+     *     // ... filter to delete one DailyLogWorker
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DailyLogWorkerDeleteArgs>(args: SelectSubset<T, DailyLogWorkerDeleteArgs<ExtArgs>>): Prisma__DailyLogWorkerClient<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DailyLogWorker.
+     * @param {DailyLogWorkerUpdateArgs} args - Arguments to update one DailyLogWorker.
+     * @example
+     * // Update one DailyLogWorker
+     * const dailyLogWorker = await prisma.dailyLogWorker.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DailyLogWorkerUpdateArgs>(args: SelectSubset<T, DailyLogWorkerUpdateArgs<ExtArgs>>): Prisma__DailyLogWorkerClient<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DailyLogWorkers.
+     * @param {DailyLogWorkerDeleteManyArgs} args - Arguments to filter DailyLogWorkers to delete.
+     * @example
+     * // Delete a few DailyLogWorkers
+     * const { count } = await prisma.dailyLogWorker.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DailyLogWorkerDeleteManyArgs>(args?: SelectSubset<T, DailyLogWorkerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DailyLogWorkers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyLogWorkerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DailyLogWorkers
+     * const dailyLogWorker = await prisma.dailyLogWorker.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DailyLogWorkerUpdateManyArgs>(args: SelectSubset<T, DailyLogWorkerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DailyLogWorkers and returns the data updated in the database.
+     * @param {DailyLogWorkerUpdateManyAndReturnArgs} args - Arguments to update many DailyLogWorkers.
+     * @example
+     * // Update many DailyLogWorkers
+     * const dailyLogWorker = await prisma.dailyLogWorker.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DailyLogWorkers and only return the `id`
+     * const dailyLogWorkerWithIdOnly = await prisma.dailyLogWorker.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DailyLogWorkerUpdateManyAndReturnArgs>(args: SelectSubset<T, DailyLogWorkerUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DailyLogWorker.
+     * @param {DailyLogWorkerUpsertArgs} args - Arguments to update or create a DailyLogWorker.
+     * @example
+     * // Update or create a DailyLogWorker
+     * const dailyLogWorker = await prisma.dailyLogWorker.upsert({
+     *   create: {
+     *     // ... data to create a DailyLogWorker
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DailyLogWorker we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DailyLogWorkerUpsertArgs>(args: SelectSubset<T, DailyLogWorkerUpsertArgs<ExtArgs>>): Prisma__DailyLogWorkerClient<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DailyLogWorkers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyLogWorkerCountArgs} args - Arguments to filter DailyLogWorkers to count.
+     * @example
+     * // Count the number of DailyLogWorkers
+     * const count = await prisma.dailyLogWorker.count({
+     *   where: {
+     *     // ... the filter for the DailyLogWorkers we want to count
+     *   }
+     * })
+    **/
+    count<T extends DailyLogWorkerCountArgs>(
+      args?: Subset<T, DailyLogWorkerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DailyLogWorkerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DailyLogWorker.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyLogWorkerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DailyLogWorkerAggregateArgs>(args: Subset<T, DailyLogWorkerAggregateArgs>): Prisma.PrismaPromise<GetDailyLogWorkerAggregateType<T>>
+
+    /**
+     * Group by DailyLogWorker.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DailyLogWorkerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DailyLogWorkerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DailyLogWorkerGroupByArgs['orderBy'] }
+        : { orderBy?: DailyLogWorkerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DailyLogWorkerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDailyLogWorkerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DailyLogWorker model
+   */
+  readonly fields: DailyLogWorkerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DailyLogWorker.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DailyLogWorkerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    dailyLog<T extends ProjectDailyLogDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDailyLogDefaultArgs<ExtArgs>>): Prisma__ProjectDailyLogClient<$Result.GetResult<Prisma.$ProjectDailyLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DailyLogWorker model
+   */
+  interface DailyLogWorkerFieldRefs {
+    readonly id: FieldRef<"DailyLogWorker", 'String'>
+    readonly dailyLogId: FieldRef<"DailyLogWorker", 'String'>
+    readonly name: FieldRef<"DailyLogWorker", 'String'>
+    readonly position: FieldRef<"DailyLogWorker", 'String'>
+    readonly hours: FieldRef<"DailyLogWorker", 'Float'>
+    readonly status: FieldRef<"DailyLogWorker", 'String'>
+    readonly notes: FieldRef<"DailyLogWorker", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DailyLogWorker findUnique
+   */
+  export type DailyLogWorkerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+    /**
+     * Filter, which DailyLogWorker to fetch.
+     */
+    where: DailyLogWorkerWhereUniqueInput
+  }
+
+  /**
+   * DailyLogWorker findUniqueOrThrow
+   */
+  export type DailyLogWorkerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+    /**
+     * Filter, which DailyLogWorker to fetch.
+     */
+    where: DailyLogWorkerWhereUniqueInput
+  }
+
+  /**
+   * DailyLogWorker findFirst
+   */
+  export type DailyLogWorkerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+    /**
+     * Filter, which DailyLogWorker to fetch.
+     */
+    where?: DailyLogWorkerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyLogWorkers to fetch.
+     */
+    orderBy?: DailyLogWorkerOrderByWithRelationInput | DailyLogWorkerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DailyLogWorkers.
+     */
+    cursor?: DailyLogWorkerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyLogWorkers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyLogWorkers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DailyLogWorkers.
+     */
+    distinct?: DailyLogWorkerScalarFieldEnum | DailyLogWorkerScalarFieldEnum[]
+  }
+
+  /**
+   * DailyLogWorker findFirstOrThrow
+   */
+  export type DailyLogWorkerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+    /**
+     * Filter, which DailyLogWorker to fetch.
+     */
+    where?: DailyLogWorkerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyLogWorkers to fetch.
+     */
+    orderBy?: DailyLogWorkerOrderByWithRelationInput | DailyLogWorkerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DailyLogWorkers.
+     */
+    cursor?: DailyLogWorkerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyLogWorkers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyLogWorkers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DailyLogWorkers.
+     */
+    distinct?: DailyLogWorkerScalarFieldEnum | DailyLogWorkerScalarFieldEnum[]
+  }
+
+  /**
+   * DailyLogWorker findMany
+   */
+  export type DailyLogWorkerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+    /**
+     * Filter, which DailyLogWorkers to fetch.
+     */
+    where?: DailyLogWorkerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DailyLogWorkers to fetch.
+     */
+    orderBy?: DailyLogWorkerOrderByWithRelationInput | DailyLogWorkerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DailyLogWorkers.
+     */
+    cursor?: DailyLogWorkerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DailyLogWorkers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DailyLogWorkers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DailyLogWorkers.
+     */
+    distinct?: DailyLogWorkerScalarFieldEnum | DailyLogWorkerScalarFieldEnum[]
+  }
+
+  /**
+   * DailyLogWorker create
+   */
+  export type DailyLogWorkerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DailyLogWorker.
+     */
+    data: XOR<DailyLogWorkerCreateInput, DailyLogWorkerUncheckedCreateInput>
+  }
+
+  /**
+   * DailyLogWorker createMany
+   */
+  export type DailyLogWorkerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DailyLogWorkers.
+     */
+    data: DailyLogWorkerCreateManyInput | DailyLogWorkerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DailyLogWorker createManyAndReturn
+   */
+  export type DailyLogWorkerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * The data used to create many DailyLogWorkers.
+     */
+    data: DailyLogWorkerCreateManyInput | DailyLogWorkerCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DailyLogWorker update
+   */
+  export type DailyLogWorkerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DailyLogWorker.
+     */
+    data: XOR<DailyLogWorkerUpdateInput, DailyLogWorkerUncheckedUpdateInput>
+    /**
+     * Choose, which DailyLogWorker to update.
+     */
+    where: DailyLogWorkerWhereUniqueInput
+  }
+
+  /**
+   * DailyLogWorker updateMany
+   */
+  export type DailyLogWorkerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DailyLogWorkers.
+     */
+    data: XOR<DailyLogWorkerUpdateManyMutationInput, DailyLogWorkerUncheckedUpdateManyInput>
+    /**
+     * Filter which DailyLogWorkers to update
+     */
+    where?: DailyLogWorkerWhereInput
+    /**
+     * Limit how many DailyLogWorkers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DailyLogWorker updateManyAndReturn
+   */
+  export type DailyLogWorkerUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * The data used to update DailyLogWorkers.
+     */
+    data: XOR<DailyLogWorkerUpdateManyMutationInput, DailyLogWorkerUncheckedUpdateManyInput>
+    /**
+     * Filter which DailyLogWorkers to update
+     */
+    where?: DailyLogWorkerWhereInput
+    /**
+     * Limit how many DailyLogWorkers to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DailyLogWorker upsert
+   */
+  export type DailyLogWorkerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DailyLogWorker to update in case it exists.
+     */
+    where: DailyLogWorkerWhereUniqueInput
+    /**
+     * In case the DailyLogWorker found by the `where` argument doesn't exist, create a new DailyLogWorker with this data.
+     */
+    create: XOR<DailyLogWorkerCreateInput, DailyLogWorkerUncheckedCreateInput>
+    /**
+     * In case the DailyLogWorker was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DailyLogWorkerUpdateInput, DailyLogWorkerUncheckedUpdateInput>
+  }
+
+  /**
+   * DailyLogWorker delete
+   */
+  export type DailyLogWorkerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+    /**
+     * Filter which DailyLogWorker to delete.
+     */
+    where: DailyLogWorkerWhereUniqueInput
+  }
+
+  /**
+   * DailyLogWorker deleteMany
+   */
+  export type DailyLogWorkerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DailyLogWorkers to delete
+     */
+    where?: DailyLogWorkerWhereInput
+    /**
+     * Limit how many DailyLogWorkers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DailyLogWorker without action
+   */
+  export type DailyLogWorkerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model ProjectDailyLog
    */
 
@@ -84369,6 +85614,10 @@ export namespace Prisma {
     nextPlan: string | null
     safetyNote: string | null
     incidents: number | null
+    delayCause: string | null
+    delayResponsible: string | null
+    delayExpectedDate: Date | null
+    delaySeverity: string | null
     reporterSigUrl: string | null
     supervisorSigUrl: string | null
     supervisorName: string | null
@@ -84391,6 +85640,10 @@ export namespace Prisma {
     nextPlan: string | null
     safetyNote: string | null
     incidents: number | null
+    delayCause: string | null
+    delayResponsible: string | null
+    delayExpectedDate: Date | null
+    delaySeverity: string | null
     reporterSigUrl: string | null
     supervisorSigUrl: string | null
     supervisorName: string | null
@@ -84413,6 +85666,11 @@ export namespace Prisma {
     nextPlan: number
     safetyNote: number
     incidents: number
+    delayCause: number
+    delayResponsible: number
+    delayExpectedDate: number
+    delaySeverity: number
+    tasksPerformed: number
     taskUpdates: number
     imageUrls: number
     reporterSigUrl: number
@@ -84451,6 +85709,10 @@ export namespace Prisma {
     nextPlan?: true
     safetyNote?: true
     incidents?: true
+    delayCause?: true
+    delayResponsible?: true
+    delayExpectedDate?: true
+    delaySeverity?: true
     reporterSigUrl?: true
     supervisorSigUrl?: true
     supervisorName?: true
@@ -84473,6 +85735,10 @@ export namespace Prisma {
     nextPlan?: true
     safetyNote?: true
     incidents?: true
+    delayCause?: true
+    delayResponsible?: true
+    delayExpectedDate?: true
+    delaySeverity?: true
     reporterSigUrl?: true
     supervisorSigUrl?: true
     supervisorName?: true
@@ -84495,6 +85761,11 @@ export namespace Prisma {
     nextPlan?: true
     safetyNote?: true
     incidents?: true
+    delayCause?: true
+    delayResponsible?: true
+    delayExpectedDate?: true
+    delaySeverity?: true
+    tasksPerformed?: true
     taskUpdates?: true
     imageUrls?: true
     reporterSigUrl?: true
@@ -84606,6 +85877,11 @@ export namespace Prisma {
     nextPlan: string | null
     safetyNote: string | null
     incidents: number
+    delayCause: string | null
+    delayResponsible: string | null
+    delayExpectedDate: Date | null
+    delaySeverity: string | null
+    tasksPerformed: JsonValue | null
     taskUpdates: JsonValue | null
     imageUrls: JsonValue | null
     reporterSigUrl: string | null
@@ -84649,6 +85925,11 @@ export namespace Prisma {
     nextPlan?: boolean
     safetyNote?: boolean
     incidents?: boolean
+    delayCause?: boolean
+    delayResponsible?: boolean
+    delayExpectedDate?: boolean
+    delaySeverity?: boolean
+    tasksPerformed?: boolean
     taskUpdates?: boolean
     imageUrls?: boolean
     reporterSigUrl?: boolean
@@ -84658,6 +85939,8 @@ export namespace Prisma {
     updatedAt?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     reporter?: boolean | UserDefaultArgs<ExtArgs>
+    workers?: boolean | ProjectDailyLog$workersArgs<ExtArgs>
+    _count?: boolean | ProjectDailyLogCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["projectDailyLog"]>
 
   export type ProjectDailyLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -84675,6 +85958,11 @@ export namespace Prisma {
     nextPlan?: boolean
     safetyNote?: boolean
     incidents?: boolean
+    delayCause?: boolean
+    delayResponsible?: boolean
+    delayExpectedDate?: boolean
+    delaySeverity?: boolean
+    tasksPerformed?: boolean
     taskUpdates?: boolean
     imageUrls?: boolean
     reporterSigUrl?: boolean
@@ -84701,6 +85989,11 @@ export namespace Prisma {
     nextPlan?: boolean
     safetyNote?: boolean
     incidents?: boolean
+    delayCause?: boolean
+    delayResponsible?: boolean
+    delayExpectedDate?: boolean
+    delaySeverity?: boolean
+    tasksPerformed?: boolean
     taskUpdates?: boolean
     imageUrls?: boolean
     reporterSigUrl?: boolean
@@ -84727,6 +86020,11 @@ export namespace Prisma {
     nextPlan?: boolean
     safetyNote?: boolean
     incidents?: boolean
+    delayCause?: boolean
+    delayResponsible?: boolean
+    delayExpectedDate?: boolean
+    delaySeverity?: boolean
+    tasksPerformed?: boolean
     taskUpdates?: boolean
     imageUrls?: boolean
     reporterSigUrl?: boolean
@@ -84736,10 +86034,12 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ProjectDailyLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "reportedBy" | "date" | "weather" | "temperature" | "workerCount" | "workerNote" | "workSummary" | "issues" | "solutions" | "nextPlan" | "safetyNote" | "incidents" | "taskUpdates" | "imageUrls" | "reporterSigUrl" | "supervisorSigUrl" | "supervisorName" | "createdAt" | "updatedAt", ExtArgs["result"]["projectDailyLog"]>
+  export type ProjectDailyLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "reportedBy" | "date" | "weather" | "temperature" | "workerCount" | "workerNote" | "workSummary" | "issues" | "solutions" | "nextPlan" | "safetyNote" | "incidents" | "delayCause" | "delayResponsible" | "delayExpectedDate" | "delaySeverity" | "tasksPerformed" | "taskUpdates" | "imageUrls" | "reporterSigUrl" | "supervisorSigUrl" | "supervisorName" | "createdAt" | "updatedAt", ExtArgs["result"]["projectDailyLog"]>
   export type ProjectDailyLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     reporter?: boolean | UserDefaultArgs<ExtArgs>
+    workers?: boolean | ProjectDailyLog$workersArgs<ExtArgs>
+    _count?: boolean | ProjectDailyLogCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProjectDailyLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
@@ -84755,6 +86055,7 @@ export namespace Prisma {
     objects: {
       project: Prisma.$ProjectPayload<ExtArgs>
       reporter: Prisma.$UserPayload<ExtArgs>
+      workers: Prisma.$DailyLogWorkerPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -84771,6 +86072,11 @@ export namespace Prisma {
       nextPlan: string | null
       safetyNote: string | null
       incidents: number
+      delayCause: string | null
+      delayResponsible: string | null
+      delayExpectedDate: Date | null
+      delaySeverity: string | null
+      tasksPerformed: Prisma.JsonValue | null
       taskUpdates: Prisma.JsonValue | null
       imageUrls: Prisma.JsonValue | null
       reporterSigUrl: string | null
@@ -85174,6 +86480,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     reporter<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    workers<T extends ProjectDailyLog$workersArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDailyLog$workersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailyLogWorkerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -85217,6 +86524,11 @@ export namespace Prisma {
     readonly nextPlan: FieldRef<"ProjectDailyLog", 'String'>
     readonly safetyNote: FieldRef<"ProjectDailyLog", 'String'>
     readonly incidents: FieldRef<"ProjectDailyLog", 'Int'>
+    readonly delayCause: FieldRef<"ProjectDailyLog", 'String'>
+    readonly delayResponsible: FieldRef<"ProjectDailyLog", 'String'>
+    readonly delayExpectedDate: FieldRef<"ProjectDailyLog", 'DateTime'>
+    readonly delaySeverity: FieldRef<"ProjectDailyLog", 'String'>
+    readonly tasksPerformed: FieldRef<"ProjectDailyLog", 'Json'>
     readonly taskUpdates: FieldRef<"ProjectDailyLog", 'Json'>
     readonly imageUrls: FieldRef<"ProjectDailyLog", 'Json'>
     readonly reporterSigUrl: FieldRef<"ProjectDailyLog", 'String'>
@@ -85622,6 +86934,30 @@ export namespace Prisma {
      * Limit how many ProjectDailyLogs to delete.
      */
     limit?: number
+  }
+
+  /**
+   * ProjectDailyLog.workers
+   */
+  export type ProjectDailyLog$workersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DailyLogWorker
+     */
+    select?: DailyLogWorkerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DailyLogWorker
+     */
+    omit?: DailyLogWorkerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DailyLogWorkerInclude<ExtArgs> | null
+    where?: DailyLogWorkerWhereInput
+    orderBy?: DailyLogWorkerOrderByWithRelationInput | DailyLogWorkerOrderByWithRelationInput[]
+    cursor?: DailyLogWorkerWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DailyLogWorkerScalarFieldEnum | DailyLogWorkerScalarFieldEnum[]
   }
 
   /**
@@ -88017,6 +89353,19 @@ export namespace Prisma {
   export type ProjectTaskScalarFieldEnum = (typeof ProjectTaskScalarFieldEnum)[keyof typeof ProjectTaskScalarFieldEnum]
 
 
+  export const DailyLogWorkerScalarFieldEnum: {
+    id: 'id',
+    dailyLogId: 'dailyLogId',
+    name: 'name',
+    position: 'position',
+    hours: 'hours',
+    status: 'status',
+    notes: 'notes'
+  };
+
+  export type DailyLogWorkerScalarFieldEnum = (typeof DailyLogWorkerScalarFieldEnum)[keyof typeof DailyLogWorkerScalarFieldEnum]
+
+
   export const ProjectDailyLogScalarFieldEnum: {
     id: 'id',
     projectId: 'projectId',
@@ -88032,6 +89381,11 @@ export namespace Prisma {
     nextPlan: 'nextPlan',
     safetyNote: 'safetyNote',
     incidents: 'incidents',
+    delayCause: 'delayCause',
+    delayResponsible: 'delayResponsible',
+    delayExpectedDate: 'delayExpectedDate',
+    delaySeverity: 'delaySeverity',
+    tasksPerformed: 'tasksPerformed',
     taskUpdates: 'taskUpdates',
     imageUrls: 'imageUrls',
     reporterSigUrl: 'reporterSigUrl',
@@ -94921,6 +96275,73 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"ProjectTask"> | Date | string
   }
 
+  export type DailyLogWorkerWhereInput = {
+    AND?: DailyLogWorkerWhereInput | DailyLogWorkerWhereInput[]
+    OR?: DailyLogWorkerWhereInput[]
+    NOT?: DailyLogWorkerWhereInput | DailyLogWorkerWhereInput[]
+    id?: StringFilter<"DailyLogWorker"> | string
+    dailyLogId?: StringFilter<"DailyLogWorker"> | string
+    name?: StringFilter<"DailyLogWorker"> | string
+    position?: StringFilter<"DailyLogWorker"> | string
+    hours?: FloatNullableFilter<"DailyLogWorker"> | number | null
+    status?: StringFilter<"DailyLogWorker"> | string
+    notes?: StringNullableFilter<"DailyLogWorker"> | string | null
+    dailyLog?: XOR<ProjectDailyLogScalarRelationFilter, ProjectDailyLogWhereInput>
+  }
+
+  export type DailyLogWorkerOrderByWithRelationInput = {
+    id?: SortOrder
+    dailyLogId?: SortOrder
+    name?: SortOrder
+    position?: SortOrder
+    hours?: SortOrderInput | SortOrder
+    status?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    dailyLog?: ProjectDailyLogOrderByWithRelationInput
+  }
+
+  export type DailyLogWorkerWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DailyLogWorkerWhereInput | DailyLogWorkerWhereInput[]
+    OR?: DailyLogWorkerWhereInput[]
+    NOT?: DailyLogWorkerWhereInput | DailyLogWorkerWhereInput[]
+    dailyLogId?: StringFilter<"DailyLogWorker"> | string
+    name?: StringFilter<"DailyLogWorker"> | string
+    position?: StringFilter<"DailyLogWorker"> | string
+    hours?: FloatNullableFilter<"DailyLogWorker"> | number | null
+    status?: StringFilter<"DailyLogWorker"> | string
+    notes?: StringNullableFilter<"DailyLogWorker"> | string | null
+    dailyLog?: XOR<ProjectDailyLogScalarRelationFilter, ProjectDailyLogWhereInput>
+  }, "id">
+
+  export type DailyLogWorkerOrderByWithAggregationInput = {
+    id?: SortOrder
+    dailyLogId?: SortOrder
+    name?: SortOrder
+    position?: SortOrder
+    hours?: SortOrderInput | SortOrder
+    status?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    _count?: DailyLogWorkerCountOrderByAggregateInput
+    _avg?: DailyLogWorkerAvgOrderByAggregateInput
+    _max?: DailyLogWorkerMaxOrderByAggregateInput
+    _min?: DailyLogWorkerMinOrderByAggregateInput
+    _sum?: DailyLogWorkerSumOrderByAggregateInput
+  }
+
+  export type DailyLogWorkerScalarWhereWithAggregatesInput = {
+    AND?: DailyLogWorkerScalarWhereWithAggregatesInput | DailyLogWorkerScalarWhereWithAggregatesInput[]
+    OR?: DailyLogWorkerScalarWhereWithAggregatesInput[]
+    NOT?: DailyLogWorkerScalarWhereWithAggregatesInput | DailyLogWorkerScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DailyLogWorker"> | string
+    dailyLogId?: StringWithAggregatesFilter<"DailyLogWorker"> | string
+    name?: StringWithAggregatesFilter<"DailyLogWorker"> | string
+    position?: StringWithAggregatesFilter<"DailyLogWorker"> | string
+    hours?: FloatNullableWithAggregatesFilter<"DailyLogWorker"> | number | null
+    status?: StringWithAggregatesFilter<"DailyLogWorker"> | string
+    notes?: StringNullableWithAggregatesFilter<"DailyLogWorker"> | string | null
+  }
+
   export type ProjectDailyLogWhereInput = {
     AND?: ProjectDailyLogWhereInput | ProjectDailyLogWhereInput[]
     OR?: ProjectDailyLogWhereInput[]
@@ -94939,6 +96360,11 @@ export namespace Prisma {
     nextPlan?: StringNullableFilter<"ProjectDailyLog"> | string | null
     safetyNote?: StringNullableFilter<"ProjectDailyLog"> | string | null
     incidents?: IntFilter<"ProjectDailyLog"> | number
+    delayCause?: StringNullableFilter<"ProjectDailyLog"> | string | null
+    delayResponsible?: StringNullableFilter<"ProjectDailyLog"> | string | null
+    delayExpectedDate?: DateTimeNullableFilter<"ProjectDailyLog"> | Date | string | null
+    delaySeverity?: StringNullableFilter<"ProjectDailyLog"> | string | null
+    tasksPerformed?: JsonNullableFilter<"ProjectDailyLog">
     taskUpdates?: JsonNullableFilter<"ProjectDailyLog">
     imageUrls?: JsonNullableFilter<"ProjectDailyLog">
     reporterSigUrl?: StringNullableFilter<"ProjectDailyLog"> | string | null
@@ -94948,6 +96374,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"ProjectDailyLog"> | Date | string
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     reporter?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workers?: DailyLogWorkerListRelationFilter
   }
 
   export type ProjectDailyLogOrderByWithRelationInput = {
@@ -94965,6 +96392,11 @@ export namespace Prisma {
     nextPlan?: SortOrderInput | SortOrder
     safetyNote?: SortOrderInput | SortOrder
     incidents?: SortOrder
+    delayCause?: SortOrderInput | SortOrder
+    delayResponsible?: SortOrderInput | SortOrder
+    delayExpectedDate?: SortOrderInput | SortOrder
+    delaySeverity?: SortOrderInput | SortOrder
+    tasksPerformed?: SortOrderInput | SortOrder
     taskUpdates?: SortOrderInput | SortOrder
     imageUrls?: SortOrderInput | SortOrder
     reporterSigUrl?: SortOrderInput | SortOrder
@@ -94974,6 +96406,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     project?: ProjectOrderByWithRelationInput
     reporter?: UserOrderByWithRelationInput
+    workers?: DailyLogWorkerOrderByRelationAggregateInput
   }
 
   export type ProjectDailyLogWhereUniqueInput = Prisma.AtLeast<{
@@ -94995,6 +96428,11 @@ export namespace Prisma {
     nextPlan?: StringNullableFilter<"ProjectDailyLog"> | string | null
     safetyNote?: StringNullableFilter<"ProjectDailyLog"> | string | null
     incidents?: IntFilter<"ProjectDailyLog"> | number
+    delayCause?: StringNullableFilter<"ProjectDailyLog"> | string | null
+    delayResponsible?: StringNullableFilter<"ProjectDailyLog"> | string | null
+    delayExpectedDate?: DateTimeNullableFilter<"ProjectDailyLog"> | Date | string | null
+    delaySeverity?: StringNullableFilter<"ProjectDailyLog"> | string | null
+    tasksPerformed?: JsonNullableFilter<"ProjectDailyLog">
     taskUpdates?: JsonNullableFilter<"ProjectDailyLog">
     imageUrls?: JsonNullableFilter<"ProjectDailyLog">
     reporterSigUrl?: StringNullableFilter<"ProjectDailyLog"> | string | null
@@ -95004,6 +96442,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"ProjectDailyLog"> | Date | string
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     reporter?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workers?: DailyLogWorkerListRelationFilter
   }, "id" | "projectId_date_reportedBy">
 
   export type ProjectDailyLogOrderByWithAggregationInput = {
@@ -95021,6 +96460,11 @@ export namespace Prisma {
     nextPlan?: SortOrderInput | SortOrder
     safetyNote?: SortOrderInput | SortOrder
     incidents?: SortOrder
+    delayCause?: SortOrderInput | SortOrder
+    delayResponsible?: SortOrderInput | SortOrder
+    delayExpectedDate?: SortOrderInput | SortOrder
+    delaySeverity?: SortOrderInput | SortOrder
+    tasksPerformed?: SortOrderInput | SortOrder
     taskUpdates?: SortOrderInput | SortOrder
     imageUrls?: SortOrderInput | SortOrder
     reporterSigUrl?: SortOrderInput | SortOrder
@@ -95053,6 +96497,11 @@ export namespace Prisma {
     nextPlan?: StringNullableWithAggregatesFilter<"ProjectDailyLog"> | string | null
     safetyNote?: StringNullableWithAggregatesFilter<"ProjectDailyLog"> | string | null
     incidents?: IntWithAggregatesFilter<"ProjectDailyLog"> | number
+    delayCause?: StringNullableWithAggregatesFilter<"ProjectDailyLog"> | string | null
+    delayResponsible?: StringNullableWithAggregatesFilter<"ProjectDailyLog"> | string | null
+    delayExpectedDate?: DateTimeNullableWithAggregatesFilter<"ProjectDailyLog"> | Date | string | null
+    delaySeverity?: StringNullableWithAggregatesFilter<"ProjectDailyLog"> | string | null
+    tasksPerformed?: JsonNullableWithAggregatesFilter<"ProjectDailyLog">
     taskUpdates?: JsonNullableWithAggregatesFilter<"ProjectDailyLog">
     imageUrls?: JsonNullableWithAggregatesFilter<"ProjectDailyLog">
     reporterSigUrl?: StringNullableWithAggregatesFilter<"ProjectDailyLog"> | string | null
@@ -102920,6 +104369,75 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DailyLogWorkerCreateInput = {
+    id?: string
+    name: string
+    position: string
+    hours?: number | null
+    status: string
+    notes?: string | null
+    dailyLog: ProjectDailyLogCreateNestedOneWithoutWorkersInput
+  }
+
+  export type DailyLogWorkerUncheckedCreateInput = {
+    id?: string
+    dailyLogId: string
+    name: string
+    position: string
+    hours?: number | null
+    status: string
+    notes?: string | null
+  }
+
+  export type DailyLogWorkerUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: StringFieldUpdateOperationsInput | string
+    hours?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyLog?: ProjectDailyLogUpdateOneRequiredWithoutWorkersNestedInput
+  }
+
+  export type DailyLogWorkerUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dailyLogId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: StringFieldUpdateOperationsInput | string
+    hours?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DailyLogWorkerCreateManyInput = {
+    id?: string
+    dailyLogId: string
+    name: string
+    position: string
+    hours?: number | null
+    status: string
+    notes?: string | null
+  }
+
+  export type DailyLogWorkerUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: StringFieldUpdateOperationsInput | string
+    hours?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DailyLogWorkerUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dailyLogId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: StringFieldUpdateOperationsInput | string
+    hours?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type ProjectDailyLogCreateInput = {
     id?: string
     date: Date | string
@@ -102933,6 +104451,11 @@ export namespace Prisma {
     nextPlan?: string | null
     safetyNote?: string | null
     incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: string | null
@@ -102942,6 +104465,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     project: ProjectCreateNestedOneWithoutDailyLogsInput
     reporter: UserCreateNestedOneWithoutReportedDailyLogsInput
+    workers?: DailyLogWorkerCreateNestedManyWithoutDailyLogInput
   }
 
   export type ProjectDailyLogUncheckedCreateInput = {
@@ -102959,6 +104483,11 @@ export namespace Prisma {
     nextPlan?: string | null
     safetyNote?: string | null
     incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: string | null
@@ -102966,6 +104495,7 @@ export namespace Prisma {
     supervisorName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    workers?: DailyLogWorkerUncheckedCreateNestedManyWithoutDailyLogInput
   }
 
   export type ProjectDailyLogUpdateInput = {
@@ -102981,6 +104511,11 @@ export namespace Prisma {
     nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
     incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102990,6 +104525,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     project?: ProjectUpdateOneRequiredWithoutDailyLogsNestedInput
     reporter?: UserUpdateOneRequiredWithoutReportedDailyLogsNestedInput
+    workers?: DailyLogWorkerUpdateManyWithoutDailyLogNestedInput
   }
 
   export type ProjectDailyLogUncheckedUpdateInput = {
@@ -103007,6 +104543,11 @@ export namespace Prisma {
     nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
     incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -103014,6 +104555,7 @@ export namespace Prisma {
     supervisorName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workers?: DailyLogWorkerUncheckedUpdateManyWithoutDailyLogNestedInput
   }
 
   export type ProjectDailyLogCreateManyInput = {
@@ -103031,6 +104573,11 @@ export namespace Prisma {
     nextPlan?: string | null
     safetyNote?: string | null
     incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: string | null
@@ -103053,6 +104600,11 @@ export namespace Prisma {
     nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
     incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -103077,6 +104629,11 @@ export namespace Prisma {
     nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
     incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -108119,6 +109676,59 @@ export namespace Prisma {
     order?: SortOrder
   }
 
+  export type ProjectDailyLogScalarRelationFilter = {
+    is?: ProjectDailyLogWhereInput
+    isNot?: ProjectDailyLogWhereInput
+  }
+
+  export type DailyLogWorkerCountOrderByAggregateInput = {
+    id?: SortOrder
+    dailyLogId?: SortOrder
+    name?: SortOrder
+    position?: SortOrder
+    hours?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+  }
+
+  export type DailyLogWorkerAvgOrderByAggregateInput = {
+    hours?: SortOrder
+  }
+
+  export type DailyLogWorkerMaxOrderByAggregateInput = {
+    id?: SortOrder
+    dailyLogId?: SortOrder
+    name?: SortOrder
+    position?: SortOrder
+    hours?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+  }
+
+  export type DailyLogWorkerMinOrderByAggregateInput = {
+    id?: SortOrder
+    dailyLogId?: SortOrder
+    name?: SortOrder
+    position?: SortOrder
+    hours?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+  }
+
+  export type DailyLogWorkerSumOrderByAggregateInput = {
+    hours?: SortOrder
+  }
+
+  export type DailyLogWorkerListRelationFilter = {
+    every?: DailyLogWorkerWhereInput
+    some?: DailyLogWorkerWhereInput
+    none?: DailyLogWorkerWhereInput
+  }
+
+  export type DailyLogWorkerOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type ProjectDailyLogProjectIdDateReportedByCompoundUniqueInput = {
     projectId: string
     date: Date | string
@@ -108140,6 +109750,11 @@ export namespace Prisma {
     nextPlan?: SortOrder
     safetyNote?: SortOrder
     incidents?: SortOrder
+    delayCause?: SortOrder
+    delayResponsible?: SortOrder
+    delayExpectedDate?: SortOrder
+    delaySeverity?: SortOrder
+    tasksPerformed?: SortOrder
     taskUpdates?: SortOrder
     imageUrls?: SortOrder
     reporterSigUrl?: SortOrder
@@ -108170,6 +109785,10 @@ export namespace Prisma {
     nextPlan?: SortOrder
     safetyNote?: SortOrder
     incidents?: SortOrder
+    delayCause?: SortOrder
+    delayResponsible?: SortOrder
+    delayExpectedDate?: SortOrder
+    delaySeverity?: SortOrder
     reporterSigUrl?: SortOrder
     supervisorSigUrl?: SortOrder
     supervisorName?: SortOrder
@@ -108192,6 +109811,10 @@ export namespace Prisma {
     nextPlan?: SortOrder
     safetyNote?: SortOrder
     incidents?: SortOrder
+    delayCause?: SortOrder
+    delayResponsible?: SortOrder
+    delayExpectedDate?: SortOrder
+    delaySeverity?: SortOrder
     reporterSigUrl?: SortOrder
     supervisorSigUrl?: SortOrder
     supervisorName?: SortOrder
@@ -112248,6 +113871,20 @@ export namespace Prisma {
     deleteMany?: ProjectTaskScalarWhereInput | ProjectTaskScalarWhereInput[]
   }
 
+  export type ProjectDailyLogCreateNestedOneWithoutWorkersInput = {
+    create?: XOR<ProjectDailyLogCreateWithoutWorkersInput, ProjectDailyLogUncheckedCreateWithoutWorkersInput>
+    connectOrCreate?: ProjectDailyLogCreateOrConnectWithoutWorkersInput
+    connect?: ProjectDailyLogWhereUniqueInput
+  }
+
+  export type ProjectDailyLogUpdateOneRequiredWithoutWorkersNestedInput = {
+    create?: XOR<ProjectDailyLogCreateWithoutWorkersInput, ProjectDailyLogUncheckedCreateWithoutWorkersInput>
+    connectOrCreate?: ProjectDailyLogCreateOrConnectWithoutWorkersInput
+    upsert?: ProjectDailyLogUpsertWithoutWorkersInput
+    connect?: ProjectDailyLogWhereUniqueInput
+    update?: XOR<XOR<ProjectDailyLogUpdateToOneWithWhereWithoutWorkersInput, ProjectDailyLogUpdateWithoutWorkersInput>, ProjectDailyLogUncheckedUpdateWithoutWorkersInput>
+  }
+
   export type ProjectCreateNestedOneWithoutDailyLogsInput = {
     create?: XOR<ProjectCreateWithoutDailyLogsInput, ProjectUncheckedCreateWithoutDailyLogsInput>
     connectOrCreate?: ProjectCreateOrConnectWithoutDailyLogsInput
@@ -112258,6 +113895,20 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutReportedDailyLogsInput, UserUncheckedCreateWithoutReportedDailyLogsInput>
     connectOrCreate?: UserCreateOrConnectWithoutReportedDailyLogsInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type DailyLogWorkerCreateNestedManyWithoutDailyLogInput = {
+    create?: XOR<DailyLogWorkerCreateWithoutDailyLogInput, DailyLogWorkerUncheckedCreateWithoutDailyLogInput> | DailyLogWorkerCreateWithoutDailyLogInput[] | DailyLogWorkerUncheckedCreateWithoutDailyLogInput[]
+    connectOrCreate?: DailyLogWorkerCreateOrConnectWithoutDailyLogInput | DailyLogWorkerCreateOrConnectWithoutDailyLogInput[]
+    createMany?: DailyLogWorkerCreateManyDailyLogInputEnvelope
+    connect?: DailyLogWorkerWhereUniqueInput | DailyLogWorkerWhereUniqueInput[]
+  }
+
+  export type DailyLogWorkerUncheckedCreateNestedManyWithoutDailyLogInput = {
+    create?: XOR<DailyLogWorkerCreateWithoutDailyLogInput, DailyLogWorkerUncheckedCreateWithoutDailyLogInput> | DailyLogWorkerCreateWithoutDailyLogInput[] | DailyLogWorkerUncheckedCreateWithoutDailyLogInput[]
+    connectOrCreate?: DailyLogWorkerCreateOrConnectWithoutDailyLogInput | DailyLogWorkerCreateOrConnectWithoutDailyLogInput[]
+    createMany?: DailyLogWorkerCreateManyDailyLogInputEnvelope
+    connect?: DailyLogWorkerWhereUniqueInput | DailyLogWorkerWhereUniqueInput[]
   }
 
   export type ProjectUpdateOneRequiredWithoutDailyLogsNestedInput = {
@@ -112274,6 +113925,34 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutReportedDailyLogsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutReportedDailyLogsInput, UserUpdateWithoutReportedDailyLogsInput>, UserUncheckedUpdateWithoutReportedDailyLogsInput>
+  }
+
+  export type DailyLogWorkerUpdateManyWithoutDailyLogNestedInput = {
+    create?: XOR<DailyLogWorkerCreateWithoutDailyLogInput, DailyLogWorkerUncheckedCreateWithoutDailyLogInput> | DailyLogWorkerCreateWithoutDailyLogInput[] | DailyLogWorkerUncheckedCreateWithoutDailyLogInput[]
+    connectOrCreate?: DailyLogWorkerCreateOrConnectWithoutDailyLogInput | DailyLogWorkerCreateOrConnectWithoutDailyLogInput[]
+    upsert?: DailyLogWorkerUpsertWithWhereUniqueWithoutDailyLogInput | DailyLogWorkerUpsertWithWhereUniqueWithoutDailyLogInput[]
+    createMany?: DailyLogWorkerCreateManyDailyLogInputEnvelope
+    set?: DailyLogWorkerWhereUniqueInput | DailyLogWorkerWhereUniqueInput[]
+    disconnect?: DailyLogWorkerWhereUniqueInput | DailyLogWorkerWhereUniqueInput[]
+    delete?: DailyLogWorkerWhereUniqueInput | DailyLogWorkerWhereUniqueInput[]
+    connect?: DailyLogWorkerWhereUniqueInput | DailyLogWorkerWhereUniqueInput[]
+    update?: DailyLogWorkerUpdateWithWhereUniqueWithoutDailyLogInput | DailyLogWorkerUpdateWithWhereUniqueWithoutDailyLogInput[]
+    updateMany?: DailyLogWorkerUpdateManyWithWhereWithoutDailyLogInput | DailyLogWorkerUpdateManyWithWhereWithoutDailyLogInput[]
+    deleteMany?: DailyLogWorkerScalarWhereInput | DailyLogWorkerScalarWhereInput[]
+  }
+
+  export type DailyLogWorkerUncheckedUpdateManyWithoutDailyLogNestedInput = {
+    create?: XOR<DailyLogWorkerCreateWithoutDailyLogInput, DailyLogWorkerUncheckedCreateWithoutDailyLogInput> | DailyLogWorkerCreateWithoutDailyLogInput[] | DailyLogWorkerUncheckedCreateWithoutDailyLogInput[]
+    connectOrCreate?: DailyLogWorkerCreateOrConnectWithoutDailyLogInput | DailyLogWorkerCreateOrConnectWithoutDailyLogInput[]
+    upsert?: DailyLogWorkerUpsertWithWhereUniqueWithoutDailyLogInput | DailyLogWorkerUpsertWithWhereUniqueWithoutDailyLogInput[]
+    createMany?: DailyLogWorkerCreateManyDailyLogInputEnvelope
+    set?: DailyLogWorkerWhereUniqueInput | DailyLogWorkerWhereUniqueInput[]
+    disconnect?: DailyLogWorkerWhereUniqueInput | DailyLogWorkerWhereUniqueInput[]
+    delete?: DailyLogWorkerWhereUniqueInput | DailyLogWorkerWhereUniqueInput[]
+    connect?: DailyLogWorkerWhereUniqueInput | DailyLogWorkerWhereUniqueInput[]
+    update?: DailyLogWorkerUpdateWithWhereUniqueWithoutDailyLogInput | DailyLogWorkerUpdateWithWhereUniqueWithoutDailyLogInput[]
+    updateMany?: DailyLogWorkerUpdateManyWithWhereWithoutDailyLogInput | DailyLogWorkerUpdateManyWithWhereWithoutDailyLogInput[]
+    deleteMany?: DailyLogWorkerScalarWhereInput | DailyLogWorkerScalarWhereInput[]
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -113305,6 +114984,11 @@ export namespace Prisma {
     nextPlan?: string | null
     safetyNote?: string | null
     incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: string | null
@@ -113313,6 +114997,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     project: ProjectCreateNestedOneWithoutDailyLogsInput
+    workers?: DailyLogWorkerCreateNestedManyWithoutDailyLogInput
   }
 
   export type ProjectDailyLogUncheckedCreateWithoutReporterInput = {
@@ -113329,6 +115014,11 @@ export namespace Prisma {
     nextPlan?: string | null
     safetyNote?: string | null
     incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: string | null
@@ -113336,6 +115026,7 @@ export namespace Prisma {
     supervisorName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    workers?: DailyLogWorkerUncheckedCreateNestedManyWithoutDailyLogInput
   }
 
   export type ProjectDailyLogCreateOrConnectWithoutReporterInput = {
@@ -113877,6 +115568,11 @@ export namespace Prisma {
     nextPlan?: StringNullableFilter<"ProjectDailyLog"> | string | null
     safetyNote?: StringNullableFilter<"ProjectDailyLog"> | string | null
     incidents?: IntFilter<"ProjectDailyLog"> | number
+    delayCause?: StringNullableFilter<"ProjectDailyLog"> | string | null
+    delayResponsible?: StringNullableFilter<"ProjectDailyLog"> | string | null
+    delayExpectedDate?: DateTimeNullableFilter<"ProjectDailyLog"> | Date | string | null
+    delaySeverity?: StringNullableFilter<"ProjectDailyLog"> | string | null
+    tasksPerformed?: JsonNullableFilter<"ProjectDailyLog">
     taskUpdates?: JsonNullableFilter<"ProjectDailyLog">
     imageUrls?: JsonNullableFilter<"ProjectDailyLog">
     reporterSigUrl?: StringNullableFilter<"ProjectDailyLog"> | string | null
@@ -129083,6 +130779,11 @@ export namespace Prisma {
     nextPlan?: string | null
     safetyNote?: string | null
     incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: string | null
@@ -129091,6 +130792,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     reporter: UserCreateNestedOneWithoutReportedDailyLogsInput
+    workers?: DailyLogWorkerCreateNestedManyWithoutDailyLogInput
   }
 
   export type ProjectDailyLogUncheckedCreateWithoutProjectInput = {
@@ -129107,6 +130809,11 @@ export namespace Prisma {
     nextPlan?: string | null
     safetyNote?: string | null
     incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: string | null
@@ -129114,6 +130821,7 @@ export namespace Prisma {
     supervisorName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    workers?: DailyLogWorkerUncheckedCreateNestedManyWithoutDailyLogInput
   }
 
   export type ProjectDailyLogCreateOrConnectWithoutProjectInput = {
@@ -130490,6 +132198,138 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ProjectDailyLogCreateWithoutWorkersInput = {
+    id?: string
+    date: Date | string
+    weather?: string | null
+    temperature?: number | null
+    workerCount?: number | null
+    workerNote?: string | null
+    workSummary?: string | null
+    issues?: string | null
+    solutions?: string | null
+    nextPlan?: string | null
+    safetyNote?: string | null
+    incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
+    taskUpdates?: NullableJsonNullValueInput | InputJsonValue
+    imageUrls?: NullableJsonNullValueInput | InputJsonValue
+    reporterSigUrl?: string | null
+    supervisorSigUrl?: string | null
+    supervisorName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    project: ProjectCreateNestedOneWithoutDailyLogsInput
+    reporter: UserCreateNestedOneWithoutReportedDailyLogsInput
+  }
+
+  export type ProjectDailyLogUncheckedCreateWithoutWorkersInput = {
+    id?: string
+    projectId: string
+    reportedBy: string
+    date: Date | string
+    weather?: string | null
+    temperature?: number | null
+    workerCount?: number | null
+    workerNote?: string | null
+    workSummary?: string | null
+    issues?: string | null
+    solutions?: string | null
+    nextPlan?: string | null
+    safetyNote?: string | null
+    incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
+    taskUpdates?: NullableJsonNullValueInput | InputJsonValue
+    imageUrls?: NullableJsonNullValueInput | InputJsonValue
+    reporterSigUrl?: string | null
+    supervisorSigUrl?: string | null
+    supervisorName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProjectDailyLogCreateOrConnectWithoutWorkersInput = {
+    where: ProjectDailyLogWhereUniqueInput
+    create: XOR<ProjectDailyLogCreateWithoutWorkersInput, ProjectDailyLogUncheckedCreateWithoutWorkersInput>
+  }
+
+  export type ProjectDailyLogUpsertWithoutWorkersInput = {
+    update: XOR<ProjectDailyLogUpdateWithoutWorkersInput, ProjectDailyLogUncheckedUpdateWithoutWorkersInput>
+    create: XOR<ProjectDailyLogCreateWithoutWorkersInput, ProjectDailyLogUncheckedCreateWithoutWorkersInput>
+    where?: ProjectDailyLogWhereInput
+  }
+
+  export type ProjectDailyLogUpdateToOneWithWhereWithoutWorkersInput = {
+    where?: ProjectDailyLogWhereInput
+    data: XOR<ProjectDailyLogUpdateWithoutWorkersInput, ProjectDailyLogUncheckedUpdateWithoutWorkersInput>
+  }
+
+  export type ProjectDailyLogUpdateWithoutWorkersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    weather?: NullableStringFieldUpdateOperationsInput | string | null
+    temperature?: NullableIntFieldUpdateOperationsInput | number | null
+    workerCount?: NullableIntFieldUpdateOperationsInput | number | null
+    workerNote?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    issues?: NullableStringFieldUpdateOperationsInput | string | null
+    solutions?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
+    incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
+    taskUpdates?: NullableJsonNullValueInput | InputJsonValue
+    imageUrls?: NullableJsonNullValueInput | InputJsonValue
+    reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectUpdateOneRequiredWithoutDailyLogsNestedInput
+    reporter?: UserUpdateOneRequiredWithoutReportedDailyLogsNestedInput
+  }
+
+  export type ProjectDailyLogUncheckedUpdateWithoutWorkersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    reportedBy?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    weather?: NullableStringFieldUpdateOperationsInput | string | null
+    temperature?: NullableIntFieldUpdateOperationsInput | number | null
+    workerCount?: NullableIntFieldUpdateOperationsInput | number | null
+    workerNote?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    issues?: NullableStringFieldUpdateOperationsInput | string | null
+    solutions?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
+    incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
+    taskUpdates?: NullableJsonNullValueInput | InputJsonValue
+    imageUrls?: NullableJsonNullValueInput | InputJsonValue
+    reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ProjectCreateWithoutDailyLogsInput = {
     id?: string
     projectNumber: string
@@ -130662,6 +132502,34 @@ export namespace Prisma {
   export type UserCreateOrConnectWithoutReportedDailyLogsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutReportedDailyLogsInput, UserUncheckedCreateWithoutReportedDailyLogsInput>
+  }
+
+  export type DailyLogWorkerCreateWithoutDailyLogInput = {
+    id?: string
+    name: string
+    position: string
+    hours?: number | null
+    status: string
+    notes?: string | null
+  }
+
+  export type DailyLogWorkerUncheckedCreateWithoutDailyLogInput = {
+    id?: string
+    name: string
+    position: string
+    hours?: number | null
+    status: string
+    notes?: string | null
+  }
+
+  export type DailyLogWorkerCreateOrConnectWithoutDailyLogInput = {
+    where: DailyLogWorkerWhereUniqueInput
+    create: XOR<DailyLogWorkerCreateWithoutDailyLogInput, DailyLogWorkerUncheckedCreateWithoutDailyLogInput>
+  }
+
+  export type DailyLogWorkerCreateManyDailyLogInputEnvelope = {
+    data: DailyLogWorkerCreateManyDailyLogInput | DailyLogWorkerCreateManyDailyLogInput[]
+    skipDuplicates?: boolean
   }
 
   export type ProjectUpsertWithoutDailyLogsInput = {
@@ -130848,6 +132716,35 @@ export namespace Prisma {
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+  }
+
+  export type DailyLogWorkerUpsertWithWhereUniqueWithoutDailyLogInput = {
+    where: DailyLogWorkerWhereUniqueInput
+    update: XOR<DailyLogWorkerUpdateWithoutDailyLogInput, DailyLogWorkerUncheckedUpdateWithoutDailyLogInput>
+    create: XOR<DailyLogWorkerCreateWithoutDailyLogInput, DailyLogWorkerUncheckedCreateWithoutDailyLogInput>
+  }
+
+  export type DailyLogWorkerUpdateWithWhereUniqueWithoutDailyLogInput = {
+    where: DailyLogWorkerWhereUniqueInput
+    data: XOR<DailyLogWorkerUpdateWithoutDailyLogInput, DailyLogWorkerUncheckedUpdateWithoutDailyLogInput>
+  }
+
+  export type DailyLogWorkerUpdateManyWithWhereWithoutDailyLogInput = {
+    where: DailyLogWorkerScalarWhereInput
+    data: XOR<DailyLogWorkerUpdateManyMutationInput, DailyLogWorkerUncheckedUpdateManyWithoutDailyLogInput>
+  }
+
+  export type DailyLogWorkerScalarWhereInput = {
+    AND?: DailyLogWorkerScalarWhereInput | DailyLogWorkerScalarWhereInput[]
+    OR?: DailyLogWorkerScalarWhereInput[]
+    NOT?: DailyLogWorkerScalarWhereInput | DailyLogWorkerScalarWhereInput[]
+    id?: StringFilter<"DailyLogWorker"> | string
+    dailyLogId?: StringFilter<"DailyLogWorker"> | string
+    name?: StringFilter<"DailyLogWorker"> | string
+    position?: StringFilter<"DailyLogWorker"> | string
+    hours?: FloatNullableFilter<"DailyLogWorker"> | number | null
+    status?: StringFilter<"DailyLogWorker"> | string
+    notes?: StringNullableFilter<"DailyLogWorker"> | string | null
   }
 
   export type CompanyCreateManyAssignedUserInput = {
@@ -131100,6 +132997,11 @@ export namespace Prisma {
     nextPlan?: string | null
     safetyNote?: string | null
     incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: string | null
@@ -131858,6 +133760,11 @@ export namespace Prisma {
     nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
     incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -131866,6 +133773,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     project?: ProjectUpdateOneRequiredWithoutDailyLogsNestedInput
+    workers?: DailyLogWorkerUpdateManyWithoutDailyLogNestedInput
   }
 
   export type ProjectDailyLogUncheckedUpdateWithoutReporterInput = {
@@ -131882,6 +133790,11 @@ export namespace Prisma {
     nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
     incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -131889,6 +133802,7 @@ export namespace Prisma {
     supervisorName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workers?: DailyLogWorkerUncheckedUpdateManyWithoutDailyLogNestedInput
   }
 
   export type ProjectDailyLogUncheckedUpdateManyWithoutReporterInput = {
@@ -131905,6 +133819,11 @@ export namespace Prisma {
     nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
     incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -136315,6 +138234,11 @@ export namespace Prisma {
     nextPlan?: string | null
     safetyNote?: string | null
     incidents?: number
+    delayCause?: string | null
+    delayResponsible?: string | null
+    delayExpectedDate?: Date | string | null
+    delaySeverity?: string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: string | null
@@ -136450,6 +138374,11 @@ export namespace Prisma {
     nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
     incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -136458,6 +138387,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reporter?: UserUpdateOneRequiredWithoutReportedDailyLogsNestedInput
+    workers?: DailyLogWorkerUpdateManyWithoutDailyLogNestedInput
   }
 
   export type ProjectDailyLogUncheckedUpdateWithoutProjectInput = {
@@ -136474,6 +138404,11 @@ export namespace Prisma {
     nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
     incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -136481,6 +138416,7 @@ export namespace Prisma {
     supervisorName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workers?: DailyLogWorkerUncheckedUpdateManyWithoutDailyLogNestedInput
   }
 
   export type ProjectDailyLogUncheckedUpdateManyWithoutProjectInput = {
@@ -136497,6 +138433,11 @@ export namespace Prisma {
     nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     safetyNote?: NullableStringFieldUpdateOperationsInput | string | null
     incidents?: IntFieldUpdateOperationsInput | number
+    delayCause?: NullableStringFieldUpdateOperationsInput | string | null
+    delayResponsible?: NullableStringFieldUpdateOperationsInput | string | null
+    delayExpectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delaySeverity?: NullableStringFieldUpdateOperationsInput | string | null
+    tasksPerformed?: NullableJsonNullValueInput | InputJsonValue
     taskUpdates?: NullableJsonNullValueInput | InputJsonValue
     imageUrls?: NullableJsonNullValueInput | InputJsonValue
     reporterSigUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -136590,6 +138531,42 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DailyLogWorkerCreateManyDailyLogInput = {
+    id?: string
+    name: string
+    position: string
+    hours?: number | null
+    status: string
+    notes?: string | null
+  }
+
+  export type DailyLogWorkerUpdateWithoutDailyLogInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: StringFieldUpdateOperationsInput | string
+    hours?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DailyLogWorkerUncheckedUpdateWithoutDailyLogInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: StringFieldUpdateOperationsInput | string
+    hours?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DailyLogWorkerUncheckedUpdateManyWithoutDailyLogInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: StringFieldUpdateOperationsInput | string
+    hours?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 

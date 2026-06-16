@@ -1435,6 +1435,18 @@ model ProjectTask {
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 }
 
+model DailyLogWorker {
+  id         String          @id @default(cuid())
+  dailyLogId String
+  dailyLog   ProjectDailyLog @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
+
+  name     String
+  position String
+  hours    Float?
+  status   String // 'มาทำงาน' (At Work), 'ขาด' (Absent), 'ลา' (On Leave)
+  notes    String?
+}
+
 model ProjectDailyLog {
   id        String  @id @default(cuid())
   projectId String
@@ -1444,6 +1456,9 @@ model ProjectDailyLog {
   reporter   User   @relation(fields: [reportedBy], references: [id])
 
   date DateTime @db.Date
+
+  // Workers Array
+  workers DailyLogWorker[]
 
   // Weather
   weather     String?
@@ -1463,9 +1478,16 @@ model ProjectDailyLog {
   safetyNote String?
   incidents  Int     @default(0)
 
+  // Delay Reason
+  delayCause        String?
+  delayResponsible  String?
+  delayExpectedDate DateTime? @db.Date
+  delaySeverity     String? // Minor, Moderate, Critical
+
   // Progress Updates & Media
-  taskUpdates Json?
-  imageUrls   Json?
+  tasksPerformed Json?
+  taskUpdates    Json?
+  imageUrls      Json?
 
   // Signatures
   reporterSigUrl   String?

@@ -60,6 +60,24 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
 
   if (!delivery) return notFound()
 
+  const companyInfoMap: Record<string, { name: string, address: string }> = {
+    TG: {
+      name: "TERA GROUP CO., LTD.",
+      address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซ.28 แขวงดอกไม้ เขตประเวศ กทม. 10250"
+    },
+    TP: {
+      name: "TERA POWER CO., LTD.",
+      address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซ.28 แขวงดอกไม้ เขตประเวศ กทม. 10250"
+    },
+    TE: {
+      name: "TERA ELECTRIC CO., LTD.",
+      address: "39 ซอยเฉลิมพระเกียรติ ร.9 ซ.28 แขวงดอกไม้ เขตประเวศ กทม. 10250"
+    }
+  }
+
+  const compCode = (typeof delivery.company === 'string' && delivery.company.trim() !== '') ? delivery.company : 'TG';
+  const currentCompany = companyInfoMap[compCode] || companyInfoMap['TG'];
+
   return (
     <div className={`bg-gray-100 w-full h-full min-h-screen overflow-y-auto text-black pb-10 print:bg-white print:p-0 ${sarabun.className}`}>
       <style type="text/css">
@@ -98,7 +116,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
         </div>
 
         <div style={{ fontSize: '10.5pt', color: '#333', marginBottom: '2mm' }}>
-          39 ซอยเฉลิมพระเกียรติ ร.9 ซ.28 แขวงดอกไม้ เขตประเวศ กทม. 10250
+          {currentCompany.address}
         </div>
 
         <div style={{ textAlign: 'center', fontSize: '21pt', fontWeight: 'bold', margin: '2mm 0 3mm' }}>
@@ -116,7 +134,7 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '1mm' }}>
               <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap', flexShrink: 0, marginRight: '6px' }}>บริษัท :</span>
               <span style={{ fontWeight: 'normal', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                TERA GROUP CO., LTD.
+                {currentCompany.name}
               </span>
             </div>
           </div>

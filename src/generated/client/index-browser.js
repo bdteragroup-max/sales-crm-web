@@ -1211,6 +1211,16 @@ exports.Prisma.ProjectTaskScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.DailyLogWorkerScalarFieldEnum = {
+  id: 'id',
+  dailyLogId: 'dailyLogId',
+  name: 'name',
+  position: 'position',
+  hours: 'hours',
+  status: 'status',
+  notes: 'notes'
+};
+
 exports.Prisma.ProjectDailyLogScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
@@ -1226,6 +1236,11 @@ exports.Prisma.ProjectDailyLogScalarFieldEnum = {
   nextPlan: 'nextPlan',
   safetyNote: 'safetyNote',
   incidents: 'incidents',
+  delayCause: 'delayCause',
+  delayResponsible: 'delayResponsible',
+  delayExpectedDate: 'delayExpectedDate',
+  delaySeverity: 'delaySeverity',
+  tasksPerformed: 'tasksPerformed',
   taskUpdates: 'taskUpdates',
   imageUrls: 'imageUrls',
   reporterSigUrl: 'reporterSigUrl',
@@ -1340,6 +1355,7 @@ exports.Prisma.ModelName = {
   ProjectEquipment: 'ProjectEquipment',
   ProjectMember: 'ProjectMember',
   ProjectTask: 'ProjectTask',
+  DailyLogWorker: 'DailyLogWorker',
   ProjectDailyLog: 'ProjectDailyLog',
   BranchExpense: 'BranchExpense'
 };

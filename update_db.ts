@@ -1,6 +1,4 @@
-import { PrismaClient } from './src/generated/client';
-
-const prisma = new PrismaClient();
+import prisma from './src/app/lib/db';
 
 async function main() {
   const alterStatements = [

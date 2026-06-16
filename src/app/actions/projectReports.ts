@@ -24,6 +24,12 @@ export async function saveDailyLog(projectId: string, data: any) {
       reporterSigUrl,
       supervisorSigUrl,
       supervisorName,
+      delayCause,
+      delayResponsible,
+      delayExpectedDate,
+      delaySeverity,
+      tasksPerformed,
+      workers,
     } = data;
 
     // Save Daily Log
@@ -59,6 +65,21 @@ export async function saveDailyLog(projectId: string, data: any) {
           reporterSigUrl,
           supervisorSigUrl,
           supervisorName,
+          delayCause,
+          delayResponsible,
+          delayExpectedDate: delayExpectedDate ? new Date(delayExpectedDate) : null,
+          delaySeverity,
+          tasksPerformed,
+          workers: workers && Array.isArray(workers) ? {
+            deleteMany: {},
+            create: workers.map((w: any) => ({
+              name: w.name,
+              position: w.position,
+              hours: w.hours ? Number(w.hours) : null,
+              status: w.status || 'มาทำงาน',
+              notes: w.notes
+            }))
+          } : undefined,
         }
       });
     } else {
@@ -82,6 +103,20 @@ export async function saveDailyLog(projectId: string, data: any) {
           reporterSigUrl,
           supervisorSigUrl,
           supervisorName,
+          delayCause,
+          delayResponsible,
+          delayExpectedDate: delayExpectedDate ? new Date(delayExpectedDate) : null,
+          delaySeverity,
+          tasksPerformed,
+          workers: workers && Array.isArray(workers) ? {
+            create: workers.map((w: any) => ({
+              name: w.name,
+              position: w.position,
+              hours: w.hours ? Number(w.hours) : null,
+              status: w.status || 'มาทำงาน',
+              notes: w.notes
+            }))
+          } : undefined,
         }
       });
     }
@@ -127,7 +162,8 @@ export async function getDailyLog(projectId: string, date: Date, reportedBy?: st
       include: {
         reporter: {
           select: { fullName: true }
-        }
+        },
+        workers: true,
       }
     });
 
