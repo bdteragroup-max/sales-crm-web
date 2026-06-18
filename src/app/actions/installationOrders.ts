@@ -67,6 +67,29 @@ export async function createInstallationOrder(jobId?: string, autoData?: any) {
       } as any,
     });
 
+    try {
+      const { getLineUserIdByEmpId, pushLineMessage, pushLineMessageToTeam, installationAssignedMessage, newInstallationOrderMessage, getServiceManagerLineIds } = await import('@/app/lib/lineNotify');
+      
+      // Notify Service Team about the new order
+      const teamLineIds = await getServiceManagerLineIds();
+      if (teamLineIds.length > 0) {
+        await pushLineMessageToTeam(teamLineIds, [newInstallationOrderMessage(newInstallation)], 'service');
+      }
+
+      // Notify Technician if already assigned
+      if (newInstallation.technician && newInstallation.installationDate) {
+        const techUser = await prisma.user.findFirst({ where: { fullName: newInstallation.technician as string } });
+        if (techUser?.employeeId) {
+          const lineId = await getLineUserIdByEmpId(techUser.employeeId);
+          if (lineId) {
+            await pushLineMessage(lineId, [installationAssignedMessage(newInstallation)], 'service');
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Line notify error (Installation created):", err);
+    }
+
     revalidatePath("/jobs");
     return { success: true, installationOrderId: newInstallation.id };
   } catch (error: any) {
@@ -77,15 +100,45 @@ export async function createInstallationOrder(jobId?: string, autoData?: any) {
 
 export async function updateInstallationOrder(id: string, data: any) {
   try {
+    const existingOrder = await prisma.installationOrder.findUnique({ where: { id } });
     const { workInspect, workInstall, workRepair, workTraining, workOther, ...restData } = data;
 
-    await prisma.installationOrder.update({
+    const updatedOrder = await prisma.installationOrder.update({
       where: { id },
       data: {
         ...restData,
         checklist: { workInspect, workInstall, workRepair, workTraining, workOther },
       },
     });
+
+    const wasAssigned = !!(existingOrder?.technician && existingOrder?.installationDate);
+    const isAssigned = !!(updatedOrder.technician && updatedOrder.installationDate);
+    const changedTech = existingOrder?.technician !== updatedOrder.technician;
+    const changedDate = existingOrder?.installationDate?.getTime() !== updatedOrder.installationDate?.getTime();
+
+    if (isAssigned && (!wasAssigned || changedTech || changedDate)) {
+      try {
+        const { getLineUserIdByEmpId, pushLineMessage, pushLineMessageToTeam, installationAssignedMessage, getServiceManagerLineIds } = await import('@/app/lib/lineNotify');
+        const techUser = await prisma.user.findFirst({ where: { fullName: updatedOrder.technician as string } });
+        
+        // Notify Technician
+        if (techUser?.employeeId) {
+          const lineId = await getLineUserIdByEmpId(techUser.employeeId);
+          if (lineId) {
+            await pushLineMessage(lineId, [installationAssignedMessage(updatedOrder)], 'service');
+          }
+        }
+
+        // Notify Service Team
+        const teamLineIds = await getServiceManagerLineIds();
+        if (teamLineIds.length > 0) {
+          await pushLineMessageToTeam(teamLineIds, [installationAssignedMessage(updatedOrder)], 'service');
+        }
+      } catch (err) {
+        console.error("Line notify error (Installation updated):", err);
+      }
+    }
+
     revalidatePath("/jobs");
     return { success: true };
   } catch (error: any) {

@@ -8,7 +8,9 @@ import {
   estimationCompletedMessage,
   estimationAssignedMessage,
   getLineUserIdByEmpId,
-  getLineUserIdByCrmUserId
+  getLineUserIdByCrmUserId,
+  getServiceManagerLineIds,
+  pushLineMessageToTeam
 } from "@/app/lib/lineNotify";
 
 export async function sendRequirementForEstimation(requirementId: string) {
@@ -30,28 +32,10 @@ export async function sendRequirementForEstimation(requirementId: string) {
 
   const msg = estimationRequestMessage(req.companyName, items, req.salesperson, req.id);
 
-  // Notify Service users
-  const serviceUsers = await prisma.user.findMany({
-    where: { 
-      OR: [
-        { role: { contains: "service", mode: "insensitive" } },
-        { role: { contains: "บริการ", mode: "insensitive" } },
-        { role: { contains: "ช่าง", mode: "insensitive" } }
-      ]
-    },
-    select: { employeeId: true }
-  });
-
-  const empIdsToNotify = new Set<string>();
-  serviceUsers.forEach((u) => {
-    if (u.employeeId) empIdsToNotify.add(u.employeeId);
-  });
-
-  for (const empId of empIdsToNotify) {
-    const lineId = await getLineUserIdByEmpId(empId);
-    if (lineId) {
-      await pushLineMessage(lineId, [msg]);
-    }
+  // Notify Service Manager
+  const teamLineIds = await getServiceManagerLineIds();
+  if (teamLineIds.length > 0) {
+    await pushLineMessageToTeam(teamLineIds, [msg], 'service');
   }
 
   revalidatePath("/sales/requirements");
@@ -168,7 +152,7 @@ export async function assignEstimation(
   // Notify the assigned Service Engineer
   const assignedLineId = await getLineUserIdByCrmUserId(assignedToUserId);
   if (assignedLineId) {
-    await pushLineMessage(assignedLineId, [msg]);
+    await pushLineMessage(assignedLineId, [msg], 'service');
   }
 
   revalidatePath("/service/estimations");

@@ -90,7 +90,19 @@ export default function ServiceDashboardClient({
   // --- Equipment Analytics ---
   const equipmentCounts: Record<string, number> = {};
   currentPeriodJobs.forEach(job => {
-    if (job.item) {
+    let hasBrandOrModel = false;
+    if (job.repairOrder && Array.isArray(job.repairOrder.items)) {
+      job.repairOrder.items.forEach((item: any) => {
+        const brandModel = `${item.brand || ''} ${item.model || ''}`.trim();
+        if (brandModel) {
+          equipmentCounts[brandModel] = (equipmentCounts[brandModel] || 0) + 1;
+          hasBrandOrModel = true;
+        }
+      });
+    }
+    
+    // Fallback to job.item if no brand/model found in repair items
+    if (!hasBrandOrModel && job.item) {
       const item = job.item.trim();
       equipmentCounts[item] = (equipmentCounts[item] || 0) + 1;
     }
@@ -422,14 +434,14 @@ export default function ServiceDashboardClient({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <h2 className="text-lg font-black text-gray-800 flex items-center gap-2 mb-6">
-            <Package className="text-purple-500" /> อุปกรณ์ที่เสียบ่อยที่สุด
+            <Package className="text-purple-500" /> ยี่ห้อ/รุ่นที่เสียบ่อยที่สุด
           </h2>
           <div className="space-y-4">
             {topEquipment.length > 0 ? topEquipment.map((eq, i) => (
               <div key={i} className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-black">{i + 1}</div>
-                  <span className="font-bold text-sm text-gray-700">{eq.name}</span>
+                  <span className="font-bold text-sm text-gray-700 truncate max-w-[200px]">{eq.name}</span>
                 </div>
                 <span className="font-black text-sm bg-gray-100 px-2 py-1 rounded-lg text-gray-600">{eq.count} งาน</span>
               </div>

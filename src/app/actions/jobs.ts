@@ -160,6 +160,28 @@ export async function createJobFromQuotation(input: CreateJobInput) {
     }
   }
 
+  // Notify Service Manager if it's a Service Job or Installation Job
+  const isPendingInstallation = ["ติดตั้ง", "ตรวจเช็ค"].some(t => resolvedJobType.includes(t));
+  const isServiceRepair = ["ซ่อม", "เคลมประกัน", "เคลมประกัน/ซ่อมในประกัน"].some(t => resolvedJobType.includes(t));
+
+  if (isPendingInstallation || isServiceRepair) {
+    try {
+      const { pushLineMessageToTeam, getServiceManagerLineIds, newServiceJobMessage, newPendingInstallationJobMessage } = await import('@/app/lib/lineNotify');
+      const teamLineIds = await getServiceManagerLineIds();
+      if (teamLineIds.length > 0) {
+        if (isPendingInstallation) {
+          // It will appear on the Installation Page as '-รอสร้างใบงาน-'
+          await pushLineMessageToTeam(teamLineIds, [newPendingInstallationJobMessage(job)], 'service');
+        } else {
+          // Standard service job
+          await pushLineMessageToTeam(teamLineIds, [newServiceJobMessage(job)], 'service');
+        }
+      }
+    } catch (err) {
+      console.error("Line notify error (Service job created):", err);
+    }
+  }
+
   revalidatePath("/jobs"); 
   revalidatePath("/accounting");
   return job;

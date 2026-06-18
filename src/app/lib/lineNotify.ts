@@ -4,20 +4,25 @@ export type LineMessage = any;
 
 export async function pushLineMessage(
   lineUserId: string,
-  messages: LineMessage[]
+  messages: LineMessage[],
+  botType: 'crm' | 'service' = 'crm'
 ) {
+  const token = botType === 'service' 
+    ? process.env.LINE_SERVICE_CHANNEL_ACCESS_TOKEN 
+    : process.env.LINE_CRM_CHANNEL_ACCESS_TOKEN;
+
   const res = await fetch('https://api.line.me/v2/bot/message/push', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.LINE_CRM_CHANNEL_ACCESS_TOKEN}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ to: lineUserId, messages }),
   });
 
   if (!res.ok) {
     const errorText = await res.text();
-    console.error(`Failed to send LINE message to ${lineUserId}:`, res.status, errorText);
+    console.error(`Failed to send LINE message to ${lineUserId} using ${botType} bot:`, res.status, errorText);
   }
 }
 
@@ -38,6 +43,47 @@ export async function getLineUserIdByCrmUserId(crmUserId: string) {
   });
   if (!user?.employeeId) return null;
   return getLineUserIdByEmpId(user.employeeId);
+}
+
+// Retrieve Service Manager LINE User IDs
+export async function getServiceManagerLineIds(): Promise<string[]> {
+  const serviceManagers = await prisma.user.findMany({
+    where: {
+      OR: [
+        { role: { contains: "manager", mode: "insensitive" } },
+        { role: { contains: "mgr", mode: "insensitive" } },
+        { role: { contains: "ผู้จัดการ", mode: "insensitive" } }
+      ]
+    },
+    select: { employeeId: true, role: true }
+  });
+
+  // Filter to ensure it's specifically the *Service* manager
+  const actualServiceManagers = serviceManagers.filter(u => 
+    u.role.toLowerCase().includes("service") || 
+    u.role.includes("บริการ") || 
+    u.role.includes("ช่าง")
+  );
+
+  const targets = actualServiceManagers.length > 0 ? actualServiceManagers : serviceManagers;
+
+  const lineIds: string[] = [];
+  for (const user of targets) {
+    if (user.employeeId) {
+      const lineId = await getLineUserIdByEmpId(user.employeeId);
+      if (lineId && !lineIds.includes(lineId)) {
+        lineIds.push(lineId);
+      }
+    }
+  }
+
+  return lineIds;
+}
+
+// Push message to multiple users
+export async function pushLineMessageToTeam(lineUserIds: string[], messages: any[], botType: 'crm' | 'service' = 'crm') {
+  const promises = lineUserIds.map(lineId => pushLineMessage(lineId, messages, botType));
+  await Promise.allSettled(promises);
 }
 
 function formatBkkTime(date: Date) {
@@ -388,6 +434,48 @@ export function customStoreReceivedMessage(job: any) {
             type: 'button',
             style: 'primary',
             color: '#8b5cf6',
+            action: { type: 'uri', label: 'ดูรายละเอียดงาน', uri: `${appUrl}/jobs?jobId=${job.id}` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function customRepairClosedMessage(job: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+
+  return {
+    type: 'flex',
+    altText: `✅ งานซ่อมเสร็จสิ้น งาน ${job.jobNumber}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#10b981', // green
+        contents: [
+          { type: 'text', text: '✅ งานซ่อมเสร็จสิ้น', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `ฝ่ายบริการซ่อมสินค้าเสร็จสิ้นแล้ว ฝ่ายขายกรุณาเตรียมทำใบเสนอราคาค่าซ่อมและติดตามลูกค้า`, size: 'sm', wrap: true, margin: 'md', weight: 'bold', color: '#10b981' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#10b981',
             action: { type: 'uri', label: 'ดูรายละเอียดงาน', uri: `${appUrl}/jobs?jobId=${job.id}` },
           },
         ],
@@ -982,6 +1070,382 @@ export function estimationAssignedMessage(customerName: string, items: string[],
             style: 'primary',
             color: '#f97316',
             action: { type: 'uri', label: 'ดูรายละเอียดและประเมิน', uri: `${appUrl}/service/estimations` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function installationAssignedMessage(order: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  const installationDate = order.installationDate ? new Date(order.installationDate).toLocaleDateString('th-TH') : 'ยังไม่ระบุวันที่';
+  
+  return {
+    type: 'flex',
+    altText: `📅 มอบหมายงานติดตั้ง/ตรวจเช็ค งาน ${order.installationNo}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#f59e0b', // amber
+        contents: [
+          { type: 'text', text: '📅 มีงานติดตั้ง/ตรวจเช็คใหม่', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `ใบงาน: ${order.installationNo}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${order.customer || order.company || 'ไม่ระบุ'}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `ผู้รับผิดชอบ: ${order.technician}`, size: 'sm', color: '#000000', margin: 'md' },
+          { type: 'text', text: `วันที่นัดหมาย: ${installationDate}`, size: 'sm', color: '#000000' },
+          { type: 'text', text: `สถานที่: ${order.address || order.siteAddress || 'ไม่ระบุ'}`, size: 'xs', color: '#666666', wrap: true },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `กรุณาเข้าไปตรวจสอบรายละเอียดและอัปเดตผลการดำเนินงาน`, size: 'xs', color: '#f59e0b', wrap: true, margin: 'md', weight: 'bold' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#f59e0b',
+            action: { type: 'uri', label: 'บันทึกการทำงาน', uri: `${appUrl}/service/installation` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function newServiceJobMessage(job: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `🚨 งานบริการใหม่: ${job.jobType} - ${job.customerName}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#ef4444', // red
+        contents: [
+          { type: 'text', text: `🚨 มีงาน ${job.jobType} ใหม่`, color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `รายการ: ${job.item}`, size: 'sm', wrap: true, margin: 'md' },
+          { type: 'text', text: `ผู้ขาย: ${job.sellerName}`, size: 'xs', color: '#999999' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#ef4444',
+            action: { type: 'uri', label: 'ดูรายละเอียดงาน', uri: `${appUrl}/jobs?jobId=${job.id}` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function newPendingInstallationJobMessage(job: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `🚨 แจ้งเตือน: มีงานใหม่รอสร้างใบงาน (ติดตั้ง/ตรวจเช็ค)`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#eab308', // yellow
+        contents: [
+          { type: 'text', text: `🚨 มีงานใหม่รอสร้างใบงาน`, color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `ประเภท: ${job.jobType}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `รายการ: ${job.item}`, size: 'sm', wrap: true, margin: 'md' },
+          { type: 'text', text: `กรุณาสร้างใบงานเพื่อจ่ายงานให้ช่าง`, size: 'xs', color: '#eab308', weight: 'bold', margin: 'md' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#eab308',
+            action: { type: 'uri', label: 'ไปที่หน้าจัดการติดตั้ง', uri: `${appUrl}/service/installation` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function newInstallationOrderMessage(order: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `🛠️ แจ้งเตือน: มีใบสั่งงานติดตั้ง/ตรวจเช็คใหม่`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#f59e0b', // amber
+        contents: [
+          { type: 'text', text: '🛠️ ใบสั่งงานติดตั้ง/ตรวจเช็คใหม่', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `ใบงาน: ${order.installationNo}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${order.customer || order.company || 'ไม่ระบุ'}`, size: 'sm', color: '#666666' },
+          { type: 'text', text: `สถานที่: ${order.address || order.siteAddress || 'ไม่ระบุ'}`, size: 'xs', color: '#666666', wrap: true, margin: 'sm' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `กรุณาพิจารณามอบหมายช่างและลงวันที่นัดหมาย`, size: 'xs', color: '#f59e0b', wrap: true, margin: 'md', weight: 'bold' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#f59e0b',
+            action: { type: 'uri', label: 'จัดการงานติดตั้ง', uri: `${appUrl}/service/installation` },
+          },
+        ],
+      },
+    },
+  };
+}
+
+export function morningScheduleMessage(orders: any[], dateString: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  if (orders.length === 0) {
+    return {
+      type: 'text',
+      text: `☀️ สวัสดีตอนเช้า (${dateString})\nวันนี้ไม่มีรายการนัดหมายเข้าหน้างานครับ`
+    };
+  }
+
+  const orderContents = orders.slice(0, 10).map(order => ({
+    type: 'box',
+    layout: 'vertical',
+    margin: 'md',
+    contents: [
+      { type: 'text', text: `📅 ${order.installationNo || order.job?.jobNumber || '-'}`, weight: 'bold', size: 'sm', color: '#0f172a' },
+      { type: 'text', text: `🏢 ${order.company || order.job?.customerName || 'ไม่ระบุ'}`, size: 'xs', color: '#64748b' },
+      { type: 'text', text: `🔧 ${order.jobName || order.job?.item || 'ไม่ระบุ'}`, size: 'xs', wrap: true, color: '#64748b' },
+      { type: 'text', text: `👨‍🔧 ช่าง: ${order.technician || 'ยังไม่ระบุช่าง'}`, size: 'xs', color: '#0ea5e9' },
+      { type: 'separator', margin: 'md' }
+    ]
+  }));
+
+  if (orders.length > 10) {
+    orderContents.push({
+      type: 'box',
+      layout: 'vertical',
+      margin: 'md',
+      contents: [
+        { type: 'text', text: `และอีก ${orders.length - 10} รายการ...`, size: 'xs', color: '#64748b', align: 'center' } as any
+      ]
+    });
+  }
+
+  return {
+    type: 'flex',
+    altText: `☀️ แจ้งเตือนงานหน้างานประจำวัน (${dateString})`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#0ea5e9', // light blue
+        contents: [
+          { type: 'text', text: `☀️ งานหน้างานวันนี้`, color: '#ffffff', weight: 'bold', size: 'lg' },
+          { type: 'text', text: dateString, color: '#ffffff', size: 'sm' }
+        ]
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `มีทั้งหมด ${orders.length} รายการ`, weight: 'bold', size: 'md', margin: 'sm' },
+          { type: 'separator', margin: 'md' },
+          ...orderContents
+        ]
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#0ea5e9',
+            action: { type: 'uri', label: 'ดูตารางคิวงาน', uri: `${appUrl}/service/installation` },
+          }
+        ]
+      }
+    }
+  };
+}
+
+export function eveningOutstandingMessage(pendingInstallations: number, pendingJobs: number, pendingRepairs: number, dateString: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  const total = pendingInstallations + pendingJobs + pendingRepairs;
+  
+  if (total === 0) {
+    return {
+      type: 'text',
+      text: `🌙 สรุปงานคงค้างประจำวัน (${dateString})\nยอดเยี่ยมมาก! ไม่มีงาน Service/ติดตั้ง ค้างในระบบครับ`
+    };
+  }
+
+  return {
+    type: 'flex',
+    altText: `🌙 สรุปงานคงค้างประจำวัน (${dateString})`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#f97316', // orange
+        contents: [
+          { type: 'text', text: `🌙 สรุปงานคงค้างวันนี้`, color: '#ffffff', weight: 'bold', size: 'lg' },
+          { type: 'text', text: dateString, color: '#ffffff', size: 'sm' }
+        ]
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'box',
+            layout: 'horizontal',
+            margin: 'md',
+            contents: [
+              { type: 'text', text: 'รอสร้างใบงาน (ติดตั้ง/ตรวจเช็ค):', size: 'sm', color: '#64748b', flex: 3 },
+              { type: 'text', text: `${pendingJobs} งาน`, size: 'sm', weight: 'bold', align: 'end', flex: 1, color: pendingJobs > 0 ? '#ef4444' : '#22c55e' }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            margin: 'md',
+            contents: [
+              { type: 'text', text: 'ใบงานติดตั้งค้างดำเนินการ:', size: 'sm', color: '#64748b', flex: 3 },
+              { type: 'text', text: `${pendingInstallations} ใบงาน`, size: 'sm', weight: 'bold', align: 'end', flex: 1, color: pendingInstallations > 0 ? '#ef4444' : '#22c55e' }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            margin: 'md',
+            contents: [
+              { type: 'text', text: 'งานซ่อม/เคลม ที่ยังไม่ปิด:', size: 'sm', color: '#64748b', flex: 3 },
+              { type: 'text', text: `${pendingRepairs} งาน`, size: 'sm', weight: 'bold', align: 'end', flex: 1, color: pendingRepairs > 0 ? '#ef4444' : '#22c55e' }
+            ]
+          },
+          { type: 'separator', margin: 'lg' },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            margin: 'md',
+            contents: [
+              { type: 'text', text: 'รวมงานคงค้างทั้งหมด:', size: 'md', weight: 'bold', flex: 2 },
+              { type: 'text', text: `${total} งาน`, size: 'md', weight: 'bold', align: 'end', flex: 1, color: '#ef4444' }
+            ]
+          }
+        ]
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#f97316',
+            action: { type: 'uri', label: 'เข้าสู่ระบบ TERA CRM', uri: appUrl },
+          }
+        ]
+      }
+    }
+  };
+}
+
+export function repairAssignedMessage(order: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `🛠️ แจ้งเตือน: มอบหมายงานซ่อม/เคลม`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#ef4444', // red
+        contents: [
+          { type: 'text', text: '🛠️ คุณได้รับมอบหมายงานซ่อม/เคลม', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `ใบงาน: ${order.job?.jobNumber || order.jobId || '-'}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${order.company || order.job?.customerName || 'ไม่ระบุ'}`, size: 'sm', color: '#666666' },
+          { type: 'text', text: `อาการ: ${order.symptoms || 'ไม่ระบุ'}`, size: 'xs', color: '#666666', wrap: true, margin: 'sm' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `กรุณาเข้าดำเนินการตรวจสอบและซ่อมแซม`, size: 'xs', color: '#ef4444', wrap: true, margin: 'md', weight: 'bold' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#ef4444',
+            action: { type: 'uri', label: 'รายละเอียดงานซ่อม', uri: `${appUrl}/repair-orders` },
           },
         ],
       },

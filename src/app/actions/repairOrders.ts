@@ -118,11 +118,36 @@ export async function createRepairOrder(formData: RepairOrderFormData) {
       sentDate: formData.sentDate ? new Date(formData.sentDate) : null,
     };
 
+    const existingOrder = await prisma.repairOrder.findUnique({ where: { jobId } });
+    
     const result = await prisma.repairOrder.upsert({
       where: { jobId },
       update: dataToSave,
       create: dataToSave,
     });
+
+    const wasAssigned = !!existingOrder?.technicianName;
+    const isAssigned = !!dataToSave.technicianName;
+    const changedTech = existingOrder?.technicianName !== dataToSave.technicianName;
+
+    if (isAssigned && (!wasAssigned || changedTech)) {
+      try {
+        const { getLineUserIdByEmpId, pushLineMessage, repairAssignedMessage } = await import('@/app/lib/lineNotify');
+        const techUser = await prisma.user.findFirst({ where: { fullName: dataToSave.technicianName as string } });
+        if (techUser?.employeeId) {
+          const lineId = await getLineUserIdByEmpId(techUser.employeeId);
+          if (lineId) {
+            // Need to fetch Job to get Job details for the message
+            const orderWithJob = await prisma.repairOrder.findUnique({ where: { id: result.id }, include: { job: true } });
+            if (orderWithJob) {
+              await pushLineMessage(lineId, [repairAssignedMessage(orderWithJob)], 'service');
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Line notify error (Repair assigned):", err);
+      }
+    }
 
     revalidatePath("/repair-orders");
     return { success: true, data: result, jobId: result.jobId, repairOrderId: result.id };
@@ -169,6 +194,21 @@ export async function updateRepairOrderStatus(jobId: string, newStep: string) {
         note: "อัปเดตสถานะจากหน้ารายการใบรับซ่อม",
       },
     });
+
+    if (newStep === "closed" && job.sellerName) {
+      try {
+        const { getLineUserIdByEmpId, pushLineMessage, customRepairClosedMessage } = await import('@/app/lib/lineNotify');
+        const user = await prisma.user.findFirst({ where: { fullName: job.sellerName } });
+        if (user?.employeeId) {
+          const lineId = await getLineUserIdByEmpId(user.employeeId);
+          if (lineId) {
+            await pushLineMessage(lineId, [customRepairClosedMessage(job)]);
+          }
+        }
+      } catch (err) {
+        console.error("Line notify error (Repair closed):", err);
+      }
+    }
 
     revalidatePath("/repair-orders");
     revalidatePath("/service/dashboard");

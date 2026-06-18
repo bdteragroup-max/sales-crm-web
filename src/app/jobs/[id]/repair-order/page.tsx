@@ -84,11 +84,7 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
     return { label: def.label, filled: filledCount, total: productCount };
   });
 
-  // Pad items to always show at least 3 rows for consistency
   const displayItems = [...items];
-  while (displayItems.length < 3) {
-    displayItems.push({ type: '', brand: '', model: '', size: '', serial: '', qty: '', remark: '' });
-  }
 
   // Collect attached images
   const attachedImages: { url: string; label: string }[] = [];

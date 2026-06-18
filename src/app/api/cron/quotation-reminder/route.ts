@@ -49,15 +49,13 @@ export async function GET(req: Request) {
 
     if (!quotation.salespersonId) continue;
 
-    // Send to individual salesperson
-    const salesLineId = await getLineUserIdByCrmUserId(quotation.salespersonId);
-    if (salesLineId) {
-      const message = quotationReminderMessage(quotation, remainingDays);
-      await pushLineMessage(salesLineId, [message]);
-      notified++;
+    // Only include the notification for the quotation issued by the sales staff
+    const role = quotation.salesperson?.role?.toLowerCase() || '';
+    if (!role.includes('sales') && !role.includes('เซลล์') && !role.includes('ผู้จัดการฝ่ายขาย')) {
+      continue;
     }
 
-    // Group for supervisor
+    // Group for supervisor (notify only the manager)
     const user = await prisma.user.findUnique({
       where: { id: quotation.salespersonId },
       select: { employeeId: true },

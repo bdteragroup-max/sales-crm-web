@@ -33,9 +33,6 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
   }
 
   const items = (data.items as any[]) || []
-  while (items.length < 3) {
-    items.push({ type: "", brand: "", model: "", size: "", serial: "", qty: "", remark: "" })
-  }
 
   const renderA4Page = (copyLabel: string) => (
     <div className="ro-sheet">
