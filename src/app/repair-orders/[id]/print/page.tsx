@@ -89,16 +89,33 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
 
   // Collect attached images
   const attachedImages: { url: string; label: string }[] = [];
+  const seenFileNames = new Set<string>();
+
+  const getFileName = (url: string) => {
+    try {
+      const parts = url.split('/');
+      const last = parts[parts.length - 1]; // e.g. 1234-5678-my_image.jpg
+      const match = last.match(/^\d+-\d+-(.+)$/);
+      return match ? match[1] : last;
+    } catch {
+      return url;
+    }
+  };
+
   if (data?.checklistImages) {
     Object.entries(data.checklistImages).forEach(([key, urls]) => {
       if (Array.isArray(urls)) {
         urls.forEach((url, idx) => {
-          if (url) {
-            const def = CHECKLIST_DEF.find(c => c.key === key);
-            attachedImages.push({
-              url: url as string,
-              label: def?.label?.split('/')[0] || key
-            });
+          if (url && typeof url === 'string') {
+            const fileName = getFileName(url);
+            if (!seenFileNames.has(fileName)) {
+              seenFileNames.add(fileName);
+              const def = CHECKLIST_DEF.find(c => c.key === key);
+              attachedImages.push({
+                url: url,
+                label: def?.label?.split('/')[0] || key
+              });
+            }
           }
         });
       }
@@ -217,12 +234,12 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      {/* Attached Images (compact, max 8) */}
+      {/* Attached Images */}
       {attachedImages.length > 0 && (
         <div className="ro-images-section">
           <div className="ro-images-title">รูปภาพแนบ:</div>
           <div className="ro-images-grid">
-            {attachedImages.slice(0, 8).map((img, idx) => (
+            {attachedImages.map((img, idx) => (
               <div key={idx} className="ro-img-item">
                 <img src={img.url} className="ro-img-thumb" alt={img.label} />
                 <span className="ro-img-label">{img.label}</span>
