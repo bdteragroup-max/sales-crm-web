@@ -191,7 +191,7 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
               <td className="ro-center">{i + 1}</td>
               <td>{p.type || '\u00A0'}</td>
               <td>{p.brand || '\u00A0'}</td>
-              <td>{p.model || '\u00A0'}</td>
+              <td style={{ whiteSpace: 'nowrap' }}>{p.model || '\u00A0'}</td>
               <td className="ro-center">{p.size || '\u00A0'}</td>
               <td>{p.serial || '\u00A0'}</td>
               <td className="ro-center">{p.qty || '\u00A0'}</td>

@@ -82,7 +82,7 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
               <td className="ro-center">{item.type || item.brand ? idx + 1 : "\u00A0"}</td>
               <td>{item.type}</td>
               <td>{item.brand}</td>
-              <td>{item.model}</td>
+              <td style={{ whiteSpace: 'nowrap' }}>{item.model}</td>
               <td className="ro-center">{item.size}</td>
               <td>{item.serial}</td>
               <td className="ro-center">{item.qty}</td>
