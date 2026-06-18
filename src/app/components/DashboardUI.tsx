@@ -178,22 +178,24 @@ export default function DashboardUI({
   };
 
   const toggleSalesperson = (id: string) => {
-    let newIds = salespersonIds.length === 0 ? salesReps.map(r => r.id) : [...salespersonIds];
+    let newIds = salespersonIds.length === 0 ? salesReps.map(r => r.id) : [...salespersonIds].filter(x => x !== 'NONE');
     if (newIds.includes(id)) {
       newIds = newIds.filter(x => x !== id);
     } else {
       newIds.push(id);
     }
 
-    if (newIds.length === salesReps.length || newIds.length === 0) {
+    if (newIds.length === salesReps.length) {
       handleFilterChange('salespersonId', '');
+    } else if (newIds.length === 0) {
+      handleFilterChange('salespersonId', 'NONE');
     } else {
       handleFilterChange('salespersonId', newIds.join(','));
     }
   };
 
   const toggleBranch = (branchReps: any[]) => {
-    let newIds = salespersonIds.length === 0 ? salesReps.map(r => r.id) : [...salespersonIds];
+    let newIds = salespersonIds.length === 0 ? salesReps.map(r => r.id) : [...salespersonIds].filter(x => x !== 'NONE');
     const branchRepIds = branchReps.map(r => r.id);
     const allBranchRepsSelected = branchRepIds.every(id => newIds.includes(id));
 
@@ -204,8 +206,10 @@ export default function DashboardUI({
       newIds = [...newIds, ...idsToAdd];
     }
 
-    if (newIds.length === salesReps.length || newIds.length === 0) {
+    if (newIds.length === salesReps.length) {
       handleFilterChange('salespersonId', '');
+    } else if (newIds.length === 0) {
+      handleFilterChange('salespersonId', 'NONE');
     } else {
       handleFilterChange('salespersonId', newIds.join(','));
     }
@@ -414,6 +418,13 @@ export default function DashboardUI({
                     >
                       <span className={`text-[11px] font-black ${salespersonIds.length === 0 ? 'text-brand-red' : 'text-gray-600'}`}>ทีมขายทั้งหมด</span>
                       {salespersonIds.length === 0 && <Check size={14} className="text-brand-red" />}
+                    </div>
+                    <div
+                      className="px-4 py-2 hover:bg-gray-50 flex items-center justify-between cursor-pointer group"
+                      onClick={() => handleFilterChange('salespersonId', 'NONE')}
+                    >
+                      <span className={`text-[11px] font-black ${salespersonIds.includes('NONE') ? 'text-brand-red' : 'text-gray-600'}`}>เอาออกทั้งหมด</span>
+                      {salespersonIds.includes('NONE') && <Check size={14} className="text-brand-red" />}
                     </div>
                     <div className="h-px bg-gray-50 my-2 mx-4" />
                     {Object.entries(
