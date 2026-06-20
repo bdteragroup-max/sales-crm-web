@@ -10,6 +10,7 @@ import {
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
 import { getPendingInstallationCount } from '@/app/actions/installationOrders';
+import CoinMiniWidget from './CoinMiniWidget';
 
 type SidebarProps = {
   activeRoute?: string;
@@ -231,6 +232,13 @@ function ResponsiveSidebar({
 
         {/* Bottom items */}
         <div className="flex flex-col items-center gap-3 w-full px-2 shrink-0">
+          <CoinMiniWidget 
+            isMobile={false} 
+            activeRoute={activeRoute} 
+            onMouseEnter={(e) => showTooltip('Gold Coin', e)}
+            onMouseLeave={hideTooltip}
+          />
+
           <div className="w-8 h-px bg-gray-100 my-1 shrink-0" />
 
 
@@ -402,6 +410,12 @@ function ResponsiveSidebar({
         {/* User profile & Action buttons */}
         <div className="flex flex-col gap-4 w-full">
           <div className="h-px bg-gray-100 w-full" />
+
+          <CoinMiniWidget 
+            isMobile={true} 
+            activeRoute={activeRoute} 
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
 
 
 

@@ -764,7 +764,8 @@ exports.Prisma.EmployeesScalarFieldEnum = {
   fixed_accommodation_allowance: 'fixed_accommodation_allowance',
   fixed_meal_allowance: 'fixed_meal_allowance',
   fixed_travel_allowance: 'fixed_travel_allowance',
-  fixed_tax_deduction: 'fixed_tax_deduction'
+  fixed_tax_deduction: 'fixed_tax_deduction',
+  current_streak: 'current_streak'
 };
 
 exports.Prisma.General_welfare_claimsScalarFieldEnum = {
@@ -1294,6 +1295,123 @@ exports.Prisma.Clothing_variantsScalarFieldEnum = {
   stock_quantity: 'stock_quantity'
 };
 
+exports.Prisma.Coin_exchange_ratesScalarFieldEnum = {
+  id: 'id',
+  from_coin_type: 'from_coin_type',
+  to_coin_type: 'to_coin_type',
+  exchange_rate: 'exchange_rate',
+  is_active: 'is_active'
+};
+
+exports.Prisma.Coin_exchangesScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  from_coin_type: 'from_coin_type',
+  to_coin_type: 'to_coin_type',
+  amount_from: 'amount_from',
+  amount_to: 'amount_to',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Coin_ledgersScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  coin_type_id: 'coin_type_id',
+  amount: 'amount',
+  transaction_type: 'transaction_type',
+  source_key: 'source_key',
+  description: 'description',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Coin_transfersScalarFieldEnum = {
+  id: 'id',
+  sender_emp_id: 'sender_emp_id',
+  receiver_emp_id: 'receiver_emp_id',
+  amount: 'amount',
+  message: 'message',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Coin_typesScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  is_active: 'is_active',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Employee_coinsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  coin_type_id: 'coin_type_id',
+  balance: 'balance',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Reward_redemptionsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  reward_id: 'reward_id',
+  quantity: 'quantity',
+  status: 'status',
+  redeemed_at: 'redeemed_at',
+  fulfilled_at: 'fulfilled_at',
+  cancelled_reason: 'cancelled_reason',
+  coin_type_id: 'coin_type_id',
+  points_spent: 'points_spent',
+  processed_by: 'processed_by',
+  costs: 'costs'
+};
+
+exports.Prisma.RewardsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  image_url: 'image_url',
+  required_coins: 'required_coins',
+  required_coin_type: 'required_coin_type',
+  stock_quantity: 'stock_quantity',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  costs: 'costs'
+};
+
+exports.Prisma.Task_assignmentsScalarFieldEnum = {
+  id: 'id',
+  task_id: 'task_id',
+  emp_id: 'emp_id',
+  status: 'status',
+  completed_at: 'completed_at',
+  completed_by: 'completed_by'
+};
+
+exports.Prisma.Task_coin_budgetsScalarFieldEnum = {
+  emp_id: 'emp_id',
+  used_this_month: 'used_this_month',
+  monthly_limit: 'monthly_limit',
+  reset_at: 'reset_at'
+};
+
+exports.Prisma.TasksScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  created_by: 'created_by',
+  deadline: 'deadline',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Transfer_budgetsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  balance: 'balance',
+  monthly_topup: 'monthly_topup',
+  updated_at: 'updated_at',
+  last_topup_at: 'last_topup_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1392,7 +1510,19 @@ exports.Prisma.ModelName = {
   BranchExpense: 'BranchExpense',
   clothing_items: 'clothing_items',
   clothing_requests: 'clothing_requests',
-  clothing_variants: 'clothing_variants'
+  clothing_variants: 'clothing_variants',
+  coin_exchange_rates: 'coin_exchange_rates',
+  coin_exchanges: 'coin_exchanges',
+  coin_ledgers: 'coin_ledgers',
+  coin_transfers: 'coin_transfers',
+  coin_types: 'coin_types',
+  employee_coins: 'employee_coins',
+  reward_redemptions: 'reward_redemptions',
+  rewards: 'rewards',
+  task_assignments: 'task_assignments',
+  task_coin_budgets: 'task_coin_budgets',
+  tasks: 'tasks',
+  transfer_budgets: 'transfer_budgets'
 };
 
 /**
