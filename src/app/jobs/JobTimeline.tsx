@@ -252,14 +252,18 @@ export default function JobTimeline({
 
     // Check payment method
     const paymentMethod = paymentTasks?.[0]?.job?.paymentMethod || paymentTasks?.[0]?.paymentMethod || '';
-    const isInstallment = paymentMethod === 'ผ่อนชำระ';
+    const isInstallment = paymentMethod.includes('ผ่อนชำระ');
+    const isCredit = paymentMethod.includes('เครดิต');
+    const isCOD = paymentMethod.includes('เก็บเงินหน้างาน') || paymentMethod.includes('หน้างาน');
     
-    if (isInstallment) {
+    if (isInstallment || isCredit || isCOD) {
+      // For credit/COD/installments, don't block operational steps, only complete
       if (['complete'].includes(activeStep.key)) {
-        return `ระงับการดำเนินการชั่วคราว: รอฝ่ายบัญชีตรวจสอบการชำระเงินค่างวดให้ครบถ้วน`;
+        return `ระงับการดำเนินการชั่วคราว: รอฝ่ายบัญชีตรวจสอบการชำระเงินค่างวด/เครดิตให้ครบถ้วน`;
       }
     } else {
-      if (['store_send', 'accounting', 'complete'].includes(activeStep.key)) {
+      // For normal pre-paid jobs, block delivery/store_send until payment is verified, but let Accounting process their step
+      if (['store_send', 'delivery', 'complete'].includes(activeStep.key)) {
         const status = paymentTasks?.[0]?.status || 'รอดำเนินการ';
         return `ระงับการดำเนินการชั่วคราว: รอฝ่ายบัญชีตรวจสอบการชำระเงิน (สถานะ: ${status})`;
       }
