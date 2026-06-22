@@ -832,7 +832,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                   <SelectField name="customerType" label="ประเภทลูกค้า :" vertical={true} options={['USER', 'MAKER', 'TRADING']} value={formData.customerType} onChange={handleInputChange} />
                   <SelectField name="customerStatus" label="สถานะลูกค้า :" vertical={true} options={['ลูกค้าใหม่', 'ลูกค้าเก่า', 'ลูกค้ากลับมา']} value={formData.customerStatus} onChange={handleInputChange} />
                 </div>
-                <SelectField name="customerAccessChannel" label="ช่องทางรับลูกค้า :" options={['Website', 'Facebook', 'LINE', 'โทรศัพท์', 'Walk-in', 'Telesale']} value={formData.customerAccessChannel} onChange={handleInputChange} />
+                <SelectField name="customerAccessChannel" label="ช่องทางรับลูกค้า :" options={['Website', 'Facebook', 'LINE', 'โทรศัพท์', 'Walk-in', 'Telesale', 'Shopee', 'Lazada', 'TikTok', 'Google', 'Booth', 'YouTube']} value={formData.customerAccessChannel} onChange={handleInputChange} />
               </div>
 
               {/* 3. Address */}
