@@ -11,20 +11,58 @@ export default async function CoinsDashboard() {
   const coins = (coinsRes.success && coinsRes.data) ? coinsRes.data : [];
   const transactions = (txRes.success && txRes.data) ? txRes.data : [];
 
-  const getCoinStyle = (code: string) => {
-    const c = code.toLowerCase();
+  const getCoinStyle = (code?: string) => {
+    const c = (code || '').toLowerCase();
     if (c.includes('gold')) return 'from-yellow-300 to-yellow-500 text-yellow-700 shadow-yellow-200 border-yellow-200';
     if (c.includes('silver')) return 'from-slate-200 to-slate-400 text-slate-700 shadow-slate-200 border-slate-300';
     if (c.includes('bronze')) return 'from-orange-300 to-orange-500 text-orange-800 shadow-orange-200 border-orange-300';
     return 'from-gray-100 to-gray-200 text-gray-700 shadow-gray-100 border-gray-200';
   };
 
-  const getCoinIconStyle = (code: string) => {
-    const c = code.toLowerCase();
+  const getCoinIconStyle = (code?: string) => {
+    const c = (code || '').toLowerCase();
     if (c.includes('gold')) return 'bg-yellow-100 text-yellow-600';
     if (c.includes('silver')) return 'bg-slate-100 text-slate-600';
     if (c.includes('bronze')) return 'bg-orange-100 text-orange-600';
     return 'bg-gray-100 text-gray-600';
+  };
+
+  const translateCoinName = (name?: string) => {
+    if (!name) return '';
+    const n = name.toLowerCase();
+    if (n.includes('gold')) return 'เหรียญทอง';
+    if (n.includes('silver')) return 'เหรียญเงิน';
+    if (n.includes('bronze')) return 'เหรียญทองแดง';
+    if (n.includes('task')) return 'เหรียญภารกิจ';
+    return name;
+  };
+
+  const translateCoinDescription = (desc?: string) => {
+    if (!desc) return '';
+    const d = desc.toLowerCase();
+    if (d.includes('daily check-in')) return 'ได้รับจากการเข้าสู่ระบบรายวัน';
+    if (d.includes('department head')) return 'ได้รับจากหัวหน้าแผนกเมื่อทำภารกิจสำเร็จ';
+    return desc;
+  };
+
+  const translateTxType = (type?: string) => {
+    if (!type) return '-';
+    const t = type.toLowerCase();
+    if (t === 'earn') return 'ได้รับเหรียญ';
+    if (t === 'spend') return 'ใช้เหรียญ';
+    if (t === 'deduct') return 'หักเหรียญ';
+    if (t === 'refund') return 'คืนเหรียญ';
+    if (t === 'adjustment') return 'ปรับปรุงยอด';
+    return type;
+  };
+
+  const translateDescription = (desc?: string) => {
+    if (!desc) return '-';
+    const d = desc.toLowerCase();
+    if (d.includes('deal_closed') || d.includes('won')) return 'ได้รับรางวัลจากปิดดีลการขายสำเร็จ';
+    if (d.includes('manual_adjustment')) return 'ปรับปรุงยอดโดยแอดมิน';
+    if (d.includes('sales_crm')) return 'รายการจากระบบ Sales CRM';
+    return desc;
   };
 
   return (
@@ -56,8 +94,8 @@ export default async function CoinsDashboard() {
                 
                 <div className="flex justify-between items-start relative z-10">
                   <div>
-                    <h3 className="font-bold text-lg uppercase tracking-wider opacity-80">{coin.coin_types.name}</h3>
-                    <p className="text-sm opacity-70 mt-1">{coin.coin_types.description}</p>
+                    <h3 className="font-bold text-lg uppercase tracking-wider opacity-80">{translateCoinName(coin.coin_types.name)}</h3>
+                    <p className="text-sm opacity-70 mt-1">{translateCoinDescription(coin.coin_types.description)}</p>
                   </div>
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${getCoinIconStyle(coin.coin_types.code)}`}>
                     <Coins size={24} strokeWidth={2.5} />
@@ -105,7 +143,7 @@ export default async function CoinsDashboard() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-gray-900 text-sm md:text-base">{tx.transaction_type}</h4>
+                        <h4 className="font-bold text-gray-900 text-sm md:text-base">{translateTxType(tx.transaction_type)}</h4>
                         {isSalesCrm && (
                           <span className="px-2 py-0.5 rounded-full bg-brand-red text-white text-[10px] font-bold flex items-center gap-1 uppercase tracking-wider">
                             <Zap size={10} />
@@ -113,7 +151,7 @@ export default async function CoinsDashboard() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs md:text-sm text-gray-500 mt-1 max-w-lg truncate">{tx.description || tx.source_key || '-'}</p>
+                      <p className="text-xs md:text-sm text-gray-500 mt-1 max-w-lg truncate">{translateDescription(tx.description || tx.source_key)}</p>
                       <p className="text-xs text-gray-400 mt-1">{new Intl.DateTimeFormat('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(tx.created_at))}</p>
                     </div>
                   </div>
@@ -124,7 +162,7 @@ export default async function CoinsDashboard() {
                     </div>
                     <div className="text-xs font-bold text-gray-500 uppercase flex items-center justify-end gap-1 mt-1">
                       <div className={`w-2 h-2 rounded-full ${getCoinIconStyle(tx.coin_types?.code).split(' ')[0]}`} />
-                      {tx.coin_types?.name}
+                      {translateCoinName(tx.coin_types?.name)}
                     </div>
                   </div>
                 </div>

@@ -7,16 +7,30 @@ import Link from 'next/link';
 import { deleteCustomerRequirementHistory } from '@/app/actions/requirements';
 import { sendRequirementForEstimation } from '@/app/actions/estimations';
 
+import { useSearchParams } from 'next/navigation';
+
 interface CustomerRequirementClientProps {
   currentUser: any;
   history: any[];
 }
 
 export default function CustomerRequirementClient({ currentUser, history }: CustomerRequirementClientProps) {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'new' | 'list'>('new');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<string | undefined>(undefined);
-  const [editingData, setEditingData] = useState<any>(undefined);
+  
+  // Initialize with search params if available
+  const initialCustomerName = searchParams.get('customerName');
+  const initialPhone = searchParams.get('phone');
+  
+  const [editingData, setEditingData] = useState<any>(
+    initialCustomerName ? {
+      "ชื่อบริษัท": initialCustomerName,
+      "ชื่อผู้ติดต่อ": initialCustomerName,
+      "เบอร์โทร": initialPhone || ''
+    } : undefined
+  );
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isSendingEstimation, setIsSendingEstimation] = useState<string | null>(null);
   const [copiedNoteId, setCopiedNoteId] = useState<string | null>(null);

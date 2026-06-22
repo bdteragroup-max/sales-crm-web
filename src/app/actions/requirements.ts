@@ -101,7 +101,7 @@ export async function saveCustomerRequirementHistory(data: any) {
 
     // Auto-create Pipeline record
     if (companyId) {
-      await prisma.quotation.create({
+      const quotation = await prisma.quotation.create({
         data: {
           companyId: companyId,
           contactId: contactId,
@@ -113,6 +113,20 @@ export async function saveCustomerRequirementHistory(data: any) {
           requirementNumber: reqNumber,
         }
       });
+
+      if (data.marketingLeadId) {
+        await (prisma as any).marketingLead.update({
+          where: { id: data.marketingLeadId },
+          data: {
+            assignedTo: { connect: { id: user.id } },
+            quotation: { connect: { id: quotation.id } },
+          }
+        });
+        await prisma.$executeRaw`UPDATE "MarketingLead" SET "isContacted" = true WHERE id = ${data.marketingLeadId}`;
+        revalidatePath('/marketing');
+        revalidatePath('/marketing/[id]', 'page');
+        revalidatePath('/sales/leads');
+      }
     }
 
     revalidatePath('/sales/requirements');
@@ -141,6 +155,19 @@ export async function updateCustomerRequirementHistory(id: string, data: any) {
         formData: data,
       }
     });
+
+    if (data.marketingLeadId) {
+      await (prisma as any).marketingLead.update({
+        where: { id: data.marketingLeadId },
+        data: {
+          assignedTo: { connect: { id: user.id } },
+        }
+      });
+      await prisma.$executeRaw`UPDATE "MarketingLead" SET "isContacted" = true WHERE id = ${data.marketingLeadId}`;
+      revalidatePath('/marketing');
+      revalidatePath('/marketing/[id]', 'page');
+      revalidatePath('/sales/leads');
+    }
 
     revalidatePath('/sales/requirements');
     return { success: true, record };

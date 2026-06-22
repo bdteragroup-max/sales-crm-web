@@ -1412,6 +1412,33 @@ exports.Prisma.Transfer_budgetsScalarFieldEnum = {
   last_topup_at: 'last_topup_at'
 };
 
+exports.Prisma.MarketingLeadScalarFieldEnum = {
+  id: 'id',
+  customerName: 'customerName',
+  phoneNumber: 'phoneNumber',
+  productOfInterest: 'productOfInterest',
+  productType: 'productType',
+  conversationContent: 'conversationContent',
+  createdByUserId: 'createdByUserId',
+  isForwarded: 'isForwarded',
+  forwardedAt: 'forwardedAt',
+  quotationId: 'quotationId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  assignedToId: 'assignedToId'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  message: 'message',
+  isRead: 'isRead',
+  linkUrl: 'linkUrl',
+  type: 'type',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1522,7 +1549,9 @@ exports.Prisma.ModelName = {
   task_assignments: 'task_assignments',
   task_coin_budgets: 'task_coin_budgets',
   tasks: 'tasks',
-  transfer_budgets: 'transfer_budgets'
+  transfer_budgets: 'transfer_budgets',
+  MarketingLead: 'MarketingLead',
+  Notification: 'Notification'
 };
 
 /**

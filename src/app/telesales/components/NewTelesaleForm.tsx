@@ -62,6 +62,7 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
         competitorPromotion: initialData.competitorPromotion || '',
         callbackAt: formatDateTimeForInput(initialData.callbackAt),
         visitDate: formatDateTimeForInput(initialData.visitDate),
+        marketingLeadId: initialData.marketingLeadId || '',
       });
       setSelectedCompanyId(initialData.companyId || null);
     } else {
@@ -298,6 +299,9 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {formData.marketingLeadId && (
+        <input type="hidden" name="marketingLeadId" value={formData.marketingLeadId} />
+      )}
       {/* ── Action Bar ── */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <button
@@ -530,6 +534,9 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
           </Card>
         </div>
       </div>
+      {formData.marketingLeadId && (
+        <input type="hidden" name="marketingLeadId" value={formData.marketingLeadId} />
+      )}
     </form>
   );
 }

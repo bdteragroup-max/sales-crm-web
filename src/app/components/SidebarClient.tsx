@@ -11,6 +11,7 @@ import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
 import { getPendingInstallationCount } from '@/app/actions/installationOrders';
 import CoinMiniWidget from './CoinMiniWidget';
+import NotificationBell from './NotificationBell';
 
 type SidebarProps = {
   activeRoute?: string;
@@ -22,9 +23,11 @@ type SidebarProps = {
 const managerNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมทีม', href: '/dashboard' },
   { icon: GitCommit, label: 'ท่อดีลฝ่ายขาย', href: '/pipeline' },
+  { icon: Bell, label: 'Leads จาก Marketing', href: '/sales/leads' },
   { icon: TrendingUp, label: 'จัดการใบเสนอราคา', href: '/sales' },
   { icon: DollarSign, label: 'บันทึกค่าใช้จ่าย', href: '/sales/expenses' },
   { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
+  { icon: LayoutDashboard, label: 'Marketing', href: '/marketing' },
   { icon: Users, label: 'จัดการทีม', href: '/team' },
   { icon: CalendarDays, label: 'จัดการตารางงาน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
@@ -35,6 +38,7 @@ const managerNav = [
 const repNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมของฉัน', href: '/dashboard' },
   { icon: GitCommit, label: 'ท่อดีลของฉัน', href: '/pipeline' },
+  { icon: Bell, label: 'Leads จาก Marketing', href: '/sales/leads' },
   { icon: TrendingUp, label: 'บันทึกใบเสนอราคา', href: '/sales' },
   { icon: DollarSign, label: 'บันทึกค่าใช้จ่าย', href: '/sales/expenses' },
   { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
@@ -62,6 +66,11 @@ const projectNav = [
   { icon: FolderOpen, label: 'โครงการของฉัน', href: '/projects' },
 ];
 
+const marketingNav = [
+  { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing' },
+  { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+];
+
 const projectAdminNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมโครงการ', href: '/projects/dashboard' },
   { icon: FolderOpen, label: 'จัดการโครงการ', href: '/projects' },
@@ -84,7 +93,9 @@ export default function SidebarClient(props: SidebarProps) {
     ];
   } else if (['project', 'โปรเจค', 'โปรเจกต์'].some(r => roleStr.includes(r))) {
     nav = projectNav; // Project users see their projects
-  } else if (['purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin', 'ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
+  } else if (['marketing', 'การตลาด'].some(r => roleStr.includes(r))) {
+    nav = marketingNav; // Marketing role sees marketing dashboard
+  } else if (['purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'admin', 'ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
     nav = backofficeNav; // Back-office non-sales see their own department queue
   }
   
@@ -97,6 +108,7 @@ function ResponsiveSidebar({
   activeRoute = '/dashboard',
   userFullName = 'User',
   userRole = 'ตัวแทนฝ่ายขาย',
+  userId,
   nav,
 }: SidebarProps & { nav: NavItem[] }) {
   const router = useRouter();
@@ -271,17 +283,7 @@ function ResponsiveSidebar({
           </Link>
 
           {userRole !== 'อื่นๆ' && (
-            <Link
-              href="/dashboard"
-              onMouseEnter={(e) => showTooltip('การแจ้งเตือน', e)}
-              onMouseLeave={hideTooltip}
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 relative group"
-            >
-              <Bell size={20} strokeWidth={2} className="transition-transform duration-200 group-hover:scale-105" />
-              <span
-                className="absolute top-3.5 right-3.5 w-1.5 h-1.5 rounded-full bg-red-500 border border-white"
-              />
-            </Link>
+            <NotificationBell userId={userId} />
           )}
 
           <Link

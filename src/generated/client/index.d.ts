@@ -408,6 +408,16 @@ export type tasks = $Result.DefaultSelection<Prisma.$tasksPayload>
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type transfer_budgets = $Result.DefaultSelection<Prisma.$transfer_budgetsPayload>
+/**
+ * Model MarketingLead
+ * 
+ */
+export type MarketingLead = $Result.DefaultSelection<Prisma.$MarketingLeadPayload>
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1319,6 +1329,26 @@ export class PrismaClient<
     * ```
     */
   get transfer_budgets(): Prisma.transfer_budgetsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.marketingLead`: Exposes CRUD operations for the **MarketingLead** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MarketingLeads
+    * const marketingLeads = await prisma.marketingLead.findMany()
+    * ```
+    */
+  get marketingLead(): Prisma.MarketingLeadDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.notification`: Exposes CRUD operations for the **Notification** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Notifications
+    * const notifications = await prisma.notification.findMany()
+    * ```
+    */
+  get notification(): Prisma.NotificationDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1831,7 +1861,9 @@ export namespace Prisma {
     task_assignments: 'task_assignments',
     task_coin_budgets: 'task_coin_budgets',
     tasks: 'tasks',
-    transfer_budgets: 'transfer_budgets'
+    transfer_budgets: 'transfer_budgets',
+    MarketingLead: 'MarketingLead',
+    Notification: 'Notification'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1847,7 +1879,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseOrder" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -7697,6 +7729,154 @@ export namespace Prisma {
           }
         }
       }
+      MarketingLead: {
+        payload: Prisma.$MarketingLeadPayload<ExtArgs>
+        fields: Prisma.MarketingLeadFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MarketingLeadFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MarketingLeadFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload>
+          }
+          findFirst: {
+            args: Prisma.MarketingLeadFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MarketingLeadFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload>
+          }
+          findMany: {
+            args: Prisma.MarketingLeadFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload>[]
+          }
+          create: {
+            args: Prisma.MarketingLeadCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload>
+          }
+          createMany: {
+            args: Prisma.MarketingLeadCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MarketingLeadCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload>[]
+          }
+          delete: {
+            args: Prisma.MarketingLeadDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload>
+          }
+          update: {
+            args: Prisma.MarketingLeadUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload>
+          }
+          deleteMany: {
+            args: Prisma.MarketingLeadDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MarketingLeadUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MarketingLeadUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload>[]
+          }
+          upsert: {
+            args: Prisma.MarketingLeadUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingLeadPayload>
+          }
+          aggregate: {
+            args: Prisma.MarketingLeadAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMarketingLead>
+          }
+          groupBy: {
+            args: Prisma.MarketingLeadGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MarketingLeadGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MarketingLeadCountArgs<ExtArgs>
+            result: $Utils.Optional<MarketingLeadCountAggregateOutputType> | number
+          }
+        }
+      }
+      Notification: {
+        payload: Prisma.$NotificationPayload<ExtArgs>
+        fields: Prisma.NotificationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NotificationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NotificationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          findFirst: {
+            args: Prisma.NotificationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NotificationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          findMany: {
+            args: Prisma.NotificationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+          }
+          create: {
+            args: Prisma.NotificationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          createMany: {
+            args: Prisma.NotificationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NotificationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+          }
+          delete: {
+            args: Prisma.NotificationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          update: {
+            args: Prisma.NotificationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          deleteMany: {
+            args: Prisma.NotificationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NotificationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.NotificationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+          }
+          upsert: {
+            args: Prisma.NotificationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          aggregate: {
+            args: Prisma.NotificationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNotification>
+          }
+          groupBy: {
+            args: Prisma.NotificationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NotificationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NotificationCountArgs<ExtArgs>
+            result: $Utils.Optional<NotificationCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -7884,6 +8064,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsOmit
     tasks?: tasksOmit
     transfer_budgets?: transfer_budgetsOmit
+    marketingLead?: MarketingLeadOmit
+    notification?: NotificationOmit
   }
 
   /* Types for Logging */
@@ -7966,7 +8148,10 @@ export namespace Prisma {
   export type UserCountOutputType = {
     assignedCompanies: number
     customerRequirements: number
+    assignedMarketingLeads: number
+    marketingLeads: number
     monthlyTargets: number
+    notifications: number
     orders: number
     managedProjects: number
     reportedDailyLogs: number
@@ -7981,7 +8166,10 @@ export namespace Prisma {
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignedCompanies?: boolean | UserCountOutputTypeCountAssignedCompaniesArgs
     customerRequirements?: boolean | UserCountOutputTypeCountCustomerRequirementsArgs
+    assignedMarketingLeads?: boolean | UserCountOutputTypeCountAssignedMarketingLeadsArgs
+    marketingLeads?: boolean | UserCountOutputTypeCountMarketingLeadsArgs
     monthlyTargets?: boolean | UserCountOutputTypeCountMonthlyTargetsArgs
+    notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
     orders?: boolean | UserCountOutputTypeCountOrdersArgs
     managedProjects?: boolean | UserCountOutputTypeCountManagedProjectsArgs
     reportedDailyLogs?: boolean | UserCountOutputTypeCountReportedDailyLogsArgs
@@ -8021,8 +8209,29 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
+  export type UserCountOutputTypeCountAssignedMarketingLeadsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MarketingLeadWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountMarketingLeadsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MarketingLeadWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
   export type UserCountOutputTypeCountMonthlyTargetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MonthlyTargetWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
   }
 
   /**
@@ -9530,7 +9739,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: boolean | User$assignedCompaniesArgs<ExtArgs>
     customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
+    assignedMarketingLeads?: boolean | User$assignedMarketingLeadsArgs<ExtArgs>
+    marketingLeads?: boolean | User$marketingLeadsArgs<ExtArgs>
     monthlyTargets?: boolean | User$monthlyTargetsArgs<ExtArgs>
+    notifications?: boolean | User$notificationsArgs<ExtArgs>
     orders?: boolean | User$ordersArgs<ExtArgs>
     managedProjects?: boolean | User$managedProjectsArgs<ExtArgs>
     reportedDailyLogs?: boolean | User$reportedDailyLogsArgs<ExtArgs>
@@ -9596,7 +9808,10 @@ export namespace Prisma {
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignedCompanies?: boolean | User$assignedCompaniesArgs<ExtArgs>
     customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
+    assignedMarketingLeads?: boolean | User$assignedMarketingLeadsArgs<ExtArgs>
+    marketingLeads?: boolean | User$marketingLeadsArgs<ExtArgs>
     monthlyTargets?: boolean | User$monthlyTargetsArgs<ExtArgs>
+    notifications?: boolean | User$notificationsArgs<ExtArgs>
     orders?: boolean | User$ordersArgs<ExtArgs>
     managedProjects?: boolean | User$managedProjectsArgs<ExtArgs>
     reportedDailyLogs?: boolean | User$reportedDailyLogsArgs<ExtArgs>
@@ -9617,7 +9832,10 @@ export namespace Prisma {
     objects: {
       assignedCompanies: Prisma.$CompanyPayload<ExtArgs>[]
       customerRequirements: Prisma.$CustomerRequirementPayload<ExtArgs>[]
+      assignedMarketingLeads: Prisma.$MarketingLeadPayload<ExtArgs>[]
+      marketingLeads: Prisma.$MarketingLeadPayload<ExtArgs>[]
       monthlyTargets: Prisma.$MonthlyTargetPayload<ExtArgs>[]
+      notifications: Prisma.$NotificationPayload<ExtArgs>[]
       orders: Prisma.$OrderPayload<ExtArgs>[]
       managedProjects: Prisma.$ProjectPayload<ExtArgs>[]
       reportedDailyLogs: Prisma.$ProjectDailyLogPayload<ExtArgs>[]
@@ -10039,7 +10257,10 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     assignedCompanies<T extends User$assignedCompaniesArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedCompaniesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerRequirements<T extends User$customerRequirementsArgs<ExtArgs> = {}>(args?: Subset<T, User$customerRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    assignedMarketingLeads<T extends User$assignedMarketingLeadsArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedMarketingLeadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    marketingLeads<T extends User$marketingLeadsArgs<ExtArgs> = {}>(args?: Subset<T, User$marketingLeadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     monthlyTargets<T extends User$monthlyTargetsArgs<ExtArgs> = {}>(args?: Subset<T, User$monthlyTargetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyTargetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orders<T extends User$ordersArgs<ExtArgs> = {}>(args?: Subset<T, User$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     managedProjects<T extends User$managedProjectsArgs<ExtArgs> = {}>(args?: Subset<T, User$managedProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reportedDailyLogs<T extends User$reportedDailyLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$reportedDailyLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectDailyLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -10533,6 +10754,54 @@ export namespace Prisma {
   }
 
   /**
+   * User.assignedMarketingLeads
+   */
+  export type User$assignedMarketingLeadsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    where?: MarketingLeadWhereInput
+    orderBy?: MarketingLeadOrderByWithRelationInput | MarketingLeadOrderByWithRelationInput[]
+    cursor?: MarketingLeadWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MarketingLeadScalarFieldEnum | MarketingLeadScalarFieldEnum[]
+  }
+
+  /**
+   * User.marketingLeads
+   */
+  export type User$marketingLeadsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    where?: MarketingLeadWhereInput
+    orderBy?: MarketingLeadOrderByWithRelationInput | MarketingLeadOrderByWithRelationInput[]
+    cursor?: MarketingLeadWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MarketingLeadScalarFieldEnum | MarketingLeadScalarFieldEnum[]
+  }
+
+  /**
    * User.monthlyTargets
    */
   export type User$monthlyTargetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10554,6 +10823,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MonthlyTargetScalarFieldEnum | MonthlyTargetScalarFieldEnum[]
+  }
+
+  /**
+   * User.notifications
+   */
+  export type User$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    cursor?: NotificationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
   }
 
   /**
@@ -17499,6 +17792,7 @@ export namespace Prisma {
     salespersonId?: boolean
     subject?: boolean
     winLossReason?: boolean
+    marketingLead?: boolean | Quotation$marketingLeadArgs<ExtArgs>
     orders?: boolean | Quotation$ordersArgs<ExtArgs>
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     contact?: boolean | Quotation$contactArgs<ExtArgs>
@@ -17623,6 +17917,7 @@ export namespace Prisma {
 
   export type QuotationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "status" | "salesBeforeVat" | "transportationFee" | "installationFee" | "totalAmountBeforeVat" | "actualClosingAmount" | "createdAt" | "updatedAt" | "billingDate" | "appointmentDate" | "appointmentNote" | "contactId" | "followUp1" | "followUp2" | "followUp3" | "followUp4" | "invoiceNumber" | "poDate" | "poNumber" | "productType" | "quotationDate" | "quotationNumber" | "rejectReason" | "remarks" | "requirementDate" | "requirementNumber" | "salesBranch" | "salesTeamLeader" | "salespersonId" | "subject" | "winLossReason", ExtArgs["result"]["quotation"]>
   export type QuotationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    marketingLead?: boolean | Quotation$marketingLeadArgs<ExtArgs>
     orders?: boolean | Quotation$ordersArgs<ExtArgs>
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     contact?: boolean | Quotation$contactArgs<ExtArgs>
@@ -17644,6 +17939,7 @@ export namespace Prisma {
   export type $QuotationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Quotation"
     objects: {
+      marketingLead: Prisma.$MarketingLeadPayload<ExtArgs> | null
       orders: Prisma.$OrderPayload<ExtArgs>[]
       company: Prisma.$CompanyPayload<ExtArgs>
       contact: Prisma.$ContactPayload<ExtArgs> | null
@@ -18078,6 +18374,7 @@ export namespace Prisma {
    */
   export interface Prisma__QuotationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    marketingLead<T extends Quotation$marketingLeadArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$marketingLeadArgs<ExtArgs>>): Prisma__MarketingLeadClient<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     orders<T extends Quotation$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     contact<T extends Quotation$contactArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$contactArgs<ExtArgs>>): Prisma__ContactClient<$Result.GetResult<Prisma.$ContactPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -18543,6 +18840,25 @@ export namespace Prisma {
      * Limit how many Quotations to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Quotation.marketingLead
+   */
+  export type Quotation$marketingLeadArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    where?: MarketingLeadWhereInput
   }
 
   /**
@@ -107175,6 +107491,2329 @@ export namespace Prisma {
 
 
   /**
+   * Model MarketingLead
+   */
+
+  export type AggregateMarketingLead = {
+    _count: MarketingLeadCountAggregateOutputType | null
+    _min: MarketingLeadMinAggregateOutputType | null
+    _max: MarketingLeadMaxAggregateOutputType | null
+  }
+
+  export type MarketingLeadMinAggregateOutputType = {
+    id: string | null
+    customerName: string | null
+    phoneNumber: string | null
+    productOfInterest: string | null
+    productType: string | null
+    conversationContent: string | null
+    createdByUserId: string | null
+    isForwarded: boolean | null
+    forwardedAt: Date | null
+    quotationId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    assignedToId: string | null
+  }
+
+  export type MarketingLeadMaxAggregateOutputType = {
+    id: string | null
+    customerName: string | null
+    phoneNumber: string | null
+    productOfInterest: string | null
+    productType: string | null
+    conversationContent: string | null
+    createdByUserId: string | null
+    isForwarded: boolean | null
+    forwardedAt: Date | null
+    quotationId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    assignedToId: string | null
+  }
+
+  export type MarketingLeadCountAggregateOutputType = {
+    id: number
+    customerName: number
+    phoneNumber: number
+    productOfInterest: number
+    productType: number
+    conversationContent: number
+    createdByUserId: number
+    isForwarded: number
+    forwardedAt: number
+    quotationId: number
+    createdAt: number
+    updatedAt: number
+    assignedToId: number
+    _all: number
+  }
+
+
+  export type MarketingLeadMinAggregateInputType = {
+    id?: true
+    customerName?: true
+    phoneNumber?: true
+    productOfInterest?: true
+    productType?: true
+    conversationContent?: true
+    createdByUserId?: true
+    isForwarded?: true
+    forwardedAt?: true
+    quotationId?: true
+    createdAt?: true
+    updatedAt?: true
+    assignedToId?: true
+  }
+
+  export type MarketingLeadMaxAggregateInputType = {
+    id?: true
+    customerName?: true
+    phoneNumber?: true
+    productOfInterest?: true
+    productType?: true
+    conversationContent?: true
+    createdByUserId?: true
+    isForwarded?: true
+    forwardedAt?: true
+    quotationId?: true
+    createdAt?: true
+    updatedAt?: true
+    assignedToId?: true
+  }
+
+  export type MarketingLeadCountAggregateInputType = {
+    id?: true
+    customerName?: true
+    phoneNumber?: true
+    productOfInterest?: true
+    productType?: true
+    conversationContent?: true
+    createdByUserId?: true
+    isForwarded?: true
+    forwardedAt?: true
+    quotationId?: true
+    createdAt?: true
+    updatedAt?: true
+    assignedToId?: true
+    _all?: true
+  }
+
+  export type MarketingLeadAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MarketingLead to aggregate.
+     */
+    where?: MarketingLeadWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketingLeads to fetch.
+     */
+    orderBy?: MarketingLeadOrderByWithRelationInput | MarketingLeadOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MarketingLeadWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketingLeads from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketingLeads.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MarketingLeads
+    **/
+    _count?: true | MarketingLeadCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MarketingLeadMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MarketingLeadMaxAggregateInputType
+  }
+
+  export type GetMarketingLeadAggregateType<T extends MarketingLeadAggregateArgs> = {
+        [P in keyof T & keyof AggregateMarketingLead]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMarketingLead[P]>
+      : GetScalarType<T[P], AggregateMarketingLead[P]>
+  }
+
+
+
+
+  export type MarketingLeadGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MarketingLeadWhereInput
+    orderBy?: MarketingLeadOrderByWithAggregationInput | MarketingLeadOrderByWithAggregationInput[]
+    by: MarketingLeadScalarFieldEnum[] | MarketingLeadScalarFieldEnum
+    having?: MarketingLeadScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MarketingLeadCountAggregateInputType | true
+    _min?: MarketingLeadMinAggregateInputType
+    _max?: MarketingLeadMaxAggregateInputType
+  }
+
+  export type MarketingLeadGroupByOutputType = {
+    id: string
+    customerName: string
+    phoneNumber: string | null
+    productOfInterest: string | null
+    productType: string | null
+    conversationContent: string | null
+    createdByUserId: string
+    isForwarded: boolean
+    forwardedAt: Date | null
+    quotationId: string | null
+    createdAt: Date
+    updatedAt: Date
+    assignedToId: string | null
+    _count: MarketingLeadCountAggregateOutputType | null
+    _min: MarketingLeadMinAggregateOutputType | null
+    _max: MarketingLeadMaxAggregateOutputType | null
+  }
+
+  type GetMarketingLeadGroupByPayload<T extends MarketingLeadGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MarketingLeadGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MarketingLeadGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MarketingLeadGroupByOutputType[P]>
+            : GetScalarType<T[P], MarketingLeadGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MarketingLeadSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customerName?: boolean
+    phoneNumber?: boolean
+    productOfInterest?: boolean
+    productType?: boolean
+    conversationContent?: boolean
+    createdByUserId?: boolean
+    isForwarded?: boolean
+    forwardedAt?: boolean
+    quotationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    assignedToId?: boolean
+    assignedTo?: boolean | MarketingLead$assignedToArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+    quotation?: boolean | MarketingLead$quotationArgs<ExtArgs>
+  }, ExtArgs["result"]["marketingLead"]>
+
+  export type MarketingLeadSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customerName?: boolean
+    phoneNumber?: boolean
+    productOfInterest?: boolean
+    productType?: boolean
+    conversationContent?: boolean
+    createdByUserId?: boolean
+    isForwarded?: boolean
+    forwardedAt?: boolean
+    quotationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    assignedToId?: boolean
+    assignedTo?: boolean | MarketingLead$assignedToArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+    quotation?: boolean | MarketingLead$quotationArgs<ExtArgs>
+  }, ExtArgs["result"]["marketingLead"]>
+
+  export type MarketingLeadSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customerName?: boolean
+    phoneNumber?: boolean
+    productOfInterest?: boolean
+    productType?: boolean
+    conversationContent?: boolean
+    createdByUserId?: boolean
+    isForwarded?: boolean
+    forwardedAt?: boolean
+    quotationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    assignedToId?: boolean
+    assignedTo?: boolean | MarketingLead$assignedToArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+    quotation?: boolean | MarketingLead$quotationArgs<ExtArgs>
+  }, ExtArgs["result"]["marketingLead"]>
+
+  export type MarketingLeadSelectScalar = {
+    id?: boolean
+    customerName?: boolean
+    phoneNumber?: boolean
+    productOfInterest?: boolean
+    productType?: boolean
+    conversationContent?: boolean
+    createdByUserId?: boolean
+    isForwarded?: boolean
+    forwardedAt?: boolean
+    quotationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    assignedToId?: boolean
+  }
+
+  export type MarketingLeadOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerName" | "phoneNumber" | "productOfInterest" | "productType" | "conversationContent" | "createdByUserId" | "isForwarded" | "forwardedAt" | "quotationId" | "createdAt" | "updatedAt" | "assignedToId", ExtArgs["result"]["marketingLead"]>
+  export type MarketingLeadInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignedTo?: boolean | MarketingLead$assignedToArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+    quotation?: boolean | MarketingLead$quotationArgs<ExtArgs>
+  }
+  export type MarketingLeadIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignedTo?: boolean | MarketingLead$assignedToArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+    quotation?: boolean | MarketingLead$quotationArgs<ExtArgs>
+  }
+  export type MarketingLeadIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assignedTo?: boolean | MarketingLead$assignedToArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+    quotation?: boolean | MarketingLead$quotationArgs<ExtArgs>
+  }
+
+  export type $MarketingLeadPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MarketingLead"
+    objects: {
+      assignedTo: Prisma.$UserPayload<ExtArgs> | null
+      createdBy: Prisma.$UserPayload<ExtArgs>
+      quotation: Prisma.$QuotationPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      customerName: string
+      phoneNumber: string | null
+      productOfInterest: string | null
+      productType: string | null
+      conversationContent: string | null
+      createdByUserId: string
+      isForwarded: boolean
+      forwardedAt: Date | null
+      quotationId: string | null
+      createdAt: Date
+      updatedAt: Date
+      assignedToId: string | null
+    }, ExtArgs["result"]["marketingLead"]>
+    composites: {}
+  }
+
+  type MarketingLeadGetPayload<S extends boolean | null | undefined | MarketingLeadDefaultArgs> = $Result.GetResult<Prisma.$MarketingLeadPayload, S>
+
+  type MarketingLeadCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MarketingLeadFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MarketingLeadCountAggregateInputType | true
+    }
+
+  export interface MarketingLeadDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MarketingLead'], meta: { name: 'MarketingLead' } }
+    /**
+     * Find zero or one MarketingLead that matches the filter.
+     * @param {MarketingLeadFindUniqueArgs} args - Arguments to find a MarketingLead
+     * @example
+     * // Get one MarketingLead
+     * const marketingLead = await prisma.marketingLead.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MarketingLeadFindUniqueArgs>(args: SelectSubset<T, MarketingLeadFindUniqueArgs<ExtArgs>>): Prisma__MarketingLeadClient<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MarketingLead that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MarketingLeadFindUniqueOrThrowArgs} args - Arguments to find a MarketingLead
+     * @example
+     * // Get one MarketingLead
+     * const marketingLead = await prisma.marketingLead.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MarketingLeadFindUniqueOrThrowArgs>(args: SelectSubset<T, MarketingLeadFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MarketingLeadClient<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MarketingLead that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingLeadFindFirstArgs} args - Arguments to find a MarketingLead
+     * @example
+     * // Get one MarketingLead
+     * const marketingLead = await prisma.marketingLead.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MarketingLeadFindFirstArgs>(args?: SelectSubset<T, MarketingLeadFindFirstArgs<ExtArgs>>): Prisma__MarketingLeadClient<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MarketingLead that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingLeadFindFirstOrThrowArgs} args - Arguments to find a MarketingLead
+     * @example
+     * // Get one MarketingLead
+     * const marketingLead = await prisma.marketingLead.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MarketingLeadFindFirstOrThrowArgs>(args?: SelectSubset<T, MarketingLeadFindFirstOrThrowArgs<ExtArgs>>): Prisma__MarketingLeadClient<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MarketingLeads that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingLeadFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MarketingLeads
+     * const marketingLeads = await prisma.marketingLead.findMany()
+     * 
+     * // Get first 10 MarketingLeads
+     * const marketingLeads = await prisma.marketingLead.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const marketingLeadWithIdOnly = await prisma.marketingLead.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MarketingLeadFindManyArgs>(args?: SelectSubset<T, MarketingLeadFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MarketingLead.
+     * @param {MarketingLeadCreateArgs} args - Arguments to create a MarketingLead.
+     * @example
+     * // Create one MarketingLead
+     * const MarketingLead = await prisma.marketingLead.create({
+     *   data: {
+     *     // ... data to create a MarketingLead
+     *   }
+     * })
+     * 
+     */
+    create<T extends MarketingLeadCreateArgs>(args: SelectSubset<T, MarketingLeadCreateArgs<ExtArgs>>): Prisma__MarketingLeadClient<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MarketingLeads.
+     * @param {MarketingLeadCreateManyArgs} args - Arguments to create many MarketingLeads.
+     * @example
+     * // Create many MarketingLeads
+     * const marketingLead = await prisma.marketingLead.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MarketingLeadCreateManyArgs>(args?: SelectSubset<T, MarketingLeadCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MarketingLeads and returns the data saved in the database.
+     * @param {MarketingLeadCreateManyAndReturnArgs} args - Arguments to create many MarketingLeads.
+     * @example
+     * // Create many MarketingLeads
+     * const marketingLead = await prisma.marketingLead.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MarketingLeads and only return the `id`
+     * const marketingLeadWithIdOnly = await prisma.marketingLead.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MarketingLeadCreateManyAndReturnArgs>(args?: SelectSubset<T, MarketingLeadCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MarketingLead.
+     * @param {MarketingLeadDeleteArgs} args - Arguments to delete one MarketingLead.
+     * @example
+     * // Delete one MarketingLead
+     * const MarketingLead = await prisma.marketingLead.delete({
+     *   where: {
+     *     // ... filter to delete one MarketingLead
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MarketingLeadDeleteArgs>(args: SelectSubset<T, MarketingLeadDeleteArgs<ExtArgs>>): Prisma__MarketingLeadClient<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MarketingLead.
+     * @param {MarketingLeadUpdateArgs} args - Arguments to update one MarketingLead.
+     * @example
+     * // Update one MarketingLead
+     * const marketingLead = await prisma.marketingLead.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MarketingLeadUpdateArgs>(args: SelectSubset<T, MarketingLeadUpdateArgs<ExtArgs>>): Prisma__MarketingLeadClient<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MarketingLeads.
+     * @param {MarketingLeadDeleteManyArgs} args - Arguments to filter MarketingLeads to delete.
+     * @example
+     * // Delete a few MarketingLeads
+     * const { count } = await prisma.marketingLead.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MarketingLeadDeleteManyArgs>(args?: SelectSubset<T, MarketingLeadDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MarketingLeads.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingLeadUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MarketingLeads
+     * const marketingLead = await prisma.marketingLead.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MarketingLeadUpdateManyArgs>(args: SelectSubset<T, MarketingLeadUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MarketingLeads and returns the data updated in the database.
+     * @param {MarketingLeadUpdateManyAndReturnArgs} args - Arguments to update many MarketingLeads.
+     * @example
+     * // Update many MarketingLeads
+     * const marketingLead = await prisma.marketingLead.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MarketingLeads and only return the `id`
+     * const marketingLeadWithIdOnly = await prisma.marketingLead.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MarketingLeadUpdateManyAndReturnArgs>(args: SelectSubset<T, MarketingLeadUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MarketingLead.
+     * @param {MarketingLeadUpsertArgs} args - Arguments to update or create a MarketingLead.
+     * @example
+     * // Update or create a MarketingLead
+     * const marketingLead = await prisma.marketingLead.upsert({
+     *   create: {
+     *     // ... data to create a MarketingLead
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MarketingLead we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MarketingLeadUpsertArgs>(args: SelectSubset<T, MarketingLeadUpsertArgs<ExtArgs>>): Prisma__MarketingLeadClient<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MarketingLeads.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingLeadCountArgs} args - Arguments to filter MarketingLeads to count.
+     * @example
+     * // Count the number of MarketingLeads
+     * const count = await prisma.marketingLead.count({
+     *   where: {
+     *     // ... the filter for the MarketingLeads we want to count
+     *   }
+     * })
+    **/
+    count<T extends MarketingLeadCountArgs>(
+      args?: Subset<T, MarketingLeadCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MarketingLeadCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MarketingLead.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingLeadAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MarketingLeadAggregateArgs>(args: Subset<T, MarketingLeadAggregateArgs>): Prisma.PrismaPromise<GetMarketingLeadAggregateType<T>>
+
+    /**
+     * Group by MarketingLead.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingLeadGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MarketingLeadGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MarketingLeadGroupByArgs['orderBy'] }
+        : { orderBy?: MarketingLeadGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MarketingLeadGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMarketingLeadGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MarketingLead model
+   */
+  readonly fields: MarketingLeadFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MarketingLead.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MarketingLeadClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    assignedTo<T extends MarketingLead$assignedToArgs<ExtArgs> = {}>(args?: Subset<T, MarketingLead$assignedToArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    createdBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    quotation<T extends MarketingLead$quotationArgs<ExtArgs> = {}>(args?: Subset<T, MarketingLead$quotationArgs<ExtArgs>>): Prisma__QuotationClient<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MarketingLead model
+   */
+  interface MarketingLeadFieldRefs {
+    readonly id: FieldRef<"MarketingLead", 'String'>
+    readonly customerName: FieldRef<"MarketingLead", 'String'>
+    readonly phoneNumber: FieldRef<"MarketingLead", 'String'>
+    readonly productOfInterest: FieldRef<"MarketingLead", 'String'>
+    readonly productType: FieldRef<"MarketingLead", 'String'>
+    readonly conversationContent: FieldRef<"MarketingLead", 'String'>
+    readonly createdByUserId: FieldRef<"MarketingLead", 'String'>
+    readonly isForwarded: FieldRef<"MarketingLead", 'Boolean'>
+    readonly forwardedAt: FieldRef<"MarketingLead", 'DateTime'>
+    readonly quotationId: FieldRef<"MarketingLead", 'String'>
+    readonly createdAt: FieldRef<"MarketingLead", 'DateTime'>
+    readonly updatedAt: FieldRef<"MarketingLead", 'DateTime'>
+    readonly assignedToId: FieldRef<"MarketingLead", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MarketingLead findUnique
+   */
+  export type MarketingLeadFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    /**
+     * Filter, which MarketingLead to fetch.
+     */
+    where: MarketingLeadWhereUniqueInput
+  }
+
+  /**
+   * MarketingLead findUniqueOrThrow
+   */
+  export type MarketingLeadFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    /**
+     * Filter, which MarketingLead to fetch.
+     */
+    where: MarketingLeadWhereUniqueInput
+  }
+
+  /**
+   * MarketingLead findFirst
+   */
+  export type MarketingLeadFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    /**
+     * Filter, which MarketingLead to fetch.
+     */
+    where?: MarketingLeadWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketingLeads to fetch.
+     */
+    orderBy?: MarketingLeadOrderByWithRelationInput | MarketingLeadOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MarketingLeads.
+     */
+    cursor?: MarketingLeadWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketingLeads from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketingLeads.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarketingLeads.
+     */
+    distinct?: MarketingLeadScalarFieldEnum | MarketingLeadScalarFieldEnum[]
+  }
+
+  /**
+   * MarketingLead findFirstOrThrow
+   */
+  export type MarketingLeadFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    /**
+     * Filter, which MarketingLead to fetch.
+     */
+    where?: MarketingLeadWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketingLeads to fetch.
+     */
+    orderBy?: MarketingLeadOrderByWithRelationInput | MarketingLeadOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MarketingLeads.
+     */
+    cursor?: MarketingLeadWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketingLeads from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketingLeads.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarketingLeads.
+     */
+    distinct?: MarketingLeadScalarFieldEnum | MarketingLeadScalarFieldEnum[]
+  }
+
+  /**
+   * MarketingLead findMany
+   */
+  export type MarketingLeadFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    /**
+     * Filter, which MarketingLeads to fetch.
+     */
+    where?: MarketingLeadWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketingLeads to fetch.
+     */
+    orderBy?: MarketingLeadOrderByWithRelationInput | MarketingLeadOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MarketingLeads.
+     */
+    cursor?: MarketingLeadWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketingLeads from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketingLeads.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarketingLeads.
+     */
+    distinct?: MarketingLeadScalarFieldEnum | MarketingLeadScalarFieldEnum[]
+  }
+
+  /**
+   * MarketingLead create
+   */
+  export type MarketingLeadCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MarketingLead.
+     */
+    data: XOR<MarketingLeadCreateInput, MarketingLeadUncheckedCreateInput>
+  }
+
+  /**
+   * MarketingLead createMany
+   */
+  export type MarketingLeadCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MarketingLeads.
+     */
+    data: MarketingLeadCreateManyInput | MarketingLeadCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MarketingLead createManyAndReturn
+   */
+  export type MarketingLeadCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * The data used to create many MarketingLeads.
+     */
+    data: MarketingLeadCreateManyInput | MarketingLeadCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MarketingLead update
+   */
+  export type MarketingLeadUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MarketingLead.
+     */
+    data: XOR<MarketingLeadUpdateInput, MarketingLeadUncheckedUpdateInput>
+    /**
+     * Choose, which MarketingLead to update.
+     */
+    where: MarketingLeadWhereUniqueInput
+  }
+
+  /**
+   * MarketingLead updateMany
+   */
+  export type MarketingLeadUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MarketingLeads.
+     */
+    data: XOR<MarketingLeadUpdateManyMutationInput, MarketingLeadUncheckedUpdateManyInput>
+    /**
+     * Filter which MarketingLeads to update
+     */
+    where?: MarketingLeadWhereInput
+    /**
+     * Limit how many MarketingLeads to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarketingLead updateManyAndReturn
+   */
+  export type MarketingLeadUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * The data used to update MarketingLeads.
+     */
+    data: XOR<MarketingLeadUpdateManyMutationInput, MarketingLeadUncheckedUpdateManyInput>
+    /**
+     * Filter which MarketingLeads to update
+     */
+    where?: MarketingLeadWhereInput
+    /**
+     * Limit how many MarketingLeads to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MarketingLead upsert
+   */
+  export type MarketingLeadUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MarketingLead to update in case it exists.
+     */
+    where: MarketingLeadWhereUniqueInput
+    /**
+     * In case the MarketingLead found by the `where` argument doesn't exist, create a new MarketingLead with this data.
+     */
+    create: XOR<MarketingLeadCreateInput, MarketingLeadUncheckedCreateInput>
+    /**
+     * In case the MarketingLead was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MarketingLeadUpdateInput, MarketingLeadUncheckedUpdateInput>
+  }
+
+  /**
+   * MarketingLead delete
+   */
+  export type MarketingLeadDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+    /**
+     * Filter which MarketingLead to delete.
+     */
+    where: MarketingLeadWhereUniqueInput
+  }
+
+  /**
+   * MarketingLead deleteMany
+   */
+  export type MarketingLeadDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MarketingLeads to delete
+     */
+    where?: MarketingLeadWhereInput
+    /**
+     * Limit how many MarketingLeads to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarketingLead.assignedTo
+   */
+  export type MarketingLead$assignedToArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * MarketingLead.quotation
+   */
+  export type MarketingLead$quotationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Quotation
+     */
+    select?: QuotationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Quotation
+     */
+    omit?: QuotationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: QuotationInclude<ExtArgs> | null
+    where?: QuotationWhereInput
+  }
+
+  /**
+   * MarketingLead without action
+   */
+  export type MarketingLeadDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingLead
+     */
+    select?: MarketingLeadSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingLead
+     */
+    omit?: MarketingLeadOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarketingLeadInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Notification
+   */
+
+  export type AggregateNotification = {
+    _count: NotificationCountAggregateOutputType | null
+    _min: NotificationMinAggregateOutputType | null
+    _max: NotificationMaxAggregateOutputType | null
+  }
+
+  export type NotificationMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    title: string | null
+    message: string | null
+    isRead: boolean | null
+    linkUrl: string | null
+    type: string | null
+    createdAt: Date | null
+  }
+
+  export type NotificationMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    title: string | null
+    message: string | null
+    isRead: boolean | null
+    linkUrl: string | null
+    type: string | null
+    createdAt: Date | null
+  }
+
+  export type NotificationCountAggregateOutputType = {
+    id: number
+    userId: number
+    title: number
+    message: number
+    isRead: number
+    linkUrl: number
+    type: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type NotificationMinAggregateInputType = {
+    id?: true
+    userId?: true
+    title?: true
+    message?: true
+    isRead?: true
+    linkUrl?: true
+    type?: true
+    createdAt?: true
+  }
+
+  export type NotificationMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    title?: true
+    message?: true
+    isRead?: true
+    linkUrl?: true
+    type?: true
+    createdAt?: true
+  }
+
+  export type NotificationCountAggregateInputType = {
+    id?: true
+    userId?: true
+    title?: true
+    message?: true
+    isRead?: true
+    linkUrl?: true
+    type?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type NotificationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Notification to aggregate.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Notifications
+    **/
+    _count?: true | NotificationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NotificationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NotificationMaxAggregateInputType
+  }
+
+  export type GetNotificationAggregateType<T extends NotificationAggregateArgs> = {
+        [P in keyof T & keyof AggregateNotification]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNotification[P]>
+      : GetScalarType<T[P], AggregateNotification[P]>
+  }
+
+
+
+
+  export type NotificationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithAggregationInput | NotificationOrderByWithAggregationInput[]
+    by: NotificationScalarFieldEnum[] | NotificationScalarFieldEnum
+    having?: NotificationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NotificationCountAggregateInputType | true
+    _min?: NotificationMinAggregateInputType
+    _max?: NotificationMaxAggregateInputType
+  }
+
+  export type NotificationGroupByOutputType = {
+    id: string
+    userId: string
+    title: string
+    message: string
+    isRead: boolean
+    linkUrl: string | null
+    type: string
+    createdAt: Date
+    _count: NotificationCountAggregateOutputType | null
+    _min: NotificationMinAggregateOutputType | null
+    _max: NotificationMaxAggregateOutputType | null
+  }
+
+  type GetNotificationGroupByPayload<T extends NotificationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NotificationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NotificationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NotificationGroupByOutputType[P]>
+            : GetScalarType<T[P], NotificationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NotificationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    title?: boolean
+    message?: boolean
+    isRead?: boolean
+    linkUrl?: boolean
+    type?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notification"]>
+
+  export type NotificationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    title?: boolean
+    message?: boolean
+    isRead?: boolean
+    linkUrl?: boolean
+    type?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notification"]>
+
+  export type NotificationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    title?: boolean
+    message?: boolean
+    isRead?: boolean
+    linkUrl?: boolean
+    type?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notification"]>
+
+  export type NotificationSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    title?: boolean
+    message?: boolean
+    isRead?: boolean
+    linkUrl?: boolean
+    type?: boolean
+    createdAt?: boolean
+  }
+
+  export type NotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "title" | "message" | "isRead" | "linkUrl" | "type" | "createdAt", ExtArgs["result"]["notification"]>
+  export type NotificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type NotificationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type NotificationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $NotificationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Notification"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      title: string
+      message: string
+      isRead: boolean
+      linkUrl: string | null
+      type: string
+      createdAt: Date
+    }, ExtArgs["result"]["notification"]>
+    composites: {}
+  }
+
+  type NotificationGetPayload<S extends boolean | null | undefined | NotificationDefaultArgs> = $Result.GetResult<Prisma.$NotificationPayload, S>
+
+  type NotificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NotificationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: NotificationCountAggregateInputType | true
+    }
+
+  export interface NotificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Notification'], meta: { name: 'Notification' } }
+    /**
+     * Find zero or one Notification that matches the filter.
+     * @param {NotificationFindUniqueArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NotificationFindUniqueArgs>(args: SelectSubset<T, NotificationFindUniqueArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Notification that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {NotificationFindUniqueOrThrowArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NotificationFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Notification that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationFindFirstArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NotificationFindFirstArgs>(args?: SelectSubset<T, NotificationFindFirstArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Notification that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationFindFirstOrThrowArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NotificationFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Notifications that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Notifications
+     * const notifications = await prisma.notification.findMany()
+     * 
+     * // Get first 10 Notifications
+     * const notifications = await prisma.notification.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const notificationWithIdOnly = await prisma.notification.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends NotificationFindManyArgs>(args?: SelectSubset<T, NotificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Notification.
+     * @param {NotificationCreateArgs} args - Arguments to create a Notification.
+     * @example
+     * // Create one Notification
+     * const Notification = await prisma.notification.create({
+     *   data: {
+     *     // ... data to create a Notification
+     *   }
+     * })
+     * 
+     */
+    create<T extends NotificationCreateArgs>(args: SelectSubset<T, NotificationCreateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Notifications.
+     * @param {NotificationCreateManyArgs} args - Arguments to create many Notifications.
+     * @example
+     * // Create many Notifications
+     * const notification = await prisma.notification.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NotificationCreateManyArgs>(args?: SelectSubset<T, NotificationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Notifications and returns the data saved in the database.
+     * @param {NotificationCreateManyAndReturnArgs} args - Arguments to create many Notifications.
+     * @example
+     * // Create many Notifications
+     * const notification = await prisma.notification.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Notifications and only return the `id`
+     * const notificationWithIdOnly = await prisma.notification.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NotificationCreateManyAndReturnArgs>(args?: SelectSubset<T, NotificationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Notification.
+     * @param {NotificationDeleteArgs} args - Arguments to delete one Notification.
+     * @example
+     * // Delete one Notification
+     * const Notification = await prisma.notification.delete({
+     *   where: {
+     *     // ... filter to delete one Notification
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NotificationDeleteArgs>(args: SelectSubset<T, NotificationDeleteArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Notification.
+     * @param {NotificationUpdateArgs} args - Arguments to update one Notification.
+     * @example
+     * // Update one Notification
+     * const notification = await prisma.notification.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NotificationUpdateArgs>(args: SelectSubset<T, NotificationUpdateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Notifications.
+     * @param {NotificationDeleteManyArgs} args - Arguments to filter Notifications to delete.
+     * @example
+     * // Delete a few Notifications
+     * const { count } = await prisma.notification.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NotificationDeleteManyArgs>(args?: SelectSubset<T, NotificationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Notifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Notifications
+     * const notification = await prisma.notification.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NotificationUpdateManyArgs>(args: SelectSubset<T, NotificationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Notifications and returns the data updated in the database.
+     * @param {NotificationUpdateManyAndReturnArgs} args - Arguments to update many Notifications.
+     * @example
+     * // Update many Notifications
+     * const notification = await prisma.notification.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Notifications and only return the `id`
+     * const notificationWithIdOnly = await prisma.notification.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends NotificationUpdateManyAndReturnArgs>(args: SelectSubset<T, NotificationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Notification.
+     * @param {NotificationUpsertArgs} args - Arguments to update or create a Notification.
+     * @example
+     * // Update or create a Notification
+     * const notification = await prisma.notification.upsert({
+     *   create: {
+     *     // ... data to create a Notification
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Notification we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NotificationUpsertArgs>(args: SelectSubset<T, NotificationUpsertArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Notifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationCountArgs} args - Arguments to filter Notifications to count.
+     * @example
+     * // Count the number of Notifications
+     * const count = await prisma.notification.count({
+     *   where: {
+     *     // ... the filter for the Notifications we want to count
+     *   }
+     * })
+    **/
+    count<T extends NotificationCountArgs>(
+      args?: Subset<T, NotificationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NotificationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Notification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NotificationAggregateArgs>(args: Subset<T, NotificationAggregateArgs>): Prisma.PrismaPromise<GetNotificationAggregateType<T>>
+
+    /**
+     * Group by Notification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NotificationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NotificationGroupByArgs['orderBy'] }
+        : { orderBy?: NotificationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NotificationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNotificationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Notification model
+   */
+  readonly fields: NotificationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Notification.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NotificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Notification model
+   */
+  interface NotificationFieldRefs {
+    readonly id: FieldRef<"Notification", 'String'>
+    readonly userId: FieldRef<"Notification", 'String'>
+    readonly title: FieldRef<"Notification", 'String'>
+    readonly message: FieldRef<"Notification", 'String'>
+    readonly isRead: FieldRef<"Notification", 'Boolean'>
+    readonly linkUrl: FieldRef<"Notification", 'String'>
+    readonly type: FieldRef<"Notification", 'String'>
+    readonly createdAt: FieldRef<"Notification", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Notification findUnique
+   */
+  export type NotificationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification findUniqueOrThrow
+   */
+  export type NotificationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification findFirst
+   */
+  export type NotificationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Notifications.
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Notifications.
+     */
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * Notification findFirstOrThrow
+   */
+  export type NotificationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Notifications.
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Notifications.
+     */
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * Notification findMany
+   */
+  export type NotificationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notifications to fetch.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Notifications.
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Notifications.
+     */
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * Notification create
+   */
+  export type NotificationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Notification.
+     */
+    data: XOR<NotificationCreateInput, NotificationUncheckedCreateInput>
+  }
+
+  /**
+   * Notification createMany
+   */
+  export type NotificationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Notifications.
+     */
+    data: NotificationCreateManyInput | NotificationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Notification createManyAndReturn
+   */
+  export type NotificationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * The data used to create many Notifications.
+     */
+    data: NotificationCreateManyInput | NotificationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Notification update
+   */
+  export type NotificationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Notification.
+     */
+    data: XOR<NotificationUpdateInput, NotificationUncheckedUpdateInput>
+    /**
+     * Choose, which Notification to update.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification updateMany
+   */
+  export type NotificationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Notifications.
+     */
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyInput>
+    /**
+     * Filter which Notifications to update
+     */
+    where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Notification updateManyAndReturn
+   */
+  export type NotificationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * The data used to update Notifications.
+     */
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyInput>
+    /**
+     * Filter which Notifications to update
+     */
+    where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Notification upsert
+   */
+  export type NotificationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Notification to update in case it exists.
+     */
+    where: NotificationWhereUniqueInput
+    /**
+     * In case the Notification found by the `where` argument doesn't exist, create a new Notification with this data.
+     */
+    create: XOR<NotificationCreateInput, NotificationUncheckedCreateInput>
+    /**
+     * In case the Notification was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NotificationUpdateInput, NotificationUncheckedUpdateInput>
+  }
+
+  /**
+   * Notification delete
+   */
+  export type NotificationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter which Notification to delete.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification deleteMany
+   */
+  export type NotificationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Notifications to delete
+     */
+    where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Notification without action
+   */
+  export type NotificationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -108717,6 +111356,39 @@ export namespace Prisma {
   export type Transfer_budgetsScalarFieldEnum = (typeof Transfer_budgetsScalarFieldEnum)[keyof typeof Transfer_budgetsScalarFieldEnum]
 
 
+  export const MarketingLeadScalarFieldEnum: {
+    id: 'id',
+    customerName: 'customerName',
+    phoneNumber: 'phoneNumber',
+    productOfInterest: 'productOfInterest',
+    productType: 'productType',
+    conversationContent: 'conversationContent',
+    createdByUserId: 'createdByUserId',
+    isForwarded: 'isForwarded',
+    forwardedAt: 'forwardedAt',
+    quotationId: 'quotationId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    assignedToId: 'assignedToId'
+  };
+
+  export type MarketingLeadScalarFieldEnum = (typeof MarketingLeadScalarFieldEnum)[keyof typeof MarketingLeadScalarFieldEnum]
+
+
+  export const NotificationScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    title: 'title',
+    message: 'message',
+    isRead: 'isRead',
+    linkUrl: 'linkUrl',
+    type: 'type',
+    createdAt: 'createdAt'
+  };
+
+  export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -108897,7 +111569,10 @@ export namespace Prisma {
     isActive?: BoolFilter<"User"> | boolean
     assignedCompanies?: CompanyListRelationFilter
     customerRequirements?: CustomerRequirementListRelationFilter
+    assignedMarketingLeads?: MarketingLeadListRelationFilter
+    marketingLeads?: MarketingLeadListRelationFilter
     monthlyTargets?: MonthlyTargetListRelationFilter
+    notifications?: NotificationListRelationFilter
     orders?: OrderListRelationFilter
     managedProjects?: ProjectListRelationFilter
     reportedDailyLogs?: ProjectDailyLogListRelationFilter
@@ -108926,7 +111601,10 @@ export namespace Prisma {
     isActive?: SortOrder
     assignedCompanies?: CompanyOrderByRelationAggregateInput
     customerRequirements?: CustomerRequirementOrderByRelationAggregateInput
+    assignedMarketingLeads?: MarketingLeadOrderByRelationAggregateInput
+    marketingLeads?: MarketingLeadOrderByRelationAggregateInput
     monthlyTargets?: MonthlyTargetOrderByRelationAggregateInput
+    notifications?: NotificationOrderByRelationAggregateInput
     orders?: OrderOrderByRelationAggregateInput
     managedProjects?: ProjectOrderByRelationAggregateInput
     reportedDailyLogs?: ProjectDailyLogOrderByRelationAggregateInput
@@ -108958,7 +111636,10 @@ export namespace Prisma {
     isActive?: BoolFilter<"User"> | boolean
     assignedCompanies?: CompanyListRelationFilter
     customerRequirements?: CustomerRequirementListRelationFilter
+    assignedMarketingLeads?: MarketingLeadListRelationFilter
+    marketingLeads?: MarketingLeadListRelationFilter
     monthlyTargets?: MonthlyTargetListRelationFilter
+    notifications?: NotificationListRelationFilter
     orders?: OrderListRelationFilter
     managedProjects?: ProjectListRelationFilter
     reportedDailyLogs?: ProjectDailyLogListRelationFilter
@@ -109583,6 +112264,7 @@ export namespace Prisma {
     salespersonId?: StringNullableFilter<"Quotation"> | string | null
     subject?: StringNullableFilter<"Quotation"> | string | null
     winLossReason?: StringNullableFilter<"Quotation"> | string | null
+    marketingLead?: XOR<MarketingLeadNullableScalarRelationFilter, MarketingLeadWhereInput> | null
     orders?: OrderListRelationFilter
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     contact?: XOR<ContactNullableScalarRelationFilter, ContactWhereInput> | null
@@ -109624,6 +112306,7 @@ export namespace Prisma {
     salespersonId?: SortOrderInput | SortOrder
     subject?: SortOrderInput | SortOrder
     winLossReason?: SortOrderInput | SortOrder
+    marketingLead?: MarketingLeadOrderByWithRelationInput
     orders?: OrderOrderByRelationAggregateInput
     company?: CompanyOrderByWithRelationInput
     contact?: ContactOrderByWithRelationInput
@@ -109668,6 +112351,7 @@ export namespace Prisma {
     salespersonId?: StringNullableFilter<"Quotation"> | string | null
     subject?: StringNullableFilter<"Quotation"> | string | null
     winLossReason?: StringNullableFilter<"Quotation"> | string | null
+    marketingLead?: XOR<MarketingLeadNullableScalarRelationFilter, MarketingLeadWhereInput> | null
     orders?: OrderListRelationFilter
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     contact?: XOR<ContactNullableScalarRelationFilter, ContactWhereInput> | null
@@ -116971,6 +119655,177 @@ export namespace Prisma {
     last_topup_at?: DateTimeNullableWithAggregatesFilter<"transfer_budgets"> | Date | string | null
   }
 
+  export type MarketingLeadWhereInput = {
+    AND?: MarketingLeadWhereInput | MarketingLeadWhereInput[]
+    OR?: MarketingLeadWhereInput[]
+    NOT?: MarketingLeadWhereInput | MarketingLeadWhereInput[]
+    id?: StringFilter<"MarketingLead"> | string
+    customerName?: StringFilter<"MarketingLead"> | string
+    phoneNumber?: StringNullableFilter<"MarketingLead"> | string | null
+    productOfInterest?: StringNullableFilter<"MarketingLead"> | string | null
+    productType?: StringNullableFilter<"MarketingLead"> | string | null
+    conversationContent?: StringNullableFilter<"MarketingLead"> | string | null
+    createdByUserId?: StringFilter<"MarketingLead"> | string
+    isForwarded?: BoolFilter<"MarketingLead"> | boolean
+    forwardedAt?: DateTimeNullableFilter<"MarketingLead"> | Date | string | null
+    quotationId?: StringNullableFilter<"MarketingLead"> | string | null
+    createdAt?: DateTimeFilter<"MarketingLead"> | Date | string
+    updatedAt?: DateTimeFilter<"MarketingLead"> | Date | string
+    assignedToId?: StringNullableFilter<"MarketingLead"> | string | null
+    assignedTo?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+    quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
+  }
+
+  export type MarketingLeadOrderByWithRelationInput = {
+    id?: SortOrder
+    customerName?: SortOrder
+    phoneNumber?: SortOrderInput | SortOrder
+    productOfInterest?: SortOrderInput | SortOrder
+    productType?: SortOrderInput | SortOrder
+    conversationContent?: SortOrderInput | SortOrder
+    createdByUserId?: SortOrder
+    isForwarded?: SortOrder
+    forwardedAt?: SortOrderInput | SortOrder
+    quotationId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    assignedToId?: SortOrderInput | SortOrder
+    assignedTo?: UserOrderByWithRelationInput
+    createdBy?: UserOrderByWithRelationInput
+    quotation?: QuotationOrderByWithRelationInput
+  }
+
+  export type MarketingLeadWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    quotationId?: string
+    AND?: MarketingLeadWhereInput | MarketingLeadWhereInput[]
+    OR?: MarketingLeadWhereInput[]
+    NOT?: MarketingLeadWhereInput | MarketingLeadWhereInput[]
+    customerName?: StringFilter<"MarketingLead"> | string
+    phoneNumber?: StringNullableFilter<"MarketingLead"> | string | null
+    productOfInterest?: StringNullableFilter<"MarketingLead"> | string | null
+    productType?: StringNullableFilter<"MarketingLead"> | string | null
+    conversationContent?: StringNullableFilter<"MarketingLead"> | string | null
+    createdByUserId?: StringFilter<"MarketingLead"> | string
+    isForwarded?: BoolFilter<"MarketingLead"> | boolean
+    forwardedAt?: DateTimeNullableFilter<"MarketingLead"> | Date | string | null
+    createdAt?: DateTimeFilter<"MarketingLead"> | Date | string
+    updatedAt?: DateTimeFilter<"MarketingLead"> | Date | string
+    assignedToId?: StringNullableFilter<"MarketingLead"> | string | null
+    assignedTo?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
+    quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
+  }, "id" | "quotationId">
+
+  export type MarketingLeadOrderByWithAggregationInput = {
+    id?: SortOrder
+    customerName?: SortOrder
+    phoneNumber?: SortOrderInput | SortOrder
+    productOfInterest?: SortOrderInput | SortOrder
+    productType?: SortOrderInput | SortOrder
+    conversationContent?: SortOrderInput | SortOrder
+    createdByUserId?: SortOrder
+    isForwarded?: SortOrder
+    forwardedAt?: SortOrderInput | SortOrder
+    quotationId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    assignedToId?: SortOrderInput | SortOrder
+    _count?: MarketingLeadCountOrderByAggregateInput
+    _max?: MarketingLeadMaxOrderByAggregateInput
+    _min?: MarketingLeadMinOrderByAggregateInput
+  }
+
+  export type MarketingLeadScalarWhereWithAggregatesInput = {
+    AND?: MarketingLeadScalarWhereWithAggregatesInput | MarketingLeadScalarWhereWithAggregatesInput[]
+    OR?: MarketingLeadScalarWhereWithAggregatesInput[]
+    NOT?: MarketingLeadScalarWhereWithAggregatesInput | MarketingLeadScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MarketingLead"> | string
+    customerName?: StringWithAggregatesFilter<"MarketingLead"> | string
+    phoneNumber?: StringNullableWithAggregatesFilter<"MarketingLead"> | string | null
+    productOfInterest?: StringNullableWithAggregatesFilter<"MarketingLead"> | string | null
+    productType?: StringNullableWithAggregatesFilter<"MarketingLead"> | string | null
+    conversationContent?: StringNullableWithAggregatesFilter<"MarketingLead"> | string | null
+    createdByUserId?: StringWithAggregatesFilter<"MarketingLead"> | string
+    isForwarded?: BoolWithAggregatesFilter<"MarketingLead"> | boolean
+    forwardedAt?: DateTimeNullableWithAggregatesFilter<"MarketingLead"> | Date | string | null
+    quotationId?: StringNullableWithAggregatesFilter<"MarketingLead"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"MarketingLead"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MarketingLead"> | Date | string
+    assignedToId?: StringNullableWithAggregatesFilter<"MarketingLead"> | string | null
+  }
+
+  export type NotificationWhereInput = {
+    AND?: NotificationWhereInput | NotificationWhereInput[]
+    OR?: NotificationWhereInput[]
+    NOT?: NotificationWhereInput | NotificationWhereInput[]
+    id?: StringFilter<"Notification"> | string
+    userId?: StringFilter<"Notification"> | string
+    title?: StringFilter<"Notification"> | string
+    message?: StringFilter<"Notification"> | string
+    isRead?: BoolFilter<"Notification"> | boolean
+    linkUrl?: StringNullableFilter<"Notification"> | string | null
+    type?: StringFilter<"Notification"> | string
+    createdAt?: DateTimeFilter<"Notification"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type NotificationOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    title?: SortOrder
+    message?: SortOrder
+    isRead?: SortOrder
+    linkUrl?: SortOrderInput | SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type NotificationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: NotificationWhereInput | NotificationWhereInput[]
+    OR?: NotificationWhereInput[]
+    NOT?: NotificationWhereInput | NotificationWhereInput[]
+    userId?: StringFilter<"Notification"> | string
+    title?: StringFilter<"Notification"> | string
+    message?: StringFilter<"Notification"> | string
+    isRead?: BoolFilter<"Notification"> | boolean
+    linkUrl?: StringNullableFilter<"Notification"> | string | null
+    type?: StringFilter<"Notification"> | string
+    createdAt?: DateTimeFilter<"Notification"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type NotificationOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    title?: SortOrder
+    message?: SortOrder
+    isRead?: SortOrder
+    linkUrl?: SortOrderInput | SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    _count?: NotificationCountOrderByAggregateInput
+    _max?: NotificationMaxOrderByAggregateInput
+    _min?: NotificationMinOrderByAggregateInput
+  }
+
+  export type NotificationScalarWhereWithAggregatesInput = {
+    AND?: NotificationScalarWhereWithAggregatesInput | NotificationScalarWhereWithAggregatesInput[]
+    OR?: NotificationScalarWhereWithAggregatesInput[]
+    NOT?: NotificationScalarWhereWithAggregatesInput | NotificationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Notification"> | string
+    userId?: StringWithAggregatesFilter<"Notification"> | string
+    title?: StringWithAggregatesFilter<"Notification"> | string
+    message?: StringWithAggregatesFilter<"Notification"> | string
+    isRead?: BoolWithAggregatesFilter<"Notification"> | boolean
+    linkUrl?: StringNullableWithAggregatesFilter<"Notification"> | string | null
+    type?: StringWithAggregatesFilter<"Notification"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     employeeId: string
@@ -116987,7 +119842,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -117016,7 +119874,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -117045,7 +119906,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -117074,7 +119938,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -117792,6 +120659,7 @@ export namespace Prisma {
     salesTeamLeader?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadCreateNestedOneWithoutQuotationInput
     orders?: OrderCreateNestedManyWithoutQuotationInput
     company: CompanyCreateNestedOneWithoutQuotationsInput
     contact?: ContactCreateNestedOneWithoutQuotationsInput
@@ -117833,6 +120701,7 @@ export namespace Prisma {
     salespersonId?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
   }
@@ -117868,6 +120737,7 @@ export namespace Prisma {
     salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUpdateOneWithoutQuotationNestedInput
     orders?: OrderUpdateManyWithoutQuotationNestedInput
     company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
@@ -117909,6 +120779,7 @@ export namespace Prisma {
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
   }
@@ -126184,6 +129055,191 @@ export namespace Prisma {
     last_topup_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type MarketingLeadCreateInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignedTo?: UserCreateNestedOneWithoutAssignedMarketingLeadsInput
+    createdBy: UserCreateNestedOneWithoutMarketingLeadsInput
+    quotation?: QuotationCreateNestedOneWithoutMarketingLeadInput
+  }
+
+  export type MarketingLeadUncheckedCreateInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    createdByUserId: string
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    quotationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignedToId?: string | null
+  }
+
+  export type MarketingLeadUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedTo?: UserUpdateOneWithoutAssignedMarketingLeadsNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutMarketingLeadsNestedInput
+    quotation?: QuotationUpdateOneWithoutMarketingLeadNestedInput
+  }
+
+  export type MarketingLeadUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByUserId?: StringFieldUpdateOperationsInput | string
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MarketingLeadCreateManyInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    createdByUserId: string
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    quotationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignedToId?: string | null
+  }
+
+  export type MarketingLeadUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarketingLeadUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByUserId?: StringFieldUpdateOperationsInput | string
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type NotificationCreateInput = {
+    id?: string
+    title: string
+    message: string
+    isRead?: boolean
+    linkUrl?: string | null
+    type: string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutNotificationsInput
+  }
+
+  export type NotificationUncheckedCreateInput = {
+    id?: string
+    userId: string
+    title: string
+    message: string
+    isRead?: boolean
+    linkUrl?: string | null
+    type: string
+    createdAt?: Date | string
+  }
+
+  export type NotificationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    linkUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutNotificationsNestedInput
+  }
+
+  export type NotificationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    linkUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationCreateManyInput = {
+    id?: string
+    userId: string
+    title: string
+    message: string
+    isRead?: boolean
+    linkUrl?: string | null
+    type: string
+    createdAt?: Date | string
+  }
+
+  export type NotificationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    linkUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    linkUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -126253,10 +129309,22 @@ export namespace Prisma {
     none?: CustomerRequirementWhereInput
   }
 
+  export type MarketingLeadListRelationFilter = {
+    every?: MarketingLeadWhereInput
+    some?: MarketingLeadWhereInput
+    none?: MarketingLeadWhereInput
+  }
+
   export type MonthlyTargetListRelationFilter = {
     every?: MonthlyTargetWhereInput
     some?: MonthlyTargetWhereInput
     none?: MonthlyTargetWhereInput
+  }
+
+  export type NotificationListRelationFilter = {
+    every?: NotificationWhereInput
+    some?: NotificationWhereInput
+    none?: NotificationWhereInput
   }
 
   export type OrderListRelationFilter = {
@@ -126331,7 +129399,15 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type MarketingLeadOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type MonthlyTargetOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type NotificationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -126868,6 +129944,11 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type MarketingLeadNullableScalarRelationFilter = {
+    is?: MarketingLeadWhereInput | null
+    isNot?: MarketingLeadWhereInput | null
   }
 
   export type ContactNullableScalarRelationFilter = {
@@ -132082,6 +135163,87 @@ export namespace Prisma {
     monthly_topup?: SortOrder
   }
 
+  export type MarketingLeadCountOrderByAggregateInput = {
+    id?: SortOrder
+    customerName?: SortOrder
+    phoneNumber?: SortOrder
+    productOfInterest?: SortOrder
+    productType?: SortOrder
+    conversationContent?: SortOrder
+    createdByUserId?: SortOrder
+    isForwarded?: SortOrder
+    forwardedAt?: SortOrder
+    quotationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    assignedToId?: SortOrder
+  }
+
+  export type MarketingLeadMaxOrderByAggregateInput = {
+    id?: SortOrder
+    customerName?: SortOrder
+    phoneNumber?: SortOrder
+    productOfInterest?: SortOrder
+    productType?: SortOrder
+    conversationContent?: SortOrder
+    createdByUserId?: SortOrder
+    isForwarded?: SortOrder
+    forwardedAt?: SortOrder
+    quotationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    assignedToId?: SortOrder
+  }
+
+  export type MarketingLeadMinOrderByAggregateInput = {
+    id?: SortOrder
+    customerName?: SortOrder
+    phoneNumber?: SortOrder
+    productOfInterest?: SortOrder
+    productType?: SortOrder
+    conversationContent?: SortOrder
+    createdByUserId?: SortOrder
+    isForwarded?: SortOrder
+    forwardedAt?: SortOrder
+    quotationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    assignedToId?: SortOrder
+  }
+
+  export type NotificationCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    title?: SortOrder
+    message?: SortOrder
+    isRead?: SortOrder
+    linkUrl?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type NotificationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    title?: SortOrder
+    message?: SortOrder
+    isRead?: SortOrder
+    linkUrl?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type NotificationMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    title?: SortOrder
+    message?: SortOrder
+    isRead?: SortOrder
+    linkUrl?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type CompanyCreateNestedManyWithoutAssignedUserInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -132096,11 +135258,32 @@ export namespace Prisma {
     connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
   }
 
+  export type MarketingLeadCreateNestedManyWithoutAssignedToInput = {
+    create?: XOR<MarketingLeadCreateWithoutAssignedToInput, MarketingLeadUncheckedCreateWithoutAssignedToInput> | MarketingLeadCreateWithoutAssignedToInput[] | MarketingLeadUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutAssignedToInput | MarketingLeadCreateOrConnectWithoutAssignedToInput[]
+    createMany?: MarketingLeadCreateManyAssignedToInputEnvelope
+    connect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+  }
+
+  export type MarketingLeadCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<MarketingLeadCreateWithoutCreatedByInput, MarketingLeadUncheckedCreateWithoutCreatedByInput> | MarketingLeadCreateWithoutCreatedByInput[] | MarketingLeadUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutCreatedByInput | MarketingLeadCreateOrConnectWithoutCreatedByInput[]
+    createMany?: MarketingLeadCreateManyCreatedByInputEnvelope
+    connect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+  }
+
   export type MonthlyTargetCreateNestedManyWithoutUserInput = {
     create?: XOR<MonthlyTargetCreateWithoutUserInput, MonthlyTargetUncheckedCreateWithoutUserInput> | MonthlyTargetCreateWithoutUserInput[] | MonthlyTargetUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MonthlyTargetCreateOrConnectWithoutUserInput | MonthlyTargetCreateOrConnectWithoutUserInput[]
     createMany?: MonthlyTargetCreateManyUserInputEnvelope
     connect?: MonthlyTargetWhereUniqueInput | MonthlyTargetWhereUniqueInput[]
+  }
+
+  export type NotificationCreateNestedManyWithoutUserInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
   export type OrderCreateNestedManyWithoutSalespersonInput = {
@@ -132186,11 +135369,32 @@ export namespace Prisma {
     connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
   }
 
+  export type MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput = {
+    create?: XOR<MarketingLeadCreateWithoutAssignedToInput, MarketingLeadUncheckedCreateWithoutAssignedToInput> | MarketingLeadCreateWithoutAssignedToInput[] | MarketingLeadUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutAssignedToInput | MarketingLeadCreateOrConnectWithoutAssignedToInput[]
+    createMany?: MarketingLeadCreateManyAssignedToInputEnvelope
+    connect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+  }
+
+  export type MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<MarketingLeadCreateWithoutCreatedByInput, MarketingLeadUncheckedCreateWithoutCreatedByInput> | MarketingLeadCreateWithoutCreatedByInput[] | MarketingLeadUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutCreatedByInput | MarketingLeadCreateOrConnectWithoutCreatedByInput[]
+    createMany?: MarketingLeadCreateManyCreatedByInputEnvelope
+    connect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+  }
+
   export type MonthlyTargetUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<MonthlyTargetCreateWithoutUserInput, MonthlyTargetUncheckedCreateWithoutUserInput> | MonthlyTargetCreateWithoutUserInput[] | MonthlyTargetUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MonthlyTargetCreateOrConnectWithoutUserInput | MonthlyTargetCreateOrConnectWithoutUserInput[]
     createMany?: MonthlyTargetCreateManyUserInputEnvelope
     connect?: MonthlyTargetWhereUniqueInput | MonthlyTargetWhereUniqueInput[]
+  }
+
+  export type NotificationUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
   export type OrderUncheckedCreateNestedManyWithoutSalespersonInput = {
@@ -132310,6 +135514,34 @@ export namespace Prisma {
     deleteMany?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
   }
 
+  export type MarketingLeadUpdateManyWithoutAssignedToNestedInput = {
+    create?: XOR<MarketingLeadCreateWithoutAssignedToInput, MarketingLeadUncheckedCreateWithoutAssignedToInput> | MarketingLeadCreateWithoutAssignedToInput[] | MarketingLeadUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutAssignedToInput | MarketingLeadCreateOrConnectWithoutAssignedToInput[]
+    upsert?: MarketingLeadUpsertWithWhereUniqueWithoutAssignedToInput | MarketingLeadUpsertWithWhereUniqueWithoutAssignedToInput[]
+    createMany?: MarketingLeadCreateManyAssignedToInputEnvelope
+    set?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    disconnect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    delete?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    connect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    update?: MarketingLeadUpdateWithWhereUniqueWithoutAssignedToInput | MarketingLeadUpdateWithWhereUniqueWithoutAssignedToInput[]
+    updateMany?: MarketingLeadUpdateManyWithWhereWithoutAssignedToInput | MarketingLeadUpdateManyWithWhereWithoutAssignedToInput[]
+    deleteMany?: MarketingLeadScalarWhereInput | MarketingLeadScalarWhereInput[]
+  }
+
+  export type MarketingLeadUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<MarketingLeadCreateWithoutCreatedByInput, MarketingLeadUncheckedCreateWithoutCreatedByInput> | MarketingLeadCreateWithoutCreatedByInput[] | MarketingLeadUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutCreatedByInput | MarketingLeadCreateOrConnectWithoutCreatedByInput[]
+    upsert?: MarketingLeadUpsertWithWhereUniqueWithoutCreatedByInput | MarketingLeadUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: MarketingLeadCreateManyCreatedByInputEnvelope
+    set?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    disconnect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    delete?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    connect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    update?: MarketingLeadUpdateWithWhereUniqueWithoutCreatedByInput | MarketingLeadUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: MarketingLeadUpdateManyWithWhereWithoutCreatedByInput | MarketingLeadUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: MarketingLeadScalarWhereInput | MarketingLeadScalarWhereInput[]
+  }
+
   export type MonthlyTargetUpdateManyWithoutUserNestedInput = {
     create?: XOR<MonthlyTargetCreateWithoutUserInput, MonthlyTargetUncheckedCreateWithoutUserInput> | MonthlyTargetCreateWithoutUserInput[] | MonthlyTargetUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MonthlyTargetCreateOrConnectWithoutUserInput | MonthlyTargetCreateOrConnectWithoutUserInput[]
@@ -132322,6 +135554,20 @@ export namespace Prisma {
     update?: MonthlyTargetUpdateWithWhereUniqueWithoutUserInput | MonthlyTargetUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: MonthlyTargetUpdateManyWithWhereWithoutUserInput | MonthlyTargetUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: MonthlyTargetScalarWhereInput | MonthlyTargetScalarWhereInput[]
+  }
+
+  export type NotificationUpdateManyWithoutUserNestedInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutUserInput | NotificationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
   export type OrderUpdateManyWithoutSalespersonNestedInput = {
@@ -132488,6 +135734,34 @@ export namespace Prisma {
     deleteMany?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
   }
 
+  export type MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput = {
+    create?: XOR<MarketingLeadCreateWithoutAssignedToInput, MarketingLeadUncheckedCreateWithoutAssignedToInput> | MarketingLeadCreateWithoutAssignedToInput[] | MarketingLeadUncheckedCreateWithoutAssignedToInput[]
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutAssignedToInput | MarketingLeadCreateOrConnectWithoutAssignedToInput[]
+    upsert?: MarketingLeadUpsertWithWhereUniqueWithoutAssignedToInput | MarketingLeadUpsertWithWhereUniqueWithoutAssignedToInput[]
+    createMany?: MarketingLeadCreateManyAssignedToInputEnvelope
+    set?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    disconnect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    delete?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    connect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    update?: MarketingLeadUpdateWithWhereUniqueWithoutAssignedToInput | MarketingLeadUpdateWithWhereUniqueWithoutAssignedToInput[]
+    updateMany?: MarketingLeadUpdateManyWithWhereWithoutAssignedToInput | MarketingLeadUpdateManyWithWhereWithoutAssignedToInput[]
+    deleteMany?: MarketingLeadScalarWhereInput | MarketingLeadScalarWhereInput[]
+  }
+
+  export type MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<MarketingLeadCreateWithoutCreatedByInput, MarketingLeadUncheckedCreateWithoutCreatedByInput> | MarketingLeadCreateWithoutCreatedByInput[] | MarketingLeadUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutCreatedByInput | MarketingLeadCreateOrConnectWithoutCreatedByInput[]
+    upsert?: MarketingLeadUpsertWithWhereUniqueWithoutCreatedByInput | MarketingLeadUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: MarketingLeadCreateManyCreatedByInputEnvelope
+    set?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    disconnect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    delete?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    connect?: MarketingLeadWhereUniqueInput | MarketingLeadWhereUniqueInput[]
+    update?: MarketingLeadUpdateWithWhereUniqueWithoutCreatedByInput | MarketingLeadUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: MarketingLeadUpdateManyWithWhereWithoutCreatedByInput | MarketingLeadUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: MarketingLeadScalarWhereInput | MarketingLeadScalarWhereInput[]
+  }
+
   export type MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<MonthlyTargetCreateWithoutUserInput, MonthlyTargetUncheckedCreateWithoutUserInput> | MonthlyTargetCreateWithoutUserInput[] | MonthlyTargetUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MonthlyTargetCreateOrConnectWithoutUserInput | MonthlyTargetCreateOrConnectWithoutUserInput[]
@@ -132500,6 +135774,20 @@ export namespace Prisma {
     update?: MonthlyTargetUpdateWithWhereUniqueWithoutUserInput | MonthlyTargetUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: MonthlyTargetUpdateManyWithWhereWithoutUserInput | MonthlyTargetUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: MonthlyTargetScalarWhereInput | MonthlyTargetScalarWhereInput[]
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutUserInput | NotificationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
   export type OrderUncheckedUpdateManyWithoutSalespersonNestedInput = {
@@ -133014,6 +136302,12 @@ export namespace Prisma {
     deleteMany?: QuotationScalarWhereInput | QuotationScalarWhereInput[]
   }
 
+  export type MarketingLeadCreateNestedOneWithoutQuotationInput = {
+    create?: XOR<MarketingLeadCreateWithoutQuotationInput, MarketingLeadUncheckedCreateWithoutQuotationInput>
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutQuotationInput
+    connect?: MarketingLeadWhereUniqueInput
+  }
+
   export type OrderCreateNestedManyWithoutQuotationInput = {
     create?: XOR<OrderCreateWithoutQuotationInput, OrderUncheckedCreateWithoutQuotationInput> | OrderCreateWithoutQuotationInput[] | OrderUncheckedCreateWithoutQuotationInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutQuotationInput | OrderCreateOrConnectWithoutQuotationInput[]
@@ -133046,6 +136340,12 @@ export namespace Prisma {
     connect?: JobWhereUniqueInput | JobWhereUniqueInput[]
   }
 
+  export type MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput = {
+    create?: XOR<MarketingLeadCreateWithoutQuotationInput, MarketingLeadUncheckedCreateWithoutQuotationInput>
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutQuotationInput
+    connect?: MarketingLeadWhereUniqueInput
+  }
+
   export type OrderUncheckedCreateNestedManyWithoutQuotationInput = {
     create?: XOR<OrderCreateWithoutQuotationInput, OrderUncheckedCreateWithoutQuotationInput> | OrderCreateWithoutQuotationInput[] | OrderUncheckedCreateWithoutQuotationInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutQuotationInput | OrderCreateOrConnectWithoutQuotationInput[]
@@ -133066,6 +136366,16 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type MarketingLeadUpdateOneWithoutQuotationNestedInput = {
+    create?: XOR<MarketingLeadCreateWithoutQuotationInput, MarketingLeadUncheckedCreateWithoutQuotationInput>
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutQuotationInput
+    upsert?: MarketingLeadUpsertWithoutQuotationInput
+    disconnect?: MarketingLeadWhereInput | boolean
+    delete?: MarketingLeadWhereInput | boolean
+    connect?: MarketingLeadWhereUniqueInput
+    update?: XOR<XOR<MarketingLeadUpdateToOneWithWhereWithoutQuotationInput, MarketingLeadUpdateWithoutQuotationInput>, MarketingLeadUncheckedUpdateWithoutQuotationInput>
   }
 
   export type OrderUpdateManyWithoutQuotationNestedInput = {
@@ -133122,6 +136432,16 @@ export namespace Prisma {
     update?: JobUpdateWithWhereUniqueWithoutQuotationInput | JobUpdateWithWhereUniqueWithoutQuotationInput[]
     updateMany?: JobUpdateManyWithWhereWithoutQuotationInput | JobUpdateManyWithWhereWithoutQuotationInput[]
     deleteMany?: JobScalarWhereInput | JobScalarWhereInput[]
+  }
+
+  export type MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput = {
+    create?: XOR<MarketingLeadCreateWithoutQuotationInput, MarketingLeadUncheckedCreateWithoutQuotationInput>
+    connectOrCreate?: MarketingLeadCreateOrConnectWithoutQuotationInput
+    upsert?: MarketingLeadUpsertWithoutQuotationInput
+    disconnect?: MarketingLeadWhereInput | boolean
+    delete?: MarketingLeadWhereInput | boolean
+    connect?: MarketingLeadWhereUniqueInput
+    update?: XOR<XOR<MarketingLeadUpdateToOneWithWhereWithoutQuotationInput, MarketingLeadUpdateWithoutQuotationInput>, MarketingLeadUncheckedUpdateWithoutQuotationInput>
   }
 
   export type OrderUncheckedUpdateManyWithoutQuotationNestedInput = {
@@ -137267,6 +140587,66 @@ export namespace Prisma {
     update?: XOR<XOR<employeesUpdateToOneWithWhereWithoutTransfer_budgetsInput, employeesUpdateWithoutTransfer_budgetsInput>, employeesUncheckedUpdateWithoutTransfer_budgetsInput>
   }
 
+  export type UserCreateNestedOneWithoutAssignedMarketingLeadsInput = {
+    create?: XOR<UserCreateWithoutAssignedMarketingLeadsInput, UserUncheckedCreateWithoutAssignedMarketingLeadsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAssignedMarketingLeadsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutMarketingLeadsInput = {
+    create?: XOR<UserCreateWithoutMarketingLeadsInput, UserUncheckedCreateWithoutMarketingLeadsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMarketingLeadsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type QuotationCreateNestedOneWithoutMarketingLeadInput = {
+    create?: XOR<QuotationCreateWithoutMarketingLeadInput, QuotationUncheckedCreateWithoutMarketingLeadInput>
+    connectOrCreate?: QuotationCreateOrConnectWithoutMarketingLeadInput
+    connect?: QuotationWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutAssignedMarketingLeadsNestedInput = {
+    create?: XOR<UserCreateWithoutAssignedMarketingLeadsInput, UserUncheckedCreateWithoutAssignedMarketingLeadsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAssignedMarketingLeadsInput
+    upsert?: UserUpsertWithoutAssignedMarketingLeadsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAssignedMarketingLeadsInput, UserUpdateWithoutAssignedMarketingLeadsInput>, UserUncheckedUpdateWithoutAssignedMarketingLeadsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutMarketingLeadsNestedInput = {
+    create?: XOR<UserCreateWithoutMarketingLeadsInput, UserUncheckedCreateWithoutMarketingLeadsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMarketingLeadsInput
+    upsert?: UserUpsertWithoutMarketingLeadsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutMarketingLeadsInput, UserUpdateWithoutMarketingLeadsInput>, UserUncheckedUpdateWithoutMarketingLeadsInput>
+  }
+
+  export type QuotationUpdateOneWithoutMarketingLeadNestedInput = {
+    create?: XOR<QuotationCreateWithoutMarketingLeadInput, QuotationUncheckedCreateWithoutMarketingLeadInput>
+    connectOrCreate?: QuotationCreateOrConnectWithoutMarketingLeadInput
+    upsert?: QuotationUpsertWithoutMarketingLeadInput
+    disconnect?: QuotationWhereInput | boolean
+    delete?: QuotationWhereInput | boolean
+    connect?: QuotationWhereUniqueInput
+    update?: XOR<XOR<QuotationUpdateToOneWithWhereWithoutMarketingLeadInput, QuotationUpdateWithoutMarketingLeadInput>, QuotationUncheckedUpdateWithoutMarketingLeadInput>
+  }
+
+  export type UserCreateNestedOneWithoutNotificationsInput = {
+    create?: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutNotificationsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
+    create?: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutNotificationsInput
+    upsert?: UserUpsertWithoutNotificationsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutNotificationsInput, UserUpdateWithoutNotificationsInput>, UserUncheckedUpdateWithoutNotificationsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -137772,6 +141152,86 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MarketingLeadCreateWithoutAssignedToInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdBy: UserCreateNestedOneWithoutMarketingLeadsInput
+    quotation?: QuotationCreateNestedOneWithoutMarketingLeadInput
+  }
+
+  export type MarketingLeadUncheckedCreateWithoutAssignedToInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    createdByUserId: string
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    quotationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MarketingLeadCreateOrConnectWithoutAssignedToInput = {
+    where: MarketingLeadWhereUniqueInput
+    create: XOR<MarketingLeadCreateWithoutAssignedToInput, MarketingLeadUncheckedCreateWithoutAssignedToInput>
+  }
+
+  export type MarketingLeadCreateManyAssignedToInputEnvelope = {
+    data: MarketingLeadCreateManyAssignedToInput | MarketingLeadCreateManyAssignedToInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MarketingLeadCreateWithoutCreatedByInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignedTo?: UserCreateNestedOneWithoutAssignedMarketingLeadsInput
+    quotation?: QuotationCreateNestedOneWithoutMarketingLeadInput
+  }
+
+  export type MarketingLeadUncheckedCreateWithoutCreatedByInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    quotationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignedToId?: string | null
+  }
+
+  export type MarketingLeadCreateOrConnectWithoutCreatedByInput = {
+    where: MarketingLeadWhereUniqueInput
+    create: XOR<MarketingLeadCreateWithoutCreatedByInput, MarketingLeadUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type MarketingLeadCreateManyCreatedByInputEnvelope = {
+    data: MarketingLeadCreateManyCreatedByInput | MarketingLeadCreateManyCreatedByInput[]
+    skipDuplicates?: boolean
+  }
+
   export type MonthlyTargetCreateWithoutUserInput = {
     id?: string
     month: number
@@ -137797,6 +141257,36 @@ export namespace Prisma {
 
   export type MonthlyTargetCreateManyUserInputEnvelope = {
     data: MonthlyTargetCreateManyUserInput | MonthlyTargetCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type NotificationCreateWithoutUserInput = {
+    id?: string
+    title: string
+    message: string
+    isRead?: boolean
+    linkUrl?: string | null
+    type: string
+    createdAt?: Date | string
+  }
+
+  export type NotificationUncheckedCreateWithoutUserInput = {
+    id?: string
+    title: string
+    message: string
+    isRead?: boolean
+    linkUrl?: string | null
+    type: string
+    createdAt?: Date | string
+  }
+
+  export type NotificationCreateOrConnectWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    create: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput>
+  }
+
+  export type NotificationCreateManyUserInputEnvelope = {
+    data: NotificationCreateManyUserInput | NotificationCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -138131,6 +141621,7 @@ export namespace Prisma {
     salesTeamLeader?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadCreateNestedOneWithoutQuotationInput
     orders?: OrderCreateNestedManyWithoutQuotationInput
     company: CompanyCreateNestedOneWithoutQuotationsInput
     contact?: ContactCreateNestedOneWithoutQuotationsInput
@@ -138170,6 +141661,7 @@ export namespace Prisma {
     salesTeamLeader?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
   }
@@ -138442,6 +141934,57 @@ export namespace Prisma {
     boqNumber?: StringNullableFilter<"CustomerRequirement"> | string | null
   }
 
+  export type MarketingLeadUpsertWithWhereUniqueWithoutAssignedToInput = {
+    where: MarketingLeadWhereUniqueInput
+    update: XOR<MarketingLeadUpdateWithoutAssignedToInput, MarketingLeadUncheckedUpdateWithoutAssignedToInput>
+    create: XOR<MarketingLeadCreateWithoutAssignedToInput, MarketingLeadUncheckedCreateWithoutAssignedToInput>
+  }
+
+  export type MarketingLeadUpdateWithWhereUniqueWithoutAssignedToInput = {
+    where: MarketingLeadWhereUniqueInput
+    data: XOR<MarketingLeadUpdateWithoutAssignedToInput, MarketingLeadUncheckedUpdateWithoutAssignedToInput>
+  }
+
+  export type MarketingLeadUpdateManyWithWhereWithoutAssignedToInput = {
+    where: MarketingLeadScalarWhereInput
+    data: XOR<MarketingLeadUpdateManyMutationInput, MarketingLeadUncheckedUpdateManyWithoutAssignedToInput>
+  }
+
+  export type MarketingLeadScalarWhereInput = {
+    AND?: MarketingLeadScalarWhereInput | MarketingLeadScalarWhereInput[]
+    OR?: MarketingLeadScalarWhereInput[]
+    NOT?: MarketingLeadScalarWhereInput | MarketingLeadScalarWhereInput[]
+    id?: StringFilter<"MarketingLead"> | string
+    customerName?: StringFilter<"MarketingLead"> | string
+    phoneNumber?: StringNullableFilter<"MarketingLead"> | string | null
+    productOfInterest?: StringNullableFilter<"MarketingLead"> | string | null
+    productType?: StringNullableFilter<"MarketingLead"> | string | null
+    conversationContent?: StringNullableFilter<"MarketingLead"> | string | null
+    createdByUserId?: StringFilter<"MarketingLead"> | string
+    isForwarded?: BoolFilter<"MarketingLead"> | boolean
+    forwardedAt?: DateTimeNullableFilter<"MarketingLead"> | Date | string | null
+    quotationId?: StringNullableFilter<"MarketingLead"> | string | null
+    createdAt?: DateTimeFilter<"MarketingLead"> | Date | string
+    updatedAt?: DateTimeFilter<"MarketingLead"> | Date | string
+    assignedToId?: StringNullableFilter<"MarketingLead"> | string | null
+  }
+
+  export type MarketingLeadUpsertWithWhereUniqueWithoutCreatedByInput = {
+    where: MarketingLeadWhereUniqueInput
+    update: XOR<MarketingLeadUpdateWithoutCreatedByInput, MarketingLeadUncheckedUpdateWithoutCreatedByInput>
+    create: XOR<MarketingLeadCreateWithoutCreatedByInput, MarketingLeadUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type MarketingLeadUpdateWithWhereUniqueWithoutCreatedByInput = {
+    where: MarketingLeadWhereUniqueInput
+    data: XOR<MarketingLeadUpdateWithoutCreatedByInput, MarketingLeadUncheckedUpdateWithoutCreatedByInput>
+  }
+
+  export type MarketingLeadUpdateManyWithWhereWithoutCreatedByInput = {
+    where: MarketingLeadScalarWhereInput
+    data: XOR<MarketingLeadUpdateManyMutationInput, MarketingLeadUncheckedUpdateManyWithoutCreatedByInput>
+  }
+
   export type MonthlyTargetUpsertWithWhereUniqueWithoutUserInput = {
     where: MonthlyTargetWhereUniqueInput
     update: XOR<MonthlyTargetUpdateWithoutUserInput, MonthlyTargetUncheckedUpdateWithoutUserInput>
@@ -138469,6 +142012,36 @@ export namespace Prisma {
     amount?: FloatFilter<"MonthlyTarget"> | number
     createdAt?: DateTimeFilter<"MonthlyTarget"> | Date | string
     updatedAt?: DateTimeFilter<"MonthlyTarget"> | Date | string
+  }
+
+  export type NotificationUpsertWithWhereUniqueWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    update: XOR<NotificationUpdateWithoutUserInput, NotificationUncheckedUpdateWithoutUserInput>
+    create: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput>
+  }
+
+  export type NotificationUpdateWithWhereUniqueWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    data: XOR<NotificationUpdateWithoutUserInput, NotificationUncheckedUpdateWithoutUserInput>
+  }
+
+  export type NotificationUpdateManyWithWhereWithoutUserInput = {
+    where: NotificationScalarWhereInput
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type NotificationScalarWhereInput = {
+    AND?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+    OR?: NotificationScalarWhereInput[]
+    NOT?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+    id?: StringFilter<"Notification"> | string
+    userId?: StringFilter<"Notification"> | string
+    title?: StringFilter<"Notification"> | string
+    message?: StringFilter<"Notification"> | string
+    isRead?: BoolFilter<"Notification"> | boolean
+    linkUrl?: StringNullableFilter<"Notification"> | string | null
+    type?: StringFilter<"Notification"> | string
+    createdAt?: DateTimeFilter<"Notification"> | Date | string
   }
 
   export type OrderUpsertWithWhereUniqueWithoutSalespersonInput = {
@@ -138910,6 +142483,9 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -138938,6 +142514,9 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -138982,6 +142561,9 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -139010,6 +142592,9 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -139162,7 +142747,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -139190,7 +142778,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -139370,7 +142961,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -139398,7 +142992,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -139426,7 +143023,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -139454,7 +143054,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -139498,7 +143101,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -139526,7 +143132,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -139553,7 +143162,10 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -139581,7 +143193,10 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -139702,6 +143317,7 @@ export namespace Prisma {
     salesTeamLeader?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadCreateNestedOneWithoutQuotationInput
     orders?: OrderCreateNestedManyWithoutQuotationInput
     contact?: ContactCreateNestedOneWithoutQuotationsInput
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
@@ -139741,6 +143357,7 @@ export namespace Prisma {
     salespersonId?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
   }
@@ -139881,7 +143498,10 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -139909,7 +143529,10 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -140123,6 +143746,7 @@ export namespace Prisma {
     salesTeamLeader?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadCreateNestedOneWithoutQuotationInput
     orders?: OrderCreateNestedManyWithoutQuotationInput
     company: CompanyCreateNestedOneWithoutQuotationsInput
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
@@ -140162,6 +143786,7 @@ export namespace Prisma {
     salespersonId?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
   }
@@ -140271,6 +143896,41 @@ export namespace Prisma {
   export type QuotationUpdateManyWithWhereWithoutContactInput = {
     where: QuotationScalarWhereInput
     data: XOR<QuotationUpdateManyMutationInput, QuotationUncheckedUpdateManyWithoutContactInput>
+  }
+
+  export type MarketingLeadCreateWithoutQuotationInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignedTo?: UserCreateNestedOneWithoutAssignedMarketingLeadsInput
+    createdBy: UserCreateNestedOneWithoutMarketingLeadsInput
+  }
+
+  export type MarketingLeadUncheckedCreateWithoutQuotationInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    createdByUserId: string
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignedToId?: string | null
+  }
+
+  export type MarketingLeadCreateOrConnectWithoutQuotationInput = {
+    where: MarketingLeadWhereUniqueInput
+    create: XOR<MarketingLeadCreateWithoutQuotationInput, MarketingLeadUncheckedCreateWithoutQuotationInput>
   }
 
   export type OrderCreateWithoutQuotationInput = {
@@ -140431,7 +144091,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -140459,7 +144122,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -140566,6 +144232,47 @@ export namespace Prisma {
   export type JobCreateManyQuotationInputEnvelope = {
     data: JobCreateManyQuotationInput | JobCreateManyQuotationInput[]
     skipDuplicates?: boolean
+  }
+
+  export type MarketingLeadUpsertWithoutQuotationInput = {
+    update: XOR<MarketingLeadUpdateWithoutQuotationInput, MarketingLeadUncheckedUpdateWithoutQuotationInput>
+    create: XOR<MarketingLeadCreateWithoutQuotationInput, MarketingLeadUncheckedCreateWithoutQuotationInput>
+    where?: MarketingLeadWhereInput
+  }
+
+  export type MarketingLeadUpdateToOneWithWhereWithoutQuotationInput = {
+    where?: MarketingLeadWhereInput
+    data: XOR<MarketingLeadUpdateWithoutQuotationInput, MarketingLeadUncheckedUpdateWithoutQuotationInput>
+  }
+
+  export type MarketingLeadUpdateWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedTo?: UserUpdateOneWithoutAssignedMarketingLeadsNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutMarketingLeadsNestedInput
+  }
+
+  export type MarketingLeadUncheckedUpdateWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByUserId?: StringFieldUpdateOperationsInput | string
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderUpsertWithWhereUniqueWithoutQuotationInput = {
@@ -140727,7 +144434,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -140755,7 +144465,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -140952,7 +144665,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -140980,7 +144696,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -141152,7 +144871,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -141180,7 +144902,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -141208,7 +144933,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -141236,7 +144964,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -141280,7 +145011,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -141308,7 +145042,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -141426,6 +145163,7 @@ export namespace Prisma {
     salesTeamLeader?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadCreateNestedOneWithoutQuotationInput
     company: CompanyCreateNestedOneWithoutQuotationsInput
     contact?: ContactCreateNestedOneWithoutQuotationsInput
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
@@ -141466,6 +145204,7 @@ export namespace Prisma {
     salespersonId?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
   }
 
@@ -141490,7 +145229,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
     projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
@@ -141518,7 +145260,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
     projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
@@ -141684,6 +145429,7 @@ export namespace Prisma {
     salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUpdateOneWithoutQuotationNestedInput
     company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
@@ -141724,6 +145470,7 @@ export namespace Prisma {
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
@@ -141754,7 +145501,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
     projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
@@ -141782,7 +145532,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
     projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -142341,6 +146094,7 @@ export namespace Prisma {
     salesTeamLeader?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadCreateNestedOneWithoutQuotationInput
     orders?: OrderCreateNestedManyWithoutQuotationInput
     company: CompanyCreateNestedOneWithoutQuotationsInput
     contact?: ContactCreateNestedOneWithoutQuotationsInput
@@ -142381,6 +146135,7 @@ export namespace Prisma {
     salespersonId?: string | null
     subject?: string | null
     winLossReason?: string | null
+    marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
   }
 
@@ -142877,6 +146632,7 @@ export namespace Prisma {
     salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUpdateOneWithoutQuotationNestedInput
     orders?: OrderUpdateManyWithoutQuotationNestedInput
     company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
@@ -142917,6 +146673,7 @@ export namespace Prisma {
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
@@ -144085,7 +147842,10 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -144113,7 +147873,10 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -144157,7 +147920,10 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -144185,7 +147951,10 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -155798,7 +159567,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
     projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
@@ -155826,7 +159598,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
     projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
@@ -156137,7 +159912,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
     projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
@@ -156165,7 +159943,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
     projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -156616,7 +160397,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -156644,7 +160428,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -156807,7 +160594,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -156835,7 +160625,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -156863,7 +160656,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
@@ -156891,7 +160687,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
@@ -157151,7 +160950,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
@@ -157179,7 +160981,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
@@ -157670,7 +161475,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
     orders?: OrderCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectCreateNestedManyWithoutManagerInput
     projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
@@ -157698,7 +161506,10 @@ export namespace Prisma {
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
     managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
     projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
@@ -157890,7 +161701,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
     orders?: OrderUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
     projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
@@ -157918,7 +161732,10 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
     managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
     projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -162593,6 +166410,594 @@ export namespace Prisma {
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
+  export type UserCreateWithoutAssignedMarketingLeadsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAssignedMarketingLeadsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAssignedMarketingLeadsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAssignedMarketingLeadsInput, UserUncheckedCreateWithoutAssignedMarketingLeadsInput>
+  }
+
+  export type UserCreateWithoutMarketingLeadsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutMarketingLeadsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutMarketingLeadsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutMarketingLeadsInput, UserUncheckedCreateWithoutMarketingLeadsInput>
+  }
+
+  export type QuotationCreateWithoutMarketingLeadInput = {
+    id?: string
+    status?: string
+    salesBeforeVat?: number | null
+    transportationFee?: number | null
+    installationFee?: number | null
+    totalAmountBeforeVat?: number | null
+    actualClosingAmount?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
+    followUp1?: Date | string | null
+    followUp2?: Date | string | null
+    followUp3?: Date | string | null
+    followUp4?: Date | string | null
+    invoiceNumber?: string | null
+    poDate?: Date | string | null
+    poNumber?: string | null
+    productType?: string | null
+    quotationDate?: Date | string | null
+    quotationNumber?: string | null
+    rejectReason?: string | null
+    remarks?: string | null
+    requirementDate?: Date | string | null
+    requirementNumber?: string | null
+    salesBranch?: string | null
+    salesTeamLeader?: string | null
+    subject?: string | null
+    winLossReason?: string | null
+    orders?: OrderCreateNestedManyWithoutQuotationInput
+    company: CompanyCreateNestedOneWithoutQuotationsInput
+    contact?: ContactCreateNestedOneWithoutQuotationsInput
+    salesperson?: UserCreateNestedOneWithoutQuotationsInput
+    jobs?: JobCreateNestedManyWithoutQuotationInput
+  }
+
+  export type QuotationUncheckedCreateWithoutMarketingLeadInput = {
+    id?: string
+    companyId: string
+    status?: string
+    salesBeforeVat?: number | null
+    transportationFee?: number | null
+    installationFee?: number | null
+    totalAmountBeforeVat?: number | null
+    actualClosingAmount?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
+    contactId?: string | null
+    followUp1?: Date | string | null
+    followUp2?: Date | string | null
+    followUp3?: Date | string | null
+    followUp4?: Date | string | null
+    invoiceNumber?: string | null
+    poDate?: Date | string | null
+    poNumber?: string | null
+    productType?: string | null
+    quotationDate?: Date | string | null
+    quotationNumber?: string | null
+    rejectReason?: string | null
+    remarks?: string | null
+    requirementDate?: Date | string | null
+    requirementNumber?: string | null
+    salesBranch?: string | null
+    salesTeamLeader?: string | null
+    salespersonId?: string | null
+    subject?: string | null
+    winLossReason?: string | null
+    orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
+    jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
+  }
+
+  export type QuotationCreateOrConnectWithoutMarketingLeadInput = {
+    where: QuotationWhereUniqueInput
+    create: XOR<QuotationCreateWithoutMarketingLeadInput, QuotationUncheckedCreateWithoutMarketingLeadInput>
+  }
+
+  export type UserUpsertWithoutAssignedMarketingLeadsInput = {
+    update: XOR<UserUpdateWithoutAssignedMarketingLeadsInput, UserUncheckedUpdateWithoutAssignedMarketingLeadsInput>
+    create: XOR<UserCreateWithoutAssignedMarketingLeadsInput, UserUncheckedCreateWithoutAssignedMarketingLeadsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAssignedMarketingLeadsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAssignedMarketingLeadsInput, UserUncheckedUpdateWithoutAssignedMarketingLeadsInput>
+  }
+
+  export type UserUpdateWithoutAssignedMarketingLeadsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAssignedMarketingLeadsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUpsertWithoutMarketingLeadsInput = {
+    update: XOR<UserUpdateWithoutMarketingLeadsInput, UserUncheckedUpdateWithoutMarketingLeadsInput>
+    create: XOR<UserCreateWithoutMarketingLeadsInput, UserUncheckedCreateWithoutMarketingLeadsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutMarketingLeadsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutMarketingLeadsInput, UserUncheckedUpdateWithoutMarketingLeadsInput>
+  }
+
+  export type UserUpdateWithoutMarketingLeadsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutMarketingLeadsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+  }
+
+  export type QuotationUpsertWithoutMarketingLeadInput = {
+    update: XOR<QuotationUpdateWithoutMarketingLeadInput, QuotationUncheckedUpdateWithoutMarketingLeadInput>
+    create: XOR<QuotationCreateWithoutMarketingLeadInput, QuotationUncheckedCreateWithoutMarketingLeadInput>
+    where?: QuotationWhereInput
+  }
+
+  export type QuotationUpdateToOneWithWhereWithoutMarketingLeadInput = {
+    where?: QuotationWhereInput
+    data: XOR<QuotationUpdateWithoutMarketingLeadInput, QuotationUncheckedUpdateWithoutMarketingLeadInput>
+  }
+
+  export type QuotationUpdateWithoutMarketingLeadInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    salesBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    transportationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    installationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalAmountBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    actualClosingAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
+    followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    requirementDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    salesBranch?: NullableStringFieldUpdateOperationsInput | string | null
+    salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    orders?: OrderUpdateManyWithoutQuotationNestedInput
+    company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
+    contact?: ContactUpdateOneWithoutQuotationsNestedInput
+    salesperson?: UserUpdateOneWithoutQuotationsNestedInput
+    jobs?: JobUpdateManyWithoutQuotationNestedInput
+  }
+
+  export type QuotationUncheckedUpdateWithoutMarketingLeadInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    salesBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    transportationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    installationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalAmountBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    actualClosingAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    requirementDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    salesBranch?: NullableStringFieldUpdateOperationsInput | string | null
+    salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
+    jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+  }
+
+  export type UserCreateWithoutNotificationsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutNotificationsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutNotificationsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+  }
+
+  export type UserUpsertWithoutNotificationsInput = {
+    update: XOR<UserUpdateWithoutNotificationsInput, UserUncheckedUpdateWithoutNotificationsInput>
+    create: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutNotificationsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutNotificationsInput, UserUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type UserUpdateWithoutNotificationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutNotificationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+  }
+
   export type CompanyCreateManyAssignedUserInput = {
     id?: string
     companyName: string
@@ -162644,6 +167049,36 @@ export namespace Prisma {
     boqNumber?: string | null
   }
 
+  export type MarketingLeadCreateManyAssignedToInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    createdByUserId: string
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    quotationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MarketingLeadCreateManyCreatedByInput = {
+    id?: string
+    customerName: string
+    phoneNumber?: string | null
+    productOfInterest?: string | null
+    productType?: string | null
+    conversationContent?: string | null
+    isForwarded?: boolean
+    forwardedAt?: Date | string | null
+    quotationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assignedToId?: string | null
+  }
+
   export type MonthlyTargetCreateManyUserInput = {
     id?: string
     month: number
@@ -162651,6 +167086,16 @@ export namespace Prisma {
     amount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type NotificationCreateManyUserInput = {
+    id?: string
+    title: string
+    message: string
+    isRead?: boolean
+    linkUrl?: string | null
+    type: string
+    createdAt?: Date | string
   }
 
   export type OrderCreateManySalespersonInput = {
@@ -163020,6 +167465,96 @@ export namespace Prisma {
     boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type MarketingLeadUpdateWithoutAssignedToInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: UserUpdateOneRequiredWithoutMarketingLeadsNestedInput
+    quotation?: QuotationUpdateOneWithoutMarketingLeadNestedInput
+  }
+
+  export type MarketingLeadUncheckedUpdateWithoutAssignedToInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByUserId?: StringFieldUpdateOperationsInput | string
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarketingLeadUncheckedUpdateManyWithoutAssignedToInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByUserId?: StringFieldUpdateOperationsInput | string
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarketingLeadUpdateWithoutCreatedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedTo?: UserUpdateOneWithoutAssignedMarketingLeadsNestedInput
+    quotation?: QuotationUpdateOneWithoutMarketingLeadNestedInput
+  }
+
+  export type MarketingLeadUncheckedUpdateWithoutCreatedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MarketingLeadUncheckedUpdateManyWithoutCreatedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productOfInterest?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationContent?: NullableStringFieldUpdateOperationsInput | string | null
+    isForwarded?: BoolFieldUpdateOperationsInput | boolean
+    forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type MonthlyTargetUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     month?: IntFieldUpdateOperationsInput | number
@@ -163045,6 +167580,36 @@ export namespace Prisma {
     amount?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    linkUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    linkUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    linkUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OrderUpdateWithoutSalespersonInput = {
@@ -163446,6 +168011,7 @@ export namespace Prisma {
     salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUpdateOneWithoutQuotationNestedInput
     orders?: OrderUpdateManyWithoutQuotationNestedInput
     company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
@@ -163485,6 +168051,7 @@ export namespace Prisma {
     salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
   }
@@ -163884,6 +168451,7 @@ export namespace Prisma {
     salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUpdateOneWithoutQuotationNestedInput
     orders?: OrderUpdateManyWithoutQuotationNestedInput
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
@@ -163923,6 +168491,7 @@ export namespace Prisma {
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
   }
@@ -164147,6 +168716,7 @@ export namespace Prisma {
     salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUpdateOneWithoutQuotationNestedInput
     orders?: OrderUpdateManyWithoutQuotationNestedInput
     company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
@@ -164186,6 +168756,7 @@ export namespace Prisma {
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: NullableStringFieldUpdateOperationsInput | string | null
     winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
   }

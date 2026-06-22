@@ -161,6 +161,20 @@ export async function saveTelesaleData(formData: FormData) {
       });
     }
 
+    const marketingLeadId = formData.get("marketingLeadId") as string;
+    if (marketingLeadId) {
+      await (prisma as any).marketingLead.update({
+        where: { id: marketingLeadId },
+        data: {
+          assignedTo: { connect: { id: user.id } },
+        }
+      });
+      await prisma.$executeRaw`UPDATE "MarketingLead" SET "isContacted" = true WHERE id = ${marketingLeadId}`;
+      revalidatePath("/marketing");
+      revalidatePath("/marketing/[id]", "page");
+      revalidatePath("/sales/leads");
+    }
+
     revalidatePath("/telesales");
     return { success: true };
   } catch (error) {
@@ -292,6 +306,20 @@ export async function updateTelesaleData(id: string, formData: FormData) {
       await prisma.schedule.deleteMany({
         where: { telesaleId: telesale.id }
       });
+    }
+
+    const marketingLeadId = formData.get("marketingLeadId") as string;
+    if (marketingLeadId) {
+      await (prisma as any).marketingLead.update({
+        where: { id: marketingLeadId },
+        data: {
+          assignedTo: { connect: { id: user.id } },
+        }
+      });
+      await prisma.$executeRaw`UPDATE "MarketingLead" SET "isContacted" = true WHERE id = ${marketingLeadId}`;
+      revalidatePath("/marketing");
+      revalidatePath("/marketing/[id]", "page");
+      revalidatePath("/sales/leads");
     }
 
     revalidatePath("/telesales");

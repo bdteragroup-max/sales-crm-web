@@ -37,8 +37,8 @@ export default function CoinMiniWidget({
         if (res.success && res.data) {
           // Find Gold coin (assuming code 'gold' or name 'Gold')
           const gold = res.data.find((c: any) => 
-            c.coin_types.code.toLowerCase() === 'gold' || 
-            c.coin_types.name.toLowerCase().includes('gold')
+            c?.coin_types?.code?.toLowerCase() === 'gold' || 
+            c?.coin_types?.name?.toLowerCase().includes('gold')
           );
           if (gold) {
             setGoldBalance(gold.balance);

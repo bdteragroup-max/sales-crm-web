@@ -167,7 +167,12 @@ export default function TelesalesClientPage({
               <NewTelesaleForm 
                 userFullName={userFullName} 
                 branch="สำนักงานใหญ่" 
-                initialData={editingRecord}
+                initialData={editingRecord || (searchParams.get('customerName') ? {
+                  company: { companyName: searchParams.get('customerName') },
+                  contactPerson: searchParams.get('customerName'),
+                  phoneNumber: searchParams.get('phone') || '',
+                  marketingLeadId: searchParams.get('marketingLeadId') || undefined
+                } : null)}
                 onSuccess={() => {
                   setEditingRecord(null);
                   handleTabChange('list');

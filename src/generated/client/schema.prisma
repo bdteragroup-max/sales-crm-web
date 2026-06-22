@@ -8,32 +8,35 @@ datasource db {
 }
 
 model User {
-  id                   String                @id @default(cuid())
-  employeeId           String                @unique
-  email                String?               @unique
-  fullName             String
-  phoneNumber          String?
-  role                 String                @default("Sales Representative")
-  position             String?
-  password             String
-  createdAt            DateTime              @default(now()) @db.Timestamptz(6)
-  updatedAt            DateTime              @default(now()) @updatedAt @db.Timestamptz(6)
-  otpCode              String?
-  otpExpiresAt         DateTime?             @db.Timestamptz(6)
-  isActive             Boolean               @default(true)
-  assignedCompanies    Company[]             @relation("AssignedCompany")
-  customerRequirements CustomerRequirement[]
-  monthlyTargets       MonthlyTarget[]
-  orders               Order[]
-  managedProjects      Project[]             @relation("ProjectManager")
-  reportedDailyLogs    ProjectDailyLog[]
-  projectMembers       ProjectMember[]
-  assignedTasks        ProjectTask[]
-  quotations           Quotation[]
-  schedules            Schedule[]
-  telesales            Telesale[]
-  telesalesKPIs        TelesalesKPI[]
-  employeeSale         EmployeeSale?
+  id                     String                @id @default(cuid())
+  employeeId             String                @unique
+  email                  String?               @unique
+  fullName               String
+  phoneNumber            String?
+  role                   String                @default("Sales Representative")
+  position               String?
+  password               String
+  createdAt              DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime              @default(now()) @updatedAt @db.Timestamptz(6)
+  otpCode                String?
+  otpExpiresAt           DateTime?             @db.Timestamptz(6)
+  isActive               Boolean               @default(true)
+  assignedCompanies      Company[]             @relation("AssignedCompany")
+  customerRequirements   CustomerRequirement[]
+  assignedMarketingLeads MarketingLead[]       @relation("AssignedLeads")
+  marketingLeads         MarketingLead[]
+  monthlyTargets         MonthlyTarget[]
+  notifications          Notification[]
+  orders                 Order[]
+  managedProjects        Project[]             @relation("ProjectManager")
+  reportedDailyLogs      ProjectDailyLog[]
+  projectMembers         ProjectMember[]
+  assignedTasks          ProjectTask[]
+  quotations             Quotation[]
+  schedules              Schedule[]
+  telesales              Telesale[]
+  telesalesKPIs          TelesalesKPI[]
+  employeeSale           EmployeeSale?
 }
 
 model MonthlyTarget {
@@ -152,43 +155,44 @@ model Contact {
 }
 
 model Quotation {
-  id                   String    @id @default(cuid())
+  id                   String         @id @default(cuid())
   companyId            String
-  status               String    @default("Pending")
+  status               String         @default("Pending")
   salesBeforeVat       Float?
   transportationFee    Float?
   installationFee      Float?
   totalAmountBeforeVat Float?
   actualClosingAmount  Float?
-  createdAt            DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt            DateTime  @updatedAt @db.Timestamptz(6)
-  billingDate          DateTime? @db.Timestamptz(6)
-  appointmentDate      DateTime? @db.Timestamptz(6)
+  createdAt            DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime       @updatedAt @db.Timestamptz(6)
+  billingDate          DateTime?      @db.Timestamptz(6)
+  appointmentDate      DateTime?      @db.Timestamptz(6)
   appointmentNote      String?
   contactId            String?
-  followUp1            DateTime? @db.Timestamptz(6)
-  followUp2            DateTime? @db.Timestamptz(6)
-  followUp3            DateTime? @db.Timestamptz(6)
-  followUp4            DateTime? @db.Timestamptz(6)
+  followUp1            DateTime?      @db.Timestamptz(6)
+  followUp2            DateTime?      @db.Timestamptz(6)
+  followUp3            DateTime?      @db.Timestamptz(6)
+  followUp4            DateTime?      @db.Timestamptz(6)
   invoiceNumber        String?
-  poDate               DateTime? @db.Timestamptz(6)
+  poDate               DateTime?      @db.Timestamptz(6)
   poNumber             String?
   productType          String?
-  quotationDate        DateTime? @db.Timestamptz(6)
+  quotationDate        DateTime?      @db.Timestamptz(6)
   quotationNumber      String?
   rejectReason         String?
   remarks              String?
-  requirementDate      DateTime? @db.Timestamptz(6)
+  requirementDate      DateTime?      @db.Timestamptz(6)
   requirementNumber    String?
   salesBranch          String?
   salesTeamLeader      String?
   salespersonId        String?
   subject              String?
   winLossReason        String?
+  marketingLead        MarketingLead?
   orders               Order[]
-  company              Company   @relation(fields: [companyId], references: [id])
-  contact              Contact?  @relation(fields: [contactId], references: [id])
-  salesperson          User?     @relation(fields: [salespersonId], references: [id])
+  company              Company        @relation(fields: [companyId], references: [id])
+  contact              Contact?       @relation(fields: [contactId], references: [id])
+  salesperson          User?          @relation(fields: [salespersonId], references: [id])
   jobs                 Job[]
 
   @@index([companyId])
@@ -1665,4 +1669,39 @@ model transfer_budgets {
   updated_at    DateTime  @default(now()) @db.Timestamptz(6)
   last_topup_at DateTime? @db.Timestamptz(6)
   employees     employees @relation(fields: [emp_id], references: [emp_id], onDelete: Cascade)
+}
+
+model MarketingLead {
+  id                  String     @id @default(cuid())
+  customerName        String
+  phoneNumber         String?
+  productOfInterest   String?
+  productType         String?
+  conversationContent String?
+  createdByUserId     String
+  isForwarded         Boolean    @default(false)
+  forwardedAt         DateTime?
+  quotationId         String?    @unique
+  createdAt           DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  assignedToId        String?
+  assignedTo          User?      @relation("AssignedLeads", fields: [assignedToId], references: [id])
+  createdBy           User       @relation(fields: [createdByUserId], references: [id])
+  quotation           Quotation? @relation(fields: [quotationId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  linkUrl   String?
+  type      String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([isRead])
 }

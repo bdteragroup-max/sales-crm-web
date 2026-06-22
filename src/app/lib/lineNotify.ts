@@ -1452,3 +1452,50 @@ export function repairAssignedMessage(order: any) {
     },
   };
 }
+
+export function customMarketingLeadMessage(lead: any, salespersonName: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `🚨 แจ้งเตือน: มี Lead ใหม่จากทีมการตลาด`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#ff2301', // brand red
+        contents: [
+          { type: 'text', text: '🚨 ได้รับ Lead ใหม่จาก Marketing', color: '#ffffff', weight: 'bold' },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `ลูกค้า: ${lead.customerName || 'ไม่ระบุ'}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `เบอร์โทร: ${lead.phoneNumber || '-'}`, size: 'sm', color: '#666666' },
+          { type: 'text', text: `ความสนใจ: ${lead.productType || ''} ${lead.productOfInterest || ''}`, size: 'xs', color: '#666666', wrap: true, margin: 'sm' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `บันทึกการสนทนา:`, size: 'xs', color: '#ff2301', weight: 'bold', margin: 'md' },
+          { type: 'text', text: lead.conversationContent || '-', size: 'xs', color: '#666666', wrap: true, margin: 'sm' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: `ผู้ดูแล: ${salespersonName}`, size: 'xs', color: '#666666', margin: 'sm' },
+          { type: 'text', text: `กรุณาติดต่อลูกค้าหรือสร้างนัดหมายในระบบ CRM`, size: 'xs', color: '#ff2301', wrap: true, margin: 'md', weight: 'bold' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#ff2301',
+            action: { type: 'uri', label: 'ดูรายละเอียด Lead', uri: `${appUrl}/sales/leads` },
+          },
+        ],
+      },
+    },
+  };
+}
