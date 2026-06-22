@@ -1,6 +1,7 @@
 import { getMarketingLeads } from '@/app/actions/marketing'
 import Link from 'next/link'
-import { PlusCircle, Search, LayoutDashboard, Calendar } from 'lucide-react'
+import { PlusCircle, Search, LayoutDashboard, Calendar, Edit3, FileText } from 'lucide-react'
+import DeleteLeadButton from './components/DeleteLeadButton'
 
 export default async function MarketingDashboard({
   searchParams
@@ -71,8 +72,8 @@ export default async function MarketingDashboard({
   }
 
   return (
-    <div className="p-6 pb-24 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 pb-24 max-w-7xl mx-auto w-full overflow-hidden sm:overflow-visible">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-brand-red flex items-center justify-center shadow-md shadow-red-200">
             <LayoutDashboard size={20} className="text-white" />
@@ -93,22 +94,22 @@ export default async function MarketingDashboard({
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
-          <form method="GET" action="/marketing" className="relative">
+        <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <form method="GET" action="/marketing" className="relative w-full sm:w-auto">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
               type="text" 
               name="search"
               defaultValue={searchQuery}
               placeholder="ค้นหาชื่อลูกค้า, เบอร์โทร..." 
-              className="pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all w-64"
+              className="pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all w-full sm:w-64"
             />
             <button type="submit" className="hidden">Search</button>
           </form>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-left text-sm min-w-[1000px]">
             <thead className="bg-gray-50/50 text-xs uppercase font-black text-gray-500 tracking-wider">
               <tr>
                 <th className="px-6 py-4 border-b border-gray-100">ลูกค้า / ติดต่อ</th>
@@ -143,12 +144,23 @@ export default async function MarketingDashboard({
                     {new Date(lead.createdAt).toLocaleDateString('th-TH', { year: '2-digit', month: 'short', day: 'numeric' })}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <Link 
-                      href={`/marketing/${lead.id}`}
-                      className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-brand-red bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
-                    >
-                      ดูรายละเอียด
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link 
+                        href={`/marketing/${lead.id}/edit`}
+                        className="inline-flex items-center justify-center p-2 text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                        title="แก้ไขข้อมูล"
+                      >
+                        <Edit3 size={16} />
+                      </Link>
+                      <Link 
+                        href={`/marketing/${lead.id}`}
+                        className="inline-flex items-center justify-center p-2 text-brand-red bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                        title="ดูรายละเอียด"
+                      >
+                        <FileText size={16} />
+                      </Link>
+                      <DeleteLeadButton leadId={lead.id} />
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -77,8 +77,16 @@ export async function getMarketingLeads() {
 
 export async function getAssignedLeads(userId: string) {
   try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const isManager = user?.role === 'ผู้จัดการ' || user?.role === 'Sales Manager' || user?.role?.toLowerCase().includes('manager');
+    
+    let whereClause: any = { assignedToId: userId };
+    if (isManager) {
+      whereClause = { isForwarded: true };
+    }
+
     const leads = await (prisma as any).marketingLead.findMany({
-      where: { assignedToId: userId },
+      where: whereClause,
       orderBy: { createdAt: 'desc' },
       include: {
         createdBy: {
@@ -182,6 +190,19 @@ export async function updateMarketingLead(id: string, data: {
   } catch (error: any) {
     console.error("Error updating marketing lead:", error)
     return { success: false, error: error.message || 'Failed to update lead' }
+  }
+}
+
+export async function deleteMarketingLead(id: string) {
+  try {
+    await (prisma as any).marketingLead.delete({
+      where: { id }
+    })
+    revalidatePath('/marketing')
+    return { success: true }
+  } catch (error: any) {
+    console.error("Error deleting marketing lead:", error)
+    return { success: false, error: error.message || 'Failed to delete lead' }
   }
 }
 

@@ -14,6 +14,7 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any, sales
   // Combobox state
   const [searchRepQuery, setSearchRepQuery] = useState('')
   const [showRepDropdown, setShowRepDropdown] = useState(false)
+  const [successMsg, setSuccessMsg] = useState('')
   const repDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -39,7 +40,9 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any, sales
     setIsForwarding(false)
     
     if (result.success) {
+      setSuccessMsg('ส่งต่อให้ฝ่ายขายเรียบร้อยแล้ว!')
       router.refresh()
+      setTimeout(() => setSuccessMsg(''), 4000)
     } else {
       setError(result.error || 'Failed to forward lead')
     }
@@ -64,9 +67,16 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any, sales
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 text-red-700 text-sm font-bold rounded-xl border border-red-100 flex items-center gap-2 shadow-sm">
+        <div className="p-4 bg-red-50 text-red-700 text-sm font-bold rounded-xl border border-red-100 flex items-center gap-2 shadow-sm transition-all">
           <AlertTriangle size={16} className="text-red-500 shrink-0" />
           {error}
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="p-4 bg-emerald-50 text-emerald-700 text-sm font-bold rounded-xl border border-emerald-100 flex items-center gap-2 shadow-sm transition-all">
+          <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+          {successMsg}
         </div>
       )}
 

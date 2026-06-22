@@ -24,41 +24,41 @@ export default function SalesLeadsClient({ leads }: { leads: any[] }) {
           </div>
         ) : (
           leads.map((lead) => (
-            <div key={lead.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <div key={lead.id} className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-4">
+                <div className="w-full sm:w-auto">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
                       <User size={18} className="text-[#ff2301]" />
                       {lead.customerName}
                     </h3>
                     {lead.isContacted || lead.quotationId ? (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase bg-emerald-100 text-emerald-700 border border-emerald-200">
-                        รับเรื่องแล้ว (ติดต่อแล้ว)
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase bg-emerald-100 text-emerald-700 border border-emerald-200">
+                        รับเรื่องแล้ว
                       </span>
                     ) : (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase bg-amber-100 text-amber-700 border border-amber-200">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase bg-amber-100 text-amber-700 border border-amber-200">
                         รอการติดต่อ
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-3 sm:mt-2 text-xs sm:text-sm text-gray-600">
                     {lead.phoneNumber && (
-                      <span className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md">
+                      <span className="flex items-center gap-1 bg-gray-50 px-2 py-1.5 sm:py-1 rounded-md">
                         <Phone size={14} />
                         {lead.phoneNumber}
                       </span>
                     )}
                     {(lead.productType || lead.productOfInterest) && (
-                      <span className="flex items-center gap-1 bg-red-50 text-[#ff2301] px-2 py-1 rounded-md font-medium">
+                      <span className="flex items-center gap-1 bg-red-50 text-[#ff2301] px-2 py-1.5 sm:py-1 rounded-md font-medium">
                         <Tag size={14} />
                         {lead.productType} {lead.productOfInterest}
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs text-gray-400 flex items-center justify-end gap-1">
+                <div className="w-full sm:w-auto sm:text-right border-t border-gray-100 sm:border-0 pt-3 sm:pt-0 mt-2 sm:mt-0">
+                  <span className="text-xs text-gray-400 flex items-center sm:justify-end gap-1">
                     <Clock size={12} />
                     {lead.forwardedAt ? format(new Date(lead.forwardedAt), 'dd MMM yyyy HH:mm', { locale: th }) : ''}
                   </span>
@@ -69,25 +69,25 @@ export default function SalesLeadsClient({ leads }: { leads: any[] }) {
               </div>
 
               {lead.conversationContent && (
-                <div className="mt-4 p-4 bg-orange-50 rounded-xl">
-                  <h4 className="text-xs font-bold text-orange-800 uppercase tracking-wider mb-2 flex items-center gap-1">
+                <div className="mt-4 p-3 sm:p-4 bg-orange-50 rounded-xl">
+                  <h4 className="text-[10px] sm:text-xs font-bold text-orange-800 uppercase tracking-wider mb-2 flex items-center gap-1">
                     <MessageSquare size={12} />
                     บันทึกการสนทนา
                   </h4>
-                  <p className="text-sm text-orange-900 whitespace-pre-wrap">{lead.conversationContent}</p>
+                  <p className="text-xs sm:text-sm text-orange-900 whitespace-pre-wrap">{lead.conversationContent}</p>
                 </div>
               )}
 
-              <div className="mt-6 flex justify-end gap-3">
+              <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
                 <button 
                   onClick={() => router.push(`/telesales?tab=new&marketingLeadId=${lead.id}&customerName=${encodeURIComponent(lead.customerName || '')}&phone=${encodeURIComponent(lead.phoneNumber || '')}`)}
-                  className="px-4 py-2 bg-orange-100 text-orange-700 border border-orange-200 text-sm font-bold rounded-xl hover:bg-orange-200 transition-colors"
+                  className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-orange-100 text-orange-700 border border-orange-200 text-sm font-bold rounded-xl hover:bg-orange-200 transition-colors"
                 >
                   บันทึกการโทร (Telesales)
                 </button>
                 <button 
                   onClick={() => router.push(`/sales/requirements?marketingLeadId=${lead.id}&customerName=${encodeURIComponent(lead.customerName || '')}&phone=${encodeURIComponent(lead.phoneNumber || '')}`)}
-                  className="px-4 py-2 bg-[#ff2301] text-white text-sm font-bold rounded-xl hover:bg-red-700 shadow-md shadow-red-200 transition-colors"
+                  className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-[#ff2301] text-white text-sm font-bold rounded-xl hover:bg-red-700 shadow-md shadow-red-200 transition-colors"
                 >
                   ออกใบเสนอราคา
                 </button>

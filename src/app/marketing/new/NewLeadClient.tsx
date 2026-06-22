@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createMarketingLead, searchCompaniesForLead, checkDuplicatePhone, forwardLeadToSales } from '@/app/actions/marketing'
-import { Loader2, Save, ArrowLeft, Search, Send } from 'lucide-react'
+import { Loader2, Save, ArrowLeft, Search, Send, CheckCircle2 } from 'lucide-react'
 
 export default function NewLeadClient({ userId, salesReps = [] }: { userId: string, salesReps?: any[] }) {
   const router = useRouter()
@@ -84,10 +84,13 @@ export default function NewLeadClient({ userId, salesReps = [] }: { userId: stri
     setShowDropdown(false)
   }
 
+  const [successMsg, setSuccessMsg] = useState('')
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
     setError('')
+    setSuccessMsg('')
 
     const formData = new FormData(e.currentTarget)
     const result = await createMarketingLead({
@@ -99,21 +102,29 @@ export default function NewLeadClient({ userId, salesReps = [] }: { userId: stri
       createdByUserId: userId
     })
 
-    setIsSubmitting(false)
-
     if (result.success && result.data) {
       if (selectedRep) {
         await forwardLeadToSales(result.data.id, selectedRep)
       }
-      router.push('/marketing')
-      router.refresh()
+      setSuccessMsg('บันทึกข้อมูลเรียบร้อยแล้ว! กำลังพากลับไปหน้าหลัก...')
+      setTimeout(() => {
+        router.push('/marketing')
+        router.refresh()
+      }, 1500)
     } else {
+      setIsSubmitting(false)
       setError(result.error || 'ไม่สามารถสร้างข้อมูลได้ กรุณาลองใหม่อีกครั้ง')
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {successMsg && (
+        <div className="p-3 bg-emerald-50 text-emerald-700 text-sm font-bold rounded-xl border border-emerald-100 flex items-center gap-2">
+          <CheckCircle2 size={16} />
+          {successMsg}
+        </div>
+      )}
       {error && (
         <div className="p-3 bg-red-50 text-red-700 text-sm font-bold rounded-xl border border-red-100">
           {error}

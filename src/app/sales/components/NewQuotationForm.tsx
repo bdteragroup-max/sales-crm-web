@@ -571,15 +571,15 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <label className="w-1/3 text-sm font-medium text-gray-600 text-right">ยอดขาย (ก่อน VAT) :</label>
-                <input type="number" step="0.01" name="salesBeforeVat" value={salesBeforeVat} onChange={e => setSalesBeforeVat(parseFloat(e.target.value) || 0)} className="flex-1 border border-gray-200 rounded-lg p-2.5 text-sm text-right font-mono focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all" />
+                <input type="number" step="0.01" name="salesBeforeVat" value={salesBeforeVat} onChange={e => setSalesBeforeVat(parseFloat(e.target.value) || 0)} onWheel={(e) => (e.target as HTMLInputElement).blur()} className="flex-1 border border-gray-200 rounded-lg p-2.5 text-sm text-right font-mono focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all" />
               </div>
               <div className="flex items-center gap-4">
                 <label className="w-1/3 text-sm font-medium text-gray-600 text-right">ค่าขนส่ง :</label>
-                <input type="number" step="0.01" name="transportationFee" value={transportationFee} onChange={e => setTransportationFee(parseFloat(e.target.value) || 0)} className="flex-1 border border-gray-200 rounded-lg p-2.5 text-sm text-right font-mono focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all" />
+                <input type="number" step="0.01" name="transportationFee" value={transportationFee} onChange={e => setTransportationFee(parseFloat(e.target.value) || 0)} onWheel={(e) => (e.target as HTMLInputElement).blur()} className="flex-1 border border-gray-200 rounded-lg p-2.5 text-sm text-right font-mono focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all" />
               </div>
               <div className="flex items-center gap-4">
                 <label className="w-1/3 text-sm font-medium text-gray-600 text-right">ค่าติดตั้ง :</label>
-                <input type="number" step="0.01" name="installationFee" value={installationFee} onChange={e => setInstallationFee(parseFloat(e.target.value) || 0)} className="flex-1 border border-gray-200 rounded-lg p-2.5 text-sm text-right font-mono focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all" />
+                <input type="number" step="0.01" name="installationFee" value={installationFee} onChange={e => setInstallationFee(parseFloat(e.target.value) || 0)} onWheel={(e) => (e.target as HTMLInputElement).blur()} className="flex-1 border border-gray-200 rounded-lg p-2.5 text-sm text-right font-mono focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all" />
               </div>
               <hr className="border-gray-100" />
               <div className="bg-red-50/50 p-4 rounded-2xl border border-red-100/50 space-y-3">
