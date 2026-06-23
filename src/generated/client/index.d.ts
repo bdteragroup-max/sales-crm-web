@@ -107514,6 +107514,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     assignedToId: string | null
+    isContacted: boolean | null
   }
 
   export type MarketingLeadMaxAggregateOutputType = {
@@ -107530,6 +107531,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     assignedToId: string | null
+    isContacted: boolean | null
   }
 
   export type MarketingLeadCountAggregateOutputType = {
@@ -107546,6 +107548,7 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     assignedToId: number
+    isContacted: number
     _all: number
   }
 
@@ -107564,6 +107567,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     assignedToId?: true
+    isContacted?: true
   }
 
   export type MarketingLeadMaxAggregateInputType = {
@@ -107580,6 +107584,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     assignedToId?: true
+    isContacted?: true
   }
 
   export type MarketingLeadCountAggregateInputType = {
@@ -107596,6 +107601,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     assignedToId?: true
+    isContacted?: true
     _all?: true
   }
 
@@ -107685,6 +107691,7 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     assignedToId: string | null
+    isContacted: boolean
     _count: MarketingLeadCountAggregateOutputType | null
     _min: MarketingLeadMinAggregateOutputType | null
     _max: MarketingLeadMaxAggregateOutputType | null
@@ -107718,6 +107725,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     assignedToId?: boolean
+    isContacted?: boolean
     assignedTo?: boolean | MarketingLead$assignedToArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
     quotation?: boolean | MarketingLead$quotationArgs<ExtArgs>
@@ -107737,6 +107745,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     assignedToId?: boolean
+    isContacted?: boolean
     assignedTo?: boolean | MarketingLead$assignedToArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
     quotation?: boolean | MarketingLead$quotationArgs<ExtArgs>
@@ -107756,6 +107765,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     assignedToId?: boolean
+    isContacted?: boolean
     assignedTo?: boolean | MarketingLead$assignedToArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
     quotation?: boolean | MarketingLead$quotationArgs<ExtArgs>
@@ -107775,9 +107785,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     assignedToId?: boolean
+    isContacted?: boolean
   }
 
-  export type MarketingLeadOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerName" | "phoneNumber" | "productOfInterest" | "productType" | "conversationContent" | "createdByUserId" | "isForwarded" | "forwardedAt" | "quotationId" | "createdAt" | "updatedAt" | "assignedToId", ExtArgs["result"]["marketingLead"]>
+  export type MarketingLeadOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerName" | "phoneNumber" | "productOfInterest" | "productType" | "conversationContent" | "createdByUserId" | "isForwarded" | "forwardedAt" | "quotationId" | "createdAt" | "updatedAt" | "assignedToId" | "isContacted", ExtArgs["result"]["marketingLead"]>
   export type MarketingLeadInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignedTo?: boolean | MarketingLead$assignedToArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -107815,6 +107826,7 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       assignedToId: string | null
+      isContacted: boolean
     }, ExtArgs["result"]["marketingLead"]>
     composites: {}
   }
@@ -108254,6 +108266,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"MarketingLead", 'DateTime'>
     readonly updatedAt: FieldRef<"MarketingLead", 'DateTime'>
     readonly assignedToId: FieldRef<"MarketingLead", 'String'>
+    readonly isContacted: FieldRef<"MarketingLead", 'Boolean'>
   }
     
 
@@ -111369,7 +111382,8 @@ export namespace Prisma {
     quotationId: 'quotationId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    assignedToId: 'assignedToId'
+    assignedToId: 'assignedToId',
+    isContacted: 'isContacted'
   };
 
   export type MarketingLeadScalarFieldEnum = (typeof MarketingLeadScalarFieldEnum)[keyof typeof MarketingLeadScalarFieldEnum]
@@ -119672,6 +119686,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"MarketingLead"> | Date | string
     updatedAt?: DateTimeFilter<"MarketingLead"> | Date | string
     assignedToId?: StringNullableFilter<"MarketingLead"> | string | null
+    isContacted?: BoolFilter<"MarketingLead"> | boolean
     assignedTo?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
@@ -119691,6 +119706,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     assignedToId?: SortOrderInput | SortOrder
+    isContacted?: SortOrder
     assignedTo?: UserOrderByWithRelationInput
     createdBy?: UserOrderByWithRelationInput
     quotation?: QuotationOrderByWithRelationInput
@@ -119713,6 +119729,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"MarketingLead"> | Date | string
     updatedAt?: DateTimeFilter<"MarketingLead"> | Date | string
     assignedToId?: StringNullableFilter<"MarketingLead"> | string | null
+    isContacted?: BoolFilter<"MarketingLead"> | boolean
     assignedTo?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
@@ -119732,6 +119749,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     assignedToId?: SortOrderInput | SortOrder
+    isContacted?: SortOrder
     _count?: MarketingLeadCountOrderByAggregateInput
     _max?: MarketingLeadMaxOrderByAggregateInput
     _min?: MarketingLeadMinOrderByAggregateInput
@@ -119754,6 +119772,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"MarketingLead"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"MarketingLead"> | Date | string
     assignedToId?: StringNullableWithAggregatesFilter<"MarketingLead"> | string | null
+    isContacted?: BoolWithAggregatesFilter<"MarketingLead"> | boolean
   }
 
   export type NotificationWhereInput = {
@@ -129066,6 +129085,7 @@ export namespace Prisma {
     forwardedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isContacted?: boolean
     assignedTo?: UserCreateNestedOneWithoutAssignedMarketingLeadsInput
     createdBy: UserCreateNestedOneWithoutMarketingLeadsInput
     quotation?: QuotationCreateNestedOneWithoutMarketingLeadInput
@@ -129085,6 +129105,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     assignedToId?: string | null
+    isContacted?: boolean
   }
 
   export type MarketingLeadUpdateInput = {
@@ -129098,6 +129119,7 @@ export namespace Prisma {
     forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
     assignedTo?: UserUpdateOneWithoutAssignedMarketingLeadsNestedInput
     createdBy?: UserUpdateOneRequiredWithoutMarketingLeadsNestedInput
     quotation?: QuotationUpdateOneWithoutMarketingLeadNestedInput
@@ -129117,6 +129139,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MarketingLeadCreateManyInput = {
@@ -129133,6 +129156,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     assignedToId?: string | null
+    isContacted?: boolean
   }
 
   export type MarketingLeadUpdateManyMutationInput = {
@@ -129146,6 +129170,7 @@ export namespace Prisma {
     forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MarketingLeadUncheckedUpdateManyInput = {
@@ -129162,6 +129187,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type NotificationCreateInput = {
@@ -135177,6 +135203,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     assignedToId?: SortOrder
+    isContacted?: SortOrder
   }
 
   export type MarketingLeadMaxOrderByAggregateInput = {
@@ -135193,6 +135220,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     assignedToId?: SortOrder
+    isContacted?: SortOrder
   }
 
   export type MarketingLeadMinOrderByAggregateInput = {
@@ -135209,6 +135237,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     assignedToId?: SortOrder
+    isContacted?: SortOrder
   }
 
   export type NotificationCountOrderByAggregateInput = {
@@ -141163,6 +141192,7 @@ export namespace Prisma {
     forwardedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isContacted?: boolean
     createdBy: UserCreateNestedOneWithoutMarketingLeadsInput
     quotation?: QuotationCreateNestedOneWithoutMarketingLeadInput
   }
@@ -141180,6 +141210,7 @@ export namespace Prisma {
     quotationId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isContacted?: boolean
   }
 
   export type MarketingLeadCreateOrConnectWithoutAssignedToInput = {
@@ -141203,6 +141234,7 @@ export namespace Prisma {
     forwardedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isContacted?: boolean
     assignedTo?: UserCreateNestedOneWithoutAssignedMarketingLeadsInput
     quotation?: QuotationCreateNestedOneWithoutMarketingLeadInput
   }
@@ -141220,6 +141252,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     assignedToId?: string | null
+    isContacted?: boolean
   }
 
   export type MarketingLeadCreateOrConnectWithoutCreatedByInput = {
@@ -141967,6 +142000,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"MarketingLead"> | Date | string
     updatedAt?: DateTimeFilter<"MarketingLead"> | Date | string
     assignedToId?: StringNullableFilter<"MarketingLead"> | string | null
+    isContacted?: BoolFilter<"MarketingLead"> | boolean
   }
 
   export type MarketingLeadUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -143909,6 +143943,7 @@ export namespace Prisma {
     forwardedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isContacted?: boolean
     assignedTo?: UserCreateNestedOneWithoutAssignedMarketingLeadsInput
     createdBy: UserCreateNestedOneWithoutMarketingLeadsInput
   }
@@ -143926,6 +143961,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     assignedToId?: string | null
+    isContacted?: boolean
   }
 
   export type MarketingLeadCreateOrConnectWithoutQuotationInput = {
@@ -144256,6 +144292,7 @@ export namespace Prisma {
     forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
     assignedTo?: UserUpdateOneWithoutAssignedMarketingLeadsNestedInput
     createdBy?: UserUpdateOneRequiredWithoutMarketingLeadsNestedInput
   }
@@ -144273,6 +144310,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type OrderUpsertWithWhereUniqueWithoutQuotationInput = {
@@ -167062,6 +167100,7 @@ export namespace Prisma {
     quotationId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isContacted?: boolean
   }
 
   export type MarketingLeadCreateManyCreatedByInput = {
@@ -167077,6 +167116,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     assignedToId?: string | null
+    isContacted?: boolean
   }
 
   export type MonthlyTargetCreateManyUserInput = {
@@ -167476,6 +167516,7 @@ export namespace Prisma {
     forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
     createdBy?: UserUpdateOneRequiredWithoutMarketingLeadsNestedInput
     quotation?: QuotationUpdateOneWithoutMarketingLeadNestedInput
   }
@@ -167493,6 +167534,7 @@ export namespace Prisma {
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MarketingLeadUncheckedUpdateManyWithoutAssignedToInput = {
@@ -167508,6 +167550,7 @@ export namespace Prisma {
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MarketingLeadUpdateWithoutCreatedByInput = {
@@ -167521,6 +167564,7 @@ export namespace Prisma {
     forwardedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
     assignedTo?: UserUpdateOneWithoutAssignedMarketingLeadsNestedInput
     quotation?: QuotationUpdateOneWithoutMarketingLeadNestedInput
   }
@@ -167538,6 +167582,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MarketingLeadUncheckedUpdateManyWithoutCreatedByInput = {
@@ -167553,6 +167598,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    isContacted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MonthlyTargetUpdateWithoutUserInput = {

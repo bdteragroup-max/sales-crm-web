@@ -288,6 +288,9 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const [isPending, startTransition] = useTransition();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [selectedJobType, setSelectedJobType] = useState<string>("");
+
+  const uniqueJobTypes = Array.from(new Set(tasks.map(t => t.job?.jobType).filter(Boolean)));
 
   const handleUpdate = (id: string, status: string) => {
     const note = window.prompt("หมายเหตุ (ถ้ามี):");
@@ -306,12 +309,14 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
   const filtered = tasks.filter(t => {
     const q = searchTerm.toLowerCase();
-    if (!q) return true;
-    return (
+    const matchesSearch = !q || (
       t.job?.jobNumber?.toLowerCase().includes(q) ||
       t.job?.customerName?.toLowerCase().includes(q) ||
       t.job?.item?.toLowerCase().includes(q)
     );
+    const matchesJobType = !selectedJobType || t.job?.jobType === selectedJobType;
+
+    return matchesSearch && matchesJobType;
   });
 
   const pendingTasks = filtered.filter(t => t.status !== 'ตรวจสอบและบันทึกแล้ว');
@@ -338,15 +343,28 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           </p>
         </div>
         
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-          <input
-            type="text"
-            placeholder="ค้นหาเลขที่งาน, ชื่อลูกค้า..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl w-64 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-          />
+        <div className="flex gap-3">
+          <select
+            value={selectedJobType}
+            onChange={(e) => setSelectedJobType(e.target.value)}
+            className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white"
+          >
+            <option value="">ทุกประเภทงาน</option>
+            {uniqueJobTypes.map(type => (
+              <option key={type as string} value={type as string}>{type as React.ReactNode}</option>
+            ))}
+          </select>
+
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <input
+              type="text"
+              placeholder="ค้นหาเลขที่งาน, ชื่อลูกค้า..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl w-64 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+            />
+          </div>
         </div>
       </div>
 
@@ -409,6 +427,11 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                   <td className="py-4 px-6">
                     <p className="font-bold text-gray-900">{task.job?.customerName}</p>
                     <p className="text-xs text-gray-500">{task.job?.item}</p>
+                    {task.job?.jobType && (
+                      <span className="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-bold">
+                        {task.job?.jobType}
+                      </span>
+                    )}
                   </td>
                   <td className="py-4 px-6">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">

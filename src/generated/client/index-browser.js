@@ -1425,7 +1425,8 @@ exports.Prisma.MarketingLeadScalarFieldEnum = {
   quotationId: 'quotationId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  assignedToId: 'assignedToId'
+  assignedToId: 'assignedToId',
+  isContacted: 'isContacted'
 };
 
 exports.Prisma.NotificationScalarFieldEnum = {

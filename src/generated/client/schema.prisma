@@ -1685,6 +1685,7 @@ model MarketingLead {
   createdAt           DateTime   @default(now()) @db.Timestamptz(6)
   updatedAt           DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
   assignedToId        String?
+  isContacted         Boolean    @default(false)
   assignedTo          User?      @relation("AssignedLeads", fields: [assignedToId], references: [id])
   createdBy           User       @relation(fields: [createdByUserId], references: [id])
   quotation           Quotation? @relation(fields: [quotationId], references: [id])
