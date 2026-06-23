@@ -3,6 +3,7 @@
 import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
 import { getUser } from "@/app/lib/dal";
+import { checkAndAwardServiceGold } from "@/app/actions/coins";
 
 export interface RepairOrderItem {
   type?: string;
@@ -174,6 +175,7 @@ export async function updateRepairOrderStatus(jobId: string, newStep: string) {
   try {
     const session = await getUser();
     const userName = session?.fullName || "System";
+    const userId = session?.id;
 
     const job = await prisma.job.findUnique({ where: { id: jobId } });
     if (!job) throw new Error("Job not found");
@@ -190,10 +192,15 @@ export async function updateRepairOrderStatus(jobId: string, newStep: string) {
         jobId,
         step: newStep,
         completedBy: userName,
+        completedByUserId: userId,
         department: "Service",
         note: "อัปเดตสถานะจากหน้ารายการใบรับซ่อม",
       },
     });
+
+    if (userId && newStep === "ซ่อมเสร็จ") {
+      await checkAndAwardServiceGold(userId);
+    }
 
     if (newStep === "closed" && job.sellerName) {
       try {

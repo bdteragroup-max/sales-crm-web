@@ -12,6 +12,8 @@ import {
   getServiceManagerLineIds,
   pushLineMessageToTeam
 } from "@/app/lib/lineNotify";
+import { getUser } from "@/app/lib/dal";
+import { checkAndAwardServiceGold } from "@/app/actions/coins";
 
 export async function sendRequirementForEstimation(requirementId: string) {
   const req = await prisma.customerRequirement.update({
@@ -82,6 +84,8 @@ export async function submitEstimation(
   servicePersonName: string
 ) {
   const boqNumber = await generateBoqNumber();
+  const techUser = await prisma.user.findFirst({ where: { fullName: servicePersonName } });
+  const userId = techUser?.id;
 
   const req = await prisma.customerRequirement.update({
     where: { id: requirementId },
@@ -90,10 +94,15 @@ export async function submitEstimation(
       estimatedPrice: data.estimatedPrice,
       estimationNote: data.estimationNote,
       estimatedBy: servicePersonName,
+      estimatedByUserId: userId,
       estimatedAt: new Date(),
       boqNumber: boqNumber,
     },
   });
+
+  if (userId) {
+    await checkAndAwardServiceGold(userId);
+  }
 
   const msg = estimationCompletedMessage(
     req.companyName,

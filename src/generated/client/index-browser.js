@@ -407,7 +407,8 @@ exports.Prisma.JobStepLogScalarFieldEnum = {
   completedBy: 'completedBy',
   department: 'department',
   note: 'note',
-  completedAt: 'completedAt'
+  completedAt: 'completedAt',
+  completedByUserId: 'completedByUserId'
 };
 
 exports.Prisma.RepairOrderScalarFieldEnum = {
@@ -509,7 +510,8 @@ exports.Prisma.InstallationOrderScalarFieldEnum = {
   plannedStartDate: 'plannedStartDate',
   technicianNote: 'technicianNote',
   workLocation: 'workLocation',
-  workPlan: 'workPlan'
+  workPlan: 'workPlan',
+  technicianUserId: 'technicianUserId'
 };
 
 exports.Prisma.OutsourceRepairScalarFieldEnum = {
@@ -553,7 +555,8 @@ exports.Prisma.CustomerRequirementScalarFieldEnum = {
   assignedTo: 'assignedTo',
   assignedToUserId: 'assignedToUserId',
   estimationDueDate: 'estimationDueDate',
-  boqNumber: 'boqNumber'
+  boqNumber: 'boqNumber',
+  estimatedByUserId: 'estimatedByUserId'
 };
 
 exports.Prisma.Admin_login_attemptsScalarFieldEnum = {

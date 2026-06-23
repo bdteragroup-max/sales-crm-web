@@ -22,7 +22,9 @@ model User {
   otpExpiresAt           DateTime?             @db.Timestamptz(6)
   isActive               Boolean               @default(true)
   assignedCompanies      Company[]             @relation("AssignedCompany")
+  estimatedRequirements  CustomerRequirement[] @relation("Estimator")
   customerRequirements   CustomerRequirement[]
+  installationOrders     InstallationOrder[]
   assignedMarketingLeads MarketingLead[]       @relation("AssignedLeads")
   marketingLeads         MarketingLead[]
   monthlyTargets         MonthlyTarget[]
@@ -37,6 +39,7 @@ model User {
   telesales              Telesale[]
   telesalesKPIs          TelesalesKPI[]
   employeeSale           EmployeeSale?
+  jobStepLogs            JobStepLog[]
 }
 
 model MonthlyTarget {
@@ -390,14 +393,16 @@ model JobRunningNumber {
 }
 
 model JobStepLog {
-  id          String   @id @default(cuid())
-  jobId       String   @map("job_id")
-  step        String
-  completedBy String   @map("completed_by")
-  department  String
-  note        String?
-  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamptz(6)
-  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  id                String   @id @default(cuid())
+  jobId             String   @map("job_id")
+  step              String
+  completedBy       String   @map("completed_by")
+  department        String
+  note              String?
+  completedAt       DateTime @default(now()) @map("completed_at") @db.Timestamptz(6)
+  completedByUserId String?
+  completedByUser   User?    @relation(fields: [completedByUserId], references: [id])
+  job               Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@map("job_step_logs")
 }
@@ -504,7 +509,9 @@ model InstallationOrder {
   technicianNote   String?
   workLocation     String?
   workPlan         String?
+  technicianUserId String?
   job              Job?      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  technicianUser   User?     @relation(fields: [technicianUserId], references: [id])
 }
 
 model OutsourceRepair {
@@ -550,6 +557,8 @@ model CustomerRequirement {
   assignedToUserId  String?
   estimationDueDate DateTime? @db.Timestamptz(6)
   boqNumber         String?   @unique
+  estimatedByUserId String?
+  estimatedByUser   User?     @relation("Estimator", fields: [estimatedByUserId], references: [id])
   user              User?     @relation(fields: [userId], references: [id])
 
   @@index([companyName])

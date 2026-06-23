@@ -215,3 +215,105 @@ export async function checkAndAwardDailyCallCoins(userId: string) {
     return { success: false, error: 'Failed to award daily call coins' };
   }
 }
+
+function getTierGold(jobCount: number): number {
+  if (jobCount >= 30) return 3;
+  if (jobCount >= 20) return 2;
+  if (jobCount >= 10) return 1;
+  return 0;
+}
+
+export async function checkAndAwardServiceGold(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { employeeId: true }
+    });
+    if (!user || !user.employeeId) return { success: false, error: 'User or employeeId not found' };
+
+    const empId = user.employeeId;
+    const goldCoinTypeId = "GOLD";
+
+    const now = new Date();
+    // Start and end of current month
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Repair Orders via JobStepLog
+      const repairCount = await tx.jobStepLog.count({
+        where: {
+          completedByUserId: userId,
+          step: { contains: 'ซ่อมเสร็จ' }, // Using 'ซ่อมเสร็จ' or similar completed step
+          completedAt: { gte: monthStart, lt: monthEnd }
+        }
+      });
+
+      // 2. Estimations via CustomerRequirement
+      const estimationCount = await tx.customerRequirement.count({
+        where: {
+          estimatedByUserId: userId,
+          estimationStatus: "ESTIMATED",
+          estimatedAt: { gte: monthStart, lt: monthEnd }
+        }
+      });
+
+      // 3. Installations via InstallationOrder
+      const installationCount = await tx.installationOrder.count({
+        where: {
+          technicianUserId: userId,
+          status: "Completed",
+          updatedAt: { gte: monthStart, lt: monthEnd } // Using updatedAt as proxy for completed time
+        }
+      });
+
+      const totalJobs = repairCount + estimationCount + installationCount;
+      const targetTierGold = getTierGold(totalJobs);
+
+      // Check existing awarded tier
+      const existingAward = await tx.coin_ledgers.findFirst({
+        where: { 
+          emp_id: empId, 
+          source_key: { startsWith: `service_tier:${empId}:${monthKey}:` } 
+        },
+        orderBy: { amount: 'desc' }
+      });
+
+      let alreadyAwardedTier = 0;
+      if (existingAward && existingAward.source_key) {
+        const parts = existingAward.source_key.split(':');
+        if (parts.length >= 4) {
+          alreadyAwardedTier = parseInt(parts[3], 10) || 0;
+        }
+      }
+
+      if (targetTierGold > alreadyAwardedTier) {
+        const delta = targetTierGold - alreadyAwardedTier;
+
+        await tx.employee_coins.upsert({
+          where: { emp_id_coin_type_id: { emp_id: empId, coin_type_id: goldCoinTypeId } },
+          update: { balance: { increment: delta } },
+          create: { emp_id: empId, coin_type_id: goldCoinTypeId, balance: delta }
+        });
+
+        await tx.coin_ledgers.create({
+          data: {
+            emp_id: empId, 
+            coin_type_id: goldCoinTypeId,
+            amount: delta, 
+            transaction_type: "EARN",
+            source_key: `service_tier:${empId}:${monthKey}:${targetTierGold}`,
+            description: `Service jobs milestone: ${totalJobs} jobs this month (tier ${targetTierGold})`
+          }
+        });
+      }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error in checkAndAwardServiceGold:', error);
+    return { success: false, error: 'Failed to process service gold awards' };
+  }
+}
+

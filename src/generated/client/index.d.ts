@@ -8147,7 +8147,9 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     assignedCompanies: number
+    estimatedRequirements: number
     customerRequirements: number
+    installationOrders: number
     assignedMarketingLeads: number
     marketingLeads: number
     monthlyTargets: number
@@ -8161,11 +8163,14 @@ export namespace Prisma {
     schedules: number
     telesales: number
     telesalesKPIs: number
+    jobStepLogs: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignedCompanies?: boolean | UserCountOutputTypeCountAssignedCompaniesArgs
+    estimatedRequirements?: boolean | UserCountOutputTypeCountEstimatedRequirementsArgs
     customerRequirements?: boolean | UserCountOutputTypeCountCustomerRequirementsArgs
+    installationOrders?: boolean | UserCountOutputTypeCountInstallationOrdersArgs
     assignedMarketingLeads?: boolean | UserCountOutputTypeCountAssignedMarketingLeadsArgs
     marketingLeads?: boolean | UserCountOutputTypeCountMarketingLeadsArgs
     monthlyTargets?: boolean | UserCountOutputTypeCountMonthlyTargetsArgs
@@ -8179,6 +8184,7 @@ export namespace Prisma {
     schedules?: boolean | UserCountOutputTypeCountSchedulesArgs
     telesales?: boolean | UserCountOutputTypeCountTelesalesArgs
     telesalesKPIs?: boolean | UserCountOutputTypeCountTelesalesKPIsArgs
+    jobStepLogs?: boolean | UserCountOutputTypeCountJobStepLogsArgs
   }
 
   // Custom InputTypes
@@ -8202,8 +8208,22 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
+  export type UserCountOutputTypeCountEstimatedRequirementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomerRequirementWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
   export type UserCountOutputTypeCountCustomerRequirementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CustomerRequirementWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountInstallationOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InstallationOrderWhereInput
   }
 
   /**
@@ -8295,6 +8315,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountTelesalesKPIsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TelesalesKPIWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountJobStepLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobStepLogWhereInput
   }
 
 
@@ -9738,7 +9765,9 @@ export namespace Prisma {
     otpExpiresAt?: boolean
     isActive?: boolean
     assignedCompanies?: boolean | User$assignedCompaniesArgs<ExtArgs>
+    estimatedRequirements?: boolean | User$estimatedRequirementsArgs<ExtArgs>
     customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
+    installationOrders?: boolean | User$installationOrdersArgs<ExtArgs>
     assignedMarketingLeads?: boolean | User$assignedMarketingLeadsArgs<ExtArgs>
     marketingLeads?: boolean | User$marketingLeadsArgs<ExtArgs>
     monthlyTargets?: boolean | User$monthlyTargetsArgs<ExtArgs>
@@ -9753,6 +9782,7 @@ export namespace Prisma {
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
+    jobStepLogs?: boolean | User$jobStepLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -9807,7 +9837,9 @@ export namespace Prisma {
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employeeId" | "email" | "fullName" | "phoneNumber" | "role" | "position" | "password" | "createdAt" | "updatedAt" | "otpCode" | "otpExpiresAt" | "isActive", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignedCompanies?: boolean | User$assignedCompaniesArgs<ExtArgs>
+    estimatedRequirements?: boolean | User$estimatedRequirementsArgs<ExtArgs>
     customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
+    installationOrders?: boolean | User$installationOrdersArgs<ExtArgs>
     assignedMarketingLeads?: boolean | User$assignedMarketingLeadsArgs<ExtArgs>
     marketingLeads?: boolean | User$marketingLeadsArgs<ExtArgs>
     monthlyTargets?: boolean | User$monthlyTargetsArgs<ExtArgs>
@@ -9822,6 +9854,7 @@ export namespace Prisma {
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
+    jobStepLogs?: boolean | User$jobStepLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -9831,7 +9864,9 @@ export namespace Prisma {
     name: "User"
     objects: {
       assignedCompanies: Prisma.$CompanyPayload<ExtArgs>[]
+      estimatedRequirements: Prisma.$CustomerRequirementPayload<ExtArgs>[]
       customerRequirements: Prisma.$CustomerRequirementPayload<ExtArgs>[]
+      installationOrders: Prisma.$InstallationOrderPayload<ExtArgs>[]
       assignedMarketingLeads: Prisma.$MarketingLeadPayload<ExtArgs>[]
       marketingLeads: Prisma.$MarketingLeadPayload<ExtArgs>[]
       monthlyTargets: Prisma.$MonthlyTargetPayload<ExtArgs>[]
@@ -9846,6 +9881,7 @@ export namespace Prisma {
       telesales: Prisma.$TelesalePayload<ExtArgs>[]
       telesalesKPIs: Prisma.$TelesalesKPIPayload<ExtArgs>[]
       employeeSale: Prisma.$EmployeeSalePayload<ExtArgs> | null
+      jobStepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10256,7 +10292,9 @@ export namespace Prisma {
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     assignedCompanies<T extends User$assignedCompaniesArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedCompaniesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    estimatedRequirements<T extends User$estimatedRequirementsArgs<ExtArgs> = {}>(args?: Subset<T, User$estimatedRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerRequirements<T extends User$customerRequirementsArgs<ExtArgs> = {}>(args?: Subset<T, User$customerRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    installationOrders<T extends User$installationOrdersArgs<ExtArgs> = {}>(args?: Subset<T, User$installationOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedMarketingLeads<T extends User$assignedMarketingLeadsArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedMarketingLeadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     marketingLeads<T extends User$marketingLeadsArgs<ExtArgs> = {}>(args?: Subset<T, User$marketingLeadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     monthlyTargets<T extends User$monthlyTargetsArgs<ExtArgs> = {}>(args?: Subset<T, User$monthlyTargetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyTargetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -10271,6 +10309,7 @@ export namespace Prisma {
     telesales<T extends User$telesalesArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     telesalesKPIs<T extends User$telesalesKPIsArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesKPIsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     employeeSale<T extends User$employeeSaleArgs<ExtArgs> = {}>(args?: Subset<T, User$employeeSaleArgs<ExtArgs>>): Prisma__EmployeeSaleClient<$Result.GetResult<Prisma.$EmployeeSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    jobStepLogs<T extends User$jobStepLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$jobStepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10730,6 +10769,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.estimatedRequirements
+   */
+  export type User$estimatedRequirementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerRequirement
+     */
+    select?: CustomerRequirementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerRequirement
+     */
+    omit?: CustomerRequirementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerRequirementInclude<ExtArgs> | null
+    where?: CustomerRequirementWhereInput
+    orderBy?: CustomerRequirementOrderByWithRelationInput | CustomerRequirementOrderByWithRelationInput[]
+    cursor?: CustomerRequirementWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CustomerRequirementScalarFieldEnum | CustomerRequirementScalarFieldEnum[]
+  }
+
+  /**
    * User.customerRequirements
    */
   export type User$customerRequirementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10751,6 +10814,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CustomerRequirementScalarFieldEnum | CustomerRequirementScalarFieldEnum[]
+  }
+
+  /**
+   * User.installationOrders
+   */
+  export type User$installationOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InstallationOrder
+     */
+    select?: InstallationOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InstallationOrder
+     */
+    omit?: InstallationOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InstallationOrderInclude<ExtArgs> | null
+    where?: InstallationOrderWhereInput
+    orderBy?: InstallationOrderOrderByWithRelationInput | InstallationOrderOrderByWithRelationInput[]
+    cursor?: InstallationOrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InstallationOrderScalarFieldEnum | InstallationOrderScalarFieldEnum[]
   }
 
   /**
@@ -11082,6 +11169,30 @@ export namespace Prisma {
      */
     include?: EmployeeSaleInclude<ExtArgs> | null
     where?: EmployeeSaleWhereInput
+  }
+
+  /**
+   * User.jobStepLogs
+   */
+  export type User$jobStepLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobStepLog
+     */
+    select?: JobStepLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobStepLog
+     */
+    omit?: JobStepLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobStepLogInclude<ExtArgs> | null
+    where?: JobStepLogWhereInput
+    orderBy?: JobStepLogOrderByWithRelationInput | JobStepLogOrderByWithRelationInput[]
+    cursor?: JobStepLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JobStepLogScalarFieldEnum | JobStepLogScalarFieldEnum[]
   }
 
   /**
@@ -30825,6 +30936,7 @@ export namespace Prisma {
     department: string | null
     note: string | null
     completedAt: Date | null
+    completedByUserId: string | null
   }
 
   export type JobStepLogMaxAggregateOutputType = {
@@ -30835,6 +30947,7 @@ export namespace Prisma {
     department: string | null
     note: string | null
     completedAt: Date | null
+    completedByUserId: string | null
   }
 
   export type JobStepLogCountAggregateOutputType = {
@@ -30845,6 +30958,7 @@ export namespace Prisma {
     department: number
     note: number
     completedAt: number
+    completedByUserId: number
     _all: number
   }
 
@@ -30857,6 +30971,7 @@ export namespace Prisma {
     department?: true
     note?: true
     completedAt?: true
+    completedByUserId?: true
   }
 
   export type JobStepLogMaxAggregateInputType = {
@@ -30867,6 +30982,7 @@ export namespace Prisma {
     department?: true
     note?: true
     completedAt?: true
+    completedByUserId?: true
   }
 
   export type JobStepLogCountAggregateInputType = {
@@ -30877,6 +30993,7 @@ export namespace Prisma {
     department?: true
     note?: true
     completedAt?: true
+    completedByUserId?: true
     _all?: true
   }
 
@@ -30960,6 +31077,7 @@ export namespace Prisma {
     department: string
     note: string | null
     completedAt: Date
+    completedByUserId: string | null
     _count: JobStepLogCountAggregateOutputType | null
     _min: JobStepLogMinAggregateOutputType | null
     _max: JobStepLogMaxAggregateOutputType | null
@@ -30987,6 +31105,8 @@ export namespace Prisma {
     department?: boolean
     note?: boolean
     completedAt?: boolean
+    completedByUserId?: boolean
+    completedByUser?: boolean | JobStepLog$completedByUserArgs<ExtArgs>
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["jobStepLog"]>
 
@@ -30998,6 +31118,8 @@ export namespace Prisma {
     department?: boolean
     note?: boolean
     completedAt?: boolean
+    completedByUserId?: boolean
+    completedByUser?: boolean | JobStepLog$completedByUserArgs<ExtArgs>
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["jobStepLog"]>
 
@@ -31009,6 +31131,8 @@ export namespace Prisma {
     department?: boolean
     note?: boolean
     completedAt?: boolean
+    completedByUserId?: boolean
+    completedByUser?: boolean | JobStepLog$completedByUserArgs<ExtArgs>
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["jobStepLog"]>
 
@@ -31020,22 +31144,27 @@ export namespace Prisma {
     department?: boolean
     note?: boolean
     completedAt?: boolean
+    completedByUserId?: boolean
   }
 
-  export type JobStepLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "step" | "completedBy" | "department" | "note" | "completedAt", ExtArgs["result"]["jobStepLog"]>
+  export type JobStepLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "step" | "completedBy" | "department" | "note" | "completedAt" | "completedByUserId", ExtArgs["result"]["jobStepLog"]>
   export type JobStepLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    completedByUser?: boolean | JobStepLog$completedByUserArgs<ExtArgs>
     job?: boolean | JobDefaultArgs<ExtArgs>
   }
   export type JobStepLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    completedByUser?: boolean | JobStepLog$completedByUserArgs<ExtArgs>
     job?: boolean | JobDefaultArgs<ExtArgs>
   }
   export type JobStepLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    completedByUser?: boolean | JobStepLog$completedByUserArgs<ExtArgs>
     job?: boolean | JobDefaultArgs<ExtArgs>
   }
 
   export type $JobStepLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "JobStepLog"
     objects: {
+      completedByUser: Prisma.$UserPayload<ExtArgs> | null
       job: Prisma.$JobPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -31046,6 +31175,7 @@ export namespace Prisma {
       department: string
       note: string | null
       completedAt: Date
+      completedByUserId: string | null
     }, ExtArgs["result"]["jobStepLog"]>
     composites: {}
   }
@@ -31440,6 +31570,7 @@ export namespace Prisma {
    */
   export interface Prisma__JobStepLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    completedByUser<T extends JobStepLog$completedByUserArgs<ExtArgs> = {}>(args?: Subset<T, JobStepLog$completedByUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     job<T extends JobDefaultArgs<ExtArgs> = {}>(args?: Subset<T, JobDefaultArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -31477,6 +31608,7 @@ export namespace Prisma {
     readonly department: FieldRef<"JobStepLog", 'String'>
     readonly note: FieldRef<"JobStepLog", 'String'>
     readonly completedAt: FieldRef<"JobStepLog", 'DateTime'>
+    readonly completedByUserId: FieldRef<"JobStepLog", 'String'>
   }
     
 
@@ -31875,6 +32007,25 @@ export namespace Prisma {
      * Limit how many JobStepLogs to delete.
      */
     limit?: number
+  }
+
+  /**
+   * JobStepLog.completedByUser
+   */
+  export type JobStepLog$completedByUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -34708,6 +34859,7 @@ export namespace Prisma {
     technicianNote: string | null
     workLocation: string | null
     workPlan: string | null
+    technicianUserId: string | null
   }
 
   export type InstallationOrderMaxAggregateOutputType = {
@@ -34742,6 +34894,7 @@ export namespace Prisma {
     technicianNote: string | null
     workLocation: string | null
     workPlan: string | null
+    technicianUserId: string | null
   }
 
   export type InstallationOrderCountAggregateOutputType = {
@@ -34779,6 +34932,7 @@ export namespace Prisma {
     technicianNote: number
     workLocation: number
     workPlan: number
+    technicianUserId: number
     _all: number
   }
 
@@ -34815,6 +34969,7 @@ export namespace Prisma {
     technicianNote?: true
     workLocation?: true
     workPlan?: true
+    technicianUserId?: true
   }
 
   export type InstallationOrderMaxAggregateInputType = {
@@ -34849,6 +35004,7 @@ export namespace Prisma {
     technicianNote?: true
     workLocation?: true
     workPlan?: true
+    technicianUserId?: true
   }
 
   export type InstallationOrderCountAggregateInputType = {
@@ -34886,6 +35042,7 @@ export namespace Prisma {
     technicianNote?: true
     workLocation?: true
     workPlan?: true
+    technicianUserId?: true
     _all?: true
   }
 
@@ -34996,6 +35153,7 @@ export namespace Prisma {
     technicianNote: string | null
     workLocation: string | null
     workPlan: string | null
+    technicianUserId: string | null
     _count: InstallationOrderCountAggregateOutputType | null
     _min: InstallationOrderMinAggregateOutputType | null
     _max: InstallationOrderMaxAggregateOutputType | null
@@ -35050,7 +35208,9 @@ export namespace Prisma {
     technicianNote?: boolean
     workLocation?: boolean
     workPlan?: boolean
+    technicianUserId?: boolean
     job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+    technicianUser?: boolean | InstallationOrder$technicianUserArgs<ExtArgs>
   }, ExtArgs["result"]["installationOrder"]>
 
   export type InstallationOrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -35088,7 +35248,9 @@ export namespace Prisma {
     technicianNote?: boolean
     workLocation?: boolean
     workPlan?: boolean
+    technicianUserId?: boolean
     job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+    technicianUser?: boolean | InstallationOrder$technicianUserArgs<ExtArgs>
   }, ExtArgs["result"]["installationOrder"]>
 
   export type InstallationOrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -35126,7 +35288,9 @@ export namespace Prisma {
     technicianNote?: boolean
     workLocation?: boolean
     workPlan?: boolean
+    technicianUserId?: boolean
     job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+    technicianUser?: boolean | InstallationOrder$technicianUserArgs<ExtArgs>
   }, ExtArgs["result"]["installationOrder"]>
 
   export type InstallationOrderSelectScalar = {
@@ -35164,23 +35328,28 @@ export namespace Prisma {
     technicianNote?: boolean
     workLocation?: boolean
     workPlan?: boolean
+    technicianUserId?: boolean
   }
 
-  export type InstallationOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "installationNo" | "jobId" | "installationDate" | "company" | "jobName" | "customer" | "customerPosition" | "address" | "siteAddress" | "quotationNo" | "sender" | "senderPhone" | "technician" | "technicianPhone" | "items" | "checklist" | "checklistImages" | "note" | "sigSenderUrl" | "nameSender" | "sigReceiverUrl" | "nameReceiver" | "status" | "pdfUrl" | "createdAt" | "updatedAt" | "planUpdatedAt" | "planUpdatedBy" | "plannedEndDate" | "plannedStartDate" | "technicianNote" | "workLocation" | "workPlan", ExtArgs["result"]["installationOrder"]>
+  export type InstallationOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "installationNo" | "jobId" | "installationDate" | "company" | "jobName" | "customer" | "customerPosition" | "address" | "siteAddress" | "quotationNo" | "sender" | "senderPhone" | "technician" | "technicianPhone" | "items" | "checklist" | "checklistImages" | "note" | "sigSenderUrl" | "nameSender" | "sigReceiverUrl" | "nameReceiver" | "status" | "pdfUrl" | "createdAt" | "updatedAt" | "planUpdatedAt" | "planUpdatedBy" | "plannedEndDate" | "plannedStartDate" | "technicianNote" | "workLocation" | "workPlan" | "technicianUserId", ExtArgs["result"]["installationOrder"]>
   export type InstallationOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+    technicianUser?: boolean | InstallationOrder$technicianUserArgs<ExtArgs>
   }
   export type InstallationOrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+    technicianUser?: boolean | InstallationOrder$technicianUserArgs<ExtArgs>
   }
   export type InstallationOrderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | InstallationOrder$jobArgs<ExtArgs>
+    technicianUser?: boolean | InstallationOrder$technicianUserArgs<ExtArgs>
   }
 
   export type $InstallationOrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "InstallationOrder"
     objects: {
       job: Prisma.$JobPayload<ExtArgs> | null
+      technicianUser: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -35217,6 +35386,7 @@ export namespace Prisma {
       technicianNote: string | null
       workLocation: string | null
       workPlan: string | null
+      technicianUserId: string | null
     }, ExtArgs["result"]["installationOrder"]>
     composites: {}
   }
@@ -35612,6 +35782,7 @@ export namespace Prisma {
   export interface Prisma__InstallationOrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     job<T extends InstallationOrder$jobArgs<ExtArgs> = {}>(args?: Subset<T, InstallationOrder$jobArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    technicianUser<T extends InstallationOrder$technicianUserArgs<ExtArgs> = {}>(args?: Subset<T, InstallationOrder$technicianUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -35675,6 +35846,7 @@ export namespace Prisma {
     readonly technicianNote: FieldRef<"InstallationOrder", 'String'>
     readonly workLocation: FieldRef<"InstallationOrder", 'String'>
     readonly workPlan: FieldRef<"InstallationOrder", 'String'>
+    readonly technicianUserId: FieldRef<"InstallationOrder", 'String'>
   }
     
 
@@ -36092,6 +36264,25 @@ export namespace Prisma {
      */
     include?: JobInclude<ExtArgs> | null
     where?: JobWhereInput
+  }
+
+  /**
+   * InstallationOrder.technicianUser
+   */
+  export type InstallationOrder$technicianUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -37412,6 +37603,7 @@ export namespace Prisma {
     assignedToUserId: string | null
     estimationDueDate: Date | null
     boqNumber: string | null
+    estimatedByUserId: string | null
   }
 
   export type CustomerRequirementMaxAggregateOutputType = {
@@ -37433,6 +37625,7 @@ export namespace Prisma {
     assignedToUserId: string | null
     estimationDueDate: Date | null
     boqNumber: string | null
+    estimatedByUserId: string | null
   }
 
   export type CustomerRequirementCountAggregateOutputType = {
@@ -37455,6 +37648,7 @@ export namespace Prisma {
     assignedToUserId: number
     estimationDueDate: number
     boqNumber: number
+    estimatedByUserId: number
     _all: number
   }
 
@@ -37486,6 +37680,7 @@ export namespace Prisma {
     assignedToUserId?: true
     estimationDueDate?: true
     boqNumber?: true
+    estimatedByUserId?: true
   }
 
   export type CustomerRequirementMaxAggregateInputType = {
@@ -37507,6 +37702,7 @@ export namespace Prisma {
     assignedToUserId?: true
     estimationDueDate?: true
     boqNumber?: true
+    estimatedByUserId?: true
   }
 
   export type CustomerRequirementCountAggregateInputType = {
@@ -37529,6 +37725,7 @@ export namespace Prisma {
     assignedToUserId?: true
     estimationDueDate?: true
     boqNumber?: true
+    estimatedByUserId?: true
     _all?: true
   }
 
@@ -37638,6 +37835,7 @@ export namespace Prisma {
     assignedToUserId: string | null
     estimationDueDate: Date | null
     boqNumber: string | null
+    estimatedByUserId: string | null
     _count: CustomerRequirementCountAggregateOutputType | null
     _avg: CustomerRequirementAvgAggregateOutputType | null
     _sum: CustomerRequirementSumAggregateOutputType | null
@@ -37679,6 +37877,8 @@ export namespace Prisma {
     assignedToUserId?: boolean
     estimationDueDate?: boolean
     boqNumber?: boolean
+    estimatedByUserId?: boolean
+    estimatedByUser?: boolean | CustomerRequirement$estimatedByUserArgs<ExtArgs>
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }, ExtArgs["result"]["customerRequirement"]>
 
@@ -37702,6 +37902,8 @@ export namespace Prisma {
     assignedToUserId?: boolean
     estimationDueDate?: boolean
     boqNumber?: boolean
+    estimatedByUserId?: boolean
+    estimatedByUser?: boolean | CustomerRequirement$estimatedByUserArgs<ExtArgs>
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }, ExtArgs["result"]["customerRequirement"]>
 
@@ -37725,6 +37927,8 @@ export namespace Prisma {
     assignedToUserId?: boolean
     estimationDueDate?: boolean
     boqNumber?: boolean
+    estimatedByUserId?: boolean
+    estimatedByUser?: boolean | CustomerRequirement$estimatedByUserArgs<ExtArgs>
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }, ExtArgs["result"]["customerRequirement"]>
 
@@ -37748,22 +37952,27 @@ export namespace Prisma {
     assignedToUserId?: boolean
     estimationDueDate?: boolean
     boqNumber?: boolean
+    estimatedByUserId?: boolean
   }
 
-  export type CustomerRequirementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "companyName" | "contactName" | "salesperson" | "date" | "formData" | "createdAt" | "requirementNumber" | "estimatedAt" | "estimatedBy" | "estimatedPrice" | "estimationNote" | "estimationStatus" | "isSentToService" | "assignedTo" | "assignedToUserId" | "estimationDueDate" | "boqNumber", ExtArgs["result"]["customerRequirement"]>
+  export type CustomerRequirementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "companyName" | "contactName" | "salesperson" | "date" | "formData" | "createdAt" | "requirementNumber" | "estimatedAt" | "estimatedBy" | "estimatedPrice" | "estimationNote" | "estimationStatus" | "isSentToService" | "assignedTo" | "assignedToUserId" | "estimationDueDate" | "boqNumber" | "estimatedByUserId", ExtArgs["result"]["customerRequirement"]>
   export type CustomerRequirementInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    estimatedByUser?: boolean | CustomerRequirement$estimatedByUserArgs<ExtArgs>
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }
   export type CustomerRequirementIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    estimatedByUser?: boolean | CustomerRequirement$estimatedByUserArgs<ExtArgs>
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }
   export type CustomerRequirementIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    estimatedByUser?: boolean | CustomerRequirement$estimatedByUserArgs<ExtArgs>
     user?: boolean | CustomerRequirement$userArgs<ExtArgs>
   }
 
   export type $CustomerRequirementPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "CustomerRequirement"
     objects: {
+      estimatedByUser: Prisma.$UserPayload<ExtArgs> | null
       user: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -37786,6 +37995,7 @@ export namespace Prisma {
       assignedToUserId: string | null
       estimationDueDate: Date | null
       boqNumber: string | null
+      estimatedByUserId: string | null
     }, ExtArgs["result"]["customerRequirement"]>
     composites: {}
   }
@@ -38180,6 +38390,7 @@ export namespace Prisma {
    */
   export interface Prisma__CustomerRequirementClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    estimatedByUser<T extends CustomerRequirement$estimatedByUserArgs<ExtArgs> = {}>(args?: Subset<T, CustomerRequirement$estimatedByUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     user<T extends CustomerRequirement$userArgs<ExtArgs> = {}>(args?: Subset<T, CustomerRequirement$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -38229,6 +38440,7 @@ export namespace Prisma {
     readonly assignedToUserId: FieldRef<"CustomerRequirement", 'String'>
     readonly estimationDueDate: FieldRef<"CustomerRequirement", 'DateTime'>
     readonly boqNumber: FieldRef<"CustomerRequirement", 'String'>
+    readonly estimatedByUserId: FieldRef<"CustomerRequirement", 'String'>
   }
     
 
@@ -38627,6 +38839,25 @@ export namespace Prisma {
      * Limit how many CustomerRequirements to delete.
      */
     limit?: number
+  }
+
+  /**
+   * CustomerRequirement.estimatedByUser
+   */
+  export type CustomerRequirement$estimatedByUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -110178,7 +110409,8 @@ export namespace Prisma {
     completedBy: 'completedBy',
     department: 'department',
     note: 'note',
-    completedAt: 'completedAt'
+    completedAt: 'completedAt',
+    completedByUserId: 'completedByUserId'
   };
 
   export type JobStepLogScalarFieldEnum = (typeof JobStepLogScalarFieldEnum)[keyof typeof JobStepLogScalarFieldEnum]
@@ -110289,7 +110521,8 @@ export namespace Prisma {
     plannedStartDate: 'plannedStartDate',
     technicianNote: 'technicianNote',
     workLocation: 'workLocation',
-    workPlan: 'workPlan'
+    workPlan: 'workPlan',
+    technicianUserId: 'technicianUserId'
   };
 
   export type InstallationOrderScalarFieldEnum = (typeof InstallationOrderScalarFieldEnum)[keyof typeof InstallationOrderScalarFieldEnum]
@@ -110339,7 +110572,8 @@ export namespace Prisma {
     assignedTo: 'assignedTo',
     assignedToUserId: 'assignedToUserId',
     estimationDueDate: 'estimationDueDate',
-    boqNumber: 'boqNumber'
+    boqNumber: 'boqNumber',
+    estimatedByUserId: 'estimatedByUserId'
   };
 
   export type CustomerRequirementScalarFieldEnum = (typeof CustomerRequirementScalarFieldEnum)[keyof typeof CustomerRequirementScalarFieldEnum]
@@ -111582,7 +111816,9 @@ export namespace Prisma {
     otpExpiresAt?: DateTimeNullableFilter<"User"> | Date | string | null
     isActive?: BoolFilter<"User"> | boolean
     assignedCompanies?: CompanyListRelationFilter
+    estimatedRequirements?: CustomerRequirementListRelationFilter
     customerRequirements?: CustomerRequirementListRelationFilter
+    installationOrders?: InstallationOrderListRelationFilter
     assignedMarketingLeads?: MarketingLeadListRelationFilter
     marketingLeads?: MarketingLeadListRelationFilter
     monthlyTargets?: MonthlyTargetListRelationFilter
@@ -111597,6 +111833,7 @@ export namespace Prisma {
     telesales?: TelesaleListRelationFilter
     telesalesKPIs?: TelesalesKPIListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
+    jobStepLogs?: JobStepLogListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -111614,7 +111851,9 @@ export namespace Prisma {
     otpExpiresAt?: SortOrderInput | SortOrder
     isActive?: SortOrder
     assignedCompanies?: CompanyOrderByRelationAggregateInput
+    estimatedRequirements?: CustomerRequirementOrderByRelationAggregateInput
     customerRequirements?: CustomerRequirementOrderByRelationAggregateInput
+    installationOrders?: InstallationOrderOrderByRelationAggregateInput
     assignedMarketingLeads?: MarketingLeadOrderByRelationAggregateInput
     marketingLeads?: MarketingLeadOrderByRelationAggregateInput
     monthlyTargets?: MonthlyTargetOrderByRelationAggregateInput
@@ -111629,6 +111868,7 @@ export namespace Prisma {
     telesales?: TelesaleOrderByRelationAggregateInput
     telesalesKPIs?: TelesalesKPIOrderByRelationAggregateInput
     employeeSale?: EmployeeSaleOrderByWithRelationInput
+    jobStepLogs?: JobStepLogOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -111649,7 +111889,9 @@ export namespace Prisma {
     otpExpiresAt?: DateTimeNullableFilter<"User"> | Date | string | null
     isActive?: BoolFilter<"User"> | boolean
     assignedCompanies?: CompanyListRelationFilter
+    estimatedRequirements?: CustomerRequirementListRelationFilter
     customerRequirements?: CustomerRequirementListRelationFilter
+    installationOrders?: InstallationOrderListRelationFilter
     assignedMarketingLeads?: MarketingLeadListRelationFilter
     marketingLeads?: MarketingLeadListRelationFilter
     monthlyTargets?: MonthlyTargetListRelationFilter
@@ -111664,6 +111906,7 @@ export namespace Prisma {
     telesales?: TelesaleListRelationFilter
     telesalesKPIs?: TelesalesKPIListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
+    jobStepLogs?: JobStepLogListRelationFilter
   }, "id" | "employeeId" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -113362,6 +113605,8 @@ export namespace Prisma {
     department?: StringFilter<"JobStepLog"> | string
     note?: StringNullableFilter<"JobStepLog"> | string | null
     completedAt?: DateTimeFilter<"JobStepLog"> | Date | string
+    completedByUserId?: StringNullableFilter<"JobStepLog"> | string | null
+    completedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
   }
 
@@ -113373,6 +113618,8 @@ export namespace Prisma {
     department?: SortOrder
     note?: SortOrderInput | SortOrder
     completedAt?: SortOrder
+    completedByUserId?: SortOrderInput | SortOrder
+    completedByUser?: UserOrderByWithRelationInput
     job?: JobOrderByWithRelationInput
   }
 
@@ -113387,6 +113634,8 @@ export namespace Prisma {
     department?: StringFilter<"JobStepLog"> | string
     note?: StringNullableFilter<"JobStepLog"> | string | null
     completedAt?: DateTimeFilter<"JobStepLog"> | Date | string
+    completedByUserId?: StringNullableFilter<"JobStepLog"> | string | null
+    completedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
   }, "id">
 
@@ -113398,6 +113647,7 @@ export namespace Prisma {
     department?: SortOrder
     note?: SortOrderInput | SortOrder
     completedAt?: SortOrder
+    completedByUserId?: SortOrderInput | SortOrder
     _count?: JobStepLogCountOrderByAggregateInput
     _max?: JobStepLogMaxOrderByAggregateInput
     _min?: JobStepLogMinOrderByAggregateInput
@@ -113414,6 +113664,7 @@ export namespace Prisma {
     department?: StringWithAggregatesFilter<"JobStepLog"> | string
     note?: StringNullableWithAggregatesFilter<"JobStepLog"> | string | null
     completedAt?: DateTimeWithAggregatesFilter<"JobStepLog"> | Date | string
+    completedByUserId?: StringNullableWithAggregatesFilter<"JobStepLog"> | string | null
   }
 
   export type RepairOrderWhereInput = {
@@ -113809,7 +114060,9 @@ export namespace Prisma {
     technicianNote?: StringNullableFilter<"InstallationOrder"> | string | null
     workLocation?: StringNullableFilter<"InstallationOrder"> | string | null
     workPlan?: StringNullableFilter<"InstallationOrder"> | string | null
+    technicianUserId?: StringNullableFilter<"InstallationOrder"> | string | null
     job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
+    technicianUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type InstallationOrderOrderByWithRelationInput = {
@@ -113847,7 +114100,9 @@ export namespace Prisma {
     technicianNote?: SortOrderInput | SortOrder
     workLocation?: SortOrderInput | SortOrder
     workPlan?: SortOrderInput | SortOrder
+    technicianUserId?: SortOrderInput | SortOrder
     job?: JobOrderByWithRelationInput
+    technicianUser?: UserOrderByWithRelationInput
   }
 
   export type InstallationOrderWhereUniqueInput = Prisma.AtLeast<{
@@ -113888,7 +114143,9 @@ export namespace Prisma {
     technicianNote?: StringNullableFilter<"InstallationOrder"> | string | null
     workLocation?: StringNullableFilter<"InstallationOrder"> | string | null
     workPlan?: StringNullableFilter<"InstallationOrder"> | string | null
+    technicianUserId?: StringNullableFilter<"InstallationOrder"> | string | null
     job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
+    technicianUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "installationNo">
 
   export type InstallationOrderOrderByWithAggregationInput = {
@@ -113926,6 +114183,7 @@ export namespace Prisma {
     technicianNote?: SortOrderInput | SortOrder
     workLocation?: SortOrderInput | SortOrder
     workPlan?: SortOrderInput | SortOrder
+    technicianUserId?: SortOrderInput | SortOrder
     _count?: InstallationOrderCountOrderByAggregateInput
     _max?: InstallationOrderMaxOrderByAggregateInput
     _min?: InstallationOrderMinOrderByAggregateInput
@@ -113969,6 +114227,7 @@ export namespace Prisma {
     technicianNote?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
     workLocation?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
     workPlan?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
+    technicianUserId?: StringNullableWithAggregatesFilter<"InstallationOrder"> | string | null
   }
 
   export type OutsourceRepairWhereInput = {
@@ -114119,6 +114378,8 @@ export namespace Prisma {
     assignedToUserId?: StringNullableFilter<"CustomerRequirement"> | string | null
     estimationDueDate?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
     boqNumber?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedByUserId?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
@@ -114142,6 +114403,8 @@ export namespace Prisma {
     assignedToUserId?: SortOrderInput | SortOrder
     estimationDueDate?: SortOrderInput | SortOrder
     boqNumber?: SortOrderInput | SortOrder
+    estimatedByUserId?: SortOrderInput | SortOrder
+    estimatedByUser?: UserOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
   }
 
@@ -114168,6 +114431,8 @@ export namespace Prisma {
     assignedTo?: StringNullableFilter<"CustomerRequirement"> | string | null
     assignedToUserId?: StringNullableFilter<"CustomerRequirement"> | string | null
     estimationDueDate?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
+    estimatedByUserId?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "requirementNumber" | "boqNumber">
 
@@ -114191,6 +114456,7 @@ export namespace Prisma {
     assignedToUserId?: SortOrderInput | SortOrder
     estimationDueDate?: SortOrderInput | SortOrder
     boqNumber?: SortOrderInput | SortOrder
+    estimatedByUserId?: SortOrderInput | SortOrder
     _count?: CustomerRequirementCountOrderByAggregateInput
     _avg?: CustomerRequirementAvgOrderByAggregateInput
     _max?: CustomerRequirementMaxOrderByAggregateInput
@@ -114221,6 +114487,7 @@ export namespace Prisma {
     assignedToUserId?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
     estimationDueDate?: DateTimeNullableWithAggregatesFilter<"CustomerRequirement"> | Date | string | null
     boqNumber?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
+    estimatedByUserId?: StringNullableWithAggregatesFilter<"CustomerRequirement"> | string | null
   }
 
   export type admin_login_attemptsWhereInput = {
@@ -119860,7 +120127,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -119875,6 +120144,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -119892,7 +120162,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -119907,6 +120179,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUpdateInput = {
@@ -119924,7 +120197,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -119939,6 +120214,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -119956,7 +120232,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -119971,6 +120249,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -121933,6 +122212,7 @@ export namespace Prisma {
     department: string
     note?: string | null
     completedAt?: Date | string
+    completedByUser?: UserCreateNestedOneWithoutJobStepLogsInput
     job: JobCreateNestedOneWithoutStepLogsInput
   }
 
@@ -121944,6 +122224,7 @@ export namespace Prisma {
     department: string
     note?: string | null
     completedAt?: Date | string
+    completedByUserId?: string | null
   }
 
   export type JobStepLogUpdateInput = {
@@ -121953,6 +122234,7 @@ export namespace Prisma {
     department?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedByUser?: UserUpdateOneWithoutJobStepLogsNestedInput
     job?: JobUpdateOneRequiredWithoutStepLogsNestedInput
   }
 
@@ -121964,6 +122246,7 @@ export namespace Prisma {
     department?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type JobStepLogCreateManyInput = {
@@ -121974,6 +122257,7 @@ export namespace Prisma {
     department: string
     note?: string | null
     completedAt?: Date | string
+    completedByUserId?: string | null
   }
 
   export type JobStepLogUpdateManyMutationInput = {
@@ -121993,6 +122277,7 @@ export namespace Prisma {
     department?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RepairOrderCreateInput = {
@@ -122483,6 +122768,7 @@ export namespace Prisma {
     workLocation?: string | null
     workPlan?: string | null
     job?: JobCreateNestedOneWithoutInstallationOrdersInput
+    technicianUser?: UserCreateNestedOneWithoutInstallationOrdersInput
   }
 
   export type InstallationOrderUncheckedCreateInput = {
@@ -122520,6 +122806,7 @@ export namespace Prisma {
     technicianNote?: string | null
     workLocation?: string | null
     workPlan?: string | null
+    technicianUserId?: string | null
   }
 
   export type InstallationOrderUpdateInput = {
@@ -122557,6 +122844,7 @@ export namespace Prisma {
     workLocation?: NullableStringFieldUpdateOperationsInput | string | null
     workPlan?: NullableStringFieldUpdateOperationsInput | string | null
     job?: JobUpdateOneWithoutInstallationOrdersNestedInput
+    technicianUser?: UserUpdateOneWithoutInstallationOrdersNestedInput
   }
 
   export type InstallationOrderUncheckedUpdateInput = {
@@ -122594,6 +122882,7 @@ export namespace Prisma {
     technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
     workLocation?: NullableStringFieldUpdateOperationsInput | string | null
     workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InstallationOrderCreateManyInput = {
@@ -122631,6 +122920,7 @@ export namespace Prisma {
     technicianNote?: string | null
     workLocation?: string | null
     workPlan?: string | null
+    technicianUserId?: string | null
   }
 
   export type InstallationOrderUpdateManyMutationInput = {
@@ -122704,6 +122994,7 @@ export namespace Prisma {
     technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
     workLocation?: NullableStringFieldUpdateOperationsInput | string | null
     workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OutsourceRepairCreateInput = {
@@ -122878,6 +123169,7 @@ export namespace Prisma {
     assignedToUserId?: string | null
     estimationDueDate?: Date | string | null
     boqNumber?: string | null
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedRequirementsInput
     user?: UserCreateNestedOneWithoutCustomerRequirementsInput
   }
 
@@ -122901,6 +123193,7 @@ export namespace Prisma {
     assignedToUserId?: string | null
     estimationDueDate?: Date | string | null
     boqNumber?: string | null
+    estimatedByUserId?: string | null
   }
 
   export type CustomerRequirementUpdateInput = {
@@ -122922,6 +123215,7 @@ export namespace Prisma {
     assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
     estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedByUser?: UserUpdateOneWithoutEstimatedRequirementsNestedInput
     user?: UserUpdateOneWithoutCustomerRequirementsNestedInput
   }
 
@@ -122945,6 +123239,7 @@ export namespace Prisma {
     assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
     estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CustomerRequirementCreateManyInput = {
@@ -122967,6 +123262,7 @@ export namespace Prisma {
     assignedToUserId?: string | null
     estimationDueDate?: Date | string | null
     boqNumber?: string | null
+    estimatedByUserId?: string | null
   }
 
   export type CustomerRequirementUpdateManyMutationInput = {
@@ -123010,6 +123306,7 @@ export namespace Prisma {
     assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
     estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type admin_login_attemptsCreateInput = {
@@ -129335,6 +129632,12 @@ export namespace Prisma {
     none?: CustomerRequirementWhereInput
   }
 
+  export type InstallationOrderListRelationFilter = {
+    every?: InstallationOrderWhereInput
+    some?: InstallationOrderWhereInput
+    none?: InstallationOrderWhereInput
+  }
+
   export type MarketingLeadListRelationFilter = {
     every?: MarketingLeadWhereInput
     some?: MarketingLeadWhereInput
@@ -129412,6 +129715,12 @@ export namespace Prisma {
     isNot?: EmployeeSaleWhereInput | null
   }
 
+  export type JobStepLogListRelationFilter = {
+    every?: JobStepLogWhereInput
+    some?: JobStepLogWhereInput
+    none?: JobStepLogWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -129422,6 +129731,10 @@ export namespace Prisma {
   }
 
   export type CustomerRequirementOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type InstallationOrderOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -129470,6 +129783,10 @@ export namespace Prisma {
   }
 
   export type TelesalesKPIOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type JobStepLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -130457,12 +130774,6 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
-  export type InstallationOrderListRelationFilter = {
-    every?: InstallationOrderWhereInput
-    some?: InstallationOrderWhereInput
-    none?: InstallationOrderWhereInput
-  }
-
   export type OutsourceRepairListRelationFilter = {
     every?: OutsourceRepairWhereInput
     some?: OutsourceRepairWhereInput
@@ -130485,12 +130796,6 @@ export namespace Prisma {
     isNot?: RepairOrderWhereInput | null
   }
 
-  export type JobStepLogListRelationFilter = {
-    every?: JobStepLogWhereInput
-    some?: JobStepLogWhereInput
-    none?: JobStepLogWhereInput
-  }
-
   export type PaymentTaskListRelationFilter = {
     every?: PaymentTaskWhereInput
     some?: PaymentTaskWhereInput
@@ -130503,19 +130808,11 @@ export namespace Prisma {
     none?: PurchaseOrderWhereInput
   }
 
-  export type InstallationOrderOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type OutsourceRepairOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type RepairDeliveryOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type JobStepLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -130779,6 +131076,7 @@ export namespace Prisma {
     department?: SortOrder
     note?: SortOrder
     completedAt?: SortOrder
+    completedByUserId?: SortOrder
   }
 
   export type JobStepLogMaxOrderByAggregateInput = {
@@ -130789,6 +131087,7 @@ export namespace Prisma {
     department?: SortOrder
     note?: SortOrder
     completedAt?: SortOrder
+    completedByUserId?: SortOrder
   }
 
   export type JobStepLogMinOrderByAggregateInput = {
@@ -130799,6 +131098,7 @@ export namespace Prisma {
     department?: SortOrder
     note?: SortOrder
     completedAt?: SortOrder
+    completedByUserId?: SortOrder
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -131128,6 +131428,7 @@ export namespace Prisma {
     technicianNote?: SortOrder
     workLocation?: SortOrder
     workPlan?: SortOrder
+    technicianUserId?: SortOrder
   }
 
   export type InstallationOrderMaxOrderByAggregateInput = {
@@ -131162,6 +131463,7 @@ export namespace Prisma {
     technicianNote?: SortOrder
     workLocation?: SortOrder
     workPlan?: SortOrder
+    technicianUserId?: SortOrder
   }
 
   export type InstallationOrderMinOrderByAggregateInput = {
@@ -131196,6 +131498,7 @@ export namespace Prisma {
     technicianNote?: SortOrder
     workLocation?: SortOrder
     workPlan?: SortOrder
+    technicianUserId?: SortOrder
   }
 
   export type OutsourceRepairCountOrderByAggregateInput = {
@@ -131282,6 +131585,7 @@ export namespace Prisma {
     assignedToUserId?: SortOrder
     estimationDueDate?: SortOrder
     boqNumber?: SortOrder
+    estimatedByUserId?: SortOrder
   }
 
   export type CustomerRequirementAvgOrderByAggregateInput = {
@@ -131307,6 +131611,7 @@ export namespace Prisma {
     assignedToUserId?: SortOrder
     estimationDueDate?: SortOrder
     boqNumber?: SortOrder
+    estimatedByUserId?: SortOrder
   }
 
   export type CustomerRequirementMinOrderByAggregateInput = {
@@ -131328,6 +131633,7 @@ export namespace Prisma {
     assignedToUserId?: SortOrder
     estimationDueDate?: SortOrder
     boqNumber?: SortOrder
+    estimatedByUserId?: SortOrder
   }
 
   export type CustomerRequirementSumOrderByAggregateInput = {
@@ -135280,11 +135586,25 @@ export namespace Prisma {
     connect?: CompanyWhereUniqueInput | CompanyWhereUniqueInput[]
   }
 
+  export type CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput = {
+    create?: XOR<CustomerRequirementCreateWithoutEstimatedByUserInput, CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput> | CustomerRequirementCreateWithoutEstimatedByUserInput[] | CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput[]
+    connectOrCreate?: CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput | CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput[]
+    createMany?: CustomerRequirementCreateManyEstimatedByUserInputEnvelope
+    connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+  }
+
   export type CustomerRequirementCreateNestedManyWithoutUserInput = {
     create?: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput> | CustomerRequirementCreateWithoutUserInput[] | CustomerRequirementUncheckedCreateWithoutUserInput[]
     connectOrCreate?: CustomerRequirementCreateOrConnectWithoutUserInput | CustomerRequirementCreateOrConnectWithoutUserInput[]
     createMany?: CustomerRequirementCreateManyUserInputEnvelope
     connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+  }
+
+  export type InstallationOrderCreateNestedManyWithoutTechnicianUserInput = {
+    create?: XOR<InstallationOrderCreateWithoutTechnicianUserInput, InstallationOrderUncheckedCreateWithoutTechnicianUserInput> | InstallationOrderCreateWithoutTechnicianUserInput[] | InstallationOrderUncheckedCreateWithoutTechnicianUserInput[]
+    connectOrCreate?: InstallationOrderCreateOrConnectWithoutTechnicianUserInput | InstallationOrderCreateOrConnectWithoutTechnicianUserInput[]
+    createMany?: InstallationOrderCreateManyTechnicianUserInputEnvelope
+    connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
   }
 
   export type MarketingLeadCreateNestedManyWithoutAssignedToInput = {
@@ -135384,6 +135704,13 @@ export namespace Prisma {
     connect?: EmployeeSaleWhereUniqueInput
   }
 
+  export type JobStepLogCreateNestedManyWithoutCompletedByUserInput = {
+    create?: XOR<JobStepLogCreateWithoutCompletedByUserInput, JobStepLogUncheckedCreateWithoutCompletedByUserInput> | JobStepLogCreateWithoutCompletedByUserInput[] | JobStepLogUncheckedCreateWithoutCompletedByUserInput[]
+    connectOrCreate?: JobStepLogCreateOrConnectWithoutCompletedByUserInput | JobStepLogCreateOrConnectWithoutCompletedByUserInput[]
+    createMany?: JobStepLogCreateManyCompletedByUserInputEnvelope
+    connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+  }
+
   export type CompanyUncheckedCreateNestedManyWithoutAssignedUserInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -135391,11 +135718,25 @@ export namespace Prisma {
     connect?: CompanyWhereUniqueInput | CompanyWhereUniqueInput[]
   }
 
+  export type CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput = {
+    create?: XOR<CustomerRequirementCreateWithoutEstimatedByUserInput, CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput> | CustomerRequirementCreateWithoutEstimatedByUserInput[] | CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput[]
+    connectOrCreate?: CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput | CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput[]
+    createMany?: CustomerRequirementCreateManyEstimatedByUserInputEnvelope
+    connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+  }
+
   export type CustomerRequirementUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput> | CustomerRequirementCreateWithoutUserInput[] | CustomerRequirementUncheckedCreateWithoutUserInput[]
     connectOrCreate?: CustomerRequirementCreateOrConnectWithoutUserInput | CustomerRequirementCreateOrConnectWithoutUserInput[]
     createMany?: CustomerRequirementCreateManyUserInputEnvelope
     connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+  }
+
+  export type InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput = {
+    create?: XOR<InstallationOrderCreateWithoutTechnicianUserInput, InstallationOrderUncheckedCreateWithoutTechnicianUserInput> | InstallationOrderCreateWithoutTechnicianUserInput[] | InstallationOrderUncheckedCreateWithoutTechnicianUserInput[]
+    connectOrCreate?: InstallationOrderCreateOrConnectWithoutTechnicianUserInput | InstallationOrderCreateOrConnectWithoutTechnicianUserInput[]
+    createMany?: InstallationOrderCreateManyTechnicianUserInputEnvelope
+    connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
   }
 
   export type MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput = {
@@ -135495,6 +135836,13 @@ export namespace Prisma {
     connect?: EmployeeSaleWhereUniqueInput
   }
 
+  export type JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput = {
+    create?: XOR<JobStepLogCreateWithoutCompletedByUserInput, JobStepLogUncheckedCreateWithoutCompletedByUserInput> | JobStepLogCreateWithoutCompletedByUserInput[] | JobStepLogUncheckedCreateWithoutCompletedByUserInput[]
+    connectOrCreate?: JobStepLogCreateOrConnectWithoutCompletedByUserInput | JobStepLogCreateOrConnectWithoutCompletedByUserInput[]
+    createMany?: JobStepLogCreateManyCompletedByUserInputEnvelope
+    connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -135529,6 +135877,20 @@ export namespace Prisma {
     deleteMany?: CompanyScalarWhereInput | CompanyScalarWhereInput[]
   }
 
+  export type CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput = {
+    create?: XOR<CustomerRequirementCreateWithoutEstimatedByUserInput, CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput> | CustomerRequirementCreateWithoutEstimatedByUserInput[] | CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput[]
+    connectOrCreate?: CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput | CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput[]
+    upsert?: CustomerRequirementUpsertWithWhereUniqueWithoutEstimatedByUserInput | CustomerRequirementUpsertWithWhereUniqueWithoutEstimatedByUserInput[]
+    createMany?: CustomerRequirementCreateManyEstimatedByUserInputEnvelope
+    set?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    disconnect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    delete?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    update?: CustomerRequirementUpdateWithWhereUniqueWithoutEstimatedByUserInput | CustomerRequirementUpdateWithWhereUniqueWithoutEstimatedByUserInput[]
+    updateMany?: CustomerRequirementUpdateManyWithWhereWithoutEstimatedByUserInput | CustomerRequirementUpdateManyWithWhereWithoutEstimatedByUserInput[]
+    deleteMany?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
+  }
+
   export type CustomerRequirementUpdateManyWithoutUserNestedInput = {
     create?: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput> | CustomerRequirementCreateWithoutUserInput[] | CustomerRequirementUncheckedCreateWithoutUserInput[]
     connectOrCreate?: CustomerRequirementCreateOrConnectWithoutUserInput | CustomerRequirementCreateOrConnectWithoutUserInput[]
@@ -135541,6 +135903,20 @@ export namespace Prisma {
     update?: CustomerRequirementUpdateWithWhereUniqueWithoutUserInput | CustomerRequirementUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CustomerRequirementUpdateManyWithWhereWithoutUserInput | CustomerRequirementUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
+  }
+
+  export type InstallationOrderUpdateManyWithoutTechnicianUserNestedInput = {
+    create?: XOR<InstallationOrderCreateWithoutTechnicianUserInput, InstallationOrderUncheckedCreateWithoutTechnicianUserInput> | InstallationOrderCreateWithoutTechnicianUserInput[] | InstallationOrderUncheckedCreateWithoutTechnicianUserInput[]
+    connectOrCreate?: InstallationOrderCreateOrConnectWithoutTechnicianUserInput | InstallationOrderCreateOrConnectWithoutTechnicianUserInput[]
+    upsert?: InstallationOrderUpsertWithWhereUniqueWithoutTechnicianUserInput | InstallationOrderUpsertWithWhereUniqueWithoutTechnicianUserInput[]
+    createMany?: InstallationOrderCreateManyTechnicianUserInputEnvelope
+    set?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    disconnect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    delete?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    update?: InstallationOrderUpdateWithWhereUniqueWithoutTechnicianUserInput | InstallationOrderUpdateWithWhereUniqueWithoutTechnicianUserInput[]
+    updateMany?: InstallationOrderUpdateManyWithWhereWithoutTechnicianUserInput | InstallationOrderUpdateManyWithWhereWithoutTechnicianUserInput[]
+    deleteMany?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
   }
 
   export type MarketingLeadUpdateManyWithoutAssignedToNestedInput = {
@@ -135735,6 +136111,20 @@ export namespace Prisma {
     update?: XOR<XOR<EmployeeSaleUpdateToOneWithWhereWithoutUserInput, EmployeeSaleUpdateWithoutUserInput>, EmployeeSaleUncheckedUpdateWithoutUserInput>
   }
 
+  export type JobStepLogUpdateManyWithoutCompletedByUserNestedInput = {
+    create?: XOR<JobStepLogCreateWithoutCompletedByUserInput, JobStepLogUncheckedCreateWithoutCompletedByUserInput> | JobStepLogCreateWithoutCompletedByUserInput[] | JobStepLogUncheckedCreateWithoutCompletedByUserInput[]
+    connectOrCreate?: JobStepLogCreateOrConnectWithoutCompletedByUserInput | JobStepLogCreateOrConnectWithoutCompletedByUserInput[]
+    upsert?: JobStepLogUpsertWithWhereUniqueWithoutCompletedByUserInput | JobStepLogUpsertWithWhereUniqueWithoutCompletedByUserInput[]
+    createMany?: JobStepLogCreateManyCompletedByUserInputEnvelope
+    set?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    disconnect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    delete?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    update?: JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput | JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput[]
+    updateMany?: JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput | JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput[]
+    deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
+  }
+
   export type CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -135749,6 +136139,20 @@ export namespace Prisma {
     deleteMany?: CompanyScalarWhereInput | CompanyScalarWhereInput[]
   }
 
+  export type CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput = {
+    create?: XOR<CustomerRequirementCreateWithoutEstimatedByUserInput, CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput> | CustomerRequirementCreateWithoutEstimatedByUserInput[] | CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput[]
+    connectOrCreate?: CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput | CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput[]
+    upsert?: CustomerRequirementUpsertWithWhereUniqueWithoutEstimatedByUserInput | CustomerRequirementUpsertWithWhereUniqueWithoutEstimatedByUserInput[]
+    createMany?: CustomerRequirementCreateManyEstimatedByUserInputEnvelope
+    set?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    disconnect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    delete?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+    update?: CustomerRequirementUpdateWithWhereUniqueWithoutEstimatedByUserInput | CustomerRequirementUpdateWithWhereUniqueWithoutEstimatedByUserInput[]
+    updateMany?: CustomerRequirementUpdateManyWithWhereWithoutEstimatedByUserInput | CustomerRequirementUpdateManyWithWhereWithoutEstimatedByUserInput[]
+    deleteMany?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
+  }
+
   export type CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput> | CustomerRequirementCreateWithoutUserInput[] | CustomerRequirementUncheckedCreateWithoutUserInput[]
     connectOrCreate?: CustomerRequirementCreateOrConnectWithoutUserInput | CustomerRequirementCreateOrConnectWithoutUserInput[]
@@ -135761,6 +136165,20 @@ export namespace Prisma {
     update?: CustomerRequirementUpdateWithWhereUniqueWithoutUserInput | CustomerRequirementUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CustomerRequirementUpdateManyWithWhereWithoutUserInput | CustomerRequirementUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
+  }
+
+  export type InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput = {
+    create?: XOR<InstallationOrderCreateWithoutTechnicianUserInput, InstallationOrderUncheckedCreateWithoutTechnicianUserInput> | InstallationOrderCreateWithoutTechnicianUserInput[] | InstallationOrderUncheckedCreateWithoutTechnicianUserInput[]
+    connectOrCreate?: InstallationOrderCreateOrConnectWithoutTechnicianUserInput | InstallationOrderCreateOrConnectWithoutTechnicianUserInput[]
+    upsert?: InstallationOrderUpsertWithWhereUniqueWithoutTechnicianUserInput | InstallationOrderUpsertWithWhereUniqueWithoutTechnicianUserInput[]
+    createMany?: InstallationOrderCreateManyTechnicianUserInputEnvelope
+    set?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    disconnect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    delete?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+    update?: InstallationOrderUpdateWithWhereUniqueWithoutTechnicianUserInput | InstallationOrderUpdateWithWhereUniqueWithoutTechnicianUserInput[]
+    updateMany?: InstallationOrderUpdateManyWithWhereWithoutTechnicianUserInput | InstallationOrderUpdateManyWithWhereWithoutTechnicianUserInput[]
+    deleteMany?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
   }
 
   export type MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput = {
@@ -135953,6 +136371,20 @@ export namespace Prisma {
     delete?: EmployeeSaleWhereInput | boolean
     connect?: EmployeeSaleWhereUniqueInput
     update?: XOR<XOR<EmployeeSaleUpdateToOneWithWhereWithoutUserInput, EmployeeSaleUpdateWithoutUserInput>, EmployeeSaleUncheckedUpdateWithoutUserInput>
+  }
+
+  export type JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput = {
+    create?: XOR<JobStepLogCreateWithoutCompletedByUserInput, JobStepLogUncheckedCreateWithoutCompletedByUserInput> | JobStepLogCreateWithoutCompletedByUserInput[] | JobStepLogUncheckedCreateWithoutCompletedByUserInput[]
+    connectOrCreate?: JobStepLogCreateOrConnectWithoutCompletedByUserInput | JobStepLogCreateOrConnectWithoutCompletedByUserInput[]
+    upsert?: JobStepLogUpsertWithWhereUniqueWithoutCompletedByUserInput | JobStepLogUpsertWithWhereUniqueWithoutCompletedByUserInput[]
+    createMany?: JobStepLogCreateManyCompletedByUserInputEnvelope
+    set?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    disconnect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    delete?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+    update?: JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput | JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput[]
+    updateMany?: JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput | JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput[]
+    deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutMonthlyTargetsInput = {
@@ -137035,10 +137467,26 @@ export namespace Prisma {
     update?: XOR<XOR<JobUpdateToOneWithWhereWithoutPaymentTasksInput, JobUpdateWithoutPaymentTasksInput>, JobUncheckedUpdateWithoutPaymentTasksInput>
   }
 
+  export type UserCreateNestedOneWithoutJobStepLogsInput = {
+    create?: XOR<UserCreateWithoutJobStepLogsInput, UserUncheckedCreateWithoutJobStepLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutJobStepLogsInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type JobCreateNestedOneWithoutStepLogsInput = {
     create?: XOR<JobCreateWithoutStepLogsInput, JobUncheckedCreateWithoutStepLogsInput>
     connectOrCreate?: JobCreateOrConnectWithoutStepLogsInput
     connect?: JobWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutJobStepLogsNestedInput = {
+    create?: XOR<UserCreateWithoutJobStepLogsInput, UserUncheckedCreateWithoutJobStepLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutJobStepLogsInput
+    upsert?: UserUpsertWithoutJobStepLogsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutJobStepLogsInput, UserUpdateWithoutJobStepLogsInput>, UserUncheckedUpdateWithoutJobStepLogsInput>
   }
 
   export type JobUpdateOneRequiredWithoutStepLogsNestedInput = {
@@ -137085,6 +137533,12 @@ export namespace Prisma {
     connect?: JobWhereUniqueInput
   }
 
+  export type UserCreateNestedOneWithoutInstallationOrdersInput = {
+    create?: XOR<UserCreateWithoutInstallationOrdersInput, UserUncheckedCreateWithoutInstallationOrdersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInstallationOrdersInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type JobUpdateOneWithoutInstallationOrdersNestedInput = {
     create?: XOR<JobCreateWithoutInstallationOrdersInput, JobUncheckedCreateWithoutInstallationOrdersInput>
     connectOrCreate?: JobCreateOrConnectWithoutInstallationOrdersInput
@@ -137093,6 +137547,16 @@ export namespace Prisma {
     delete?: JobWhereInput | boolean
     connect?: JobWhereUniqueInput
     update?: XOR<XOR<JobUpdateToOneWithWhereWithoutInstallationOrdersInput, JobUpdateWithoutInstallationOrdersInput>, JobUncheckedUpdateWithoutInstallationOrdersInput>
+  }
+
+  export type UserUpdateOneWithoutInstallationOrdersNestedInput = {
+    create?: XOR<UserCreateWithoutInstallationOrdersInput, UserUncheckedCreateWithoutInstallationOrdersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInstallationOrdersInput
+    upsert?: UserUpsertWithoutInstallationOrdersInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInstallationOrdersInput, UserUpdateWithoutInstallationOrdersInput>, UserUncheckedUpdateWithoutInstallationOrdersInput>
   }
 
   export type JobCreateNestedOneWithoutOutsourceRepairsInput = {
@@ -137111,10 +137575,26 @@ export namespace Prisma {
     update?: XOR<XOR<JobUpdateToOneWithWhereWithoutOutsourceRepairsInput, JobUpdateWithoutOutsourceRepairsInput>, JobUncheckedUpdateWithoutOutsourceRepairsInput>
   }
 
+  export type UserCreateNestedOneWithoutEstimatedRequirementsInput = {
+    create?: XOR<UserCreateWithoutEstimatedRequirementsInput, UserUncheckedCreateWithoutEstimatedRequirementsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutEstimatedRequirementsInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type UserCreateNestedOneWithoutCustomerRequirementsInput = {
     create?: XOR<UserCreateWithoutCustomerRequirementsInput, UserUncheckedCreateWithoutCustomerRequirementsInput>
     connectOrCreate?: UserCreateOrConnectWithoutCustomerRequirementsInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutEstimatedRequirementsNestedInput = {
+    create?: XOR<UserCreateWithoutEstimatedRequirementsInput, UserUncheckedCreateWithoutEstimatedRequirementsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutEstimatedRequirementsInput
+    upsert?: UserUpsertWithoutEstimatedRequirementsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutEstimatedRequirementsInput, UserUpdateWithoutEstimatedRequirementsInput>, UserUncheckedUpdateWithoutEstimatedRequirementsInput>
   }
 
   export type UserUpdateOneWithoutCustomerRequirementsNestedInput = {
@@ -141129,6 +141609,60 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CustomerRequirementCreateWithoutEstimatedByUserInput = {
+    id?: string
+    companyName: string
+    contactName: string
+    salesperson: string
+    date: Date | string
+    formData: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    requirementNumber?: string | null
+    estimatedAt?: Date | string | null
+    estimatedBy?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
+    isSentToService?: boolean
+    assignedTo?: string | null
+    assignedToUserId?: string | null
+    estimationDueDate?: Date | string | null
+    boqNumber?: string | null
+    user?: UserCreateNestedOneWithoutCustomerRequirementsInput
+  }
+
+  export type CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput = {
+    id?: string
+    userId?: string | null
+    companyName: string
+    contactName: string
+    salesperson: string
+    date: Date | string
+    formData: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    requirementNumber?: string | null
+    estimatedAt?: Date | string | null
+    estimatedBy?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
+    isSentToService?: boolean
+    assignedTo?: string | null
+    assignedToUserId?: string | null
+    estimationDueDate?: Date | string | null
+    boqNumber?: string | null
+  }
+
+  export type CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput = {
+    where: CustomerRequirementWhereUniqueInput
+    create: XOR<CustomerRequirementCreateWithoutEstimatedByUserInput, CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput>
+  }
+
+  export type CustomerRequirementCreateManyEstimatedByUserInputEnvelope = {
+    data: CustomerRequirementCreateManyEstimatedByUserInput | CustomerRequirementCreateManyEstimatedByUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CustomerRequirementCreateWithoutUserInput = {
     id?: string
     companyName: string
@@ -141148,6 +141682,7 @@ export namespace Prisma {
     assignedToUserId?: string | null
     estimationDueDate?: Date | string | null
     boqNumber?: string | null
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedRequirementsInput
   }
 
   export type CustomerRequirementUncheckedCreateWithoutUserInput = {
@@ -141169,6 +141704,7 @@ export namespace Prisma {
     assignedToUserId?: string | null
     estimationDueDate?: Date | string | null
     boqNumber?: string | null
+    estimatedByUserId?: string | null
   }
 
   export type CustomerRequirementCreateOrConnectWithoutUserInput = {
@@ -141178,6 +141714,90 @@ export namespace Prisma {
 
   export type CustomerRequirementCreateManyUserInputEnvelope = {
     data: CustomerRequirementCreateManyUserInput | CustomerRequirementCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InstallationOrderCreateWithoutTechnicianUserInput = {
+    id?: string
+    installationNo: string
+    installationDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    planUpdatedAt?: Date | string | null
+    planUpdatedBy?: string | null
+    plannedEndDate?: Date | string | null
+    plannedStartDate?: Date | string | null
+    technicianNote?: string | null
+    workLocation?: string | null
+    workPlan?: string | null
+    job?: JobCreateNestedOneWithoutInstallationOrdersInput
+  }
+
+  export type InstallationOrderUncheckedCreateWithoutTechnicianUserInput = {
+    id?: string
+    installationNo: string
+    jobId?: string | null
+    installationDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    planUpdatedAt?: Date | string | null
+    planUpdatedBy?: string | null
+    plannedEndDate?: Date | string | null
+    plannedStartDate?: Date | string | null
+    technicianNote?: string | null
+    workLocation?: string | null
+    workPlan?: string | null
+  }
+
+  export type InstallationOrderCreateOrConnectWithoutTechnicianUserInput = {
+    where: InstallationOrderWhereUniqueInput
+    create: XOR<InstallationOrderCreateWithoutTechnicianUserInput, InstallationOrderUncheckedCreateWithoutTechnicianUserInput>
+  }
+
+  export type InstallationOrderCreateManyTechnicianUserInputEnvelope = {
+    data: InstallationOrderCreateManyTechnicianUserInput | InstallationOrderCreateManyTechnicianUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -141876,6 +142496,36 @@ export namespace Prisma {
     create: XOR<EmployeeSaleCreateWithoutUserInput, EmployeeSaleUncheckedCreateWithoutUserInput>
   }
 
+  export type JobStepLogCreateWithoutCompletedByUserInput = {
+    id?: string
+    step: string
+    completedBy: string
+    department: string
+    note?: string | null
+    completedAt?: Date | string
+    job: JobCreateNestedOneWithoutStepLogsInput
+  }
+
+  export type JobStepLogUncheckedCreateWithoutCompletedByUserInput = {
+    id?: string
+    jobId: string
+    step: string
+    completedBy: string
+    department: string
+    note?: string | null
+    completedAt?: Date | string
+  }
+
+  export type JobStepLogCreateOrConnectWithoutCompletedByUserInput = {
+    where: JobStepLogWhereUniqueInput
+    create: XOR<JobStepLogCreateWithoutCompletedByUserInput, JobStepLogUncheckedCreateWithoutCompletedByUserInput>
+  }
+
+  export type JobStepLogCreateManyCompletedByUserInputEnvelope = {
+    data: JobStepLogCreateManyCompletedByUserInput | JobStepLogCreateManyCompletedByUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithWhereUniqueWithoutAssignedUserInput = {
     where: CompanyWhereUniqueInput
     update: XOR<CompanyUpdateWithoutAssignedUserInput, CompanyUncheckedUpdateWithoutAssignedUserInput>
@@ -141926,20 +142576,20 @@ export namespace Prisma {
     paymentMethod?: StringNullableFilter<"Company"> | string | null
   }
 
-  export type CustomerRequirementUpsertWithWhereUniqueWithoutUserInput = {
+  export type CustomerRequirementUpsertWithWhereUniqueWithoutEstimatedByUserInput = {
     where: CustomerRequirementWhereUniqueInput
-    update: XOR<CustomerRequirementUpdateWithoutUserInput, CustomerRequirementUncheckedUpdateWithoutUserInput>
-    create: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput>
+    update: XOR<CustomerRequirementUpdateWithoutEstimatedByUserInput, CustomerRequirementUncheckedUpdateWithoutEstimatedByUserInput>
+    create: XOR<CustomerRequirementCreateWithoutEstimatedByUserInput, CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput>
   }
 
-  export type CustomerRequirementUpdateWithWhereUniqueWithoutUserInput = {
+  export type CustomerRequirementUpdateWithWhereUniqueWithoutEstimatedByUserInput = {
     where: CustomerRequirementWhereUniqueInput
-    data: XOR<CustomerRequirementUpdateWithoutUserInput, CustomerRequirementUncheckedUpdateWithoutUserInput>
+    data: XOR<CustomerRequirementUpdateWithoutEstimatedByUserInput, CustomerRequirementUncheckedUpdateWithoutEstimatedByUserInput>
   }
 
-  export type CustomerRequirementUpdateManyWithWhereWithoutUserInput = {
+  export type CustomerRequirementUpdateManyWithWhereWithoutEstimatedByUserInput = {
     where: CustomerRequirementScalarWhereInput
-    data: XOR<CustomerRequirementUpdateManyMutationInput, CustomerRequirementUncheckedUpdateManyWithoutUserInput>
+    data: XOR<CustomerRequirementUpdateManyMutationInput, CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserInput>
   }
 
   export type CustomerRequirementScalarWhereInput = {
@@ -141965,6 +142615,80 @@ export namespace Prisma {
     assignedToUserId?: StringNullableFilter<"CustomerRequirement"> | string | null
     estimationDueDate?: DateTimeNullableFilter<"CustomerRequirement"> | Date | string | null
     boqNumber?: StringNullableFilter<"CustomerRequirement"> | string | null
+    estimatedByUserId?: StringNullableFilter<"CustomerRequirement"> | string | null
+  }
+
+  export type CustomerRequirementUpsertWithWhereUniqueWithoutUserInput = {
+    where: CustomerRequirementWhereUniqueInput
+    update: XOR<CustomerRequirementUpdateWithoutUserInput, CustomerRequirementUncheckedUpdateWithoutUserInput>
+    create: XOR<CustomerRequirementCreateWithoutUserInput, CustomerRequirementUncheckedCreateWithoutUserInput>
+  }
+
+  export type CustomerRequirementUpdateWithWhereUniqueWithoutUserInput = {
+    where: CustomerRequirementWhereUniqueInput
+    data: XOR<CustomerRequirementUpdateWithoutUserInput, CustomerRequirementUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CustomerRequirementUpdateManyWithWhereWithoutUserInput = {
+    where: CustomerRequirementScalarWhereInput
+    data: XOR<CustomerRequirementUpdateManyMutationInput, CustomerRequirementUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type InstallationOrderUpsertWithWhereUniqueWithoutTechnicianUserInput = {
+    where: InstallationOrderWhereUniqueInput
+    update: XOR<InstallationOrderUpdateWithoutTechnicianUserInput, InstallationOrderUncheckedUpdateWithoutTechnicianUserInput>
+    create: XOR<InstallationOrderCreateWithoutTechnicianUserInput, InstallationOrderUncheckedCreateWithoutTechnicianUserInput>
+  }
+
+  export type InstallationOrderUpdateWithWhereUniqueWithoutTechnicianUserInput = {
+    where: InstallationOrderWhereUniqueInput
+    data: XOR<InstallationOrderUpdateWithoutTechnicianUserInput, InstallationOrderUncheckedUpdateWithoutTechnicianUserInput>
+  }
+
+  export type InstallationOrderUpdateManyWithWhereWithoutTechnicianUserInput = {
+    where: InstallationOrderScalarWhereInput
+    data: XOR<InstallationOrderUpdateManyMutationInput, InstallationOrderUncheckedUpdateManyWithoutTechnicianUserInput>
+  }
+
+  export type InstallationOrderScalarWhereInput = {
+    AND?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
+    OR?: InstallationOrderScalarWhereInput[]
+    NOT?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
+    id?: StringFilter<"InstallationOrder"> | string
+    installationNo?: StringFilter<"InstallationOrder"> | string
+    jobId?: StringNullableFilter<"InstallationOrder"> | string | null
+    installationDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    company?: StringNullableFilter<"InstallationOrder"> | string | null
+    jobName?: StringNullableFilter<"InstallationOrder"> | string | null
+    customer?: StringNullableFilter<"InstallationOrder"> | string | null
+    customerPosition?: StringNullableFilter<"InstallationOrder"> | string | null
+    address?: StringNullableFilter<"InstallationOrder"> | string | null
+    siteAddress?: StringNullableFilter<"InstallationOrder"> | string | null
+    quotationNo?: StringNullableFilter<"InstallationOrder"> | string | null
+    sender?: StringNullableFilter<"InstallationOrder"> | string | null
+    senderPhone?: StringNullableFilter<"InstallationOrder"> | string | null
+    technician?: StringNullableFilter<"InstallationOrder"> | string | null
+    technicianPhone?: StringNullableFilter<"InstallationOrder"> | string | null
+    items?: JsonNullableFilter<"InstallationOrder">
+    checklist?: JsonNullableFilter<"InstallationOrder">
+    checklistImages?: JsonNullableFilter<"InstallationOrder">
+    note?: StringNullableFilter<"InstallationOrder"> | string | null
+    sigSenderUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    nameSender?: StringNullableFilter<"InstallationOrder"> | string | null
+    sigReceiverUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    nameReceiver?: StringNullableFilter<"InstallationOrder"> | string | null
+    status?: StringFilter<"InstallationOrder"> | string
+    pdfUrl?: StringNullableFilter<"InstallationOrder"> | string | null
+    createdAt?: DateTimeFilter<"InstallationOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"InstallationOrder"> | Date | string
+    planUpdatedAt?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    planUpdatedBy?: StringNullableFilter<"InstallationOrder"> | string | null
+    plannedEndDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    plannedStartDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
+    technicianNote?: StringNullableFilter<"InstallationOrder"> | string | null
+    workLocation?: StringNullableFilter<"InstallationOrder"> | string | null
+    workPlan?: StringNullableFilter<"InstallationOrder"> | string | null
+    technicianUserId?: StringNullableFilter<"InstallationOrder"> | string | null
   }
 
   export type MarketingLeadUpsertWithWhereUniqueWithoutAssignedToInput = {
@@ -142501,6 +143225,36 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type JobStepLogUpsertWithWhereUniqueWithoutCompletedByUserInput = {
+    where: JobStepLogWhereUniqueInput
+    update: XOR<JobStepLogUpdateWithoutCompletedByUserInput, JobStepLogUncheckedUpdateWithoutCompletedByUserInput>
+    create: XOR<JobStepLogCreateWithoutCompletedByUserInput, JobStepLogUncheckedCreateWithoutCompletedByUserInput>
+  }
+
+  export type JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput = {
+    where: JobStepLogWhereUniqueInput
+    data: XOR<JobStepLogUpdateWithoutCompletedByUserInput, JobStepLogUncheckedUpdateWithoutCompletedByUserInput>
+  }
+
+  export type JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput = {
+    where: JobStepLogScalarWhereInput
+    data: XOR<JobStepLogUpdateManyMutationInput, JobStepLogUncheckedUpdateManyWithoutCompletedByUserInput>
+  }
+
+  export type JobStepLogScalarWhereInput = {
+    AND?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
+    OR?: JobStepLogScalarWhereInput[]
+    NOT?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
+    id?: StringFilter<"JobStepLog"> | string
+    jobId?: StringFilter<"JobStepLog"> | string
+    step?: StringFilter<"JobStepLog"> | string
+    completedBy?: StringFilter<"JobStepLog"> | string
+    department?: StringFilter<"JobStepLog"> | string
+    note?: StringNullableFilter<"JobStepLog"> | string | null
+    completedAt?: DateTimeFilter<"JobStepLog"> | Date | string
+    completedByUserId?: StringNullableFilter<"JobStepLog"> | string | null
+  }
+
   export type UserCreateWithoutMonthlyTargetsInput = {
     id?: string
     employeeId: string
@@ -142516,7 +143270,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -142530,6 +143286,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutMonthlyTargetsInput = {
@@ -142547,7 +143304,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -142561,6 +143320,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutMonthlyTargetsInput = {
@@ -142594,7 +143354,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -142608,6 +143370,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonthlyTargetsInput = {
@@ -142625,7 +143388,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -142639,6 +143404,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type CompanyCreateWithoutSchedulesInput = {
@@ -142780,7 +143546,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -142794,6 +143562,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutSchedulesInput = {
@@ -142811,7 +143580,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -142825,6 +143596,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutSchedulesInput = {
@@ -142994,7 +143766,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -143008,6 +143782,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSchedulesInput = {
@@ -143025,7 +143800,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -143039,6 +143816,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserCreateWithoutEmployeeSaleInput = {
@@ -143056,7 +143834,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -143070,6 +143850,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutEmployeeSaleInput = {
@@ -143087,7 +143868,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -143101,6 +143884,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutEmployeeSaleInput = {
@@ -143134,7 +143918,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -143148,6 +143934,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEmployeeSaleInput = {
@@ -143165,7 +143952,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -143179,6 +143968,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserCreateWithoutAssignedCompaniesInput = {
@@ -143195,7 +143985,9 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -143210,6 +144002,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutAssignedCompaniesInput = {
@@ -143226,7 +144019,9 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -143241,6 +144036,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutAssignedCompaniesInput = {
@@ -143531,7 +144327,9 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -143546,6 +144344,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedCompaniesInput = {
@@ -143562,7 +144361,9 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -143577,6 +144378,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type ContactUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -144126,7 +144928,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -144140,6 +144944,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutQuotationsInput = {
@@ -144157,7 +144962,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -144171,6 +144978,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutQuotationsInput = {
@@ -144471,7 +145279,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -144485,6 +145295,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuotationsInput = {
@@ -144502,7 +145313,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -144516,6 +145329,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type JobUpsertWithWhereUniqueWithoutQuotationInput = {
@@ -144702,7 +145516,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -144716,6 +145532,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutTelesalesInput = {
@@ -144733,7 +145550,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -144747,6 +145566,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutTelesalesInput = {
@@ -144908,7 +145728,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -144922,6 +145744,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTelesalesInput = {
@@ -144939,7 +145762,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -144953,6 +145778,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserCreateWithoutTelesalesKPIsInput = {
@@ -144970,7 +145796,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -144984,6 +145812,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutTelesalesKPIsInput = {
@@ -145001,7 +145830,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -145015,6 +145846,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutTelesalesKPIsInput = {
@@ -145048,7 +145880,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -145062,6 +145896,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTelesalesKPIsInput = {
@@ -145079,7 +145914,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -145093,6 +145930,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type CompanyCreateWithoutOrdersInput = {
@@ -145266,7 +146104,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -145280,6 +146120,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutOrdersInput = {
@@ -145297,7 +146138,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -145311,6 +146154,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutOrdersInput = {
@@ -145538,7 +146382,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -145552,6 +146398,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -145569,7 +146416,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -145583,6 +146432,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type OrderStatusLogUpsertWithWhereUniqueWithoutOrderInput = {
@@ -145719,6 +146569,7 @@ export namespace Prisma {
     technicianNote?: string | null
     workLocation?: string | null
     workPlan?: string | null
+    technicianUser?: UserCreateNestedOneWithoutInstallationOrdersInput
   }
 
   export type InstallationOrderUncheckedCreateWithoutJobInput = {
@@ -145755,6 +146606,7 @@ export namespace Prisma {
     technicianNote?: string | null
     workLocation?: string | null
     workPlan?: string | null
+    technicianUserId?: string | null
   }
 
   export type InstallationOrderCreateOrConnectWithoutJobInput = {
@@ -146080,6 +146932,7 @@ export namespace Prisma {
     department: string
     note?: string | null
     completedAt?: Date | string
+    completedByUser?: UserCreateNestedOneWithoutJobStepLogsInput
   }
 
   export type JobStepLogUncheckedCreateWithoutJobInput = {
@@ -146089,6 +146942,7 @@ export namespace Prisma {
     department: string
     note?: string | null
     completedAt?: Date | string
+    completedByUserId?: string | null
   }
 
   export type JobStepLogCreateOrConnectWithoutJobInput = {
@@ -146276,46 +147130,6 @@ export namespace Prisma {
   export type InstallationOrderUpdateManyWithWhereWithoutJobInput = {
     where: InstallationOrderScalarWhereInput
     data: XOR<InstallationOrderUpdateManyMutationInput, InstallationOrderUncheckedUpdateManyWithoutJobInput>
-  }
-
-  export type InstallationOrderScalarWhereInput = {
-    AND?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
-    OR?: InstallationOrderScalarWhereInput[]
-    NOT?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
-    id?: StringFilter<"InstallationOrder"> | string
-    installationNo?: StringFilter<"InstallationOrder"> | string
-    jobId?: StringNullableFilter<"InstallationOrder"> | string | null
-    installationDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
-    company?: StringNullableFilter<"InstallationOrder"> | string | null
-    jobName?: StringNullableFilter<"InstallationOrder"> | string | null
-    customer?: StringNullableFilter<"InstallationOrder"> | string | null
-    customerPosition?: StringNullableFilter<"InstallationOrder"> | string | null
-    address?: StringNullableFilter<"InstallationOrder"> | string | null
-    siteAddress?: StringNullableFilter<"InstallationOrder"> | string | null
-    quotationNo?: StringNullableFilter<"InstallationOrder"> | string | null
-    sender?: StringNullableFilter<"InstallationOrder"> | string | null
-    senderPhone?: StringNullableFilter<"InstallationOrder"> | string | null
-    technician?: StringNullableFilter<"InstallationOrder"> | string | null
-    technicianPhone?: StringNullableFilter<"InstallationOrder"> | string | null
-    items?: JsonNullableFilter<"InstallationOrder">
-    checklist?: JsonNullableFilter<"InstallationOrder">
-    checklistImages?: JsonNullableFilter<"InstallationOrder">
-    note?: StringNullableFilter<"InstallationOrder"> | string | null
-    sigSenderUrl?: StringNullableFilter<"InstallationOrder"> | string | null
-    nameSender?: StringNullableFilter<"InstallationOrder"> | string | null
-    sigReceiverUrl?: StringNullableFilter<"InstallationOrder"> | string | null
-    nameReceiver?: StringNullableFilter<"InstallationOrder"> | string | null
-    status?: StringFilter<"InstallationOrder"> | string
-    pdfUrl?: StringNullableFilter<"InstallationOrder"> | string | null
-    createdAt?: DateTimeFilter<"InstallationOrder"> | Date | string
-    updatedAt?: DateTimeFilter<"InstallationOrder"> | Date | string
-    planUpdatedAt?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
-    planUpdatedBy?: StringNullableFilter<"InstallationOrder"> | string | null
-    plannedEndDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
-    plannedStartDate?: DateTimeNullableFilter<"InstallationOrder"> | Date | string | null
-    technicianNote?: StringNullableFilter<"InstallationOrder"> | string | null
-    workLocation?: StringNullableFilter<"InstallationOrder"> | string | null
-    workPlan?: StringNullableFilter<"InstallationOrder"> | string | null
   }
 
   export type OutsourceRepairUpsertWithWhereUniqueWithoutJobInput = {
@@ -146613,19 +147427,6 @@ export namespace Prisma {
   export type JobStepLogUpdateManyWithWhereWithoutJobInput = {
     where: JobStepLogScalarWhereInput
     data: XOR<JobStepLogUpdateManyMutationInput, JobStepLogUncheckedUpdateManyWithoutJobInput>
-  }
-
-  export type JobStepLogScalarWhereInput = {
-    AND?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
-    OR?: JobStepLogScalarWhereInput[]
-    NOT?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
-    id?: StringFilter<"JobStepLog"> | string
-    jobId?: StringFilter<"JobStepLog"> | string
-    step?: StringFilter<"JobStepLog"> | string
-    completedBy?: StringFilter<"JobStepLog"> | string
-    department?: StringFilter<"JobStepLog"> | string
-    note?: StringNullableFilter<"JobStepLog"> | string | null
-    completedAt?: DateTimeFilter<"JobStepLog"> | Date | string
   }
 
   export type QuotationUpsertWithoutJobsInput = {
@@ -146965,6 +147766,79 @@ export namespace Prisma {
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
+  export type UserCreateWithoutJobStepLogsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutJobStepLogsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutJobStepLogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutJobStepLogsInput, UserUncheckedCreateWithoutJobStepLogsInput>
+  }
+
   export type JobCreateWithoutStepLogsInput = {
     id?: string
     jobNumber: string
@@ -147050,6 +147924,85 @@ export namespace Prisma {
   export type JobCreateOrConnectWithoutStepLogsInput = {
     where: JobWhereUniqueInput
     create: XOR<JobCreateWithoutStepLogsInput, JobUncheckedCreateWithoutStepLogsInput>
+  }
+
+  export type UserUpsertWithoutJobStepLogsInput = {
+    update: XOR<UserUpdateWithoutJobStepLogsInput, UserUncheckedUpdateWithoutJobStepLogsInput>
+    create: XOR<UserCreateWithoutJobStepLogsInput, UserUncheckedCreateWithoutJobStepLogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutJobStepLogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutJobStepLogsInput, UserUncheckedUpdateWithoutJobStepLogsInput>
+  }
+
+  export type UserUpdateWithoutJobStepLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutJobStepLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type JobUpsertWithoutStepLogsInput = {
@@ -147592,6 +148545,79 @@ export namespace Prisma {
     create: XOR<JobCreateWithoutInstallationOrdersInput, JobUncheckedCreateWithoutInstallationOrdersInput>
   }
 
+  export type UserCreateWithoutInstallationOrdersInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserUncheckedCreateWithoutInstallationOrdersInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserCreateOrConnectWithoutInstallationOrdersInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutInstallationOrdersInput, UserUncheckedCreateWithoutInstallationOrdersInput>
+  }
+
   export type JobUpsertWithoutInstallationOrdersInput = {
     update: XOR<JobUpdateWithoutInstallationOrdersInput, JobUncheckedUpdateWithoutInstallationOrdersInput>
     create: XOR<JobCreateWithoutInstallationOrdersInput, JobUncheckedCreateWithoutInstallationOrdersInput>
@@ -147683,6 +148709,85 @@ export namespace Prisma {
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type UserUpsertWithoutInstallationOrdersInput = {
+    update: XOR<UserUpdateWithoutInstallationOrdersInput, UserUncheckedUpdateWithoutInstallationOrdersInput>
+    create: XOR<UserCreateWithoutInstallationOrdersInput, UserUncheckedCreateWithoutInstallationOrdersInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutInstallationOrdersInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutInstallationOrdersInput, UserUncheckedUpdateWithoutInstallationOrdersInput>
+  }
+
+  export type UserUpdateWithoutInstallationOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutInstallationOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type JobCreateWithoutOutsourceRepairsInput = {
@@ -147865,6 +148970,79 @@ export namespace Prisma {
     purchaseOrders?: PurchaseOrderUncheckedUpdateManyWithoutJobNestedInput
   }
 
+  export type UserCreateWithoutEstimatedRequirementsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserUncheckedCreateWithoutEstimatedRequirementsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserCreateOrConnectWithoutEstimatedRequirementsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutEstimatedRequirementsInput, UserUncheckedCreateWithoutEstimatedRequirementsInput>
+  }
+
   export type UserCreateWithoutCustomerRequirementsInput = {
     id?: string
     employeeId: string
@@ -147880,6 +149058,8 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -147894,6 +149074,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutCustomerRequirementsInput = {
@@ -147911,6 +149092,8 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -147925,11 +149108,91 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutCustomerRequirementsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutCustomerRequirementsInput, UserUncheckedCreateWithoutCustomerRequirementsInput>
+  }
+
+  export type UserUpsertWithoutEstimatedRequirementsInput = {
+    update: XOR<UserUpdateWithoutEstimatedRequirementsInput, UserUncheckedUpdateWithoutEstimatedRequirementsInput>
+    create: XOR<UserCreateWithoutEstimatedRequirementsInput, UserUncheckedCreateWithoutEstimatedRequirementsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutEstimatedRequirementsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutEstimatedRequirementsInput, UserUncheckedUpdateWithoutEstimatedRequirementsInput>
+  }
+
+  export type UserUpdateWithoutEstimatedRequirementsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutEstimatedRequirementsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUpsertWithoutCustomerRequirementsInput = {
@@ -147958,6 +149221,8 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -147972,6 +149237,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCustomerRequirementsInput = {
@@ -147989,6 +149255,8 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -148003,6 +149271,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type sessionsCreateWithoutAdminsInput = {
@@ -159604,7 +160873,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -159618,6 +160889,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutManagedProjectsInput = {
@@ -159635,7 +160907,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -159649,6 +160923,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutManagedProjectsInput = {
@@ -159949,7 +161224,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -159963,6 +161240,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutManagedProjectsInput = {
@@ -159980,7 +161258,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -159994,6 +161274,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type ProjectDailyLogUpsertWithWhereUniqueWithoutProjectInput = {
@@ -160434,7 +161715,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -160448,6 +161731,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutProjectMembersInput = {
@@ -160465,7 +161749,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -160479,6 +161765,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutProjectMembersInput = {
@@ -160631,7 +161918,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -160645,6 +161934,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectMembersInput = {
@@ -160662,7 +161952,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -160676,6 +161968,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserCreateWithoutAssignedTasksInput = {
@@ -160693,7 +161986,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -160707,6 +162002,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutAssignedTasksInput = {
@@ -160724,7 +162020,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -160738,6 +162036,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutAssignedTasksInput = {
@@ -160987,7 +162286,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -161001,6 +162302,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedTasksInput = {
@@ -161018,7 +162320,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -161032,6 +162336,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type ProjectTaskUpsertWithoutSubtasksInput = {
@@ -161512,7 +162817,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -161526,6 +162833,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutReportedDailyLogsInput = {
@@ -161543,7 +162851,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -161557,6 +162867,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutReportedDailyLogsInput = {
@@ -161738,7 +163049,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -161752,6 +163065,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReportedDailyLogsInput = {
@@ -161769,7 +163083,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -161783,6 +163099,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type clothing_variantsCreateWithoutClothing_itemsInput = {
@@ -166463,7 +167780,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -166477,6 +167796,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutAssignedMarketingLeadsInput = {
@@ -166494,7 +167814,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -166508,6 +167830,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutAssignedMarketingLeadsInput = {
@@ -166530,7 +167853,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -166544,6 +167869,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutMarketingLeadsInput = {
@@ -166561,7 +167887,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -166575,6 +167903,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutMarketingLeadsInput = {
@@ -166689,7 +168018,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -166703,6 +168034,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedMarketingLeadsInput = {
@@ -166720,7 +168052,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -166734,6 +168068,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUpsertWithoutMarketingLeadsInput = {
@@ -166762,7 +168097,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -166776,6 +168113,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMarketingLeadsInput = {
@@ -166793,7 +168131,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -166807,6 +168147,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type QuotationUpsertWithoutMarketingLeadInput = {
@@ -166911,7 +168252,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -166925,6 +168268,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -166942,7 +168286,9 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -166956,6 +168302,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -166989,7 +168336,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -167003,6 +168352,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -167020,7 +168370,9 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -167034,6 +168386,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
   export type CompanyCreateManyAssignedUserInput = {
@@ -167066,6 +168419,28 @@ export namespace Prisma {
     paymentMethod?: string | null
   }
 
+  export type CustomerRequirementCreateManyEstimatedByUserInput = {
+    id?: string
+    userId?: string | null
+    companyName: string
+    contactName: string
+    salesperson: string
+    date: Date | string
+    formData: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    requirementNumber?: string | null
+    estimatedAt?: Date | string | null
+    estimatedBy?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
+    isSentToService?: boolean
+    assignedTo?: string | null
+    assignedToUserId?: string | null
+    estimationDueDate?: Date | string | null
+    boqNumber?: string | null
+  }
+
   export type CustomerRequirementCreateManyUserInput = {
     id?: string
     companyName: string
@@ -167085,6 +168460,44 @@ export namespace Prisma {
     assignedToUserId?: string | null
     estimationDueDate?: Date | string | null
     boqNumber?: string | null
+    estimatedByUserId?: string | null
+  }
+
+  export type InstallationOrderCreateManyTechnicianUserInput = {
+    id?: string
+    installationNo: string
+    jobId?: string | null
+    installationDate?: Date | string | null
+    company?: string | null
+    jobName?: string | null
+    customer?: string | null
+    customerPosition?: string | null
+    address?: string | null
+    siteAddress?: string | null
+    quotationNo?: string | null
+    sender?: string | null
+    senderPhone?: string | null
+    technician?: string | null
+    technicianPhone?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: string | null
+    sigSenderUrl?: string | null
+    nameSender?: string | null
+    sigReceiverUrl?: string | null
+    nameReceiver?: string | null
+    status?: string
+    pdfUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    planUpdatedAt?: Date | string | null
+    planUpdatedBy?: string | null
+    plannedEndDate?: Date | string | null
+    plannedStartDate?: Date | string | null
+    technicianNote?: string | null
+    workLocation?: string | null
+    workPlan?: string | null
   }
 
   export type MarketingLeadCreateManyAssignedToInput = {
@@ -167342,6 +168755,16 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type JobStepLogCreateManyCompletedByUserInput = {
+    id?: string
+    jobId: string
+    step: string
+    completedBy: string
+    department: string
+    note?: string | null
+    completedAt?: Date | string
+  }
+
   export type CompanyUpdateWithoutAssignedUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     companyName?: StringFieldUpdateOperationsInput | string
@@ -167442,6 +168865,72 @@ export namespace Prisma {
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type CustomerRequirementUpdateWithoutEstimatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    contactName?: StringFieldUpdateOperationsInput | string
+    salesperson?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    formData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    isSentToService?: BoolFieldUpdateOperationsInput | boolean
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneWithoutCustomerRequirementsNestedInput
+  }
+
+  export type CustomerRequirementUncheckedUpdateWithoutEstimatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    companyName?: StringFieldUpdateOperationsInput | string
+    contactName?: StringFieldUpdateOperationsInput | string
+    salesperson?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    formData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    isSentToService?: BoolFieldUpdateOperationsInput | boolean
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    companyName?: StringFieldUpdateOperationsInput | string
+    contactName?: StringFieldUpdateOperationsInput | string
+    salesperson?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    formData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    isSentToService?: BoolFieldUpdateOperationsInput | boolean
+    assignedTo?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type CustomerRequirementUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     companyName?: StringFieldUpdateOperationsInput | string
@@ -167461,6 +168950,7 @@ export namespace Prisma {
     assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
     estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedByUser?: UserUpdateOneWithoutEstimatedRequirementsNestedInput
   }
 
   export type CustomerRequirementUncheckedUpdateWithoutUserInput = {
@@ -167482,6 +168972,7 @@ export namespace Prisma {
     assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
     estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CustomerRequirementUncheckedUpdateManyWithoutUserInput = {
@@ -167503,6 +168994,118 @@ export namespace Prisma {
     assignedToUserId?: NullableStringFieldUpdateOperationsInput | string | null
     estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type InstallationOrderUpdateWithoutTechnicianUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    installationNo?: StringFieldUpdateOperationsInput | string
+    installationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    planUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    plannedStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    job?: JobUpdateOneWithoutInstallationOrdersNestedInput
+  }
+
+  export type InstallationOrderUncheckedUpdateWithoutTechnicianUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    installationNo?: StringFieldUpdateOperationsInput | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    installationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    planUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    plannedStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type InstallationOrderUncheckedUpdateManyWithoutTechnicianUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    installationNo?: StringFieldUpdateOperationsInput | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    installationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    siteAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    sender?: NullableStringFieldUpdateOperationsInput | string | null
+    senderPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    technician?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    sigSenderUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameSender?: NullableStringFieldUpdateOperationsInput | string | null
+    sigReceiverUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nameReceiver?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    pdfUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    planUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    plannedStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    workPlan?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MarketingLeadUpdateWithoutAssignedToInput = {
@@ -168290,6 +169893,36 @@ export namespace Prisma {
     connectionRateMin?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobStepLogUpdateWithoutCompletedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    step?: StringFieldUpdateOperationsInput | string
+    completedBy?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneRequiredWithoutStepLogsNestedInput
+  }
+
+  export type JobStepLogUncheckedUpdateWithoutCompletedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    step?: StringFieldUpdateOperationsInput | string
+    completedBy?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobStepLogUncheckedUpdateManyWithoutCompletedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    step?: StringFieldUpdateOperationsInput | string
+    completedBy?: StringFieldUpdateOperationsInput | string
+    department?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ContactCreateManyCompanyInput = {
@@ -169110,6 +170743,7 @@ export namespace Prisma {
     technicianNote?: string | null
     workLocation?: string | null
     workPlan?: string | null
+    technicianUserId?: string | null
   }
 
   export type OutsourceRepairCreateManyJobInput = {
@@ -169176,6 +170810,7 @@ export namespace Prisma {
     department: string
     note?: string | null
     completedAt?: Date | string
+    completedByUserId?: string | null
   }
 
   export type PaymentTaskCreateManyJobInput = {
@@ -169242,6 +170877,7 @@ export namespace Prisma {
     technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
     workLocation?: NullableStringFieldUpdateOperationsInput | string | null
     workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianUser?: UserUpdateOneWithoutInstallationOrdersNestedInput
   }
 
   export type InstallationOrderUncheckedUpdateWithoutJobInput = {
@@ -169278,6 +170914,7 @@ export namespace Prisma {
     technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
     workLocation?: NullableStringFieldUpdateOperationsInput | string | null
     workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InstallationOrderUncheckedUpdateManyWithoutJobInput = {
@@ -169314,6 +170951,7 @@ export namespace Prisma {
     technicianNote?: NullableStringFieldUpdateOperationsInput | string | null
     workLocation?: NullableStringFieldUpdateOperationsInput | string | null
     workPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    technicianUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OutsourceRepairUpdateWithoutJobInput = {
@@ -169494,6 +171132,7 @@ export namespace Prisma {
     department?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedByUser?: UserUpdateOneWithoutJobStepLogsNestedInput
   }
 
   export type JobStepLogUncheckedUpdateWithoutJobInput = {
@@ -169503,6 +171142,7 @@ export namespace Prisma {
     department?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type JobStepLogUncheckedUpdateManyWithoutJobInput = {
@@ -169512,6 +171152,7 @@ export namespace Prisma {
     department?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTaskUpdateWithoutJobInput = {

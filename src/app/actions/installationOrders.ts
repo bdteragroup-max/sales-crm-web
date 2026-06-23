@@ -3,6 +3,7 @@
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
+import { checkAndAwardServiceGold } from "@/app/actions/coins";
 
 function getBkkBeYear() {
   const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
@@ -56,6 +57,12 @@ export async function createInstallationOrder(jobId?: string, autoData?: any) {
 
     const { workInspect, workInstall, workRepair, workTraining, workOther, ...restData } = prefill;
 
+    let techUserId = undefined;
+    if (prefill.technician) {
+      const techUser = await prisma.user.findFirst({ where: { fullName: prefill.technician } });
+      techUserId = techUser?.id;
+    }
+
     const newInstallation = await prisma.installationOrder.create({
       data: {
         installationNo,
@@ -63,6 +70,7 @@ export async function createInstallationOrder(jobId?: string, autoData?: any) {
         status: "Draft",
         checklist: { workInspect, workInstall, workRepair, workTraining, workOther },
         jobId: jobId || undefined,
+        technicianUserId: techUserId,
         ...restData,
       } as any,
     });
@@ -103,13 +111,24 @@ export async function updateInstallationOrder(id: string, data: any) {
     const existingOrder = await prisma.installationOrder.findUnique({ where: { id } });
     const { workInspect, workInstall, workRepair, workTraining, workOther, ...restData } = data;
 
+    let techUserId = existingOrder?.technicianUserId;
+    if (data.technician && data.technician !== existingOrder?.technician) {
+      const techUser = await prisma.user.findFirst({ where: { fullName: data.technician } });
+      techUserId = techUser?.id || null;
+    }
+
     const updatedOrder = await prisma.installationOrder.update({
       where: { id },
       data: {
         ...restData,
+        technicianUserId: techUserId,
         checklist: { workInspect, workInstall, workRepair, workTraining, workOther },
       },
     });
+
+    if (techUserId && updatedOrder.status === "Completed") {
+      await checkAndAwardServiceGold(techUserId);
+    }
 
     const wasAssigned = !!(existingOrder?.technician && existingOrder?.installationDate);
     const isAssigned = !!(updatedOrder.technician && updatedOrder.installationDate);
