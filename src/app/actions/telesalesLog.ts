@@ -3,7 +3,7 @@
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
-
+import { checkAndAwardDailyCallCoins } from "@/app/actions/coins";
 export async function getTelesaleLogContext(contactId: string, companyId: string) {
   const currentUser = await getUser();
   if (!currentUser) {
@@ -157,6 +157,8 @@ export async function saveTelesaleLog(data: {
     revalidatePath("/clients");
     revalidatePath("/telesales");
     revalidatePath("/dashboard");
+
+    await checkAndAwardDailyCallCoins(currentUser.id);
 
     return { success: true };
   } catch (error) {

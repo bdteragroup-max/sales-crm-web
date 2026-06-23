@@ -93,9 +93,16 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
     type: 'po' | 'closed' | 'quotation' | 'appointment';
   } | null>(null);
 
+  const [showCoinModal, setShowCoinModal] = useState(false);
+  const [coinModalData, setCoinModalData] = useState({ gold: 0, message: '' });
+
   const executeMove = async (id: string, status: string, extraData?: any) => {
     try {
-      await updateQuotationStatus(id, status, extraData);
+      const response = await updateQuotationStatus(id, status, extraData);
+      if (response && response.success && 'awardedGold' in response && response.awardedGold && response.awardedGold > 0) {
+        setCoinModalData({ gold: response.awardedGold, message: response.awardMessage || '' });
+        setShowCoinModal(true);
+      }
       router.refresh();
     } catch (e) {
       console.error(e);
@@ -534,6 +541,22 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
         onClose={() => setIsBulkUploadOpen(false)}
         onSuccess={() => { }}
       />
+      {showCoinModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl scale-in-center">
+            <div className="text-7xl mb-4">🪙</div>
+            <h2 className="text-2xl font-black text-yellow-600 mb-2">ยินดีด้วย! คุณได้รับเหรียญทอง</h2>
+            <p className="text-gray-600 mb-6 font-medium">{coinModalData.message}</p>
+            <button 
+              type="button"
+              onClick={() => setShowCoinModal(false)} 
+              className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white font-bold py-3 px-8 rounded-xl w-full shadow-lg transition-transform hover:scale-105 active:scale-95"
+            >
+              เยี่ยมไปเลย!
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

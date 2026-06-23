@@ -142,6 +142,8 @@ export default function PipelineClientPage({
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm)
   const [showLostDeals, setShowLostDeals] = useState<boolean>(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const [showCoinModal, setShowCoinModal] = useState(false)
+  const [coinModalData, setCoinModalData] = useState({ gold: 0, message: '' })
 
   const [inputQuotationNumber, setInputQuotationNumber] = useState('')
   const [inputPoNumber, setInputPoNumber] = useState('')
@@ -302,6 +304,10 @@ export default function PipelineClientPage({
         const response = await updateQuotationStatus(id, nextDbStatus, extra)
         if (response.success) {
           triggerToast('ย้ายสถานะดีลสำเร็จ!', 'success')
+          if (response.awardedGold && response.awardedGold > 0) {
+            setCoinModalData({ gold: response.awardedGold, message: response.awardMessage || '' })
+            setShowCoinModal(true)
+          }
           router.refresh()
         } else {
           setQuotations(oldQuotations)
@@ -906,6 +912,22 @@ export default function PipelineClientPage({
           }}
           onCancel={() => setPendingTransition(null)}
         />
+      )}
+      {showCoinModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl scale-in-center">
+            <div className="text-7xl mb-4">🪙</div>
+            <h2 className="text-2xl font-black text-yellow-600 mb-2">ยินดีด้วย! คุณได้รับเหรียญทอง</h2>
+            <p className="text-gray-600 mb-6 font-medium">{coinModalData.message}</p>
+            <button 
+              type="button"
+              onClick={() => setShowCoinModal(false)} 
+              className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white font-bold py-3 px-8 rounded-xl w-full shadow-lg transition-transform hover:scale-105 active:scale-95"
+            >
+              เยี่ยมไปเลย!
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )

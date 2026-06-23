@@ -125,39 +125,37 @@ export async function createJobFromQuotation(input: CreateJobInput) {
     }, 
   }); 
 
-  // Auto-create PaymentTasks if not paid
-  if (input.paymentMethod && input.paymentMethod !== 'จ่ายแล้ว') {
-    if (input.paymentMethod === 'ผ่อนชำระ' && input.installments && input.installments.length > 0) {
-      // Create multiple installment tasks
-      await prisma.paymentTask.createMany({
-        data: input.installments.map(inst => ({
-          jobId: job.id,
-          status: 'รอดำเนินการ',
-          dueDate: inst.dueDate,
-          installmentNo: inst.installmentNo,
-          installmentTotal: input.installments!.length,
-          installmentAmount: inst.amount,
-        }))
-      });
-    } else {
-      // Single payment task
-      let dueDate = new Date(closedDate);
-      if (input.paymentMethod.includes('เครดิต 30 วัน') || input.paymentMethod === 'เครดิต') {
-        dueDate.setDate(dueDate.getDate() + 30);
-      } else if (input.paymentMethod.includes('เครดิต 60 วัน')) {
-        dueDate.setDate(dueDate.getDate() + 60);
-      } else if (input.paymentMethod === 'เก็บเงินหน้างาน') {
-        dueDate.setDate(dueDate.getDate() + 7);
-      }
-      
-      await prisma.paymentTask.create({
-        data: {
-          jobId: job.id,
-          status: 'รอดำเนินการ',
-          dueDate,
-        }
-      });
+  // Auto-create PaymentTasks
+  if (input.paymentMethod === 'ผ่อนชำระ' && input.installments && input.installments.length > 0) {
+    // Create multiple installment tasks
+    await prisma.paymentTask.createMany({
+      data: input.installments.map(inst => ({
+        jobId: job.id,
+        status: 'รอดำเนินการ',
+        dueDate: inst.dueDate,
+        installmentNo: inst.installmentNo,
+        installmentTotal: input.installments!.length,
+        installmentAmount: inst.amount,
+      }))
+    });
+  } else {
+    // Single payment task
+    let dueDate = new Date(closedDate);
+    if (input.paymentMethod?.includes('เครดิต 30 วัน') || input.paymentMethod === 'เครดิต') {
+      dueDate.setDate(dueDate.getDate() + 30);
+    } else if (input.paymentMethod?.includes('เครดิต 60 วัน')) {
+      dueDate.setDate(dueDate.getDate() + 60);
+    } else if (input.paymentMethod === 'เก็บเงินหน้างาน' || input.paymentMethod === 'จ่ายแล้ว') {
+      dueDate.setDate(dueDate.getDate() + 7);
     }
+    
+    await prisma.paymentTask.create({
+      data: {
+        jobId: job.id,
+        status: 'รอดำเนินการ',
+        dueDate,
+      }
+    });
   }
 
   // Notify Service Manager if it's a Service Job or Installation Job

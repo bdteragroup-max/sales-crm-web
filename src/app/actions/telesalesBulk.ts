@@ -3,7 +3,7 @@
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
-
+import { checkAndAwardDailyCallCoins } from "@/app/actions/coins";
 export async function saveBulkTelesalesData(data: any[]) {
   const user = await getUser();
   if (!user) return { success: false, error: "Unauthorized" };
@@ -159,6 +159,8 @@ export async function saveBulkTelesalesData(data: any[]) {
     console.error("Bulk upload error:", err);
     return { success: false, error: err.message || "Failed to process bulk data" };
   }
+
+  await checkAndAwardDailyCallCoins(user.id);
 
   revalidatePath("/telesales");
   return { success: true, successCount, errorCount, errors };

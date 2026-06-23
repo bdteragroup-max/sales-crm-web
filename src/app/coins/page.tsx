@@ -1,5 +1,6 @@
 import React from 'react';
 import { getUserCoins, getCoinTransactions } from '@/app/actions/coins';
+import Image from 'next/image';
 import { Coins, History, ArrowDownLeft, ArrowUpRight, Award, Zap } from 'lucide-react';
 
 export default async function CoinsDashboard() {
@@ -11,20 +12,39 @@ export default async function CoinsDashboard() {
   const coins = (coinsRes.success && coinsRes.data) ? coinsRes.data : [];
   const transactions = (txRes.success && txRes.data) ? txRes.data : [];
 
-  const getCoinStyle = (code?: string) => {
-    const c = (code || '').toLowerCase();
-    if (c.includes('gold')) return 'from-yellow-300 to-yellow-500 text-yellow-700 shadow-yellow-200 border-yellow-200';
-    if (c.includes('silver')) return 'from-slate-200 to-slate-400 text-slate-700 shadow-slate-200 border-slate-300';
-    if (c.includes('bronze')) return 'from-orange-300 to-orange-500 text-orange-800 shadow-orange-200 border-orange-300';
+  const getCoinStyle = (code?: string, name?: string) => {
+    const c = (code || '').toLowerCase() + ' ' + (name || '').toLowerCase();
+    if (c.includes('bronze') || c.includes('ทองแดง') || c.includes('copper')) return 'from-orange-300 to-orange-500 text-orange-800 shadow-orange-200 border-orange-300';
+    if (c.includes('gold') || c.includes('ทอง')) return 'from-yellow-300 to-yellow-500 text-yellow-700 shadow-yellow-200 border-yellow-200';
+    if (c.includes('silver') || c.includes('เงิน')) return 'from-slate-200 to-slate-400 text-slate-700 shadow-slate-200 border-slate-300';
+    if (c.includes('task') || c.includes('ภารกิจ') || c.includes('kpi')) return 'from-amber-600 to-orange-800 text-amber-900 shadow-orange-900/20 border-orange-800/30';
     return 'from-gray-100 to-gray-200 text-gray-700 shadow-gray-100 border-gray-200';
   };
 
-  const getCoinIconStyle = (code?: string) => {
-    const c = (code || '').toLowerCase();
-    if (c.includes('gold')) return 'bg-yellow-100 text-yellow-600';
-    if (c.includes('silver')) return 'bg-slate-100 text-slate-600';
-    if (c.includes('bronze')) return 'bg-orange-100 text-orange-600';
+  const getCoinIconStyle = (code?: string, name?: string) => {
+    const c = (code || '').toLowerCase() + ' ' + (name || '').toLowerCase();
+    if (c.includes('bronze') || c.includes('ทองแดง') || c.includes('copper')) return 'bg-orange-100 text-orange-600';
+    if (c.includes('gold') || c.includes('ทอง')) return 'bg-yellow-100 text-yellow-600';
+    if (c.includes('silver') || c.includes('เงิน')) return 'bg-slate-100 text-slate-600';
+    if (c.includes('task') || c.includes('ภารกิจ') || c.includes('kpi')) return 'bg-amber-100 text-amber-700';
     return 'bg-gray-100 text-gray-600';
+  };
+
+  const getCoinImagePath = (code?: string, name?: string) => {
+    const c = (code || '').toLowerCase() + ' ' + (name || '').toLowerCase();
+    if (c.includes('bronze') || c.includes('ทองแดง') || c.includes('copper')) return { front: '/coins/bronze.png', back: '/coins/bronze_back.png' };
+    if (c.includes('silver') || c.includes('เงิน')) return { front: '/coins/silver.png', back: '/coins/silver_back.png' };
+    if (c.includes('event') || c.includes('กิจกรรม')) return { front: '/coins/event.png', back: '/coins/event_back.png' };
+    if (c.includes('task') || c.includes('ภารกิจ')) return { front: '/coins/task.png', back: '/coins/task_back.png' };
+    if (c.includes('milestone')) return { front: '/coins/milestone.png', back: '/coins/milestone_back.png' };
+    if (c.includes('kpi')) return { front: '/coins/kpi.png', back: '/coins/kpi_back.png' };
+    if (c.includes('gold') || c.includes('ทอง')) return { front: '/coins/gold.png', back: '/coins/gold_back.png' };
+    return { front: '/coins/gold.png', back: '/coins/gold_back.png' }; // default fallback
+  };
+
+  const getCoinScaleClass = (code?: string, name?: string) => {
+    // All images are now perfectly cropped and matched, no artificial scaling needed!
+    return "scale-100";
   };
 
   const translateCoinName = (name?: string) => {
@@ -33,6 +53,7 @@ export default async function CoinsDashboard() {
     if (n.includes('gold')) return 'เหรียญทอง';
     if (n.includes('silver')) return 'เหรียญเงิน';
     if (n.includes('bronze')) return 'เหรียญทองแดง';
+    if (n.includes('copper')) return 'เหรียญทองแดง (Copper)';
     if (n.includes('task')) return 'เหรียญภารกิจ';
     return name;
   };
@@ -82,29 +103,66 @@ export default async function CoinsDashboard() {
         {/* Coins Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           {coins?.map((coin: any) => {
-            const style = getCoinStyle(coin.coin_types.code);
+            const style = getCoinStyle(coin.coin_types.code, coin.coin_types.name);
             return (
               <div 
                 key={coin.id} 
-                className={`bg-white rounded-3xl p-6 shadow-xl border-2 flex flex-col justify-between relative overflow-hidden transition-transform hover:-translate-y-1 ${style}`}
+                className={`bg-white rounded-[2.5rem] p-6 md:p-8 shadow-2xl border flex flex-col items-center text-center relative overflow-hidden transition-transform duration-500 hover:-translate-y-2 group ${style}`}
               >
-                <div className="absolute -right-6 -top-6 opacity-10">
-                  <Award size={120} />
+                {/* Huge faded background icon */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.04] pointer-events-none">
+                  <Award size={280} className="scale-75 md:scale-100" />
                 </div>
                 
-                <div className="flex justify-between items-start relative z-10">
-                  <div>
-                    <h3 className="font-bold text-lg uppercase tracking-wider opacity-80">{translateCoinName(coin.coin_types.name)}</h3>
-                    <p className="text-sm opacity-70 mt-1">{translateCoinDescription(coin.coin_types.description)}</p>
-                  </div>
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${getCoinIconStyle(coin.coin_types.code)}`}>
-                    <Coins size={24} strokeWidth={2.5} />
+                {/* Huge Centered Coin */}
+                <div 
+                  className="w-32 h-32 md:w-44 md:h-44 relative mb-4 md:mb-6" 
+                  style={{ perspective: '1200px' }}
+                >
+                  <div 
+                    className="w-full h-full transition-transform duration-1000 relative overflow-visible"
+                    style={{ transformStyle: 'preserve-3d' }}
+                  >
+                    <style dangerouslySetInnerHTML={{__html: `
+                      .group:hover .coin-flipper-${coin.id} { transform: rotateY(180deg) scale(1.1); }
+                    `}} />
+                    <div className={`absolute inset-0 w-full h-full coin-flipper-${coin.id}`} style={{ transformStyle: 'preserve-3d', transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
+                      {/* Front */}
+                      <div className="absolute inset-0 w-full h-full backface-hidden flex items-center justify-center" style={{ backfaceVisibility: 'hidden' }}>
+                        <Image 
+                          src={getCoinImagePath(coin.coin_types.code, coin.coin_types.name).front} 
+                          alt={translateCoinName(coin.coin_types.name)}
+                          fill
+                          unoptimized={true}
+                          className={`object-contain mix-blend-multiply transition-transform duration-500 ${getCoinScaleClass(coin.coin_types.code, coin.coin_types.name)}`}
+                        />
+                      </div>
+                      {/* Back */}
+                      <div className="absolute inset-0 w-full h-full backface-hidden flex items-center justify-center" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+                        <Image 
+                          src={getCoinImagePath(coin.coin_types.code, coin.coin_types.name).back} 
+                          alt={translateCoinName(coin.coin_types.name)}
+                          fill
+                          unoptimized={true}
+                          className={`object-contain mix-blend-multiply transition-transform duration-500 ${getCoinScaleClass(coin.coin_types.code, coin.coin_types.name)}`}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-8 relative z-10">
-                  <span className="text-4xl font-black tracking-tighter number">{coin.balance.toLocaleString()}</span>
-                  <span className="ml-2 font-bold opacity-70">เหรียญ</span>
+                {/* Coin Text */}
+                <div className="relative z-10 w-full mb-4 md:mb-6 flex-1 flex flex-col justify-end">
+                  <h3 className="font-black text-xl md:text-2xl uppercase tracking-widest opacity-90 mb-1 md:mb-2">{translateCoinName(coin.coin_types.name)}</h3>
+                  <p className="text-xs md:text-sm opacity-80 leading-relaxed font-medium">{translateCoinDescription(coin.coin_types.description)}</p>
+                </div>
+
+                {/* Coin Balance */}
+                <div className="relative z-10 w-full pt-4 md:pt-6 border-t border-black/10">
+                  <div className="flex items-baseline justify-center gap-2">
+                    <span className="text-5xl md:text-6xl font-black tracking-tighter number drop-shadow-sm">{coin.balance.toLocaleString()}</span>
+                    <span className="font-bold opacity-80 text-base md:text-lg uppercase tracking-widest">เหรียญ</span>
+                  </div>
                 </div>
               </div>
             );
@@ -160,8 +218,10 @@ export default async function CoinsDashboard() {
                     <div className={`text-lg md:text-xl font-black number ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                       {isPositive ? '+' : ''}{tx.amount.toLocaleString()}
                     </div>
-                    <div className="text-xs font-bold text-gray-500 uppercase flex items-center justify-end gap-1 mt-1">
-                      <div className={`w-2 h-2 rounded-full ${getCoinIconStyle(tx.coin_types?.code).split(' ')[0]}`} />
+                    <div className="text-xs font-bold text-gray-500 uppercase flex items-center justify-end gap-2 mt-1">
+                      <div className="w-5 h-5 relative shrink-0">
+                        <Image src={getCoinImagePath(tx.coin_types?.code, tx.coin_types?.name).front} alt="coin" fill unoptimized={true} className="object-contain mix-blend-multiply" />
+                      </div>
                       {translateCoinName(tx.coin_types?.name)}
                     </div>
                   </div>

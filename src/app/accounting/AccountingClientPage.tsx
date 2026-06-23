@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useTransition, useEffect } from "react";
-import { DollarSign, Search, CheckCircle, Clock, AlertCircle, Eye, X, Loader2, ClipboardList } from "lucide-react";
+import { DollarSign, Search, CheckCircle, Clock, AlertCircle, Eye, X, Loader2, ClipboardList, ChevronUp, ChevronDown, Filter } from "lucide-react";
 import { updatePaymentTaskStatus } from "@/app/actions/accounting";
 
 function formatDate(d: string | Date) {
@@ -286,11 +286,21 @@ function JobDetailModal({
 export default function AccountingClientPage({ tasks: initialTasks }: { tasks: any[] }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [isPending, startTransition] = useTransition();
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [selectedJobType, setSelectedJobType] = useState<string>("");
+  
+  // Filters
+  const [filterJobNumber, setFilterJobNumber] = useState("");
+  const [filterCustomerItem, setFilterCustomerItem] = useState("");
+  const [filterPaymentMethod, setFilterPaymentMethod] = useState("");
+  const [filterDueDate, setFilterDueDate] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  
+  const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
 
   const uniqueJobTypes = Array.from(new Set(tasks.map(t => t.job?.jobType).filter(Boolean)));
+  const uniquePaymentMethods = Array.from(new Set(tasks.map(t => t.job?.paymentMethod).filter(Boolean)));
 
   const handleUpdate = (id: string, status: string) => {
     const note = window.prompt("หมายเหตุ (ถ้ามี):");
@@ -308,16 +318,74 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   };
 
   const filtered = tasks.filter(t => {
-    const q = searchTerm.toLowerCase();
-    const matchesSearch = !q || (
-      t.job?.jobNumber?.toLowerCase().includes(q) ||
-      t.job?.customerName?.toLowerCase().includes(q) ||
-      t.job?.item?.toLowerCase().includes(q)
-    );
-    const matchesJobType = !selectedJobType || t.job?.jobType === selectedJobType;
+    // text match
+    const qJob = filterJobNumber.toLowerCase();
+    const matchesJobNumber = !qJob || t.job?.jobNumber?.toLowerCase().includes(qJob);
 
-    return matchesSearch && matchesJobType;
+    const qCust = filterCustomerItem.toLowerCase();
+    const matchesCustomerItem = !qCust || (
+      t.job?.customerName?.toLowerCase().includes(qCust) ||
+      t.job?.item?.toLowerCase().includes(qCust)
+    );
+
+    const matchesPayment = !filterPaymentMethod || t.job?.paymentMethod === filterPaymentMethod || (filterPaymentMethod === 'ผ่อนชำระ' && t.installmentNo);
+    
+    // date match
+    let matchesDate = true;
+    if (filterDueDate) {
+      const taskDate = new Date(t.dueDate).toISOString().split('T')[0];
+      matchesDate = taskDate === filterDueDate;
+    }
+
+    const matchesStatus = !filterStatus || t.status === filterStatus;
+    const matchesJobType = selectedJobTypes.length === 0 || selectedJobTypes.includes(t.job?.jobType);
+
+    return matchesJobNumber && matchesCustomerItem && matchesPayment && matchesDate && matchesStatus && matchesJobType;
   });
+
+  const sortedTasks = React.useMemo(() => {
+    let sortableItems = [...filtered];
+    if (sortConfig !== null) {
+      sortableItems.sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        if (sortConfig.key === 'jobNumber') {
+          aValue = a.job?.jobNumber || '';
+          bValue = b.job?.jobNumber || '';
+        } else if (sortConfig.key === 'customerName') {
+          aValue = a.job?.customerName || '';
+          bValue = b.job?.customerName || '';
+        } else if (sortConfig.key === 'paymentMethod') {
+          aValue = a.job?.paymentMethod || '';
+          bValue = b.job?.paymentMethod || '';
+        } else if (sortConfig.key === 'dueDate') {
+          aValue = new Date(a.dueDate).getTime();
+          bValue = new Date(b.dueDate).getTime();
+        } else if (sortConfig.key === 'status') {
+          aValue = a.status || '';
+          bValue = b.status || '';
+        }
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [filtered, sortConfig]);
+
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
 
   const pendingTasks = filtered.filter(t => t.status !== 'ตรวจสอบและบันทึกแล้ว');
   const completedTasks = filtered.filter(t => t.status === 'ตรวจสอบและบันทึกแล้ว');
@@ -344,28 +412,86 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         </div>
         
         <div className="flex gap-3">
-          <select
-            value={selectedJobType}
-            onChange={(e) => setSelectedJobType(e.target.value)}
-            className="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white"
-          >
-            <option value="">ทุกประเภทงาน</option>
-            {uniqueJobTypes.map(type => (
-              <option key={type as string} value={type as string}>{type as React.ReactNode}</option>
-            ))}
-          </select>
-
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-            <input
-              type="text"
-              placeholder="ค้นหาเลขที่งาน, ชื่อลูกค้า..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl w-64 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-            />
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center justify-between px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-white min-w-[180px]"
+            >
+              <span className="flex items-center gap-2 text-gray-700">
+                <Filter size={16} className="text-gray-400" />
+                {selectedJobTypes.length === 0 ? "ทุกประเภทงาน" : `เลือกแล้ว ${selectedJobTypes.length} ประเภท`}
+              </span>
+              <ChevronDown size={16} className="text-gray-400" />
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute top-full right-0 md:left-0 mt-2 w-full min-w-[200px] bg-white border border-gray-100 shadow-xl rounded-xl p-2 z-50 max-h-64 overflow-y-auto">
+                <div className="flex flex-col gap-1">
+                  {uniqueJobTypes.map(type => (
+                    <label key={type as string} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedJobTypes.includes(type as string)}
+                        onChange={(e) => {
+                          const val = type as string;
+                          setSelectedJobTypes(prev => 
+                            prev.includes(val) ? prev.filter(t => t !== val) : [...prev, val]
+                          );
+                        }}
+                        className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="text-sm text-gray-700">{type as React.ReactNode}</span>
+                    </label>
+                  ))}
+                  {selectedJobTypes.length > 0 && (
+                    <button
+                      onClick={() => setSelectedJobTypes([])}
+                      className="mt-2 text-xs text-center text-emerald-600 font-bold hover:underline py-1 w-full"
+                    >
+                      ล้างตัวกรองทั้งหมด
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm mb-8 flex flex-wrap gap-4 items-end">
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 mb-1">เลขที่งาน</label>
+          <input type="text" placeholder="ค้นหาเลขที่งาน..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" value={filterJobNumber} onChange={e => setFilterJobNumber(e.target.value)} />
+        </div>
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 mb-1">ลูกค้า / รายการ</label>
+          <input type="text" placeholder="ค้นหาลูกค้าหรือรายการ..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" value={filterCustomerItem} onChange={e => setFilterCustomerItem(e.target.value)} />
+        </div>
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 mb-1">รูปแบบการชำระเงิน</label>
+          <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white" value={filterPaymentMethod} onChange={e => setFilterPaymentMethod(e.target.value)}>
+            <option value="">ทั้งหมด</option>
+            <option value="ผ่อนชำระ">ผ่อนชำระ</option>
+            {uniquePaymentMethods.map(p => p !== 'ผ่อนชำระ' && p ? <option key={p as string} value={p as string}>{p as React.ReactNode}</option> : null)}
+          </select>
+        </div>
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 mb-1">วันครบกำหนด</label>
+          <input type="date" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" value={filterDueDate} onChange={e => setFilterDueDate(e.target.value)} />
+        </div>
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 mb-1">สถานะ</label>
+          <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+            <option value="">ทั้งหมด</option>
+            <option value="รอดำเนินการ">รอดำเนินการ</option>
+            <option value="ตรวจสอบและบันทึกแล้ว">ตรวจสอบและบันทึกแล้ว</option>
+          </select>
+        </div>
+        <button 
+          onClick={() => { setFilterJobNumber(''); setFilterCustomerItem(''); setFilterPaymentMethod(''); setFilterDueDate(''); setFilterStatus(''); setSelectedJobTypes([]); }} 
+          className="px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors whitespace-nowrap h-[38px]"
+        >
+          ล้างตัวกรองทั้งหมด
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -394,23 +520,33 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px]">เลขที่งาน</th>
-              <th className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px]">ลูกค้า / รายการ</th>
-              <th className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px]">รูปแบบการชำระเงิน</th>
-              <th className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px]">วันครบกำหนด</th>
-              <th className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px]">สถานะ</th>
+              <th onClick={() => requestSort('jobNumber')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
+                <div className="flex items-center gap-1">เลขที่งาน {sortConfig?.key === 'jobNumber' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+              </th>
+              <th onClick={() => requestSort('customerName')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
+                <div className="flex items-center gap-1">ลูกค้า / รายการ {sortConfig?.key === 'customerName' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+              </th>
+              <th onClick={() => requestSort('paymentMethod')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
+                <div className="flex items-center gap-1">รูปแบบการชำระเงิน {sortConfig?.key === 'paymentMethod' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+              </th>
+              <th onClick={() => requestSort('dueDate')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
+                <div className="flex items-center gap-1">วันครบกำหนด {sortConfig?.key === 'dueDate' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+              </th>
+              <th onClick={() => requestSort('status')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
+                <div className="flex items-center gap-1">สถานะ {sortConfig?.key === 'status' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+              </th>
               <th className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] text-right">จัดการ</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {filtered.length === 0 && (
+            {sortedTasks.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-12 text-center text-gray-500">
                   ไม่พบข้อมูล
                 </td>
               </tr>
             )}
-            {filtered.map(task => {
+            {sortedTasks.map(task => {
               const isCompleted = task.status === 'ตรวจสอบและบันทึกแล้ว';
               const isOverdue = !isCompleted && new Date(task.dueDate) < new Date();
 

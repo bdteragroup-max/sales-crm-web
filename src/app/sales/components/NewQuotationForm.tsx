@@ -382,6 +382,9 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
 
   const isLostStatus = status && (status.startsWith('ปฏิเสธ') || status.startsWith('ยกเลิก'));
 
+  const [showCoinModal, setShowCoinModal] = useState(false);
+  const [coinModalData, setCoinModalData] = useState({ gold: 0, message: '' });
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitting(true);
@@ -412,7 +415,11 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
         setInstallationFee(0);
         setStatus('');
       }
-      if (onSuccess) {
+
+      if (res.awardedGold && res.awardedGold > 0) {
+        setCoinModalData({ gold: res.awardedGold, message: res.awardMessage || '' });
+        setShowCoinModal(true);
+      } else if (onSuccess) {
         setTimeout(onSuccess, 1500);
       }
     } else {
@@ -427,6 +434,26 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
   };
 
   return (
+    <>
+      {showCoinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl scale-in-center">
+            <div className="text-7xl mb-4">🪙</div>
+            <h2 className="text-2xl font-black text-yellow-600 mb-2">ยินดีด้วย! คุณได้รับเหรียญทอง</h2>
+            <p className="text-gray-600 mb-6 font-medium">{coinModalData.message}</p>
+            <button 
+              type="button"
+              onClick={() => {
+                setShowCoinModal(false);
+                if (onSuccess) onSuccess();
+              }} 
+              className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white font-bold py-3 px-8 rounded-xl w-full shadow-lg transition-transform hover:scale-105 active:scale-95"
+            >
+              เยี่ยมไปเลย!
+            </button>
+          </div>
+        </div>
+      )}
     <form onSubmit={handleSubmit} className="space-y-6">
       <input type="hidden" name="creditDocsUrl" value={creditDocsUrl} />
       <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -1004,5 +1031,6 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
         </div>
       </div>
     </form>
+    </>
   );
 }
