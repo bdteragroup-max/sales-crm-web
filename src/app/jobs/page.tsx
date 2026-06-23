@@ -29,9 +29,10 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
   }
 
   const roleStr = (user.role || '').toLowerCase();
-  const isSalesManager = user.role === 'ผู้จัดการ' || roleStr.includes('sales manager') || roleStr.includes('marketing manager') || roleStr.includes('ผู้จัดการฝ่ายการตลาด') || roleStr.includes('ผู้จัดการการตลาด');
+  const isMarketingManager = roleStr.includes('marketing manager') || roleStr.includes('ผู้จัดการฝ่ายการตลาด') || roleStr.includes('ผู้จัดการการตลาด');
+  const isSalesManager = user.role === 'ผู้จัดการ' || roleStr.includes('sales manager');
   const isServiceManager = roleStr.includes('service engineer mgr');
-  const isManager = isSalesManager || isServiceManager; 
+  const isManager = isSalesManager || isServiceManager || isMarketingManager; 
   
   const teraEmployee = await teraDb.employees.findUnique({
     where: { emp_id: user.employeeId },
@@ -45,7 +46,9 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
 
   let whereClause: any = {}; // Default to all jobs for non-sales (like Store, Accounting)
   
-  if (isSalesManager) {
+  if (isMarketingManager) {
+    whereClause = {}; // Marketing Manager sees all jobs
+  } else if (isSalesManager) {
     const subordinates = await teraDb.employees.findMany({
       where: { supervisor_id: user.employeeId, is_active: true },
       select: { emp_id: true }
