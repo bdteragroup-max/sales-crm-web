@@ -63,14 +63,16 @@ export default async function CustomerRequirementPage() {
   const reqNumbers = rawHistory.map(h => h.requirementNumber).filter(Boolean) as string[];
   const relatedQuotations = await prisma.quotation.findMany({
     where: { requirementNumber: { in: reqNumbers } },
-    select: { requirementNumber: true }
+    select: { requirementNumber: true, status: true, quotationNumber: true }
   });
   
-  const openedReqSet = new Set(relatedQuotations.map(q => q.requirementNumber));
+  const quotationMap = new Map(relatedQuotations.map(q => [q.requirementNumber, q]));
 
   const history = rawHistory.map(h => ({
     ...h,
-    hasQuotation: h.requirementNumber ? openedReqSet.has(h.requirementNumber) : false
+    hasQuotation: h.requirementNumber ? quotationMap.has(h.requirementNumber) : false,
+    quotationStatus: h.requirementNumber ? quotationMap.get(h.requirementNumber)?.status || null : null,
+    quotationDocNumber: h.requirementNumber ? quotationMap.get(h.requirementNumber)?.quotationNumber || null : null,
   }));
 
   return (

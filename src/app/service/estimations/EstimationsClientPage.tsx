@@ -37,12 +37,14 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
 
   const filteredRecords = initialRecords.filter(item => {
     let statusMatch = true;
-    if (activeTab === 'PENDING') statusMatch = item.estimationStatus === 'PENDING';
-    if (activeTab === 'ESTIMATED') statusMatch = item.estimationStatus === 'ESTIMATED';
+    const effStatus = item.estimationStatus || 'PENDING';
+    
+    if (activeTab === 'PENDING') statusMatch = effStatus === 'PENDING';
+    if (activeTab === 'ESTIMATED') statusMatch = effStatus === 'ESTIMATED';
     
     if (activeTab === 'MONTHLY' || activeTab === 'COMPANY' || activeTab === 'TECHNICIAN') {
       if (filterStatus) {
-        statusMatch = item.estimationStatus === filterStatus;
+        statusMatch = effStatus === filterStatus;
       } else {
         statusMatch = true;
       }
@@ -486,8 +488,8 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
                         {o.boqNumber || o.requirementNumber || 'ไม่มีหมายเลข'}
                       </span>
                       <span className="text-gray-500 text-xs truncate block">เซลล์: {o.salesperson || '-'}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${o.estimationStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'} mt-1 inline-block`}>
-                        {o.estimationStatus === 'PENDING' ? 'รอประเมิน' : 'ประเมินแล้ว'}
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${(o.estimationStatus || 'PENDING') === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'} mt-1 inline-block`}>
+                        {(o.estimationStatus || 'PENDING') === 'PENDING' ? 'รอประเมิน' : 'ประเมินแล้ว'}
                       </span>
                     </div>
                   ))}
@@ -518,8 +520,8 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
                     <div key={i} className="flex flex-col gap-1 text-xs">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 truncate mr-2 font-medium">{o.companyName || 'ไม่ระบุบริษัท'}</span>
-                        <span className={`px-2 py-0.5 rounded-full font-bold shrink-0 text-[10px] ${o.estimationStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
-                          {o.estimationStatus === 'PENDING' ? 'รอประเมิน' : 'เสร็จสิ้น'}
+                        <span className={`px-2 py-0.5 rounded-full font-bold shrink-0 text-[10px] ${(o.estimationStatus || 'PENDING') === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                          {(o.estimationStatus || 'PENDING') === 'PENDING' ? 'รอประเมิน' : 'เสร็จสิ้น'}
                         </span>
                       </div>
                       <span className="text-gray-400 text-[10px]">

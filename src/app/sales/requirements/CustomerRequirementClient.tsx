@@ -232,11 +232,18 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
                         <div className="flex flex-wrap justify-end items-center gap-2 mt-2 sm:mt-0">
                           {record.hasQuotation ? (
                             <div 
-                              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[11px] font-black uppercase tracking-wider rounded-xl cursor-default"
+                              className={`inline-flex items-center gap-1.5 px-4 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl cursor-default border ${
+                                record.quotationStatus === 'เสนอราคา' ? 'bg-red-50 text-brand-red border-red-100' :
+                                record.quotationStatus === 'รอใบประเมินราคา' ? 'bg-sky-50 text-sky-600 border-sky-100' :
+                                record.quotationStatus === 'เปิดบิลแล้ว' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                record.quotationStatus?.startsWith('PO') || record.quotationStatus === 'รอจัดทำ PO' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                record.quotationStatus?.startsWith('ปฏิเสธ') || record.quotationStatus === 'ยกเลิก-Revise' ? 'bg-gray-100 text-gray-500 border-gray-200' :
+                                'bg-emerald-50 text-emerald-600 border-emerald-100'
+                              }`}
                               onClick={(e) => e.stopPropagation()}
-                              title="มีการเปิดใบเสนอราคาจากใบรับความต้องการนี้แล้ว"
+                              title={`สถานะใบเสนอราคา: ${record.quotationStatus || 'เปิดใบเสนอราคาแล้ว'}`}
                             >
-                              <CheckCircle2 size={14} /> เปิดใบเสนอราคาแล้ว
+                              <CheckCircle2 size={14} /> {record.quotationStatus || 'เปิดใบเสนอราคาแล้ว'}
                             </div>
                           ) : (
                             <Link 
