@@ -9,6 +9,19 @@ function formatDate(d: string | Date) {
   return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear() + 543}`;
 }
 
+function CompanyBadge({ code }: { code: string }) { 
+  const styles: Record<string, string> = { 
+    TP: "bg-blue-50 text-blue-800 border-blue-200", 
+    TG: "bg-green-50 text-green-800 border-green-200", 
+    TE: "bg-amber-50 text-amber-800 border-amber-200", 
+  }; 
+  return ( 
+    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${styles[code] ?? "bg-gray-100 text-gray-700"}`}>
+      {code}
+    </span>
+  );
+}
+
 function JobDetailModal({ 
   jobId, 
   onClose,
@@ -292,7 +305,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const [filterJobNumber, setFilterJobNumber] = useState("");
   const [filterCustomerItem, setFilterCustomerItem] = useState("");
   const [filterPaymentMethod, setFilterPaymentMethod] = useState("");
-  const [filterDueDate, setFilterDueDate] = useState("");
+  const [filterCompany, setFilterCompany] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
@@ -330,17 +343,16 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
     const matchesPayment = !filterPaymentMethod || t.job?.paymentMethod === filterPaymentMethod || (filterPaymentMethod === 'ผ่อนชำระ' && t.installmentNo);
     
-    // date match
-    let matchesDate = true;
-    if (filterDueDate) {
-      const taskDate = new Date(t.dueDate).toISOString().split('T')[0];
-      matchesDate = taskDate === filterDueDate;
+    // company match
+    let matchesCompany = true;
+    if (filterCompany) {
+      matchesCompany = t.job?.companyCode === filterCompany || false;
     }
 
     const matchesStatus = !filterStatus || t.status === filterStatus;
     const matchesJobType = selectedJobTypes.length === 0 || selectedJobTypes.includes(t.job?.jobType);
 
-    return matchesJobNumber && matchesCustomerItem && matchesPayment && matchesDate && matchesStatus && matchesJobType;
+    return matchesJobNumber && matchesCustomerItem && matchesPayment && matchesCompany && matchesStatus && matchesJobType;
   });
 
   const sortedTasks = React.useMemo(() => {
@@ -359,9 +371,9 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         } else if (sortConfig.key === 'paymentMethod') {
           aValue = a.job?.paymentMethod || '';
           bValue = b.job?.paymentMethod || '';
-        } else if (sortConfig.key === 'dueDate') {
-          aValue = new Date(a.dueDate).getTime();
-          bValue = new Date(b.dueDate).getTime();
+        } else if (sortConfig.key === 'company') {
+          aValue = a.job?.companyCode || '';
+          bValue = b.job?.companyCode || '';
         } else if (sortConfig.key === 'status') {
           aValue = a.status || '';
           bValue = b.status || '';
@@ -475,8 +487,13 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           </select>
         </div>
         <div className="flex-1 min-w-[150px]">
-          <label className="block text-xs font-bold text-gray-500 mb-1">วันครบกำหนด</label>
-          <input type="date" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" value={filterDueDate} onChange={e => setFilterDueDate(e.target.value)} />
+          <label className="block text-xs font-bold text-gray-500 mb-1">บริษัท</label>
+          <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white" value={filterCompany} onChange={e => setFilterCompany(e.target.value)}>
+            <option value="">ทั้งหมด</option>
+            <option value="TP">TP</option>
+            <option value="TG">TG</option>
+            <option value="TE">TE</option>
+          </select>
         </div>
         <div className="flex-1 min-w-[150px]">
           <label className="block text-xs font-bold text-gray-500 mb-1">สถานะ</label>
@@ -487,7 +504,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           </select>
         </div>
         <button 
-          onClick={() => { setFilterJobNumber(''); setFilterCustomerItem(''); setFilterPaymentMethod(''); setFilterDueDate(''); setFilterStatus(''); setSelectedJobTypes([]); }} 
+          onClick={() => { setFilterJobNumber(''); setFilterCustomerItem(''); setFilterPaymentMethod(''); setFilterCompany(''); setFilterStatus(''); setSelectedJobTypes([]); }} 
           className="px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors whitespace-nowrap h-[38px]"
         >
           ล้างตัวกรองทั้งหมด
@@ -529,8 +546,8 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
               <th onClick={() => requestSort('paymentMethod')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
                 <div className="flex items-center gap-1">รูปแบบการชำระเงิน {sortConfig?.key === 'paymentMethod' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
               </th>
-              <th onClick={() => requestSort('dueDate')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
-                <div className="flex items-center gap-1">วันครบกำหนด {sortConfig?.key === 'dueDate' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+              <th onClick={() => requestSort('company')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
+                <div className="flex items-center gap-1">บริษัท {sortConfig?.key === 'company' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
               </th>
               <th onClick={() => requestSort('status')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
                 <div className="flex items-center gap-1">สถานะ {sortConfig?.key === 'status' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
@@ -580,10 +597,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                     )}
                   </td>
                   <td className="py-4 px-6">
-                    <div className={`flex items-center gap-1.5 ${isOverdue ? 'text-red-600 font-bold' : 'text-gray-600'}`}>
-                      {isOverdue && <AlertCircle size={14} />}
-                      {formatDate(task.dueDate)}
-                    </div>
+                    <CompanyBadge code={task.job?.companyCode || '-'} />
                   </td>
                   <td className="py-4 px-6">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
