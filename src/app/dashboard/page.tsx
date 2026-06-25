@@ -77,8 +77,12 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   // Date Filtering Logic (Range or Month/Year)
   let filterStart: Date;
   let filterEnd: Date;
+  let filterStartDateStr = '';
+  let filterEndDateStr = '';
 
   if (typeof searchParams.startDate === 'string' && typeof searchParams.endDate === 'string') {
+    filterStartDateStr = searchParams.startDate;
+    filterEndDateStr = searchParams.endDate;
     filterStart = bkkStartOfDay(searchParams.startDate);
     filterEnd = bkkEndOfDay(searchParams.endDate);
   } else {
@@ -90,8 +94,10 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     const isCurrentMonth = month === today.getMonth() + 1 && year === today.getFullYear();
     const lastDay = isCurrentMonth ? today.getDate() : new Date(year, month, 0).getDate();
 
-    filterStart = bkkStartOfDay(`${year}-${pad(month)}-01`);
-    filterEnd = bkkEndOfDay(`${year}-${pad(month)}-${pad(lastDay)}`);
+    filterStartDateStr = `${year}-${pad(month)}-01`;
+    filterEndDateStr = `${year}-${pad(month)}-${pad(lastDay)}`;
+    filterStart = bkkStartOfDay(filterStartDateStr);
+    filterEnd = bkkEndOfDay(filterEndDateStr);
   }
 
   const isManager = user.role === 'ผู้จัดการ' || (user.role || '').toLowerCase() === 'manager' || (user.role || '').toLowerCase() === 'sales manager' || (user.role || '').toLowerCase() === 'marketing manager' || (user.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user.role || '').toLowerCase() === 'ผู้การจัดการตลาด';
@@ -1453,9 +1459,12 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const filteredSalesRepsForExpenses = salesReps.filter((r: any) => filterIds.includes(r.id));
   const hrBranchesForExpenses = Array.from(new Set(filteredSalesRepsForExpenses.map((r: any) => r.hrBranch || 'Head Office')));
 
+  const expenseFilterStart = new Date(`${filterStartDateStr}T00:00:00.000Z`);
+  const expenseFilterEnd = new Date(`${filterEndDateStr}T00:00:00.000Z`);
+
   const branchExpenses = await prisma.branchExpense.findMany({
     where: { 
-      date: { gte: filterStart, lte: filterEnd },
+      date: { gte: expenseFilterStart, lte: expenseFilterEnd },
       OR: [
         { salespersonId: { in: filterIds } },
         { branch: { in: hrBranchesForExpenses } }

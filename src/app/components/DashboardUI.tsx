@@ -473,7 +473,10 @@ export default function DashboardUI({
               <button
                 onClick={() => {
                   const today = new Date();
-                  const d = today.toISOString().split('T')[0];
+                  const yyyy = today.getFullYear();
+                  const mm = String(today.getMonth() + 1).padStart(2, '0');
+                  const dd = String(today.getDate()).padStart(2, '0');
+                  const d = `${yyyy}-${mm}-${dd}`;
                   handleMultiFilterChange({ startDate: d, endDate: d });
                 }}
                 className="px-3 py-1.5 text-[10px] font-black text-gray-500 hover:text-brand-red transition-all"
