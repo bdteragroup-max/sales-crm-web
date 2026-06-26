@@ -657,7 +657,7 @@ export default function ClientsClientPage({
   </div>
 
   {/* Action Buttons */}
-  <div className="flex items-center gap-3">
+  <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
     {currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager')) && (
       <button
         onClick={() => setIsMergeModalOpen(true)}
@@ -669,7 +669,7 @@ export default function ClientsClientPage({
     )}
     <button
       onClick={openCompanyModal}
-      className="flex items-center gap-2 bg-brand-red text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95 text-sm"
+      className="flex flex-1 sm:flex-none items-center justify-center gap-1 sm:gap-2 bg-brand-red text-white px-3 sm:px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95 text-xs sm:text-sm"
     >
       <Plus size={18} />
       เพิ่มบริษัทใหม่
@@ -679,7 +679,7 @@ export default function ClientsClientPage({
         setDefaultCompanyIdForNewContact('');
         setIsContactModalOpen(true);
       }}
-      className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-all shadow-sm active:scale-95 text-sm"
+      className="flex flex-1 sm:flex-none items-center justify-center gap-1 sm:gap-2 bg-white border border-gray-200 text-gray-700 px-3 sm:px-5 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-all shadow-sm active:scale-95 text-xs sm:text-sm"
     >
       <Plus size={18} className="text-red-500" />
       เพิ่มผู้ติดต่อ
@@ -704,7 +704,7 @@ export default function ClientsClientPage({
 
   {salesReps.length > 0 && (
     <select
-      className="border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 max-w-[250px] shadow-sm"
+      className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 sm:max-w-[250px] shadow-sm"
       value={searchParams.get('handler') || ''}
       onChange={(e) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -726,7 +726,7 @@ export default function ClientsClientPage({
   )}
 
   <select
-    className="border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 max-w-[200px] shadow-sm"
+    className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 sm:max-w-[200px] shadow-sm"
     value={searchParams.get('province') || ''}
     onChange={(e) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -770,7 +770,7 @@ export default function ClientsClientPage({
               {/* Company Row */}
               <div
                 onClick={() => setExpandedCompany(expandedCompany === company.id ? null : company.id)}
-                className="w-full flex items-center gap-4 p-5 text-left group cursor-pointer"
+                className="w-full flex items-center gap-3 sm:gap-4 p-4 md:p-5 text-left group cursor-pointer"
               >
                 {/* Avatar */}
                 <div className="w-11 h-11 rounded-full bg-red-50 flex items-center justify-center text-red-600 font-black text-lg shrink-0 border border-red-100">

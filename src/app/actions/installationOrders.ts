@@ -13,7 +13,7 @@ function getBkkBeYear() {
 export async function createInstallationOrder(jobId?: string, autoData?: any) {
   try {
     const session = await getUser();
-    
+
     let prefill = { ...autoData };
 
     if (jobId && !autoData) {
@@ -25,7 +25,7 @@ export async function createInstallationOrder(jobId?: string, autoData?: any) {
         const company = job.quotation?.companyId ? await prisma.company.findUnique({
           where: { id: job.quotation.companyId }
         }) : null;
-        
+
         prefill = {
           jobId: job.id,
           jobName: job.item || job.jobNumber,
@@ -42,7 +42,7 @@ export async function createInstallationOrder(jobId?: string, autoData?: any) {
     const beYear = (now.getFullYear() + 543).toString().slice(-2);
     const day = String(now.getDate()).padStart(2, "0");
     const month = String(now.getMonth() + 1).padStart(2, "0");
-    
+
     const prefix = `JI${beYear}-${day}${month}`;
 
     const count = await prisma.installationOrder.count({
@@ -52,7 +52,7 @@ export async function createInstallationOrder(jobId?: string, autoData?: any) {
         }
       }
     });
-    
+
     const installationNo = `${prefix}-${String(count + 1).padStart(2, "0")}`;
 
     const { workInspect, workInstall, workRepair, workTraining, workOther, ...restData } = prefill;
@@ -77,7 +77,7 @@ export async function createInstallationOrder(jobId?: string, autoData?: any) {
 
     try {
       const { getLineUserIdByEmpId, pushLineMessage, pushLineMessageToTeam, installationAssignedMessage, newInstallationOrderMessage, getServiceManagerLineIds } = await import('@/app/lib/lineNotify');
-      
+
       // Notify Service Team about the new order
       const teamLineIds = await getServiceManagerLineIds();
       if (teamLineIds.length > 0) {
@@ -139,7 +139,7 @@ export async function updateInstallationOrder(id: string, data: any) {
       try {
         const { getLineUserIdByEmpId, pushLineMessage, pushLineMessageToTeam, installationAssignedMessage, getServiceManagerLineIds } = await import('@/app/lib/lineNotify');
         const techUser = await prisma.user.findFirst({ where: { fullName: updatedOrder.technician as string } });
-        
+
         // Notify Technician
         if (techUser?.employeeId) {
           const lineId = await getLineUserIdByEmpId(techUser.employeeId);
@@ -207,9 +207,9 @@ export async function updateInstallationPlan(orderId: string, data: any) {
     }
 
     const role = (session.role || '').toLowerCase();
-    const isOwnerOrAdmin = 
-      existingOrder.technician === session.fullName || 
-      role.includes('admin') || role === 'ผู้ดูแลระบบ' || role === 'ผู้จัดการ' || 
+    const isOwnerOrAdmin =
+      existingOrder.technician === session.fullName ||
+      role.includes('admin') || role === 'ผู้ดูแลระบบ' || role === 'ผู้จัดการ' ||
       role.includes('manager') || role.includes('mgr');
     if (!isOwnerOrAdmin) {
       return { success: false, error: "Unauthorized. เฉพาะช่างผู้รับผิดชอบงาน, ผู้จัดการ หรือผู้ดูแลระบบเท่านั้นที่สามารถแก้ไขแผนงานได้" };
@@ -237,7 +237,7 @@ export async function updateInstallationPlan(orderId: string, data: any) {
     try {
       const { pushLineMessage, installationPlanUpdatedMessage } = await import("@/app/lib/lineNotify");
       const message = installationPlanUpdatedMessage(updatedOrder, session.fullName || "Technician");
-      
+
       const groupId = process.env.LINE_GROUP_ID; // Fallback to group id if no specific line user is found
       if (groupId) {
         await pushLineMessage(groupId, [message]);
@@ -259,7 +259,7 @@ export async function getPendingInstallationCount() {
     const existingOrders = await prisma.installationOrder.findMany({
       select: { jobId: true }
     });
-    
+
     const existingJobIds = existingOrders.map(o => o.jobId).filter(Boolean) as string[];
 
     const pendingJobsCount = await prisma.job.count({

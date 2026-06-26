@@ -92,7 +92,7 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
       )}
 
       {/* ── Header Bar ── */}
-      <header className="shrink-0 h-20 border-b border-gray-100 px-8 flex items-center justify-between bg-white">
+      <header className="shrink-0 h-auto py-4 md:py-0 md:h-20 border-b border-gray-100 px-4 md:px-8 flex items-center justify-between bg-white">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-brand-red flex items-center justify-center shadow-lg shadow-red-200">
             <CalendarDays size={20} className="text-white" />
@@ -110,14 +110,14 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
 
       {/* ── KPI Strip (list view) ── */}
       {activeTab === 'list' && (
-        <div className="shrink-0 grid grid-cols-4 border-b border-gray-100">
+        <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 border-b border-gray-100 divide-x divide-y md:divide-y-0 divide-gray-100">
           {[
             { label: 'ทั้งหมด',     value: schedules.length,  icon: <LayoutList size={14} />,    color: 'text-gray-400',    bg: 'bg-gray-50' },
             { label: 'เสร็จสิ้น',  value: completedCount,    icon: <CheckCircle2 size={14} />,  color: 'text-emerald-600', bg: 'bg-emerald-50' },
             { label: 'รอดำเนินการ', value: pendingCount,     icon: <Clock size={14} />,         color: 'text-amber-500',   bg: 'bg-amber-50' },
             { label: 'ยกเลิก',     value: cancelledCount,    icon: <XCircle size={14} />,       color: 'text-gray-400',    bg: 'bg-gray-50' },
           ].map(k => (
-            <div key={k.label} className={`flex items-center gap-3 px-6 py-4 ${k.bg} border-r border-gray-100 last:border-0`}>
+            <div key={k.label} className={`flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 ${k.bg}`}>
               <span className={k.color}>{k.icon}</span>
               <div>
                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{k.label}</p>
@@ -129,7 +129,7 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
       )}
 
       {/* ── Tab Navigation ── */}
-      <div className="shrink-0 flex items-center gap-1 px-8 pt-4 border-b border-gray-100 bg-white">
+      <div className="shrink-0 flex items-center gap-1 px-4 md:px-8 pt-4 border-b border-gray-100 bg-white overflow-x-auto custom-scrollbar flex-nowrap">
         {[
           { id: 'new'      as const, label: 'บันทึกใหม่',                                                           icon: <Plus size={14} /> },
           { id: 'list'     as const, label: `รายการทั้งหมด (${schedules.length})`,                                  icon: <Search size={14} /> },
@@ -138,7 +138,7 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-t-xl border-b-2 transition-all ${
+            className={`flex items-center gap-2 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-t-xl border-b-2 transition-all whitespace-nowrap ${
               activeTab === tab.id
                 ? 'text-brand-red border-brand-red bg-red-50/50'
                 : 'text-gray-400 border-transparent hover:text-gray-700 hover:bg-gray-50'
@@ -151,7 +151,7 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
 
       {/* ── Overdue Visits Warning Alert ── */}
       {overdueVisits.length > 0 && (
-        <div className="shrink-0 mx-8 mt-6 p-5 bg-amber-50 border border-amber-200 rounded-[24px] flex items-start gap-4 shadow-sm animate-in slide-in-from-top-4 duration-500">
+        <div className="shrink-0 mx-4 md:mx-8 mt-4 md:mt-6 p-4 md:p-5 bg-amber-50 border border-amber-200 rounded-[24px] flex items-start gap-4 shadow-sm animate-in slide-in-from-top-4 duration-500">
           <div className="p-2.5 bg-amber-500 text-white rounded-xl shadow-md shrink-0">
             <Clock size={18} className="animate-pulse" />
           </div>
@@ -196,7 +196,7 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
       {/* ── Content ── */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {activeTab === 'new' ? (
-          <div className="p-8">
+          <div className="p-4 md:p-8">
             <NewScheduleForm
               staffList={staffList}
               onSuccess={handleSuccess}
@@ -207,7 +207,7 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
           </div>
 
         ) : activeTab === 'calendar' ? (
-          <div className="p-6 h-full">
+          <div className="p-4 md:p-6 h-full">
             <ScheduleCalendar
               schedules={schedules}
               onSelectSchedule={setSelectedSchedule}
@@ -215,7 +215,7 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
           </div>
 
         ) : (
-          <div className="p-8 space-y-6">
+          <div className="p-4 md:p-8 space-y-4 md:space-y-6">
             {/* Search */}
             <div className="relative w-full max-w-sm">
               <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -229,8 +229,8 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <table className="w-full text-left text-sm">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left text-sm min-w-[900px]">
                 <thead>
                   <tr className="border-b border-gray-100">
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่ / เวลา</th>

@@ -10,25 +10,25 @@ import JobTimeline from "./JobTimeline";
 import { isCompleted, getCurrentStepDef, getSteps } from "@/app/lib/job-workflow";
 
 type StepLog = {
-  step:        string
+  step: string
   completedBy: string
-  department:  string
+  department: string
   completedAt: Date
-  note?:       string | null
+  note?: string | null
 }
 
-type Job = { 
-  id: string; 
-  jobNumber: string; 
-  companyCode: string; 
-  jobType: string; 
-  month: number; 
-  yearBe: number; 
-  dateClosed: Date; 
-  customerName: string; 
-  item: string | null; 
-  quotationNumber: string | null; 
-  poNumber: string | null; 
+type Job = {
+  id: string;
+  jobNumber: string;
+  companyCode: string;
+  jobType: string;
+  month: number;
+  yearBe: number;
+  dateClosed: Date;
+  customerName: string;
+  item: string | null;
+  quotationNumber: string | null;
+  poNumber: string | null;
   sellerName: string | null;
   currentStep: string;
   flowVariant: string | null;
@@ -60,13 +60,13 @@ function formatDate(d: Date | string) {
 }
 
 // ── Badge colors per type/company ──────────────────────────
-function CompanyBadge({ code }: { code: string }) { 
-  const styles: Record<string, string> = { 
-    TP: "bg-blue-50 text-blue-800 border-blue-200", 
-    TG: "bg-green-50 text-green-800 border-green-200", 
-    TE: "bg-amber-50 text-amber-800 border-amber-200", 
-  }; 
-  return ( 
+function CompanyBadge({ code }: { code: string }) {
+  const styles: Record<string, string> = {
+    TP: "bg-blue-50 text-blue-800 border-blue-200",
+    TG: "bg-green-50 text-green-800 border-green-200",
+    TE: "bg-amber-50 text-amber-800 border-amber-200",
+  };
+  return (
     <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${styles[code] ?? "bg-gray-100 text-gray-700"}`}>
       {code}
     </span>
@@ -87,96 +87,96 @@ function JobTypeBadge({ type }: { type: string }) {
     "งานตู้": "bg-purple-50 text-purple-800 border-purple-200",
   };
   return (
-    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${colorMap[type] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}> 
-      {type} 
-    </span> 
+    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${colorMap[type] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}>
+      {type}
+    </span>
   );
 }
 
 // ── Editable fields ───────────────────── ─────────────────────
-function EditableField({ 
+function EditableField({
   label, value, type = "text", options, onSave,
-}: { 
-  label: string; 
-  value: string; 
-  type?: "text" | "date" | "select"; 
-  options?: string[]; 
+}: {
+  label: string;
+  value: string;
+  type?: "text" | "date" | "select";
+  options?: string[];
   onSave: (v: string) => void;
-}) { 
-  const [editing, setEditing] = useState(false); 
-  const [draft, setDraft] = useState(value); 
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
 
-  function commit() { 
-    if (draft !== value) onSave(draft); 
-    setEditing(false); 
-  } 
+  function commit() {
+    if (draft !== value) onSave(draft);
+    setEditing(false);
+  }
 
-  return ( 
-    <div> 
-      <p className="text-xs text-gray-400 mb-0.5">{label}</p> 
-      {editing ? ( 
-        <div className="flex gap-1 items-center"> 
-          {type === "select" ? ( 
-            <select 
-              autoFocus 
-              value={draft} 
-              onChange={(e) => setDraft(e.target.value)} 
-              onBlur={commit} 
-              className="text-sm border rounded px-2 py-1 bg-white" 
-            > 
-              {options?.map((o) => <option key={o} value={o}>{o}</option>)} 
-            </select> 
-          ) : ( 
-            <input 
-              autoFocus 
-              type={type} 
-              value={draft} 
-              onChange={(e) => setDraft(e.target.value)} 
-              onBlur={commit} 
-              onKeyDown={(e) => e.key === "Enter" && commit()} 
-              className="text-sm border rounded px-2 py-1 bg-white w-full" 
-            /> 
-          )} 
-          <button onClick={commit} className="text-xs text-blue-600 hover:underline">บันทึก</button> 
-        </div> 
-      ) : ( 
-        <button 
-          onClick={() => { setDraft(value); setEditing(true); }} 
-          className="text-sm text-gray-800 hover:text-blue-600 hover:underline text-left w-full group flex items-center gap-1" 
-        > 
-          <span>{value || <span className="text-gray-400 italic">—</span>}</span> 
-          <Edit2 size={12} className="opacity-0 group-hover:opacity-100 text-gray-400" /> 
-        </button> 
-      )} 
-    </div> 
+  return (
+    <div>
+      <p className="text-xs text-gray-400 mb-0.5">{label}</p>
+      {editing ? (
+        <div className="flex gap-1 items-center">
+          {type === "select" ? (
+            <select
+              autoFocus
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onBlur={commit}
+              className="text-sm border rounded px-2 py-1 bg-white"
+            >
+              {options?.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          ) : (
+            <input
+              autoFocus
+              type={type}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onBlur={commit}
+              onKeyDown={(e) => e.key === "Enter" && commit()}
+              className="text-sm border rounded px-2 py-1 bg-white w-full"
+            />
+          )}
+          <button onClick={commit} className="text-xs text-blue-600 hover:underline">บันทึก</button>
+        </div>
+      ) : (
+        <button
+          onClick={() => { setDraft(value); setEditing(true); }}
+          className="text-sm text-gray-800 hover:text-blue-600 hover:underline text-left w-full group flex items-center gap-1"
+        >
+          <span>{value || <span className="text-gray-400 italic">—</span>}</span>
+          <Edit2 size={12} className="opacity-0 group-hover:opacity-100 text-gray-400" />
+        </button>
+      )}
+    </div>
   );
 }
 
 // ── Expanded row ────────────────────── ──────────────────────
-function ExpandedRow({ 
-  job, 
-  onUpdate, 
-  onDelete, 
+function ExpandedRow({
+  job,
+  onUpdate,
+  onDelete,
   isManager,
   userName,
   userDept,
   userRole,
-}: { 
-  job: Job; 
-  onUpdate: (id: string, data: UpdateJobPayload) => void; 
-  onDelete: (id: string) => void; 
+}: {
+  job: Job;
+  onUpdate: (id: string, data: UpdateJobPayload) => void;
+  onDelete: (id: string) => void;
   isManager: boolean;
   userName: string;
   userDept: string;
   userRole: string;
-}) { 
-  const save = (field: keyof UpdateJobPayload) => (value: string) => 
-    onUpdate(job.id, { [field]: value }); 
+}) {
+  const save = (field: keyof UpdateJobPayload) => (value: string) =>
+    onUpdate(job.id, { [field]: value });
 
-  return ( 
+  return (
     <tr className="animate-in slide-in-from-top-1 fade-in duration-200">
       <td colSpan={12} className="p-0 border-b border-gray-100">
-        <div className="bg-gray-50/50 p-5 w-full shadow-inner"> 
+        <div className="bg-gray-50/50 p-4 md:p-5 w-full shadow-inner">
           <div className="mb-5 pb-5 border-b border-gray-100">
             <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">สถานะการดำเนินงาน (Timeline)</p>
             <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
@@ -238,15 +238,15 @@ function ExpandedRow({
                 </div>
               </div>
             )}
-            
+
             {isManager && (
               <div className="mt-5 pt-5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
                 <span className="text-xs text-brand-red font-bold flex items-center gap-1.5">
-                  <Wrench size={12} /> 
+                  <Wrench size={12} />
                   แก้ไขสถานะแบบ Manual:
                 </span>
-                <select 
-                  value={job.currentStep} 
+                <select
+                  value={job.currentStep}
                   onChange={(e) => onUpdate(job.id, { currentStep: e.target.value } as any)}
                   className="text-xs border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 font-medium focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red max-w-[250px]"
                 >
@@ -259,9 +259,9 @@ function ExpandedRow({
             )}
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm mb-4">
+          <div className="bg-white p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm mb-4">
             <p className="text-[10px] font-bold text-gray-400 mb-4 uppercase tracking-widest">ข้อมูลงานเบื้องต้น</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5"> 
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
               {/* Row 1 */}
               <EditableField label="ชื่อลูกค้า" value={job.customerName} onSave={save("customerName")} />
               <EditableField label="บริษัท" value={job.companyCode} type="select" options={COMPANY_CODES} onSave={save("companyCode")} />
@@ -269,7 +269,7 @@ function ExpandedRow({
                 <p className="text-xs text-gray-400 mb-0.5">พนักงานขาย</p>
                 <p className="text-sm text-gray-800">{job.sellerName || <span className="text-gray-400 italic">—</span>}</p>
               </div>
-              <EditableField label="ประเภทงาน" value={job.jobType} type="select" options={JOB_TYPES as unknown as string[]} onSave={save("jobType")} /> 
+              <EditableField label="ประเภทงาน" value={job.jobType} type="select" options={JOB_TYPES as unknown as string[]} onSave={save("jobType")} />
 
               {/* Row 2 */}
               <div>
@@ -311,25 +311,25 @@ function ExpandedRow({
 }
 
 // ── Main component ───────────────────── ─────────────────────
-export default function JobsClientPage({ 
-  jobs: initialJobs, 
-  isManager, 
+export default function JobsClientPage({
+  jobs: initialJobs,
+  isManager,
   currentUser,
   userDept,
   userRole,
   actionParam,
   targetJobId,
   initialSearch,
-}: { 
-  jobs: Job[]; 
-  isManager: boolean; 
+}: {
+  jobs: Job[];
+  isManager: boolean;
   currentUser: string;
   userDept: string;
   userRole: string;
   actionParam?: string;
   targetJobId?: string;
   initialSearch?: string;
-}) { 
+}) {
   const router = useRouter();
   const [showQuickRepair, setShowQuickRepair] = useState(actionParam === "new-repair");
   const [quickRepairLoading, setQuickRepairLoading] = useState(false);
@@ -343,48 +343,48 @@ export default function JobsClientPage({
     }
   }, [actionParam, router]);
 
-  const [jobs, setJobs] = useState(initialJobs); 
+  const [jobs, setJobs] = useState(initialJobs);
   useEffect(() => {
     setJobs(initialJobs);
   }, [initialJobs]);
-  const [expanded, setExpanded] = useState<string | null>(targetJobId || null); 
-  const [search, setSearch] = useState(initialSearch || ""); 
-  const [filterCo, setFilterCo] = useState(""); 
-  const [filterType, setFilterType] = useState(""); 
-  const [filterMonth, setFilterMonth] = useState(""); 
+  const [expanded, setExpanded] = useState<string | null>(targetJobId || null);
+  const [search, setSearch] = useState(initialSearch || "");
+  const [filterCo, setFilterCo] = useState("");
+  const [filterType, setFilterType] = useState("");
+  const [filterMonth, setFilterMonth] = useState("");
   const [filterEmployee, setFilterEmployee] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
-  const [isPending, startTransition] = useTransition(); 
+  const [isPending, startTransition] = useTransition();
 
   const normalizedDept = useMemo(() => {
     const roleLower = String(userRole || "").toLowerCase().trim()
     const d = userDept.toLowerCase().trim()
     const depts: string[] = []
-    
+
     const isSales = roleLower.includes('sale') || roleLower.includes('ขาย') || roleLower.includes('เซล') || roleLower.includes('marketing') || d.includes('sale') || d.includes('ขาย') || d.includes('เซล') || d.includes('marketing')
     const isAccounting = roleLower.includes('account') || roleLower.includes('บัญชี') || roleLower.includes('finance') || d.includes('account') || d.includes('บัญชี') || d.includes('finance')
     const isService = roleLower.includes('service') || roleLower.includes('ซ่อม') || roleLower.includes('บริการ') || d.includes('service') || d.includes('ซ่อม') || d.includes('บริการ')
     const isPurchase = roleLower.includes('purchase') || roleLower.includes('จัดซื้อ') || d.includes('purchase') || d.includes('จัดซื้อ')
     const isProduction = roleLower.includes('production') || roleLower.includes('ผลิต') || d.includes('production') || d.includes('ผลิต')
     const isProject = roleLower.includes('project') || roleLower.includes('โปรเจค') || roleLower.includes('service engineer mgr') || d.includes('project') || d.includes('โปรเจค')
-    
+
     const isDeliveryRole = roleLower.includes('delivery') || roleLower.includes('transport') || roleLower.includes('จัดส่ง') || roleLower.includes('ขนส่ง') || roleLower.includes('driver') || roleLower.includes('คนขับ')
     const isStoreRole = roleLower.includes('store') || roleLower.includes('warehouse') || roleLower.includes('สโตร์') || roleLower.includes('คลัง')
-    
+
     if (isDeliveryRole) {
       depts.push("delivery")
     } else if (isStoreRole || d.includes('store') || d.includes('สโตร์') || d.includes('คลัง')) {
       depts.push("store")
     }
-    
+
     if (isSales) depts.push("sales")
     if (isAccounting) depts.push("accounting")
     if (isService) depts.push("service")
     if (isPurchase) depts.push("purchase")
     if (isProduction) depts.push("production")
     if (isProject) depts.push("project")
-    
+
     if (depts.length === 0) depts.push(d)
     return depts
   }, [userDept, userRole])
@@ -394,10 +394,10 @@ export default function JobsClientPage({
   );
 
   // ── Unique months from data ── 
-  const months = useMemo(() => { 
-    const s = new Set(jobs.map((j) => `${j.yearBe}-${String(j.month).padStart(2, "0")}`)); 
-    return Array.from(s).sort().reverse(); 
-  }, [jobs]); 
+  const months = useMemo(() => {
+    const s = new Set(jobs.map((j) => `${j.yearBe}-${String(j.month).padStart(2, "0")}`));
+    return Array.from(s).sort().reverse();
+  }, [jobs]);
 
   const uniqueEmployees = useMemo(() => {
     const s = new Set(jobs.map((j) => j.sellerName).filter(Boolean) as string[]);
@@ -405,68 +405,68 @@ export default function JobsClientPage({
   }, [jobs]);
 
   // ── Filter ── 
-  const filtered = useMemo(() => { 
-    const q = search.toLowerCase(); 
-    return jobs.filter((j) => { 
-      if (search && ![j.jobNumber, j.customerName, j.quotationNumber ?? ""].some((v) => v.toLowerCase().includes(q))) return false; 
-      if (filterCo && j.companyCode !== filterCo) return false; 
-      if (filterType && j.jobType !== filterType) return false; 
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return jobs.filter((j) => {
+      if (search && ![j.jobNumber, j.customerName, j.quotationNumber ?? ""].some((v) => v.toLowerCase().includes(q))) return false;
+      if (filterCo && j.companyCode !== filterCo) return false;
+      if (filterType && j.jobType !== filterType) return false;
       if (filterEmployee && j.sellerName !== filterEmployee) return false;
       if (filterMonth === "custom") {
         if (filterStartDate) {
           const s = new Date(filterStartDate);
-          s.setHours(0,0,0,0);
+          s.setHours(0, 0, 0, 0);
           if (new Date(j.dateClosed) < s) return false;
         }
         if (filterEndDate) {
           const e = new Date(filterEndDate);
-          e.setHours(23,59,59,999);
+          e.setHours(23, 59, 59, 999);
           if (new Date(j.dateClosed) > e) return false;
         }
-      } else if (filterMonth) { 
-        const [y, m] = filterMonth.split("-"); 
-        if (j.yearBe !== +y || j.month !== +m) return false; 
-      } 
+      } else if (filterMonth) {
+        const [y, m] = filterMonth.split("-");
+        if (j.yearBe !== +y || j.month !== +m) return false;
+      }
       if (filterStatus === "pending") {
         if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)) return false;
         const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant, j.stepLogs);
         if (!stepDef?.department?.some(dept => normalizedDept.includes(dept))) return false;
       }
-      return true; 
-    }); 
-  }, [jobs, search, filterCo, filterType, filterEmployee, filterMonth, filterStartDate, filterEndDate, filterStatus, normalizedDept]); 
+      return true;
+    });
+  }, [jobs, search, filterCo, filterType, filterEmployee, filterMonth, filterStartDate, filterEndDate, filterStatus, normalizedDept]);
 
   // ── Handlers ── 
-  function handleUpdate(id: string, data: UpdateJobPayload) { 
-    startTransition(async () => { 
-      await updateJob(id, data); 
-      setJobs((prev) => 
-        prev.map((j) => 
-          j.id === id 
+  function handleUpdate(id: string, data: UpdateJobPayload) {
+    startTransition(async () => {
+      await updateJob(id, data);
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === id
             ? { ...j, ...data, ...(data.dateClosed ? { dateClosed: new Date(data.dateClosed) } : {}) } as any
-            : j 
-        ) 
-      ); 
-    }); 
-  } 
+            : j
+        )
+      );
+    });
+  }
 
-  function handleDelete(id: string) { 
-    startTransition(async () => { 
-      await deleteJob(id); 
-      setJobs((prev) => prev.filter((j) => j.id !== id)); 
-      setExpanded(null); 
-    }); 
-  } 
+  function handleDelete(id: string) {
+    startTransition(async () => {
+      await deleteJob(id);
+      setJobs((prev) => prev.filter((j) => j.id !== id));
+      setExpanded(null);
+    });
+  }
 
   // ── Stats ── 
-  const thisMonthCount = useMemo(() => { 
-    const now = new Date(); 
-    const m = now.getMonth() + 1; 
-    const y = (now.getFullYear() + 543) % 100; 
-    return jobs.filter((j) => j.month === m && j.yearBe === y).length; 
-  }, [jobs]); 
+  const thisMonthCount = useMemo(() => {
+    const now = new Date();
+    const m = now.getMonth() + 1;
+    const y = (now.getFullYear() + 543) % 100;
+    return jobs.filter((j) => j.month === m && j.yearBe === y).length;
+  }, [jobs]);
 
-  const withPO = jobs.filter((j) => j.poNumber).length; 
+  const withPO = jobs.filter((j) => j.poNumber).length;
 
   const pendingActionCount = useMemo(() => {
     return jobs.filter((j) => {
@@ -616,8 +616,8 @@ export default function JobsClientPage({
     );
   }
 
-  return ( 
-    <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm md:overflow-hidden overflow-visible"> 
+  return (
+    <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm md:overflow-hidden overflow-visible">
       {showQuickRepair && <QuickRepairModal />}
       {showQuickProject && <QuickProjectModal />}
 
@@ -634,9 +634,9 @@ export default function JobsClientPage({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
           {(normalizedDept.includes('project') || normalizedDept.includes('sales') || isManager) && (
-            <button 
+            <button
               onClick={() => setShowQuickProject(true)}
               className="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors flex items-center gap-2"
             >
@@ -645,7 +645,7 @@ export default function JobsClientPage({
             </button>
           )}
           {(normalizedDept.includes('service') || isManager) && (
-            <button 
+            <button
               onClick={() => setShowQuickRepair(true)}
               className="px-4 py-2 bg-brand-red/10 text-brand-red hover:bg-brand-red/20 rounded-lg text-xs font-bold transition-colors flex items-center gap-2"
             >
@@ -669,263 +669,263 @@ export default function JobsClientPage({
       </div>
 
       {/* ── Content ── */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-6">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8 space-y-6">
 
-        {/* Filters */} 
+        {/* Filters */}
         <div className="flex flex-wrap gap-3 items-center">
-        <input 
-          type="text" 
-          placeholder="ค้นหางาน / ลูกค้า / ใบเสนอราคา..." 
-          value={search} 
-          onChange={(e) => setSearch(e.target.value)} 
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
-        /> 
-        <select 
-          value={filterCo} 
-          onChange={(e) => setFilterCo(e.target.value)} 
-          className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
-        > 
-          <option value="">ทุกบริษัท</option> 
-          {COMPANY_CODES.map((c) => <option key={c} value={c}>{c}</option>)} 
-        </select> 
-        <select 
-          value={filterEmployee} 
-          onChange={(e) => setFilterEmployee(e.target.value)} 
-          className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
-        > 
-          <option value="">พนักงานขายทั้งหมด</option> 
-          {uniqueEmployees.map((emp) => <option key={emp} value={emp}>{emp}</option>)} 
-        </select> 
-        <select 
-          value={filterType} 
-          onChange={(e) => setFilterType(e.target.value)} 
-          className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
-        > 
-          <option value="">งานทุกประเภท</option> 
-          {JOB_TYPES.map((t) => <option key={t} value={t}>{t}</option>)} 
-        </select> 
-        <select 
-          value={filterMonth} 
-          onChange={(e) => {
-            setFilterMonth(e.target.value);
-            if (e.target.value !== "custom") {
-              setFilterStartDate("");
-              setFilterEndDate("");
-            }
-          }} 
-          className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
-        > 
-          <option value="">ทุกเดือน</option> 
-          <option value="custom">กำหนดเอง (ระบุช่วงวันที่)</option>
-          {months.map((m) => { 
-            const [y, mo] = m.split("-"); 
-            return <option key={m} value={m}>{MONTH_NAMES[+mo]} 25{y}</option>; 
-          })} 
-        </select> 
-        {filterMonth === "custom" && (
-          <div className="flex items-center gap-2">
-            <input
-              type="date"
-              value={filterStartDate}
-              onChange={(e) => setFilterStartDate(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
-            />
-            <span className="text-gray-400 text-sm">-</span>
-            <input
-              type="date"
-              value={filterEndDate}
-              onChange={(e) => setFilterEndDate(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
-            />
-          </div>
-        )}
-        <select 
-          value={filterStatus} 
-          onChange={(e) => setFilterStatus(e.target.value as "all" | "pending")} 
-          className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all" 
-        > 
-          <option value="all">สถานะทั้งหมด</option> 
-          <option value="pending">รอฉันดำเนินการ</option> 
-        </select>
-        {(search || filterCo || filterType || filterEmployee || filterMonth || filterStartDate || filterEndDate || filterStatus !== (normalizedDept.includes("sales") ? "all" : "pending")) && ( 
-          <button 
-            onClick={() => { setSearch(""); setFilterCo(""); setFilterType(""); setFilterEmployee(""); setFilterMonth(""); setFilterStartDate(""); setFilterEndDate(""); setFilterStatus(normalizedDept.includes("sales") ? "all" : "pending"); }} 
-            className="text-xs font-bold text-gray-400 hover:text-gray-700 transition-colors" 
-          > 
-            ล้างตัวกรอง
-          </button> 
-        )} 
-        <span className="ml-auto text-xs font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg">{filtered.length} รายการ</span>
-      </div>
+          <input
+            type="text"
+            placeholder="ค้นหางาน / ลูกค้า / ใบเสนอราคา..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+          />
+          <select
+            value={filterCo}
+            onChange={(e) => setFilterCo(e.target.value)}
+            className="w-full md:w-auto border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+          >
+            <option value="">ทุกบริษัท</option>
+            {COMPANY_CODES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <select
+            value={filterEmployee}
+            onChange={(e) => setFilterEmployee(e.target.value)}
+            className="w-full md:w-auto border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+          >
+            <option value="">พนักงานขายทั้งหมด</option>
+            {uniqueEmployees.map((emp) => <option key={emp} value={emp}>{emp}</option>)}
+          </select>
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="w-full md:w-auto border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+          >
+            <option value="">งานทุกประเภท</option>
+            {JOB_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <select
+            value={filterMonth}
+            onChange={(e) => {
+              setFilterMonth(e.target.value);
+              if (e.target.value !== "custom") {
+                setFilterStartDate("");
+                setFilterEndDate("");
+              }
+            }}
+            className="w-full md:w-auto border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+          >
+            <option value="">ทุกเดือน</option>
+            <option value="custom">กำหนดเอง (ระบุช่วงวันที่)</option>
+            {months.map((m) => {
+              const [y, mo] = m.split("-");
+              return <option key={m} value={m}>{MONTH_NAMES[+mo]} 25{y}</option>;
+            })}
+          </select>
+          {filterMonth === "custom" && (
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto">
+              <input
+                type="date"
+                value={filterStartDate}
+                onChange={(e) => setFilterStartDate(e.target.value)}
+                className="w-full sm:w-auto border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+              />
+              <span className="text-gray-400 text-sm hidden sm:inline">-</span>
+              <input
+                type="date"
+                value={filterEndDate}
+                onChange={(e) => setFilterEndDate(e.target.value)}
+                className="w-full sm:w-auto border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+              />
+            </div>
+          )}
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as "all" | "pending")}
+            className="w-full md:w-auto border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+          >
+            <option value="all">สถานะทั้งหมด</option>
+            <option value="pending">รอฉันดำเนินการ</option>
+          </select>
+          {(search || filterCo || filterType || filterEmployee || filterMonth || filterStartDate || filterEndDate || filterStatus !== (normalizedDept.includes("sales") ? "all" : "pending")) && (
+            <button
+              onClick={() => { setSearch(""); setFilterCo(""); setFilterType(""); setFilterEmployee(""); setFilterMonth(""); setFilterStartDate(""); setFilterEndDate(""); setFilterStatus(normalizedDept.includes("sales") ? "all" : "pending"); }}
+              className="text-xs font-bold text-gray-400 hover:text-gray-700 transition-colors"
+            >
+              ล้างตัวกรอง
+            </button>
+          )}
+          <span className="w-full md:w-auto text-center md:ml-auto text-xs font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg">{filtered.length} รายการ</span>
+        </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
-        <table className="w-full text-left text-sm min-w-[1000px]">
-          <thead className="sticky top-0 bg-white z-10 shadow-sm">
-            <tr className="border-b border-gray-100">
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest w-12"></th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">รหัสงาน</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">สถานะ</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">บริษัท</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ประเภทงาน</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่ปิดการขาย</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">วันที่ต้องการ / แผนงาน</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ลูกค้า</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">การชำระเงิน</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ใบเสนอราคา</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">หมายเลข PO</th>
-              <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">พนักงานขาย</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={12} className="text-center py-16 text-gray-400 font-medium">
-                  ไม่พบงานที่ตรงกับเงื่อนไข
-                </td>
+        {/* Table */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+          <table className="w-full text-left text-sm min-w-[1000px]">
+            <thead className="sticky top-0 bg-white z-10 shadow-sm">
+              <tr className="border-b border-gray-100">
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest w-12"></th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">รหัสงาน</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">สถานะ</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">บริษัท</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ประเภทงาน</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่ปิดการขาย</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">วันที่ต้องการ / แผนงาน</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ลูกค้า</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">การชำระเงิน</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ใบเสนอราคา</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">หมายเลข PO</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">พนักงานขาย</th>
               </tr>
-            )}
-            {filtered.map((job) => {
-              const isOpen = expanded === job.id;
-              return (
-                <React.Fragment key={job.id}>
-                  <tr 
-                    onClick={() => setExpanded(isOpen ? null : job.id)} 
-                    className={`cursor-pointer transition-colors ${isOpen ? "bg-red-50/50" : "hover:bg-gray-50"} ${isPending ? "opacity-60" : ""}`} 
-                  > 
-                    <td className="px-5 py-4 text-gray-400"> 
-                      {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />} 
-                    </td> 
-                    <td className="px-5 py-4 font-mono font-black text-brand-red tracking-wide text-xs"> 
-                      {job.jobNumber} 
-                    </td> 
-                    <td className="px-5 py-4">
-                      {getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.department.includes("service") ? (
-                        <div 
-                          className={`
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={12} className="text-center py-16 text-gray-400 font-medium">
+                    ไม่พบงานที่ตรงกับเงื่อนไข
+                  </td>
+                </tr>
+              )}
+              {filtered.map((job) => {
+                const isOpen = expanded === job.id;
+                return (
+                  <React.Fragment key={job.id}>
+                    <tr
+                      onClick={() => setExpanded(isOpen ? null : job.id)}
+                      className={`cursor-pointer transition-colors ${isOpen ? "bg-red-50/50" : "hover:bg-gray-50"} ${isPending ? "opacity-60" : ""}`}
+                    >
+                      <td className="px-5 py-4 text-gray-400">
+                        {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                      </td>
+                      <td className="px-5 py-4 font-mono font-black text-brand-red tracking-wide text-xs">
+                        {job.jobNumber}
+                      </td>
+                      <td className="px-5 py-4">
+                        {getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.department.includes("service") ? (
+                          <div
+                            className={`
                             inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border cursor-pointer hover:shadow-md transition-all
                             ${isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
-                              ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                              : "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
-                            }
+                                ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                : "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
+                              }
                           `}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push("/service/my-tasks");
-                          }}
-                        >
-                          {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
-                            ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span>
-                            : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
-                          }
-                        </div>
-                      ) : (
-                        <span className={`
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push("/service/my-tasks");
+                            }}
+                          >
+                            {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
+                              ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span>
+                              : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
+                            }
+                          </div>
+                        ) : (
+                          <span className={`
                           inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border
                           ${isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                            : "bg-blue-50 text-blue-600 border-blue-200"
-                          }
+                              ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                              : "bg-blue-50 text-blue-600 border-blue-200"
+                            }
                         `}>
-                          {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
-                            ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span>
-                            : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
-                          }
+                            {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
+                              ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span>
+                              : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
+                            }
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <CompanyBadge code={job.companyCode} />
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <div className="flex flex-col gap-1">
+                          <JobTypeBadge type={job.jobType} />
+                          {(job.jobType === 'Project' || job.jobType === 'งานโปรเจค') && (
+                            job.project ? (
+                              <a href={`/projects/${job.project.id}`} className="text-[10px] font-bold text-brand-red hover:underline flex items-center gap-1 w-fit">
+                                <FolderOpen className="w-3 h-3" /> เปิดโครงการ
+                              </a>
+                            ) : (normalizedDept.includes('project') || isManager) ? (
+                              <a href={`/projects/new?jobId=${job.id}`} className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1 w-fit">
+                                <Plus className="w-3 h-3" /> สร้างโครงการ
+                              </a>
+                            ) : null
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="text-[11px] font-bold text-gray-400 whitespace-nowrap">
+                          {formatDate(job.dateClosed)}
                         </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 whitespace-nowrap"> 
-                      <CompanyBadge code={job.companyCode} /> 
-                    </td> 
-                    <td className="px-5 py-4 whitespace-nowrap"> 
-                      <div className="flex flex-col gap-1">
-                        <JobTypeBadge type={job.jobType} /> 
-                        {(job.jobType === 'Project' || job.jobType === 'งานโปรเจค') && (
-                          job.project ? (
-                            <a href={`/projects/${job.project.id}`} className="text-[10px] font-bold text-brand-red hover:underline flex items-center gap-1 w-fit">
-                              <FolderOpen className="w-3 h-3" /> เปิดโครงการ
-                            </a>
-                          ) : (normalizedDept.includes('project') || isManager) ? (
-                            <a href={`/projects/new?jobId=${job.id}`} className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1 w-fit">
-                              <Plus className="w-3 h-3" /> สร้างโครงการ
-                            </a>
-                          ) : null
-                        )}
-                      </div>
-                    </td> 
-                    <td className="px-5 py-4"> 
-                      <span className="text-[11px] font-bold text-gray-400 whitespace-nowrap">
-                        {formatDate(job.dateClosed)}
-                      </span>
-                    </td> 
-                    <td className="px-5 py-4 text-center">
-                      <div className="flex flex-col items-center gap-1.5">
-                        {job.deliveryDate && (
-                          <span className="text-[10px] font-bold whitespace-nowrap bg-blue-50 border border-blue-100 text-blue-700 px-2 py-0.5 rounded-md" title="วันที่ต้องการ / จัดส่ง">
-                            ต้องการ: {new Date(job.deliveryDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
-                          </span>
-                        )}
-                        {job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate && (
-                          <span className="text-[10px] font-bold text-gray-700 whitespace-nowrap bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md" title="แผนงาน Service">
-                            แผน: {new Date(job.installationOrders[0].plannedStartDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
-                          </span>
-                        )}
-                        {!job.deliveryDate && !(job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate) && (
-                          <span className="text-gray-300 text-[11px]">—</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4"> 
-                      <p className="text-xs font-bold text-gray-900 truncate max-w-[180px]" title={job.customerName}>
-                        {job.customerName}
-                      </p>
-                    </td> 
-                    <td className="px-5 py-4">
-                      <div className="flex flex-col gap-1">
-                        {job.paymentMethod ? (
-                          <span className="text-[10px] font-bold whitespace-nowrap bg-green-50 border border-green-100 text-green-700 px-2 py-0.5 rounded-md w-fit">
-                            {job.paymentMethod}
-                          </span>
-                        ) : (
-                          <span className="text-gray-300 text-[11px]">—</span>
-                        )}
-                        {job.paymentDate && (
-                          <span className="text-[9px] font-bold text-gray-500 whitespace-nowrap">
-                            จ่าย: {new Date(job.paymentDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                          </span>
-                        )}
-                      </div>
-                    </td> 
-                    <td className="px-5 py-4 font-mono text-[11px] font-black text-gray-800 hover:text-brand-red hover:underline transition-colors"> 
-                      {job.quotationNumber ?? "—"} 
-                    </td> 
-                    <td className="px-5 py-4 font-mono text-[11px] font-black text-gray-500"> 
-                      {job.poNumber ?? <span className="text-gray-300">—</span>}
-                    </td>
-                    <td className="px-5 py-4">
-                      <p className="text-[11px] font-bold text-gray-600 whitespace-nowrap">
-                        {job.sellerName ?? "—"}
-                      </p>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="px-5 py-4 text-center">
+                        <div className="flex flex-col items-center gap-1.5">
+                          {job.deliveryDate && (
+                            <span className="text-[10px] font-bold whitespace-nowrap bg-blue-50 border border-blue-100 text-blue-700 px-2 py-0.5 rounded-md" title="วันที่ต้องการ / จัดส่ง">
+                              ต้องการ: {new Date(job.deliveryDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                            </span>
+                          )}
+                          {job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate && (
+                            <span className="text-[10px] font-bold text-gray-700 whitespace-nowrap bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md" title="แผนงาน Service">
+                              แผน: {new Date(job.installationOrders[0].plannedStartDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                            </span>
+                          )}
+                          {!job.deliveryDate && !(job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate) && (
+                            <span className="text-gray-300 text-[11px]">—</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <p className="text-xs font-bold text-gray-900 truncate max-w-[180px]" title={job.customerName}>
+                          {job.customerName}
+                        </p>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex flex-col gap-1">
+                          {job.paymentMethod ? (
+                            <span className="text-[10px] font-bold whitespace-nowrap bg-green-50 border border-green-100 text-green-700 px-2 py-0.5 rounded-md w-fit">
+                              {job.paymentMethod}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300 text-[11px]">—</span>
+                          )}
+                          {job.paymentDate && (
+                            <span className="text-[9px] font-bold text-gray-500 whitespace-nowrap">
+                              จ่าย: {new Date(job.paymentDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 font-mono text-[11px] font-black text-gray-800 hover:text-brand-red hover:underline transition-colors">
+                        {job.quotationNumber ?? "—"}
+                      </td>
+                      <td className="px-5 py-4 font-mono text-[11px] font-black text-gray-500">
+                        {job.poNumber ?? <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-5 py-4">
+                        <p className="text-[11px] font-bold text-gray-600 whitespace-nowrap">
+                          {job.sellerName ?? "—"}
+                        </p>
+                      </td>
+                    </tr>
 
-                  {isOpen && (
-                    <ExpandedRow
-                      job={job}
-                      onUpdate={handleUpdate}
-                      onDelete={handleDelete}
-                      isManager={isManager}
-                      userName={currentUser}
-                      userDept={userDept}
-                      userRole={userRole}
-                    />
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                    {isOpen && (
+                      <ExpandedRow
+                        job={job}
+                        onUpdate={handleUpdate}
+                        onDelete={handleDelete}
+                        isManager={isManager}
+                        userName={currentUser}
+                        userDept={userDept}
+                        userRole={userRole}
+                      />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
       </div>
     </div>

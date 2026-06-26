@@ -176,7 +176,7 @@ export default function TelesaleLogClient({
   return (
     <div className="max-w-7xl mx-auto w-full flex flex-col gap-6">
       {/* Header Panel */}
-      <div className="flex items-center justify-between bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-3xl p-4 md:p-6 shadow-sm border border-slate-100">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push(returnTo)}
@@ -201,13 +201,13 @@ export default function TelesaleLogClient({
       </div>
 
       {/* Main Grid: 2-Column Responsive Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8">
         
         {/* Left Column: Context Details & History Timeline (Lg: 5 columns) */}
         <div className="lg:col-span-5 flex flex-col gap-6">
           
           {/* Company Profile Info Card */}
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+          <div className="bg-white rounded-3xl p-4 md:p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
             <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-50 pb-3">
               <Building2 size={16} className="text-slate-400" /> ข้อมูลบริษัทผู้รับสาย
             </h3>
@@ -230,7 +230,7 @@ export default function TelesaleLogClient({
           </div>
 
           {/* Latest Quotation Brief Card */}
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+          <div className="bg-white rounded-3xl p-4 md:p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
             <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-50 pb-3">
               <FileText size={16} className="text-slate-400" /> ข้อมูลใบเสนอราคาล่าสุด
             </h3>
@@ -280,7 +280,7 @@ export default function TelesaleLogClient({
           </div>
 
           {/* Previous Interaction History Card */}
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex-1 flex flex-col gap-4">
+          <div className="bg-white rounded-3xl p-4 md:p-6 shadow-sm border border-slate-100 flex-1 flex flex-col gap-4">
             <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-50 pb-3">
               <PhoneCall size={16} className="text-slate-400" /> ประวัติการพูดคุยย้อนหลัง (History)
             </h3>
@@ -338,7 +338,7 @@ export default function TelesaleLogClient({
 
         {/* Right Column: Dynamic Log Forms (Lg: 7 columns) */}
         <div className="lg:col-span-7">
-          <form onSubmit={handleSave} className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 flex flex-col gap-6">
+          <form onSubmit={handleSave} className="bg-white rounded-3xl p-4 md:p-8 shadow-sm border border-slate-100 flex flex-col gap-6">
             
             {/* Call Status Switcher Segment */}
             <div className="flex flex-col gap-2">
@@ -371,7 +371,7 @@ export default function TelesaleLogClient({
             </div>
 
             {/* Editable Contact Profile */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-5 rounded-3xl border border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-4 md:p-5 rounded-3xl border border-slate-100">
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1">
                   <User size={12} /> ชื่อผู้ติดต่อ
@@ -500,7 +500,7 @@ export default function TelesaleLogClient({
                     <label className="text-[10px] font-black text-rose-600 uppercase tracking-widest flex items-center gap-1.5">
                       <Clock size={12} /> วันและเวลานัดโทรกลับ (Callback Appointment)
                     </label>
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 mt-2">
                       <input
                         type="date"
                         value={cbDate}
@@ -544,7 +544,7 @@ export default function TelesaleLogClient({
                   <label className="text-[10px] font-black text-rose-600 uppercase tracking-widest flex items-center gap-1.5">
                     <Clock size={12} /> วันและเวลานัดโทรกลับ (Callback Appointment)
                   </label>
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 mt-2">
                     <input
                       type="date"
                       value={cbDate}

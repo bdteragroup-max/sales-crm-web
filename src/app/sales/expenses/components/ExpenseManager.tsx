@@ -77,11 +77,11 @@ export default function ExpenseManager({ initialExpenses, currentUser, salesReps
         <p className="text-sm font-bold text-gray-400 mt-1">จดบันทึกค่าใช้จ่ายของคุณ ซึ่งข้อมูลนี้จะสะท้อนในผลการปฏิบัติงาน</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         
         {/* FORM SECTION */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sticky top-8">
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6 sticky top-8">
             <h2 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
               <Plus size={20} className="text-[#ff2301]" />
               เพิ่มค่าใช้จ่ายใหม่
@@ -185,12 +185,12 @@ export default function ExpenseManager({ initialExpenses, currentUser, salesReps
         {/* LIST SECTION */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-100">
+            <div className="p-4 md:p-6 border-b border-gray-100">
               <h2 className="text-lg font-black text-gray-900">ประวัติค่าใช้จ่ายล่าสุด</h2>
             </div>
             
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left border-collapse min-w-[700px]">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
                     <th className="px-6 py-3 text-[10px] font-black text-gray-500 uppercase tracking-widest">วันที่</th>

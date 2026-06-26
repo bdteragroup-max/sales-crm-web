@@ -394,8 +394,8 @@ export default function PipelineClientPage({
       )}
 
       {/* ── Header ── */}
-      <header className="shrink-0 bg-white border-b border-gray-100 px-6 py-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
+      <header className="shrink-0 bg-white border-b border-gray-100 px-4 md:px-6 py-4 flex flex-col gap-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-brand-red flex items-center justify-center shadow-md shadow-red-200">
             <Layers size={17} className="text-white" />
@@ -410,16 +410,16 @@ export default function PipelineClientPage({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           {/* Search */}
-          <div className="relative">
+          <div className="relative w-full md:w-auto flex-1 md:flex-none">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="ค้นหาบริษัท, เลขที่..."
               value={searchTerm}
               onChange={(e) => updateFilters({ search: e.target.value })}
-              className="w-52 pl-8 pr-3 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
+              className="w-full md:w-52 pl-8 pr-3 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
             />
           </div>
 
@@ -479,10 +479,10 @@ export default function PipelineClientPage({
           <div className="w-px h-4 bg-gray-200 mx-1"></div>
 
           {/* Preset Buttons */}
-          <div className="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg border border-gray-200">
+          <div className="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg border border-gray-200 overflow-x-auto custom-scrollbar w-full md:w-auto flex-nowrap">
             <button
               onClick={() => updateFilters({ pr: 'thisMonth' })}
-              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
+              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all whitespace-nowrap ${
                 preset === 'thisMonth' ? 'bg-white shadow-sm text-brand-red' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
               }`}
             >
@@ -490,7 +490,7 @@ export default function PipelineClientPage({
             </button>
             <button
               onClick={() => updateFilters({ pr: '3months' })}
-              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
+              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all whitespace-nowrap ${
                 preset === '3months' ? 'bg-white shadow-sm text-brand-red' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
               }`}
             >
@@ -498,7 +498,7 @@ export default function PipelineClientPage({
             </button>
             <button
               onClick={() => updateFilters({ pr: 'custom' })}
-              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
+              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all whitespace-nowrap ${
                 preset === 'custom' ? 'bg-white shadow-sm text-brand-red' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
               }`}
             >
@@ -539,7 +539,7 @@ export default function PipelineClientPage({
       </header>
 
       {/* ── Pipeline Value Summary Bar ── */}
-      <div className="shrink-0 bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-8 overflow-x-auto">
+      <div className="shrink-0 bg-white border-b border-gray-100 px-4 md:px-6 py-3 flex items-center gap-8 overflow-x-auto custom-scrollbar">
         {columnsToRender.map(col => {
           const { list, totalValue } = getColumnData(col.id)
           const pct = allActiveValue > 0 ? (totalValue / allActiveValue) * 100 : 0
@@ -570,7 +570,7 @@ export default function PipelineClientPage({
       </div>
 
       {/* ── Kanban Board ── */}
-      <div className="flex-1 overflow-x-auto p-5 custom-scrollbar">
+      <div className="flex-1 overflow-x-auto p-2 md:p-5 custom-scrollbar">
         <div className={`h-full flex gap-4 ${showLostDeals ? 'min-w-[1550px]' : 'min-w-[1300px]'}`}>
 
           {columnsToRender.map(col => {

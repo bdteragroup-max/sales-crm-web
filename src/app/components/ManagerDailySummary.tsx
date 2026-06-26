@@ -88,7 +88,7 @@ export default function ManagerDailySummary({
   };
 
   return (
-    <div className="flex flex-col gap-8 animate-fade-in pb-8">
+    <div className="flex flex-col gap-4 md:gap-8 animate-fade-in pb-8">
       
       {/* EXPORT HEADER */}
       <div className="flex items-center justify-between bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
@@ -116,9 +116,9 @@ export default function ManagerDailySummary({
         </div>
       </div>
 
-      <div id="manager-summary-export-area" className="flex flex-col gap-8">
+      <div id="manager-summary-export-area" className="flex flex-col gap-4 md:gap-8">
         {/* 1. PRODUCT GROUP PERFORMANCE */}
-        <section className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+        <section className="bg-white rounded-3xl p-6 md:p-4 md:p-8 shadow-sm border border-gray-100">
           <div className="mb-6">
           <h3 className="text-lg font-black text-gray-900 flex items-center gap-2">
             <Target size={20} className="text-brand-red" />
@@ -160,7 +160,7 @@ export default function ManagerDailySummary({
       </section>
 
       {/* 2. BRANCH COMPARISON (Sales vs Expenses) */}
-      <section className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+      <section className="bg-white rounded-3xl p-6 md:p-4 md:p-8 shadow-sm border border-gray-100">
         <div className="mb-6">
           <h3 className="text-lg font-black text-gray-900 flex items-center gap-2">
             <MapPin size={20} className="text-blue-600" />
@@ -206,7 +206,7 @@ export default function ManagerDailySummary({
       </section>
 
       {/* 3. INDIVIDUAL COMPARISON (Sales vs Expenses) */}
-      <section className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+      <section className="bg-white rounded-3xl p-6 md:p-4 md:p-8 shadow-sm border border-gray-100">
         <div className="mb-6">
           <h3 className="text-lg font-black text-gray-900 flex items-center gap-2">
             <Users size={20} className="text-indigo-600" />

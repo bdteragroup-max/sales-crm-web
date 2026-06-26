@@ -344,7 +344,7 @@ function ResponsiveSidebar({
 
       {/* ─── MOBILE SLIDER DRAWER CONTENT ─── */}
       <aside
-        className={`md:hidden fixed top-0 bottom-0 left-0 w-[270px] bg-white border-r border-gray-100 flex flex-col justify-between py-8 px-5 z-50 transition-transform duration-300 ease-out transform shadow-2xl ${
+        className={`md:hidden fixed top-0 bottom-0 left-0 w-[270px] bg-white border-r border-gray-100 flex flex-col py-8 px-5 z-50 transition-transform duration-300 ease-out transform shadow-2xl overflow-y-auto custom-scrollbar ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -410,7 +410,7 @@ function ResponsiveSidebar({
         </div>
 
         {/* User profile & Action buttons */}
-        <div className="flex flex-col gap-4 w-full">
+        <div className="flex flex-col gap-4 w-full mt-auto pt-8">
           <div className="h-px bg-gray-100 w-full" />
 
           <CoinMiniWidget 

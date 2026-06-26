@@ -138,7 +138,7 @@ export default function TelesalesClientPage({
     <div className="h-full flex flex-col space-y-6">
       
       {/* ── Top Header Bar ── */}
-      <header className="shrink-0 flex items-center justify-between">
+      <header className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-brand-red flex items-center justify-center shadow-lg shadow-red-200">
             <PhoneCall size={20} className="text-white" />
@@ -162,14 +162,14 @@ export default function TelesalesClientPage({
 
       {/* ── KPI Summary Strip (list tab only) ── */}
       {activeTab === 'list' && (
-        <div className="shrink-0 grid grid-cols-4 border-b border-gray-100">
+        <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 border-b border-gray-100 divide-x divide-y md:divide-y-0 divide-gray-100">
           {[
             { label: 'โทรวันนี้',        value: todayCallsCount,             icon: <PhoneCall size={14} />, color: 'text-gray-400', bg: 'bg-gray-50' },
             { label: 'นัดหมายสำเร็จ',    value: todayInterestedCount,        icon: <CheckCircle2 size={14} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
             { label: 'นัดโทรกลับวันนี้', value: todayCallbacksCount,         icon: <Clock size={14} />, color: 'text-amber-500', bg: 'bg-amber-50' },
             { label: 'รายการที่พบ',      value: totalCount,                  icon: <FileText size={14} />, color: 'text-brand-red', bg: 'bg-red-50' },
           ].map(k => (
-            <div key={k.label} className={`flex items-center gap-3 px-6 py-4 ${k.bg} border-r border-gray-100 last:border-0`}>
+            <div key={k.label} className={`flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 ${k.bg}`}>
               <span className={k.color}>{k.icon}</span>
               <div>
                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{k.label}</p>
@@ -181,7 +181,7 @@ export default function TelesalesClientPage({
       )}
 
       {/* ── Tab Navigation ── */}
-      <div className="shrink-0 flex items-center gap-1 border-b border-gray-200">
+      <div className="shrink-0 flex items-center gap-1 border-b border-gray-200 overflow-x-auto custom-scrollbar flex-nowrap">
         {[
           { id: 'new' as const, label: editingRecord ? 'แก้ไขข้อมูล' : 'บันทึกใหม่', icon: <Plus size={14} />, action: handleCreateNew },
           { id: 'list' as const, label: 'รายการบันทึก', icon: <FileText size={14} />, action: () => handleTabChange('list') },
@@ -190,7 +190,7 @@ export default function TelesalesClientPage({
           <button
             key={tab.id}
             onClick={tab.action}
-            className={`flex items-center gap-2 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-t-xl border-b-2 transition-all ${
+            className={`flex items-center gap-2 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-t-xl border-b-2 transition-all whitespace-nowrap ${
               activeTab === tab.id
                 ? 'text-brand-red border-brand-red bg-red-50/50'
                 : 'text-gray-400 border-transparent hover:text-gray-700 hover:bg-gray-50'
@@ -204,7 +204,7 @@ export default function TelesalesClientPage({
       {/* ── Content ── */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {activeTab === 'new' && (
-          <div className="p-8">
+          <div className="p-4 md:p-8">
             <div className="max-w-4xl mx-auto">
               <NewTelesaleForm 
                 userFullName={userFullName} 
@@ -225,7 +225,7 @@ export default function TelesalesClientPage({
         )}
         
         {activeTab === 'list' && (
-          <div className="p-8 space-y-6">
+          <div className="p-4 md:p-8 space-y-4 md:space-y-6">
             <div className="flex flex-col gap-4">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="relative w-full sm:w-64 shrink-0">
@@ -257,7 +257,7 @@ export default function TelesalesClientPage({
                   />
                 </div>
 
-                <select className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
+                <select className="w-full sm:w-auto px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
                   value={status}
                   onChange={(e) => {
                     setStatus(e.target.value);
@@ -272,7 +272,7 @@ export default function TelesalesClientPage({
                   <option value="เบอร์ผิด">เบอร์ผิด</option>
                 </select>
 
-                <select className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
+                <select className="w-full sm:w-auto px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
                   value={outcome}
                   onChange={(e) => {
                     setOutcome(e.target.value);
@@ -288,7 +288,7 @@ export default function TelesalesClientPage({
                 </select>
 
                 {isManager && salesReps && (
-                  <select className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
+                  <select className="w-full sm:w-auto px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
                     value={salespersonId}
                     onChange={(e) => {
                       setSalespersonId(e.target.value);
@@ -311,8 +311,8 @@ export default function TelesalesClientPage({
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <table className="w-full text-left text-sm">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left text-sm min-w-[800px]">
                 <thead>
                   <tr className="border-b border-gray-100">
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่โทร</th>
