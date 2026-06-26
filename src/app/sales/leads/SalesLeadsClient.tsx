@@ -1,14 +1,25 @@
 "use client"
 
-import React from 'react';
-import { User, Phone, Tag, Clock, MessageSquare } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Phone, Tag, Clock, MessageSquare, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
+import { claimLead } from '@/app/actions/marketing';
 
 import { useRouter } from 'next/navigation';
 
-export default function SalesLeadsClient({ leads }: { leads: any[] }) {
+export default function SalesLeadsClient({ leads, currentUserId }: { leads: any[], currentUserId: string }) {
   const router = useRouter();
+  const [isClaiming, setIsClaiming] = useState<string | null>(null);
+
+  const handleClaim = async (leadId: string) => {
+    setIsClaiming(leadId);
+    const res = await claimLead(leadId, currentUserId);
+    setIsClaiming(null);
+    if (!res.success) {
+       alert(res.error || 'ไม่สามารถรับเรื่องได้');
+    }
+  };
   
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -62,8 +73,8 @@ export default function SalesLeadsClient({ leads }: { leads: any[] }) {
                     <Clock size={12} />
                     {lead.forwardedAt ? format(new Date(lead.forwardedAt), 'dd MMM yyyy HH:mm', { locale: th }) : ''}
                   </span>
-                  <span className="text-xs text-gray-500 mt-1 block">
-                    ส่งโดย: {lead.createdBy?.fullName || '-'}
+                  <span className="text-xs text-indigo-600 font-medium mt-1 bg-indigo-50 px-2 py-1 rounded-md inline-block">
+                    การตลาด (Marketer): {lead.createdBy?.fullName || '-'}
                   </span>
                 </div>
               </div>
@@ -79,18 +90,31 @@ export default function SalesLeadsClient({ leads }: { leads: any[] }) {
               )}
 
               <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
-                <button 
-                  onClick={() => router.push(`/telesales?tab=new&marketingLeadId=${lead.id}&customerName=${encodeURIComponent(lead.customerName || '')}&phone=${encodeURIComponent(lead.phoneNumber || '')}`)}
-                  className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-orange-100 text-orange-700 border border-orange-200 text-sm font-bold rounded-xl hover:bg-orange-200 transition-colors"
-                >
-                  บันทึกการโทร (Telesales)
-                </button>
-                <button 
-                  onClick={() => router.push(`/sales/requirements?marketingLeadId=${lead.id}&customerName=${encodeURIComponent(lead.customerName || '')}&phone=${encodeURIComponent(lead.phoneNumber || '')}`)}
-                  className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-[#ff2301] text-white text-sm font-bold rounded-xl hover:bg-red-700 shadow-md shadow-red-200 transition-colors"
-                >
-                  ออกใบเสนอราคา
-                </button>
+                {lead.assignedToId === null ? (
+                  <button 
+                    onClick={() => handleClaim(lead.id)}
+                    disabled={isClaiming === lead.id}
+                    className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 shadow-md shadow-emerald-200 transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    <PlusCircle size={16} />
+                    {isClaiming === lead.id ? 'กำลังรับเรื่อง...' : 'รับผิดชอบ Lead นี้'}
+                  </button>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => router.push(`/telesales?tab=new&marketingLeadId=${lead.id}&customerName=${encodeURIComponent(lead.customerName || '')}&phone=${encodeURIComponent(lead.phoneNumber || '')}`)}
+                      className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-orange-100 text-orange-700 border border-orange-200 text-sm font-bold rounded-xl hover:bg-orange-200 transition-colors"
+                    >
+                      บันทึกการโทร (Telesales)
+                    </button>
+                    <button 
+                      onClick={() => router.push(`/sales/requirements?marketingLeadId=${lead.id}&customerName=${encodeURIComponent(lead.customerName || '')}&phone=${encodeURIComponent(lead.phoneNumber || '')}`)}
+                      className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-[#ff2301] text-white text-sm font-bold rounded-xl hover:bg-red-700 shadow-md shadow-red-200 transition-colors"
+                    >
+                      ออกใบเสนอราคา
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           ))

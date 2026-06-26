@@ -8,7 +8,16 @@ import { Suspense } from 'react';
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
-  searchParams: Promise<{ page?: string; search?: string; tab?: string }>;
+  searchParams: Promise<{ 
+    page?: string; 
+    search?: string; 
+    tab?: string;
+    startDate?: string;
+    endDate?: string;
+    status?: string;
+    outcome?: string;
+    salespersonId?: string;
+  }>;
 }
 
 export default async function TelesalesPage({ searchParams }: PageProps) {
@@ -18,6 +27,11 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   const page = parseInt(params.page || '1', 10);
   const search = (params.search || '').trim();
   const tab = params.tab || 'list';
+  const startDateStr = params.startDate;
+  const endDateStr = params.endDate;
+  const status = params.status;
+  const outcome = params.outcome;
+  const salespersonId = params.salespersonId;
 
   const limit = 10;
   const skip = (page - 1) * limit;
@@ -25,6 +39,7 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   // Base where clause based on role
   let roleWhere: any = { OR: [{ userId: user?.id }, { userId: null }] };
   let members: any[] = [];
+  let salesReps: { id: string; fullName: string; role: string }[] = [];
   const roleLower = (user?.role || '').toLowerCase();
   const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
   
@@ -48,8 +63,9 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
       // Marketing manager sees everyone
       const teamUsers = await prisma.user.findMany({
         where: { isActive: true },
-        select: { id: true }
+        select: { id: true, fullName: true, role: true }
       });
+      salesReps = teamUsers;
       const subUserIds = teamUsers.map(u => u.id);
       roleWhere = {
         OR: [
@@ -66,8 +82,9 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
             { employeeSale: { teamLeader: user?.fullName || '' } }
           ]
         },
-        select: { id: true }
+        select: { id: true, fullName: true, role: true }
       });
+      salesReps = teamUsers;
       const subUserIds = teamUsers.map(u => u.id);
       roleWhere = {
         OR: [
@@ -122,6 +139,25 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
     searchFilter.callbackAt = { not: null };
   }
 
+  if (startDateStr && endDateStr) {
+    const start = new Date(startDateStr);
+    const end = new Date(endDateStr);
+    end.setHours(23, 59, 59, 999);
+    searchFilter.createdAt = { gte: start, lte: end };
+  }
+
+  if (status) {
+    searchFilter.callStatus = status;
+  }
+
+  if (outcome) {
+    searchFilter.callOutcome = outcome;
+  }
+
+  if (isManager && salespersonId) {
+    searchFilter.userId = salespersonId === 'unassigned' ? null : salespersonId;
+  }
+
   if (search) {
     searchFilter.OR = [
       { company: { companyName: { contains: search, mode: 'insensitive' as const } } },
@@ -167,6 +203,8 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
           todayCallsCount={todayCallsCount}
           todayInterestedCount={todayInterestedCount}
           todayCallbacksCount={todayCallbacksCount}
+          isManager={isManager}
+          salesReps={salesReps}
         />
       </Suspense>
     </main>

@@ -15,6 +15,8 @@ interface TelesalesClientPageProps {
   todayCallsCount?: number;
   todayInterestedCount?: number;
   todayCallbacksCount?: number;
+  isManager?: boolean;
+  salesReps?: { id: string; fullName: string; role: string }[];
 }
 
 export default function TelesalesClientPage({ 
@@ -25,7 +27,9 @@ export default function TelesalesClientPage({
   limit = 10,
   todayCallsCount = 0,
   todayInterestedCount = 0,
-  todayCallbacksCount = 0
+  todayCallbacksCount = 0,
+  isManager = false,
+  salesReps = []
 }: TelesalesClientPageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -33,15 +37,53 @@ export default function TelesalesClientPage({
 
   const activeTab = (searchParams.get('tab') || 'list') as 'new' | 'list' | 'callbacks';
   const searchTerm = searchParams.get('search') || '';
+  const searchStartDate = searchParams.get('startDate') || '';
+  const searchEndDate = searchParams.get('endDate') || '';
+  const searchStatus = searchParams.get('status') || '';
+  const searchOutcome = searchParams.get('outcome') || '';
+  const searchSalespersonId = searchParams.get('salespersonId') || '';
 
   const [localSearch, setLocalSearch] = useState(searchTerm);
+  const [startDate, setStartDate] = useState(searchStartDate);
+  const [endDate, setEndDate] = useState(searchEndDate);
+  const [status, setStatus] = useState(searchStatus);
+  const [outcome, setOutcome] = useState(searchOutcome);
+  const [salespersonId, setSalespersonId] = useState(searchSalespersonId);
+  
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
 
   // Sync search input with search param changes
   React.useEffect(() => {
     setLocalSearch(searchTerm);
-  }, [searchTerm]);
+    setStartDate(searchStartDate);
+    setEndDate(searchEndDate);
+    setStatus(searchStatus);
+    setOutcome(searchOutcome);
+    setSalespersonId(searchSalespersonId);
+  }, [searchTerm, searchStartDate, searchEndDate, searchStatus, searchOutcome, searchSalespersonId]);
+
+  const applyFilters = (updates: Record<string, string>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value) params.set(key, value);
+      else params.delete(key);
+    });
+    params.set('page', '1');
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
+  const clearFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('startDate');
+    params.delete('endDate');
+    params.delete('status');
+    params.delete('outcome');
+    params.delete('salespersonId');
+    params.delete('search');
+    params.set('page', '1');
+    router.push(`${pathname}?${params.toString()}`);
+  }
 
   // Debounced Search Logic
   React.useEffect(() => {
@@ -184,15 +226,89 @@ export default function TelesalesClientPage({
         
         {activeTab === 'list' && (
           <div className="p-8 space-y-6">
-            <div className="relative w-full max-w-sm">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="ค้นหาตามชื่อบริษัท หรือ เซลล์..."
-                className="w-full pl-9 pr-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
-                value={localSearch}
-                onChange={(e) => setLocalSearch(e.target.value)}
-              />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative w-full sm:w-64 shrink-0">
+                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="ค้นหาตามชื่อบริษัท หรือ เซลล์..."
+                    className="w-full pl-9 pr-4 py-2 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
+                    value={localSearch}
+                    onChange={(e) => setLocalSearch(e.target.value)}
+                  />
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <input type="date" className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" 
+                    value={startDate} 
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      applyFilters({ startDate: e.target.value, endDate });
+                    }} 
+                  />
+                  <span className="text-gray-400">-</span>
+                  <input type="date" className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" 
+                    value={endDate} 
+                    onChange={(e) => {
+                      setEndDate(e.target.value);
+                      applyFilters({ startDate, endDate: e.target.value });
+                    }} 
+                  />
+                </div>
+
+                <select className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
+                  value={status}
+                  onChange={(e) => {
+                    setStatus(e.target.value);
+                    applyFilters({ status: e.target.value });
+                  }}
+                >
+                  <option value="">ทุกสถานะ</option>
+                  <option value="รับสาย">รับสาย</option>
+                  <option value="ไม่รับสาย">ไม่รับสาย</option>
+                  <option value="สายไม่ว่าง">สายไม่ว่าง</option>
+                  <option value="ฝากข้อความ">ฝากข้อความ</option>
+                  <option value="เบอร์ผิด">เบอร์ผิด</option>
+                </select>
+
+                <select className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
+                  value={outcome}
+                  onChange={(e) => {
+                    setOutcome(e.target.value);
+                    applyFilters({ outcome: e.target.value });
+                  }}
+                >
+                  <option value="">ทุกผลลัพธ์</option>
+                  <option value="สนใจ">สนใจ</option>
+                  <option value="ไม่สนใจ">ไม่สนใจ</option>
+                  <option value="นัดหมายสำเร็จ">นัดหมายสำเร็จ</option>
+                  <option value="ขอข้อมูลเพิ่มเติม">ขอข้อมูลเพิ่มเติม</option>
+                  <option value="โทรกลับภายหลัง">โทรกลับภายหลัง</option>
+                </select>
+
+                {isManager && salesReps && (
+                  <select className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
+                    value={salespersonId}
+                    onChange={(e) => {
+                      setSalespersonId(e.target.value);
+                      applyFilters({ salespersonId: e.target.value });
+                    }}
+                  >
+                    <option value="">พนักงานขายทั้งหมด</option>
+                    <option value="unassigned">ไม่มีผู้รับผิดชอบ (Unassigned)</option>
+                    {salesReps.map(rep => (
+                      <option key={rep.id} value={rep.id}>{rep.fullName}</option>
+                    ))}
+                  </select>
+                )}
+
+                {(startDate || endDate || status || outcome || salespersonId || localSearch) && (
+                  <button onClick={clearFilters} className="text-sm text-brand-red hover:underline font-bold px-2 py-2">
+                    ล้างตัวกรอง
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -344,15 +460,41 @@ export default function TelesalesClientPage({
 
         {activeTab === 'callbacks' && (
           <div className="p-8 space-y-6">
-            <div className="relative w-full max-w-sm">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="ค้นหาตามชื่อบริษัท หรือ เซลล์..."
-                className="w-full pl-9 pr-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
-                value={localSearch}
-                onChange={(e) => setLocalSearch(e.target.value)}
-              />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative w-full sm:w-64 shrink-0">
+                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="ค้นหาตามชื่อบริษัท หรือ เซลล์..."
+                    className="w-full pl-9 pr-4 py-2 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
+                    value={localSearch}
+                    onChange={(e) => setLocalSearch(e.target.value)}
+                  />
+                </div>
+                
+                {isManager && salesReps && (
+                  <select className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
+                    value={salespersonId}
+                    onChange={(e) => {
+                      setSalespersonId(e.target.value);
+                      applyFilters({ salespersonId: e.target.value });
+                    }}
+                  >
+                    <option value="">พนักงานขายทั้งหมด</option>
+                    <option value="unassigned">ไม่มีผู้รับผิดชอบ (Unassigned)</option>
+                    {salesReps.map(rep => (
+                      <option key={rep.id} value={rep.id}>{rep.fullName}</option>
+                    ))}
+                  </select>
+                )}
+
+                {(salespersonId || localSearch) && (
+                  <button onClick={clearFilters} className="text-sm text-brand-red hover:underline font-bold px-2 py-2">
+                    ล้างตัวกรอง
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

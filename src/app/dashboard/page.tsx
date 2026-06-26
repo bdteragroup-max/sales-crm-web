@@ -259,175 +259,180 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   });
 
   // Parallel data fetching for all metrics
-  const
-  quotationSummary = await
+  const [
+    quotationSummary,
+    pendingAgg,
+    prevPeriodAgg,
+    yoyPeriodAgg,
+    qtdAgg,
+    ytdAgg,
+    recentQ,
+    nextM,
+    allUsersCount,
+    monthlyTargetResult,
+    historyQuotations,
+    historyTelesales,
+    productMix,
+    analyticalData,
+    allProvincesRaw
+  ] = await Promise.all([
+    // 1. Grouped Quotation Metrics (Filtered Range)
+    prisma.quotation.groupBy({
+      by: ['status'],
+      _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
+      _count: { id: true },
+      where: getQuotationWhereClause(filterStart, filterEnd)
+    }),
+    
+    // 2. Pending > 30 days
+    prisma.quotation.aggregate({
+      _sum: { totalAmountBeforeVat: true },
+      _count: { id: true },
+      where: {
+        salespersonId: { in: filterIds },
+        status: { notIn: ['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
+        OR: [
+        { quotationDate: { lt: thirtyDaysAgoFilter } },
+        { quotationDate: null, createdAt: { lt: thirtyDaysAgoFilter } }],
 
+        company: provinceCondition ? { province: provinceCondition } : undefined
+      }
+    }),
 
+    // 3. Previous Period aggregate
+    prisma.quotation.aggregate({
+      _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
+      _count: { id: true },
+      where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd)
+    }),
 
+    // 4. YoY Period aggregate
+    prisma.quotation.aggregate({
+      _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
+      _count: { id: true },
+      where: getQuotationWhereClause(yoyStart, yoyEnd)
+    }),
 
+    // 5. QTD aggregate
+    prisma.quotation.aggregate({
+      _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
+      _count: { id: true },
+      where: getQuotationWhereClause(qtdStart, filterEnd)
+    }),
 
+    // 6. YTD aggregate
+    prisma.quotation.aggregate({
+      _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
+      _count: { id: true },
+      where: getQuotationWhereClause(ytdStart, filterEnd)
+    }),
 
+    // 7. Recent activities
+    prisma.quotation.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      where: getQuotationWhereClause(filterStart, filterEnd),
+      include: { company: true }
+    }),
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // 1. Grouped Quotation Metrics (Filtered Range)
-  prisma.quotation.groupBy({
-    by: ['status'],
-    _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
-    _count: { id: true },
-    where: getQuotationWhereClause(filterStart, filterEnd)
-  });const pendingAgg = await
-  // 2. Pending > 30 days
-  prisma.quotation.aggregate({
-    _sum: { totalAmountBeforeVat: true },
-    _count: { id: true },
-    where: {
-      salespersonId: { in: filterIds },
-      status: { notIn: ['เปิดบิลแล้ว', 'ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
-      OR: [
-      { quotationDate: { lt: thirtyDaysAgoFilter } },
-      { quotationDate: null, createdAt: { lt: thirtyDaysAgoFilter } }],
-
-      company: provinceCondition ? { province: provinceCondition } : undefined
-    }
-  });const prevPeriodAgg = await
-  // 3. Previous Period aggregate
-  prisma.quotation.aggregate({
-    _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
-    _count: { id: true },
-    where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd)
-  });const yoyPeriodAgg = await
-  // 4. YoY Period aggregate
-  prisma.quotation.aggregate({
-    _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
-    _count: { id: true },
-    where: getQuotationWhereClause(yoyStart, yoyEnd)
-  });const qtdAgg = await
-  // 5. QTD aggregate
-  prisma.quotation.aggregate({
-    _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
-    _count: { id: true },
-    where: getQuotationWhereClause(qtdStart, filterEnd)
-  });const ytdAgg = await
-  // 6. YTD aggregate
-  prisma.quotation.aggregate({
-    _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
-    _count: { id: true },
-    where: getQuotationWhereClause(ytdStart, filterEnd)
-  });const recentQ = await
-  // 7. Recent activities
-  prisma.quotation.findMany({
-    take: 5,
-    orderBy: { createdAt: 'desc' },
-    where: getQuotationWhereClause(filterStart, filterEnd),
-    include: { company: true }
-  });const nextM = await
-  // 8. Next meetings
-  prisma.telesale.findMany({
-    where: {
-      userId: { in: filterIds },
-      lastMeetingDate: { gte: filterStart, lte: filterEnd },
-      company: provinceCondition ? { province: provinceCondition } : undefined
-    },
-    take: 4,
-    orderBy: { lastMeetingDate: 'asc' },
-    include: { company: true }
-  });const allUsersCount = await (
-  // 9. Users count
-  isManager ? prisma.user.count({ where: { employeeSale: { teamLeader: user.fullName }, id: { not: user.id } } }) : Promise.resolve(1));const monthlyTargetResult = await (
-  // 10. Monthly Targets (Fetch for entire year to calculate QTD/YTD targets)
-  (prisma as any)['monthlyTarget'] ? (prisma as any)['monthlyTarget'].findMany({
-    where: {
-      year: { in: [refYear, filterStart.getFullYear(), filterStart.getFullYear() - 1, prevPeriodStart.getFullYear()] },
-      OR: [
-      { userId: { in: filterIds } },
-      { userId: null }]
-
-    }
-  }) : Promise.resolve([]));const historyQuotations = await
-  // 11. History Quotations
-  prisma.quotation.findMany({
-    where: getQuotationWhereClause(filterStart, filterEnd),
-    select: {
-      createdAt: true,
-      status: true,
-      actualClosingAmount: true,
-      totalAmountBeforeVat: true,
-      salespersonId: true,
-      billingDate: true,
-      poDate: true,
-      quotationDate: true
-    }
-  });const historyTelesales = await
-  // 12. History Telesales
-  prisma.telesale.findMany({
-    where: {
-      userId: { in: filterIds },
-      OR: [
-      {
-        callDate: { gte: filterStart, lte: filterEnd }
+    // 8. Next meetings
+    prisma.telesale.findMany({
+      where: {
+        userId: { in: filterIds },
+        lastMeetingDate: { gte: filterStart, lte: filterEnd },
+        company: provinceCondition ? { province: provinceCondition } : undefined
       },
-      {
-        callDate: null,
-        createdAt: { gte: filterStart, lte: filterEnd }
-      }],
+      take: 4,
+      orderBy: { lastMeetingDate: 'asc' },
+      include: { company: true }
+    }),
 
-      company: province ? { province } : undefined
-    },
-    select: {
-      id: true,
-      createdAt: true,
-      callDate: true,
-      lastMeetingDate: true,
-      userId: true,
-      callStatus: true,
-      callOutcome: true,
-      forwardTo: true,
-      companyId: true
-    }
-  });const productMix = await
-  // 13. Product Mix (supporting fallbacks for null billing/PO dates)
-  prisma.quotation.groupBy({
-    by: ['productType'],
-    _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
-    _count: { id: true },
-    where: getQuotationWhereClause(filterStart, filterEnd)
-  });const analyticalData = await
-  // 14. Detailed Analytical Data (supporting fallbacks for null billing/PO dates)
-  prisma.quotation.findMany({
-    where: getQuotationWhereClause(filterStart, filterEnd),
-    include: {
-      company: true,
-      contact: true,
-      salesperson: {
-        include: {
-          employeeSale: true
+    // 9. Users count
+    isManager ? prisma.user.count({ where: { employeeSale: { teamLeader: user.fullName }, id: { not: user.id } } }) : Promise.resolve(1),
+
+    // 10. Monthly Targets (Fetch for entire year to calculate QTD/YTD targets)
+    (prisma as any)['monthlyTarget'] ? (prisma as any)['monthlyTarget'].findMany({
+      where: {
+        year: { in: [refYear, filterStart.getFullYear(), filterStart.getFullYear() - 1, prevPeriodStart.getFullYear()] },
+        OR: [
+        { userId: { in: filterIds } },
+        { userId: null }]
+
+      }
+    }) : Promise.resolve([]),
+
+    // 11. History Quotations
+    prisma.quotation.findMany({
+      where: getQuotationWhereClause(filterStart, filterEnd),
+      select: {
+        createdAt: true,
+        status: true,
+        actualClosingAmount: true,
+        totalAmountBeforeVat: true,
+        salespersonId: true,
+        billingDate: true,
+        poDate: true,
+        quotationDate: true
+      }
+    }),
+
+    // 12. History Telesales
+    prisma.telesale.findMany({
+      where: {
+        userId: { in: filterIds },
+        OR: [
+        {
+          callDate: { gte: filterStart, lte: filterEnd }
+        },
+        {
+          callDate: null,
+          createdAt: { gte: filterStart, lte: filterEnd }
+        }],
+
+        company: province ? { province } : undefined
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        callDate: true,
+        lastMeetingDate: true,
+        userId: true,
+        callStatus: true,
+        callOutcome: true,
+        forwardTo: true,
+        companyId: true
+      }
+    }),
+
+    // 13. Product Mix (supporting fallbacks for null billing/PO dates)
+    prisma.quotation.groupBy({
+      by: ['productType'],
+      _sum: { actualClosingAmount: true, totalAmountBeforeVat: true },
+      _count: { id: true },
+      where: getQuotationWhereClause(filterStart, filterEnd)
+    }),
+
+    // 14. Detailed Analytical Data (supporting fallbacks for null billing/PO dates)
+    prisma.quotation.findMany({
+      where: getQuotationWhereClause(filterStart, filterEnd),
+      include: {
+        company: true,
+        contact: true,
+        salesperson: {
+          include: {
+            employeeSale: true
+          }
         }
       }
-    }
-  });  const allProvincesRaw = await
-  // 15. Count of companies grouped by province for potential and filter list
-  prisma.company.groupBy({
-    by: ['province'],
-    _count: { id: true },
-    where: { province: { not: null } }
-  });
+    }),
+
+    // 15. Count of companies grouped by province for potential and filter list
+    prisma.company.groupBy({
+      by: ['province'],
+      _count: { id: true },
+      where: { province: { not: null } }
+    })
+  ]);
   
   const cleanProvincesSet = new Set<string>();
   const totalCompaniesMap: Record<string, number> = {};

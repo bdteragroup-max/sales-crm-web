@@ -165,93 +165,104 @@ export default async function ClientsPage({ searchParams }: PageProps) {
       }
     }
 
-    // Prevent connection pool exhaustion by running queries sequentially or in small batches
-    // 1. Paginated Companies
-    companies = await prisma.company.findMany({
-      where: companySearchFilter,
-      orderBy: { updatedAt: 'desc' as const },
-      take: limit,
-      skip: skip,
-      include: {
-        contacts: true,
-        assignedUser: {
-          include: { employeeSale: true }
-        },
-        telesales: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-          select: { 
-            createdAt: true, 
-            callDate: true,
-            user: {
-              select: {
-                id: true,
-                fullName: true,
-                isActive: true,
-                employeeSale: { select: { position: true } }
+    // Use Promise.all to fetch all independent data concurrently for significantly faster load times
+    [
+      companies,
+      companiesCount,
+      contacts,
+      contactsCount,
+      salesReps,
+      businessTypes,
+      provinces,
+      allCompaniesMinimal
+    ] = await Promise.all([
+      // 1. Paginated Companies
+      prisma.company.findMany({
+        where: companySearchFilter,
+        orderBy: { updatedAt: 'desc' as const },
+        take: limit,
+        skip: skip,
+        include: {
+          contacts: true,
+          assignedUser: {
+            include: { employeeSale: true }
+          },
+          telesales: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: { 
+              createdAt: true, 
+              callDate: true,
+              user: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  isActive: true,
+                  employeeSale: { select: { position: true } }
+                }
               }
             }
-          }
-        },
-        quotations: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-          select: {
-            createdAt: true,
-            quotationDate: true,
-            followUp1: true,
-            followUp2: true,
-            followUp3: true,
-            followUp4: true,
-            status: true,
-            salesperson: {
-              select: {
-                id: true,
-                fullName: true,
-                role: true,
-                isActive: true,
-                employeeSale: { select: { position: true } }
+          },
+          quotations: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: {
+              createdAt: true,
+              quotationDate: true,
+              followUp1: true,
+              followUp2: true,
+              followUp3: true,
+              followUp4: true,
+              status: true,
+              salesperson: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  role: true,
+                  isActive: true,
+                  employeeSale: { select: { position: true } }
+                }
               }
             }
-          }
+          },
+          _count: { select: { quotations: true, telesales: true } },
         },
-        _count: { select: { quotations: true, telesales: true } },
-      },
-    });
-
-    // 2. Count for Companies
-    companiesCount = await prisma.company.count({ where: companySearchFilter });
-
-    // 3. Paginated Contacts
-    contacts = await prisma.contact.findMany({
-      where: contactSearchFilter,
-      orderBy: { updatedAt: 'desc' as const },
-      take: limit,
-      skip: skip,
-      include: { company: true },
-    });
-
-    // 4. Count for Contacts
-    contactsCount = await prisma.contact.count({ where: contactSearchFilter });
-
-    // 5. Active Sales Representatives & Managers for dropdown
-    salesReps = await prisma.user.findMany({
-      where: salesRepsWhere,
-      select: { id: true, fullName: true, role: true, employeeSale: { select: { position: true } } }
-    });
-
-    // 6. Business Types
-    businessTypes = await prisma.businessType.findMany({ orderBy: { name: 'asc' } });
-
-    // 7. Provinces list
-    provinces = await getProvinces();
-
-    // 8. Lightweight minimal companies list (Limited to 500 to prevent huge JSON payloads and slow sorting)
-    allCompaniesMinimal = await prisma.company.findMany({
-      select: { id: true, companyName: true },
-      orderBy: { updatedAt: 'desc' },
-      take: 500
-    });
+      }) as any, // Cast to any to avoid complex TS inferences that can sometimes fail in Promise.all tuples
+      
+      // 2. Count for Companies
+      prisma.company.count({ where: companySearchFilter }),
+      
+      // 3. Paginated Contacts
+      prisma.contact.findMany({
+        where: contactSearchFilter,
+        orderBy: { updatedAt: 'desc' as const },
+        take: limit,
+        skip: skip,
+        include: { company: true },
+      }) as any,
+      
+      // 4. Count for Contacts
+      prisma.contact.count({ where: contactSearchFilter }),
+      
+      // 5. Active Sales Representatives & Managers for dropdown
+      prisma.user.findMany({
+        where: salesRepsWhere,
+        select: { id: true, fullName: true, role: true, employeeSale: { select: { position: true } } }
+      }),
+      
+      // 6. Business Types
+      prisma.businessType.findMany({ orderBy: { name: 'asc' } }),
+      
+      // 7. Provinces list
+      getProvinces(),
+      
+      // 8. Lightweight minimal companies list
+      prisma.company.findMany({
+        select: { id: true, companyName: true },
+        orderBy: { updatedAt: 'desc' },
+        take: 500
+      })
+    ]);
 
     try {
       console.log('[clients] query results', {

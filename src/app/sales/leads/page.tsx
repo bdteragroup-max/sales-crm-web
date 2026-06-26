@@ -14,7 +14,7 @@ export default async function SalesLeadsPage() {
 
   return (
     <main className="flex-1 overflow-y-auto bg-[#F8F9FA]">
-      <SalesLeadsClient leads={success ? leads : []} />
+      <SalesLeadsClient leads={success ? leads : []} currentUserId={user.id} />
     </main>
   )
 }

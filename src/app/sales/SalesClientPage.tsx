@@ -447,6 +447,7 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
                       </button>
                     </th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ผู้ติดต่อ</th>
+                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ผู้รับผิดชอบ</th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">จัดการ</th>
                   </tr>
                 </thead>
@@ -490,6 +491,9 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
                         </td>
                         <td className="py-4 px-5">
                           <p className="text-[11px] font-bold text-gray-600">{record.contact?.contactName || '—'}</p>
+                        </td>
+                        <td className="py-4 px-5">
+                          <p className="text-[11px] font-bold text-gray-600">{record.salesperson?.fullName || '—'}</p>
                         </td>
                         <td className="py-4 px-5 text-center">
                           <div className="flex items-center justify-center gap-1">

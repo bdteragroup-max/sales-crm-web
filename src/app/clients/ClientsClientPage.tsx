@@ -35,14 +35,14 @@ interface Company {
   customerType?: string | null;
   customerStatus?: string | null;
   branchOrHeadOffice?: string | null;
-  assignedUser?: { 
+  assignedUser?: {
     id: string;
-    fullName: string; 
+    fullName: string;
     employeeSale?: { position: string | null } | null;
     isActive?: boolean | null;
   } | null;
-  telesales: { 
-    createdAt: string; 
+  telesales: {
+    createdAt: string;
     callDate?: string | null;
     user?: {
       id: string;
@@ -66,10 +66,10 @@ interface Company {
       isActive?: boolean | null;
     } | null;
   }[];
-  contacts: { 
-    id: string; 
-    contactName: string; 
-    position?: string | null; 
+  contacts: {
+    id: string;
+    contactName: string;
+    position?: string | null;
     mobilePhone?: string | null;
     email?: string | null;
     isETaxReceiver?: boolean | null;
@@ -131,6 +131,7 @@ const statusColors: Record<string, string> = {
   ลูกค้าใหม่: 'bg-red-50 text-brand-red border border-red-100',
   ลูกค้าเป้าหมาย: 'bg-red-600 text-white',
   ไม่ใช่ลูกค้า: 'bg-gray-100 text-gray-400',
+  'ปิดกิจการ (Closed Business)': 'bg-stone-100 text-stone-500 border border-stone-200',
 };
 
 const getUniqueContacts = (contacts: any[]) => {
@@ -142,9 +143,9 @@ const getUniqueContacts = (contacts: any[]) => {
   contacts.forEach(c => {
     const phone = (c.mobilePhone || '').replace(/\D/g, '');
     const name = (c.contactName || '').replace(/\s+/g, '').toLowerCase();
-    
+
     let isDuplicate = false;
-    
+
     if (phone && phone.length >= 8) {
       if (seenPhones.has(phone)) isDuplicate = true;
       seenPhones.add(phone);
@@ -157,7 +158,7 @@ const getUniqueContacts = (contacts: any[]) => {
       unique.push(c);
     }
   });
-  
+
   return unique;
 };
 
@@ -193,7 +194,7 @@ export default function ClientsClientPage({
     try {
       console.log('[clients:browser] initialCompanies', { count: initialCompanies.length, sample: initialCompanies[0] });
       console.log('[clients:browser] initialContacts', { count: initialContacts.length, sample: initialContacts[0] });
-    } catch {}
+    } catch { }
   }, [initialCompanies, initialContacts]);
 
   // Debounced Search Logic
@@ -239,6 +240,9 @@ export default function ClientsClientPage({
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [isEditCompanyModalOpen, setIsEditCompanyModalOpen] = useState(false);
   const [showEditNewBusinessTypeInput, setShowEditNewBusinessTypeInput] = useState(false);
+
+  const [newCustomerStatus, setNewCustomerStatus] = useState('ลูกค้าใหม่');
+  const [editCustomerStatus, setEditCustomerStatus] = useState('ลูกค้าใหม่');
 
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
@@ -456,18 +460,19 @@ export default function ClientsClientPage({
   const handleEditCompany = async (company: Company) => {
     setEditingCompany(company);
     setShowEditNewBusinessTypeInput(false);
-    
+
     // Populate Edit Tax ID states
     setEditTaxId(company.taxId || '');
     setEditTaxIdWarning(null);
     setEditCustomerType(company.customerType || 'นิติบุคคล');
-    
+    setEditCustomerStatus(company.customerStatus || 'ลูกค้าใหม่');
+
     // Pre-populate main address
     setEditSelectedProvince(company.province || '');
     setEditSelectedDistrict(company.district || '');
     setEditSelectedSubDistrict(company.subDistrict || '');
     setEditAutoPostalCode(company.postalCode || '');
-    
+
     if (company.province) {
       const dists = await getDistricts(company.province);
       setEditDistricts(dists.map(d => d.district as string));
@@ -547,16 +552,16 @@ export default function ClientsClientPage({
       const triggerAutofill = async () => {
         const locations = await getLocationsByPostalCode(autoPostalCode);
         if (locations && locations.length > 0) {
-          const isValidCurrentSelection = locations.some(loc => 
-            loc.province === selectedProvince && 
-            loc.district === selectedDistrict && 
+          const isValidCurrentSelection = locations.some(loc =>
+            loc.province === selectedProvince &&
+            loc.district === selectedDistrict &&
             loc.subDistrict === selectedSubDistrict
           );
-          
+
           if (!isValidCurrentSelection) {
             const first = locations[0];
             setSelectedProvince(first.province);
-            
+
             const dists = await getDistricts(first.province);
             setDistricts(dists.map(d => d.district as string));
             setSelectedDistrict(first.district);
@@ -577,16 +582,16 @@ export default function ClientsClientPage({
       const triggerAutofill = async () => {
         const locations = await getLocationsByPostalCode(editAutoPostalCode);
         if (locations && locations.length > 0) {
-          const isValidCurrentSelection = locations.some(loc => 
-            loc.province === editSelectedProvince && 
-            loc.district === editSelectedDistrict && 
+          const isValidCurrentSelection = locations.some(loc =>
+            loc.province === editSelectedProvince &&
+            loc.district === editSelectedDistrict &&
             loc.subDistrict === editSelectedSubDistrict
           );
 
           if (!isValidCurrentSelection) {
             const first = locations[0];
             setEditSelectedProvince(first.province);
-            
+
             const dists = await getDistricts(first.province);
             setEditDistricts(dists.map(d => d.district as string));
             setEditSelectedDistrict(first.district);
@@ -610,7 +615,7 @@ export default function ClientsClientPage({
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'วันนี้';
     if (diffDays < 30) return `${diffDays} วันที่แล้ว`;
     
@@ -621,6 +626,14 @@ export default function ClientsClientPage({
     return `${diffYears} ปีที่แล้ว`;
   };
 
+  const isCreateAddressRequired = createCustomerType !== 'บุคคลธรรมดา' && !newCustomerStatus?.includes('ปิดกิจการ');
+  const isCreateBusinessTypeRequired = !newCustomerStatus?.includes('ปิดกิจการ');
+  const isCreateCustomerTypeRequired = !newCustomerStatus?.includes('ปิดกิจการ');
+
+  const isEditAddressRequired = editCustomerType !== 'บุคคลธรรมดา' && !editCustomerStatus?.includes('ปิดกิจการ');
+  const isEditBusinessTypeRequired = !editCustomerStatus?.includes('ปิดกิจการ');
+  const isEditCustomerTypeRequired = !editCustomerStatus?.includes('ปิดกิจการ');
+
   return (
     <div className="w-full">
       {isMergeModalOpen && (
@@ -630,433 +643,344 @@ export default function ClientsClientPage({
         />
       )}
       {/* ─── Page Header ─────────────────────────────────────────────────── */}
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-red-100 text-red-600 rounded-xl shadow-sm">
-            <Building2 size={26} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">ลูกค้าและบริษัท</h1>
-            <p className="text-gray-500 mt-1 text-sm">
-              จัดการข้อมูลบริษัทและผู้ติดต่อในระบบ CRM
-            </p>
-          </div>
-        </div>
+<div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div className="flex items-center gap-3">
+    <div className="p-2 bg-red-100 text-red-600 rounded-xl shadow-sm">
+      <Building2 size={26} />
+    </div>
+    <div>
+      <h1 className="text-3xl font-bold text-gray-900">ลูกค้าและบริษัท</h1>
+      <p className="text-gray-500 mt-1 text-sm">
+        จัดการข้อมูลบริษัทและผู้ติดต่อในระบบ CRM
+      </p>
+    </div>
+  </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          {currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager')) && (
-            <button
-              onClick={() => setIsMergeModalOpen(true)}
-              className="hidden sm:flex items-center gap-2 bg-white border border-red-200 text-red-600 px-5 py-2.5 rounded-xl font-bold hover:bg-red-50 transition-all shadow-sm active:scale-95 text-sm"
+  {/* Action Buttons */}
+  <div className="flex items-center gap-3">
+    {currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager')) && (
+      <button
+        onClick={() => setIsMergeModalOpen(true)}
+        className="hidden sm:flex items-center gap-2 bg-white border border-red-200 text-red-600 px-5 py-2.5 rounded-xl font-bold hover:bg-red-50 transition-all shadow-sm active:scale-95 text-sm"
+      >
+        <GitMerge size={18} />
+        ผสานบริษัท
+      </button>
+    )}
+    <button
+      onClick={openCompanyModal}
+      className="flex items-center gap-2 bg-brand-red text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95 text-sm"
+    >
+      <Plus size={18} />
+      เพิ่มบริษัทใหม่
+    </button>
+    <button
+      onClick={() => {
+        setDefaultCompanyIdForNewContact('');
+        setIsContactModalOpen(true);
+      }}
+      className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-all shadow-sm active:scale-95 text-sm"
+    >
+      <Plus size={18} className="text-red-500" />
+      เพิ่มผู้ติดต่อ
+    </button>
+  </div>
+</div>
+
+{/* ─── Search bar & Filters ──────────────────────────────────────────────────── */ }
+<div className="flex flex-col sm:flex-row gap-3 mb-6">
+  <div className="relative flex-1 max-w-md">
+    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <Search size={17} className="text-gray-400" />
+    </div>
+    <input
+      type="text"
+      placeholder="ค้นหาตามชื่อบริษัท, เลขภาษี, จังหวัด..."
+      className="block w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 transition-all"
+      value={localSearch}
+      onChange={(e) => setLocalSearch(e.target.value)}
+    />
+  </div>
+
+  {salesReps.length > 0 && (
+    <select
+      className="border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 max-w-[250px] shadow-sm"
+      value={searchParams.get('handler') || ''}
+      onChange={(e) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (e.target.value) {
+          params.set('handler', e.target.value);
+        } else {
+          params.delete('handler');
+        }
+        params.set('page', '1');
+        router.push(`${pathname}?${params.toString()}`);
+      }}
+    >
+      <option value="">-- ผู้ดูแลทั้งหมด --</option>
+      <option value="unassigned">-- ยังไม่มีผู้ดูแล --</option>
+      {salesReps.map(rep => (
+        <option key={rep.id} value={rep.id}>{rep.fullName}</option>
+      ))}
+    </select>
+  )}
+
+  <select
+    className="border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 max-w-[200px] shadow-sm"
+    value={searchParams.get('province') || ''}
+    onChange={(e) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (e.target.value) {
+        params.set('province', e.target.value);
+      } else {
+        params.delete('province');
+      }
+      params.set('page', '1');
+      router.push(`${pathname}?${params.toString()}`);
+    }}
+  >
+    <option value="">-- ทุกจังหวัด --</option>
+    {provinces.map((p, idx) => (
+      <option key={idx} value={p}>{p}</option>
+    ))}
+  </select>
+</div>
+
+{/* ─── Companies Tab ───────────────────────────────────────────────── */ }
+{
+  activeTab === 'companies' && (
+    <div className="space-y-3">
+      {filteredCompanies.length === 0 ? (
+        <EmptyState message={searchTerm ? 'ไม่พบบริษัทที่ค้นหา' : 'ยังไม่มีข้อมูลบริษัท'} icon={<Building2 size={40} className="text-gray-300" />} />
+      ) : (
+        filteredCompanies.map((company) => {
+          const activeHandler =
+            (company.quotations?.[0]?.salesperson && company.quotations?.[0]?.salesperson.isActive === true)
+              ? company.quotations?.[0]?.salesperson
+              : (company.assignedUser && company.assignedUser.isActive === true)
+                ? company.assignedUser
+                : (company.telesales?.[0]?.user && company.telesales[0].user.isActive === true)
+                  ? company.telesales[0].user
+                  : null;
+          return (
+            <div
+              key={company.id}
+              className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:border-red-100"
             >
-              <GitMerge size={18} />
-              ผสานบริษัท
-            </button>
-          )}
-          <button 
-            onClick={openCompanyModal}
-            className="flex items-center gap-2 bg-brand-red text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95 text-sm"
-          >
-            <Plus size={18} />
-            เพิ่มบริษัทใหม่
-          </button>
-          <button 
-            onClick={() => {
-              setDefaultCompanyIdForNewContact('');
-              setIsContactModalOpen(true);
-            }}
-            className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-all shadow-sm active:scale-95 text-sm"
-          >
-            <Plus size={18} className="text-red-500" />
-            เพิ่มผู้ติดต่อ
-          </button>
-        </div>
-      </div>
-
-      {/* ─── Search bar & Filters ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search size={17} className="text-gray-400" />
-          </div>
-          <input
-            type="text"
-            placeholder="ค้นหาตามชื่อบริษัท, เลขภาษี, จังหวัด..."
-            className="block w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 transition-all"
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
-          />
-        </div>
-        
-        {salesReps.length > 0 && (
-          <select
-            className="border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 max-w-[250px] shadow-sm"
-            value={searchParams.get('handler') || ''}
-            onChange={(e) => {
-              const params = new URLSearchParams(searchParams.toString());
-              if (e.target.value) {
-                params.set('handler', e.target.value);
-              } else {
-                params.delete('handler');
-              }
-              params.set('page', '1');
-              router.push(`${pathname}?${params.toString()}`);
-            }}
-          >
-            <option value="">-- ผู้ดูแลทั้งหมด --</option>
-            <option value="unassigned">-- ยังไม่มีผู้ดูแล --</option>
-            {salesReps.map(rep => (
-              <option key={rep.id} value={rep.id}>{rep.fullName}</option>
-            ))}
-          </select>
-        )}
-
-        <select
-          className="border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 max-w-[200px] shadow-sm"
-          value={searchParams.get('province') || ''}
-          onChange={(e) => {
-            const params = new URLSearchParams(searchParams.toString());
-            if (e.target.value) {
-              params.set('province', e.target.value);
-            } else {
-              params.delete('province');
-            }
-            params.set('page', '1');
-            router.push(`${pathname}?${params.toString()}`);
-          }}
-        >
-          <option value="">-- ทุกจังหวัด --</option>
-          {provinces.map((p, idx) => (
-            <option key={idx} value={p}>{p}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* ─── Companies Tab ───────────────────────────────────────────────── */}
-      {activeTab === 'companies' && (
-        <div className="space-y-3">
-          {filteredCompanies.length === 0 ? (
-            <EmptyState message={searchTerm ? 'ไม่พบบริษัทที่ค้นหา' : 'ยังไม่มีข้อมูลบริษัท'} icon={<Building2 size={40} className="text-gray-300" />} />
-          ) : (
-            filteredCompanies.map((company) => {
-              const activeHandler = 
-                (company.quotations?.[0]?.salesperson && company.quotations?.[0]?.salesperson.isActive === true)
-                  ? company.quotations?.[0]?.salesperson 
-                  : (company.assignedUser && company.assignedUser.isActive === true)
-                    ? company.assignedUser
-                    : (company.telesales?.[0]?.user && company.telesales[0].user.isActive === true)
-                      ? company.telesales[0].user
-                      : null;
-              return (
-                <div
-                key={company.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:border-red-100"
+              {/* Company Row */}
+              <div
+                onClick={() => setExpandedCompany(expandedCompany === company.id ? null : company.id)}
+                className="w-full flex items-center gap-4 p-5 text-left group cursor-pointer"
               >
-                {/* Company Row */}
-                <div
-                  onClick={() => setExpandedCompany(expandedCompany === company.id ? null : company.id)}
-                  className="w-full flex items-center gap-4 p-5 text-left group cursor-pointer"
-                >
-                  {/* Avatar */}
-                  <div className="w-11 h-11 rounded-full bg-red-50 flex items-center justify-center text-red-600 font-black text-lg shrink-0 border border-red-100">
-                    {company.companyName.trim().charAt(0)}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-gray-900 text-[15px]">{company.companyName.trim()}</span>
-                      {company.customerStatus && (
-                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${statusColors[company.customerStatus] || 'bg-gray-100 text-gray-600'}`}>
-                          {company.customerStatus}
-                        </span>
-                      )}
-                      {company.customerType !== 'บุคคลธรรมดา' && company.branchOrHeadOffice && (
-                        <span className="text-[11px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full font-medium">
-                          {company.branchOrHeadOffice}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 mt-1 flex-wrap">
-                      {company.taxId && (
-                        <span className="text-xs text-gray-500 flex items-center gap-1">
-                          <Tag size={11} /> {company.taxId}
-                        </span>
-                      )}
-                      {(company.province || company.district) && (
-                        <span className="text-xs text-gray-500 flex items-center gap-1">
-                          <MapPin size={11} />
-                          {[company.district, company.province].filter(Boolean).join(', ')}
-                        </span>
-                      )}
-                      {company.businessType && (
-                        <span className="text-xs text-gray-500">{company.businessType}</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="hidden sm:flex items-center gap-4 shrink-0">
-                    <div className="text-right pr-4 border-r border-gray-100 min-w-[100px]">
-                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">ติดต่อล่าสุด</p>
-                      {(() => {
-                        const telesale = company.telesales?.[0];
-                        const quotation = company.quotations?.[0];
-
-                        const activities = [
-                          { date: telesale?.callDate || telesale?.createdAt, type: 'บันทึกการโทร' },
-                          { date: quotation?.quotationDate || quotation?.createdAt, type: 'ใบเสนอราคา' },
-                          { date: quotation?.followUp1, type: 'ติดตามงาน' },
-                          { date: quotation?.followUp2, type: 'ติดตามงาน' },
-                          { date: quotation?.followUp3, type: 'ติดตามงาน' },
-                          { date: quotation?.followUp4, type: 'ติดตามงาน' },
-                        ].filter(a => a.date);
-                        
-                        const now = new Date();
-                        const validActivities = activities
-                          .map(a => ({ ...a, parsed: new Date(a.date as string) }))
-                          .filter(a => !isNaN(a.parsed.getTime()) && a.parsed.getTime() <= now.getTime() + 1000 * 60 * 60 * 24 && a.parsed.getFullYear() >= 2000)
-                          .sort((a, b) => b.parsed.getTime() - a.parsed.getTime());
-
-                        const latestActivity = validActivities[0];
-
-                        if (!latestActivity) {
-                          return <p className="text-[11px] font-bold mt-0.5 text-gray-300">ยังไม่เคยติดต่อ</p>;
-                        }
-
-                        const isOld = now.getTime() - latestActivity.parsed.getTime() > 1000 * 60 * 60 * 24 * 30;
-                        return (
-                          <div className="flex flex-col items-end">
-                            <p className={`text-[11px] font-bold mt-0.5 ${isOld ? 'text-amber-600' : 'text-green-600'}`}>
-                              {getTimeSince(latestActivity.parsed.toISOString())}
-                            </p>
-                            <p className="text-[9px] text-gray-500 font-medium mt-0.5 truncate max-w-[100px]">
-                              {latestActivity.type}
-                            </p>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                    
-                    {/* Assigned Salesperson / Account Manager */}
-                    <div className="text-left px-4 border-r border-gray-100 min-w-[165px]">
-                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">ผู้ดูแลบัญชี</p>
-                      {reassigningCompanyId === company.id ? (
-                        <div className="mt-1 space-y-1.5" onClick={(e) => e.stopPropagation()}>
-                          <select
-                            value={selectedNewRepId}
-                            onChange={(e) => setSelectedNewRepId(e.target.value)}
-                            disabled={isReassigningLoading}
-                            className="text-[11px] bg-white border border-gray-200 rounded-lg px-2 py-1 outline-none w-full max-w-[145px] focus:border-brand-red font-medium text-gray-700 shadow-sm"
-                          >
-                            <option value="">-- เลือกผู้ดูแลใหม่ --</option>
-                            {salesReps.map((rep) => (
-                              <option key={rep.id} value={rep.id}>
-                                {rep.fullName} ({rep.employeeSale?.position || rep.role})
-                              </option>
-                            ))}
-                          </select>
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              disabled={isReassigningLoading || !selectedNewRepId}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleInlineReassign(company.id);
-                              }}
-                              className="text-[9px] bg-slate-800 hover:bg-slate-700 disabled:bg-gray-200 text-white font-extrabold px-2 py-0.5 rounded shadow-sm transition-all"
-                            >
-                              {isReassigningLoading ? '...' : 'บันทึก'}
-                            </button>
-                            <button
-                              type="button"
-                              disabled={isReassigningLoading}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setReassigningCompanyId(null);
-                                setSelectedNewRepId('');
-                              }}
-                              className="text-[9px] text-gray-500 hover:text-gray-700 font-bold px-2 py-0.5 border border-gray-200 rounded hover:bg-gray-50 bg-white transition-all"
-                            >
-                              ยกเลิก
-                            </button>
-                          </div>
-                        </div>
-                      ) : (company.assignedUser && company.assignedUser.isActive === true) ? (
-                        <div 
-                          className={`group/reassign relative ${currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
-                          onClick={(e) => {
-                            if (currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager'))) {
-                              e.stopPropagation();
-                              setReassigningCompanyId(company.id);
-                            }
-                          }}
-                        >
-                          <p className="text-[11px] font-black text-gray-800 mt-0.5 truncate max-w-[120px]">
-                            {company.assignedUser.fullName}
-                          </p>
-                          <p className="text-[9px] text-gray-400 font-bold truncate max-w-[120px]">
-                            {company.assignedUser.employeeSale?.position || 'Sales Rep'}
-                          </p>
-                        </div>
-                      ) : activeHandler ? (
-                        <div 
-                          className={`group/reassign relative ${currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
-                          onClick={(e) => {
-                            if (currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager'))) {
-                              e.stopPropagation();
-                              setReassigningCompanyId(company.id);
-                            }
-                          }}
-                        >
-                          <p className="text-[11px] font-black text-gray-800 mt-0.5 truncate max-w-[120px]">{activeHandler.fullName}</p>
-                          <p className="text-[9px] text-gray-400 font-bold truncate max-w-[120px]">
-                            {activeHandler.employeeSale?.position || 'Sales Rep'}
-                          </p>
-                        </div>
-                      ) : (
-                        <div 
-                          className={`group/reassign relative ${currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
-                          onClick={(e) => {
-                            if (currentUser && (currentUser.role === 'ผู้จัดการ' || currentUser.role.toLowerCase().includes('manager'))) {
-                              e.stopPropagation();
-                              setReassigningCompanyId(company.id);
-                            }
-                          }}
-                        >
-                          <p className="text-[11px] font-bold mt-0.5 text-gray-300 group-hover/reassign:text-red-400 transition-colors">ไม่มีผู้ดูแล</p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="text-center">
-                      <div className="flex items-center gap-1 text-gray-700 font-bold text-sm">
-                        <FileText size={13} className="text-red-400" />
-                        {company._count.quotations}
-                      </div>
-                      <p className="text-[10px] text-gray-400">ใบเสนอ</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center gap-1 text-gray-700 font-bold text-sm">
-                        <PhoneCall size={13} className="text-gray-400" />
-                        {company._count.telesales}
-                      </div>
-                      <p className="text-[10px] text-gray-400">โทรหา</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center gap-1 text-gray-700 font-bold text-sm">
-                        <Users size={13} className="text-gray-400" />
-                        {getUniqueContacts(company.contacts).length}
-                      </div>
-                      <p className="text-[10px] text-gray-400">ผู้ติดต่อ</p>
-                    </div>
-                  </div>
-
-                  <ChevronRight
-                    size={18}
-                    className={`text-gray-300 shrink-0 transition-transform duration-200 group-hover:text-red-400 ${expandedCompany === company.id ? 'rotate-90 text-red-400' : ''}`}
-                  />
+                {/* Avatar */}
+                <div className="w-11 h-11 rounded-full bg-red-50 flex items-center justify-center text-red-600 font-black text-lg shrink-0 border border-red-100">
+                  {company.companyName.trim().charAt(0)}
                 </div>
 
-                {/* Expanded contacts section */}
-                {expandedCompany === company.id && getUniqueContacts(company.contacts).length > 0 && (
-                  <div className="border-t border-gray-100 bg-gray-50/60 px-5 py-4 space-y-4">
-                    <div className="flex justify-between items-center pb-2 border-b border-gray-200/50 flex-wrap gap-2">
-                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
-                        <Users size={12} className="text-red-500" />
-                        <span>ผู้ติดต่อ ({getUniqueContacts(company.contacts).length} คน)</span>
-                      </p>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDefaultCompanyIdForNewContact(company.id);
-                            setIsContactModalOpen(true);
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-black text-xs rounded-xl shadow-sm transition-all border border-blue-100"
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-bold text-gray-900 text-[15px]">{company.companyName.trim()}</span>
+                    {company.customerStatus && (
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${statusColors[company.customerStatus] || 'bg-gray-100 text-gray-600'}`}>
+                        {company.customerStatus}
+                      </span>
+                    )}
+                    {company.customerType !== 'บุคคลธรรมดา' && company.branchOrHeadOffice && (
+                      <span className="text-[11px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full font-medium">
+                        {company.branchOrHeadOffice}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 mt-1 flex-wrap">
+                    {company.taxId && (
+                      <span className="text-xs text-gray-500 flex items-center gap-1">
+                        <Tag size={11} /> {company.taxId}
+                      </span>
+                    )}
+                    {(company.province || company.district) && (
+                      <span className="text-xs text-gray-500 flex items-center gap-1">
+                        <MapPin size={11} />
+                        {[company.district, company.province].filter(Boolean).join(', ')}
+                      </span>
+                    )}
+                    {company.businessType && (
+                      <span className="text-xs text-gray-500">{company.businessType}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Stats */}
+                <div className="hidden sm:flex items-center gap-4 shrink-0">
+                  <div className="text-right pr-4 border-r border-gray-100 min-w-[100px]">
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">ติดต่อล่าสุด</p>
+                    {(() => {
+                      const telesale = company.telesales?.[0];
+                      const quotation = company.quotations?.[0];
+
+                      const activities = [
+                        { date: telesale?.callDate || telesale?.createdAt, type: 'บันทึกการโทร' },
+                        { date: quotation?.quotationDate || quotation?.createdAt, type: 'ใบเสนอราคา' },
+                        { date: quotation?.followUp1, type: 'ติดตามงาน' },
+                        { date: quotation?.followUp2, type: 'ติดตามงาน' },
+                        { date: quotation?.followUp3, type: 'ติดตามงาน' },
+                        { date: quotation?.followUp4, type: 'ติดตามงาน' },
+                      ].filter(a => a.date);
+
+                      const now = new Date();
+                      const validActivities = activities
+                        .map(a => ({ ...a, parsed: new Date(a.date as string) }))
+                        .filter(a => !isNaN(a.parsed.getTime()) && a.parsed.getTime() <= now.getTime() + 1000 * 60 * 60 * 24 && a.parsed.getFullYear() >= 2000)
+                        .sort((a, b) => b.parsed.getTime() - a.parsed.getTime());
+
+                      const latestActivity = validActivities[0];
+
+                      if (!latestActivity) {
+                        return <p className="text-[11px] font-bold mt-0.5 text-gray-300">ยังไม่เคยติดต่อ</p>;
+                      }
+
+                      const isOld = now.getTime() - latestActivity.parsed.getTime() > 1000 * 60 * 60 * 24 * 30;
+                      return (
+                        <div className="flex flex-col items-end">
+                          <p className={`text-[11px] font-bold mt-0.5 ${isOld ? 'text-amber-600' : 'text-green-600'}`}>
+                            {getTimeSince(latestActivity.parsed.toISOString())}
+                          </p>
+                          <p className="text-[9px] text-gray-500 font-medium mt-0.5 truncate max-w-[100px]">
+                            {latestActivity.type}
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Assigned Salesperson / Account Manager */}
+                  <div className="text-left px-4 border-r border-gray-100 min-w-[165px]">
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">ผู้ดูแลบัญชี</p>
+                    {reassigningCompanyId === company.id ? (
+                      <div className="mt-1 space-y-1.5" onClick={(e) => e.stopPropagation()}>
+                        <select
+                          value={selectedNewRepId}
+                          onChange={(e) => setSelectedNewRepId(e.target.value)}
+                          disabled={isReassigningLoading}
+                          className="text-[11px] bg-white border border-gray-200 rounded-lg px-2 py-1 outline-none w-full max-w-[145px] focus:border-brand-red font-medium text-gray-700 shadow-sm"
                         >
-                          <Plus size={12} /> เพิ่มผู้ติดต่อ
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditCompany(company);
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs rounded-xl shadow-sm transition-all"
-                        >
-                          <Building2 size={12} /> แก้ไขข้อมูลบริษัท/ลูกค้า
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCompany(company);
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-black text-xs rounded-xl shadow-sm transition-all border border-red-100"
-                        >
-                          <Trash2 size={12} /> ลบ
-                        </button>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {getUniqueContacts(company.contacts).map((contact) => (
-                        <div key={contact.id} className="flex items-center justify-between gap-3 bg-white rounded-xl px-3 py-2.5 border border-gray-100">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-sm shrink-0">
-                              {contact.contactName.trim().charAt(0)}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-gray-800 truncate">{contact.contactName.trim()}</p>
-                              <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500 mt-0.5">
-                                {contact.position && <span className="text-gray-400 font-medium">{contact.position}</span>}
-                                {contact.mobilePhone && contact.mobilePhone.split(/[,/]/).map((phone: string, idx: number) => {
-                                  const cleanPhone = phone.trim();
-                                  if (!cleanPhone) return null;
-                                  return (
-                                    <a
-                                      key={idx}
-                                      href={`tel:${cleanPhone}`}
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        window.location.href = `tel:${cleanPhone}`;
-                                        setTimeout(() => {
-                                          router.push(`/telesales/log?contactId=${contact.id}&companyId=${company.id}&returnTo=/clients`);
-                                        }, 1200);
-                                      }}
-                                      className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 hover:bg-red-500 text-brand-red hover:text-white rounded font-bold text-[10px] transition-all cursor-pointer"
-                                    >
-                                      <Phone size={10} className="shrink-0" /> {cleanPhone}
-                                    </a>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          </div>
+                          <option value="">-- เลือกผู้ดูแลใหม่ --</option>
+                          {salesReps.map((rep) => (
+                            <option key={rep.id} value={rep.id}>
+                              {rep.fullName} ({rep.employeeSale?.position || rep.role})
+                            </option>
+                          ))}
+                        </select>
+                        <div className="flex items-center gap-1.5">
                           <button
                             type="button"
+                            disabled={isReassigningLoading || !selectedNewRepId}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleEditContact(contact, company.id);
+                              handleInlineReassign(company.id);
                             }}
-                            className="text-[11px] font-black text-slate-400 hover:text-brand-red underline transition-colors shrink-0"
+                            className="text-[9px] bg-slate-800 hover:bg-slate-700 disabled:bg-gray-200 text-white font-extrabold px-2 py-0.5 rounded shadow-sm transition-all"
                           >
-                            แก้ไข
+                            {isReassigningLoading ? '...' : 'บันทึก'}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={isReassigningLoading}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setReassigningCompanyId(null);
+                              setSelectedNewRepId('');
+                            }}
+                            className="text-[9px] text-gray-500 hover:text-gray-700 font-bold px-2 py-0.5 border border-gray-200 rounded hover:bg-gray-50 bg-white transition-all"
+                          >
+                            ยกเลิก
                           </button>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ) : (company.assignedUser && company.assignedUser.isActive === true) ? (
+                      <div
+                        className={`group/reassign relative ${currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
+                        onClick={(e) => {
+                          if (currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager'))) {
+                            e.stopPropagation();
+                            setReassigningCompanyId(company.id);
+                          }
+                        }}
+                      >
+                        <p className="text-[11px] font-black text-gray-800 mt-0.5 truncate max-w-[120px]">
+                          {company.assignedUser.fullName}
+                        </p>
+                        <p className="text-[9px] text-gray-400 font-bold truncate max-w-[120px]">
+                          {company.assignedUser.employeeSale?.position || 'Sales Rep'}
+                        </p>
+                      </div>
+                    ) : activeHandler ? (
+                      <div
+                        className={`group/reassign relative ${currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
+                        onClick={(e) => {
+                          if (currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager'))) {
+                            e.stopPropagation();
+                            setReassigningCompanyId(company.id);
+                          }
+                        }}
+                      >
+                        <p className="text-[11px] font-black text-gray-800 mt-0.5 truncate max-w-[120px]">{activeHandler.fullName}</p>
+                        <p className="text-[9px] text-gray-400 font-bold truncate max-w-[120px]">
+                          {activeHandler.employeeSale?.position || 'Sales Rep'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div
+                        className={`group/reassign relative ${currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager')) ? 'cursor-pointer hover:bg-gray-50 rounded p-1 -mx-1 transition-colors' : ''}`}
+                        onClick={(e) => {
+                          if (currentUser && (currentUser.role.includes('ผู้จัดการ') || currentUser.role.toLowerCase().includes('manager'))) {
+                            e.stopPropagation();
+                            setReassigningCompanyId(company.id);
+                          }
+                        }}
+                      >
+                        <p className="text-[11px] font-bold mt-0.5 text-gray-300 group-hover/reassign:text-red-400 transition-colors">ไม่มีผู้ดูแล</p>
+                      </div>
+                    )}
                   </div>
-                )}
 
-                {expandedCompany === company.id && company.contacts.length === 0 && (
-                  <div className="border-t border-gray-100 bg-gray-50/60 px-5 py-4 text-center text-sm text-gray-400 flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-2">
-                      <Plus size={14} /> ยังไม่มีผู้ติดต่อในบริษัทนี้
-                    </span>
+                  <div className="text-center">
+                    <div className="flex items-center gap-1 text-gray-700 font-bold text-sm">
+                      <FileText size={13} className="text-red-400" />
+                      {company._count.quotations}
+                    </div>
+                    <p className="text-[10px] text-gray-400">ใบเสนอ</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="flex items-center gap-1 text-gray-700 font-bold text-sm">
+                      <PhoneCall size={13} className="text-gray-400" />
+                      {company._count.telesales}
+                    </div>
+                    <p className="text-[10px] text-gray-400">โทรหา</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="flex items-center gap-1 text-gray-700 font-bold text-sm">
+                      <Users size={13} className="text-gray-400" />
+                      {getUniqueContacts(company.contacts).length}
+                    </div>
+                    <p className="text-[10px] text-gray-400">ผู้ติดต่อ</p>
+                  </div>
+                </div>
+
+                <ChevronRight
+                  size={18}
+                  className={`text-gray-300 shrink-0 transition-transform duration-200 group-hover:text-red-400 ${expandedCompany === company.id ? 'rotate-90 text-red-400' : ''}`}
+                />
+              </div>
+
+              {/* Expanded contacts section */}
+              {expandedCompany === company.id && getUniqueContacts(company.contacts).length > 0 && (
+                <div className="border-t border-gray-100 bg-gray-50/60 px-5 py-4 space-y-4">
+                  <div className="flex justify-between items-center pb-2 border-b border-gray-200/50 flex-wrap gap-2">
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
+                      <Users size={12} className="text-red-500" />
+                      <span>ผู้ติดต่อ ({getUniqueContacts(company.contacts).length} คน)</span>
+                    </p>
                     <div className="flex gap-2">
                       <button
                         type="button"
@@ -1091,1057 +1015,1157 @@ export default function ClientsClientPage({
                       </button>
                     </div>
                   </div>
-                )}
-              </div>
-            );
-          })
-          )}
-          
-          {/* Companies Pagination Controls */}
-          {companiesTotalPages > 1 && (
-            <div className="flex items-center justify-between bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100 mt-4 font-sans">
-              <div className="flex flex-1 justify-between sm:hidden">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {getUniqueContacts(company.contacts).map((contact) => (
+                      <div key={contact.id} className="flex items-center justify-between gap-3 bg-white rounded-xl px-3 py-2.5 border border-gray-100">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-sm shrink-0">
+                            {contact.contactName.trim().charAt(0)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-gray-800 truncate">{contact.contactName.trim()}</p>
+                            <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500 mt-0.5">
+                              {contact.position && <span className="text-gray-400 font-medium">{contact.position}</span>}
+                              {contact.mobilePhone && contact.mobilePhone.split(/[,/]/).map((phone: string, idx: number) => {
+                                const cleanPhone = phone.trim();
+                                if (!cleanPhone) return null;
+                                return (
+                                  <a
+                                    key={idx}
+                                    href={`tel:${cleanPhone}`}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      window.location.href = `tel:${cleanPhone}`;
+                                      setTimeout(() => {
+                                        router.push(`/telesales/log?contactId=${contact.id}&companyId=${company.id}&returnTo=/clients`);
+                                      }, 1200);
+                                    }}
+                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 hover:bg-red-500 text-brand-red hover:text-white rounded font-bold text-[10px] transition-all cursor-pointer"
+                                  >
+                                    <Phone size={10} className="shrink-0" /> {cleanPhone}
+                                  </a>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditContact(contact, company.id);
+                          }}
+                          className="text-[11px] font-black text-slate-400 hover:text-brand-red underline transition-colors shrink-0"
+                        >
+                          แก้ไข
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {expandedCompany === company.id && company.contacts.length === 0 && (
+                <div className="border-t border-gray-100 bg-gray-50/60 px-5 py-4 text-center text-sm text-gray-400 flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-2">
+                    <Plus size={14} /> ยังไม่มีผู้ติดต่อในบริษัทนี้
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDefaultCompanyIdForNewContact(company.id);
+                        setIsContactModalOpen(true);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-black text-xs rounded-xl shadow-sm transition-all border border-blue-100"
+                    >
+                      <Plus size={12} /> เพิ่มผู้ติดต่อ
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditCompany(company);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-black text-xs rounded-xl shadow-sm transition-all"
+                    >
+                      <Building2 size={12} /> แก้ไขข้อมูลบริษัท/ลูกค้า
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteCompany(company);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-black text-xs rounded-xl shadow-sm transition-all border border-red-100"
+                    >
+                      <Trash2 size={12} /> ลบ
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })
+      )}
+
+      {/* Companies Pagination Controls */}
+      {companiesTotalPages > 1 && (
+        <div className="flex items-center justify-between bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100 mt-4 font-sans">
+          <div className="flex flex-1 justify-between sm:hidden">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all active:scale-95"
+            >
+              ก่อนหน้า
+            </button>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === companiesTotalPages}
+              className="relative ml-3 inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all active:scale-95"
+            >
+              ถัดไป
+            </button>
+          </div>
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-500 font-sans">
+                แสดงรายการที่ <span className="font-bold text-gray-800">{Math.min((currentPage - 1) * limit + 1, companiesCount)}</span> ถึง{' '}
+                <span className="font-bold text-gray-800">{Math.min(currentPage * limit, companiesCount)}</span> จากทั้งหมด{' '}
+                <span className="font-bold text-gray-800">{companiesCount}</span> รายการ
+              </p>
+            </div>
+            <div>
+              <nav className="isolate inline-flex -space-x-px rounded-xl gap-1.5 font-sans" aria-label="Pagination">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all active:scale-95"
+                  className="relative inline-flex items-center rounded-xl px-2.5 py-2 text-gray-400 hover:bg-red-50 hover:text-brand-red disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all active:scale-95"
                 >
-                  ก่อนหน้า
+                  <span className="transform rotate-180 block">&#x276F;</span>
                 </button>
+
+                {Array.from({ length: companiesTotalPages }, (_, i) => i + 1).map((p) => {
+                  if (companiesTotalPages > 7) {
+                    const nearCurrent = Math.abs(p - currentPage) <= 1;
+                    const isFirst = p === 1;
+                    const isLast = p === companiesTotalPages;
+
+                    if (!nearCurrent && !isFirst && !isLast) {
+                      if (p === 2 || p === companiesTotalPages - 1) {
+                        return <span key={`dots-${p}`} className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
+                      }
+                      return null;
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={p}
+                      onClick={() => handlePageChange(p)}
+                      className={`relative inline-flex items-center rounded-xl px-3.5 py-1.5 text-sm font-bold transition-all active:scale-95 ${p === currentPage
+                        ? 'z-10 bg-brand-red text-white shadow-md shadow-red-200'
+                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                        }`}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === companiesTotalPages}
-                  className="relative ml-3 inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-gray-500 border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all active:scale-95"
+                  className="relative inline-flex items-center rounded-xl px-2.5 py-2 text-gray-400 hover:bg-red-50 hover:text-brand-red disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all active:scale-95"
                 >
-                  ถัดไป
+                  <span>&#x276F;</span>
                 </button>
-              </div>
-              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 font-sans">
-                    แสดงรายการที่ <span className="font-bold text-gray-800">{Math.min((currentPage - 1) * limit + 1, companiesCount)}</span> ถึง{' '}
-                    <span className="font-bold text-gray-800">{Math.min(currentPage * limit, companiesCount)}</span> จากทั้งหมด{' '}
-                    <span className="font-bold text-gray-800">{companiesCount}</span> รายการ
-                  </p>
-                </div>
-                <div>
-                  <nav className="isolate inline-flex -space-x-px rounded-xl gap-1.5 font-sans" aria-label="Pagination">
-                    <button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="relative inline-flex items-center rounded-xl px-2.5 py-2 text-gray-400 hover:bg-red-50 hover:text-brand-red disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all active:scale-95"
-                    >
-                      <span className="transform rotate-180 block">&#x276F;</span>
-                    </button>
-                    
-                    {Array.from({ length: companiesTotalPages }, (_, i) => i + 1).map((p) => {
-                      if (companiesTotalPages > 7) {
-                        const nearCurrent = Math.abs(p - currentPage) <= 1;
-                        const isFirst = p === 1;
-                        const isLast = p === companiesTotalPages;
-
-                        if (!nearCurrent && !isFirst && !isLast) {
-                          if (p === 2 || p === companiesTotalPages - 1) {
-                            return <span key={`dots-${p}`} className="relative inline-flex items-center px-2 text-gray-400 font-bold">...</span>;
-                          }
-                          return null;
-                        }
-                      }
-
-                      return (
-                        <button
-                          key={p}
-                          onClick={() => handlePageChange(p)}
-                          className={`relative inline-flex items-center rounded-xl px-3.5 py-1.5 text-sm font-bold transition-all active:scale-95 ${
-                            p === currentPage
-                              ? 'z-10 bg-brand-red text-white shadow-md shadow-red-200'
-                              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      );
-                    })}
-
-                    <button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === companiesTotalPages}
-                      className="relative inline-flex items-center rounded-xl px-2.5 py-2 text-gray-400 hover:bg-red-50 hover:text-brand-red disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all active:scale-95"
-                    >
-                      <span>&#x276F;</span>
-                    </button>
-                  </nav>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ─── Modals ───────────────────────────────────────────────────────── */}
-      {isCompanyModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between z-10">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-50 text-brand-red rounded-lg">
-                  <Building2 size={20} />
-                </div>
-                <h3 className="text-xl font-black text-gray-900">เพิ่มบริษัทใหม่</h3>
-              </div>
-              <button onClick={closeCompanyModal} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <form action={async (formData) => {
-              const res = await createCompany(Object.fromEntries(formData));
-              if (res.success) {
-                closeCompanyModal();
-                window.location.reload(); // Quick refresh to show new data
-              } else {
-                showAlert(res.message || 'เกิดข้อผิดพลาดในการเพิ่มบริษัทใหม่');
-              }
-            }} className="p-8 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อบริษัท (Company Name) *</label>
-                  <input required name="companyName" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all" placeholder="บริษัท เอบีซี จำกัด" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เลขประจำตัวผู้เสียภาษี (Tax ID)</label>
-                  <div className="relative">
-                    <input 
-                      name="taxId" 
-                      value={createTaxId}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '');
-                        setCreateTaxId(val);
-                        if (!val || val.trim() === '') {
-                          setTaxIdWarning(null);
-                          setIsCheckingTaxId(false);
-                        } else {
-                          setIsCheckingTaxId(true);
-                        }
-                      }}
-                      className={`w-full bg-gray-50 border rounded-xl px-4 py-3 outline-none transition-all focus:ring-4 ${
-                        taxIdWarning 
-                          ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-400/10 bg-amber-50/5' 
-                          : 'border-gray-200 focus:border-brand-red focus:ring-brand-red/10'
-                      }`}
-                      placeholder="0123456789012" 
-                    />
-                    {isCheckingTaxId && (
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
-                        <Loader2 size={18} className="animate-spin text-brand-red" />
-                      </div>
-                    )}
-                  </div>
-                  {taxIdWarning && (
-                    <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl px-4 py-3 text-xs mt-1.5 animate-in slide-in-from-top-1 duration-200 shadow-sm shadow-amber-50">
-                      <span className="text-sm">⚠️</span>
-                      <span className="font-semibold leading-relaxed">{taxIdWarning}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทลูกค้า (นิติบุคคล / บุคคลธรรมดา) *</label>
-                  <select required name="customerType" value={createCustomerType} onChange={(e) => setCreateCustomerType(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
-                    <option value="นิติบุคคล">นิติบุคคล (Legal Entity)</option>
-                    <option value="บุคคลธรรมดา">บุคคลธรรมดา (Individual)</option>
-                  </select>
-                </div>
-                {createCustomerType !== 'บุคคลธรรมดา' && (
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สาขา / สำนักงานใหญ่</label>
-                    <input name="branchOrHeadOffice" defaultValue="สำนักงานใหญ่" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="สำนักงานใหญ่ หรือ สาขา 00001" />
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทธุรกิจ (Business Type) *</label>
-                  <select 
-                    required 
-                    name="businessType" 
-                    onChange={(e) => setShowNewBusinessTypeInput(e.target.value === 'ADD_NEW')}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none"
-                  >
-                    <option value="">-- เลือกประเภทธุรกิจ --</option>
-                    {businessTypes.map(type => (
-                      <option key={type.id} value={type.name}>{type.name}</option>
-                    ))}
-                    <option value="ADD_NEW" className="text-brand-red font-bold">+ เพิ่มประเภทธุรกิจใหม่...</option>
-                  </select>
-                </div>
-
-                {showNewBusinessTypeInput && (
-                  <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
-                    <label className="text-xs font-black text-brand-red uppercase tracking-widest ml-1 italic">ระบุประเภทธุรกิจใหม่ *</label>
-                    <input 
-                      required 
-                      name="newBusinessType" 
-                      className="w-full bg-red-50/30 border border-red-100 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all" 
-                      placeholder="เช่น อสังหาริมทรัพย์, พลังงาน" 
-                    />
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สถานะลูกค้า</label>
-                  <select name="customerStatus" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
-                    <option value="ลูกค้าใหม่">ลูกค้าใหม่</option>
-                    <option value="ลูกค้าเป้าหมาย">ลูกค้าเป้าหมาย</option>
-                    <option value="ลูกค้าเก่า">ลูกค้าเก่า</option>
-                    <option value="ลูกค้าเก่า (ผู้ติดต่อใหม่)">ลูกค้าเก่า (ผู้ติดต่อใหม่)</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ผู้ดูแลบัญชี (Account Manager)</label>
-                  {currentUser?.role === 'ตัวแทนฝ่ายขาย' ? (
-                    <>
-                      <select 
-                        disabled 
-                        value={currentUser.id} 
-                        className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 outline-none transition-all appearance-none cursor-not-allowed opacity-80"
-                      >
-                        <option value={currentUser.id}>
-                          {currentUser.fullName} ({currentUser.role})
-                        </option>
-                      </select>
-                      <input type="hidden" name="assignedUserId" value={currentUser.id} />
-                    </>
-                  ) : (
-                    <select 
-                      name="assignedUserId" 
-                      defaultValue={currentUser?.id || ''} 
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none"
-                    >
-                      <option value="">-- เลือกผู้จัดการ/พนักงาน --</option>
-                      {salesReps.map(rep => (
-                        <option key={rep.id} value={rep.id}>
-                          {rep.fullName} ({rep.employeeSale?.position || rep.role})
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด {createCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
-                  <select 
-                    required={createCustomerType !== 'บุคคลธรรมดา'} 
-                    name="province" 
-                    value={selectedProvince}
-                    onChange={(e) => handleProvinceChange(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none"
-                  >
-                    <option value="">-- เลือกจังหวัด --</option>
-                    {provinces.map(p => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ {createCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
-                  <select 
-                    required={createCustomerType !== 'บุคคลธรรมดา'} 
-                    name="district" 
-                    value={selectedDistrict}
-                    disabled={!selectedProvince}
-                    onChange={(e) => handleDistrictChange(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none disabled:opacity-50"
-                  >
-                    <option value="">-- เลือกเขต/อำเภอ --</option>
-                    {districts.map(d => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล {createCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
-                  <select 
-                    required={createCustomerType !== 'บุคคลธรรมดา'} 
-                    name="subDistrict" 
-                    value={selectedSubDistrict}
-                    disabled={!selectedDistrict}
-                    onChange={(e) => handleSubDistrictChange(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none disabled:opacity-50"
-                  >
-                    <option value="">-- เลือกแขวง/ตำบล --</option>
-                    {subDistricts.map(s => (
-                      <option key={s.subDistrict} value={s.subDistrict}>{s.subDistrict}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จดทะเบียน/ที่อยู่หลัก (Registered Address) {createCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
-                  <input required={createCustomerType !== 'บุคคลธรรมดา'} name="address" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="123/45 หมู่ 6 ถนนวิภาวดีรังสิต..." />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์ {createCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
-                  <input 
-                    required={createCustomerType !== 'บุคคลธรรมดา'} 
-                    name="postalCode" 
-                    value={autoPostalCode}
-                    onChange={(e) => setAutoPostalCode(e.target.value)}
-                    className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 outline-none transition-all" 
-                    placeholder="10XXX" 
-                  />
-                </div>
-
-                {/* Billing Address Section */}
-                <div className="md:col-span-2 border-t border-gray-100 pt-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">ที่อยู่สำหรับออกใบกำกับภาษี (Billing Address)</h4>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const mainAddr = (document.querySelector('input[name="address"]') as HTMLInputElement)?.value || '';
-                        setBillingAddress(mainAddr);
-                        setBillingProvince(selectedProvince);
-                        setBillingDistrict(selectedDistrict);
-                        setBillingSubDistrict(selectedSubDistrict);
-                        setBillingPostalCode(autoPostalCode);
-                      }}
-                      className="text-xs font-black text-brand-red hover:underline"
-                    >
-                      คัดลอกจากที่อยู่หลัก
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่ใบกำกับภาษี</label>
-                      <input
-                        name="billingAddress"
-                        value={billingAddress}
-                        onChange={(e) => setBillingAddress(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="ที่อยู่สำหรับออกใบกำกับภาษี..."
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล</label>
-                      <input
-                        name="billingSubDistrict"
-                        value={billingSubDistrict}
-                        onChange={(e) => setBillingSubDistrict(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="แขวง/ตำบล"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ</label>
-                      <input
-                        name="billingDistrict"
-                        value={billingDistrict}
-                        onChange={(e) => setBillingDistrict(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="เขต/อำเภอ"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด</label>
-                      <input
-                        name="billingProvince"
-                        value={billingProvince}
-                        onChange={(e) => setBillingProvince(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="จังหวัด"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์</label>
-                      <input
-                        name="billingPostalCode"
-                        value={billingPostalCode}
-                        onChange={(e) => setBillingPostalCode(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="รหัสไปรษณีย์"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Shipping Address Section */}
-                <div className="md:col-span-2 border-t border-gray-100 pt-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">ที่อยู่จัดส่งสินค้า (Shipping Address)</h4>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShippingAddress(billingAddress);
-                        setShippingProvince(billingProvince);
-                        setShippingDistrict(billingDistrict);
-                        setShippingSubDistrict(billingSubDistrict);
-                        setShippingPostalCode(billingPostalCode);
-                      }}
-                      className="text-xs font-black text-brand-red hover:underline"
-                    >
-                      คัดลอกจากที่อยู่ใบกำกับภาษี
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จัดส่ง</label>
-                      <input
-                        name="shippingAddress"
-                        value={shippingAddress}
-                        onChange={(e) => setShippingAddress(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="ที่อยู่จัดส่งสินค้า..."
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล</label>
-                      <input
-                        name="shippingSubDistrict"
-                        value={shippingSubDistrict}
-                        onChange={(e) => setShippingSubDistrict(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="แขวง/ตำบล"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ</label>
-                      <input
-                        name="shippingDistrict"
-                        value={shippingDistrict}
-                        onChange={(e) => setShippingDistrict(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="เขต/อำเภอ"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด</label>
-                      <input
-                        name="shippingProvince"
-                        value={shippingProvince}
-                        onChange={(e) => setShippingProvince(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="จังหวัด"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์</label>
-                      <input
-                        name="shippingPostalCode"
-                        value={shippingPostalCode}
-                        onChange={(e) => setShippingPostalCode(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="รหัสไปรษณีย์"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Method */}
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">วิธีการชำระเงิน (Payment Method)</label>
-                  <select
-                    name="paymentMethod"
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
-                  >
-                    <option value="">-- เลือกวิธีการชำระเงิน --</option>
-                    <option value="เงินสด">เงินสด (Cash)</option>
-                    <option value="โอนเงินผ่านธนาคาร">โอนเงินผ่านธนาคาร (Bank Transfer)</option>
-                    <option value="เครดิต 30 วัน">เครดิต 30 วัน (30 Days Credit)</option>
-                    <option value="เครดิต 60 วัน">เครดิต 60 วัน (60 Days Credit)</option>
-                  </select>
-                </div>
-
-                {/* Primary Contact Section */}
-                <div className="md:col-span-2 border-t border-gray-100 pt-6">
-                  <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider mb-4">ข้อมูลผู้ติดต่อหลัก (Primary Contact)</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อผู้ติดต่อหลัก</label>
-                      <input
-                        name="contactName"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="คุณสมชาย ดีใจ"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ตำแหน่ง</label>
-                      <input
-                        name="contactPosition"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="Manager / Director"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เบอร์โทรศัพท์</label>
-                      <input
-                        name="contactPhone"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="081-xxx-xxxx"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">อีเมลผู้ติดต่อ (สำหรับออกเอกสาร E-tax)</label>
-                      <input
-                        name="contactEmail"
-                        type="email"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                        placeholder="somchai@company.com"
-                      />
-                    </div>
-                    <div className="md:col-span-2 flex items-center gap-2 pt-2">
-                      <input
-                        type="checkbox"
-                        id="isETaxReceiver"
-                        name="isETaxReceiver"
-                        value="true"
-                        className="w-4 h-4 rounded border-gray-300 text-brand-red focus:ring-brand-red focus:ring-opacity-25"
-                      />
-                      <label htmlFor="isETaxReceiver" className="text-xs font-black text-slate-700 select-none">
-                        ผู้ติดต่อรายนี้เป็นผู้รับเอกสาร E-Tax (E-Tax Recipient)
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button type="button" onClick={closeCompanyModal} className="flex-1 px-6 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-all">ยกเลิก</button>
-                <button type="submit" className="flex-2 px-10 py-3 bg-brand-red text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-100 transition-all">บันทึกข้อมูลบริษัท</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {isContactModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
-                  <Users size={20} />
-                </div>
-                <h3 className="text-xl font-black text-gray-900">เพิ่มผู้ติดต่อ</h3>
-              </div>
-              <button onClick={() => setIsContactModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <form action={async (formData) => {
-              const res = await createContact(Object.fromEntries(formData));
-              if (res.success) {
-                setIsContactModalOpen(false);
-                window.location.reload();
-              } else {
-                showAlert(res.message || 'เกิดข้อผิดพลาดในการเพิ่มผู้ติดต่อ');
-              }
-            }} className="p-8 space-y-5">
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สังกัดบริษัท *</label>
-                <select required name="companyId" defaultValue={defaultCompanyIdForNewContact || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
-                  <option value="">-- เลือกบริษัท --</option>
-                  {allCompanies.map(comp => (
-                    <option key={comp.id} value={comp.id}>{comp.companyName}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อ-นามสกุล *</label>
-                <input required name="contactName" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all" placeholder="คุณสมชาย ใจดี" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ตำแหน่ง (Position)</label>
-                <input name="position" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all" placeholder="Manager / Director" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เบอร์โทรศัพท์</label>
-                <input name="mobilePhone" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all" placeholder="081-xxx-xxxx" />
-              </div>
-              
-              <div className="flex gap-4 pt-4">
-                <button type="button" onClick={() => setIsContactModalOpen(false)} className="flex-1 px-6 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-all">ยกเลิก</button>
-                <button type="submit" className="flex-2 px-10 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 shadow-lg shadow-slate-100 transition-all">เพิ่มผู้ติดต่อ</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Edit Company Modal ───────────────────────────────────────────── */}
-      {isEditCompanyModalOpen && editingCompany && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between z-10">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-50 text-brand-red rounded-lg">
-                  <Building2 size={20} />
-                </div>
-                <h3 className="text-xl font-black text-gray-900">แก้ไขข้อมูลบริษัท/ลูกค้า</h3>
-              </div>
-              <button onClick={() => setIsEditCompanyModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <form action={async (formData) => {
-              const res = await updateCompany(editingCompany.id, Object.fromEntries(formData));
-              if (res.success) {
-                setIsEditCompanyModalOpen(false);
-                window.location.reload();
-              } else {
-                showAlert(res.message || 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลบริษัท');
-              }
-            }} className="p-8 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อบริษัท (Company Name) *</label>
-                  <input required name="companyName" defaultValue={editingCompany.companyName || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เลขประจำตัวผู้เสียภาษี (Tax ID)</label>
-                  <div className="relative">
-                    <input 
-                      name="taxId" 
-                      value={editTaxId}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setEditTaxId(val);
-                        if (!val || val.trim() === '') {
-                          setEditTaxIdWarning(null);
-                          setIsCheckingEditTaxId(false);
-                        } else {
-                          setIsCheckingEditTaxId(true);
-                        }
-                      }}
-                      className={`w-full bg-gray-50 border rounded-xl px-4 py-3 outline-none transition-all focus:ring-4 ${
-                        editTaxIdWarning 
-                          ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-400/10 bg-amber-50/5' 
-                          : 'border-gray-200 focus:border-brand-red focus:ring-brand-red/10'
-                      }`}
-                    />
-                    {isCheckingEditTaxId && (
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
-                        <Loader2 size={18} className="animate-spin text-brand-red" />
-                      </div>
-                    )}
-                  </div>
-                  {editTaxIdWarning && (
-                    <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl px-4 py-3 text-xs mt-1.5 animate-in slide-in-from-top-1 duration-200 shadow-sm shadow-amber-50">
-                      <span className="text-sm">⚠️</span>
-                      <span className="font-semibold leading-relaxed">{editTaxIdWarning}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทลูกค้า *</label>
-                  <select required name="customerType" value={editCustomerType} onChange={(e) => setEditCustomerType(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none">
-                    <option value="นิติบุคคล">นิติบุคคล (Legal Entity)</option>
-                    <option value="บุคคลธรรมดา">บุคคลธรรมดา (Individual)</option>
-                  </select>
-                </div>
-                {editCustomerType !== 'บุคคลธรรมดา' && (
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สาขา / สำนักงานใหญ่</label>
-                    <input name="branchOrHeadOffice" defaultValue={editingCompany.branchOrHeadOffice || 'สำนักงานใหญ่'} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="สำนักงานใหญ่ หรือ สาขา 00001" />
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทธุรกิจ (Business Type) *</label>
-                  <select 
-                    required 
-                    name="businessType" 
-                    defaultValue={editingCompany.businessType || ''}
-                    onChange={(e) => setShowEditNewBusinessTypeInput(e.target.value === 'ADD_NEW')}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
-                  >
-                    <option value="">-- เลือกประเภทธุรกิจ --</option>
-                    {businessTypes.map(type => (
-                      <option key={type.id} value={type.name}>{type.name}</option>
-                    ))}
-                    <option value="ADD_NEW" className="text-brand-red font-bold">+ เพิ่มประเภทธุรกิจใหม่...</option>
-                  </select>
-                </div>
-
-                {showEditNewBusinessTypeInput && (
-                  <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
-                    <label className="text-xs font-black text-brand-red uppercase tracking-widest ml-1 italic">ระบุประเภทธุรกิจใหม่ *</label>
-                    <input 
-                      required 
-                      name="newBusinessType" 
-                      className="w-full bg-red-50/30 border border-red-100 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" 
-                      placeholder="เช่น อสังหาริมทรัพย์, พลังงาน" 
-                    />
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สถานะลูกค้า</label>
-                  <select name="customerStatus" defaultValue={editingCompany.customerStatus || 'ลูกค้าใหม่'} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none">
-                    <option value="ลูกค้าใหม่">ลูกค้าใหม่</option>
-                    <option value="ลูกค้าเป้าหมาย">ลูกค้าเป้าหมาย</option>
-                    <option value="ลูกค้าเก่า">ลูกค้าเก่า</option>
-                    <option value="ลูกค้าเก่า (ผู้ติดต่อใหม่)">ลูกค้าเก่า (ผู้ติดต่อใหม่)</option>
-                  </select>
-                </div>
-                 <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ผู้ดูแลบัญชี (Account Manager)</label>
-                  {currentUser?.role === 'ตัวแทนฝ่ายขาย' ? (
-                    <>
-                      <select 
-                        disabled 
-                        value={currentUser.id} 
-                        className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 outline-none transition-all appearance-none cursor-not-allowed opacity-80"
-                      >
-                        <option value={currentUser.id}>
-                          {currentUser.fullName} ({currentUser.role})
-                        </option>
-                      </select>
-                      <input type="hidden" name="assignedUserId" value={currentUser.id} />
-                    </>
-                  ) : (
-                    <select 
-                      name="assignedUserId" 
-                      defaultValue={editingCompany.assignedUser?.id || ''} 
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
-                    >
-                      <option value="">-- เลือกผู้จัดการ/พนักงาน --</option>
-                      {salesReps.map(rep => (
-                        <option key={rep.id} value={rep.id}>
-                          {rep.fullName} ({rep.employeeSale?.position || rep.role})
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-
-                {/* Address Section */}
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จดทะเบียน/ที่อยู่หลัก (Registered Address) {editCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
-                  <input required={editCustomerType !== 'บุคคลธรรมดา'} name="address" defaultValue={editingCompany.address || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด {editCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
-                  <select 
-                    required={editCustomerType !== 'บุคคลธรรมดา'} 
-                    name="province" 
-                    value={editSelectedProvince}
-                    onChange={(e) => handleEditProvinceChange(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
-                  >
-                    <option value="">-- เลือกจังหวัด --</option>
-                    {provinces.map(p => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ {editCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
-                  <select 
-                    required={editCustomerType !== 'บุคคลธรรมดา'} 
-                    name="district" 
-                    value={editSelectedDistrict}
-                    disabled={!editSelectedProvince}
-                    onChange={(e) => handleEditDistrictChange(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none disabled:opacity-50"
-                  >
-                    <option value="">-- เลือกเขต/อำเภอ --</option>
-                    {editDistricts.map(d => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล {editCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
-                  <select 
-                    required={editCustomerType !== 'บุคคลธรรมดา'} 
-                    name="subDistrict" 
-                    value={editSelectedSubDistrict}
-                    disabled={!editSelectedDistrict}
-                    onChange={(e) => handleEditSubDistrictChange(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none disabled:opacity-50"
-                  >
-                    <option value="">-- เลือกแขวง/ตำบล --</option>
-                    {editSubDistricts.map(s => (
-                      <option key={s.subDistrict} value={s.subDistrict}>{s.subDistrict}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์ {editCustomerType !== 'บุคคลธรรมดา' && '*'}</label>
-                  <input 
-                    required={editCustomerType !== 'บุคคลธรรมดา'} 
-                    name="postalCode" 
-                    value={editAutoPostalCode}
-                    onChange={(e) => setEditAutoPostalCode(e.target.value)}
-                    className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 outline-none transition-all" 
-                  />
-                </div>
-
-                {/* Billing Address Section */}
-                <div className="md:col-span-2 border-t border-gray-100 pt-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">ที่อยู่สำหรับออกใบกำกับภาษี (Billing Address)</h4>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const mainAddr = (document.querySelector('form input[name="address"]') as HTMLInputElement)?.value || '';
-                        setEditBillingAddress(mainAddr);
-                        setEditBillingProvince(editSelectedProvince);
-                        setEditBillingDistrict(editSelectedDistrict);
-                        setEditBillingSubDistrict(editSelectedSubDistrict);
-                        setEditBillingPostalCode(editAutoPostalCode);
-                      }}
-                      className="text-xs font-black text-brand-red hover:underline"
-                    >
-                      คัดลอกจากที่อยู่หลัก
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่ใบกำกับภาษี</label>
-                      <input
-                        name="billingAddress"
-                        value={editBillingAddress}
-                        onChange={(e) => setEditBillingAddress(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล</label>
-                      <input
-                        name="billingSubDistrict"
-                        value={editBillingSubDistrict}
-                        onChange={(e) => setEditBillingSubDistrict(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ</label>
-                      <input
-                        name="billingDistrict"
-                        value={editBillingDistrict}
-                        onChange={(e) => setEditBillingDistrict(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด</label>
-                      <input
-                        name="billingProvince"
-                        value={editBillingProvince}
-                        onChange={(e) => setEditBillingProvince(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์</label>
-                      <input
-                        name="billingPostalCode"
-                        value={editBillingPostalCode}
-                        onChange={(e) => setEditBillingPostalCode(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Shipping Address Section */}
-                <div className="md:col-span-2 border-t border-gray-100 pt-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">ที่อยู่จัดส่งสินค้า (Shipping Address)</h4>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditShippingAddress(editBillingAddress);
-                        setEditShippingProvince(editBillingProvince);
-                        setEditShippingDistrict(editBillingDistrict);
-                        setEditShippingSubDistrict(editBillingSubDistrict);
-                        setEditShippingPostalCode(editBillingPostalCode);
-                      }}
-                      className="text-xs font-black text-brand-red hover:underline"
-                    >
-                      คัดลอกจากที่อยู่ใบกำกับภาษี
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จัดส่ง</label>
-                      <input
-                        name="shippingAddress"
-                        value={editShippingAddress}
-                        onChange={(e) => setEditShippingAddress(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล</label>
-                      <input
-                        name="shippingSubDistrict"
-                        value={editShippingSubDistrict}
-                        onChange={(e) => setEditShippingSubDistrict(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ</label>
-                      <input
-                        name="shippingDistrict"
-                        value={editShippingDistrict}
-                        onChange={(e) => setEditShippingDistrict(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด</label>
-                      <input
-                        name="shippingProvince"
-                        value={editShippingProvince}
-                        onChange={(e) => setEditShippingProvince(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์</label>
-                      <input
-                        name="shippingPostalCode"
-                        value={editShippingPostalCode}
-                        onChange={(e) => setEditShippingPostalCode(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Method */}
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">วิธีการชำระเงิน (Payment Method)</label>
-                  <select
-                    name="paymentMethod"
-                    value={editPaymentMethod}
-                    onChange={(e) => setEditPaymentMethod(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
-                  >
-                    <option value="">-- เลือกวิธีการชำระเงิน --</option>
-                    <option value="เงินสด">เงินสด (Cash)</option>
-                    <option value="โอนเงินผ่านธนาคาร">โอนเงินผ่านธนาคาร (Bank Transfer)</option>
-                    <option value="เครดิต 30 วัน">เครดิต 30 วัน (30 Days Credit)</option>
-                    <option value="เครดิต 60 วัน">เครดิต 60 วัน (60 Days Credit)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button type="button" onClick={() => setIsEditCompanyModalOpen(false)} className="flex-1 px-6 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-all">ยกเลิก</button>
-                <button type="submit" className="flex-2 px-10 py-3 bg-brand-red text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-100 transition-all">บันทึกการแก้ไข</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Edit Contact Modal ───────────────────────────────────────────── */}
-      {isEditContactModalOpen && editingContact && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
-                  <Users size={20} />
-                </div>
-                <h3 className="text-xl font-black text-gray-900">แก้ไขข้อมูลผู้ติดต่อ</h3>
-              </div>
-              <button onClick={() => setIsEditContactModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <form action={async (formData) => {
-              const res = await updateContact(editingContact.id, Object.fromEntries(formData));
-              if (res.success) {
-                setIsEditContactModalOpen(false);
-                window.location.reload();
-              } else {
-                showAlert(res.message || 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลผู้ติดต่อ');
-              }
-            }} className="p-8 space-y-5">
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สังกัดบริษัท *</label>
-                <select required name="companyId" defaultValue={editingContact.companyId || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
-                  <option value="">-- เลือกบริษัท --</option>
-                  {allCompanies.map(comp => (
-                    <option key={comp.id} value={comp.id}>{comp.companyName}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อ-นามสกุล *</label>
-                <input required name="contactName" defaultValue={editingContact.contactName || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ตำแหน่ง (Position)</label>
-                <input name="position" defaultValue={editingContact.position || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เบอร์โทรศัพท์</label>
-                <input name="mobilePhone" defaultValue={editingContact.mobilePhone || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">อีเมลผู้ติดต่อ (สำหรับออกเอกสาร E-tax)</label>
-                <input name="email" type="email" defaultValue={editingContact.email || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="name@company.com" />
-              </div>
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="editIsETaxReceiver"
-                  name="isETaxReceiver"
-                  value="true"
-                  defaultChecked={editingContact.isETaxReceiver || false}
-                  className="w-4 h-4 rounded border-gray-300 text-brand-red focus:ring-brand-red focus:ring-opacity-25"
-                />
-                <label htmlFor="editIsETaxReceiver" className="text-xs font-black text-slate-700 select-none">
-                  ผู้ติดต่อรายนี้เป็นผู้รับเอกสาร E-Tax (E-Tax Recipient)
-                </label>
-              </div>
-              
-              <div className="flex gap-4 pt-4">
-                <button type="button" onClick={() => setIsEditContactModalOpen(false)} className="flex-1 px-6 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-all">ยกเลิก</button>
-                <button type="submit" className="flex-2 px-10 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 shadow-lg shadow-slate-100 transition-all">บันทึกการแก้ไข</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Premium Custom Red Alert Modal ─────────────────────────────────── */}
-      {customAlert?.isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-red-100/50">
-            {/* Red top bar accent */}
-            <div className="h-2.5 bg-red-600 w-full" />
-            <div className="p-8 text-center">
-              {/* Premium Red Circular Warning Icon */}
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 text-red-600 mb-6 ring-8 ring-red-50/50">
-                <X size={32} strokeWidth={2.5} />
-              </div>
-              
-              <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tight">
-                {customAlert.title}
-              </h3>
-              
-              <p className="text-gray-600 text-sm leading-relaxed mb-8 px-2 font-medium">
-                {customAlert.message}
-              </p>
-              
-              <button
-                type="button"
-                onClick={() => setCustomAlert(null)}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-red-200 hover:shadow-red-300 transition-all duration-200 active:scale-[0.98] text-sm focus:outline-none focus:ring-4 focus:ring-red-600/20"
-              >
-                ตกลง (OK)
-              </button>
+              </nav>
             </div>
           </div>
         </div>
       )}
     </div>
+  )
+}
+
+{/* ─── Modals ───────────────────────────────────────────────────────── */ }
+{
+  isCompanyModalOpen && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300">
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between z-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-50 text-brand-red rounded-lg">
+              <Building2 size={20} />
+            </div>
+            <h3 className="text-xl font-black text-gray-900">เพิ่มบริษัทใหม่</h3>
+          </div>
+          <button onClick={closeCompanyModal} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <form action={async (formData) => {
+          const res = await createCompany(Object.fromEntries(formData));
+          if (res.success) {
+            closeCompanyModal();
+            window.location.reload(); // Quick refresh to show new data
+          } else {
+            showAlert(res.message || 'เกิดข้อผิดพลาดในการเพิ่มบริษัทใหม่');
+          }
+        }} className="p-8 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อบริษัท (Company Name) *</label>
+              <input required name="companyName" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all" placeholder="บริษัท เอบีซี จำกัด" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เลขประจำตัวผู้เสียภาษี (Tax ID)</label>
+              <div className="relative">
+                <input
+                  name="taxId"
+                  value={createTaxId}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    setCreateTaxId(val);
+                    if (!val || val.trim() === '') {
+                      setTaxIdWarning(null);
+                      setIsCheckingTaxId(false);
+                    } else {
+                      setIsCheckingTaxId(true);
+                    }
+                  }}
+                  className={`w-full bg-gray-50 border rounded-xl px-4 py-3 outline-none transition-all focus:ring-4 ${taxIdWarning
+                    ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-400/10 bg-amber-50/5'
+                    : 'border-gray-200 focus:border-brand-red focus:ring-brand-red/10'
+                    }`}
+                  placeholder="0123456789012"
+                />
+                {isCheckingTaxId && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
+                    <Loader2 size={18} className="animate-spin text-brand-red" />
+                  </div>
+                )}
+              </div>
+              {taxIdWarning && (
+                <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl px-4 py-3 text-xs mt-1.5 animate-in slide-in-from-top-1 duration-200 shadow-sm shadow-amber-50">
+                  <span className="text-sm">⚠️</span>
+                  <span className="font-semibold leading-relaxed">{taxIdWarning}</span>
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทลูกค้า (นิติบุคคล / บุคคลธรรมดา) {isCreateCustomerTypeRequired && '*'}</label>
+              <select required={isCreateCustomerTypeRequired} name="customerType" value={createCustomerType} onChange={(e) => setCreateCustomerType(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
+                <option value="นิติบุคคล">นิติบุคคล (Legal Entity)</option>
+                <option value="บุคคลธรรมดา">บุคคลธรรมดา (Individual)</option>
+              </select>
+            </div>
+            {createCustomerType !== 'บุคคลธรรมดา' && (
+              <div className="space-y-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สาขา / สำนักงานใหญ่</label>
+                <input name="branchOrHeadOffice" defaultValue="สำนักงานใหญ่" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="สำนักงานใหญ่ หรือ สาขา 00001" />
+              </div>
+            )}
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทธุรกิจ (Business Type) {isCreateBusinessTypeRequired && '*'}</label>
+              <select
+                required={isCreateBusinessTypeRequired}
+                name="businessType"
+                onChange={(e) => setShowNewBusinessTypeInput(e.target.value === 'ADD_NEW')}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none"
+              >
+                <option value="">-- เลือกประเภทธุรกิจ --</option>
+                {businessTypes.map(type => (
+                  <option key={type.id} value={type.name}>{type.name}</option>
+                ))}
+                <option value="ADD_NEW" className="text-brand-red font-bold">+ เพิ่มประเภทธุรกิจใหม่...</option>
+              </select>
+            </div>
+
+            {showNewBusinessTypeInput && (
+              <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
+                <label className="text-xs font-black text-brand-red uppercase tracking-widest ml-1 italic">ระบุประเภทธุรกิจใหม่ {isCreateBusinessTypeRequired && '*'}</label>
+                <input
+                  required={isCreateBusinessTypeRequired}
+                  name="newBusinessType"
+                  className="w-full bg-red-50/30 border border-red-100 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all"
+                  placeholder="เช่น อสังหาริมทรัพย์, พลังงาน"
+                />
+              </div>
+            )}
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สถานะลูกค้า</label>
+              <select name="customerStatus" value={newCustomerStatus} onChange={(e) => setNewCustomerStatus(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
+                <option value="ลูกค้าใหม่">ลูกค้าใหม่</option>
+                <option value="ลูกค้าเป้าหมาย">ลูกค้าเป้าหมาย</option>
+                <option value="ลูกค้าเก่า">ลูกค้าเก่า</option>
+                <option value="ลูกค้าเก่า (ผู้ติดต่อใหม่)">ลูกค้าเก่า (ผู้ติดต่อใหม่)</option>
+                <option value="ปิดกิจการ (Closed Business)">ปิดกิจการ (Closed Business)</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ผู้ดูแลบัญชี (Account Manager)</label>
+              {currentUser?.role === 'ตัวแทนฝ่ายขาย' ? (
+                <>
+                  <select
+                    disabled
+                    value={currentUser.id}
+                    className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 outline-none transition-all appearance-none cursor-not-allowed opacity-80"
+                  >
+                    <option value={currentUser.id}>
+                      {currentUser.fullName} ({currentUser.role})
+                    </option>
+                  </select>
+                  <input type="hidden" name="assignedUserId" value={currentUser.id} />
+                </>
+              ) : (
+                <select
+                  name="assignedUserId"
+                  defaultValue={currentUser?.id || ''}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none"
+                >
+                  <option value="">-- เลือกผู้จัดการ/พนักงาน --</option>
+                  {salesReps.map(rep => (
+                    <option key={rep.id} value={rep.id}>
+                      {rep.fullName} ({rep.employeeSale?.position || rep.role})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด {isCreateAddressRequired && '*'}</label>
+              <select
+                required={isCreateAddressRequired}
+                name="province"
+                value={selectedProvince}
+                onChange={(e) => handleProvinceChange(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none"
+              >
+                <option value="">-- เลือกจังหวัด --</option>
+                {provinces.map(p => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ {isCreateAddressRequired && '*'}</label>
+              <select
+                required={isCreateAddressRequired}
+                name="district"
+                value={selectedDistrict}
+                disabled={!selectedProvince}
+                onChange={(e) => handleDistrictChange(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none disabled:opacity-50"
+              >
+                <option value="">-- เลือกเขต/อำเภอ --</option>
+                {districts.map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล {isCreateAddressRequired && '*'}</label>
+              <select
+                required={isCreateAddressRequired}
+                name="subDistrict"
+                value={selectedSubDistrict}
+                disabled={!selectedDistrict}
+                onChange={(e) => handleSubDistrictChange(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none disabled:opacity-50"
+              >
+                <option value="">-- เลือกแขวง/ตำบล --</option>
+                {subDistricts.map(s => (
+                  <option key={s.subDistrict} value={s.subDistrict}>{s.subDistrict}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จดทะเบียน/ที่อยู่หลัก (Registered Address) {isCreateAddressRequired && '*'}</label>
+              <input required={isCreateAddressRequired} name="address" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="123/45 หมู่ 6 ถนนวิภาวดีรังสิต..." />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์ {isCreateAddressRequired && '*'}</label>
+              <input
+                required={isCreateAddressRequired}
+                name="postalCode"
+                value={autoPostalCode}
+                onChange={(e) => setAutoPostalCode(e.target.value)}
+                className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 outline-none transition-all"
+                placeholder="10XXX"
+              />
+            </div>
+
+            {/* Billing Address Section */}
+            <div className="md:col-span-2 border-t border-gray-100 pt-6">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">ที่อยู่สำหรับออกใบกำกับภาษี (Billing Address)</h4>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const mainAddr = (document.querySelector('input[name="address"]') as HTMLInputElement)?.value || '';
+                    setBillingAddress(mainAddr);
+                    setBillingProvince(selectedProvince);
+                    setBillingDistrict(selectedDistrict);
+                    setBillingSubDistrict(selectedSubDistrict);
+                    setBillingPostalCode(autoPostalCode);
+                  }}
+                  className="text-xs font-black text-brand-red hover:underline"
+                >
+                  คัดลอกจากที่อยู่หลัก
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่ใบกำกับภาษี</label>
+                  <input
+                    name="billingAddress"
+                    value={billingAddress}
+                    onChange={(e) => setBillingAddress(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="ที่อยู่สำหรับออกใบกำกับภาษี..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล</label>
+                  <input
+                    name="billingSubDistrict"
+                    value={billingSubDistrict}
+                    onChange={(e) => setBillingSubDistrict(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="แขวง/ตำบล"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ</label>
+                  <input
+                    name="billingDistrict"
+                    value={billingDistrict}
+                    onChange={(e) => setBillingDistrict(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="เขต/อำเภอ"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด</label>
+                  <input
+                    name="billingProvince"
+                    value={billingProvince}
+                    onChange={(e) => setBillingProvince(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="จังหวัด"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์</label>
+                  <input
+                    name="billingPostalCode"
+                    value={billingPostalCode}
+                    onChange={(e) => setBillingPostalCode(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="รหัสไปรษณีย์"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Shipping Address Section */}
+            <div className="md:col-span-2 border-t border-gray-100 pt-6">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">ที่อยู่จัดส่งสินค้า (Shipping Address)</h4>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShippingAddress(billingAddress);
+                    setShippingProvince(billingProvince);
+                    setShippingDistrict(billingDistrict);
+                    setShippingSubDistrict(billingSubDistrict);
+                    setShippingPostalCode(billingPostalCode);
+                  }}
+                  className="text-xs font-black text-brand-red hover:underline"
+                >
+                  คัดลอกจากที่อยู่ใบกำกับภาษี
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จัดส่ง</label>
+                  <input
+                    name="shippingAddress"
+                    value={shippingAddress}
+                    onChange={(e) => setShippingAddress(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="ที่อยู่จัดส่งสินค้า..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล</label>
+                  <input
+                    name="shippingSubDistrict"
+                    value={shippingSubDistrict}
+                    onChange={(e) => setShippingSubDistrict(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="แขวง/ตำบล"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ</label>
+                  <input
+                    name="shippingDistrict"
+                    value={shippingDistrict}
+                    onChange={(e) => setShippingDistrict(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="เขต/อำเภอ"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด</label>
+                  <input
+                    name="shippingProvince"
+                    value={shippingProvince}
+                    onChange={(e) => setShippingProvince(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="จังหวัด"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์</label>
+                  <input
+                    name="shippingPostalCode"
+                    value={shippingPostalCode}
+                    onChange={(e) => setShippingPostalCode(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="รหัสไปรษณีย์"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Method */}
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">วิธีการชำระเงิน (Payment Method)</label>
+              <select
+                name="paymentMethod"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
+              >
+                <option value="">-- เลือกวิธีการชำระเงิน --</option>
+                <option value="เงินสด">เงินสด (Cash)</option>
+                <option value="โอนเงินผ่านธนาคาร">โอนเงินผ่านธนาคาร (Bank Transfer)</option>
+                <option value="เครดิต 30 วัน">เครดิต 30 วัน (30 Days Credit)</option>
+                <option value="เครดิต 60 วัน">เครดิต 60 วัน (60 Days Credit)</option>
+              </select>
+            </div>
+
+            {/* Primary Contact Section */}
+            <div className="md:col-span-2 border-t border-gray-100 pt-6">
+              <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider mb-4">ข้อมูลผู้ติดต่อหลัก (Primary Contact)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อผู้ติดต่อหลัก</label>
+                  <input
+                    name="contactName"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="คุณสมชาย ดีใจ"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ตำแหน่ง</label>
+                  <input
+                    name="contactPosition"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="Manager / Director"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เบอร์โทรศัพท์</label>
+                  <input
+                    name="contactPhone"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="081-xxx-xxxx"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">อีเมลผู้ติดต่อ (สำหรับออกเอกสาร E-tax)</label>
+                  <input
+                    name="contactEmail"
+                    type="email"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                    placeholder="somchai@company.com"
+                  />
+                </div>
+                <div className="md:col-span-2 flex items-center gap-2 pt-2">
+                  <input
+                    type="checkbox"
+                    id="isETaxReceiver"
+                    name="isETaxReceiver"
+                    value="true"
+                    className="w-4 h-4 rounded border-gray-300 text-brand-red focus:ring-brand-red focus:ring-opacity-25"
+                  />
+                  <label htmlFor="isETaxReceiver" className="text-xs font-black text-slate-700 select-none">
+                    ผู้ติดต่อรายนี้เป็นผู้รับเอกสาร E-Tax (E-Tax Recipient)
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-4 pt-4">
+            <button type="button" onClick={closeCompanyModal} className="flex-1 px-6 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-all">ยกเลิก</button>
+            <button type="submit" className="flex-2 px-10 py-3 bg-brand-red text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-100 transition-all">บันทึกข้อมูลบริษัท</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+{
+  isContactModalOpen && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300">
+        <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+              <Users size={20} />
+            </div>
+            <h3 className="text-xl font-black text-gray-900">เพิ่มผู้ติดต่อ</h3>
+          </div>
+          <button onClick={() => setIsContactModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <form action={async (formData) => {
+          const res = await createContact(Object.fromEntries(formData));
+          if (res.success) {
+            setIsContactModalOpen(false);
+            window.location.reload();
+          } else {
+            showAlert(res.message || 'เกิดข้อผิดพลาดในการเพิ่มผู้ติดต่อ');
+          }
+        }} className="p-8 space-y-5">
+          <div className="space-y-2">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สังกัดบริษัท *</label>
+            <select required name="companyId" defaultValue={defaultCompanyIdForNewContact || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
+              <option value="">-- เลือกบริษัท --</option>
+              {allCompanies.map(comp => (
+                <option key={comp.id} value={comp.id}>{comp.companyName}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อ-นามสกุล *</label>
+            <input required name="contactName" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all" placeholder="คุณสมชาย ใจดี" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ตำแหน่ง (Position)</label>
+            <input name="position" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all" placeholder="Manager / Director" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เบอร์โทรศัพท์</label>
+            <input name="mobilePhone" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all" placeholder="081-xxx-xxxx" />
+          </div>
+
+          <div className="flex gap-4 pt-4">
+            <button type="button" onClick={() => setIsContactModalOpen(false)} className="flex-1 px-6 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-all">ยกเลิก</button>
+            <button type="submit" className="flex-2 px-10 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 shadow-lg shadow-slate-100 transition-all">เพิ่มผู้ติดต่อ</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+{/* ─── Edit Company Modal ───────────────────────────────────────────── */ }
+{
+  isEditCompanyModalOpen && editingCompany && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300">
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between z-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-50 text-brand-red rounded-lg">
+              <Building2 size={20} />
+            </div>
+            <h3 className="text-xl font-black text-gray-900">แก้ไขข้อมูลบริษัท/ลูกค้า</h3>
+          </div>
+          <button onClick={() => setIsEditCompanyModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <form action={async (formData) => {
+          const res = await updateCompany(editingCompany.id, Object.fromEntries(formData));
+          if (res.success) {
+            setIsEditCompanyModalOpen(false);
+            window.location.reload();
+          } else {
+            showAlert(res.message || 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลบริษัท');
+          }
+        }} className="p-8 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อบริษัท (Company Name) *</label>
+              <input required name="companyName" defaultValue={editingCompany.companyName || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เลขประจำตัวผู้เสียภาษี (Tax ID)</label>
+              <div className="relative">
+                <input
+                  name="taxId"
+                  value={editTaxId}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setEditTaxId(val);
+                    if (!val || val.trim() === '') {
+                      setEditTaxIdWarning(null);
+                      setIsCheckingEditTaxId(false);
+                    } else {
+                      setIsCheckingEditTaxId(true);
+                    }
+                  }}
+                  className={`w-full bg-gray-50 border rounded-xl px-4 py-3 outline-none transition-all focus:ring-4 ${editTaxIdWarning
+                    ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-400/10 bg-amber-50/5'
+                    : 'border-gray-200 focus:border-brand-red focus:ring-brand-red/10'
+                    }`}
+                />
+                {isCheckingEditTaxId && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
+                    <Loader2 size={18} className="animate-spin text-brand-red" />
+                  </div>
+                )}
+              </div>
+              {editTaxIdWarning && (
+                <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl px-4 py-3 text-xs mt-1.5 animate-in slide-in-from-top-1 duration-200 shadow-sm shadow-amber-50">
+                  <span className="text-sm">⚠️</span>
+                  <span className="font-semibold leading-relaxed">{editTaxIdWarning}</span>
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทลูกค้า {isEditCustomerTypeRequired && '*'}</label>
+              <select required={isEditCustomerTypeRequired} name="customerType" value={editCustomerType} onChange={(e) => setEditCustomerType(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none">
+                <option value="นิติบุคคล">นิติบุคคล (Legal Entity)</option>
+                <option value="บุคคลธรรมดา">บุคคลธรรมดา (Individual)</option>
+              </select>
+            </div>
+            {editCustomerType !== 'บุคคลธรรมดา' && (
+              <div className="space-y-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สาขา / สำนักงานใหญ่</label>
+                <input name="branchOrHeadOffice" defaultValue={editingCompany.branchOrHeadOffice || 'สำนักงานใหญ่'} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="สำนักงานใหญ่ หรือ สาขา 00001" />
+              </div>
+            )}
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ประเภทธุรกิจ (Business Type) {isEditBusinessTypeRequired && '*'}</label>
+              <select
+                required={isEditBusinessTypeRequired}
+                name="businessType"
+                defaultValue={editingCompany.businessType || ''}
+                onChange={(e) => setShowEditNewBusinessTypeInput(e.target.value === 'ADD_NEW')}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
+              >
+                <option value="">-- เลือกประเภทธุรกิจ --</option>
+                {businessTypes.map(type => (
+                  <option key={type.id} value={type.name}>{type.name}</option>
+                ))}
+                <option value="ADD_NEW" className="text-brand-red font-bold">+ เพิ่มประเภทธุรกิจใหม่...</option>
+              </select>
+            </div>
+
+            {showEditNewBusinessTypeInput && (
+              <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
+                <label className="text-xs font-black text-brand-red uppercase tracking-widest ml-1 italic">ระบุประเภทธุรกิจใหม่ {isEditBusinessTypeRequired && '*'}</label>
+                <input
+                  required={isEditBusinessTypeRequired}
+                  name="newBusinessType"
+                  className="w-full bg-red-50/30 border border-red-100 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  placeholder="เช่น อสังหาริมทรัพย์, พลังงาน"
+                />
+              </div>
+            )}
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สถานะลูกค้า</label>
+              <select name="customerStatus" value={editCustomerStatus} onChange={(e) => setEditCustomerStatus(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none">
+                <option value="ลูกค้าใหม่">ลูกค้าใหม่</option>
+                <option value="ลูกค้าเป้าหมาย">ลูกค้าเป้าหมาย</option>
+                <option value="ลูกค้าเก่า">ลูกค้าเก่า</option>
+                <option value="ลูกค้าเก่า (ผู้ติดต่อใหม่)">ลูกค้าเก่า (ผู้ติดต่อใหม่)</option>
+                <option value="ปิดกิจการ (Closed Business)">ปิดกิจการ (Closed Business)</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ผู้ดูแลบัญชี (Account Manager)</label>
+              {currentUser?.role === 'ตัวแทนฝ่ายขาย' ? (
+                <>
+                  <select
+                    disabled
+                    value={currentUser.id}
+                    className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 outline-none transition-all appearance-none cursor-not-allowed opacity-80"
+                  >
+                    <option value={currentUser.id}>
+                      {currentUser.fullName} ({currentUser.role})
+                    </option>
+                  </select>
+                  <input type="hidden" name="assignedUserId" value={currentUser.id} />
+                </>
+              ) : (
+                <select
+                  name="assignedUserId"
+                  defaultValue={editingCompany.assignedUser?.id || ''}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
+                >
+                  <option value="">-- เลือกผู้จัดการ/พนักงาน --</option>
+                  {salesReps.map(rep => (
+                    <option key={rep.id} value={rep.id}>
+                      {rep.fullName} ({rep.employeeSale?.position || rep.role})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {/* Address Section */}
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จดทะเบียน/ที่อยู่หลัก (Registered Address) {isEditAddressRequired && '*'}</label>
+              <input required={isEditAddressRequired} name="address" defaultValue={editingCompany.address || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด {isEditAddressRequired && '*'}</label>
+              <select
+                required={isEditAddressRequired}
+                name="province"
+                value={editSelectedProvince}
+                onChange={(e) => handleEditProvinceChange(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
+              >
+                <option value="">-- เลือกจังหวัด --</option>
+                {provinces.map(p => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ {isEditAddressRequired && '*'}</label>
+              <select
+                required={isEditAddressRequired}
+                name="district"
+                value={editSelectedDistrict}
+                disabled={!editSelectedProvince}
+                onChange={(e) => handleEditDistrictChange(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none disabled:opacity-50"
+              >
+                <option value="">-- เลือกเขต/อำเภอ --</option>
+                {editDistricts.map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล {isEditAddressRequired && '*'}</label>
+              <select
+                required={isEditAddressRequired}
+                name="subDistrict"
+                value={editSelectedSubDistrict}
+                disabled={!editSelectedDistrict}
+                onChange={(e) => handleEditSubDistrictChange(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none disabled:opacity-50"
+              >
+                <option value="">-- เลือกแขวง/ตำบล --</option>
+                {editSubDistricts.map(s => (
+                  <option key={s.subDistrict} value={s.subDistrict}>{s.subDistrict}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์ {isEditAddressRequired && '*'}</label>
+              <input
+                required={isEditAddressRequired}
+                name="postalCode"
+                value={editAutoPostalCode}
+                onChange={(e) => setEditAutoPostalCode(e.target.value)}
+                className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 outline-none transition-all"
+              />
+            </div>
+
+            {/* Billing Address Section */}
+            <div className="md:col-span-2 border-t border-gray-100 pt-6">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">ที่อยู่สำหรับออกใบกำกับภาษี (Billing Address)</h4>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const mainAddr = (document.querySelector('form input[name="address"]') as HTMLInputElement)?.value || '';
+                    setEditBillingAddress(mainAddr);
+                    setEditBillingProvince(editSelectedProvince);
+                    setEditBillingDistrict(editSelectedDistrict);
+                    setEditBillingSubDistrict(editSelectedSubDistrict);
+                    setEditBillingPostalCode(editAutoPostalCode);
+                  }}
+                  className="text-xs font-black text-brand-red hover:underline"
+                >
+                  คัดลอกจากที่อยู่หลัก
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่ใบกำกับภาษี</label>
+                  <input
+                    name="billingAddress"
+                    value={editBillingAddress}
+                    onChange={(e) => setEditBillingAddress(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล</label>
+                  <input
+                    name="billingSubDistrict"
+                    value={editBillingSubDistrict}
+                    onChange={(e) => setEditBillingSubDistrict(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ</label>
+                  <input
+                    name="billingDistrict"
+                    value={editBillingDistrict}
+                    onChange={(e) => setEditBillingDistrict(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด</label>
+                  <input
+                    name="billingProvince"
+                    value={editBillingProvince}
+                    onChange={(e) => setEditBillingProvince(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์</label>
+                  <input
+                    name="billingPostalCode"
+                    value={editBillingPostalCode}
+                    onChange={(e) => setEditBillingPostalCode(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Shipping Address Section */}
+            <div className="md:col-span-2 border-t border-gray-100 pt-6">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider">ที่อยู่จัดส่งสินค้า (Shipping Address)</h4>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditShippingAddress(editBillingAddress);
+                    setEditShippingProvince(editBillingProvince);
+                    setEditShippingDistrict(editBillingDistrict);
+                    setEditShippingSubDistrict(editBillingSubDistrict);
+                    setEditShippingPostalCode(editBillingPostalCode);
+                  }}
+                  className="text-xs font-black text-brand-red hover:underline"
+                >
+                  คัดลอกจากที่อยู่ใบกำกับภาษี
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ที่อยู่จัดส่ง</label>
+                  <input
+                    name="shippingAddress"
+                    value={editShippingAddress}
+                    onChange={(e) => setEditShippingAddress(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">แขวง/ตำบล</label>
+                  <input
+                    name="shippingSubDistrict"
+                    value={editShippingSubDistrict}
+                    onChange={(e) => setEditShippingSubDistrict(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เขต/อำเภอ</label>
+                  <input
+                    name="shippingDistrict"
+                    value={editShippingDistrict}
+                    onChange={(e) => setEditShippingDistrict(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">จังหวัด</label>
+                  <input
+                    name="shippingProvince"
+                    value={editShippingProvince}
+                    onChange={(e) => setEditShippingProvince(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">รหัสไปรษณีย์</label>
+                  <input
+                    name="shippingPostalCode"
+                    value={editShippingPostalCode}
+                    onChange={(e) => setEditShippingPostalCode(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Method */}
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">วิธีการชำระเงิน (Payment Method)</label>
+              <select
+                name="paymentMethod"
+                value={editPaymentMethod}
+                onChange={(e) => setEditPaymentMethod(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all appearance-none"
+              >
+                <option value="">-- เลือกวิธีการชำระเงิน --</option>
+                <option value="เงินสด">เงินสด (Cash)</option>
+                <option value="โอนเงินผ่านธนาคาร">โอนเงินผ่านธนาคาร (Bank Transfer)</option>
+                <option value="เครดิต 30 วัน">เครดิต 30 วัน (30 Days Credit)</option>
+                <option value="เครดิต 60 วัน">เครดิต 60 วัน (60 Days Credit)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-4 pt-4">
+            <button type="button" onClick={() => setIsEditCompanyModalOpen(false)} className="flex-1 px-6 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-all">ยกเลิก</button>
+            <button type="submit" className="flex-2 px-10 py-3 bg-brand-red text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-100 transition-all">บันทึกการแก้ไข</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+{/* ─── Edit Contact Modal ───────────────────────────────────────────── */ }
+{
+  isEditContactModalOpen && editingContact && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300">
+        <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">
+              <Users size={20} />
+            </div>
+            <h3 className="text-xl font-black text-gray-900">แก้ไขข้อมูลผู้ติดต่อ</h3>
+          </div>
+          <button onClick={() => setIsEditContactModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <form action={async (formData) => {
+          const res = await updateContact(editingContact.id, Object.fromEntries(formData));
+          if (res.success) {
+            setIsEditContactModalOpen(false);
+            window.location.reload();
+          } else {
+            showAlert(res.message || 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลผู้ติดต่อ');
+          }
+        }} className="p-8 space-y-5">
+          <div className="space-y-2">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">สังกัดบริษัท *</label>
+            <select required name="companyId" defaultValue={editingContact.companyId || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red focus:ring-4 focus:ring-brand-red/10 outline-none transition-all appearance-none">
+              <option value="">-- เลือกบริษัท --</option>
+              {allCompanies.map(comp => (
+                <option key={comp.id} value={comp.id}>{comp.companyName}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ชื่อ-นามสกุล *</label>
+            <input required name="contactName" defaultValue={editingContact.contactName || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">ตำแหน่ง (Position)</label>
+            <input name="position" defaultValue={editingContact.position || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">เบอร์โทรศัพท์</label>
+            <input name="mobilePhone" defaultValue={editingContact.mobilePhone || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">อีเมลผู้ติดต่อ (สำหรับออกเอกสาร E-tax)</label>
+            <input name="email" type="email" defaultValue={editingContact.email || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:border-brand-red outline-none transition-all" placeholder="name@company.com" />
+          </div>
+          <div className="flex items-center gap-2 pt-2">
+            <input
+              type="checkbox"
+              id="editIsETaxReceiver"
+              name="isETaxReceiver"
+              value="true"
+              defaultChecked={editingContact.isETaxReceiver || false}
+              className="w-4 h-4 rounded border-gray-300 text-brand-red focus:ring-brand-red focus:ring-opacity-25"
+            />
+            <label htmlFor="editIsETaxReceiver" className="text-xs font-black text-slate-700 select-none">
+              ผู้ติดต่อรายนี้เป็นผู้รับเอกสาร E-Tax (E-Tax Recipient)
+            </label>
+          </div>
+
+          <div className="flex gap-4 pt-4">
+            <button type="button" onClick={() => setIsEditContactModalOpen(false)} className="flex-1 px-6 py-3 bg-gray-50 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-all">ยกเลิก</button>
+            <button type="submit" className="flex-2 px-10 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 shadow-lg shadow-slate-100 transition-all">บันทึกการแก้ไข</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+{/* ─── Premium Custom Red Alert Modal ─────────────────────────────────── */ }
+{
+  customAlert?.isOpen && (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-red-100/50">
+        {/* Red top bar accent */}
+        <div className="h-2.5 bg-red-600 w-full" />
+        <div className="p-8 text-center">
+          {/* Premium Red Circular Warning Icon */}
+          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 text-red-600 mb-6 ring-8 ring-red-50/50">
+            <X size={32} strokeWidth={2.5} />
+          </div>
+
+          <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tight">
+            {customAlert.title}
+          </h3>
+
+          <p className="text-gray-600 text-sm leading-relaxed mb-8 px-2 font-medium">
+            {customAlert.message}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => setCustomAlert(null)}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-red-200 hover:shadow-red-300 transition-all duration-200 active:scale-[0.98] text-sm focus:outline-none focus:ring-4 focus:ring-red-600/20"
+          >
+            ตกลง (OK)
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+    </div >
   );
 }
 

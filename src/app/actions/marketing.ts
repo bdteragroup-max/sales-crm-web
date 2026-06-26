@@ -78,11 +78,21 @@ export async function getMarketingLeads() {
 export async function getAssignedLeads(userId: string) {
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const isManager = user?.role === 'ผู้จัดการ' || user?.role === 'Sales Manager' || user?.role?.toLowerCase().includes('manager');
+    const isManager = user?.role?.includes('ผู้จัดการ') || user?.role?.toLowerCase().includes('manager');
     
-    let whereClause: any = { assignedToId: userId };
+    let whereClause: any = { 
+      OR: [
+        { assignedToId: userId },
+        { assignedToId: null }
+      ]
+    };
     if (isManager) {
-      whereClause = { isForwarded: true };
+      whereClause = {
+        OR: [
+          { isForwarded: true },
+          { assignedToId: null }
+        ]
+      };
     }
 
     const leads = await (prisma as any).marketingLead.findMany({
@@ -338,5 +348,29 @@ export async function searchCompaniesForLead(query: string) {
     return { success: true, data: results.slice(0, 8) }
   } catch (error: any) {
     return { success: false, error: error.message }
+  }
+}
+
+export async function claimLead(leadId: string, userId: string) {
+  try {
+    const currentLead = await (prisma as any).marketingLead.findUnique({ where: { id: leadId } });
+    if (currentLead?.assignedToId) {
+      return { success: false, error: 'Lead นี้มีผู้รับผิดชอบแล้ว' };
+    }
+
+    const updatedLead = await (prisma as any).marketingLead.update({
+      where: { id: leadId },
+      data: {
+        assignedToId: userId,
+        isForwarded: true,
+        forwardedAt: new Date(),
+      }
+    });
+    revalidatePath('/sales/leads');
+    revalidatePath('/marketing');
+    return { success: true, data: updatedLead };
+  } catch (error: any) {
+    console.error("Error claiming lead:", error);
+    return { success: false, error: error.message || 'Failed to claim lead' };
   }
 }
