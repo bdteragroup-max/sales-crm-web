@@ -28,6 +28,8 @@ export const surveyElectricalProfileSchema = z.object({
   mainPanelCableLengthM: z.number().optional().nullable(),
   amrUsernamePlain: z.string().optional().nullable(),
   amrPasswordPlain: z.string().optional().nullable(),
+  amrUsernameEncrypted: z.string().optional().nullable(),
+  amrPasswordEncrypted: z.string().optional().nullable(),
 });
 
 export const surveyTariffTierSchema = z.object({

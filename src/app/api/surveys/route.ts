@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const validationResult = siteSurveySchema.safeParse(rawBody);
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Validation failed', details: validationResult.error.errors }, 
+        { error: 'Validation failed', details: validationResult.error.format() }, 
         { status: 400 }
       );
     }
