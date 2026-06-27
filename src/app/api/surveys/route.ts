@@ -1,10 +1,22 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { encryptString } from '@/utils/crypto';
+import { siteSurveySchema } from '@/app/lib/surveySchema';
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const rawBody = await req.json();
+    
+    // Validate request body against Zod schema
+    const validationResult = siteSurveySchema.safeParse(rawBody);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: validationResult.error.errors }, 
+        { status: 400 }
+      );
+    }
+    
+    const body = validationResult.data;
     const {
       id,
       surveyNumber,
@@ -35,10 +47,6 @@ export async function POST(req: Request) {
       documents,
       electricityBill
     } = body;
-
-    if (!surveyNumber || !salespersonId || !surveyDate) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
 
     // Encrypt AMR credentials if provided
     let amrUsernameEncrypted = electricalProfile?.amrUsernameEncrypted || null;

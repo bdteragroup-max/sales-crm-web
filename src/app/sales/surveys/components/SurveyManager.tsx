@@ -17,6 +17,8 @@ export default function SurveyManager({ initialSurveys, companies, salesReps, cu
   const [view, setView] = useState<'list' | 'form'>('list');
   const [editingSurveyId, setEditingSurveyId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const isProjectRole = (currentUser.role || '').toLowerCase().includes('project');
 
   const handleNewSurvey = () => {
     setEditingSurveyId(null);
@@ -68,13 +70,15 @@ export default function SurveyManager({ initialSurveys, companies, salesReps, cu
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">บันทึกสำรวจไซต์งาน (Site Surveys)</h1>
           <p className="text-gray-500 mt-1">จัดการและบันทึกข้อมูลการสำรวจไซต์งานทั้งหมด</p>
         </div>
-        <button
-          onClick={handleNewSurvey}
-          className="flex items-center gap-2 bg-[#ff2301] hover:bg-red-700 text-white px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all font-medium whitespace-nowrap"
-        >
-          <Plus className="w-5 h-5" />
-          สร้างบันทึกใหม่
-        </button>
+        {!isProjectRole && (
+          <button
+            onClick={handleNewSurvey}
+            className="flex items-center gap-2 bg-[#ff2301] hover:bg-red-700 text-white px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all font-medium whitespace-nowrap"
+          >
+            <Plus className="w-5 h-5" />
+            สร้างบันทึกใหม่
+          </button>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">

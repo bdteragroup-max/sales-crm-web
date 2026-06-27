@@ -5,8 +5,35 @@ import { revalidatePath } from "next/cache";
 
 export async function createProject(data: any) {
   try {
-    // Generate a default project number if not provided
-    const projectNumber = data.projectNumber || `PJ${new Date().getFullYear().toString().slice(-2)}-${Math.floor(1000 + Math.random() * 9000)}`;
+    let projectNumber = data.projectNumber;
+    
+    if (!projectNumber) {
+      const yearPrefix = `PJ${new Date().getFullYear().toString().slice(-2)}-`;
+      
+      // Find the latest project starting with this year's prefix
+      const latestProject = await prisma.project.findFirst({
+        where: {
+          projectNumber: {
+            startsWith: yearPrefix,
+          },
+        },
+        orderBy: {
+          projectNumber: 'desc',
+        },
+      });
+
+      if (latestProject && latestProject.projectNumber) {
+        const lastSequence = parseInt(latestProject.projectNumber.replace(yearPrefix, ''), 10);
+        if (!isNaN(lastSequence)) {
+          const nextSequence = lastSequence + 1;
+          projectNumber = `${yearPrefix}${nextSequence.toString().padStart(4, '0')}`;
+        } else {
+          projectNumber = `${yearPrefix}0001`;
+        }
+      } else {
+        projectNumber = `${yearPrefix}0001`;
+      }
+    }
 
     const project = await prisma.project.create({
       data: {

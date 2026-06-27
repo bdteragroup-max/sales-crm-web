@@ -142,6 +142,8 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
+  
+  const isProjectRole = (currentUser?.role || '').toLowerCase().includes('project');
 
   const [localCompanies, setLocalCompanies] = useState(companies);
   const [isCreatingCompany, setIsCreatingCompany] = useState(false);
@@ -372,16 +374,25 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
               พิมพ์ PDF
             </a>
           )}
-          <button
-            onClick={() => handleSave()}
-            disabled={saving || !!conflictError}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#ff2301] hover:bg-red-700 disabled:bg-red-300 text-white px-6 py-2.5 rounded-lg shadow font-medium transition-colors"
-          >
-            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-            บันทึกข้อมูล
-          </button>
+          
+          {!isProjectRole && (
+            <button
+              onClick={() => handleSave()}
+              disabled={saving || !!conflictError}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#ff2301] hover:bg-red-700 disabled:bg-red-300 text-white px-6 py-2.5 rounded-lg shadow font-medium transition-colors"
+            >
+              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+              บันทึกข้อมูล
+            </button>
+          )}
         </div>
       </div>
+      
+      {isProjectRole && (
+        <div className="bg-blue-50 text-blue-700 p-3 text-center text-sm font-medium border-b border-blue-100">
+          โหมดดูข้อมูล (Read-Only) - สำหรับผู้ใช้งานในแผนก Project
+        </div>
+      )}
 
       {/* Conflict Error Dialog / Banner */}
       {conflictError && (

@@ -66,6 +66,7 @@ const backofficeNav = [
 
 const projectNav = [
   { icon: FolderOpen, label: 'โครงการของฉัน', href: '/projects' },
+  { icon: MapPin, label: 'แบบสำรวจไซต์งาน', href: '/sales/surveys' },
 ];
 
 const marketingNav = [
@@ -76,6 +77,7 @@ const marketingNav = [
 const projectAdminNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมโครงการ', href: '/projects/dashboard' },
   { icon: FolderOpen, label: 'จัดการโครงการ', href: '/projects' },
+  { icon: MapPin, label: 'แบบสำรวจไซต์งาน', href: '/sales/surveys' },
 ];
 
 export default function SidebarClient(props: SidebarProps) {
@@ -120,7 +122,7 @@ function ResponsiveSidebar({
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isService, setIsService] = useState(false);
+
   const [unpaidCount, setUnpaidCount] = useState(0);
   const [pendingInstallationCount, setPendingInstallationCount] = useState(0);
   
@@ -135,13 +137,6 @@ function ResponsiveSidebar({
     router.prefetch('/settings');
     router.prefetch('/repair-orders');
 
-    getMyDepartment().then(dept => {
-      const d = (dept || '').toLowerCase();
-      if (d.includes('service') || d.includes('บริการ') || d.includes('ซ่อม')) {
-        setIsService(true);
-      }
-    });
-
     const roleStr = (userRole || '').toLowerCase();
     const isAccounting = ['accounting', 'บัญชี', 'finance', 'การเงิน', 'ผู้จัดการ'].some(r => roleStr.includes(r));
     if (isAccounting) {
@@ -154,11 +149,12 @@ function ResponsiveSidebar({
     }
   }, [router, nav, userRole]);
 
-  useEffect(() => {
-    // Reset loading state when the pathname changes
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setLoadingHref(null);
     setIsSettingsLoading(false);
-  }, [pathname]);
+  }
 
   const showTooltip = useCallback((label: string, e: React.MouseEvent) => {
     if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
