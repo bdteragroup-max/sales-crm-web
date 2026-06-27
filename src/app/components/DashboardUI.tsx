@@ -96,6 +96,8 @@ interface DashboardUIProps {
   customerSegments: any[];
   bizTypePipeline: any[];
   bizTypeWon: any[];
+  accessChannelPipeline?: any[];
+  accessChannelWon?: any[];
   employeePerformance: any[];
   dailyTarget: number;
   lostDealsWithoutReasonCount: number;
@@ -135,6 +137,8 @@ export default function DashboardUI({
   customerSegments,
   bizTypePipeline,
   bizTypeWon,
+  accessChannelPipeline = [],
+  accessChannelWon = [],
   employeePerformance,
   dailyTarget,
   lostDealsWithoutReasonCount,
@@ -1815,6 +1819,53 @@ export default function DashboardUI({
                 </div>
               </section>
             </>
+          )}
+
+          {/* 4. MARKETING DASHBOARD (Customer Acquisition Sources) */}
+          {(['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'marketing', 'การตลาด'].some(r => (userRole || '').toLowerCase().includes(r)) || ['ผู้จัดการ', 'manager'].some(r => (userRole || '').toLowerCase() === r)) && activeDashboardTab === 'sales' && (
+            <section className="bg-white rounded-3xl p-4 md:p-8 shadow-sm border border-gray-100 flex flex-col gap-6">
+              <div>
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
+                  <Target size={16} className="text-brand-red" />
+                  แหล่งที่มาของลูกค้า (Customer Acquisition Sources)
+                </h3>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">แบ่งตามยอดขายที่ชนะแล้ว (Won) และที่กำลังดำเนินงาน (Pipeline)</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-4">
+                  <h4 className="text-xs font-black text-green-600 uppercase">ยอดขายที่ปิดแล้ว (Won)</h4>
+                  {accessChannelWon.length === 0 ? (
+                    <div className="text-xs font-bold text-gray-400">ไม่มีข้อมูล</div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {accessChannelWon.sort((a, b) => b.value - a.value).map(ch => (
+                        <div key={ch.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                          <span className="text-xs font-bold text-gray-900">{ch.name}</span>
+                          <span className="text-xs font-black text-gray-900">฿{ch.value.toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  <h4 className="text-xs font-black text-brand-red uppercase">ยอดรอปิด (Pipeline)</h4>
+                  {accessChannelPipeline.length === 0 ? (
+                    <div className="text-xs font-bold text-gray-400">ไม่มีข้อมูล</div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {accessChannelPipeline.sort((a, b) => b.value - a.value).map(ch => (
+                        <div key={ch.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                          <span className="text-xs font-bold text-gray-900">{ch.name}</span>
+                          <span className="text-xs font-black text-gray-900">฿{ch.value.toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
           )}
 
         </div>

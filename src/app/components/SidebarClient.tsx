@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, PhoneCall,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin
 } from 'lucide-react';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
@@ -27,6 +27,7 @@ const managerNav = [
   { icon: TrendingUp, label: 'จัดการใบเสนอราคา', href: '/sales' },
   { icon: DollarSign, label: 'บันทึกค่าใช้จ่าย', href: '/sales/expenses' },
   { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
+  { icon: MapPin, label: 'สำรวจไซต์งาน', href: '/sales/surveys' },
   { icon: LayoutDashboard, label: 'Marketing', href: '/marketing' },
   { icon: Users, label: 'จัดการทีม', href: '/team' },
   { icon: CalendarDays, label: 'จัดการตารางงาน', href: '/schedule' },
@@ -42,6 +43,7 @@ const repNav = [
   { icon: TrendingUp, label: 'บันทึกใบเสนอราคา', href: '/sales' },
   { icon: DollarSign, label: 'บันทึกค่าใช้จ่าย', href: '/sales/expenses' },
   { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
+  { icon: MapPin, label: 'สำรวจไซต์งาน', href: '/sales/surveys' },
   { icon: CalendarDays, label: 'ตารางงานของฉัน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
   { icon: Users, label: 'ลูกค้าและบริษัท', href: '/clients' },

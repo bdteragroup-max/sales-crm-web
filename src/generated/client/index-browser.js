@@ -256,7 +256,8 @@ exports.Prisma.QuotationScalarFieldEnum = {
   salesTeamLeader: 'salesTeamLeader',
   salespersonId: 'salespersonId',
   subject: 'subject',
-  winLossReason: 'winLossReason'
+  winLossReason: 'winLossReason',
+  siteSurveyId: 'siteSurveyId'
 };
 
 exports.Prisma.TelesaleScalarFieldEnum = {
@@ -1443,6 +1444,163 @@ exports.Prisma.NotificationScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.SiteSurveyScalarFieldEnum = {
+  id: 'id',
+  surveyNumber: 'surveyNumber',
+  surveyDate: 'surveyDate',
+  companyId: 'companyId',
+  customerName: 'customerName',
+  projectName: 'projectName',
+  projectLocation: 'projectLocation',
+  coordinatorName: 'coordinatorName',
+  coordinatorPhone: 'coordinatorPhone',
+  salespersonId: 'salespersonId',
+  surveyorName: 'surveyorName',
+  status: 'status',
+  version: 'version',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  hasSingleLineDiagram: 'hasSingleLineDiagram',
+  requiredInfoChecklist: 'requiredInfoChecklist',
+  additionalRemark: 'additionalRemark',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SurveyUsageBehaviorScalarFieldEnum = {
+  id: 'id',
+  surveyId: 'surveyId',
+  workingHours: 'workingHours',
+  workingDaysPerWeek: 'workingDaysPerWeek',
+  workingDaysPerYear: 'workingDaysPerYear',
+  nonWorkingDaysPerWeek: 'nonWorkingDaysPerWeek',
+  nonWorkingDaysPerYear: 'nonWorkingDaysPerYear',
+  dayNightRatio: 'dayNightRatio',
+  avgBillThbPerMonth: 'avgBillThbPerMonth',
+  mainEquipment: 'mainEquipment'
+};
+
+exports.Prisma.SurveyElectricalProfileScalarFieldEnum = {
+  id: 'id',
+  surveyId: 'surveyId',
+  gridProvider: 'gridProvider',
+  userType: 'userType',
+  voltageLevel: 'voltageLevel',
+  meterSize: 'meterSize',
+  rateThbPerKwh: 'rateThbPerKwh',
+  kwhQty: 'kwhQty',
+  peakKwWeekday: 'peakKwWeekday',
+  peakKwWeekend: 'peakKwWeekend',
+  transformerCount: 'transformerCount',
+  transformerBrand: 'transformerBrand',
+  transformerModel: 'transformerModel',
+  transformerKva: 'transformerKva',
+  breakerAmp: 'breakerAmp',
+  mainPanelCableLengthM: 'mainPanelCableLengthM',
+  amrUsernameEncrypted: 'amrUsernameEncrypted',
+  amrPasswordEncrypted: 'amrPasswordEncrypted'
+};
+
+exports.Prisma.SurveyTariffSelectionScalarFieldEnum = {
+  id: 'id',
+  surveyId: 'surveyId',
+  tariffCategory: 'tariffCategory'
+};
+
+exports.Prisma.SurveyTariffTierScalarFieldEnum = {
+  id: 'id',
+  selectionId: 'selectionId',
+  tierName: 'tierName',
+  ratePerKwh: 'ratePerKwh',
+  qtyKwhPerMonth: 'qtyKwhPerMonth'
+};
+
+exports.Prisma.SurveyStructureScalarFieldEnum = {
+  id: 'id',
+  surveyId: 'surveyId',
+  roofType: 'roofType',
+  roofAgeYear: 'roofAgeYear',
+  roofDimWxlM: 'roofDimWxlM',
+  buildingHeightM: 'buildingHeightM',
+  roofPattern: 'roofPattern',
+  metalSheetType: 'metalSheetType',
+  roofSlopeDeg: 'roofSlopeDeg',
+  azimuthDeg: 'azimuthDeg',
+  tiltDeg: 'tiltDeg',
+  purlinToPurlinM: 'purlinToPurlinM',
+  rafterToRafterM: 'rafterToRafterM',
+  columnToColumnM: 'columnToColumnM',
+  skylightToSkylightM: 'skylightToSkylightM',
+  jackRoofDimM: 'jackRoofDimM',
+  ventilationDimM: 'ventilationDimM',
+  lightningProtectionM: 'lightningProtectionM',
+  serviceLadderM: 'serviceLadderM',
+  otherNotes: 'otherNotes'
+};
+
+exports.Prisma.SurveyRoofAgeScalarFieldEnum = {
+  id: 'id',
+  structureId: 'structureId',
+  roofType: 'roofType',
+  ageYear: 'ageYear'
+};
+
+exports.Prisma.SurveyQAScalarFieldEnum = {
+  id: 'id',
+  surveyId: 'surveyId',
+  dayNightUsage: 'dayNightUsage',
+  dayNightUsageDetail: 'dayNightUsageDetail',
+  dayLoad: 'dayLoad',
+  nightLoad: 'nightLoad',
+  backupLoad: 'backupLoad',
+  backupLoadDetail: 'backupLoadDetail',
+  batteryChargeMode: 'batteryChargeMode',
+  batteryChargeDetail: 'batteryChargeDetail',
+  gridChargeAtNight: 'gridChargeAtNight',
+  gridChargeAtNightDetail: 'gridChargeAtNightDetail',
+  inverterBackupOnOutage: 'inverterBackupOnOutage',
+  inverterBackupOnOutageDetail: 'inverterBackupOnOutageDetail',
+  powerQualityIssue: 'powerQualityIssue',
+  powerQualityIssueDetail: 'powerQualityIssueDetail',
+  solarReasons: 'solarReasons',
+  solarReasonsDetail: 'solarReasonsDetail'
+};
+
+exports.Prisma.SurveyPhotoScalarFieldEnum = {
+  id: 'id',
+  surveyId: 'surveyId',
+  photoType: 'photoType',
+  fileUrl: 'fileUrl',
+  photoDesc: 'photoDesc'
+};
+
+exports.Prisma.SurveyDocumentScalarFieldEnum = {
+  id: 'id',
+  surveyId: 'surveyId',
+  documentType: 'documentType',
+  customerProvided: 'customerProvided',
+  fileUrl: 'fileUrl',
+  note: 'note'
+};
+
+exports.Prisma.SurveyBillScalarFieldEnum = {
+  id: 'id',
+  surveyId: 'surveyId',
+  billCount: 'billCount',
+  fileUrl: 'fileUrl',
+  note: 'note'
+};
+
+exports.Prisma.AnnouncementsScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  created_by: 'created_by'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1555,7 +1713,19 @@ exports.Prisma.ModelName = {
   tasks: 'tasks',
   transfer_budgets: 'transfer_budgets',
   MarketingLead: 'MarketingLead',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  SiteSurvey: 'SiteSurvey',
+  SurveyUsageBehavior: 'SurveyUsageBehavior',
+  SurveyElectricalProfile: 'SurveyElectricalProfile',
+  SurveyTariffSelection: 'SurveyTariffSelection',
+  SurveyTariffTier: 'SurveyTariffTier',
+  SurveyStructure: 'SurveyStructure',
+  SurveyRoofAge: 'SurveyRoofAge',
+  SurveyQA: 'SurveyQA',
+  SurveyPhoto: 'SurveyPhoto',
+  SurveyDocument: 'SurveyDocument',
+  SurveyBill: 'SurveyBill',
+  announcements: 'announcements'
 };
 
 /**

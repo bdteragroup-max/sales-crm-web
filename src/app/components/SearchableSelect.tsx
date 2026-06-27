@@ -9,14 +9,18 @@ export default function SearchableSelect({
   options, 
   placeholder,
   disabled = false,
-  className = ""
+  className = "",
+  onCreate,
+  isCreating = false
 }: { 
   value: string, 
   onChange: (val: string) => void, 
   options: { label: string, value: string }[],
   placeholder: string,
   disabled?: boolean,
-  className?: string
+  className?: string,
+  onCreate?: (val: string) => void,
+  isCreating?: boolean
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState("")
@@ -44,6 +48,8 @@ export default function SearchableSelect({
   const filteredOptions = query === "" 
     ? options 
     : options.filter(opt => opt.label.toLowerCase().includes(query.toLowerCase()))
+
+  const exactMatch = options.some(opt => opt.label.toLowerCase() === query.toLowerCase())
 
   return (
     <div className={`relative w-full ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`} ref={wrapperRef}>
@@ -78,6 +84,19 @@ export default function SearchableSelect({
               {opt.label}
             </div>
           ))}
+          {query && !exactMatch && onCreate && (
+            <div 
+              className={`px-3 py-2 text-sm rounded-md cursor-pointer font-medium text-[#ff2301] hover:bg-red-50 flex items-center justify-between ${isCreating ? 'opacity-50 pointer-events-none' : ''}`}
+              onClick={() => {
+                if (!isCreating) {
+                  onCreate(query)
+                }
+              }}
+            >
+              <span>+ สร้างลูกค้าใหม่: "{query}"</span>
+              {isCreating && <span className="animate-spin border-2 border-[#ff2301] border-t-transparent rounded-full w-4 h-4"></span>}
+            </div>
+          )}
         </div>
       )}
     </div>

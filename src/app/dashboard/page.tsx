@@ -13,8 +13,9 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   if (!user) redirect('/');
   const userRoleStr = (user.role || '').toLowerCase();
   const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(userRoleStr);
+  const isMarketing = ['marketing', 'การตลาด'].some((r) => userRoleStr.includes(r));
 
-  if (user.role === 'อื่นๆ' || !isMarketingManager && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'marketing', 'การตลาด', 'admin', 'project', 'โครงการ'].some((r) => userRoleStr.includes(r))) {
+  if (user.role === 'อื่นๆ' || !(isMarketingManager || isMarketing) && ['accounting', 'บัญชี', 'purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'admin', 'project', 'โครงการ'].some((r) => userRoleStr.includes(r))) {
     redirect('/department');
   }
 
@@ -153,7 +154,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
           }
         }
       },
-      where: isMarketingManager ? {
+      where: (isMarketingManager || isMarketing) ? {
         isActive: true,
         NOT: {
           OR: [
@@ -704,6 +705,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const bizTypePipelineMap: Record<string, number> = {};
   const bizTypeWonMap: Record<string, number> = {};
   const segmentMap: Record<string, number> = {};
+  const accessChannelPipelineMap: Record<string, number> = {};
+  const accessChannelWonMap: Record<string, number> = {};
   let lostDealsWithoutReasonCount = 0;
 
   // Loss Reason Breakdowns
@@ -764,6 +767,10 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
     const biz = q.company?.businessType || 'ไม่ระบุ';
     if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) bizTypeWonMap[biz] = (bizTypeWonMap[biz] || 0) + (q.actualClosingAmount || q.totalAmountBeforeVat || 0);else
     bizTypePipelineMap[biz] = (bizTypePipelineMap[biz] || 0) + (q.totalAmountBeforeVat || 0);
+    
+    const channel = q.company?.customerAccessChannel || 'ไม่ระบุ';
+    if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) accessChannelWonMap[channel] = (accessChannelWonMap[channel] || 0) + (q.actualClosingAmount || q.totalAmountBeforeVat || 0);else
+    accessChannelPipelineMap[channel] = (accessChannelPipelineMap[channel] || 0) + (q.totalAmountBeforeVat || 0);
   });
 
   // totalCompaniesMap is now computed earlier with raw province mapping
@@ -1732,6 +1739,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
           customerSegments={Object.entries(segmentMap).map(([name, value]) => ({ name, value }))}
           bizTypePipeline={Object.entries(bizTypePipelineMap).map(([name, value]) => ({ name, value }))}
           bizTypeWon={Object.entries(bizTypeWonMap).map(([name, value]) => ({ name, value }))}
+          accessChannelPipeline={Object.entries(accessChannelPipelineMap).map(([name, value]) => ({ name, value }))}
+          accessChannelWon={Object.entries(accessChannelWonMap).map(([name, value]) => ({ name, value }))}
           employeePerformance={employeePerformance}
           dailyTarget={dailyTarget}
           lostDealsWithoutReasonCount={lostDealsWithoutReasonCount}
