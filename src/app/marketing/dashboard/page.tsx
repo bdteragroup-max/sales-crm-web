@@ -33,10 +33,10 @@ export default async function MarketingDashboardPage({
   // Fetch quotations created within this date range
   const quotations = await prisma.quotation.findMany({
     where: {
-      createdAt: {
-        gte: startDate,
-        lte: endDate
-      }
+      OR: [
+        { quotationDate: { gte: startDate, lte: endDate } },
+        { quotationDate: null, createdAt: { gte: startDate, lte: endDate } }
+      ]
     },
     include: {
       company: {
@@ -61,16 +61,48 @@ export default async function MarketingDashboardPage({
     return ch.split('|')[0].trim()
   }
 
-  // Group and count by customerAccessChannel
-  const sourceCount: Record<string, number> = {}
+  // Group and count by customerAccessChannel and status
+  const sourceStats: Record<string, { count: number; sales: number }> = {}
+  const statusStats: Record<string, { count: number; sales: number }> = {}
+  
   quotations.forEach(quotation => {
     const channel = normalizeChannel(quotation.company?.customerAccessChannel)
-    sourceCount[channel] = (sourceCount[channel] || 0) + 1
+    if (!sourceStats[channel]) sourceStats[channel] = { count: 0, sales: 0 }
+    sourceStats[channel].count += 1
+    sourceStats[channel].sales += (quotation.totalAmountBeforeVat || quotation.salesBeforeVat || 0)
+
+    const status = quotation.status || 'Unknown'
+    if (!statusStats[status]) statusStats[status] = { count: 0, sales: 0 }
+    statusStats[status].count += 1
+    statusStats[status].sales += (quotation.totalAmountBeforeVat || quotation.salesBeforeVat || 0)
   })
 
-  const chartData = Object.entries(sourceCount)
-    .map(([name, value]) => ({ name, value }))
+  const chartData = Object.entries(sourceStats)
+    .map(([name, stats]) => ({ name, value: stats.count, sales: stats.sales }))
     .sort((a, b) => b.value - a.value)
+
+  const statusData = Object.entries(statusStats)
+    .map(([name, stats]) => ({ name, value: stats.count, sales: stats.sales }))
+    .sort((a, b) => b.sales - a.sales)
+
+  // Generate cross table data (Channel vs Status)
+  const crossStats: Record<string, Record<string, { count: number; sales: number }>> = {}
+  quotations.forEach(quotation => {
+    const channel = normalizeChannel(quotation.company?.customerAccessChannel)
+    const status = quotation.status || 'Unknown'
+    if (!crossStats[channel]) crossStats[channel] = {}
+    if (!crossStats[channel][status]) crossStats[channel][status] = { count: 0, sales: 0 }
+    crossStats[channel][status].count += 1
+    crossStats[channel][status].sales += (quotation.totalAmountBeforeVat || quotation.salesBeforeVat || 0)
+  })
+
+  const allStatuses = Array.from(new Set(quotations.map(q => q.status || 'Unknown'))).sort()
+  const crossData = Object.entries(crossStats).map(([channel, statusObj]) => ({
+    channel,
+    statuses: statusObj
+  })).sort((a, b) => a.channel.localeCompare(b.channel))
+
+  const totalSales = chartData.reduce((acc, curr) => acc + curr.sales, 0)
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -85,9 +117,13 @@ export default async function MarketingDashboardPage({
 
       <MarketingDashboardClient 
         initialData={chartData} 
-        startDate={startDateStr} 
+        statusData={statusData}
+        crossData={crossData}
+        allStatuses={allStatuses}
+        startDate={startDateStr}  
         endDate={endDateStr} 
         totalCompanies={quotations.length}
+        totalSales={totalSales}
       />
     </div>
   )
