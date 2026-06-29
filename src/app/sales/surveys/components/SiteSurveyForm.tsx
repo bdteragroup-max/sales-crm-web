@@ -143,7 +143,7 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
-  
+
   const isProjectRole = (currentUser?.role || '').toLowerCase().includes('project');
 
   const [localCompanies, setLocalCompanies] = useState(companies);
@@ -155,7 +155,7 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
   // Form State
   const [formData, setFormData] = useState<any>({
     // Project Info
-    surveyNumber: `SV${format(new Date(), 'yyyyMMdd')}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+    surveyNumber: 'สร้างอัตโนมัติเมื่อบันทึก',
     surveyDate: format(new Date(), 'yyyy-MM-dd'),
     companyId: '',
     customerName: '',
@@ -226,22 +226,22 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'photos' | 'documents' | 'electricityBill', index?: number, keyName?: string) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string, index?: number, keyName?: string) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
-    
+
     setUploadingMedia(true);
     const form = new FormData();
     form.append('file', file);
-    
+
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: form });
       const data = await res.json();
-      
+
       if (data.success && data.url) {
-        if (fieldName === 'electricityBill') {
-          updateField('electricityBill', data.url);
-        } else if (index !== undefined && keyName) {
+        if (index === undefined) {
+          updateField(fieldName as any, data.url);
+        } else if (keyName) {
           const arr = [...formData[fieldName]];
           arr[index] = { ...arr[index], [keyName]: data.url };
           updateField(fieldName, arr);
@@ -375,7 +375,7 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
               พิมพ์ PDF
             </a>
           )}
-          
+
           {!isProjectRole && (
             <button
               onClick={() => handleSave()}
@@ -388,7 +388,7 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
           )}
         </div>
       </div>
-      
+
       {isProjectRole && (
         <div className="bg-blue-50 text-blue-700 p-3 text-center text-sm font-medium border-b border-blue-100">
           โหมดดูข้อมูล (Read-Only) สำหรับข้อมูลสำรวจ - สามารถประเมินราคาได้ที่แท็บ "8. ประเมินราคา"
@@ -1541,9 +1541,9 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
         {activeTab === 'qa' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">6. คำถามเพิ่มเติม (QA)</h3>
-            
+
             <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 space-y-6">
-              
+
               {/* Day/Night Usage */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">6.1 การใช้ไฟกลางวันและกลางคืน (Day / Night Usage)</label>
@@ -1713,32 +1713,142 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
         {activeTab === 'media' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">7. รูปถ่ายและเอกสาร (Media & Documents)</h3>
-            
+
             <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 space-y-8">
-              
+
+              {/* Checklist & Additional Remarks */}
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-4">7.1 Checklist ข้อมูลที่ต้องเตรียม (Required Information)</h4>
+
+                <div className="space-y-3 mb-8">
+                  {[
+                    { label: 'Load Profile', value: 'Load Profile', fileField: 'loadProfileFileUrl' },
+                    { 
+                      label: 'AMR = Customer username and password', 
+                      value: 'AMR', 
+                      textFields: [
+                        { field: 'amrUsernamePlain', section: 'electricalProfile', placeholder: 'Customer Username', type: 'text' },
+                        { field: 'amrPasswordPlain', section: 'electricalProfile', placeholder: 'Customer Password', type: 'text' }
+                      ] 
+                    },
+                    { label: 'ละติจูด (Latitude), ลองจิจูด (Longitude)', value: 'ละติจูด (Latitude), ลองจิจูด (Longitude)', showLatLng: true },
+                    { label: 'แบบโครงสร้างหลังคา', value: 'แบบโครงสร้างหลังคา', fileField: 'roofStructureFileUrl' },
+                    { label: 'แบบอาคาร', value: 'แบบอาคาร', fileField: 'buildingPlanFileUrl' },
+                    { label: 'แบบไฟฟ้าอาคาร', value: 'แบบไฟฟ้าอาคาร', fileField: 'buildingElectricalFileUrl' },
+                    { label: 'แบบตู้ไฟฟ้า', value: 'แบบตู้ไฟฟ้า', fileField: 'electricalCabinetFileUrl' }
+                  ].map(item => (
+                    <div key={item.value} className="flex flex-col gap-2">
+                      <label className="flex items-start gap-3 cursor-pointer w-fit">
+                        <input
+                          type="checkbox"
+                          checked={formData.requiredInfoChecklist?.includes(item.value) || false}
+                          onChange={(e) => {
+                            const current = formData.requiredInfoChecklist || [];
+                            if (e.target.checked) {
+                              updateField('requiredInfoChecklist', [...current, item.value]);
+                            } else {
+                              updateField('requiredInfoChecklist', current.filter((i: string) => i !== item.value));
+                            }
+                          }}
+                          className="mt-0.5 w-5 h-5 rounded border-2 border-[#ff2301] text-[#ff2301] focus:ring-[#ff2301] bg-white cursor-pointer"
+                        />
+                        <div>
+                          <span className="text-gray-700 font-medium">{item.label}</span>
+                          {item.showLatLng && (
+                            <div className="text-gray-600 mt-2 text-sm">
+                              Latitude: {formData.latitude || '-'} , Longitude: {formData.longitude || '-'}
+                            </div>
+                          )}
+                        </div>
+                      </label>
+
+                      {/* Attachments / Inputs */}
+                      {formData.requiredInfoChecklist?.includes(item.value) && item.fileField && (
+                        <div className="ml-8 mt-1">
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="file"
+                              accept="image/*,.pdf"
+                              onChange={(e) => handleFileUpload(e, item.fileField as string)}
+                              className="block w-full max-w-sm text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
+                            />
+                            {uploadingMedia && <Loader2 className="w-4 h-4 animate-spin text-[#ff2301]" />}
+                          </div>
+                          {formData[item.fileField] && (
+                            <a href={formData[item.fileField]} target="_blank" rel="noreferrer" className="text-[#ff2301] hover:underline text-sm mt-2 inline-flex items-center gap-1">
+                              <Link className="w-3.5 h-3.5" /> ดูไฟล์แนบ
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      {formData.requiredInfoChecklist?.includes(item.value) && item.textFields && (
+                        <div className="ml-8 mt-1 space-y-2">
+                          {item.textFields.map((tf, idx) => (
+                            <input
+                              key={idx}
+                              type={tf.type || 'text'}
+                              value={(tf.section ? formData[tf.section]?.[tf.field] : formData[tf.field]) || ''}
+                              onChange={(e) => updateField(tf.field, e.target.value, tf.section)}
+                              placeholder={tf.placeholder}
+                              className="block w-full max-w-sm px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-[#ff2301] outline-none"
+                            />
+                          ))}
+                        </div>
+                      )}
+                      
+                      {formData.requiredInfoChecklist?.includes(item.value) && (item as any).textField && (
+                        <div className="ml-8 mt-1">
+                          <input
+                            type="text"
+                            value={formData[(item as any).textField] || ''}
+                            onChange={(e) => updateField((item as any).textField, e.target.value)}
+                            placeholder={(item as any).placeholder}
+                            className="w-full max-w-sm px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-[#ff2301] outline-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-gray-800 mb-2">
+                    หมายเหตุเพิ่มเติม <span className="text-gray-500 font-normal">Additional Remarks</span>
+                  </label>
+                  <textarea
+                    value={formData.additionalRemark || ''}
+                    onChange={(e) => updateField('additionalRemark', e.target.value)}
+                    rows={4}
+                    placeholder="ระบุรายละเอียดเพิ่มเติม..."
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] outline-none transition-all resize-none"
+                  />
+                </div>
+              </div>
+
               {/* Electricity Bill */}
               <div>
-                 <h4 className="font-semibold text-gray-800 mb-2">7.1 บิลค่าไฟ (Electricity Bill)</h4>
-                 <div className="flex items-center gap-4">
-                   <input
-                     type="file"
-                     accept="image/*,.pdf"
-                     onChange={(e) => handleFileUpload(e, 'electricityBill')}
-                     className="block w-full max-w-sm text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#ff2301] file:text-white hover:file:bg-red-700 cursor-pointer"
-                   />
-                   {uploadingMedia && <Loader2 className="w-5 h-5 animate-spin text-[#ff2301]" />}
-                 </div>
-                 {formData.electricityBill && (
-                   <a href={formData.electricityBill} target="_blank" rel="noreferrer" className="text-[#ff2301] hover:underline text-sm mt-3 inline-flex items-center gap-1">
-                     <Link className="w-4 h-4" /> ดูบิลค่าไฟที่อัปโหลดแล้ว
-                   </a>
-                 )}
+                <h4 className="font-semibold text-gray-800 mb-2">7.2 บิลค่าไฟ (Electricity Bill)</h4>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) => handleFileUpload(e, 'electricityBill')}
+                    className="block w-full max-w-sm text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#ff2301] file:text-white hover:file:bg-red-700 cursor-pointer"
+                  />
+                  {uploadingMedia && <Loader2 className="w-5 h-5 animate-spin text-[#ff2301]" />}
+                </div>
+                {formData.electricityBill && (
+                  <a href={formData.electricityBill} target="_blank" rel="noreferrer" className="text-[#ff2301] hover:underline text-sm mt-3 inline-flex items-center gap-1">
+                    <Link className="w-4 h-4" /> ดูบิลค่าไฟที่อัปโหลดแล้ว
+                  </a>
+                )}
               </div>
 
               {/* Photos */}
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-gray-800">7.2 รูปถ่ายหน้างาน (Site Photos)</h4>
+                  <h4 className="font-semibold text-gray-800">7.3 รูปถ่ายหน้างาน (Site Photos)</h4>
                   <button
                     onClick={() => updateField('photos', [...(formData.photos || []), { photoType: '', fileUrl: '', photoDesc: '' }])}
                     className="flex items-center gap-1 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg transition-colors"
@@ -1746,9 +1856,9 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
                     <Plus className="w-4 h-4" /> เพิ่มรูป
                   </button>
                 </div>
-                
+
                 {(!formData.photos || formData.photos.length === 0) && <p className="text-gray-400 text-sm">ยังไม่มีรูปถ่าย</p>}
-                
+
                 <div className="space-y-4">
                   {formData.photos?.map((photo: any, index: number) => (
                     <div key={index} className="flex flex-col md:flex-row gap-4 items-start bg-white p-4 rounded-lg border border-gray-200">
@@ -1778,17 +1888,17 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-[#ff2301] outline-none mb-3"
                         />
                         <div className="flex items-center gap-4">
-                           <input
-                             type="file"
-                             accept="image/*"
-                             onChange={(e) => handleFileUpload(e, 'photos', index, 'fileUrl')}
-                             className="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
-                           />
-                           {photo.fileUrl && (
-                             <a href={photo.fileUrl} target="_blank" rel="noreferrer" className="text-[#ff2301] hover:underline text-sm whitespace-nowrap inline-flex items-center gap-1">
-                               <Link className="w-4 h-4" /> ดูรูป
-                             </a>
-                           )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleFileUpload(e, 'photos', index, 'fileUrl')}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
+                          />
+                          {photo.fileUrl && (
+                            <a href={photo.fileUrl} target="_blank" rel="noreferrer" className="text-[#ff2301] hover:underline text-sm whitespace-nowrap inline-flex items-center gap-1">
+                              <Link className="w-4 h-4" /> ดูรูป
+                            </a>
+                          )}
                         </div>
                       </div>
                       <div className="w-full md:w-auto flex justify-end">
@@ -1811,7 +1921,7 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
               {/* Documents */}
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-gray-800">7.3 เอกสารประกอบ (Documents)</h4>
+                  <h4 className="font-semibold text-gray-800">7.4 เอกสารประกอบ (Documents)</h4>
                   <button
                     onClick={() => updateField('documents', [...(formData.documents || []), { documentType: '', customerProvided: false, fileUrl: '', note: '' }])}
                     className="flex items-center gap-1 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg transition-colors"
@@ -1864,17 +1974,17 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-[#ff2301] outline-none mb-3"
                         />
                         <div className="flex items-center gap-4">
-                           <input
-                             type="file"
-                             accept="*/*"
-                             onChange={(e) => handleFileUpload(e, 'documents', index, 'fileUrl')}
-                             className="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
-                           />
-                           {doc.fileUrl && (
-                             <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="text-[#ff2301] hover:underline text-sm whitespace-nowrap inline-flex items-center gap-1">
-                               <Link className="w-4 h-4" /> ดูเอกสาร
-                             </a>
-                           )}
+                          <input
+                            type="file"
+                            accept="*/*"
+                            onChange={(e) => handleFileUpload(e, 'documents', index, 'fileUrl')}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
+                          />
+                          {doc.fileUrl && (
+                            <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="text-[#ff2301] hover:underline text-sm whitespace-nowrap inline-flex items-center gap-1">
+                              <Link className="w-4 h-4" /> ดูเอกสาร
+                            </a>
+                          )}
                         </div>
                       </div>
                       <div className="w-full md:w-auto flex justify-end">
@@ -1907,7 +2017,7 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
                 8. ประเมินราคา (Cost Estimate)
               </h3>
             </div>
-            
+
             <div className="p-6 space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

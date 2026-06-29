@@ -1723,43 +1723,49 @@ model Notification {
 }
 
 model SiteSurvey {
-  id                    String                   @id @default(cuid())
-  surveyNumber          String                   @unique
-  surveyDate            DateTime                 @db.Date
-  companyId             String?
-  customerName          String?
-  projectName           String?
-  projectLocation       String?
-  coordinatorName       String?
-  coordinatorPhone      String?
-  salespersonId         String
-  surveyorName          String?
-  status                String                   @default("Draft")
-  version               Int                      @default(1)
-  latitude              Float?
-  longitude             Float?
-  hasSingleLineDiagram  Boolean                  @default(false)
-  requiredInfoChecklist String[]                 @default([])
-  additionalRemark      String?
-  createdAt             DateTime                 @default(now()) @db.Timestamptz(6)
-  updatedAt             DateTime                 @updatedAt @db.Timestamptz(6)
-  estimatedAt           DateTime?
-  estimatedByUserId     String?
-  estimatedPrice        Float?
-  estimationNote        String?
-  estimationStatus      String?
-  quotations            Quotation[]
-  company               Company?                 @relation(fields: [companyId], references: [id])
-  estimatedByUser       User?                    @relation("SurveyEstimator", fields: [estimatedByUserId], references: [id])
-  salesperson           User                     @relation(fields: [salespersonId], references: [id])
-  electricityBill       SurveyBill?
-  documents             SurveyDocument[]
-  electricalProfile     SurveyElectricalProfile?
-  photos                SurveyPhoto[]
-  qa                    SurveyQA?
-  structure             SurveyStructure?
-  tariffSelection       SurveyTariffSelection?
-  usageBehavior         SurveyUsageBehavior?
+  id                        String                   @id @default(cuid())
+  surveyNumber              String                   @unique
+  surveyDate                DateTime                 @db.Date
+  companyId                 String?
+  customerName              String?
+  projectName               String?
+  projectLocation           String?
+  coordinatorName           String?
+  coordinatorPhone          String?
+  salespersonId             String
+  surveyorName              String?
+  status                    String                   @default("Draft")
+  version                   Int                      @default(1)
+  latitude                  Float?
+  longitude                 Float?
+  hasSingleLineDiagram      Boolean                  @default(false)
+  requiredInfoChecklist     String[]                 @default([])
+  additionalRemark          String?
+  createdAt                 DateTime                 @default(now()) @db.Timestamptz(6)
+  updatedAt                 DateTime                 @updatedAt @db.Timestamptz(6)
+  estimatedAt               DateTime?
+  estimatedByUserId         String?
+  estimatedPrice            Float?
+  estimationNote            String?
+  estimationStatus          String?
+  amrCustomerCode           String?
+  buildingElectricalFileUrl String?
+  buildingPlanFileUrl       String?
+  electricalCabinetFileUrl  String?
+  loadProfileFileUrl        String?
+  roofStructureFileUrl      String?
+  quotations                Quotation[]
+  company                   Company?                 @relation(fields: [companyId], references: [id])
+  estimatedByUser           User?                    @relation("SurveyEstimator", fields: [estimatedByUserId], references: [id])
+  salesperson               User                     @relation(fields: [salespersonId], references: [id])
+  electricityBill           SurveyBill?
+  documents                 SurveyDocument[]
+  electricalProfile         SurveyElectricalProfile?
+  photos                    SurveyPhoto[]
+  qa                        SurveyQA?
+  structure                 SurveyStructure?
+  tariffSelection           SurveyTariffSelection?
+  usageBehavior             SurveyUsageBehavior?
 }
 
 model SurveyUsageBehavior {

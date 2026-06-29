@@ -111499,6 +111499,12 @@ export namespace Prisma {
     estimatedPrice: number | null
     estimationNote: string | null
     estimationStatus: string | null
+    amrCustomerCode: string | null
+    buildingElectricalFileUrl: string | null
+    buildingPlanFileUrl: string | null
+    electricalCabinetFileUrl: string | null
+    loadProfileFileUrl: string | null
+    roofStructureFileUrl: string | null
   }
 
   export type SiteSurveyMaxAggregateOutputType = {
@@ -111526,6 +111532,12 @@ export namespace Prisma {
     estimatedPrice: number | null
     estimationNote: string | null
     estimationStatus: string | null
+    amrCustomerCode: string | null
+    buildingElectricalFileUrl: string | null
+    buildingPlanFileUrl: string | null
+    electricalCabinetFileUrl: string | null
+    loadProfileFileUrl: string | null
+    roofStructureFileUrl: string | null
   }
 
   export type SiteSurveyCountAggregateOutputType = {
@@ -111554,6 +111566,12 @@ export namespace Prisma {
     estimatedPrice: number
     estimationNote: number
     estimationStatus: number
+    amrCustomerCode: number
+    buildingElectricalFileUrl: number
+    buildingPlanFileUrl: number
+    electricalCabinetFileUrl: number
+    loadProfileFileUrl: number
+    roofStructureFileUrl: number
     _all: number
   }
 
@@ -111597,6 +111615,12 @@ export namespace Prisma {
     estimatedPrice?: true
     estimationNote?: true
     estimationStatus?: true
+    amrCustomerCode?: true
+    buildingElectricalFileUrl?: true
+    buildingPlanFileUrl?: true
+    electricalCabinetFileUrl?: true
+    loadProfileFileUrl?: true
+    roofStructureFileUrl?: true
   }
 
   export type SiteSurveyMaxAggregateInputType = {
@@ -111624,6 +111648,12 @@ export namespace Prisma {
     estimatedPrice?: true
     estimationNote?: true
     estimationStatus?: true
+    amrCustomerCode?: true
+    buildingElectricalFileUrl?: true
+    buildingPlanFileUrl?: true
+    electricalCabinetFileUrl?: true
+    loadProfileFileUrl?: true
+    roofStructureFileUrl?: true
   }
 
   export type SiteSurveyCountAggregateInputType = {
@@ -111652,6 +111682,12 @@ export namespace Prisma {
     estimatedPrice?: true
     estimationNote?: true
     estimationStatus?: true
+    amrCustomerCode?: true
+    buildingElectricalFileUrl?: true
+    buildingPlanFileUrl?: true
+    electricalCabinetFileUrl?: true
+    loadProfileFileUrl?: true
+    roofStructureFileUrl?: true
     _all?: true
   }
 
@@ -111767,6 +111803,12 @@ export namespace Prisma {
     estimatedPrice: number | null
     estimationNote: string | null
     estimationStatus: string | null
+    amrCustomerCode: string | null
+    buildingElectricalFileUrl: string | null
+    buildingPlanFileUrl: string | null
+    electricalCabinetFileUrl: string | null
+    loadProfileFileUrl: string | null
+    roofStructureFileUrl: string | null
     _count: SiteSurveyCountAggregateOutputType | null
     _avg: SiteSurveyAvgAggregateOutputType | null
     _sum: SiteSurveySumAggregateOutputType | null
@@ -111814,6 +111856,12 @@ export namespace Prisma {
     estimatedPrice?: boolean
     estimationNote?: boolean
     estimationStatus?: boolean
+    amrCustomerCode?: boolean
+    buildingElectricalFileUrl?: boolean
+    buildingPlanFileUrl?: boolean
+    electricalCabinetFileUrl?: boolean
+    loadProfileFileUrl?: boolean
+    roofStructureFileUrl?: boolean
     quotations?: boolean | SiteSurvey$quotationsArgs<ExtArgs>
     company?: boolean | SiteSurvey$companyArgs<ExtArgs>
     estimatedByUser?: boolean | SiteSurvey$estimatedByUserArgs<ExtArgs>
@@ -111855,6 +111903,12 @@ export namespace Prisma {
     estimatedPrice?: boolean
     estimationNote?: boolean
     estimationStatus?: boolean
+    amrCustomerCode?: boolean
+    buildingElectricalFileUrl?: boolean
+    buildingPlanFileUrl?: boolean
+    electricalCabinetFileUrl?: boolean
+    loadProfileFileUrl?: boolean
+    roofStructureFileUrl?: boolean
     company?: boolean | SiteSurvey$companyArgs<ExtArgs>
     estimatedByUser?: boolean | SiteSurvey$estimatedByUserArgs<ExtArgs>
     salesperson?: boolean | UserDefaultArgs<ExtArgs>
@@ -111886,6 +111940,12 @@ export namespace Prisma {
     estimatedPrice?: boolean
     estimationNote?: boolean
     estimationStatus?: boolean
+    amrCustomerCode?: boolean
+    buildingElectricalFileUrl?: boolean
+    buildingPlanFileUrl?: boolean
+    electricalCabinetFileUrl?: boolean
+    loadProfileFileUrl?: boolean
+    roofStructureFileUrl?: boolean
     company?: boolean | SiteSurvey$companyArgs<ExtArgs>
     estimatedByUser?: boolean | SiteSurvey$estimatedByUserArgs<ExtArgs>
     salesperson?: boolean | UserDefaultArgs<ExtArgs>
@@ -111917,9 +111977,15 @@ export namespace Prisma {
     estimatedPrice?: boolean
     estimationNote?: boolean
     estimationStatus?: boolean
+    amrCustomerCode?: boolean
+    buildingElectricalFileUrl?: boolean
+    buildingPlanFileUrl?: boolean
+    electricalCabinetFileUrl?: boolean
+    loadProfileFileUrl?: boolean
+    roofStructureFileUrl?: boolean
   }
 
-  export type SiteSurveyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "surveyNumber" | "surveyDate" | "companyId" | "customerName" | "projectName" | "projectLocation" | "coordinatorName" | "coordinatorPhone" | "salespersonId" | "surveyorName" | "status" | "version" | "latitude" | "longitude" | "hasSingleLineDiagram" | "requiredInfoChecklist" | "additionalRemark" | "createdAt" | "updatedAt" | "estimatedAt" | "estimatedByUserId" | "estimatedPrice" | "estimationNote" | "estimationStatus", ExtArgs["result"]["siteSurvey"]>
+  export type SiteSurveyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "surveyNumber" | "surveyDate" | "companyId" | "customerName" | "projectName" | "projectLocation" | "coordinatorName" | "coordinatorPhone" | "salespersonId" | "surveyorName" | "status" | "version" | "latitude" | "longitude" | "hasSingleLineDiagram" | "requiredInfoChecklist" | "additionalRemark" | "createdAt" | "updatedAt" | "estimatedAt" | "estimatedByUserId" | "estimatedPrice" | "estimationNote" | "estimationStatus" | "amrCustomerCode" | "buildingElectricalFileUrl" | "buildingPlanFileUrl" | "electricalCabinetFileUrl" | "loadProfileFileUrl" | "roofStructureFileUrl", ExtArgs["result"]["siteSurvey"]>
   export type SiteSurveyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     quotations?: boolean | SiteSurvey$quotationsArgs<ExtArgs>
     company?: boolean | SiteSurvey$companyArgs<ExtArgs>
@@ -111988,6 +112054,12 @@ export namespace Prisma {
       estimatedPrice: number | null
       estimationNote: string | null
       estimationStatus: string | null
+      amrCustomerCode: string | null
+      buildingElectricalFileUrl: string | null
+      buildingPlanFileUrl: string | null
+      electricalCabinetFileUrl: string | null
+      loadProfileFileUrl: string | null
+      roofStructureFileUrl: string | null
     }, ExtArgs["result"]["siteSurvey"]>
     composites: {}
   }
@@ -112448,6 +112520,12 @@ export namespace Prisma {
     readonly estimatedPrice: FieldRef<"SiteSurvey", 'Float'>
     readonly estimationNote: FieldRef<"SiteSurvey", 'String'>
     readonly estimationStatus: FieldRef<"SiteSurvey", 'String'>
+    readonly amrCustomerCode: FieldRef<"SiteSurvey", 'String'>
+    readonly buildingElectricalFileUrl: FieldRef<"SiteSurvey", 'String'>
+    readonly buildingPlanFileUrl: FieldRef<"SiteSurvey", 'String'>
+    readonly electricalCabinetFileUrl: FieldRef<"SiteSurvey", 'String'>
+    readonly loadProfileFileUrl: FieldRef<"SiteSurvey", 'String'>
+    readonly roofStructureFileUrl: FieldRef<"SiteSurvey", 'String'>
   }
     
 
@@ -127381,7 +127459,13 @@ export namespace Prisma {
     estimatedByUserId: 'estimatedByUserId',
     estimatedPrice: 'estimatedPrice',
     estimationNote: 'estimationNote',
-    estimationStatus: 'estimationStatus'
+    estimationStatus: 'estimationStatus',
+    amrCustomerCode: 'amrCustomerCode',
+    buildingElectricalFileUrl: 'buildingElectricalFileUrl',
+    buildingPlanFileUrl: 'buildingPlanFileUrl',
+    electricalCabinetFileUrl: 'electricalCabinetFileUrl',
+    loadProfileFileUrl: 'loadProfileFileUrl',
+    roofStructureFileUrl: 'roofStructureFileUrl'
   };
 
   export type SiteSurveyScalarFieldEnum = (typeof SiteSurveyScalarFieldEnum)[keyof typeof SiteSurveyScalarFieldEnum]
@@ -136078,6 +136162,12 @@ export namespace Prisma {
     estimatedPrice?: FloatNullableFilter<"SiteSurvey"> | number | null
     estimationNote?: StringNullableFilter<"SiteSurvey"> | string | null
     estimationStatus?: StringNullableFilter<"SiteSurvey"> | string | null
+    amrCustomerCode?: StringNullableFilter<"SiteSurvey"> | string | null
+    buildingElectricalFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    buildingPlanFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    electricalCabinetFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    loadProfileFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    roofStructureFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
     quotations?: QuotationListRelationFilter
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     estimatedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -136118,6 +136208,12 @@ export namespace Prisma {
     estimatedPrice?: SortOrderInput | SortOrder
     estimationNote?: SortOrderInput | SortOrder
     estimationStatus?: SortOrderInput | SortOrder
+    amrCustomerCode?: SortOrderInput | SortOrder
+    buildingElectricalFileUrl?: SortOrderInput | SortOrder
+    buildingPlanFileUrl?: SortOrderInput | SortOrder
+    electricalCabinetFileUrl?: SortOrderInput | SortOrder
+    loadProfileFileUrl?: SortOrderInput | SortOrder
+    roofStructureFileUrl?: SortOrderInput | SortOrder
     quotations?: QuotationOrderByRelationAggregateInput
     company?: CompanyOrderByWithRelationInput
     estimatedByUser?: UserOrderByWithRelationInput
@@ -136161,6 +136257,12 @@ export namespace Prisma {
     estimatedPrice?: FloatNullableFilter<"SiteSurvey"> | number | null
     estimationNote?: StringNullableFilter<"SiteSurvey"> | string | null
     estimationStatus?: StringNullableFilter<"SiteSurvey"> | string | null
+    amrCustomerCode?: StringNullableFilter<"SiteSurvey"> | string | null
+    buildingElectricalFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    buildingPlanFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    electricalCabinetFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    loadProfileFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    roofStructureFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
     quotations?: QuotationListRelationFilter
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     estimatedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -136201,6 +136303,12 @@ export namespace Prisma {
     estimatedPrice?: SortOrderInput | SortOrder
     estimationNote?: SortOrderInput | SortOrder
     estimationStatus?: SortOrderInput | SortOrder
+    amrCustomerCode?: SortOrderInput | SortOrder
+    buildingElectricalFileUrl?: SortOrderInput | SortOrder
+    buildingPlanFileUrl?: SortOrderInput | SortOrder
+    electricalCabinetFileUrl?: SortOrderInput | SortOrder
+    loadProfileFileUrl?: SortOrderInput | SortOrder
+    roofStructureFileUrl?: SortOrderInput | SortOrder
     _count?: SiteSurveyCountOrderByAggregateInput
     _avg?: SiteSurveyAvgOrderByAggregateInput
     _max?: SiteSurveyMaxOrderByAggregateInput
@@ -136237,6 +136345,12 @@ export namespace Prisma {
     estimatedPrice?: FloatNullableWithAggregatesFilter<"SiteSurvey"> | number | null
     estimationNote?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
     estimationStatus?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
+    amrCustomerCode?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
+    buildingElectricalFileUrl?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
+    buildingPlanFileUrl?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
+    electricalCabinetFileUrl?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
+    loadProfileFileUrl?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
+    roofStructureFileUrl?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
   }
 
   export type SurveyUsageBehaviorWhereInput = {
@@ -146590,6 +146704,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
@@ -146630,6 +146750,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -146664,6 +146790,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
@@ -146704,6 +146836,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -146741,6 +146879,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
   }
 
   export type SiteSurveyUpdateManyMutationInput = {
@@ -146766,6 +146910,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SiteSurveyUncheckedUpdateManyInput = {
@@ -146794,6 +146944,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SurveyUsageBehaviorCreateInput = {
@@ -153848,6 +154004,12 @@ export namespace Prisma {
     estimatedPrice?: SortOrder
     estimationNote?: SortOrder
     estimationStatus?: SortOrder
+    amrCustomerCode?: SortOrder
+    buildingElectricalFileUrl?: SortOrder
+    buildingPlanFileUrl?: SortOrder
+    electricalCabinetFileUrl?: SortOrder
+    loadProfileFileUrl?: SortOrder
+    roofStructureFileUrl?: SortOrder
   }
 
   export type SiteSurveyAvgOrderByAggregateInput = {
@@ -153882,6 +154044,12 @@ export namespace Prisma {
     estimatedPrice?: SortOrder
     estimationNote?: SortOrder
     estimationStatus?: SortOrder
+    amrCustomerCode?: SortOrder
+    buildingElectricalFileUrl?: SortOrder
+    buildingPlanFileUrl?: SortOrder
+    electricalCabinetFileUrl?: SortOrder
+    loadProfileFileUrl?: SortOrder
+    roofStructureFileUrl?: SortOrder
   }
 
   export type SiteSurveyMinOrderByAggregateInput = {
@@ -153909,6 +154077,12 @@ export namespace Prisma {
     estimatedPrice?: SortOrder
     estimationNote?: SortOrder
     estimationStatus?: SortOrder
+    amrCustomerCode?: SortOrder
+    buildingElectricalFileUrl?: SortOrder
+    buildingPlanFileUrl?: SortOrder
+    electricalCabinetFileUrl?: SortOrder
+    loadProfileFileUrl?: SortOrder
+    roofStructureFileUrl?: SortOrder
   }
 
   export type SiteSurveySumOrderByAggregateInput = {
@@ -162110,6 +162284,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
@@ -162148,6 +162328,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -162192,6 +162378,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
@@ -162230,6 +162422,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -163035,6 +163233,12 @@ export namespace Prisma {
     estimatedPrice?: FloatNullableFilter<"SiteSurvey"> | number | null
     estimationNote?: StringNullableFilter<"SiteSurvey"> | string | null
     estimationStatus?: StringNullableFilter<"SiteSurvey"> | string | null
+    amrCustomerCode?: StringNullableFilter<"SiteSurvey"> | string | null
+    buildingElectricalFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    buildingPlanFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    electricalCabinetFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    loadProfileFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
+    roofStructureFileUrl?: StringNullableFilter<"SiteSurvey"> | string | null
   }
 
   export type SiteSurveyUpsertWithWhereUniqueWithoutSalespersonInput = {
@@ -164245,6 +164449,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
@@ -164283,6 +164493,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -165097,6 +165313,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
@@ -165136,6 +165358,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
     electricalProfile?: SurveyElectricalProfileUncheckedCreateNestedOneWithoutSurveyInput
@@ -165537,6 +165765,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
@@ -165576,6 +165810,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
     electricalProfile?: SurveyElectricalProfileUncheckedUpdateOneWithoutSurveyNestedInput
@@ -189995,6 +190235,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
@@ -190034,6 +190280,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -190083,6 +190335,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
@@ -190122,6 +190380,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -190155,6 +190419,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
@@ -190194,6 +190464,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -190243,6 +190519,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
@@ -190282,6 +190564,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -190315,6 +190603,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
@@ -190354,6 +190648,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -190427,6 +190727,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
@@ -190466,6 +190772,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -190588,6 +190900,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
@@ -190627,6 +190945,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -190702,6 +191026,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
@@ -190741,6 +191071,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -190882,6 +191218,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
@@ -190921,6 +191263,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -190970,6 +191318,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
@@ -191009,6 +191363,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -191042,6 +191402,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
@@ -191081,6 +191447,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -191130,6 +191502,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
@@ -191169,6 +191547,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -191202,6 +191586,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
@@ -191241,6 +191631,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     electricalProfile?: SurveyElectricalProfileUncheckedCreateNestedOneWithoutSurveyInput
@@ -191290,6 +191686,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
@@ -191329,6 +191731,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     electricalProfile?: SurveyElectricalProfileUncheckedUpdateOneWithoutSurveyNestedInput
@@ -191362,6 +191770,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
     estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
@@ -191401,6 +191815,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
     electricalProfile?: SurveyElectricalProfileUncheckedCreateNestedOneWithoutSurveyInput
@@ -191450,6 +191870,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
@@ -191489,6 +191915,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
     electricalProfile?: SurveyElectricalProfileUncheckedUpdateOneWithoutSurveyNestedInput
@@ -191916,6 +192348,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
   }
 
   export type SiteSurveyCreateManySalespersonInput = {
@@ -191943,6 +192381,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
   }
 
   export type TelesaleCreateManyUserInput = {
@@ -193045,6 +193489,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
@@ -193083,6 +193533,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -193119,6 +193575,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SiteSurveyUpdateWithoutSalespersonInput = {
@@ -193144,6 +193606,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
@@ -193182,6 +193650,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -193218,6 +193692,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TelesaleUpdateWithoutUserInput = {
@@ -193454,6 +193934,12 @@ export namespace Prisma {
     estimatedPrice?: number | null
     estimationNote?: string | null
     estimationStatus?: string | null
+    amrCustomerCode?: string | null
+    buildingElectricalFileUrl?: string | null
+    buildingPlanFileUrl?: string | null
+    electricalCabinetFileUrl?: string | null
+    loadProfileFileUrl?: string | null
+    roofStructureFileUrl?: string | null
   }
 
   export type TelesaleCreateManyCompanyInput = {
@@ -193744,6 +194230,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
@@ -193782,6 +194274,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -193818,6 +194316,12 @@ export namespace Prisma {
     estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
     estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    amrCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingElectricalFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    buildingPlanFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    electricalCabinetFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    loadProfileFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roofStructureFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TelesaleUpdateWithoutCompanyInput = {

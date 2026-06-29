@@ -70,7 +70,8 @@ const projectNav = [
 ];
 
 const marketingNav = [
-  { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing' },
+  { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
+  { icon: Users, label: 'Marketing Leads', href: '/marketing' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
 ];
 

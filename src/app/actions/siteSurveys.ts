@@ -1,6 +1,7 @@
 'use server';
 
 import prisma from '@/app/lib/db';
+import { decryptString } from '@/utils/crypto';
 
 export async function getSiteSurveyById(id: string) {
   try {
@@ -22,8 +23,15 @@ export async function getSiteSurveyById(id: string) {
       }
     });
     
-    // We do not decrypt passwords here; the frontend never needs the plain text password.
-    // If the user wants to update it, they just type a new one and the API encrypts it.
+    // Decrypt passwords here for display in the edit form
+    if (survey?.electricalProfile) {
+      if (survey.electricalProfile.amrUsernameEncrypted) {
+        (survey.electricalProfile as any).amrUsernamePlain = decryptString(survey.electricalProfile.amrUsernameEncrypted);
+      }
+      if (survey.electricalProfile.amrPasswordEncrypted) {
+        (survey.electricalProfile as any).amrPasswordPlain = decryptString(survey.electricalProfile.amrPasswordEncrypted);
+      }
+    }
     
     return { success: true, data: survey };
   } catch (error: any) {

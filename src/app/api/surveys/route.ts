@@ -1,21 +1,22 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
+import { format } from 'date-fns';
 import { encryptString } from '@/utils/crypto';
 import { siteSurveySchema } from '@/app/lib/surveySchema';
 
 export async function POST(req: Request) {
   try {
     const rawBody = await req.json();
-    
+
     // Validate request body against Zod schema
     const validationResult = siteSurveySchema.safeParse(rawBody);
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Validation failed', details: validationResult.error.format() }, 
+        { error: 'Validation failed', details: validationResult.error.format() },
         { status: 400 }
       );
     }
-    
+
     const body = validationResult.data;
     const {
       id,
@@ -35,20 +36,26 @@ export async function POST(req: Request) {
       longitude,
       hasSingleLineDiagram,
       requiredInfoChecklist,
+      loadProfileFileUrl,
+      amrCustomerCode,
+      roofStructureFileUrl,
+      buildingPlanFileUrl,
+      buildingElectricalFileUrl,
+      electricalCabinetFileUrl,
       additionalRemark,
-      
+
       estimatedPrice,
       estimationNote,
       estimatedByUserId,
       estimatedAt,
       estimationStatus,
-      
+
       usageBehavior,
       electricalProfile,
       tariffSelection,
       structure,
       qa,
-      
+
       photos,
       documents,
       electricityBill
@@ -57,7 +64,7 @@ export async function POST(req: Request) {
     // Encrypt AMR credentials if provided
     let amrUsernameEncrypted = electricalProfile?.amrUsernameEncrypted || null;
     let amrPasswordEncrypted = electricalProfile?.amrPasswordEncrypted || null;
-    
+
     if (electricalProfile?.amrPasswordPlain) {
       amrPasswordEncrypted = encryptString(electricalProfile.amrPasswordPlain);
     }
@@ -106,6 +113,12 @@ export async function POST(req: Request) {
             longitude,
             hasSingleLineDiagram,
             requiredInfoChecklist,
+            loadProfileFileUrl,
+            amrCustomerCode,
+            roofStructureFileUrl,
+            buildingPlanFileUrl,
+            buildingElectricalFileUrl,
+            electricalCabinetFileUrl,
             additionalRemark,
             estimatedPrice,
             estimationNote,
@@ -133,14 +146,14 @@ export async function POST(req: Request) {
           };
           delete profileData.amrUsernamePlain;
           delete profileData.amrPasswordPlain;
-          
+
           await tx.surveyElectricalProfile.upsert({
             where: { surveyId: id },
             update: profileData,
             create: { ...profileData, surveyId: id }
           });
         }
-        
+
         // 4. Upsert Section 2.3: Tariff Selection & Tiers
         if (tariffSelection) {
           const { tiers, ...selectionData } = tariffSelection;
@@ -149,7 +162,7 @@ export async function POST(req: Request) {
             update: selectionData,
             create: { ...selectionData, surveyId: id }
           });
-          
+
           if (tiers) {
             await tx.surveyTariffTier.deleteMany({ where: { selectionId: selection.id } });
             if (tiers.length > 0) {
@@ -168,7 +181,7 @@ export async function POST(req: Request) {
             update: structureData,
             create: { ...structureData, surveyId: id }
           });
-          
+
           if (roofAges) {
             await tx.surveyRoofAge.deleteMany({ where: { structureId: updatedStructure.id } });
             if (roofAges.length > 0) {
@@ -220,14 +233,30 @@ export async function POST(req: Request) {
       });
 
       return NextResponse.json(updatedSurvey);
-    } 
-    
+    }
+
     // Create new Survey
     else {
+      // Generate Sequential Survey Number
+      const datePrefix = `SV${format(new Date(), 'yyyyMMdd')}-`;
+      const todaySurveys = await prisma.siteSurvey.findMany({
+        where: {
+          surveyNumber: { startsWith: datePrefix }
+        },
+        orderBy: { surveyNumber: 'desc' },
+        take: 1
+      });
+
+      let finalSurveyNumber = `${datePrefix}001`;
+      if (todaySurveys.length > 0) {
+        const lastNum = parseInt(todaySurveys[0].surveyNumber.split('-')[1] || '0', 10);
+        finalSurveyNumber = `${datePrefix}${(lastNum + 1).toString().padStart(3, '0')}`;
+      }
+
       const newSurvey = await prisma.$transaction(async (tx: any) => {
         const survey = await tx.siteSurvey.create({
           data: {
-            surveyNumber,
+            surveyNumber: finalSurveyNumber,
             surveyDate: new Date(surveyDate),
             companyId,
             customerName,
@@ -243,6 +272,12 @@ export async function POST(req: Request) {
             longitude,
             hasSingleLineDiagram,
             requiredInfoChecklist,
+            loadProfileFileUrl,
+            amrCustomerCode,
+            roofStructureFileUrl,
+            buildingPlanFileUrl,
+            buildingElectricalFileUrl,
+            electricalCabinetFileUrl,
             additionalRemark,
             estimatedPrice,
             estimationNote,
@@ -255,14 +290,14 @@ export async function POST(req: Request) {
         const sId = survey.id;
 
         if (usageBehavior) await tx.surveyUsageBehavior.create({ data: { ...usageBehavior, surveyId: sId } });
-        
+
         if (electricalProfile) {
           const profileData = { ...electricalProfile, amrUsernameEncrypted, amrPasswordEncrypted };
           delete profileData.amrUsernamePlain;
           delete profileData.amrPasswordPlain;
           await tx.surveyElectricalProfile.create({ data: { ...profileData, surveyId: sId } });
         }
-        
+
         if (tariffSelection) {
           const { tiers, ...selectionData } = tariffSelection;
           const selection = await tx.surveyTariffSelection.create({ data: { ...selectionData, surveyId: sId } });
@@ -270,7 +305,7 @@ export async function POST(req: Request) {
             await tx.surveyTariffTier.createMany({ data: tiers.map((t: any) => ({ ...t, selectionId: selection.id })) });
           }
         }
-        
+
         if (structure) {
           const { roofAges, ...structureData } = structure;
           const createdStructure = await tx.surveyStructure.create({ data: { ...structureData, surveyId: sId } });

@@ -1469,7 +1469,13 @@ exports.Prisma.SiteSurveyScalarFieldEnum = {
   estimatedByUserId: 'estimatedByUserId',
   estimatedPrice: 'estimatedPrice',
   estimationNote: 'estimationNote',
-  estimationStatus: 'estimationStatus'
+  estimationStatus: 'estimationStatus',
+  amrCustomerCode: 'amrCustomerCode',
+  buildingElectricalFileUrl: 'buildingElectricalFileUrl',
+  buildingPlanFileUrl: 'buildingPlanFileUrl',
+  electricalCabinetFileUrl: 'electricalCabinetFileUrl',
+  loadProfileFileUrl: 'loadProfileFileUrl',
+  roofStructureFileUrl: 'roofStructureFileUrl'
 };
 
 exports.Prisma.SurveyUsageBehaviorScalarFieldEnum = {
