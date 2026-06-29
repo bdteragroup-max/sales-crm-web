@@ -744,6 +744,29 @@ export default function ClientsClientPage({
       <option key={idx} value={p}>{p}</option>
     ))}
   </select>
+
+  <select
+    className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 sm:max-w-[200px] shadow-sm"
+    value={searchParams.get('status') || ''}
+    onChange={(e) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (e.target.value) {
+        params.set('status', e.target.value);
+      } else {
+        params.delete('status');
+      }
+      params.set('page', '1');
+      router.push(`${pathname}?${params.toString()}`);
+    }}
+  >
+    <option value="">-- ทุกสถานะ --</option>
+    <option value="ลูกค้าใหม่">ลูกค้าใหม่</option>
+    <option value="ลูกค้าเป้าหมาย">ลูกค้าเป้าหมาย</option>
+    <option value="ลูกค้าเก่า">ลูกค้าเก่า</option>
+    <option value="ลูกค้าเก่า (ผู้ติดต่อใหม่)">ลูกค้าเก่า (ผู้ติดต่อใหม่)</option>
+    <option value="ร้านค้าตัวแทน">ร้านค้าตัวแทน</option>
+    <option value="ปิดกิจการ (Closed Business)">ปิดกิจการ (Closed Business)</option>
+  </select>
 </div>
 
 {/* ─── Companies Tab ───────────────────────────────────────────────── */ }
@@ -1305,6 +1328,7 @@ export default function ClientsClientPage({
                 <option value="ลูกค้าเป้าหมาย">ลูกค้าเป้าหมาย</option>
                 <option value="ลูกค้าเก่า">ลูกค้าเก่า</option>
                 <option value="ลูกค้าเก่า (ผู้ติดต่อใหม่)">ลูกค้าเก่า (ผู้ติดต่อใหม่)</option>
+                <option value="ร้านค้าตัวแทน">ร้านค้าตัวแทน</option>
                 <option value="ปิดกิจการ (Closed Business)">ปิดกิจการ (Closed Business)</option>
               </select>
             </div>
@@ -1796,6 +1820,7 @@ export default function ClientsClientPage({
                 <option value="ลูกค้าเป้าหมาย">ลูกค้าเป้าหมาย</option>
                 <option value="ลูกค้าเก่า">ลูกค้าเก่า</option>
                 <option value="ลูกค้าเก่า (ผู้ติดต่อใหม่)">ลูกค้าเก่า (ผู้ติดต่อใหม่)</option>
+                <option value="ร้านค้าตัวแทน">ร้านค้าตัวแทน</option>
                 <option value="ปิดกิจการ (Closed Business)">ปิดกิจการ (Closed Business)</option>
               </select>
             </div>
