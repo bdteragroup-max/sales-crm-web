@@ -9253,6 +9253,7 @@ export namespace Prisma {
     assignedTasks: number
     quotations: number
     schedules: number
+    estimatedSurveys: number
     siteSurveys: number
     telesales: number
     telesalesKPIs: number
@@ -9275,6 +9276,7 @@ export namespace Prisma {
     assignedTasks?: boolean | UserCountOutputTypeCountAssignedTasksArgs
     quotations?: boolean | UserCountOutputTypeCountQuotationsArgs
     schedules?: boolean | UserCountOutputTypeCountSchedulesArgs
+    estimatedSurveys?: boolean | UserCountOutputTypeCountEstimatedSurveysArgs
     siteSurveys?: boolean | UserCountOutputTypeCountSiteSurveysArgs
     telesales?: boolean | UserCountOutputTypeCountTelesalesArgs
     telesalesKPIs?: boolean | UserCountOutputTypeCountTelesalesKPIsArgs
@@ -9395,6 +9397,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountSchedulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ScheduleWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountEstimatedSurveysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SiteSurveyWhereInput
   }
 
   /**
@@ -11009,6 +11018,7 @@ export namespace Prisma {
     assignedTasks?: boolean | User$assignedTasksArgs<ExtArgs>
     quotations?: boolean | User$quotationsArgs<ExtArgs>
     schedules?: boolean | User$schedulesArgs<ExtArgs>
+    estimatedSurveys?: boolean | User$estimatedSurveysArgs<ExtArgs>
     siteSurveys?: boolean | User$siteSurveysArgs<ExtArgs>
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
@@ -11082,6 +11092,7 @@ export namespace Prisma {
     assignedTasks?: boolean | User$assignedTasksArgs<ExtArgs>
     quotations?: boolean | User$quotationsArgs<ExtArgs>
     schedules?: boolean | User$schedulesArgs<ExtArgs>
+    estimatedSurveys?: boolean | User$estimatedSurveysArgs<ExtArgs>
     siteSurveys?: boolean | User$siteSurveysArgs<ExtArgs>
     telesales?: boolean | User$telesalesArgs<ExtArgs>
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
@@ -11110,6 +11121,7 @@ export namespace Prisma {
       assignedTasks: Prisma.$ProjectTaskPayload<ExtArgs>[]
       quotations: Prisma.$QuotationPayload<ExtArgs>[]
       schedules: Prisma.$SchedulePayload<ExtArgs>[]
+      estimatedSurveys: Prisma.$SiteSurveyPayload<ExtArgs>[]
       siteSurveys: Prisma.$SiteSurveyPayload<ExtArgs>[]
       telesales: Prisma.$TelesalePayload<ExtArgs>[]
       telesalesKPIs: Prisma.$TelesalesKPIPayload<ExtArgs>[]
@@ -11539,6 +11551,7 @@ export namespace Prisma {
     assignedTasks<T extends User$assignedTasksArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotations<T extends User$quotationsArgs<ExtArgs> = {}>(args?: Subset<T, User$quotationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     schedules<T extends User$schedulesArgs<ExtArgs> = {}>(args?: Subset<T, User$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    estimatedSurveys<T extends User$estimatedSurveysArgs<ExtArgs> = {}>(args?: Subset<T, User$estimatedSurveysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SiteSurveyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     siteSurveys<T extends User$siteSurveysArgs<ExtArgs> = {}>(args?: Subset<T, User$siteSurveysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SiteSurveyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     telesales<T extends User$telesalesArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     telesalesKPIs<T extends User$telesalesKPIsArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesKPIsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -12336,6 +12349,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ScheduleScalarFieldEnum | ScheduleScalarFieldEnum[]
+  }
+
+  /**
+   * User.estimatedSurveys
+   */
+  export type User$estimatedSurveysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteSurvey
+     */
+    select?: SiteSurveySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteSurvey
+     */
+    omit?: SiteSurveyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteSurveyInclude<ExtArgs> | null
+    where?: SiteSurveyWhereInput
+    orderBy?: SiteSurveyOrderByWithRelationInput | SiteSurveyOrderByWithRelationInput[]
+    cursor?: SiteSurveyWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SiteSurveyScalarFieldEnum | SiteSurveyScalarFieldEnum[]
   }
 
   /**
@@ -111427,12 +111464,14 @@ export namespace Prisma {
     version: number | null
     latitude: number | null
     longitude: number | null
+    estimatedPrice: number | null
   }
 
   export type SiteSurveySumAggregateOutputType = {
     version: number | null
     latitude: number | null
     longitude: number | null
+    estimatedPrice: number | null
   }
 
   export type SiteSurveyMinAggregateOutputType = {
@@ -111455,6 +111494,11 @@ export namespace Prisma {
     additionalRemark: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    estimatedAt: Date | null
+    estimatedByUserId: string | null
+    estimatedPrice: number | null
+    estimationNote: string | null
+    estimationStatus: string | null
   }
 
   export type SiteSurveyMaxAggregateOutputType = {
@@ -111477,6 +111521,11 @@ export namespace Prisma {
     additionalRemark: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    estimatedAt: Date | null
+    estimatedByUserId: string | null
+    estimatedPrice: number | null
+    estimationNote: string | null
+    estimationStatus: string | null
   }
 
   export type SiteSurveyCountAggregateOutputType = {
@@ -111500,6 +111549,11 @@ export namespace Prisma {
     additionalRemark: number
     createdAt: number
     updatedAt: number
+    estimatedAt: number
+    estimatedByUserId: number
+    estimatedPrice: number
+    estimationNote: number
+    estimationStatus: number
     _all: number
   }
 
@@ -111508,12 +111562,14 @@ export namespace Prisma {
     version?: true
     latitude?: true
     longitude?: true
+    estimatedPrice?: true
   }
 
   export type SiteSurveySumAggregateInputType = {
     version?: true
     latitude?: true
     longitude?: true
+    estimatedPrice?: true
   }
 
   export type SiteSurveyMinAggregateInputType = {
@@ -111536,6 +111592,11 @@ export namespace Prisma {
     additionalRemark?: true
     createdAt?: true
     updatedAt?: true
+    estimatedAt?: true
+    estimatedByUserId?: true
+    estimatedPrice?: true
+    estimationNote?: true
+    estimationStatus?: true
   }
 
   export type SiteSurveyMaxAggregateInputType = {
@@ -111558,6 +111619,11 @@ export namespace Prisma {
     additionalRemark?: true
     createdAt?: true
     updatedAt?: true
+    estimatedAt?: true
+    estimatedByUserId?: true
+    estimatedPrice?: true
+    estimationNote?: true
+    estimationStatus?: true
   }
 
   export type SiteSurveyCountAggregateInputType = {
@@ -111581,6 +111647,11 @@ export namespace Prisma {
     additionalRemark?: true
     createdAt?: true
     updatedAt?: true
+    estimatedAt?: true
+    estimatedByUserId?: true
+    estimatedPrice?: true
+    estimationNote?: true
+    estimationStatus?: true
     _all?: true
   }
 
@@ -111691,6 +111762,11 @@ export namespace Prisma {
     additionalRemark: string | null
     createdAt: Date
     updatedAt: Date
+    estimatedAt: Date | null
+    estimatedByUserId: string | null
+    estimatedPrice: number | null
+    estimationNote: string | null
+    estimationStatus: string | null
     _count: SiteSurveyCountAggregateOutputType | null
     _avg: SiteSurveyAvgAggregateOutputType | null
     _sum: SiteSurveySumAggregateOutputType | null
@@ -111733,8 +111809,14 @@ export namespace Prisma {
     additionalRemark?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    estimatedAt?: boolean
+    estimatedByUserId?: boolean
+    estimatedPrice?: boolean
+    estimationNote?: boolean
+    estimationStatus?: boolean
     quotations?: boolean | SiteSurvey$quotationsArgs<ExtArgs>
     company?: boolean | SiteSurvey$companyArgs<ExtArgs>
+    estimatedByUser?: boolean | SiteSurvey$estimatedByUserArgs<ExtArgs>
     salesperson?: boolean | UserDefaultArgs<ExtArgs>
     electricityBill?: boolean | SiteSurvey$electricityBillArgs<ExtArgs>
     documents?: boolean | SiteSurvey$documentsArgs<ExtArgs>
@@ -111768,7 +111850,13 @@ export namespace Prisma {
     additionalRemark?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    estimatedAt?: boolean
+    estimatedByUserId?: boolean
+    estimatedPrice?: boolean
+    estimationNote?: boolean
+    estimationStatus?: boolean
     company?: boolean | SiteSurvey$companyArgs<ExtArgs>
+    estimatedByUser?: boolean | SiteSurvey$estimatedByUserArgs<ExtArgs>
     salesperson?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["siteSurvey"]>
 
@@ -111793,7 +111881,13 @@ export namespace Prisma {
     additionalRemark?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    estimatedAt?: boolean
+    estimatedByUserId?: boolean
+    estimatedPrice?: boolean
+    estimationNote?: boolean
+    estimationStatus?: boolean
     company?: boolean | SiteSurvey$companyArgs<ExtArgs>
+    estimatedByUser?: boolean | SiteSurvey$estimatedByUserArgs<ExtArgs>
     salesperson?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["siteSurvey"]>
 
@@ -111818,12 +111912,18 @@ export namespace Prisma {
     additionalRemark?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    estimatedAt?: boolean
+    estimatedByUserId?: boolean
+    estimatedPrice?: boolean
+    estimationNote?: boolean
+    estimationStatus?: boolean
   }
 
-  export type SiteSurveyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "surveyNumber" | "surveyDate" | "companyId" | "customerName" | "projectName" | "projectLocation" | "coordinatorName" | "coordinatorPhone" | "salespersonId" | "surveyorName" | "status" | "version" | "latitude" | "longitude" | "hasSingleLineDiagram" | "requiredInfoChecklist" | "additionalRemark" | "createdAt" | "updatedAt", ExtArgs["result"]["siteSurvey"]>
+  export type SiteSurveyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "surveyNumber" | "surveyDate" | "companyId" | "customerName" | "projectName" | "projectLocation" | "coordinatorName" | "coordinatorPhone" | "salespersonId" | "surveyorName" | "status" | "version" | "latitude" | "longitude" | "hasSingleLineDiagram" | "requiredInfoChecklist" | "additionalRemark" | "createdAt" | "updatedAt" | "estimatedAt" | "estimatedByUserId" | "estimatedPrice" | "estimationNote" | "estimationStatus", ExtArgs["result"]["siteSurvey"]>
   export type SiteSurveyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     quotations?: boolean | SiteSurvey$quotationsArgs<ExtArgs>
     company?: boolean | SiteSurvey$companyArgs<ExtArgs>
+    estimatedByUser?: boolean | SiteSurvey$estimatedByUserArgs<ExtArgs>
     salesperson?: boolean | UserDefaultArgs<ExtArgs>
     electricityBill?: boolean | SiteSurvey$electricityBillArgs<ExtArgs>
     documents?: boolean | SiteSurvey$documentsArgs<ExtArgs>
@@ -111837,10 +111937,12 @@ export namespace Prisma {
   }
   export type SiteSurveyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | SiteSurvey$companyArgs<ExtArgs>
+    estimatedByUser?: boolean | SiteSurvey$estimatedByUserArgs<ExtArgs>
     salesperson?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type SiteSurveyIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | SiteSurvey$companyArgs<ExtArgs>
+    estimatedByUser?: boolean | SiteSurvey$estimatedByUserArgs<ExtArgs>
     salesperson?: boolean | UserDefaultArgs<ExtArgs>
   }
 
@@ -111849,6 +111951,7 @@ export namespace Prisma {
     objects: {
       quotations: Prisma.$QuotationPayload<ExtArgs>[]
       company: Prisma.$CompanyPayload<ExtArgs> | null
+      estimatedByUser: Prisma.$UserPayload<ExtArgs> | null
       salesperson: Prisma.$UserPayload<ExtArgs>
       electricityBill: Prisma.$SurveyBillPayload<ExtArgs> | null
       documents: Prisma.$SurveyDocumentPayload<ExtArgs>[]
@@ -111880,6 +111983,11 @@ export namespace Prisma {
       additionalRemark: string | null
       createdAt: Date
       updatedAt: Date
+      estimatedAt: Date | null
+      estimatedByUserId: string | null
+      estimatedPrice: number | null
+      estimationNote: string | null
+      estimationStatus: string | null
     }, ExtArgs["result"]["siteSurvey"]>
     composites: {}
   }
@@ -112276,6 +112384,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     quotations<T extends SiteSurvey$quotationsArgs<ExtArgs> = {}>(args?: Subset<T, SiteSurvey$quotationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     company<T extends SiteSurvey$companyArgs<ExtArgs> = {}>(args?: Subset<T, SiteSurvey$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    estimatedByUser<T extends SiteSurvey$estimatedByUserArgs<ExtArgs> = {}>(args?: Subset<T, SiteSurvey$estimatedByUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     salesperson<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     electricityBill<T extends SiteSurvey$electricityBillArgs<ExtArgs> = {}>(args?: Subset<T, SiteSurvey$electricityBillArgs<ExtArgs>>): Prisma__SurveyBillClient<$Result.GetResult<Prisma.$SurveyBillPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     documents<T extends SiteSurvey$documentsArgs<ExtArgs> = {}>(args?: Subset<T, SiteSurvey$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SurveyDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -112334,6 +112443,11 @@ export namespace Prisma {
     readonly additionalRemark: FieldRef<"SiteSurvey", 'String'>
     readonly createdAt: FieldRef<"SiteSurvey", 'DateTime'>
     readonly updatedAt: FieldRef<"SiteSurvey", 'DateTime'>
+    readonly estimatedAt: FieldRef<"SiteSurvey", 'DateTime'>
+    readonly estimatedByUserId: FieldRef<"SiteSurvey", 'String'>
+    readonly estimatedPrice: FieldRef<"SiteSurvey", 'Float'>
+    readonly estimationNote: FieldRef<"SiteSurvey", 'String'>
+    readonly estimationStatus: FieldRef<"SiteSurvey", 'String'>
   }
     
 
@@ -112775,6 +112889,25 @@ export namespace Prisma {
      */
     include?: CompanyInclude<ExtArgs> | null
     where?: CompanyWhereInput
+  }
+
+  /**
+   * SiteSurvey.estimatedByUser
+   */
+  export type SiteSurvey$estimatedByUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -127243,7 +127376,12 @@ export namespace Prisma {
     requiredInfoChecklist: 'requiredInfoChecklist',
     additionalRemark: 'additionalRemark',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    estimatedAt: 'estimatedAt',
+    estimatedByUserId: 'estimatedByUserId',
+    estimatedPrice: 'estimatedPrice',
+    estimationNote: 'estimationNote',
+    estimationStatus: 'estimationStatus'
   };
 
   export type SiteSurveyScalarFieldEnum = (typeof SiteSurveyScalarFieldEnum)[keyof typeof SiteSurveyScalarFieldEnum]
@@ -127609,6 +127747,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskListRelationFilter
     quotations?: QuotationListRelationFilter
     schedules?: ScheduleListRelationFilter
+    estimatedSurveys?: SiteSurveyListRelationFilter
     siteSurveys?: SiteSurveyListRelationFilter
     telesales?: TelesaleListRelationFilter
     telesalesKPIs?: TelesalesKPIListRelationFilter
@@ -127645,6 +127784,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskOrderByRelationAggregateInput
     quotations?: QuotationOrderByRelationAggregateInput
     schedules?: ScheduleOrderByRelationAggregateInput
+    estimatedSurveys?: SiteSurveyOrderByRelationAggregateInput
     siteSurveys?: SiteSurveyOrderByRelationAggregateInput
     telesales?: TelesaleOrderByRelationAggregateInput
     telesalesKPIs?: TelesalesKPIOrderByRelationAggregateInput
@@ -127684,6 +127824,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskListRelationFilter
     quotations?: QuotationListRelationFilter
     schedules?: ScheduleListRelationFilter
+    estimatedSurveys?: SiteSurveyListRelationFilter
     siteSurveys?: SiteSurveyListRelationFilter
     telesales?: TelesaleListRelationFilter
     telesalesKPIs?: TelesalesKPIListRelationFilter
@@ -135932,8 +136073,14 @@ export namespace Prisma {
     additionalRemark?: StringNullableFilter<"SiteSurvey"> | string | null
     createdAt?: DateTimeFilter<"SiteSurvey"> | Date | string
     updatedAt?: DateTimeFilter<"SiteSurvey"> | Date | string
+    estimatedAt?: DateTimeNullableFilter<"SiteSurvey"> | Date | string | null
+    estimatedByUserId?: StringNullableFilter<"SiteSurvey"> | string | null
+    estimatedPrice?: FloatNullableFilter<"SiteSurvey"> | number | null
+    estimationNote?: StringNullableFilter<"SiteSurvey"> | string | null
+    estimationStatus?: StringNullableFilter<"SiteSurvey"> | string | null
     quotations?: QuotationListRelationFilter
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
+    estimatedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     salesperson?: XOR<UserScalarRelationFilter, UserWhereInput>
     electricityBill?: XOR<SurveyBillNullableScalarRelationFilter, SurveyBillWhereInput> | null
     documents?: SurveyDocumentListRelationFilter
@@ -135966,8 +136113,14 @@ export namespace Prisma {
     additionalRemark?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    estimatedAt?: SortOrderInput | SortOrder
+    estimatedByUserId?: SortOrderInput | SortOrder
+    estimatedPrice?: SortOrderInput | SortOrder
+    estimationNote?: SortOrderInput | SortOrder
+    estimationStatus?: SortOrderInput | SortOrder
     quotations?: QuotationOrderByRelationAggregateInput
     company?: CompanyOrderByWithRelationInput
+    estimatedByUser?: UserOrderByWithRelationInput
     salesperson?: UserOrderByWithRelationInput
     electricityBill?: SurveyBillOrderByWithRelationInput
     documents?: SurveyDocumentOrderByRelationAggregateInput
@@ -136003,8 +136156,14 @@ export namespace Prisma {
     additionalRemark?: StringNullableFilter<"SiteSurvey"> | string | null
     createdAt?: DateTimeFilter<"SiteSurvey"> | Date | string
     updatedAt?: DateTimeFilter<"SiteSurvey"> | Date | string
+    estimatedAt?: DateTimeNullableFilter<"SiteSurvey"> | Date | string | null
+    estimatedByUserId?: StringNullableFilter<"SiteSurvey"> | string | null
+    estimatedPrice?: FloatNullableFilter<"SiteSurvey"> | number | null
+    estimationNote?: StringNullableFilter<"SiteSurvey"> | string | null
+    estimationStatus?: StringNullableFilter<"SiteSurvey"> | string | null
     quotations?: QuotationListRelationFilter
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
+    estimatedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     salesperson?: XOR<UserScalarRelationFilter, UserWhereInput>
     electricityBill?: XOR<SurveyBillNullableScalarRelationFilter, SurveyBillWhereInput> | null
     documents?: SurveyDocumentListRelationFilter
@@ -136037,6 +136196,11 @@ export namespace Prisma {
     additionalRemark?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    estimatedAt?: SortOrderInput | SortOrder
+    estimatedByUserId?: SortOrderInput | SortOrder
+    estimatedPrice?: SortOrderInput | SortOrder
+    estimationNote?: SortOrderInput | SortOrder
+    estimationStatus?: SortOrderInput | SortOrder
     _count?: SiteSurveyCountOrderByAggregateInput
     _avg?: SiteSurveyAvgOrderByAggregateInput
     _max?: SiteSurveyMaxOrderByAggregateInput
@@ -136068,6 +136232,11 @@ export namespace Prisma {
     additionalRemark?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"SiteSurvey"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"SiteSurvey"> | Date | string
+    estimatedAt?: DateTimeNullableWithAggregatesFilter<"SiteSurvey"> | Date | string | null
+    estimatedByUserId?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
+    estimatedPrice?: FloatNullableWithAggregatesFilter<"SiteSurvey"> | number | null
+    estimationNote?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
+    estimationStatus?: StringNullableWithAggregatesFilter<"SiteSurvey"> | string | null
   }
 
   export type SurveyUsageBehaviorWhereInput = {
@@ -136954,6 +137123,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -136990,6 +137160,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -137026,6 +137197,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -137062,6 +137234,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -146413,8 +146586,13 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
@@ -146447,6 +146625,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -146477,8 +146660,13 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
@@ -146511,6 +146699,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -146543,6 +146736,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
   }
 
   export type SiteSurveyUpdateManyMutationInput = {
@@ -146564,6 +146762,10 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SiteSurveyUncheckedUpdateManyInput = {
@@ -146587,6 +146789,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SurveyUsageBehaviorCreateInput = {
@@ -153636,12 +153843,18 @@ export namespace Prisma {
     additionalRemark?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    estimatedAt?: SortOrder
+    estimatedByUserId?: SortOrder
+    estimatedPrice?: SortOrder
+    estimationNote?: SortOrder
+    estimationStatus?: SortOrder
   }
 
   export type SiteSurveyAvgOrderByAggregateInput = {
     version?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    estimatedPrice?: SortOrder
   }
 
   export type SiteSurveyMaxOrderByAggregateInput = {
@@ -153664,6 +153877,11 @@ export namespace Prisma {
     additionalRemark?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    estimatedAt?: SortOrder
+    estimatedByUserId?: SortOrder
+    estimatedPrice?: SortOrder
+    estimationNote?: SortOrder
+    estimationStatus?: SortOrder
   }
 
   export type SiteSurveyMinOrderByAggregateInput = {
@@ -153686,12 +153904,18 @@ export namespace Prisma {
     additionalRemark?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    estimatedAt?: SortOrder
+    estimatedByUserId?: SortOrder
+    estimatedPrice?: SortOrder
+    estimationNote?: SortOrder
+    estimationStatus?: SortOrder
   }
 
   export type SiteSurveySumOrderByAggregateInput = {
     version?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    estimatedPrice?: SortOrder
   }
 
   export type SiteSurveyScalarRelationFilter = {
@@ -154335,6 +154559,13 @@ export namespace Prisma {
     connect?: ScheduleWhereUniqueInput | ScheduleWhereUniqueInput[]
   }
 
+  export type SiteSurveyCreateNestedManyWithoutEstimatedByUserInput = {
+    create?: XOR<SiteSurveyCreateWithoutEstimatedByUserInput, SiteSurveyUncheckedCreateWithoutEstimatedByUserInput> | SiteSurveyCreateWithoutEstimatedByUserInput[] | SiteSurveyUncheckedCreateWithoutEstimatedByUserInput[]
+    connectOrCreate?: SiteSurveyCreateOrConnectWithoutEstimatedByUserInput | SiteSurveyCreateOrConnectWithoutEstimatedByUserInput[]
+    createMany?: SiteSurveyCreateManyEstimatedByUserInputEnvelope
+    connect?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
+  }
+
   export type SiteSurveyCreateNestedManyWithoutSalespersonInput = {
     create?: XOR<SiteSurveyCreateWithoutSalespersonInput, SiteSurveyUncheckedCreateWithoutSalespersonInput> | SiteSurveyCreateWithoutSalespersonInput[] | SiteSurveyUncheckedCreateWithoutSalespersonInput[]
     connectOrCreate?: SiteSurveyCreateOrConnectWithoutSalespersonInput | SiteSurveyCreateOrConnectWithoutSalespersonInput[]
@@ -154472,6 +154703,13 @@ export namespace Prisma {
     connectOrCreate?: ScheduleCreateOrConnectWithoutUserInput | ScheduleCreateOrConnectWithoutUserInput[]
     createMany?: ScheduleCreateManyUserInputEnvelope
     connect?: ScheduleWhereUniqueInput | ScheduleWhereUniqueInput[]
+  }
+
+  export type SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput = {
+    create?: XOR<SiteSurveyCreateWithoutEstimatedByUserInput, SiteSurveyUncheckedCreateWithoutEstimatedByUserInput> | SiteSurveyCreateWithoutEstimatedByUserInput[] | SiteSurveyUncheckedCreateWithoutEstimatedByUserInput[]
+    connectOrCreate?: SiteSurveyCreateOrConnectWithoutEstimatedByUserInput | SiteSurveyCreateOrConnectWithoutEstimatedByUserInput[]
+    createMany?: SiteSurveyCreateManyEstimatedByUserInputEnvelope
+    connect?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
   }
 
   export type SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput = {
@@ -154736,6 +154974,20 @@ export namespace Prisma {
     update?: ScheduleUpdateWithWhereUniqueWithoutUserInput | ScheduleUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: ScheduleUpdateManyWithWhereWithoutUserInput | ScheduleUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: ScheduleScalarWhereInput | ScheduleScalarWhereInput[]
+  }
+
+  export type SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput = {
+    create?: XOR<SiteSurveyCreateWithoutEstimatedByUserInput, SiteSurveyUncheckedCreateWithoutEstimatedByUserInput> | SiteSurveyCreateWithoutEstimatedByUserInput[] | SiteSurveyUncheckedCreateWithoutEstimatedByUserInput[]
+    connectOrCreate?: SiteSurveyCreateOrConnectWithoutEstimatedByUserInput | SiteSurveyCreateOrConnectWithoutEstimatedByUserInput[]
+    upsert?: SiteSurveyUpsertWithWhereUniqueWithoutEstimatedByUserInput | SiteSurveyUpsertWithWhereUniqueWithoutEstimatedByUserInput[]
+    createMany?: SiteSurveyCreateManyEstimatedByUserInputEnvelope
+    set?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
+    disconnect?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
+    delete?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
+    connect?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
+    update?: SiteSurveyUpdateWithWhereUniqueWithoutEstimatedByUserInput | SiteSurveyUpdateWithWhereUniqueWithoutEstimatedByUserInput[]
+    updateMany?: SiteSurveyUpdateManyWithWhereWithoutEstimatedByUserInput | SiteSurveyUpdateManyWithWhereWithoutEstimatedByUserInput[]
+    deleteMany?: SiteSurveyScalarWhereInput | SiteSurveyScalarWhereInput[]
   }
 
   export type SiteSurveyUpdateManyWithoutSalespersonNestedInput = {
@@ -155012,6 +155264,20 @@ export namespace Prisma {
     update?: ScheduleUpdateWithWhereUniqueWithoutUserInput | ScheduleUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: ScheduleUpdateManyWithWhereWithoutUserInput | ScheduleUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: ScheduleScalarWhereInput | ScheduleScalarWhereInput[]
+  }
+
+  export type SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput = {
+    create?: XOR<SiteSurveyCreateWithoutEstimatedByUserInput, SiteSurveyUncheckedCreateWithoutEstimatedByUserInput> | SiteSurveyCreateWithoutEstimatedByUserInput[] | SiteSurveyUncheckedCreateWithoutEstimatedByUserInput[]
+    connectOrCreate?: SiteSurveyCreateOrConnectWithoutEstimatedByUserInput | SiteSurveyCreateOrConnectWithoutEstimatedByUserInput[]
+    upsert?: SiteSurveyUpsertWithWhereUniqueWithoutEstimatedByUserInput | SiteSurveyUpsertWithWhereUniqueWithoutEstimatedByUserInput[]
+    createMany?: SiteSurveyCreateManyEstimatedByUserInputEnvelope
+    set?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
+    disconnect?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
+    delete?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
+    connect?: SiteSurveyWhereUniqueInput | SiteSurveyWhereUniqueInput[]
+    update?: SiteSurveyUpdateWithWhereUniqueWithoutEstimatedByUserInput | SiteSurveyUpdateWithWhereUniqueWithoutEstimatedByUserInput[]
+    updateMany?: SiteSurveyUpdateManyWithWhereWithoutEstimatedByUserInput | SiteSurveyUpdateManyWithWhereWithoutEstimatedByUserInput[]
+    deleteMany?: SiteSurveyScalarWhereInput | SiteSurveyScalarWhereInput[]
   }
 
   export type SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput = {
@@ -159966,6 +160232,12 @@ export namespace Prisma {
     connect?: CompanyWhereUniqueInput
   }
 
+  export type UserCreateNestedOneWithoutEstimatedSurveysInput = {
+    create?: XOR<UserCreateWithoutEstimatedSurveysInput, UserUncheckedCreateWithoutEstimatedSurveysInput>
+    connectOrCreate?: UserCreateOrConnectWithoutEstimatedSurveysInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type UserCreateNestedOneWithoutSiteSurveysInput = {
     create?: XOR<UserCreateWithoutSiteSurveysInput, UserUncheckedCreateWithoutSiteSurveysInput>
     connectOrCreate?: UserCreateOrConnectWithoutSiteSurveysInput
@@ -160106,6 +160378,16 @@ export namespace Prisma {
     delete?: CompanyWhereInput | boolean
     connect?: CompanyWhereUniqueInput
     update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutSiteSurveysInput, CompanyUpdateWithoutSiteSurveysInput>, CompanyUncheckedUpdateWithoutSiteSurveysInput>
+  }
+
+  export type UserUpdateOneWithoutEstimatedSurveysNestedInput = {
+    create?: XOR<UserCreateWithoutEstimatedSurveysInput, UserUncheckedCreateWithoutEstimatedSurveysInput>
+    connectOrCreate?: UserCreateOrConnectWithoutEstimatedSurveysInput
+    upsert?: UserUpsertWithoutEstimatedSurveysInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutEstimatedSurveysInput, UserUpdateWithoutEstimatedSurveysInput>, UserUncheckedUpdateWithoutEstimatedSurveysInput>
   }
 
   export type UserUpdateOneRequiredWithoutSiteSurveysNestedInput = {
@@ -161805,6 +162087,88 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type SiteSurveyCreateWithoutEstimatedByUserInput = {
+    id?: string
+    surveyNumber: string
+    surveyDate: Date | string
+    customerName?: string | null
+    projectName?: string | null
+    projectLocation?: string | null
+    coordinatorName?: string | null
+    coordinatorPhone?: string | null
+    surveyorName?: string | null
+    status?: string
+    version?: number
+    latitude?: number | null
+    longitude?: number | null
+    hasSingleLineDiagram?: boolean
+    requiredInfoChecklist?: SiteSurveyCreaterequiredInfoChecklistInput | string[]
+    additionalRemark?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
+    quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
+    company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    salesperson: UserCreateNestedOneWithoutSiteSurveysInput
+    electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
+    documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
+    electricalProfile?: SurveyElectricalProfileCreateNestedOneWithoutSurveyInput
+    photos?: SurveyPhotoCreateNestedManyWithoutSurveyInput
+    qa?: SurveyQACreateNestedOneWithoutSurveyInput
+    structure?: SurveyStructureCreateNestedOneWithoutSurveyInput
+    tariffSelection?: SurveyTariffSelectionCreateNestedOneWithoutSurveyInput
+    usageBehavior?: SurveyUsageBehaviorCreateNestedOneWithoutSurveyInput
+  }
+
+  export type SiteSurveyUncheckedCreateWithoutEstimatedByUserInput = {
+    id?: string
+    surveyNumber: string
+    surveyDate: Date | string
+    companyId?: string | null
+    customerName?: string | null
+    projectName?: string | null
+    projectLocation?: string | null
+    coordinatorName?: string | null
+    coordinatorPhone?: string | null
+    salespersonId: string
+    surveyorName?: string | null
+    status?: string
+    version?: number
+    latitude?: number | null
+    longitude?: number | null
+    hasSingleLineDiagram?: boolean
+    requiredInfoChecklist?: SiteSurveyCreaterequiredInfoChecklistInput | string[]
+    additionalRemark?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
+    electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
+    documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
+    electricalProfile?: SurveyElectricalProfileUncheckedCreateNestedOneWithoutSurveyInput
+    photos?: SurveyPhotoUncheckedCreateNestedManyWithoutSurveyInput
+    qa?: SurveyQAUncheckedCreateNestedOneWithoutSurveyInput
+    structure?: SurveyStructureUncheckedCreateNestedOneWithoutSurveyInput
+    tariffSelection?: SurveyTariffSelectionUncheckedCreateNestedOneWithoutSurveyInput
+    usageBehavior?: SurveyUsageBehaviorUncheckedCreateNestedOneWithoutSurveyInput
+  }
+
+  export type SiteSurveyCreateOrConnectWithoutEstimatedByUserInput = {
+    where: SiteSurveyWhereUniqueInput
+    create: XOR<SiteSurveyCreateWithoutEstimatedByUserInput, SiteSurveyUncheckedCreateWithoutEstimatedByUserInput>
+  }
+
+  export type SiteSurveyCreateManyEstimatedByUserInputEnvelope = {
+    data: SiteSurveyCreateManyEstimatedByUserInput | SiteSurveyCreateManyEstimatedByUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SiteSurveyCreateWithoutSalespersonInput = {
     id?: string
     surveyNumber: string
@@ -161824,8 +162188,13 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
     electricalProfile?: SurveyElectricalProfileCreateNestedOneWithoutSurveyInput
@@ -161856,6 +162225,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -162616,20 +162990,20 @@ export namespace Prisma {
     telesaleId?: StringNullableFilter<"Schedule"> | string | null
   }
 
-  export type SiteSurveyUpsertWithWhereUniqueWithoutSalespersonInput = {
+  export type SiteSurveyUpsertWithWhereUniqueWithoutEstimatedByUserInput = {
     where: SiteSurveyWhereUniqueInput
-    update: XOR<SiteSurveyUpdateWithoutSalespersonInput, SiteSurveyUncheckedUpdateWithoutSalespersonInput>
-    create: XOR<SiteSurveyCreateWithoutSalespersonInput, SiteSurveyUncheckedCreateWithoutSalespersonInput>
+    update: XOR<SiteSurveyUpdateWithoutEstimatedByUserInput, SiteSurveyUncheckedUpdateWithoutEstimatedByUserInput>
+    create: XOR<SiteSurveyCreateWithoutEstimatedByUserInput, SiteSurveyUncheckedCreateWithoutEstimatedByUserInput>
   }
 
-  export type SiteSurveyUpdateWithWhereUniqueWithoutSalespersonInput = {
+  export type SiteSurveyUpdateWithWhereUniqueWithoutEstimatedByUserInput = {
     where: SiteSurveyWhereUniqueInput
-    data: XOR<SiteSurveyUpdateWithoutSalespersonInput, SiteSurveyUncheckedUpdateWithoutSalespersonInput>
+    data: XOR<SiteSurveyUpdateWithoutEstimatedByUserInput, SiteSurveyUncheckedUpdateWithoutEstimatedByUserInput>
   }
 
-  export type SiteSurveyUpdateManyWithWhereWithoutSalespersonInput = {
+  export type SiteSurveyUpdateManyWithWhereWithoutEstimatedByUserInput = {
     where: SiteSurveyScalarWhereInput
-    data: XOR<SiteSurveyUpdateManyMutationInput, SiteSurveyUncheckedUpdateManyWithoutSalespersonInput>
+    data: XOR<SiteSurveyUpdateManyMutationInput, SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserInput>
   }
 
   export type SiteSurveyScalarWhereInput = {
@@ -162656,6 +163030,27 @@ export namespace Prisma {
     additionalRemark?: StringNullableFilter<"SiteSurvey"> | string | null
     createdAt?: DateTimeFilter<"SiteSurvey"> | Date | string
     updatedAt?: DateTimeFilter<"SiteSurvey"> | Date | string
+    estimatedAt?: DateTimeNullableFilter<"SiteSurvey"> | Date | string | null
+    estimatedByUserId?: StringNullableFilter<"SiteSurvey"> | string | null
+    estimatedPrice?: FloatNullableFilter<"SiteSurvey"> | number | null
+    estimationNote?: StringNullableFilter<"SiteSurvey"> | string | null
+    estimationStatus?: StringNullableFilter<"SiteSurvey"> | string | null
+  }
+
+  export type SiteSurveyUpsertWithWhereUniqueWithoutSalespersonInput = {
+    where: SiteSurveyWhereUniqueInput
+    update: XOR<SiteSurveyUpdateWithoutSalespersonInput, SiteSurveyUncheckedUpdateWithoutSalespersonInput>
+    create: XOR<SiteSurveyCreateWithoutSalespersonInput, SiteSurveyUncheckedCreateWithoutSalespersonInput>
+  }
+
+  export type SiteSurveyUpdateWithWhereUniqueWithoutSalespersonInput = {
+    where: SiteSurveyWhereUniqueInput
+    data: XOR<SiteSurveyUpdateWithoutSalespersonInput, SiteSurveyUncheckedUpdateWithoutSalespersonInput>
+  }
+
+  export type SiteSurveyUpdateManyWithWhereWithoutSalespersonInput = {
+    where: SiteSurveyScalarWhereInput
+    data: XOR<SiteSurveyUpdateManyMutationInput, SiteSurveyUncheckedUpdateManyWithoutSalespersonInput>
   }
 
   export type TelesaleUpsertWithWhereUniqueWithoutUserInput = {
@@ -162828,6 +163223,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -162863,6 +163259,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -162914,6 +163311,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -162949,6 +163347,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -163110,6 +163509,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -163145,6 +163545,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -163334,6 +163735,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -163369,6 +163771,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -163405,6 +163808,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -163440,6 +163844,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -163491,6 +163896,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -163526,6 +163932,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -163560,6 +163967,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -163595,6 +164003,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -163832,7 +164241,12 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
@@ -163864,6 +164278,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -163978,6 +164397,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -164013,6 +164433,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -164604,6 +165025,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -164639,6 +165061,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -164670,7 +165093,12 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
@@ -164703,6 +165131,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
     electricalProfile?: SurveyElectricalProfileUncheckedCreateNestedOneWithoutSurveyInput
@@ -165026,6 +165459,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -165061,6 +165495,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -165098,7 +165533,12 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
@@ -165131,6 +165571,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
     electricalProfile?: SurveyElectricalProfileUncheckedUpdateOneWithoutSurveyNestedInput
@@ -165341,6 +165786,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
@@ -165376,6 +165822,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
@@ -165557,6 +166004,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
@@ -165592,6 +166040,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
@@ -165627,6 +166076,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
@@ -165662,6 +166112,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
@@ -165713,6 +166164,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
@@ -165748,6 +166200,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
@@ -165942,6 +166395,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -165977,6 +166431,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -166226,6 +166681,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -166261,6 +166717,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -167632,6 +168089,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -167667,6 +168125,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -167805,6 +168264,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -167840,6 +168300,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -168414,6 +168875,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -168449,6 +168911,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -168593,6 +169056,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -168628,6 +169092,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -168843,6 +169308,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -168878,6 +169344,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -168918,6 +169385,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -168953,6 +169421,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -169004,6 +169473,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -169039,6 +169509,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -169085,6 +169556,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -169120,6 +169592,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -180799,6 +181272,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -180834,6 +181308,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -181152,6 +181627,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -181187,6 +181663,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -181645,6 +182122,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -181680,6 +182158,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -181850,6 +182329,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -181885,6 +182365,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -181920,6 +182401,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -181955,6 +182437,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -182222,6 +182705,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -182257,6 +182741,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -182755,6 +183240,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -182790,6 +183276,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -182989,6 +183476,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -183024,6 +183512,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -187722,6 +188211,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -187757,6 +188247,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -187797,6 +188288,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -187832,6 +188324,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -187966,6 +188459,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -188001,6 +188495,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -188047,6 +188542,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -188082,6 +188578,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -188206,6 +188703,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -188241,6 +188739,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -188292,6 +188791,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -188327,6 +188827,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -188499,6 +189000,83 @@ export namespace Prisma {
     create: XOR<CompanyCreateWithoutSiteSurveysInput, CompanyUncheckedCreateWithoutSiteSurveysInput>
   }
 
+  export type UserCreateWithoutEstimatedSurveysInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserUncheckedCreateWithoutEstimatedSurveysInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserCreateOrConnectWithoutEstimatedSurveysInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutEstimatedSurveysInput, UserUncheckedCreateWithoutEstimatedSurveysInput>
+  }
+
   export type UserCreateWithoutSiteSurveysInput = {
     id?: string
     employeeId: string
@@ -188528,6 +189106,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
@@ -188563,6 +189142,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
@@ -188929,6 +189509,89 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
+  export type UserUpsertWithoutEstimatedSurveysInput = {
+    update: XOR<UserUpdateWithoutEstimatedSurveysInput, UserUncheckedUpdateWithoutEstimatedSurveysInput>
+    create: XOR<UserCreateWithoutEstimatedSurveysInput, UserUncheckedCreateWithoutEstimatedSurveysInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutEstimatedSurveysInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutEstimatedSurveysInput, UserUncheckedUpdateWithoutEstimatedSurveysInput>
+  }
+
+  export type UserUpdateWithoutEstimatedSurveysInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutEstimatedSurveysInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+  }
+
   export type UserUpsertWithoutSiteSurveysInput = {
     update: XOR<UserUpdateWithoutSiteSurveysInput, UserUncheckedUpdateWithoutSiteSurveysInput>
     create: XOR<UserCreateWithoutSiteSurveysInput, UserUncheckedCreateWithoutSiteSurveysInput>
@@ -188969,6 +189632,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
@@ -189004,6 +189668,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
@@ -189326,8 +189991,13 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
@@ -189359,6 +190029,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -189404,8 +190079,13 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
@@ -189437,6 +190117,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -189466,8 +190151,13 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
@@ -189499,6 +190189,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -189544,8 +190239,13 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
@@ -189577,6 +190277,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -189606,8 +190311,13 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
@@ -189639,6 +190349,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -189708,8 +190423,13 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
@@ -189741,6 +190461,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -189859,8 +190584,13 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
@@ -189892,6 +190622,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -189963,8 +190698,13 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
@@ -189996,6 +190736,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -190133,8 +190878,13 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
@@ -190166,6 +190916,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -190211,8 +190966,13 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
@@ -190244,6 +191004,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -190273,8 +191038,13 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
@@ -190306,6 +191076,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
@@ -190351,8 +191126,13 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
@@ -190384,6 +191164,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -190413,8 +191198,13 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     electricityBill?: SurveyBillCreateNestedOneWithoutSurveyInput
     electricalProfile?: SurveyElectricalProfileCreateNestedOneWithoutSurveyInput
@@ -190446,6 +191236,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     electricityBill?: SurveyBillUncheckedCreateNestedOneWithoutSurveyInput
     electricalProfile?: SurveyElectricalProfileUncheckedCreateNestedOneWithoutSurveyInput
@@ -190491,8 +191286,13 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     electricalProfile?: SurveyElectricalProfileUpdateOneWithoutSurveyNestedInput
@@ -190524,6 +191324,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     electricalProfile?: SurveyElectricalProfileUncheckedUpdateOneWithoutSurveyNestedInput
@@ -190553,8 +191358,13 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationCreateNestedManyWithoutSiteSurveyInput
     company?: CompanyCreateNestedOneWithoutSiteSurveysInput
+    estimatedByUser?: UserCreateNestedOneWithoutEstimatedSurveysInput
     salesperson: UserCreateNestedOneWithoutSiteSurveysInput
     documents?: SurveyDocumentCreateNestedManyWithoutSurveyInput
     electricalProfile?: SurveyElectricalProfileCreateNestedOneWithoutSurveyInput
@@ -190586,6 +191396,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
     quotations?: QuotationUncheckedCreateNestedManyWithoutSiteSurveyInput
     documents?: SurveyDocumentUncheckedCreateNestedManyWithoutSurveyInput
     electricalProfile?: SurveyElectricalProfileUncheckedCreateNestedOneWithoutSurveyInput
@@ -190631,8 +191446,13 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
     electricalProfile?: SurveyElectricalProfileUpdateOneWithoutSurveyNestedInput
@@ -190664,6 +191484,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
     electricalProfile?: SurveyElectricalProfileUncheckedUpdateOneWithoutSurveyNestedInput
@@ -191066,6 +191891,33 @@ export namespace Prisma {
     telesaleId?: string | null
   }
 
+  export type SiteSurveyCreateManyEstimatedByUserInput = {
+    id?: string
+    surveyNumber: string
+    surveyDate: Date | string
+    companyId?: string | null
+    customerName?: string | null
+    projectName?: string | null
+    projectLocation?: string | null
+    coordinatorName?: string | null
+    coordinatorPhone?: string | null
+    salespersonId: string
+    surveyorName?: string | null
+    status?: string
+    version?: number
+    latitude?: number | null
+    longitude?: number | null
+    hasSingleLineDiagram?: boolean
+    requiredInfoChecklist?: SiteSurveyCreaterequiredInfoChecklistInput | string[]
+    additionalRemark?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
+  }
+
   export type SiteSurveyCreateManySalespersonInput = {
     id?: string
     surveyNumber: string
@@ -191086,6 +191938,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
   }
 
   export type TelesaleCreateManyUserInput = {
@@ -192165,6 +193022,105 @@ export namespace Prisma {
     telesaleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type SiteSurveyUpdateWithoutEstimatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyNumber?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    projectName?: NullableStringFieldUpdateOperationsInput | string | null
+    projectLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    coordinatorName?: NullableStringFieldUpdateOperationsInput | string | null
+    coordinatorPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    surveyorName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    hasSingleLineDiagram?: BoolFieldUpdateOperationsInput | boolean
+    requiredInfoChecklist?: SiteSurveyUpdaterequiredInfoChecklistInput | string[]
+    additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
+    company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
+    electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
+    documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
+    electricalProfile?: SurveyElectricalProfileUpdateOneWithoutSurveyNestedInput
+    photos?: SurveyPhotoUpdateManyWithoutSurveyNestedInput
+    qa?: SurveyQAUpdateOneWithoutSurveyNestedInput
+    structure?: SurveyStructureUpdateOneWithoutSurveyNestedInput
+    tariffSelection?: SurveyTariffSelectionUpdateOneWithoutSurveyNestedInput
+    usageBehavior?: SurveyUsageBehaviorUpdateOneWithoutSurveyNestedInput
+  }
+
+  export type SiteSurveyUncheckedUpdateWithoutEstimatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyNumber?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    projectName?: NullableStringFieldUpdateOperationsInput | string | null
+    projectLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    coordinatorName?: NullableStringFieldUpdateOperationsInput | string | null
+    coordinatorPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: StringFieldUpdateOperationsInput | string
+    surveyorName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    hasSingleLineDiagram?: BoolFieldUpdateOperationsInput | boolean
+    requiredInfoChecklist?: SiteSurveyUpdaterequiredInfoChecklistInput | string[]
+    additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
+    electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
+    documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
+    electricalProfile?: SurveyElectricalProfileUncheckedUpdateOneWithoutSurveyNestedInput
+    photos?: SurveyPhotoUncheckedUpdateManyWithoutSurveyNestedInput
+    qa?: SurveyQAUncheckedUpdateOneWithoutSurveyNestedInput
+    structure?: SurveyStructureUncheckedUpdateOneWithoutSurveyNestedInput
+    tariffSelection?: SurveyTariffSelectionUncheckedUpdateOneWithoutSurveyNestedInput
+    usageBehavior?: SurveyUsageBehaviorUncheckedUpdateOneWithoutSurveyNestedInput
+  }
+
+  export type SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyNumber?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    projectName?: NullableStringFieldUpdateOperationsInput | string | null
+    projectLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    coordinatorName?: NullableStringFieldUpdateOperationsInput | string | null
+    coordinatorPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: StringFieldUpdateOperationsInput | string
+    surveyorName?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    hasSingleLineDiagram?: BoolFieldUpdateOperationsInput | boolean
+    requiredInfoChecklist?: SiteSurveyUpdaterequiredInfoChecklistInput | string[]
+    additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type SiteSurveyUpdateWithoutSalespersonInput = {
     id?: StringFieldUpdateOperationsInput | string
     surveyNumber?: StringFieldUpdateOperationsInput | string
@@ -192184,8 +193140,13 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
     company?: CompanyUpdateOneWithoutSiteSurveysNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
     electricalProfile?: SurveyElectricalProfileUpdateOneWithoutSurveyNestedInput
@@ -192216,6 +193177,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -192247,6 +193213,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TelesaleUpdateWithoutUserInput = {
@@ -192478,6 +193449,11 @@ export namespace Prisma {
     additionalRemark?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    estimatedAt?: Date | string | null
+    estimatedByUserId?: string | null
+    estimatedPrice?: number | null
+    estimationNote?: string | null
+    estimationStatus?: string | null
   }
 
   export type TelesaleCreateManyCompanyInput = {
@@ -192764,7 +193740,12 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUpdateManyWithoutSiteSurveyNestedInput
+    estimatedByUser?: UserUpdateOneWithoutEstimatedSurveysNestedInput
     salesperson?: UserUpdateOneRequiredWithoutSiteSurveysNestedInput
     electricityBill?: SurveyBillUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUpdateManyWithoutSurveyNestedInput
@@ -192796,6 +193777,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     quotations?: QuotationUncheckedUpdateManyWithoutSiteSurveyNestedInput
     electricityBill?: SurveyBillUncheckedUpdateOneWithoutSurveyNestedInput
     documents?: SurveyDocumentUncheckedUpdateManyWithoutSurveyNestedInput
@@ -192827,6 +193813,11 @@ export namespace Prisma {
     additionalRemark?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    estimatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    estimatedPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    estimationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    estimationStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TelesaleUpdateWithoutCompanyInput = {

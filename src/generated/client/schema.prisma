@@ -36,6 +36,7 @@ model User {
   assignedTasks          ProjectTask[]
   quotations             Quotation[]
   schedules              Schedule[]
+  estimatedSurveys       SiteSurvey[]          @relation("SurveyEstimator")
   siteSurveys            SiteSurvey[]
   telesales              Telesale[]
   telesalesKPIs          TelesalesKPI[]
@@ -1742,8 +1743,14 @@ model SiteSurvey {
   additionalRemark      String?
   createdAt             DateTime                 @default(now()) @db.Timestamptz(6)
   updatedAt             DateTime                 @updatedAt @db.Timestamptz(6)
+  estimatedAt           DateTime?
+  estimatedByUserId     String?
+  estimatedPrice        Float?
+  estimationNote        String?
+  estimationStatus      String?
   quotations            Quotation[]
   company               Company?                 @relation(fields: [companyId], references: [id])
+  estimatedByUser       User?                    @relation("SurveyEstimator", fields: [estimatedByUserId], references: [id])
   salesperson           User                     @relation(fields: [salespersonId], references: [id])
   electricityBill       SurveyBill?
   documents             SurveyDocument[]

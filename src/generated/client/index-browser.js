@@ -1464,7 +1464,12 @@ exports.Prisma.SiteSurveyScalarFieldEnum = {
   requiredInfoChecklist: 'requiredInfoChecklist',
   additionalRemark: 'additionalRemark',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  estimatedAt: 'estimatedAt',
+  estimatedByUserId: 'estimatedByUserId',
+  estimatedPrice: 'estimatedPrice',
+  estimationNote: 'estimationNote',
+  estimationStatus: 'estimationStatus'
 };
 
 exports.Prisma.SurveyUsageBehaviorScalarFieldEnum = {

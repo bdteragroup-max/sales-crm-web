@@ -23,6 +23,7 @@ const TABS = [
   { id: 'structure', label: '5. โครงสร้างหลังคา', icon: Home },
   { id: 'qa', label: '6. คำถามเพิ่มเติม', icon: Info },
   { id: 'media', label: '7. รูปถ่ายและเอกสาร', icon: ImageIcon },
+  { id: 'estimate', label: '8. ประเมินราคา', icon: DollarSign },
 ];
 
 const TARIFF_OPTIONS = [
@@ -390,7 +391,7 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
       
       {isProjectRole && (
         <div className="bg-blue-50 text-blue-700 p-3 text-center text-sm font-medium border-b border-blue-100">
-          โหมดดูข้อมูล (Read-Only) - สำหรับผู้ใช้งานในแผนก Project
+          โหมดดูข้อมูล (Read-Only) สำหรับข้อมูลสำรวจ - สามารถประเมินราคาได้ที่แท็บ "8. ประเมินราคา"
         </div>
       )}
 
@@ -1893,6 +1894,79 @@ export default function SiteSurveyForm({ surveyId, companies, salesReps, current
                 </div>
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {/* TAB 8: Estimate */}
+        {activeTab === 'estimate' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-[#ff2301]" />
+                8. ประเมินราคา (Cost Estimate)
+              </h3>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ราคาประเมินเบื้องต้น (บาท)
+                </label>
+                <input
+                  type="number"
+                  value={formData.estimatedPrice || ''}
+                  onChange={(e) => updateField('estimatedPrice', parseFloat(e.target.value) || null)}
+                  disabled={!isProjectRole}
+                  placeholder="0.00"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] outline-none transition-all disabled:opacity-50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  หมายเหตุ / รายละเอียดการประเมิน
+                </label>
+                <textarea
+                  value={formData.estimationNote || ''}
+                  onChange={(e) => updateField('estimationNote', e.target.value)}
+                  disabled={!isProjectRole}
+                  rows={4}
+                  placeholder="ระบุรายละเอียดเพิ่มเติม..."
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-[#ff2301]/20 focus:border-[#ff2301] outline-none transition-all disabled:opacity-50"
+                />
+              </div>
+
+              {isProjectRole && (
+                <div className="flex justify-end pt-4 border-t border-gray-100 mt-6 gap-3">
+                  <button
+                    onClick={() => {
+                      updateField('estimatedByUserId', currentUser?.id);
+                      updateField('estimatedAt', new Date().toISOString());
+                      handleSave(true);
+                    }}
+                    disabled={saving}
+                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg shadow font-medium transition-colors"
+                  >
+                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                    บันทึกฉบับร่าง
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateField('estimationStatus', 'Estimated');
+                      updateField('status', 'Estimated');
+                      updateField('estimatedByUserId', currentUser?.id);
+                      updateField('estimatedAt', new Date().toISOString());
+                      handleSave(true);
+                    }}
+                    disabled={saving}
+                    className="flex items-center gap-2 bg-[#ff2301] hover:bg-red-700 text-white px-6 py-2.5 rounded-lg shadow font-medium transition-colors"
+                  >
+                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                    บันทึกและส่งข้อมูลให้ Sales
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

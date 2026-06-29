@@ -3,6 +3,40 @@
 import prisma from '@/app/lib/db'
 import { revalidatePath } from 'next/cache'
 
+export async function searchCompaniesForMerge(query: string, excludeId?: string | null) {
+  if (!query || query.trim() === '') {
+    return [];
+  }
+  
+  const searchStr = query.trim();
+  
+  try {
+    const companies = await prisma.company.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              { companyName: { contains: searchStr, mode: 'insensitive' } },
+              { taxId: { contains: searchStr } }
+            ]
+          },
+          excludeId ? { id: { not: excludeId } } : {}
+        ]
+      },
+      select: {
+        id: true,
+        companyName: true,
+        taxId: true
+      },
+      take: 20
+    });
+    return companies;
+  } catch (error) {
+    console.error('Error searching companies for merge:', error);
+    return [];
+  }
+}
+
 export async function mergeCompanies(sourceCompanyId: string, targetCompanyId: string) {
   try {
     if (!sourceCompanyId || !targetCompanyId) {

@@ -127,13 +127,19 @@ export const siteSurveySchema = z.object({
   hasSingleLineDiagram: z.boolean().optional(),
   requiredInfoChecklist: z.array(z.string()).optional(),
   additionalRemark: z.string().optional().nullable(),
-  
+
+  estimatedPrice: z.number().optional().nullable(),
+  estimationNote: z.string().optional().nullable(),
+  estimatedByUserId: z.string().optional().nullable(),
+  estimatedAt: z.string().optional().nullable(),
+  estimationStatus: z.string().optional().nullable(),
+
   usageBehavior: surveyUsageBehaviorSchema.optional().nullable(),
   electricalProfile: surveyElectricalProfileSchema.optional().nullable(),
   tariffSelection: surveyTariffSelectionSchema.optional().nullable(),
   structure: surveyStructureSchema.optional().nullable(),
   qa: surveyQASchema.optional().nullable(),
-  
+
   photos: z.array(surveyPhotoSchema).optional(),
   documents: z.array(surveyDocumentSchema).optional(),
   electricityBill: z.union([z.string(), surveyBillSchema]).optional().nullable(),

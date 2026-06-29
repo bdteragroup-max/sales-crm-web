@@ -37,6 +37,12 @@ export async function POST(req: Request) {
       requiredInfoChecklist,
       additionalRemark,
       
+      estimatedPrice,
+      estimationNote,
+      estimatedByUserId,
+      estimatedAt,
+      estimationStatus,
+      
       usageBehavior,
       electricalProfile,
       tariffSelection,
@@ -101,6 +107,11 @@ export async function POST(req: Request) {
             hasSingleLineDiagram,
             requiredInfoChecklist,
             additionalRemark,
+            estimatedPrice,
+            estimationNote,
+            estimatedByUserId,
+            estimatedAt: estimatedAt ? new Date(estimatedAt) : null,
+            estimationStatus,
           }
         });
 
@@ -233,6 +244,11 @@ export async function POST(req: Request) {
             hasSingleLineDiagram,
             requiredInfoChecklist,
             additionalRemark,
+            estimatedPrice,
+            estimationNote,
+            estimatedByUserId,
+            estimatedAt: estimatedAt ? new Date(estimatedAt) : null,
+            estimationStatus,
           }
         });
 
