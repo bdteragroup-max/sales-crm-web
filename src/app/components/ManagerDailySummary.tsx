@@ -34,15 +34,36 @@ export default function ManagerDailySummary({
     return acc;
   }, {} as Record<string, number>);
 
+  // Product colors for Head Office breakdown
+  const PRODUCT_COLORS = [
+    '#3B82F6', '#8B5CF6', '#F59E0B', '#10B981', '#EC4899', '#6366F1', '#14B8A6', '#F43F5E', '#8B5CF6'
+  ];
+
   // Enhanced Branch Performance (Sales vs Expenses)
+  const productTypes = new Set<string>();
   const enrichedBranchPerformance = branchPerformance.map(bp => {
     const expenses = expensesByBranch[bp.branch] || 0;
-    return {
+    const item: any = {
       ...bp,
       expenses,
       profit: bp.closedAmount - expenses
     };
+
+    if (bp.branch === 'Head Office') {
+      item.regularSales = 0;
+      if (bp.products) {
+        Object.entries(bp.products).forEach(([pType, val]) => {
+          item[pType] = val;
+          productTypes.add(pType);
+        });
+      }
+    } else {
+      item.regularSales = bp.closedAmount;
+    }
+    return item;
   });
+
+  const productArray = Array.from(productTypes);
 
   // Aggregate expenses by salesperson
   const expensesByIndividual = branchExpenses.reduce((acc, expense) => {
@@ -183,13 +204,20 @@ export default function ManagerDailySummary({
                 cursor={{ fill: 'transparent' }}
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
+                    const data = payload[0].payload;
                     return (
                       <div className="bg-white p-3 rounded-xl shadow-lg border border-gray-100">
-                        <p className="font-black text-sm text-gray-800 mb-2">{payload[0].payload.branch}</p>
-                        <p className="text-xs font-bold text-green-600">Sales: ฿{payload[0].value?.toLocaleString()}</p>
-                        <p className="text-xs font-bold text-red-500">Expenses: ฿{payload[1].value?.toLocaleString()}</p>
+                        <p className="font-black text-sm text-gray-800 mb-2">{data.branch}</p>
+                        <p className="text-xs font-bold text-green-600">Sales: ฿{data.closedAmount?.toLocaleString()}</p>
+                        {data.branch === 'Head Office' && productArray.map(p => {
+                          if (data[p]) {
+                            return <p key={p} className="text-[10px] font-bold text-gray-500 ml-2">- {p}: ฿{data[p]?.toLocaleString()}</p>
+                          }
+                          return null;
+                        })}
+                        <p className="text-xs font-bold text-red-500 mt-1">Expenses: ฿{data.expenses?.toLocaleString()}</p>
                         <p className="text-xs font-black text-gray-900 mt-1 pt-1 border-t border-gray-100">
-                          Profit: ฿{(Number(payload[0].value) - Number(payload[1].value)).toLocaleString()}
+                          Profit: ฿{(data.closedAmount - data.expenses).toLocaleString()}
                         </p>
                       </div>
                     );
@@ -198,7 +226,10 @@ export default function ManagerDailySummary({
                 }}
               />
               <Legend wrapperStyle={{ fontSize: '12px', fontWeight: 'bold', paddingTop: '20px' }} />
-              <Bar dataKey="closedAmount" name="ยอดขาย" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={60} />
+              <Bar dataKey="regularSales" name="ยอดขาย (สาขาอื่น)" stackId="sales" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={60} />
+              {productArray.map((pType, idx) => (
+                <Bar key={pType} dataKey={pType} name={pType} stackId="sales" fill={PRODUCT_COLORS[idx % PRODUCT_COLORS.length]} maxBarSize={60} />
+              ))}
               <Bar dataKey="expenses" name="ค่าใช้จ่าย" fill="#EF4444" radius={[4, 4, 0, 0]} maxBarSize={60} />
             </BarChart>
           </ResponsiveContainer>

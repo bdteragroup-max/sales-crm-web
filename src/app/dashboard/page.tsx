@@ -1671,7 +1671,17 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
               const branchClosedQuotes = (analyticalData as any[]).filter((q: any) =>
               branchUserIds.includes(q.salespersonId) && q.status === 'เปิดบิลแล้ว'
               );
-              const closedAmount = branchClosedQuotes.reduce((sum: number, q: any) => sum + (q.actualClosingAmount || q.totalAmountBeforeVat || 0), 0);
+              let closedAmount = 0;
+              const productSales: Record<string, number> = {};
+
+              branchClosedQuotes.forEach((q: any) => {
+                const amt = q.actualClosingAmount || q.totalAmountBeforeVat || 0;
+                closedAmount += amt;
+                if (branch === 'Head Office') {
+                  const pType = q.productType || 'อื่นๆ';
+                  productSales[pType] = (productSales[pType] || 0) + amt;
+                }
+              });
 
               const branchPendingQuotes = (allActiveQuotations as any[]).filter((q: any) => {
                 const isBranchMatch = branchUserIds.includes(q.salespersonId);
@@ -1687,7 +1697,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
                 branch,
                 target,
                 closedAmount,
-                pendingPoAmount
+                pendingPoAmount,
+                products: branch === 'Head Office' ? productSales : undefined
               };
             }).sort((a: any, b: any) => b.closedAmount - a.closedAmount);
           })()}
