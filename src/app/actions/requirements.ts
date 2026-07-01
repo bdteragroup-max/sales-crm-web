@@ -62,31 +62,60 @@ export async function saveCustomerRequirementHistory(data: any) {
     const yyyy = now.getFullYear().toString();
     const dateStr = `${dd}${mm}${yyyy}`;
     
-    const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(now.setHours(23, 59, 59, 999));
-    
-    const count = await prisma.customerRequirement.count({
+    // Fetch all today's requirements to find the true highest counter (safest against string sort issues with >99)
+    const todayReqs = await prisma.customerRequirement.findMany({
       where: {
-        createdAt: {
-          gte: startOfDay,
-          lte: endOfDay,
+        requirementNumber: {
+          startsWith: `REQ-${dateStr}-`
+        }
+      },
+      select: { requirementNumber: true }
+    });
+
+    let nextCounter = 1;
+    if (todayReqs.length > 0) {
+      const counters = todayReqs.map(r => {
+        if (!r.requirementNumber) return 0;
+        const parts = r.requirementNumber.split('-');
+        return parts.length >= 3 ? parseInt(parts[2], 10) : 0;
+      }).filter(n => !isNaN(n));
+      
+      if (counters.length > 0) {
+        nextCounter = Math.max(...counters) + 1;
+      }
+    }
+
+    let record = null;
+    let retries = 5;
+
+    while (retries > 0 && !record) {
+      const reqNumber = `REQ-${dateStr}-${nextCounter.toString().padStart(2, '0')}`;
+      try {
+        record = await prisma.customerRequirement.create({
+          data: {
+            requirementNumber: reqNumber,
+            companyName: companyName,
+            contactName: contactName,
+            salesperson: data["พนักงานขายที่ดูแล"] || user.fullName,
+            date: new Date(data["วัน/เดือน/ปี"] || Date.now()),
+            formData: data,
+            userId: user.id
+          }
+        });
+      } catch (error: any) {
+        if (error.code === 'P2002') {
+          // Unique constraint failed, increment and retry
+          nextCounter++;
+          retries--;
+        } else {
+          throw error;
         }
       }
-    });
-    
-    const reqNumber = `REQ-${dateStr}-${(count + 1).toString().padStart(2, '0')}`;
+    }
 
-    const record = await prisma.customerRequirement.create({
-      data: {
-        requirementNumber: reqNumber,
-        companyName: companyName,
-        contactName: contactName,
-        salesperson: data["พนักงานขายที่ดูแล"] || user.fullName,
-        date: new Date(data["วัน/เดือน/ปี"] || Date.now()),
-        formData: data,
-        userId: user.id
-      }
-    });
+    if (!record) {
+      throw new Error("Failed to generate a unique requirementNumber after multiple retries");
+    }
 
     // Determine main product type for Pipeline
     let productType = "";
@@ -110,7 +139,7 @@ export async function saveCustomerRequirementHistory(data: any) {
           subject: `Requirement: ${companyName}`,
           productType: productType || null,
           requirementDate: new Date(data["วัน/เดือน/ปี"] || Date.now()),
-          requirementNumber: reqNumber,
+          requirementNumber: record.requirementNumber,
         }
       });
 
