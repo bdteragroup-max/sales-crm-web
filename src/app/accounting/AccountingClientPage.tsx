@@ -308,6 +308,8 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const [filterPaymentMethod, setFilterPaymentMethod] = useState("");
   const [filterCompany, setFilterCompany] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterMonth, setFilterMonth] = useState("");
+  const [filterYear, setFilterYear] = useState("");
   
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -315,6 +317,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
   const uniqueJobTypes = Array.from(new Set(tasks.map(t => t.job?.jobType).filter(Boolean)));
   const uniquePaymentMethods = Array.from(new Set(tasks.map(t => t.job?.paymentMethod).filter(Boolean)));
+  const uniqueYears = Array.from(new Set(tasks.map(t => t.job?.yearBe).filter(Boolean))).sort((a, b) => Number(b) - Number(a));
 
   const handleUpdate = (id: string, status: string) => {
     const note = window.prompt("หมายเหตุ (ถ้ามี):");
@@ -352,8 +355,10 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
     const matchesStatus = !filterStatus || t.status === filterStatus;
     const matchesJobType = selectedJobTypes.length === 0 || selectedJobTypes.includes(t.job?.jobType);
+    const matchesMonth = !filterMonth || t.job?.month === parseInt(filterMonth);
+    const matchesYear = !filterYear || t.job?.yearBe === parseInt(filterYear);
 
-    return matchesJobNumber && matchesCustomerItem && matchesPayment && matchesCompany && matchesStatus && matchesJobType;
+    return matchesJobNumber && matchesCustomerItem && matchesPayment && matchesCompany && matchesStatus && matchesJobType && matchesMonth && matchesYear;
   });
 
   const sortedTasks = React.useMemo(() => {
@@ -547,8 +552,30 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
             <option value="ตรวจสอบและบันทึกแล้ว">ตรวจสอบและบันทึกแล้ว</option>
           </select>
         </div>
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 mb-1">เดือน (ของงาน)</label>
+          <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white" value={filterMonth} onChange={e => setFilterMonth(e.target.value)}>
+            <option value="">ทุกเดือน</option>
+            {[
+              { v: 1, l: 'มกราคม' }, { v: 2, l: 'กุมภาพันธ์' }, { v: 3, l: 'มีนาคม' }, { v: 4, l: 'เมษายน' },
+              { v: 5, l: 'พฤษภาคม' }, { v: 6, l: 'มิถุนายน' }, { v: 7, l: 'กรกฎาคม' }, { v: 8, l: 'สิงหาคม' },
+              { v: 9, l: 'กันยายน' }, { v: 10, l: 'ตุลาคม' }, { v: 11, l: 'พฤศจิกายน' }, { v: 12, l: 'ธันวาคม' }
+            ].map(m => (
+              <option key={m.v} value={m.v}>{m.l}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex-1 min-w-[100px]">
+          <label className="block text-xs font-bold text-gray-500 mb-1">ปี (ของงาน)</label>
+          <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white" value={filterYear} onChange={e => setFilterYear(e.target.value)}>
+            <option value="">ทุกปี</option>
+            {uniqueYears.map(y => (
+              <option key={y as number} value={y as number}>{y as React.ReactNode}</option>
+            ))}
+          </select>
+        </div>
         <button 
-          onClick={() => { setFilterJobNumber(''); setFilterCustomerItem(''); setFilterPaymentMethod(''); setFilterCompany(''); setFilterStatus(''); setSelectedJobTypes([]); }} 
+          onClick={() => { setFilterJobNumber(''); setFilterCustomerItem(''); setFilterPaymentMethod(''); setFilterCompany(''); setFilterStatus(''); setFilterMonth(''); setFilterYear(''); setSelectedJobTypes([]); }} 
           className="px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors whitespace-nowrap h-[38px]"
         >
           ล้างตัวกรองทั้งหมด
