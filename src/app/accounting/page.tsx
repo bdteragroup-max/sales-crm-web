@@ -24,7 +24,11 @@ export default async function AccountingPage() {
   // Fetch Payment Tasks
   const paymentTasks = await prisma.paymentTask.findMany({
     include: {
-      job: true
+      job: {
+        include: {
+          quotation: true
+        }
+      }
     },
     orderBy: [
       { createdAt: 'desc' }

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useTransition, useEffect } from "react";
-import { DollarSign, Search, CheckCircle, Clock, AlertCircle, Eye, X, Loader2, ClipboardList, ChevronUp, ChevronDown, Filter } from "lucide-react";
+import { DollarSign, Search, CheckCircle, Clock, AlertCircle, Eye, X, Loader2, ClipboardList, ChevronUp, ChevronDown, Filter, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import { updatePaymentTaskStatus } from "@/app/actions/accounting";
 
 function formatDate(d: string | Date) {
@@ -399,6 +400,41 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
     setSortConfig({ key, direction });
   };
 
+  const exportToExcel = () => {
+    const data = sortedTasks.map((t: any) => {
+      const isPaid = t.status === 'ตรวจสอบและบันทึกแล้ว';
+      let creditDaysLeft = '-';
+      if (!isPaid && t.dueDate) {
+        const diff = new Date(t.dueDate).getTime() - new Date().getTime();
+        creditDaysLeft = Math.ceil(diff / (1000 * 3600 * 24)).toString();
+      }
+
+      // Check all possible fields where value might be stored
+      const totalValue = t.job?.quotation?.actualClosingAmount || t.job?.quotation?.totalAmountBeforeVat || 0;
+      
+      // If it's an installment, use the installment amount. If it's not (e.g. cash, full payment), the amount due is the total value
+      const amountDue = t.installmentAmount || (t.installmentNo ? 0 : totalValue);
+
+      return {
+        'เลขที่งาน (Job No.)': t.job?.jobNumber || '-',
+        'ชื่อลูกค้า (Customer)': t.job?.customerName || '-',
+        'บริษัท (Company)': t.job?.companyCode || '-',
+        'รูปแบบการชำระเงิน': t.job?.paymentMethod || '-',
+        'ยอดรวมทั้งโครงการ': totalValue,
+        'งวดที่': t.installmentNo ? `${t.installmentNo}/${t.installmentTotal}` : '-',
+        'ยอดเงินงวดนี้': amountDue,
+        'วันครบกำหนด': t.dueDate ? formatDate(t.dueDate) : '-',
+        'วันเครดิตคงเหลือ (วัน)': creditDaysLeft,
+        'สถานะการชำระเงิน': t.status || '-'
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Payment Tasks");
+    XLSX.writeFile(workbook, `Accounting_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+  };
+
   const pendingTasks = filtered.filter(t => t.status !== 'ตรวจสอบและบันทึกแล้ว');
   const completedTasks = filtered.filter(t => t.status === 'ตรวจสอบและบันทึกแล้ว');
 
@@ -424,6 +460,14 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         </div>
         
         <div className="flex gap-3">
+          <button
+            onClick={exportToExcel}
+            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-colors shadow-sm"
+          >
+            <Download size={18} />
+            Export to Excel
+          </button>
+          
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}

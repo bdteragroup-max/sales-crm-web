@@ -81,6 +81,7 @@ export async function GET(request: Request) {
     });
 
     const hqProductMap: Record<string, number> = {};
+    const branchProductMap: Record<string, number> = {};
     
     mtdSales.forEach(q => {
       const amt = q.actualClosingAmount || q.totalAmountBeforeVat || 0;
@@ -88,7 +89,11 @@ export async function GET(request: Request) {
       branchSalesMap[branch] = (branchSalesMap[branch] || 0) + amt;
 
       const pType = q.productType || 'อื่นๆ';
-      hqProductMap[pType] = (hqProductMap[pType] || 0) + amt;
+      if (branch === 'Head Office' || branch === 'สำนักงานใหญ่') {
+        hqProductMap[pType] = (hqProductMap[pType] || 0) + amt;
+      } else {
+        branchProductMap[pType] = (branchProductMap[pType] || 0) + amt;
+      }
     });
 
     // 3. Telesales (Daily)
@@ -163,7 +168,7 @@ export async function GET(request: Request) {
       data: {
         labels: hqProductLabels,
         datasets: [{
-          label: 'ยอดขายตามสินค้า',
+          label: 'ยอดขายสินค้า (HQ)',
           data: hqProductSales,
           backgroundColor: '#c2410c'
         }]
@@ -175,15 +180,68 @@ export async function GET(request: Request) {
     };
     const hqChartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(hqChartConfig))}&w=600&h=300&bkg=white`;
 
+    // Chart 3: Branch Product Breakdown
+    const branchProductLabels = Object.keys(branchProductMap);
+    const branchProductSales = branchProductLabels.map(p => branchProductMap[p]);
+    const branchProductChartConfig = {
+      type: 'bar',
+      data: {
+        labels: branchProductLabels,
+        datasets: [{
+          label: 'ยอดขายสินค้า (สาขา)',
+          data: branchProductSales,
+          backgroundColor: '#047857'
+        }]
+      },
+      options: {
+        plugins: { datalabels: { display: false } },
+        scales: { xAxes: [{ ticks: { fontSize: 10 } }] }
+      }
+    };
+    const branchProductChartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(branchProductChartConfig))}&w=600&h=300&bkg=white`;
+
     // 5. Flex Message Carousel
     // @ts-ignore
     const hqBoxes = Object.entries(hqProductMap).map(([product, amt]) => ({
       type: 'box', layout: 'horizontal', margin: 'md',
       contents: [
         { type: 'text', text: product, size: 'sm', color: '#64748b', flex: 2 },
-        { type: 'text', text: `฿${amt.toLocaleString()}`, size: 'sm', weight: 'bold', align: 'end', color: '#1e40af', flex: 3 }
+        { type: 'text', text: `฿${amt.toLocaleString()}`, size: 'sm', weight: 'bold', align: 'end', color: '#c2410c', flex: 3 }
       ]
     }));
+    
+    const totalHqSales = Object.values(hqProductMap).reduce((sum, amt) => sum + amt, 0);
+    if (hqBoxes.length > 0) {
+      hqBoxes.push({ type: 'separator', margin: 'md' } as any);
+      hqBoxes.push({
+        type: 'box', layout: 'horizontal', margin: 'md',
+        contents: [
+          { type: 'text', text: 'รวมทั้งหมด', size: 'sm', weight: 'bold', color: '#c2410c', flex: 2 },
+          { type: 'text', text: `฿${totalHqSales.toLocaleString()}`, size: 'sm', weight: 'bold', align: 'end', color: '#c2410c', flex: 3 }
+        ]
+      } as any);
+    }
+
+    // @ts-ignore
+    const branchProductBoxes = Object.entries(branchProductMap).map(([product, amt]) => ({
+      type: 'box', layout: 'horizontal', margin: 'md',
+      contents: [
+        { type: 'text', text: product, size: 'sm', color: '#64748b', flex: 2 },
+        { type: 'text', text: `฿${amt.toLocaleString()}`, size: 'sm', weight: 'bold', align: 'end', color: '#047857', flex: 3 }
+      ]
+    }));
+    
+    const totalBranchProductSales = Object.values(branchProductMap).reduce((sum, amt) => sum + amt, 0);
+    if (branchProductBoxes.length > 0) {
+      branchProductBoxes.push({ type: 'separator', margin: 'md' } as any);
+      branchProductBoxes.push({
+        type: 'box', layout: 'horizontal', margin: 'md',
+        contents: [
+          { type: 'text', text: 'รวมทั้งหมด', size: 'sm', weight: 'bold', color: '#047857', flex: 2 },
+          { type: 'text', text: `฿${totalBranchProductSales.toLocaleString()}`, size: 'sm', weight: 'bold', align: 'end', color: '#047857', flex: 3 }
+        ]
+      } as any);
+    }
 
     // @ts-ignore
     const branchBoxes = Object.entries(branchSalesMap).filter(([b]) => b !== 'Head Office' && b !== 'สำนักงานใหญ่').map(([branch, amt]) => ({
@@ -257,24 +315,41 @@ export async function GET(request: Request) {
       contents: {
         type: 'carousel',
         contents: [
-          // Bubble 2: HQ Sales (Now Company-wide Product Breakdown)
+          // Bubble 2: HQ Product Breakdown
           {
             type: 'bubble',
             header: {
               type: 'box', layout: 'vertical', backgroundColor: '#c2410c',
               contents: [
-                { type: 'text', text: '📦 ยอดขายตามสินค้า (เดือนนี้)', color: '#ffffff', weight: 'bold', size: 'lg' }
+                { type: 'text', text: '📦 สินค้า สำนักงานใหญ่', color: '#ffffff', weight: 'bold', size: 'lg' }
               ]
             },
             body: {
               type: 'box', layout: 'vertical',
               contents: [
                 ...(hqBoxes.length > 0 ? hqBoxes : [{ type: 'text', text: 'ยังไม่มียอดขายเดือนนี้', size: 'sm', color: '#64748b' }]),
-                { type: 'image', url: hqChartUrl, size: 'full', aspectRatio: '2:1', aspectMode: 'cover', margin: 'lg' }
+                ...(hqBoxes.length > 0 ? [{ type: 'image', url: hqChartUrl, size: 'full', aspectRatio: '2:1', aspectMode: 'cover', margin: 'lg' }] : [])
               ]
             }
           },
-          // Bubble 3: Branches
+          // Bubble 3: Branch Product Breakdown
+          {
+            type: 'bubble',
+            header: {
+              type: 'box', layout: 'vertical', backgroundColor: '#047857',
+              contents: [
+                { type: 'text', text: '📦 สินค้า สาขาภูมิภาค', color: '#ffffff', weight: 'bold', size: 'lg' }
+              ]
+            },
+            body: {
+              type: 'box', layout: 'vertical',
+              contents: [
+                ...(branchProductBoxes.length > 0 ? branchProductBoxes : [{ type: 'text', text: 'ยังไม่มียอดขายเดือนนี้', size: 'sm', color: '#64748b' }]),
+                ...(branchProductBoxes.length > 0 ? [{ type: 'image', url: branchProductChartUrl, size: 'full', aspectRatio: '2:1', aspectMode: 'cover', margin: 'lg' }] : [])
+              ]
+            }
+          },
+          // Bubble 4: Branches
           {
             type: 'bubble',
             header: {
