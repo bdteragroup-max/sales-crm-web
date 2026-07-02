@@ -8,6 +8,7 @@ export default function POListClient({ initialPos }: { initialPos: any[] }) {
   const [dateFilter, setDateFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
+  const [companyFilter, setCompanyFilter] = useState('all'); // all, TE, TP, TG
 
   // Extract unique years from the data
   const uniqueYears = useMemo(() => {
@@ -73,7 +74,18 @@ export default function POListClient({ initialPos }: { initialPos: any[] }) {
       matchesYear = false;
     }
 
-    return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesYear;
+    let matchesCompany = true;
+    if (companyFilter !== 'all') {
+      if (po.poNumber) {
+        if (companyFilter === 'TE') matchesCompany = po.poNumber.includes('E');
+        else if (companyFilter === 'TP') matchesCompany = po.poNumber.includes('P');
+        else if (companyFilter === 'TG') matchesCompany = po.poNumber.includes('G');
+      } else {
+        matchesCompany = false;
+      }
+    }
+
+    return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesYear && matchesCompany;
   });
 
   return (
@@ -96,6 +108,16 @@ export default function POListClient({ initialPos }: { initialPos: any[] }) {
             <option value="ALL">สถานะทั้งหมด</option>
             <option value="PENDING">รอรับสินค้า</option>
             <option value="RECEIVED">รับสินค้าแล้ว</option>
+          </select>
+          <select
+            value={companyFilter}
+            onChange={(e) => setCompanyFilter(e.target.value)}
+            className="w-full md:w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          >
+            <option value="all">ทุกบริษัท</option>
+            <option value="TE">TE (Tera Electric)</option>
+            <option value="TP">TP (Tera Power)</option>
+            <option value="TG">TG (Tera Group)</option>
           </select>
         </div>
 
