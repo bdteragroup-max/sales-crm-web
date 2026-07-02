@@ -39,7 +39,7 @@ export default async function StoreReceivePage() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Store Receiving (รับสินค้า)</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">รายการรับสินค้าเข้าสโตร์ (Store Receiving)</h1>
       <StoreReceiveClient initialPos={serializedPOs} userName={user.fullName} />
     </div>
   );
