@@ -23,10 +23,19 @@ function parseDateStr(str: any): Date | undefined {
     let day = parseInt(parts[0], 10);
     let month = parseInt(parts[1], 10) - 1;
     let year = parseInt(parts[2], 10);
+    // Handle 2-digit years
+    if (year < 100) {
+      if (year >= 50) {
+        // Assume it's a Buddhist Era year abbreviated (e.g., 69 -> 2569)
+        year += 2500;
+      } else {
+        // Assume it's a Gregorian year abbreviated (e.g., 26 -> 2026)
+        year += 2000;
+      }
+    }
+
     // Handle B.E. (Buddhist Era)
     if (year > 2500) year -= 543;
-    // Handle 2-digit years
-    if (year < 100) year += 2000;
 
     // Check validity
     if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
