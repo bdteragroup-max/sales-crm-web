@@ -45,6 +45,24 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
     return Array.from(years).sort().reverse();
   }, [pos, currentYear]);
 
+  // Spending by Company
+  const spendingByCompany = useMemo(() => {
+    let TE = 0;
+    let TP = 0;
+    let TG = 0;
+
+    filteredPos.forEach(po => {
+      const amt = Number(po.totalAmount || 0);
+      if (po.poNumber) {
+        if (po.poNumber.includes('E')) TE += amt;
+        else if (po.poNumber.includes('P')) TP += amt;
+        else if (po.poNumber.includes('G')) TG += amt;
+      }
+    });
+
+    return { TE, TP, TG };
+  }, [filteredPos]);
+
   return (
     <div>
       <div className="flex justify-end mb-6">
@@ -73,6 +91,29 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
         <div className="bg-white p-6 rounded-xl shadow border-l-4 border-red-500">
           <h3 className="text-gray-500 text-sm font-medium uppercase">PR ที่ยังไม่มี PO</h3>
           <p className="text-3xl font-bold text-gray-800 mt-2">{prsWithoutPOs}</p>
+        </div>
+      </div>
+
+      {/* Spending by Company Cards */}
+      <h3 className="text-gray-800 font-semibold mb-4">ยอดใช้จ่ายแยกตามบริษัท (TE / TP / TG)</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-xl shadow border-l-4 border-indigo-500">
+          <h3 className="text-gray-500 text-sm font-medium uppercase">TE (Tera Electric)</h3>
+          <p className="text-2xl font-bold text-gray-800 mt-2">
+            {spendingByCompany.TE.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}
+          </p>
+        </div>
+        <div className="bg-white p-6 rounded-xl shadow border-l-4 border-teal-500">
+          <h3 className="text-gray-500 text-sm font-medium uppercase">TP (Tera Power)</h3>
+          <p className="text-2xl font-bold text-gray-800 mt-2">
+            {spendingByCompany.TP.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}
+          </p>
+        </div>
+        <div className="bg-white p-6 rounded-xl shadow border-l-4 border-purple-500">
+          <h3 className="text-gray-500 text-sm font-medium uppercase">TG (Tera Group)</h3>
+          <p className="text-2xl font-bold text-gray-800 mt-2">
+            {spendingByCompany.TG.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}
+          </p>
         </div>
       </div>
 
