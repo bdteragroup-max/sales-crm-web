@@ -5,6 +5,9 @@ export default function PRListClient({ initialPrs }: { initialPrs: any[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [projectFilter, setProjectFilter] = useState('');
   const [poFilter, setPoFilter] = useState('all'); // all, with-po, without-po
+  const [dateFilter, setDateFilter] = useState('');
+  const [monthFilter, setMonthFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState('');
 
   // Extract unique projects for the dropdown
   const uniqueProjects = useMemo(() => {
@@ -14,6 +17,32 @@ export default function PRListClient({ initialPrs }: { initialPrs: any[] }) {
     });
     return Array.from(projects).sort();
   }, [initialPrs]);
+
+  // Extract unique years from the data
+  const uniqueYears = useMemo(() => {
+    const years = new Set<string>();
+    initialPrs.forEach(pr => {
+      if (pr.recordedAt) {
+        years.add(new Date(pr.recordedAt).getFullYear().toString());
+      }
+    });
+    return Array.from(years).sort().reverse();
+  }, [initialPrs]);
+
+  const thaiMonths = [
+    { value: '1', label: 'มกราคม' },
+    { value: '2', label: 'กุมภาพันธ์' },
+    { value: '3', label: 'มีนาคม' },
+    { value: '4', label: 'เมษายน' },
+    { value: '5', label: 'พฤษภาคม' },
+    { value: '6', label: 'มิถุนายน' },
+    { value: '7', label: 'กรกฎาคม' },
+    { value: '8', label: 'สิงหาคม' },
+    { value: '9', label: 'กันยายน' },
+    { value: '10', label: 'ตุลาคม' },
+    { value: '11', label: 'พฤศจิกายน' },
+    { value: '12', label: 'ธันวาคม' },
+  ];
 
   const filteredPrs = initialPrs.filter(pr => {
     const matchesSearch = 
@@ -31,41 +60,104 @@ export default function PRListClient({ initialPrs }: { initialPrs: any[] }) {
       matchesPo = !pr.purchaseOrders || pr.purchaseOrders.length === 0;
     }
 
-    return matchesSearch && matchesProject && matchesPo;
+    const prDate = pr.recordedAt ? new Date(pr.recordedAt) : null;
+    
+    let matchesDate = true;
+    if (dateFilter && prDate) {
+      const yyyy = prDate.getFullYear();
+      const mm = String(prDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(prDate.getDate()).padStart(2, '0');
+      const prDateString = `${yyyy}-${mm}-${dd}`;
+      matchesDate = prDateString === dateFilter;
+    } else if (dateFilter && !prDate) {
+      matchesDate = false;
+    }
+
+    let matchesMonth = true;
+    if (monthFilter && prDate) {
+      matchesMonth = (prDate.getMonth() + 1).toString() === monthFilter;
+    } else if (monthFilter && !prDate) {
+      matchesMonth = false;
+    }
+
+    let matchesYear = true;
+    if (yearFilter && prDate) {
+      matchesYear = prDate.getFullYear().toString() === yearFilter;
+    } else if (yearFilter && !prDate) {
+      matchesYear = false;
+    }
+
+    return matchesSearch && matchesProject && matchesPo && matchesDate && matchesMonth && matchesYear;
   });
 
   return (
     <div className="bg-white rounded-xl shadow overflow-hidden p-6">
-      <div className="mb-4 flex flex-col md:flex-row gap-4">
-        <input 
-          type="text" 
-          placeholder="ค้นหาด้วยเลขที่ PR, โครงการ, สินค้า, หรือผู้ขอซื้อ..." 
-          className="w-full md:w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        
-        <select
-          className="w-full md:w-1/4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          value={projectFilter}
-          onChange={(e) => setProjectFilter(e.target.value)}
-        >
-          <option value="">ทุกโครงการ</option>
-          {uniqueProjects.map(proj => (
-            <option key={proj} value={proj}>{proj}</option>
-          ))}
-        </select>
+      <div className="mb-4 flex flex-col gap-4">
+        {/* Row 1: Search, Project, PO Status */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <input 
+            type="text" 
+            placeholder="ค้นหาด้วยเลขที่ PR, โครงการ, สินค้า, หรือผู้ขอซื้อ..." 
+            className="w-full md:w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          
+          <select
+            className="w-full md:w-1/4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+          >
+            <option value="">ทุกโครงการ</option>
+            {uniqueProjects.map(proj => (
+              <option key={proj} value={proj}>{proj}</option>
+            ))}
+          </select>
 
-        <select
-          className="w-full md:w-1/4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          value={poFilter}
-          onChange={(e) => setPoFilter(e.target.value)}
-        >
-          <option value="all">สถานะ PO ทั้งหมด</option>
-          <option value="with-po">มี PO แล้ว</option>
-          <option value="without-po">ยังไม่มี PO</option>
-        </select>
+          <select
+            className="w-full md:w-1/4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            value={poFilter}
+            onChange={(e) => setPoFilter(e.target.value)}
+          >
+            <option value="all">สถานะ PO ทั้งหมด</option>
+            <option value="with-po">มี PO แล้ว</option>
+            <option value="without-po">ยังไม่มี PO</option>
+          </select>
+        </div>
+
+        {/* Row 2: Date, Month, Year */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <input
+            type="date"
+            className="w-full md:w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          />
+
+          <select
+            className="w-full md:w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            value={monthFilter}
+            onChange={(e) => setMonthFilter(e.target.value)}
+          >
+            <option value="">ทุกเดือน</option>
+            {thaiMonths.map(m => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
+          </select>
+
+          <select
+            className="w-full md:w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            value={yearFilter}
+            onChange={(e) => setYearFilter(e.target.value)}
+          >
+            <option value="">ทุกปี</option>
+            {uniqueYears.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
       </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
