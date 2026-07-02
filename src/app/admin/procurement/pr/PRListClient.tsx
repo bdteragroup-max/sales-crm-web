@@ -8,6 +8,7 @@ export default function PRListClient({ initialPrs }: { initialPrs: any[] }) {
   const [dateFilter, setDateFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
+  const [companyFilter, setCompanyFilter] = useState('all'); // all, TE, TP, TG
 
   // Extract unique projects for the dropdown
   const uniqueProjects = useMemo(() => {
@@ -87,7 +88,18 @@ export default function PRListClient({ initialPrs }: { initialPrs: any[] }) {
       matchesYear = false;
     }
 
-    return matchesSearch && matchesProject && matchesPo && matchesDate && matchesMonth && matchesYear;
+    let matchesCompany = true;
+    if (companyFilter !== 'all') {
+      if (pr.prNumber) {
+        if (companyFilter === 'TE') matchesCompany = pr.prNumber.includes('E');
+        else if (companyFilter === 'TP') matchesCompany = pr.prNumber.includes('P');
+        else if (companyFilter === 'TG') matchesCompany = pr.prNumber.includes('G');
+      } else {
+        matchesCompany = false;
+      }
+    }
+
+    return matchesSearch && matchesProject && matchesPo && matchesDate && matchesMonth && matchesYear && matchesCompany;
   });
 
   return (
@@ -122,6 +134,16 @@ export default function PRListClient({ initialPrs }: { initialPrs: any[] }) {
             <option value="all">สถานะ PO ทั้งหมด</option>
             <option value="with-po">มี PO แล้ว</option>
             <option value="without-po">ยังไม่มี PO</option>
+          </select>
+          <select
+            value={companyFilter}
+            onChange={(e) => setCompanyFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-48"
+          >
+            <option value="all">ทุกบริษัท</option>
+            <option value="TE">TE (Tera Electric)</option>
+            <option value="TP">TP (Tera Power)</option>
+            <option value="TG">TG (Tera Group)</option>
           </select>
         </div>
 
