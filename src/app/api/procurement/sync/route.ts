@@ -11,40 +11,67 @@ function parseNumber(val: any): number | undefined {
   return isNaN(parsed) ? undefined : parsed;
 }
 
+function fixDate(d: Date): Date {
+  let y = d.getFullYear();
+  // 1. Google Sheets misinterpreted e.g. '69' as '1969', but user meant BE '2569' -> '2026'
+  if (y >= 1950 && y <= 1999) {
+    d.setFullYear(y + 57);
+  }
+  // 2. User literally typed '2569', and it was parsed as year 2569. We want Gregorian 2026.
+  else if (y > 2500) {
+    d.setFullYear(y - 543);
+  }
+  return d;
+}
+
 function parseDateStr(str: any): Date | undefined {
   if (!str) return undefined;
-  if (str instanceof Date) return str;
+  if (str instanceof Date) return fixDate(new Date(str.getTime()));
+  
   const s = String(str).trim();
   if (!s) return undefined;
 
-  // Attempt dd/MM/yyyy or dd-MM-yyyy
+  let parsedDate: Date | undefined;
+
+  // Attempt dd/MM/yyyy or dd-MM-yyyy or yyyy-MM-dd
   const parts = s.split(/[\/\-]/);
   if (parts.length >= 3) {
-    let day = parseInt(parts[0], 10);
-    let month = parseInt(parts[1], 10) - 1;
-    let year = parseInt(parts[2], 10);
-    // Handle 2-digit years
-    if (year < 100) {
-      if (year >= 50) {
-        // Assume it's a Buddhist Era year abbreviated (e.g., 69 -> 2569)
-        year += 2500;
-      } else {
-        // Assume it's a Gregorian year abbreviated (e.g., 26 -> 2026)
-        year += 2000;
+    // If the first part is 4 digits, assume yyyy-mm-dd
+    if (parts[0].length === 4) {
+      let year = parseInt(parts[0], 10);
+      let month = parseInt(parts[1], 10) - 1;
+      let day = parseInt(parts[2], 10);
+      if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+        parsedDate = new Date(year, month, day);
       }
-    }
-
-    // Handle B.E. (Buddhist Era)
-    if (year > 2500) year -= 543;
-
-    // Check validity
-    if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-      return new Date(year, month, day);
+    } else {
+      let day = parseInt(parts[0], 10);
+      let month = parseInt(parts[1], 10) - 1;
+      let year = parseInt(parts[2], 10);
+      
+      // Handle 2-digit years natively passed as string
+      if (year < 100) {
+        if (year >= 50) year += 2500;
+        else year += 2000;
+      }
+      
+      if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+        parsedDate = new Date(year, month, day);
+      }
     }
   }
 
-  const fallback = new Date(s);
-  if (!isNaN(fallback.getTime())) return fallback;
+  if (!parsedDate) {
+    const fallback = new Date(s);
+    if (!isNaN(fallback.getTime())) {
+      parsedDate = fallback;
+    }
+  }
+
+  if (parsedDate) {
+    return fixDate(parsedDate);
+  }
+  
   return undefined;
 }
 
