@@ -16,7 +16,7 @@ function parseDateStr(str: any): Date | undefined {
   if (str instanceof Date) return str;
   const s = String(str).trim();
   if (!s) return undefined;
-  
+
   // Attempt dd/MM/yyyy or dd-MM-yyyy
   const parts = s.split(/[\/\-]/);
   if (parts.length >= 3) {
@@ -27,13 +27,13 @@ function parseDateStr(str: any): Date | undefined {
     if (year > 2500) year -= 543;
     // Handle 2-digit years
     if (year < 100) year += 2000;
-    
+
     // Check validity
     if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
       return new Date(year, month, day);
     }
   }
-  
+
   const fallback = new Date(s);
   if (!isNaN(fallback.getTime())) return fallback;
   return undefined;
@@ -47,7 +47,7 @@ function findValue(payload: any, possibleKeys: string[]) {
       normalizedPayload[String(k).toLowerCase().replace(/[\s\-_]/g, '')] = v;
     }
   }
-  
+
   for (const key of possibleKeys) {
     const normKey = key.toLowerCase().replace(/[\s\-_]/g, '');
     if (normalizedPayload[normKey] !== undefined && normalizedPayload[normKey] !== '') {
@@ -79,22 +79,22 @@ export async function POST(req: NextRequest) {
         where: { prNumber: String(prNumber) },
         update: {
           no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่'])),
+          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่', 'วันที่บันทึก'])),
           projectName: findValue(payload, ['Project Name', 'Project', 'ชื่อโครงการ', 'โครงการ']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า']),
-          requestedBy: findValue(payload, ['Purchasing Requestor', 'Requestor', 'ผู้ขอซื้อ', 'ผู้เบิก']),
+          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า', 'รายการจัดซื้อ']),
+          requestedBy: findValue(payload, ['Purchasing Requestor', 'Requestor', 'ผู้ขอซื้อ', 'ผู้เบิก', 'ผู้ขอจัดซื้อ']),
           note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
-          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
+          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง', 'ผู้แจ้ง สถานะ / เลขที่ PO', 'ผู้แจ้งสถานะ/เลขที่po']),
         },
         create: {
           prNumber: String(prNumber),
           no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่'])),
+          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่', 'วันที่บันทึก'])),
           projectName: findValue(payload, ['Project Name', 'Project', 'ชื่อโครงการ', 'โครงการ']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า']),
-          requestedBy: findValue(payload, ['Purchasing Requestor', 'Requestor', 'ผู้ขอซื้อ', 'ผู้เบิก']),
+          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า', 'รายการจัดซื้อ']),
+          requestedBy: findValue(payload, ['Purchasing Requestor', 'Requestor', 'ผู้ขอซื้อ', 'ผู้เบิก', 'ผู้ขอจัดซื้อ']),
           note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
-          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
+          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง', 'ผู้แจ้ง สถานะ / เลขที่ PO', 'ผู้แจ้งสถานะ/เลขที่po']),
         }
       });
 
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
       }
 
       const prNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number', 'อ้างอิง PR', 'เลขที่ PR', 'เลข PR']);
-      
+
       // Upsert PR first to prevent FK constraint failure
       if (prNumber) {
         await prisma.purchaseRequest.upsert({
@@ -121,36 +121,36 @@ export async function POST(req: NextRequest) {
         where: { poNumber: String(poNumber) },
         update: {
           no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่'])),
+          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่', 'วันที่บันทึก'])),
           prNumber: prNumber ? String(prNumber) : null,
-          vendorName: findValue(payload, ['Vendor Name', 'Vendor', 'Supplier', 'ผู้ขาย', 'ชื่อผู้ขาย', 'ร้านค้า', 'ซัพพลายเออร์']),
+          vendorName: findValue(payload, ['Vendor Name', 'Vendor', 'Supplier', 'ผู้ขาย', 'ชื่อผู้ขาย', 'ร้านค้า', 'ซัพพลายเออร์', 'บริษัทผู้ขาย']),
           accountNumber: findValue(payload, ['Account Number', 'Account', 'เลขที่บัญชี', 'บัญชี']),
-          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอดจัดซื้อ', 'จำนวนเงิน', 'ยอดเงิน'])),
+          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอดจัดซื้อ', 'จำนวนเงิน', 'ยอดเงิน', 'ยอด'])),
           depositAmount: parseNumber(findValue(payload, ['Deposit Amount', 'Deposit', 'มัดจำ', 'ยอดมัดจำ'])),
-          remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ'])),
-          payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1'])),
+          remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ', 'ส่วนที่เหลือ'])),
+          payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1', 'จ่ายงวดที่1'])),
           creditTerm: findValue(payload, ['Credit Term', 'Credit', 'เครดิตเทอม', 'เครดิต']),
           jobName: findValue(payload, ['Job Name', 'Job', 'ชื่องาน', 'รหัสงาน']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า']),
-          deliveryDate: parseDateStr(findValue(payload, ['Delivery Date', 'Delivery', 'วันส่งมอบ', 'กำหนดส่ง', 'วันที่ส่ง'])),
+          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า', 'รายการจัดซื้อ']),
+          deliveryDate: parseDateStr(findValue(payload, ['Delivery Date', 'Delivery', 'วันส่งมอบ', 'กำหนดส่ง', 'วันที่ส่ง', 'วันจัดส่ง'])),
           note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
           reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
         },
         create: {
           poNumber: String(poNumber),
           no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่'])),
+          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่', 'วันที่บันทึก'])),
           prNumber: prNumber ? String(prNumber) : null,
-          vendorName: findValue(payload, ['Vendor Name', 'Vendor', 'Supplier', 'ผู้ขาย', 'ชื่อผู้ขาย', 'ร้านค้า', 'ซัพพลายเออร์']),
+          vendorName: findValue(payload, ['Vendor Name', 'Vendor', 'Supplier', 'ผู้ขาย', 'ชื่อผู้ขาย', 'ร้านค้า', 'ซัพพลายเออร์', 'บริษัทผู้ขาย']),
           accountNumber: findValue(payload, ['Account Number', 'Account', 'เลขที่บัญชี', 'บัญชี']),
-          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอดจัดซื้อ', 'จำนวนเงิน', 'ยอดเงิน'])),
+          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอดจัดซื้อ', 'จำนวนเงิน', 'ยอดเงิน', 'ยอด'])),
           depositAmount: parseNumber(findValue(payload, ['Deposit Amount', 'Deposit', 'มัดจำ', 'ยอดมัดจำ'])),
-          remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ'])),
-          payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1'])),
+          remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ', 'ส่วนที่เหลือ'])),
+          payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1', 'จ่ายงวดที่1'])),
           creditTerm: findValue(payload, ['Credit Term', 'Credit', 'เครดิตเทอม', 'เครดิต']),
           jobName: findValue(payload, ['Job Name', 'Job', 'ชื่องาน', 'รหัสงาน']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า']),
-          deliveryDate: parseDateStr(findValue(payload, ['Delivery Date', 'Delivery', 'วันส่งมอบ', 'กำหนดส่ง', 'วันที่ส่ง'])),
+          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า', 'รายการจัดซื้อ']),
+          deliveryDate: parseDateStr(findValue(payload, ['Delivery Date', 'Delivery', 'วันส่งมอบ', 'กำหนดส่ง', 'วันที่ส่ง', 'วันจัดส่ง'])),
           note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
           reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
         }
