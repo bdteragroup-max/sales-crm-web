@@ -152,6 +152,66 @@ function EditableField({
   );
 }
 
+// ── Job Procurement Status ──────────────────────
+import { getProcurementForJob } from "@/app/actions/jobs";
+
+function JobProcurementStatus({ customerName, projectName }: { customerName: string, projectName?: string }) {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getProcurementForJob(customerName, projectName).then(res => {
+      setData(res);
+      setLoading(false);
+    });
+  }, [customerName, projectName]);
+
+  if (loading) return <div className="mt-5 pt-5 border-t border-gray-100 text-sm text-gray-500 flex items-center gap-2"><div className="animate-spin h-3 w-3 border-2 border-brand-red rounded-full border-t-transparent"></div> กำลังโหลดสถานะจัดซื้อ...</div>;
+  if (data.length === 0) return null;
+
+  return (
+    <div className="mt-5 pt-5 border-t border-gray-100 animate-in fade-in">
+      <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest flex items-center gap-1.5">
+        <FolderOpen size={12} />
+        สถานะจัดซื้อ (Procurement)
+      </p>
+      <div className="flex flex-col gap-3">
+        {data.map(pr => (
+          <div key={pr.id} className="bg-white p-3 md:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-3 transition-colors hover:border-blue-200">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+              <span className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs">PR</span>
+                {pr.prNumber}
+              </span>
+              <span className="text-xs text-gray-500">{new Date(pr.createdAt).toLocaleDateString('th-TH')}</span>
+            </div>
+            
+            {pr.purchaseOrders?.length > 0 ? (
+              <div className="flex flex-col gap-2 mt-1">
+                {pr.purchaseOrders.map((po: any) => (
+                  <div key={po.id} className="flex justify-between items-center bg-gray-50/80 px-3 py-2 rounded-lg border border-gray-50">
+                    <span className="text-xs font-semibold text-gray-700 flex items-center gap-2">
+                      <span className="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded border border-purple-100">PO</span>
+                      {po.poNumber}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap ${po.receiveStatus === 'Received' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                      {po.receiveStatus === 'Received' ? `รับสินค้าแล้ว` : 'รอรับสินค้า'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-xs text-gray-400 bg-gray-50/50 px-3 py-2 rounded-lg border border-dashed border-gray-200 text-center">
+                รอเปิด PO (Purchase Order)
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Expanded row ────────────────────── ──────────────────────
 function ExpandedRow({
   job,
@@ -161,6 +221,7 @@ function ExpandedRow({
   userName,
   userDept,
   userRole,
+  isMobile = false,
 }: {
   job: Job;
   onUpdate: (id: string, data: UpdateJobPayload) => void;
@@ -169,14 +230,13 @@ function ExpandedRow({
   userName: string;
   userDept: string;
   userRole: string;
+  isMobile?: boolean;
 }) {
   const save = (field: keyof UpdateJobPayload) => (value: string) =>
     onUpdate(job.id, { [field]: value });
 
-  return (
-    <tr className="animate-in slide-in-from-top-1 fade-in duration-200">
-      <td colSpan={12} className="p-0 border-b border-gray-100">
-        <div className="bg-gray-50/50 p-4 md:p-5 w-full shadow-inner">
+  const content = (
+    <div className="bg-gray-50/50 p-4 md:p-5 w-full shadow-inner">
           <div className="mb-5 pb-5 border-b border-gray-100">
             <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">สถานะการดำเนินงาน (Timeline)</p>
             <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
@@ -238,6 +298,8 @@ function ExpandedRow({
                 </div>
               </div>
             )}
+
+            <JobProcurementStatus customerName={job.customerName} projectName={job.project?.name} />
 
             {isManager && (
               <div className="mt-5 pt-5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -305,6 +367,20 @@ function ExpandedRow({
             </div>
           )}
         </div>
+  );
+
+  if (isMobile) {
+    return (
+      <div className="animate-in slide-in-from-top-1 fade-in duration-200">
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <tr className="animate-in slide-in-from-top-1 fade-in duration-200">
+      <td colSpan={12} className="p-0 border-b border-gray-100">
+        {content}
       </td>
     </tr>
   );
@@ -758,8 +834,91 @@ export default function JobsClientPage({
           <span className="w-full md:w-auto text-center md:ml-auto text-xs font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg">{filtered.length} รายการ</span>
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+        {/* Mobile View (Cards) */}
+        <div className="block md:hidden space-y-4 pb-8">
+          {filtered.length === 0 && (
+            <div className="text-center py-16 text-gray-400 font-medium bg-white rounded-2xl border border-gray-100 shadow-sm">
+              ไม่พบงานที่ตรงกับเงื่อนไข
+            </div>
+          )}
+          {filtered.map((job) => {
+            const isOpen = expanded === job.id;
+            return (
+              <React.Fragment key={`mobile-${job.id}`}>
+                <div
+                  onClick={() => setExpanded(isOpen ? null : job.id)}
+                  className={`bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden cursor-pointer p-4 flex flex-col gap-3 transition-colors ${isOpen ? "ring-2 ring-brand-red/20 bg-red-50/10" : ""}`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex flex-col gap-1">
+                      <span className="font-mono font-black text-brand-red tracking-wide text-sm">{job.jobNumber}</span>
+                      <span className="text-[11px] font-bold text-gray-400">{formatDate(job.dateClosed)}</span>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <CompanyBadge code={job.companyCode} />
+                      {isOpen ? <ChevronDown size={16} className="text-gray-400" /> : <ChevronRight size={16} className="text-gray-400" />}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm font-bold text-gray-900 line-clamp-2">{job.customerName}</p>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <JobTypeBadge type={job.jobType} />
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border
+                        ${isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
+                          ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                          : "bg-blue-50 text-blue-600 border-blue-200"
+                        }`}
+                      >
+                        {isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
+                          ? <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> เสร็จแล้ว</span>
+                          : getCurrentStepDef(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)?.label ?? job.currentStep
+                        }
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 mt-2 pt-3 border-t border-gray-100 text-[11px]">
+                    <div>
+                      <span className="text-gray-400 font-medium">ใบเสนอราคา:</span>
+                      <p className="font-mono font-black text-gray-800">{job.quotationNumber ?? "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 font-medium">หมายเลข PO:</span>
+                      <p className="font-mono font-black text-gray-600">{job.poNumber ?? "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 font-medium">พนักงานขาย:</span>
+                      <p className="font-bold text-gray-700">{job.sellerName ?? "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 font-medium">การชำระเงิน:</span>
+                      <p className="font-bold text-green-700">{job.paymentMethod ?? "—"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {isOpen && (
+                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-4 p-2 sm:p-4">
+                    <ExpandedRow
+                      job={job}
+                      onUpdate={handleUpdate}
+                      onDelete={handleDelete}
+                      isManager={isManager}
+                      userName={currentUser}
+                      userDept={userDept}
+                      userRole={userRole}
+                      isMobile={true}
+                    />
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+
+        {/* Desktop View (Table) */}
+        <div className="hidden md:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
           <table className="w-full text-left text-sm min-w-[1000px]">
             <thead className="sticky top-0 bg-white z-10 shadow-sm">
               <tr className="border-b border-gray-100">

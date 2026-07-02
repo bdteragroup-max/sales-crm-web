@@ -73,8 +73,18 @@ const purchasingNav = [
 ];
 
 const storeNav = [
+  { icon: LayoutDashboard, label: 'แดชบอร์ดสโตร์', href: '/store/dashboard' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
+];
+
+const storeAndPurchasingNav = [
+  { icon: LayoutDashboard, label: 'แดชบอร์ดสโตร์', href: '/store/dashboard' },
+  { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+  { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
+  { icon: LayoutDashboard, label: 'แดชบอร์ดจัดซื้อ', href: '/admin/procurement/dashboard' },
+  { icon: FileText, label: 'รายการ PR', href: '/admin/procurement/pr' },
+  { icon: ClipboardList, label: 'รายการ PO', href: '/admin/procurement/po' },
 ];
 
 const projectNav = [
@@ -97,7 +107,7 @@ const projectAdminNav = [
 export default function SidebarClient(props: SidebarProps) {
   let nav = repNav;
   const roleStr = (props.userRole || '').toLowerCase();
-  
+
   if (roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้การจัดการตลาด') {
     nav = managerNav;
   } else if (roleStr.includes('admin project') || roleStr.includes('project admin')) {
@@ -113,6 +123,8 @@ export default function SidebarClient(props: SidebarProps) {
     nav = projectNav; // Project users see their projects
   } else if (['marketing', 'การตลาด'].some(r => roleStr.includes(r))) {
     nav = marketingNav; // Marketing role sees marketing dashboard
+  } else if (roleStr === 'ผู้จัดการคลังสินค้าและจัดซื้อ' || (roleStr.includes('คลังสินค้า') && roleStr.includes('จัดซื้อ'))) {
+    nav = storeAndPurchasingNav;
   } else if (['purchasing', 'จัดซื้อ'].some(r => roleStr.includes(r))) {
     nav = purchasingNav;
   } else if (['warehouse', 'คลังสินค้า', 'store', 'สโตร์'].some(r => roleStr.includes(r))) {
@@ -127,7 +139,7 @@ export default function SidebarClient(props: SidebarProps) {
       nav = backofficeNav; // Back-office non-sales see their own department queue
     }
   }
-  
+
   return <ResponsiveSidebar {...props} nav={nav} />;
 }
 
@@ -150,7 +162,7 @@ function ResponsiveSidebar({
 
   const [unpaidCount, setUnpaidCount] = useState(0);
   const [pendingInstallationCount, setPendingInstallationCount] = useState(0);
-  
+
   const [tooltip, setTooltip] = useState<{ label: string; y: number } | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -165,12 +177,12 @@ function ResponsiveSidebar({
     const roleStr = (userRole || '').toLowerCase();
     const isAccounting = ['accounting', 'บัญชี', 'finance', 'การเงิน', 'ผู้จัดการ'].some(r => roleStr.includes(r));
     if (isAccounting) {
-      getPendingPaymentTaskCount().then(setUnpaidCount).catch(() => {});
+      getPendingPaymentTaskCount().then(setUnpaidCount).catch(() => { });
     }
 
     const isServiceUser = roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง') || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด';
     if (isServiceUser) {
-      getPendingInstallationCount().then(setPendingInstallationCount).catch(() => {});
+      getPendingInstallationCount().then(setPendingInstallationCount).catch(() => { });
     }
   }, [router, nav, userRole]);
 
@@ -233,11 +245,10 @@ function ResponsiveSidebar({
                       setLoadingHref(href);
                     }
                   }}
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${
-                    isActive
-                      ? 'bg-red-50 text-[#ff2301] shadow-sm border border-red-100'
-                      : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${isActive
+                    ? 'bg-red-50 text-[#ff2301] shadow-sm border border-red-100'
+                    : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
                 >
                   {isLoading ? (
                     <Loader2 size={20} className="animate-spin text-[#ff2301]" />
@@ -267,9 +278,9 @@ function ResponsiveSidebar({
 
         {/* Bottom items */}
         <div className="flex flex-col items-center gap-3 w-full px-2 shrink-0">
-          <CoinMiniWidget 
-            isMobile={false} 
-            activeRoute={activeRoute} 
+          <CoinMiniWidget
+            isMobile={false}
+            activeRoute={activeRoute}
             onMouseEnter={(e) => showTooltip('Gold Coin', e)}
             onMouseLeave={hideTooltip}
           />
@@ -289,11 +300,10 @@ function ResponsiveSidebar({
                 setLoadingHref(target);
               }
             }}
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative group ${
-              (activeRoute === '/jobs' || activeRoute === '/department')
-                ? 'bg-red-50 text-[#ff2301] shadow-sm border border-red-100'
-                : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
-            }`}
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative group ${(activeRoute === '/jobs' || activeRoute === '/department')
+              ? 'bg-red-50 text-[#ff2301] shadow-sm border border-red-100'
+              : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+              }`}
           >
             {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
               <Loader2 size={20} className="animate-spin text-[#ff2301]" />
@@ -367,9 +377,8 @@ function ResponsiveSidebar({
 
       {/* ─── MOBILE SLIDER DRAWER CONTENT ─── */}
       <aside
-        className={`md:hidden fixed top-0 bottom-0 left-0 w-[270px] bg-white border-r border-gray-100 flex flex-col py-8 px-5 z-50 transition-transform duration-300 ease-out transform shadow-2xl overflow-y-auto custom-scrollbar ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`md:hidden fixed top-0 bottom-0 left-0 w-[270px] bg-white border-r border-gray-100 flex flex-col py-8 px-5 z-50 transition-transform duration-300 ease-out transform shadow-2xl overflow-y-auto custom-scrollbar ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         {/* Brand header */}
         <div className="flex flex-col w-full">
@@ -402,11 +411,10 @@ function ResponsiveSidebar({
                     }
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 transition-all duration-200 border ${
-                    isActive
-                      ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
-                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
-                  }`}
+                  className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 transition-all duration-200 border ${isActive
+                    ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
+                    }`}
                 >
                   <div className="shrink-0 relative">
                     {isLoading ? (
@@ -436,9 +444,9 @@ function ResponsiveSidebar({
         <div className="flex flex-col gap-4 w-full mt-auto pt-8">
           <div className="h-px bg-gray-100 w-full" />
 
-          <CoinMiniWidget 
-            isMobile={true} 
-            activeRoute={activeRoute} 
+          <CoinMiniWidget
+            isMobile={true}
+            activeRoute={activeRoute}
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
@@ -454,11 +462,10 @@ function ResponsiveSidebar({
               }
               setIsMobileMenuOpen(false);
             }}
-            className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 transition-all duration-200 border ${
-              (activeRoute === '/jobs' || activeRoute === '/department')
-                ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
-            }`}
+            className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 transition-all duration-200 border ${(activeRoute === '/jobs' || activeRoute === '/department')
+              ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
+              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
+              }`}
           >
             <div className="shrink-0">
               {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
@@ -480,11 +487,10 @@ function ResponsiveSidebar({
               }
               setIsMobileMenuOpen(false);
             }}
-            className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all duration-200 border ${
-              activeRoute === '/settings'
-                ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
-                : 'bg-gray-50/50 hover:bg-gray-50 text-gray-700 border-gray-100'
-            }`}
+            className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all duration-200 border ${activeRoute === '/settings'
+              ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
+              : 'bg-gray-50/50 hover:bg-gray-50 text-gray-700 border-gray-100'
+              }`}
           >
             <div className="w-10 h-10 rounded-lg bg-red-100 text-[#ff2301] border border-red-200 font-black text-sm flex items-center justify-center uppercase shrink-0">
               {isSettingsLoading ? (

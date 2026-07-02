@@ -132,6 +132,7 @@ export default function SignupForm({ managerName }: { managerName?: string }) {
                   <option value="Business Development">Business Development</option>
                   <option value="Purchasing Manager">Purchasing Manager</option>
                   <option value="Warehouse Manager">Warehouse Manager</option>
+                  <option value="ผู้จัดการคลังสินค้าและจัดซื้อ">ผู้จัดการคลังสินค้าและจัดซื้อ</option>
                   <option value="Purchasing">Purchasing</option>
                   <option value="Accounting Manager">Accounting Manager</option>
                   <option value="Accounting">Accounting</option>

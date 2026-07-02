@@ -586,3 +586,33 @@ export async function notifyJobStepUpdate(jobId: string, stepKey: string, stepLa
     await pushLineMessage(lineUserId, [message]);
   }
 }
+
+// ================================================
+// getProcurementForJob
+// Fetches PR and PO data for a given job based on text match
+// ================================================
+export async function getProcurementForJob(customerName: string, projectName?: string) {
+  if (!customerName) return [];
+  
+  const searchTerms = [
+    { projectName: { contains: customerName, mode: 'insensitive' as const } }
+  ];
+  
+  if (projectName) {
+    searchTerms.push({ projectName: { contains: projectName, mode: 'insensitive' as const } });
+  }
+
+  const prs = await prisma.purchaseRequest.findMany({
+    where: {
+      OR: searchTerms
+    },
+    include: {
+      purchaseOrders: {
+        select: { poNumber: true, receiveStatus: true }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+  
+  return prs;
+}

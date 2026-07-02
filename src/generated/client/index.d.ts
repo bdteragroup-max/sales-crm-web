@@ -304,6 +304,11 @@ export type PurchaseRequest = $Result.DefaultSelection<Prisma.$PurchaseRequestPa
  */
 export type PurchaseOrder = $Result.DefaultSelection<Prisma.$PurchaseOrderPayload>
 /**
+ * Model GoodsReceipt
+ * 
+ */
+export type GoodsReceipt = $Result.DefaultSelection<Prisma.$GoodsReceiptPayload>
+/**
  * Model Project
  * 
  */
@@ -1186,6 +1191,16 @@ export class PrismaClient<
   get purchaseOrder(): Prisma.PurchaseOrderDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.goodsReceipt`: Exposes CRUD operations for the **GoodsReceipt** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GoodsReceipts
+    * const goodsReceipts = await prisma.goodsReceipt.findMany()
+    * ```
+    */
+  get goodsReceipt(): Prisma.GoodsReceiptDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.project`: Exposes CRUD operations for the **Project** model.
     * Example usage:
     * ```ts
@@ -2036,6 +2051,7 @@ export namespace Prisma {
     employee_trainings: 'employee_trainings',
     PurchaseRequest: 'PurchaseRequest',
     PurchaseOrder: 'PurchaseOrder',
+    GoodsReceipt: 'GoodsReceipt',
     Project: 'Project',
     ProjectEquipment: 'ProjectEquipment',
     ProjectMember: 'ProjectMember',
@@ -2087,7 +2103,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -6383,6 +6399,80 @@ export namespace Prisma {
           }
         }
       }
+      GoodsReceipt: {
+        payload: Prisma.$GoodsReceiptPayload<ExtArgs>
+        fields: Prisma.GoodsReceiptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GoodsReceiptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GoodsReceiptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload>
+          }
+          findFirst: {
+            args: Prisma.GoodsReceiptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GoodsReceiptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload>
+          }
+          findMany: {
+            args: Prisma.GoodsReceiptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload>[]
+          }
+          create: {
+            args: Prisma.GoodsReceiptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload>
+          }
+          createMany: {
+            args: Prisma.GoodsReceiptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GoodsReceiptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload>[]
+          }
+          delete: {
+            args: Prisma.GoodsReceiptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload>
+          }
+          update: {
+            args: Prisma.GoodsReceiptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload>
+          }
+          deleteMany: {
+            args: Prisma.GoodsReceiptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GoodsReceiptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GoodsReceiptUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload>[]
+          }
+          upsert: {
+            args: Prisma.GoodsReceiptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReceiptPayload>
+          }
+          aggregate: {
+            args: Prisma.GoodsReceiptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGoodsReceipt>
+          }
+          groupBy: {
+            args: Prisma.GoodsReceiptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GoodsReceiptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GoodsReceiptCountArgs<ExtArgs>
+            result: $Utils.Optional<GoodsReceiptCountAggregateOutputType> | number
+          }
+        }
+      }
       Project: {
         payload: Prisma.$ProjectPayload<ExtArgs>
         fields: Prisma.ProjectFieldRefs
@@ -9213,6 +9303,7 @@ export namespace Prisma {
     employee_trainings?: employee_trainingsOmit
     purchaseRequest?: PurchaseRequestOmit
     purchaseOrder?: PurchaseOrderOmit
+    goodsReceipt?: GoodsReceiptOmit
     project?: ProjectOmit
     projectEquipment?: ProjectEquipmentOmit
     projectMember?: ProjectMemberOmit
@@ -10468,6 +10559,37 @@ export namespace Prisma {
    */
   export type PurchaseRequestCountOutputTypeCountPurchaseOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PurchaseOrderWhereInput
+  }
+
+
+  /**
+   * Count Type PurchaseOrderCountOutputType
+   */
+
+  export type PurchaseOrderCountOutputType = {
+    goodsReceipts: number
+  }
+
+  export type PurchaseOrderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    goodsReceipts?: boolean | PurchaseOrderCountOutputTypeCountGoodsReceiptsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PurchaseOrderCountOutputType without action
+   */
+  export type PurchaseOrderCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PurchaseOrderCountOutputType
+     */
+    select?: PurchaseOrderCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PurchaseOrderCountOutputType without action
+   */
+  export type PurchaseOrderCountOutputTypeCountGoodsReceiptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GoodsReceiptWhereInput
   }
 
 
@@ -83387,7 +83509,9 @@ export namespace Prisma {
     receivedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    goodsReceipts?: boolean | PurchaseOrder$goodsReceiptsArgs<ExtArgs>
     purchaseRequest?: boolean | PurchaseOrder$purchaseRequestArgs<ExtArgs>
+    _count?: boolean | PurchaseOrderCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["purchaseOrder"]>
 
   export type PurchaseOrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -83469,7 +83593,9 @@ export namespace Prisma {
 
   export type PurchaseOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "no" | "recordedAt" | "prNumber" | "poNumber" | "vendorName" | "accountNumber" | "totalAmount" | "depositAmount" | "remainingAmount" | "payment1" | "creditTerm" | "jobName" | "itemList" | "deliveryDate" | "note" | "reportedBy" | "receiveStatus" | "receivedBy" | "receivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["purchaseOrder"]>
   export type PurchaseOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    goodsReceipts?: boolean | PurchaseOrder$goodsReceiptsArgs<ExtArgs>
     purchaseRequest?: boolean | PurchaseOrder$purchaseRequestArgs<ExtArgs>
+    _count?: boolean | PurchaseOrderCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PurchaseOrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     purchaseRequest?: boolean | PurchaseOrder$purchaseRequestArgs<ExtArgs>
@@ -83481,6 +83607,7 @@ export namespace Prisma {
   export type $PurchaseOrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "PurchaseOrder"
     objects: {
+      goodsReceipts: Prisma.$GoodsReceiptPayload<ExtArgs>[]
       purchaseRequest: Prisma.$PurchaseRequestPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -83900,6 +84027,7 @@ export namespace Prisma {
    */
   export interface Prisma__PurchaseOrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    goodsReceipts<T extends PurchaseOrder$goodsReceiptsArgs<ExtArgs> = {}>(args?: Subset<T, PurchaseOrder$goodsReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     purchaseRequest<T extends PurchaseOrder$purchaseRequestArgs<ExtArgs> = {}>(args?: Subset<T, PurchaseOrder$purchaseRequestArgs<ExtArgs>>): Prisma__PurchaseRequestClient<$Result.GetResult<Prisma.$PurchaseRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -84353,6 +84481,30 @@ export namespace Prisma {
   }
 
   /**
+   * PurchaseOrder.goodsReceipts
+   */
+  export type PurchaseOrder$goodsReceiptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
+    where?: GoodsReceiptWhereInput
+    orderBy?: GoodsReceiptOrderByWithRelationInput | GoodsReceiptOrderByWithRelationInput[]
+    cursor?: GoodsReceiptWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GoodsReceiptScalarFieldEnum | GoodsReceiptScalarFieldEnum[]
+  }
+
+  /**
    * PurchaseOrder.purchaseRequest
    */
   export type PurchaseOrder$purchaseRequestArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -84387,6 +84539,1297 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: PurchaseOrderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GoodsReceipt
+   */
+
+  export type AggregateGoodsReceipt = {
+    _count: GoodsReceiptCountAggregateOutputType | null
+    _avg: GoodsReceiptAvgAggregateOutputType | null
+    _sum: GoodsReceiptSumAggregateOutputType | null
+    _min: GoodsReceiptMinAggregateOutputType | null
+    _max: GoodsReceiptMaxAggregateOutputType | null
+  }
+
+  export type GoodsReceiptAvgAggregateOutputType = {
+    sequenceNo: number | null
+    quantity: Decimal | null
+    totalAmount: Decimal | null
+    deliveredQuantity: Decimal | null
+  }
+
+  export type GoodsReceiptSumAggregateOutputType = {
+    sequenceNo: number | null
+    quantity: Decimal | null
+    totalAmount: Decimal | null
+    deliveredQuantity: Decimal | null
+  }
+
+  export type GoodsReceiptMinAggregateOutputType = {
+    id: string | null
+    sequenceNo: number | null
+    recordedAt: Date | null
+    company: string | null
+    poNumber: string | null
+    item: string | null
+    quantity: Decimal | null
+    totalAmount: Decimal | null
+    creditTerm: string | null
+    status: string | null
+    targetDeliveryDate: Date | null
+    deliveredQuantity: Decimal | null
+    receivedAt: Date | null
+    deliveryNoteNumber: string | null
+    recipient: string | null
+    isCompleteDelivery: boolean | null
+    isIncompleteDelivery: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GoodsReceiptMaxAggregateOutputType = {
+    id: string | null
+    sequenceNo: number | null
+    recordedAt: Date | null
+    company: string | null
+    poNumber: string | null
+    item: string | null
+    quantity: Decimal | null
+    totalAmount: Decimal | null
+    creditTerm: string | null
+    status: string | null
+    targetDeliveryDate: Date | null
+    deliveredQuantity: Decimal | null
+    receivedAt: Date | null
+    deliveryNoteNumber: string | null
+    recipient: string | null
+    isCompleteDelivery: boolean | null
+    isIncompleteDelivery: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GoodsReceiptCountAggregateOutputType = {
+    id: number
+    sequenceNo: number
+    recordedAt: number
+    company: number
+    poNumber: number
+    item: number
+    quantity: number
+    totalAmount: number
+    creditTerm: number
+    status: number
+    targetDeliveryDate: number
+    deliveredQuantity: number
+    receivedAt: number
+    deliveryNoteNumber: number
+    recipient: number
+    isCompleteDelivery: number
+    isIncompleteDelivery: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GoodsReceiptAvgAggregateInputType = {
+    sequenceNo?: true
+    quantity?: true
+    totalAmount?: true
+    deliveredQuantity?: true
+  }
+
+  export type GoodsReceiptSumAggregateInputType = {
+    sequenceNo?: true
+    quantity?: true
+    totalAmount?: true
+    deliveredQuantity?: true
+  }
+
+  export type GoodsReceiptMinAggregateInputType = {
+    id?: true
+    sequenceNo?: true
+    recordedAt?: true
+    company?: true
+    poNumber?: true
+    item?: true
+    quantity?: true
+    totalAmount?: true
+    creditTerm?: true
+    status?: true
+    targetDeliveryDate?: true
+    deliveredQuantity?: true
+    receivedAt?: true
+    deliveryNoteNumber?: true
+    recipient?: true
+    isCompleteDelivery?: true
+    isIncompleteDelivery?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GoodsReceiptMaxAggregateInputType = {
+    id?: true
+    sequenceNo?: true
+    recordedAt?: true
+    company?: true
+    poNumber?: true
+    item?: true
+    quantity?: true
+    totalAmount?: true
+    creditTerm?: true
+    status?: true
+    targetDeliveryDate?: true
+    deliveredQuantity?: true
+    receivedAt?: true
+    deliveryNoteNumber?: true
+    recipient?: true
+    isCompleteDelivery?: true
+    isIncompleteDelivery?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GoodsReceiptCountAggregateInputType = {
+    id?: true
+    sequenceNo?: true
+    recordedAt?: true
+    company?: true
+    poNumber?: true
+    item?: true
+    quantity?: true
+    totalAmount?: true
+    creditTerm?: true
+    status?: true
+    targetDeliveryDate?: true
+    deliveredQuantity?: true
+    receivedAt?: true
+    deliveryNoteNumber?: true
+    recipient?: true
+    isCompleteDelivery?: true
+    isIncompleteDelivery?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GoodsReceiptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GoodsReceipt to aggregate.
+     */
+    where?: GoodsReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoodsReceipts to fetch.
+     */
+    orderBy?: GoodsReceiptOrderByWithRelationInput | GoodsReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GoodsReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoodsReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoodsReceipts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GoodsReceipts
+    **/
+    _count?: true | GoodsReceiptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GoodsReceiptAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GoodsReceiptSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GoodsReceiptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GoodsReceiptMaxAggregateInputType
+  }
+
+  export type GetGoodsReceiptAggregateType<T extends GoodsReceiptAggregateArgs> = {
+        [P in keyof T & keyof AggregateGoodsReceipt]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGoodsReceipt[P]>
+      : GetScalarType<T[P], AggregateGoodsReceipt[P]>
+  }
+
+
+
+
+  export type GoodsReceiptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GoodsReceiptWhereInput
+    orderBy?: GoodsReceiptOrderByWithAggregationInput | GoodsReceiptOrderByWithAggregationInput[]
+    by: GoodsReceiptScalarFieldEnum[] | GoodsReceiptScalarFieldEnum
+    having?: GoodsReceiptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GoodsReceiptCountAggregateInputType | true
+    _avg?: GoodsReceiptAvgAggregateInputType
+    _sum?: GoodsReceiptSumAggregateInputType
+    _min?: GoodsReceiptMinAggregateInputType
+    _max?: GoodsReceiptMaxAggregateInputType
+  }
+
+  export type GoodsReceiptGroupByOutputType = {
+    id: string
+    sequenceNo: number | null
+    recordedAt: Date | null
+    company: string | null
+    poNumber: string
+    item: string | null
+    quantity: Decimal | null
+    totalAmount: Decimal | null
+    creditTerm: string | null
+    status: string | null
+    targetDeliveryDate: Date | null
+    deliveredQuantity: Decimal | null
+    receivedAt: Date | null
+    deliveryNoteNumber: string | null
+    recipient: string | null
+    isCompleteDelivery: boolean
+    isIncompleteDelivery: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: GoodsReceiptCountAggregateOutputType | null
+    _avg: GoodsReceiptAvgAggregateOutputType | null
+    _sum: GoodsReceiptSumAggregateOutputType | null
+    _min: GoodsReceiptMinAggregateOutputType | null
+    _max: GoodsReceiptMaxAggregateOutputType | null
+  }
+
+  type GetGoodsReceiptGroupByPayload<T extends GoodsReceiptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GoodsReceiptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GoodsReceiptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GoodsReceiptGroupByOutputType[P]>
+            : GetScalarType<T[P], GoodsReceiptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GoodsReceiptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sequenceNo?: boolean
+    recordedAt?: boolean
+    company?: boolean
+    poNumber?: boolean
+    item?: boolean
+    quantity?: boolean
+    totalAmount?: boolean
+    creditTerm?: boolean
+    status?: boolean
+    targetDeliveryDate?: boolean
+    deliveredQuantity?: boolean
+    receivedAt?: boolean
+    deliveryNoteNumber?: boolean
+    recipient?: boolean
+    isCompleteDelivery?: boolean
+    isIncompleteDelivery?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    purchaseOrder?: boolean | PurchaseOrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["goodsReceipt"]>
+
+  export type GoodsReceiptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sequenceNo?: boolean
+    recordedAt?: boolean
+    company?: boolean
+    poNumber?: boolean
+    item?: boolean
+    quantity?: boolean
+    totalAmount?: boolean
+    creditTerm?: boolean
+    status?: boolean
+    targetDeliveryDate?: boolean
+    deliveredQuantity?: boolean
+    receivedAt?: boolean
+    deliveryNoteNumber?: boolean
+    recipient?: boolean
+    isCompleteDelivery?: boolean
+    isIncompleteDelivery?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    purchaseOrder?: boolean | PurchaseOrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["goodsReceipt"]>
+
+  export type GoodsReceiptSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sequenceNo?: boolean
+    recordedAt?: boolean
+    company?: boolean
+    poNumber?: boolean
+    item?: boolean
+    quantity?: boolean
+    totalAmount?: boolean
+    creditTerm?: boolean
+    status?: boolean
+    targetDeliveryDate?: boolean
+    deliveredQuantity?: boolean
+    receivedAt?: boolean
+    deliveryNoteNumber?: boolean
+    recipient?: boolean
+    isCompleteDelivery?: boolean
+    isIncompleteDelivery?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    purchaseOrder?: boolean | PurchaseOrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["goodsReceipt"]>
+
+  export type GoodsReceiptSelectScalar = {
+    id?: boolean
+    sequenceNo?: boolean
+    recordedAt?: boolean
+    company?: boolean
+    poNumber?: boolean
+    item?: boolean
+    quantity?: boolean
+    totalAmount?: boolean
+    creditTerm?: boolean
+    status?: boolean
+    targetDeliveryDate?: boolean
+    deliveredQuantity?: boolean
+    receivedAt?: boolean
+    deliveryNoteNumber?: boolean
+    recipient?: boolean
+    isCompleteDelivery?: boolean
+    isIncompleteDelivery?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GoodsReceiptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sequenceNo" | "recordedAt" | "company" | "poNumber" | "item" | "quantity" | "totalAmount" | "creditTerm" | "status" | "targetDeliveryDate" | "deliveredQuantity" | "receivedAt" | "deliveryNoteNumber" | "recipient" | "isCompleteDelivery" | "isIncompleteDelivery" | "createdAt" | "updatedAt", ExtArgs["result"]["goodsReceipt"]>
+  export type GoodsReceiptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    purchaseOrder?: boolean | PurchaseOrderDefaultArgs<ExtArgs>
+  }
+  export type GoodsReceiptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    purchaseOrder?: boolean | PurchaseOrderDefaultArgs<ExtArgs>
+  }
+  export type GoodsReceiptIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    purchaseOrder?: boolean | PurchaseOrderDefaultArgs<ExtArgs>
+  }
+
+  export type $GoodsReceiptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GoodsReceipt"
+    objects: {
+      purchaseOrder: Prisma.$PurchaseOrderPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sequenceNo: number | null
+      recordedAt: Date | null
+      company: string | null
+      poNumber: string
+      item: string | null
+      quantity: Prisma.Decimal | null
+      totalAmount: Prisma.Decimal | null
+      creditTerm: string | null
+      status: string | null
+      targetDeliveryDate: Date | null
+      deliveredQuantity: Prisma.Decimal | null
+      receivedAt: Date | null
+      deliveryNoteNumber: string | null
+      recipient: string | null
+      isCompleteDelivery: boolean
+      isIncompleteDelivery: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["goodsReceipt"]>
+    composites: {}
+  }
+
+  type GoodsReceiptGetPayload<S extends boolean | null | undefined | GoodsReceiptDefaultArgs> = $Result.GetResult<Prisma.$GoodsReceiptPayload, S>
+
+  type GoodsReceiptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GoodsReceiptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GoodsReceiptCountAggregateInputType | true
+    }
+
+  export interface GoodsReceiptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GoodsReceipt'], meta: { name: 'GoodsReceipt' } }
+    /**
+     * Find zero or one GoodsReceipt that matches the filter.
+     * @param {GoodsReceiptFindUniqueArgs} args - Arguments to find a GoodsReceipt
+     * @example
+     * // Get one GoodsReceipt
+     * const goodsReceipt = await prisma.goodsReceipt.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GoodsReceiptFindUniqueArgs>(args: SelectSubset<T, GoodsReceiptFindUniqueArgs<ExtArgs>>): Prisma__GoodsReceiptClient<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GoodsReceipt that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GoodsReceiptFindUniqueOrThrowArgs} args - Arguments to find a GoodsReceipt
+     * @example
+     * // Get one GoodsReceipt
+     * const goodsReceipt = await prisma.goodsReceipt.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GoodsReceiptFindUniqueOrThrowArgs>(args: SelectSubset<T, GoodsReceiptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GoodsReceiptClient<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GoodsReceipt that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReceiptFindFirstArgs} args - Arguments to find a GoodsReceipt
+     * @example
+     * // Get one GoodsReceipt
+     * const goodsReceipt = await prisma.goodsReceipt.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GoodsReceiptFindFirstArgs>(args?: SelectSubset<T, GoodsReceiptFindFirstArgs<ExtArgs>>): Prisma__GoodsReceiptClient<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GoodsReceipt that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReceiptFindFirstOrThrowArgs} args - Arguments to find a GoodsReceipt
+     * @example
+     * // Get one GoodsReceipt
+     * const goodsReceipt = await prisma.goodsReceipt.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GoodsReceiptFindFirstOrThrowArgs>(args?: SelectSubset<T, GoodsReceiptFindFirstOrThrowArgs<ExtArgs>>): Prisma__GoodsReceiptClient<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GoodsReceipts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReceiptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GoodsReceipts
+     * const goodsReceipts = await prisma.goodsReceipt.findMany()
+     * 
+     * // Get first 10 GoodsReceipts
+     * const goodsReceipts = await prisma.goodsReceipt.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const goodsReceiptWithIdOnly = await prisma.goodsReceipt.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GoodsReceiptFindManyArgs>(args?: SelectSubset<T, GoodsReceiptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GoodsReceipt.
+     * @param {GoodsReceiptCreateArgs} args - Arguments to create a GoodsReceipt.
+     * @example
+     * // Create one GoodsReceipt
+     * const GoodsReceipt = await prisma.goodsReceipt.create({
+     *   data: {
+     *     // ... data to create a GoodsReceipt
+     *   }
+     * })
+     * 
+     */
+    create<T extends GoodsReceiptCreateArgs>(args: SelectSubset<T, GoodsReceiptCreateArgs<ExtArgs>>): Prisma__GoodsReceiptClient<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GoodsReceipts.
+     * @param {GoodsReceiptCreateManyArgs} args - Arguments to create many GoodsReceipts.
+     * @example
+     * // Create many GoodsReceipts
+     * const goodsReceipt = await prisma.goodsReceipt.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GoodsReceiptCreateManyArgs>(args?: SelectSubset<T, GoodsReceiptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GoodsReceipts and returns the data saved in the database.
+     * @param {GoodsReceiptCreateManyAndReturnArgs} args - Arguments to create many GoodsReceipts.
+     * @example
+     * // Create many GoodsReceipts
+     * const goodsReceipt = await prisma.goodsReceipt.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GoodsReceipts and only return the `id`
+     * const goodsReceiptWithIdOnly = await prisma.goodsReceipt.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GoodsReceiptCreateManyAndReturnArgs>(args?: SelectSubset<T, GoodsReceiptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GoodsReceipt.
+     * @param {GoodsReceiptDeleteArgs} args - Arguments to delete one GoodsReceipt.
+     * @example
+     * // Delete one GoodsReceipt
+     * const GoodsReceipt = await prisma.goodsReceipt.delete({
+     *   where: {
+     *     // ... filter to delete one GoodsReceipt
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GoodsReceiptDeleteArgs>(args: SelectSubset<T, GoodsReceiptDeleteArgs<ExtArgs>>): Prisma__GoodsReceiptClient<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GoodsReceipt.
+     * @param {GoodsReceiptUpdateArgs} args - Arguments to update one GoodsReceipt.
+     * @example
+     * // Update one GoodsReceipt
+     * const goodsReceipt = await prisma.goodsReceipt.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GoodsReceiptUpdateArgs>(args: SelectSubset<T, GoodsReceiptUpdateArgs<ExtArgs>>): Prisma__GoodsReceiptClient<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GoodsReceipts.
+     * @param {GoodsReceiptDeleteManyArgs} args - Arguments to filter GoodsReceipts to delete.
+     * @example
+     * // Delete a few GoodsReceipts
+     * const { count } = await prisma.goodsReceipt.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GoodsReceiptDeleteManyArgs>(args?: SelectSubset<T, GoodsReceiptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GoodsReceipts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReceiptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GoodsReceipts
+     * const goodsReceipt = await prisma.goodsReceipt.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GoodsReceiptUpdateManyArgs>(args: SelectSubset<T, GoodsReceiptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GoodsReceipts and returns the data updated in the database.
+     * @param {GoodsReceiptUpdateManyAndReturnArgs} args - Arguments to update many GoodsReceipts.
+     * @example
+     * // Update many GoodsReceipts
+     * const goodsReceipt = await prisma.goodsReceipt.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GoodsReceipts and only return the `id`
+     * const goodsReceiptWithIdOnly = await prisma.goodsReceipt.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GoodsReceiptUpdateManyAndReturnArgs>(args: SelectSubset<T, GoodsReceiptUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GoodsReceipt.
+     * @param {GoodsReceiptUpsertArgs} args - Arguments to update or create a GoodsReceipt.
+     * @example
+     * // Update or create a GoodsReceipt
+     * const goodsReceipt = await prisma.goodsReceipt.upsert({
+     *   create: {
+     *     // ... data to create a GoodsReceipt
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GoodsReceipt we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GoodsReceiptUpsertArgs>(args: SelectSubset<T, GoodsReceiptUpsertArgs<ExtArgs>>): Prisma__GoodsReceiptClient<$Result.GetResult<Prisma.$GoodsReceiptPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GoodsReceipts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReceiptCountArgs} args - Arguments to filter GoodsReceipts to count.
+     * @example
+     * // Count the number of GoodsReceipts
+     * const count = await prisma.goodsReceipt.count({
+     *   where: {
+     *     // ... the filter for the GoodsReceipts we want to count
+     *   }
+     * })
+    **/
+    count<T extends GoodsReceiptCountArgs>(
+      args?: Subset<T, GoodsReceiptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GoodsReceiptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GoodsReceipt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReceiptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GoodsReceiptAggregateArgs>(args: Subset<T, GoodsReceiptAggregateArgs>): Prisma.PrismaPromise<GetGoodsReceiptAggregateType<T>>
+
+    /**
+     * Group by GoodsReceipt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReceiptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GoodsReceiptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GoodsReceiptGroupByArgs['orderBy'] }
+        : { orderBy?: GoodsReceiptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GoodsReceiptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGoodsReceiptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GoodsReceipt model
+   */
+  readonly fields: GoodsReceiptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GoodsReceipt.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GoodsReceiptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    purchaseOrder<T extends PurchaseOrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PurchaseOrderDefaultArgs<ExtArgs>>): Prisma__PurchaseOrderClient<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GoodsReceipt model
+   */
+  interface GoodsReceiptFieldRefs {
+    readonly id: FieldRef<"GoodsReceipt", 'String'>
+    readonly sequenceNo: FieldRef<"GoodsReceipt", 'Int'>
+    readonly recordedAt: FieldRef<"GoodsReceipt", 'DateTime'>
+    readonly company: FieldRef<"GoodsReceipt", 'String'>
+    readonly poNumber: FieldRef<"GoodsReceipt", 'String'>
+    readonly item: FieldRef<"GoodsReceipt", 'String'>
+    readonly quantity: FieldRef<"GoodsReceipt", 'Decimal'>
+    readonly totalAmount: FieldRef<"GoodsReceipt", 'Decimal'>
+    readonly creditTerm: FieldRef<"GoodsReceipt", 'String'>
+    readonly status: FieldRef<"GoodsReceipt", 'String'>
+    readonly targetDeliveryDate: FieldRef<"GoodsReceipt", 'DateTime'>
+    readonly deliveredQuantity: FieldRef<"GoodsReceipt", 'Decimal'>
+    readonly receivedAt: FieldRef<"GoodsReceipt", 'DateTime'>
+    readonly deliveryNoteNumber: FieldRef<"GoodsReceipt", 'String'>
+    readonly recipient: FieldRef<"GoodsReceipt", 'String'>
+    readonly isCompleteDelivery: FieldRef<"GoodsReceipt", 'Boolean'>
+    readonly isIncompleteDelivery: FieldRef<"GoodsReceipt", 'Boolean'>
+    readonly createdAt: FieldRef<"GoodsReceipt", 'DateTime'>
+    readonly updatedAt: FieldRef<"GoodsReceipt", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GoodsReceipt findUnique
+   */
+  export type GoodsReceiptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter, which GoodsReceipt to fetch.
+     */
+    where: GoodsReceiptWhereUniqueInput
+  }
+
+  /**
+   * GoodsReceipt findUniqueOrThrow
+   */
+  export type GoodsReceiptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter, which GoodsReceipt to fetch.
+     */
+    where: GoodsReceiptWhereUniqueInput
+  }
+
+  /**
+   * GoodsReceipt findFirst
+   */
+  export type GoodsReceiptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter, which GoodsReceipt to fetch.
+     */
+    where?: GoodsReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoodsReceipts to fetch.
+     */
+    orderBy?: GoodsReceiptOrderByWithRelationInput | GoodsReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GoodsReceipts.
+     */
+    cursor?: GoodsReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoodsReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoodsReceipts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GoodsReceipts.
+     */
+    distinct?: GoodsReceiptScalarFieldEnum | GoodsReceiptScalarFieldEnum[]
+  }
+
+  /**
+   * GoodsReceipt findFirstOrThrow
+   */
+  export type GoodsReceiptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter, which GoodsReceipt to fetch.
+     */
+    where?: GoodsReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoodsReceipts to fetch.
+     */
+    orderBy?: GoodsReceiptOrderByWithRelationInput | GoodsReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GoodsReceipts.
+     */
+    cursor?: GoodsReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoodsReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoodsReceipts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GoodsReceipts.
+     */
+    distinct?: GoodsReceiptScalarFieldEnum | GoodsReceiptScalarFieldEnum[]
+  }
+
+  /**
+   * GoodsReceipt findMany
+   */
+  export type GoodsReceiptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter, which GoodsReceipts to fetch.
+     */
+    where?: GoodsReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoodsReceipts to fetch.
+     */
+    orderBy?: GoodsReceiptOrderByWithRelationInput | GoodsReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GoodsReceipts.
+     */
+    cursor?: GoodsReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoodsReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoodsReceipts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GoodsReceipts.
+     */
+    distinct?: GoodsReceiptScalarFieldEnum | GoodsReceiptScalarFieldEnum[]
+  }
+
+  /**
+   * GoodsReceipt create
+   */
+  export type GoodsReceiptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GoodsReceipt.
+     */
+    data: XOR<GoodsReceiptCreateInput, GoodsReceiptUncheckedCreateInput>
+  }
+
+  /**
+   * GoodsReceipt createMany
+   */
+  export type GoodsReceiptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GoodsReceipts.
+     */
+    data: GoodsReceiptCreateManyInput | GoodsReceiptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GoodsReceipt createManyAndReturn
+   */
+  export type GoodsReceiptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * The data used to create many GoodsReceipts.
+     */
+    data: GoodsReceiptCreateManyInput | GoodsReceiptCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GoodsReceipt update
+   */
+  export type GoodsReceiptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GoodsReceipt.
+     */
+    data: XOR<GoodsReceiptUpdateInput, GoodsReceiptUncheckedUpdateInput>
+    /**
+     * Choose, which GoodsReceipt to update.
+     */
+    where: GoodsReceiptWhereUniqueInput
+  }
+
+  /**
+   * GoodsReceipt updateMany
+   */
+  export type GoodsReceiptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GoodsReceipts.
+     */
+    data: XOR<GoodsReceiptUpdateManyMutationInput, GoodsReceiptUncheckedUpdateManyInput>
+    /**
+     * Filter which GoodsReceipts to update
+     */
+    where?: GoodsReceiptWhereInput
+    /**
+     * Limit how many GoodsReceipts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GoodsReceipt updateManyAndReturn
+   */
+  export type GoodsReceiptUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * The data used to update GoodsReceipts.
+     */
+    data: XOR<GoodsReceiptUpdateManyMutationInput, GoodsReceiptUncheckedUpdateManyInput>
+    /**
+     * Filter which GoodsReceipts to update
+     */
+    where?: GoodsReceiptWhereInput
+    /**
+     * Limit how many GoodsReceipts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GoodsReceipt upsert
+   */
+  export type GoodsReceiptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GoodsReceipt to update in case it exists.
+     */
+    where: GoodsReceiptWhereUniqueInput
+    /**
+     * In case the GoodsReceipt found by the `where` argument doesn't exist, create a new GoodsReceipt with this data.
+     */
+    create: XOR<GoodsReceiptCreateInput, GoodsReceiptUncheckedCreateInput>
+    /**
+     * In case the GoodsReceipt was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GoodsReceiptUpdateInput, GoodsReceiptUncheckedUpdateInput>
+  }
+
+  /**
+   * GoodsReceipt delete
+   */
+  export type GoodsReceiptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
+    /**
+     * Filter which GoodsReceipt to delete.
+     */
+    where: GoodsReceiptWhereUniqueInput
+  }
+
+  /**
+   * GoodsReceipt deleteMany
+   */
+  export type GoodsReceiptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GoodsReceipts to delete
+     */
+    where?: GoodsReceiptWhereInput
+    /**
+     * Limit how many GoodsReceipts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GoodsReceipt without action
+   */
+  export type GoodsReceiptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReceipt
+     */
+    select?: GoodsReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReceipt
+     */
+    omit?: GoodsReceiptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReceiptInclude<ExtArgs> | null
   }
 
 
@@ -128506,6 +129949,31 @@ export namespace Prisma {
   export type PurchaseOrderScalarFieldEnum = (typeof PurchaseOrderScalarFieldEnum)[keyof typeof PurchaseOrderScalarFieldEnum]
 
 
+  export const GoodsReceiptScalarFieldEnum: {
+    id: 'id',
+    sequenceNo: 'sequenceNo',
+    recordedAt: 'recordedAt',
+    company: 'company',
+    poNumber: 'poNumber',
+    item: 'item',
+    quantity: 'quantity',
+    totalAmount: 'totalAmount',
+    creditTerm: 'creditTerm',
+    status: 'status',
+    targetDeliveryDate: 'targetDeliveryDate',
+    deliveredQuantity: 'deliveredQuantity',
+    receivedAt: 'receivedAt',
+    deliveryNoteNumber: 'deliveryNoteNumber',
+    recipient: 'recipient',
+    isCompleteDelivery: 'isCompleteDelivery',
+    isIncompleteDelivery: 'isIncompleteDelivery',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GoodsReceiptScalarFieldEnum = (typeof GoodsReceiptScalarFieldEnum)[keyof typeof GoodsReceiptScalarFieldEnum]
+
+
   export const ProjectScalarFieldEnum: {
     id: 'id',
     projectNumber: 'projectNumber',
@@ -135537,6 +137005,7 @@ export namespace Prisma {
     receivedAt?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
     createdAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
     updatedAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
+    goodsReceipts?: GoodsReceiptListRelationFilter
     purchaseRequest?: XOR<PurchaseRequestNullableScalarRelationFilter, PurchaseRequestWhereInput> | null
   }
 
@@ -135563,6 +137032,7 @@ export namespace Prisma {
     receivedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    goodsReceipts?: GoodsReceiptOrderByRelationAggregateInput
     purchaseRequest?: PurchaseRequestOrderByWithRelationInput
   }
 
@@ -135592,6 +137062,7 @@ export namespace Prisma {
     receivedAt?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
     createdAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
     updatedAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
+    goodsReceipts?: GoodsReceiptListRelationFilter
     purchaseRequest?: XOR<PurchaseRequestNullableScalarRelationFilter, PurchaseRequestWhereInput> | null
   }, "id" | "poNumber">
 
@@ -135651,6 +137122,134 @@ export namespace Prisma {
     receivedAt?: DateTimeNullableWithAggregatesFilter<"PurchaseOrder"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"PurchaseOrder"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PurchaseOrder"> | Date | string
+  }
+
+  export type GoodsReceiptWhereInput = {
+    AND?: GoodsReceiptWhereInput | GoodsReceiptWhereInput[]
+    OR?: GoodsReceiptWhereInput[]
+    NOT?: GoodsReceiptWhereInput | GoodsReceiptWhereInput[]
+    id?: StringFilter<"GoodsReceipt"> | string
+    sequenceNo?: IntNullableFilter<"GoodsReceipt"> | number | null
+    recordedAt?: DateTimeNullableFilter<"GoodsReceipt"> | Date | string | null
+    company?: StringNullableFilter<"GoodsReceipt"> | string | null
+    poNumber?: StringFilter<"GoodsReceipt"> | string
+    item?: StringNullableFilter<"GoodsReceipt"> | string | null
+    quantity?: DecimalNullableFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: DecimalNullableFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: StringNullableFilter<"GoodsReceipt"> | string | null
+    status?: StringNullableFilter<"GoodsReceipt"> | string | null
+    targetDeliveryDate?: DateTimeNullableFilter<"GoodsReceipt"> | Date | string | null
+    deliveredQuantity?: DecimalNullableFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: DateTimeNullableFilter<"GoodsReceipt"> | Date | string | null
+    deliveryNoteNumber?: StringNullableFilter<"GoodsReceipt"> | string | null
+    recipient?: StringNullableFilter<"GoodsReceipt"> | string | null
+    isCompleteDelivery?: BoolFilter<"GoodsReceipt"> | boolean
+    isIncompleteDelivery?: BoolFilter<"GoodsReceipt"> | boolean
+    createdAt?: DateTimeFilter<"GoodsReceipt"> | Date | string
+    updatedAt?: DateTimeFilter<"GoodsReceipt"> | Date | string
+    purchaseOrder?: XOR<PurchaseOrderScalarRelationFilter, PurchaseOrderWhereInput>
+  }
+
+  export type GoodsReceiptOrderByWithRelationInput = {
+    id?: SortOrder
+    sequenceNo?: SortOrderInput | SortOrder
+    recordedAt?: SortOrderInput | SortOrder
+    company?: SortOrderInput | SortOrder
+    poNumber?: SortOrder
+    item?: SortOrderInput | SortOrder
+    quantity?: SortOrderInput | SortOrder
+    totalAmount?: SortOrderInput | SortOrder
+    creditTerm?: SortOrderInput | SortOrder
+    status?: SortOrderInput | SortOrder
+    targetDeliveryDate?: SortOrderInput | SortOrder
+    deliveredQuantity?: SortOrderInput | SortOrder
+    receivedAt?: SortOrderInput | SortOrder
+    deliveryNoteNumber?: SortOrderInput | SortOrder
+    recipient?: SortOrderInput | SortOrder
+    isCompleteDelivery?: SortOrder
+    isIncompleteDelivery?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    purchaseOrder?: PurchaseOrderOrderByWithRelationInput
+  }
+
+  export type GoodsReceiptWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    poNumber_sequenceNo?: GoodsReceiptPoNumberSequenceNoCompoundUniqueInput
+    AND?: GoodsReceiptWhereInput | GoodsReceiptWhereInput[]
+    OR?: GoodsReceiptWhereInput[]
+    NOT?: GoodsReceiptWhereInput | GoodsReceiptWhereInput[]
+    sequenceNo?: IntNullableFilter<"GoodsReceipt"> | number | null
+    recordedAt?: DateTimeNullableFilter<"GoodsReceipt"> | Date | string | null
+    company?: StringNullableFilter<"GoodsReceipt"> | string | null
+    poNumber?: StringFilter<"GoodsReceipt"> | string
+    item?: StringNullableFilter<"GoodsReceipt"> | string | null
+    quantity?: DecimalNullableFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: DecimalNullableFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: StringNullableFilter<"GoodsReceipt"> | string | null
+    status?: StringNullableFilter<"GoodsReceipt"> | string | null
+    targetDeliveryDate?: DateTimeNullableFilter<"GoodsReceipt"> | Date | string | null
+    deliveredQuantity?: DecimalNullableFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: DateTimeNullableFilter<"GoodsReceipt"> | Date | string | null
+    deliveryNoteNumber?: StringNullableFilter<"GoodsReceipt"> | string | null
+    recipient?: StringNullableFilter<"GoodsReceipt"> | string | null
+    isCompleteDelivery?: BoolFilter<"GoodsReceipt"> | boolean
+    isIncompleteDelivery?: BoolFilter<"GoodsReceipt"> | boolean
+    createdAt?: DateTimeFilter<"GoodsReceipt"> | Date | string
+    updatedAt?: DateTimeFilter<"GoodsReceipt"> | Date | string
+    purchaseOrder?: XOR<PurchaseOrderScalarRelationFilter, PurchaseOrderWhereInput>
+  }, "id" | "poNumber_sequenceNo">
+
+  export type GoodsReceiptOrderByWithAggregationInput = {
+    id?: SortOrder
+    sequenceNo?: SortOrderInput | SortOrder
+    recordedAt?: SortOrderInput | SortOrder
+    company?: SortOrderInput | SortOrder
+    poNumber?: SortOrder
+    item?: SortOrderInput | SortOrder
+    quantity?: SortOrderInput | SortOrder
+    totalAmount?: SortOrderInput | SortOrder
+    creditTerm?: SortOrderInput | SortOrder
+    status?: SortOrderInput | SortOrder
+    targetDeliveryDate?: SortOrderInput | SortOrder
+    deliveredQuantity?: SortOrderInput | SortOrder
+    receivedAt?: SortOrderInput | SortOrder
+    deliveryNoteNumber?: SortOrderInput | SortOrder
+    recipient?: SortOrderInput | SortOrder
+    isCompleteDelivery?: SortOrder
+    isIncompleteDelivery?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GoodsReceiptCountOrderByAggregateInput
+    _avg?: GoodsReceiptAvgOrderByAggregateInput
+    _max?: GoodsReceiptMaxOrderByAggregateInput
+    _min?: GoodsReceiptMinOrderByAggregateInput
+    _sum?: GoodsReceiptSumOrderByAggregateInput
+  }
+
+  export type GoodsReceiptScalarWhereWithAggregatesInput = {
+    AND?: GoodsReceiptScalarWhereWithAggregatesInput | GoodsReceiptScalarWhereWithAggregatesInput[]
+    OR?: GoodsReceiptScalarWhereWithAggregatesInput[]
+    NOT?: GoodsReceiptScalarWhereWithAggregatesInput | GoodsReceiptScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GoodsReceipt"> | string
+    sequenceNo?: IntNullableWithAggregatesFilter<"GoodsReceipt"> | number | null
+    recordedAt?: DateTimeNullableWithAggregatesFilter<"GoodsReceipt"> | Date | string | null
+    company?: StringNullableWithAggregatesFilter<"GoodsReceipt"> | string | null
+    poNumber?: StringWithAggregatesFilter<"GoodsReceipt"> | string
+    item?: StringNullableWithAggregatesFilter<"GoodsReceipt"> | string | null
+    quantity?: DecimalNullableWithAggregatesFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: DecimalNullableWithAggregatesFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: StringNullableWithAggregatesFilter<"GoodsReceipt"> | string | null
+    status?: StringNullableWithAggregatesFilter<"GoodsReceipt"> | string | null
+    targetDeliveryDate?: DateTimeNullableWithAggregatesFilter<"GoodsReceipt"> | Date | string | null
+    deliveredQuantity?: DecimalNullableWithAggregatesFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: DateTimeNullableWithAggregatesFilter<"GoodsReceipt"> | Date | string | null
+    deliveryNoteNumber?: StringNullableWithAggregatesFilter<"GoodsReceipt"> | string | null
+    recipient?: StringNullableWithAggregatesFilter<"GoodsReceipt"> | string | null
+    isCompleteDelivery?: BoolWithAggregatesFilter<"GoodsReceipt"> | boolean
+    isIncompleteDelivery?: BoolWithAggregatesFilter<"GoodsReceipt"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"GoodsReceipt"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GoodsReceipt"> | Date | string
   }
 
   export type ProjectWhereInput = {
@@ -146069,6 +147668,7 @@ export namespace Prisma {
     receivedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    goodsReceipts?: GoodsReceiptCreateNestedManyWithoutPurchaseOrderInput
     purchaseRequest?: PurchaseRequestCreateNestedOneWithoutPurchaseOrdersInput
   }
 
@@ -146095,6 +147695,7 @@ export namespace Prisma {
     receivedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    goodsReceipts?: GoodsReceiptUncheckedCreateNestedManyWithoutPurchaseOrderInput
   }
 
   export type PurchaseOrderUpdateInput = {
@@ -146118,6 +147719,7 @@ export namespace Prisma {
     receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    goodsReceipts?: GoodsReceiptUpdateManyWithoutPurchaseOrderNestedInput
     purchaseRequest?: PurchaseRequestUpdateOneWithoutPurchaseOrdersNestedInput
   }
 
@@ -146144,6 +147746,7 @@ export namespace Prisma {
     receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    goodsReceipts?: GoodsReceiptUncheckedUpdateManyWithoutPurchaseOrderNestedInput
   }
 
   export type PurchaseOrderCreateManyInput = {
@@ -146215,6 +147818,159 @@ export namespace Prisma {
     receiveStatus?: NullableStringFieldUpdateOperationsInput | string | null
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
     receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GoodsReceiptCreateInput = {
+    id?: string
+    sequenceNo?: number | null
+    recordedAt?: Date | string | null
+    company?: string | null
+    item?: string | null
+    quantity?: Decimal | DecimalJsLike | number | string | null
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    creditTerm?: string | null
+    status?: string | null
+    targetDeliveryDate?: Date | string | null
+    deliveredQuantity?: Decimal | DecimalJsLike | number | string | null
+    receivedAt?: Date | string | null
+    deliveryNoteNumber?: string | null
+    recipient?: string | null
+    isCompleteDelivery?: boolean
+    isIncompleteDelivery?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    purchaseOrder: PurchaseOrderCreateNestedOneWithoutGoodsReceiptsInput
+  }
+
+  export type GoodsReceiptUncheckedCreateInput = {
+    id?: string
+    sequenceNo?: number | null
+    recordedAt?: Date | string | null
+    company?: string | null
+    poNumber: string
+    item?: string | null
+    quantity?: Decimal | DecimalJsLike | number | string | null
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    creditTerm?: string | null
+    status?: string | null
+    targetDeliveryDate?: Date | string | null
+    deliveredQuantity?: Decimal | DecimalJsLike | number | string | null
+    receivedAt?: Date | string | null
+    deliveryNoteNumber?: string | null
+    recipient?: string | null
+    isCompleteDelivery?: boolean
+    isIncompleteDelivery?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GoodsReceiptUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceNo?: NullableIntFieldUpdateOperationsInput | number | null
+    recordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredQuantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryNoteNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    isIncompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    purchaseOrder?: PurchaseOrderUpdateOneRequiredWithoutGoodsReceiptsNestedInput
+  }
+
+  export type GoodsReceiptUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceNo?: NullableIntFieldUpdateOperationsInput | number | null
+    recordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredQuantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryNoteNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    isIncompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GoodsReceiptCreateManyInput = {
+    id?: string
+    sequenceNo?: number | null
+    recordedAt?: Date | string | null
+    company?: string | null
+    poNumber: string
+    item?: string | null
+    quantity?: Decimal | DecimalJsLike | number | string | null
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    creditTerm?: string | null
+    status?: string | null
+    targetDeliveryDate?: Date | string | null
+    deliveredQuantity?: Decimal | DecimalJsLike | number | string | null
+    receivedAt?: Date | string | null
+    deliveryNoteNumber?: string | null
+    recipient?: string | null
+    isCompleteDelivery?: boolean
+    isIncompleteDelivery?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GoodsReceiptUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceNo?: NullableIntFieldUpdateOperationsInput | number | null
+    recordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredQuantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryNoteNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    isIncompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GoodsReceiptUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceNo?: NullableIntFieldUpdateOperationsInput | number | null
+    recordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredQuantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryNoteNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    isIncompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -154387,9 +156143,19 @@ export namespace Prisma {
     no?: SortOrder
   }
 
+  export type GoodsReceiptListRelationFilter = {
+    every?: GoodsReceiptWhereInput
+    some?: GoodsReceiptWhereInput
+    none?: GoodsReceiptWhereInput
+  }
+
   export type PurchaseRequestNullableScalarRelationFilter = {
     is?: PurchaseRequestWhereInput | null
     isNot?: PurchaseRequestWhereInput | null
+  }
+
+  export type GoodsReceiptOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type PurchaseOrderCountOrderByAggregateInput = {
@@ -154483,6 +156249,96 @@ export namespace Prisma {
     depositAmount?: SortOrder
     remainingAmount?: SortOrder
     payment1?: SortOrder
+  }
+
+  export type PurchaseOrderScalarRelationFilter = {
+    is?: PurchaseOrderWhereInput
+    isNot?: PurchaseOrderWhereInput
+  }
+
+  export type GoodsReceiptPoNumberSequenceNoCompoundUniqueInput = {
+    poNumber: string
+    sequenceNo: number
+  }
+
+  export type GoodsReceiptCountOrderByAggregateInput = {
+    id?: SortOrder
+    sequenceNo?: SortOrder
+    recordedAt?: SortOrder
+    company?: SortOrder
+    poNumber?: SortOrder
+    item?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrder
+    creditTerm?: SortOrder
+    status?: SortOrder
+    targetDeliveryDate?: SortOrder
+    deliveredQuantity?: SortOrder
+    receivedAt?: SortOrder
+    deliveryNoteNumber?: SortOrder
+    recipient?: SortOrder
+    isCompleteDelivery?: SortOrder
+    isIncompleteDelivery?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GoodsReceiptAvgOrderByAggregateInput = {
+    sequenceNo?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrder
+    deliveredQuantity?: SortOrder
+  }
+
+  export type GoodsReceiptMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sequenceNo?: SortOrder
+    recordedAt?: SortOrder
+    company?: SortOrder
+    poNumber?: SortOrder
+    item?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrder
+    creditTerm?: SortOrder
+    status?: SortOrder
+    targetDeliveryDate?: SortOrder
+    deliveredQuantity?: SortOrder
+    receivedAt?: SortOrder
+    deliveryNoteNumber?: SortOrder
+    recipient?: SortOrder
+    isCompleteDelivery?: SortOrder
+    isIncompleteDelivery?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GoodsReceiptMinOrderByAggregateInput = {
+    id?: SortOrder
+    sequenceNo?: SortOrder
+    recordedAt?: SortOrder
+    company?: SortOrder
+    poNumber?: SortOrder
+    item?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrder
+    creditTerm?: SortOrder
+    status?: SortOrder
+    targetDeliveryDate?: SortOrder
+    deliveredQuantity?: SortOrder
+    receivedAt?: SortOrder
+    deliveryNoteNumber?: SortOrder
+    recipient?: SortOrder
+    isCompleteDelivery?: SortOrder
+    isIncompleteDelivery?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GoodsReceiptSumOrderByAggregateInput = {
+    sequenceNo?: SortOrder
+    quantity?: SortOrder
+    totalAmount?: SortOrder
+    deliveredQuantity?: SortOrder
   }
 
   export type ProjectEquipmentListRelationFilter = {
@@ -161125,10 +162981,38 @@ export namespace Prisma {
     deleteMany?: PurchaseOrderScalarWhereInput | PurchaseOrderScalarWhereInput[]
   }
 
+  export type GoodsReceiptCreateNestedManyWithoutPurchaseOrderInput = {
+    create?: XOR<GoodsReceiptCreateWithoutPurchaseOrderInput, GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput> | GoodsReceiptCreateWithoutPurchaseOrderInput[] | GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput[]
+    connectOrCreate?: GoodsReceiptCreateOrConnectWithoutPurchaseOrderInput | GoodsReceiptCreateOrConnectWithoutPurchaseOrderInput[]
+    createMany?: GoodsReceiptCreateManyPurchaseOrderInputEnvelope
+    connect?: GoodsReceiptWhereUniqueInput | GoodsReceiptWhereUniqueInput[]
+  }
+
   export type PurchaseRequestCreateNestedOneWithoutPurchaseOrdersInput = {
     create?: XOR<PurchaseRequestCreateWithoutPurchaseOrdersInput, PurchaseRequestUncheckedCreateWithoutPurchaseOrdersInput>
     connectOrCreate?: PurchaseRequestCreateOrConnectWithoutPurchaseOrdersInput
     connect?: PurchaseRequestWhereUniqueInput
+  }
+
+  export type GoodsReceiptUncheckedCreateNestedManyWithoutPurchaseOrderInput = {
+    create?: XOR<GoodsReceiptCreateWithoutPurchaseOrderInput, GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput> | GoodsReceiptCreateWithoutPurchaseOrderInput[] | GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput[]
+    connectOrCreate?: GoodsReceiptCreateOrConnectWithoutPurchaseOrderInput | GoodsReceiptCreateOrConnectWithoutPurchaseOrderInput[]
+    createMany?: GoodsReceiptCreateManyPurchaseOrderInputEnvelope
+    connect?: GoodsReceiptWhereUniqueInput | GoodsReceiptWhereUniqueInput[]
+  }
+
+  export type GoodsReceiptUpdateManyWithoutPurchaseOrderNestedInput = {
+    create?: XOR<GoodsReceiptCreateWithoutPurchaseOrderInput, GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput> | GoodsReceiptCreateWithoutPurchaseOrderInput[] | GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput[]
+    connectOrCreate?: GoodsReceiptCreateOrConnectWithoutPurchaseOrderInput | GoodsReceiptCreateOrConnectWithoutPurchaseOrderInput[]
+    upsert?: GoodsReceiptUpsertWithWhereUniqueWithoutPurchaseOrderInput | GoodsReceiptUpsertWithWhereUniqueWithoutPurchaseOrderInput[]
+    createMany?: GoodsReceiptCreateManyPurchaseOrderInputEnvelope
+    set?: GoodsReceiptWhereUniqueInput | GoodsReceiptWhereUniqueInput[]
+    disconnect?: GoodsReceiptWhereUniqueInput | GoodsReceiptWhereUniqueInput[]
+    delete?: GoodsReceiptWhereUniqueInput | GoodsReceiptWhereUniqueInput[]
+    connect?: GoodsReceiptWhereUniqueInput | GoodsReceiptWhereUniqueInput[]
+    update?: GoodsReceiptUpdateWithWhereUniqueWithoutPurchaseOrderInput | GoodsReceiptUpdateWithWhereUniqueWithoutPurchaseOrderInput[]
+    updateMany?: GoodsReceiptUpdateManyWithWhereWithoutPurchaseOrderInput | GoodsReceiptUpdateManyWithWhereWithoutPurchaseOrderInput[]
+    deleteMany?: GoodsReceiptScalarWhereInput | GoodsReceiptScalarWhereInput[]
   }
 
   export type PurchaseRequestUpdateOneWithoutPurchaseOrdersNestedInput = {
@@ -161139,6 +163023,34 @@ export namespace Prisma {
     delete?: PurchaseRequestWhereInput | boolean
     connect?: PurchaseRequestWhereUniqueInput
     update?: XOR<XOR<PurchaseRequestUpdateToOneWithWhereWithoutPurchaseOrdersInput, PurchaseRequestUpdateWithoutPurchaseOrdersInput>, PurchaseRequestUncheckedUpdateWithoutPurchaseOrdersInput>
+  }
+
+  export type GoodsReceiptUncheckedUpdateManyWithoutPurchaseOrderNestedInput = {
+    create?: XOR<GoodsReceiptCreateWithoutPurchaseOrderInput, GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput> | GoodsReceiptCreateWithoutPurchaseOrderInput[] | GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput[]
+    connectOrCreate?: GoodsReceiptCreateOrConnectWithoutPurchaseOrderInput | GoodsReceiptCreateOrConnectWithoutPurchaseOrderInput[]
+    upsert?: GoodsReceiptUpsertWithWhereUniqueWithoutPurchaseOrderInput | GoodsReceiptUpsertWithWhereUniqueWithoutPurchaseOrderInput[]
+    createMany?: GoodsReceiptCreateManyPurchaseOrderInputEnvelope
+    set?: GoodsReceiptWhereUniqueInput | GoodsReceiptWhereUniqueInput[]
+    disconnect?: GoodsReceiptWhereUniqueInput | GoodsReceiptWhereUniqueInput[]
+    delete?: GoodsReceiptWhereUniqueInput | GoodsReceiptWhereUniqueInput[]
+    connect?: GoodsReceiptWhereUniqueInput | GoodsReceiptWhereUniqueInput[]
+    update?: GoodsReceiptUpdateWithWhereUniqueWithoutPurchaseOrderInput | GoodsReceiptUpdateWithWhereUniqueWithoutPurchaseOrderInput[]
+    updateMany?: GoodsReceiptUpdateManyWithWhereWithoutPurchaseOrderInput | GoodsReceiptUpdateManyWithWhereWithoutPurchaseOrderInput[]
+    deleteMany?: GoodsReceiptScalarWhereInput | GoodsReceiptScalarWhereInput[]
+  }
+
+  export type PurchaseOrderCreateNestedOneWithoutGoodsReceiptsInput = {
+    create?: XOR<PurchaseOrderCreateWithoutGoodsReceiptsInput, PurchaseOrderUncheckedCreateWithoutGoodsReceiptsInput>
+    connectOrCreate?: PurchaseOrderCreateOrConnectWithoutGoodsReceiptsInput
+    connect?: PurchaseOrderWhereUniqueInput
+  }
+
+  export type PurchaseOrderUpdateOneRequiredWithoutGoodsReceiptsNestedInput = {
+    create?: XOR<PurchaseOrderCreateWithoutGoodsReceiptsInput, PurchaseOrderUncheckedCreateWithoutGoodsReceiptsInput>
+    connectOrCreate?: PurchaseOrderCreateOrConnectWithoutGoodsReceiptsInput
+    upsert?: PurchaseOrderUpsertWithoutGoodsReceiptsInput
+    connect?: PurchaseOrderWhereUniqueInput
+    update?: XOR<XOR<PurchaseOrderUpdateToOneWithWhereWithoutGoodsReceiptsInput, PurchaseOrderUpdateWithoutGoodsReceiptsInput>, PurchaseOrderUncheckedUpdateWithoutGoodsReceiptsInput>
   }
 
   export type JobCreateNestedOneWithoutProjectInput = {
@@ -182981,6 +184893,7 @@ export namespace Prisma {
     receivedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    goodsReceipts?: GoodsReceiptCreateNestedManyWithoutPurchaseOrderInput
   }
 
   export type PurchaseOrderUncheckedCreateWithoutPurchaseRequestInput = {
@@ -183005,6 +184918,7 @@ export namespace Prisma {
     receivedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    goodsReceipts?: GoodsReceiptUncheckedCreateNestedManyWithoutPurchaseOrderInput
   }
 
   export type PurchaseOrderCreateOrConnectWithoutPurchaseRequestInput = {
@@ -183061,6 +184975,58 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"PurchaseOrder"> | Date | string
   }
 
+  export type GoodsReceiptCreateWithoutPurchaseOrderInput = {
+    id?: string
+    sequenceNo?: number | null
+    recordedAt?: Date | string | null
+    company?: string | null
+    item?: string | null
+    quantity?: Decimal | DecimalJsLike | number | string | null
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    creditTerm?: string | null
+    status?: string | null
+    targetDeliveryDate?: Date | string | null
+    deliveredQuantity?: Decimal | DecimalJsLike | number | string | null
+    receivedAt?: Date | string | null
+    deliveryNoteNumber?: string | null
+    recipient?: string | null
+    isCompleteDelivery?: boolean
+    isIncompleteDelivery?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput = {
+    id?: string
+    sequenceNo?: number | null
+    recordedAt?: Date | string | null
+    company?: string | null
+    item?: string | null
+    quantity?: Decimal | DecimalJsLike | number | string | null
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    creditTerm?: string | null
+    status?: string | null
+    targetDeliveryDate?: Date | string | null
+    deliveredQuantity?: Decimal | DecimalJsLike | number | string | null
+    receivedAt?: Date | string | null
+    deliveryNoteNumber?: string | null
+    recipient?: string | null
+    isCompleteDelivery?: boolean
+    isIncompleteDelivery?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GoodsReceiptCreateOrConnectWithoutPurchaseOrderInput = {
+    where: GoodsReceiptWhereUniqueInput
+    create: XOR<GoodsReceiptCreateWithoutPurchaseOrderInput, GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput>
+  }
+
+  export type GoodsReceiptCreateManyPurchaseOrderInputEnvelope = {
+    data: GoodsReceiptCreateManyPurchaseOrderInput | GoodsReceiptCreateManyPurchaseOrderInput[]
+    skipDuplicates?: boolean
+  }
+
   export type PurchaseRequestCreateWithoutPurchaseOrdersInput = {
     no?: number | null
     recordedAt?: Date | string | null
@@ -183091,6 +185057,47 @@ export namespace Prisma {
   export type PurchaseRequestCreateOrConnectWithoutPurchaseOrdersInput = {
     where: PurchaseRequestWhereUniqueInput
     create: XOR<PurchaseRequestCreateWithoutPurchaseOrdersInput, PurchaseRequestUncheckedCreateWithoutPurchaseOrdersInput>
+  }
+
+  export type GoodsReceiptUpsertWithWhereUniqueWithoutPurchaseOrderInput = {
+    where: GoodsReceiptWhereUniqueInput
+    update: XOR<GoodsReceiptUpdateWithoutPurchaseOrderInput, GoodsReceiptUncheckedUpdateWithoutPurchaseOrderInput>
+    create: XOR<GoodsReceiptCreateWithoutPurchaseOrderInput, GoodsReceiptUncheckedCreateWithoutPurchaseOrderInput>
+  }
+
+  export type GoodsReceiptUpdateWithWhereUniqueWithoutPurchaseOrderInput = {
+    where: GoodsReceiptWhereUniqueInput
+    data: XOR<GoodsReceiptUpdateWithoutPurchaseOrderInput, GoodsReceiptUncheckedUpdateWithoutPurchaseOrderInput>
+  }
+
+  export type GoodsReceiptUpdateManyWithWhereWithoutPurchaseOrderInput = {
+    where: GoodsReceiptScalarWhereInput
+    data: XOR<GoodsReceiptUpdateManyMutationInput, GoodsReceiptUncheckedUpdateManyWithoutPurchaseOrderInput>
+  }
+
+  export type GoodsReceiptScalarWhereInput = {
+    AND?: GoodsReceiptScalarWhereInput | GoodsReceiptScalarWhereInput[]
+    OR?: GoodsReceiptScalarWhereInput[]
+    NOT?: GoodsReceiptScalarWhereInput | GoodsReceiptScalarWhereInput[]
+    id?: StringFilter<"GoodsReceipt"> | string
+    sequenceNo?: IntNullableFilter<"GoodsReceipt"> | number | null
+    recordedAt?: DateTimeNullableFilter<"GoodsReceipt"> | Date | string | null
+    company?: StringNullableFilter<"GoodsReceipt"> | string | null
+    poNumber?: StringFilter<"GoodsReceipt"> | string
+    item?: StringNullableFilter<"GoodsReceipt"> | string | null
+    quantity?: DecimalNullableFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: DecimalNullableFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: StringNullableFilter<"GoodsReceipt"> | string | null
+    status?: StringNullableFilter<"GoodsReceipt"> | string | null
+    targetDeliveryDate?: DateTimeNullableFilter<"GoodsReceipt"> | Date | string | null
+    deliveredQuantity?: DecimalNullableFilter<"GoodsReceipt"> | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: DateTimeNullableFilter<"GoodsReceipt"> | Date | string | null
+    deliveryNoteNumber?: StringNullableFilter<"GoodsReceipt"> | string | null
+    recipient?: StringNullableFilter<"GoodsReceipt"> | string | null
+    isCompleteDelivery?: BoolFilter<"GoodsReceipt"> | boolean
+    isIncompleteDelivery?: BoolFilter<"GoodsReceipt"> | boolean
+    createdAt?: DateTimeFilter<"GoodsReceipt"> | Date | string
+    updatedAt?: DateTimeFilter<"GoodsReceipt"> | Date | string
   }
 
   export type PurchaseRequestUpsertWithoutPurchaseOrdersInput = {
@@ -183127,6 +185134,120 @@ export namespace Prisma {
     requestedBy?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     reportedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PurchaseOrderCreateWithoutGoodsReceiptsInput = {
+    no?: number | null
+    recordedAt?: Date | string | null
+    poNumber: string
+    vendorName?: string | null
+    accountNumber?: string | null
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    depositAmount?: Decimal | DecimalJsLike | number | string | null
+    remainingAmount?: Decimal | DecimalJsLike | number | string | null
+    payment1?: Decimal | DecimalJsLike | number | string | null
+    creditTerm?: string | null
+    jobName?: string | null
+    itemList?: string | null
+    deliveryDate?: Date | string | null
+    note?: string | null
+    reportedBy?: string | null
+    receiveStatus?: string | null
+    receivedBy?: string | null
+    receivedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    purchaseRequest?: PurchaseRequestCreateNestedOneWithoutPurchaseOrdersInput
+  }
+
+  export type PurchaseOrderUncheckedCreateWithoutGoodsReceiptsInput = {
+    id?: number
+    no?: number | null
+    recordedAt?: Date | string | null
+    prNumber?: string | null
+    poNumber: string
+    vendorName?: string | null
+    accountNumber?: string | null
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    depositAmount?: Decimal | DecimalJsLike | number | string | null
+    remainingAmount?: Decimal | DecimalJsLike | number | string | null
+    payment1?: Decimal | DecimalJsLike | number | string | null
+    creditTerm?: string | null
+    jobName?: string | null
+    itemList?: string | null
+    deliveryDate?: Date | string | null
+    note?: string | null
+    reportedBy?: string | null
+    receiveStatus?: string | null
+    receivedBy?: string | null
+    receivedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PurchaseOrderCreateOrConnectWithoutGoodsReceiptsInput = {
+    where: PurchaseOrderWhereUniqueInput
+    create: XOR<PurchaseOrderCreateWithoutGoodsReceiptsInput, PurchaseOrderUncheckedCreateWithoutGoodsReceiptsInput>
+  }
+
+  export type PurchaseOrderUpsertWithoutGoodsReceiptsInput = {
+    update: XOR<PurchaseOrderUpdateWithoutGoodsReceiptsInput, PurchaseOrderUncheckedUpdateWithoutGoodsReceiptsInput>
+    create: XOR<PurchaseOrderCreateWithoutGoodsReceiptsInput, PurchaseOrderUncheckedCreateWithoutGoodsReceiptsInput>
+    where?: PurchaseOrderWhereInput
+  }
+
+  export type PurchaseOrderUpdateToOneWithWhereWithoutGoodsReceiptsInput = {
+    where?: PurchaseOrderWhereInput
+    data: XOR<PurchaseOrderUpdateWithoutGoodsReceiptsInput, PurchaseOrderUncheckedUpdateWithoutGoodsReceiptsInput>
+  }
+
+  export type PurchaseOrderUpdateWithoutGoodsReceiptsInput = {
+    no?: NullableIntFieldUpdateOperationsInput | number | null
+    recordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: StringFieldUpdateOperationsInput | string
+    vendorName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    depositAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    remainingAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    itemList?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    reportedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    receiveStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    purchaseRequest?: PurchaseRequestUpdateOneWithoutPurchaseOrdersNestedInput
+  }
+
+  export type PurchaseOrderUncheckedUpdateWithoutGoodsReceiptsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    no?: NullableIntFieldUpdateOperationsInput | number | null
+    recordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: StringFieldUpdateOperationsInput | string
+    vendorName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    depositAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    remainingAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: NullableStringFieldUpdateOperationsInput | string | null
+    jobName?: NullableStringFieldUpdateOperationsInput | string | null
+    itemList?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    reportedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    receiveStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -200631,6 +202752,7 @@ export namespace Prisma {
     receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    goodsReceipts?: GoodsReceiptUpdateManyWithoutPurchaseOrderNestedInput
   }
 
   export type PurchaseOrderUncheckedUpdateWithoutPurchaseRequestInput = {
@@ -200655,6 +202777,7 @@ export namespace Prisma {
     receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    goodsReceipts?: GoodsReceiptUncheckedUpdateManyWithoutPurchaseOrderNestedInput
   }
 
   export type PurchaseOrderUncheckedUpdateManyWithoutPurchaseRequestInput = {
@@ -200677,6 +202800,90 @@ export namespace Prisma {
     receiveStatus?: NullableStringFieldUpdateOperationsInput | string | null
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
     receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GoodsReceiptCreateManyPurchaseOrderInput = {
+    id?: string
+    sequenceNo?: number | null
+    recordedAt?: Date | string | null
+    company?: string | null
+    item?: string | null
+    quantity?: Decimal | DecimalJsLike | number | string | null
+    totalAmount?: Decimal | DecimalJsLike | number | string | null
+    creditTerm?: string | null
+    status?: string | null
+    targetDeliveryDate?: Date | string | null
+    deliveredQuantity?: Decimal | DecimalJsLike | number | string | null
+    receivedAt?: Date | string | null
+    deliveryNoteNumber?: string | null
+    recipient?: string | null
+    isCompleteDelivery?: boolean
+    isIncompleteDelivery?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GoodsReceiptUpdateWithoutPurchaseOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceNo?: NullableIntFieldUpdateOperationsInput | number | null
+    recordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredQuantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryNoteNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    isIncompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GoodsReceiptUncheckedUpdateWithoutPurchaseOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceNo?: NullableIntFieldUpdateOperationsInput | number | null
+    recordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredQuantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryNoteNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    isIncompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GoodsReceiptUncheckedUpdateManyWithoutPurchaseOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequenceNo?: NullableIntFieldUpdateOperationsInput | number | null
+    recordedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    company?: NullableStringFieldUpdateOperationsInput | string | null
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    totalAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    creditTerm?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveredQuantity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    receivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryNoteNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
+    isIncompleteDelivery?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

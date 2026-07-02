@@ -1,11 +1,11 @@
 import { getUser } from '@/app/lib/dal';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/db';
-import StoreReceiveClient from './StoreReceiveClient';
+import StoreDashboardClient from './StoreDashboardClient';
 
 export const dynamic = 'force-dynamic';
 
-export default async function StoreReceivePage() {
+export default async function StoreDashboardPage() {
   const user = await getUser();
   if (!user) redirect('/');
 
@@ -16,7 +16,7 @@ export default async function StoreReceivePage() {
     redirect('/dashboard');
   }
 
-  // Fetch pending POs (receiveStatus != 'Received')
+  // Fetch pending POs
   const pendingPOs = await prisma.purchaseOrder.findMany({
     where: {
       OR: [
@@ -36,19 +36,16 @@ export default async function StoreReceivePage() {
     }
   });
 
-  const serializedPOs = pendingPOs.map(po => ({
-    ...po,
-    totalAmount: po.totalAmount ? Number(po.totalAmount) : null,
-    depositAmount: po.depositAmount ? Number(po.depositAmount) : null,
-    remainingAmount: po.remainingAmount ? Number(po.remainingAmount) : null,
-    payment1: po.payment1 ? Number(po.payment1) : null,
-    projectName: po.purchaseRequest?.projectName || po.jobName || '-',
-  }));
+  // Fetch recently received POs (last 30 days)
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  // Fetch received POs (limit to recent 100)
   const receivedPOs = await prisma.purchaseOrder.findMany({
     where: {
-      receiveStatus: 'Received'
+      receiveStatus: 'Received',
+      receivedAt: {
+        gte: thirtyDaysAgo
+      }
     },
     include: {
       purchaseRequest: {
@@ -59,11 +56,10 @@ export default async function StoreReceivePage() {
     },
     orderBy: {
       receivedAt: 'desc'
-    },
-    take: 100
+    }
   });
 
-  const serializedReceivedPOs = receivedPOs.map(po => ({
+  const serializePOs = (pos: any[]) => pos.map(po => ({
     ...po,
     totalAmount: po.totalAmount ? Number(po.totalAmount) : null,
     depositAmount: po.depositAmount ? Number(po.depositAmount) : null,
@@ -74,8 +70,8 @@ export default async function StoreReceivePage() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">รายการรับสินค้าเข้าสโตร์ (Store Receiving)</h1>
-      <StoreReceiveClient initialPos={serializedPOs} initialReceivedPos={serializedReceivedPOs} userName={user.fullName} />
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">แดชบอร์ดสโตร์ (Store Dashboard)</h1>
+      <StoreDashboardClient pendingPOs={serializePOs(pendingPOs)} receivedPOs={serializePOs(receivedPOs)} />
     </div>
   );
 }

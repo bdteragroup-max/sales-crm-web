@@ -37,7 +37,7 @@ function parseDateStr(str: any): Date | undefined {
   const s = String(str).trim();
   if (!s) return undefined;
 
-  // 0. If it's already an ISO string sent by Google Apps Script, parse it directly to preserve exact time
+  // 1. If it's already an ISO string sent by Google Apps Script, parse it directly to preserve exact time
   if (s.includes('T') && s.endsWith('Z')) {
     const d = new Date(s);
     if (!isNaN(d.getTime())) return fixDate(d);
@@ -45,7 +45,13 @@ function parseDateStr(str: any): Date | undefined {
 
   let parsedDate: Date | undefined;
 
-  // 1. Try ISO-like YYYY-MM-DD
+  // 1.5. If the string contains a time (e.g. "7/2/2026 13:45:29"), it's likely system-generated in American format.
+  if (s.includes(':')) {
+    const nativeDate = new Date(s);
+    if (!isNaN(nativeDate.getTime())) return fixDate(nativeDate);
+  }
+
+  // 2. Try ISO-like YYYY-MM-DD
   const isoMatch = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
   if (isoMatch) {
     let y = parseInt(isoMatch[1], 10);
@@ -252,6 +258,76 @@ export async function POST(req: NextRequest) {
       });
 
       return NextResponse.json({ success: true, message: `PO ${poNumber} synced` });
+
+    } else if (type === 'GR') {
+      const poNumber = findValue(payload, ['PO Number', 'PO', 'PONumber', 'po_number', 'เลขที่ใบสั่งซื้อ', 'เลขที่สั่งซื้อ', 'เลข PO']);
+      if (!poNumber) {
+        return NextResponse.json({ error: 'Missing PO Number for GR' }, { status: 400 });
+      }
+
+      const sequenceNo = parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ', 'ลำดับที่']));
+      const seqVal = sequenceNo || 0; // Default to 0 if no sequence is provided
+
+      // Upsert PO first to prevent FK constraint failure
+      await prisma.purchaseOrder.upsert({
+        where: { poNumber: String(poNumber) },
+        update: {},
+        create: { poNumber: String(poNumber) }
+      });
+
+      const parsedReceivedAt = parseDateStr(findValue(payload, ['Date Received', 'วันที่รับของ', 'วันที่ส่งมอบ']));
+      const payloadReceivedAt = parsedReceivedAt ? parsedReceivedAt : undefined;
+
+      const payloadDelivNote = findValue(payload, ['Delivery Note Number', 'Delivery Note', 'เลขที่ใบส่งของ', 'ใบส่งของ']);
+      const payloadRecipient = findValue(payload, ['Recipient', 'ผู้รับ', 'ผู้รับของ', 'ผุ้รับของ']);
+
+      const isCompleteStr = findValue(payload, ['Complete Delivery', 'ส่งครบ']) || '';
+      const isIncompleteStr = findValue(payload, ['Incomplete Delivery', 'ส่งไม่ครบ']) || '';
+
+      await prisma.goodsReceipt.upsert({
+        where: {
+          poNumber_sequenceNo: {
+            poNumber: String(poNumber),
+            sequenceNo: seqVal
+          }
+        },
+        update: {
+          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วัน/เดือน/ปี', 'วันที่', 'วันที่บันทึก'])),
+          company: findValue(payload, ['Company', 'บริษัท']),
+          item: findValue(payload, ['Purchase Item', 'Item', 'รายการ', 'สินค้า']),
+          quantity: parseNumber(findValue(payload, ['Quantity', 'จำนวนสั่ง', 'จำนวน'])),
+          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอด'])),
+          creditTerm: findValue(payload, ['Credit Term', 'Credit', 'เครดิตเทอม', 'เครดิต']),
+          status: findValue(payload, ['Status', 'สถานะ']),
+          targetDeliveryDate: parseDateStr(findValue(payload, ['Target Delivery Date', 'วันที่นัดส่ง', 'กำหนดส่ง'])),
+          deliveredQuantity: parseNumber(findValue(payload, ['Quantity Delivered', 'จำนวนส่ง', 'จำนวนส่งมอบ'])),
+          receivedAt: payloadReceivedAt,
+          deliveryNoteNumber: payloadDelivNote !== undefined ? String(payloadDelivNote) : undefined,
+          recipient: payloadRecipient !== undefined ? String(payloadRecipient) : undefined,
+          isCompleteDelivery: String(isCompleteStr).toLowerCase() === 'true' || String(isCompleteStr) === '1' || String(isCompleteStr).includes('ครบ'),
+          isIncompleteDelivery: String(isIncompleteStr).toLowerCase() === 'true' || String(isIncompleteStr) === '1' || String(isIncompleteStr).includes('ไม่ครบ')
+        },
+        create: {
+          poNumber: String(poNumber),
+          sequenceNo: seqVal,
+          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วัน/เดือน/ปี', 'วันที่', 'วันที่บันทึก'])),
+          company: findValue(payload, ['Company', 'บริษัท']),
+          item: findValue(payload, ['Purchase Item', 'Item', 'รายการ', 'สินค้า']),
+          quantity: parseNumber(findValue(payload, ['Quantity', 'จำนวนสั่ง', 'จำนวน'])),
+          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอด'])),
+          creditTerm: findValue(payload, ['Credit Term', 'Credit', 'เครดิตเทอม', 'เครดิต']),
+          status: findValue(payload, ['Status', 'สถานะ']),
+          targetDeliveryDate: parseDateStr(findValue(payload, ['Target Delivery Date', 'วันที่นัดส่ง', 'กำหนดส่ง'])),
+          deliveredQuantity: parseNumber(findValue(payload, ['Quantity Delivered', 'จำนวนส่ง', 'จำนวนส่งมอบ'])),
+          receivedAt: parsedReceivedAt,
+          deliveryNoteNumber: payloadDelivNote ? String(payloadDelivNote) : null,
+          recipient: payloadRecipient ? String(payloadRecipient) : null,
+          isCompleteDelivery: String(isCompleteStr).toLowerCase() === 'true' || String(isCompleteStr) === '1' || String(isCompleteStr).includes('ครบ'),
+          isIncompleteDelivery: String(isIncompleteStr).toLowerCase() === 'true' || String(isIncompleteStr) === '1' || String(isIncompleteStr).includes('ไม่ครบ')
+        }
+      });
+
+      return NextResponse.json({ success: true, message: `GR for PO ${poNumber} synced` });
 
     } else {
       return NextResponse.json({ error: 'Invalid type' }, { status: 400 });

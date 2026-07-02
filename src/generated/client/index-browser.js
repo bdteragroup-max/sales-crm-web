@@ -1149,6 +1149,28 @@ exports.Prisma.PurchaseOrderScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.GoodsReceiptScalarFieldEnum = {
+  id: 'id',
+  sequenceNo: 'sequenceNo',
+  recordedAt: 'recordedAt',
+  company: 'company',
+  poNumber: 'poNumber',
+  item: 'item',
+  quantity: 'quantity',
+  totalAmount: 'totalAmount',
+  creditTerm: 'creditTerm',
+  status: 'status',
+  targetDeliveryDate: 'targetDeliveryDate',
+  deliveredQuantity: 'deliveredQuantity',
+  receivedAt: 'receivedAt',
+  deliveryNoteNumber: 'deliveryNoteNumber',
+  recipient: 'recipient',
+  isCompleteDelivery: 'isCompleteDelivery',
+  isIncompleteDelivery: 'isIncompleteDelivery',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
   projectNumber: 'projectNumber',
@@ -1725,6 +1747,7 @@ exports.Prisma.ModelName = {
   employee_trainings: 'employee_trainings',
   PurchaseRequest: 'PurchaseRequest',
   PurchaseOrder: 'PurchaseOrder',
+  GoodsReceipt: 'GoodsReceipt',
   Project: 'Project',
   ProjectEquipment: 'ProjectEquipment',
   ProjectMember: 'ProjectMember',

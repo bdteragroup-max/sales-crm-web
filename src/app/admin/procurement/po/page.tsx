@@ -18,6 +18,11 @@ export default async function POListPage() {
   }
 
   const pos = await prisma.purchaseOrder.findMany({
+    include: {
+      purchaseRequest: {
+        select: { projectName: true }
+      }
+    },
     orderBy: { createdAt: 'desc' }
   });
 
