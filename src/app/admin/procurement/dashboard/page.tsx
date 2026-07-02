@@ -27,6 +27,11 @@ export default async function ProcurementDashboardPage() {
     }
   });
 
+  const serializedPos = pos.map(po => ({
+    ...po,
+    totalAmount: po.totalAmount ? Number(po.totalAmount) : null,
+  }));
+
   const prs = await prisma.purchaseRequest.findMany({
     select: {
       id: true,
@@ -40,7 +45,7 @@ export default async function ProcurementDashboardPage() {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">แดชบอร์ดจัดซื้อ (Procurement Dashboard)</h1>
-      <DashboardClient pos={pos} prs={prs} />
+      <DashboardClient pos={serializedPos} prs={prs} />
     </div>
   );
 }

@@ -21,10 +21,18 @@ export default async function POListPage() {
     orderBy: { createdAt: 'desc' }
   });
 
+  const serializedPos = pos.map(po => ({
+    ...po,
+    totalAmount: po.totalAmount ? Number(po.totalAmount) : null,
+    depositAmount: po.depositAmount ? Number(po.depositAmount) : null,
+    remainingAmount: po.remainingAmount ? Number(po.remainingAmount) : null,
+    payment1: po.payment1 ? Number(po.payment1) : null,
+  }));
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">รายการสั่งซื้อ (Purchase Orders - PO)</h1>
-      <POListClient initialPos={pos} />
+      <POListClient initialPos={serializedPos} />
     </div>
   );
 }
