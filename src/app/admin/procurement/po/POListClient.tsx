@@ -1,9 +1,39 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 export default function POListClient({ initialPos }: { initialPos: any[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  
+  const [dateFilter, setDateFilter] = useState('');
+  const [monthFilter, setMonthFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState('');
+
+  // Extract unique years from the data
+  const uniqueYears = useMemo(() => {
+    const years = new Set<string>();
+    initialPos.forEach(po => {
+      if (po.recordedAt) {
+        years.add(new Date(po.recordedAt).getFullYear().toString());
+      }
+    });
+    return Array.from(years).sort().reverse();
+  }, [initialPos]);
+
+  const thaiMonths = [
+    { value: '1', label: 'มกราคม' },
+    { value: '2', label: 'กุมภาพันธ์' },
+    { value: '3', label: 'มีนาคม' },
+    { value: '4', label: 'เมษายน' },
+    { value: '5', label: 'พฤษภาคม' },
+    { value: '6', label: 'มิถุนายน' },
+    { value: '7', label: 'กรกฎาคม' },
+    { value: '8', label: 'สิงหาคม' },
+    { value: '9', label: 'กันยายน' },
+    { value: '10', label: 'ตุลาคม' },
+    { value: '11', label: 'พฤศจิกายน' },
+    { value: '12', label: 'ธันวาคม' },
+  ];
 
   const filteredPos = initialPos.filter(po => {
     const matchesSearch = po.poNumber?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -16,28 +46,90 @@ export default function POListClient({ initialPos }: { initialPos: any[] }) {
       matchesStatus = po.receiveStatus !== 'Received';
     }
 
-    return matchesSearch && matchesStatus;
+    const poDate = po.recordedAt ? new Date(po.recordedAt) : null;
+    
+    let matchesDate = true;
+    if (dateFilter && poDate) {
+      const yyyy = poDate.getFullYear();
+      const mm = String(poDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(poDate.getDate()).padStart(2, '0');
+      const poDateString = `${yyyy}-${mm}-${dd}`;
+      matchesDate = poDateString === dateFilter;
+    } else if (dateFilter && !poDate) {
+      matchesDate = false;
+    }
+
+    let matchesMonth = true;
+    if (monthFilter && poDate) {
+      matchesMonth = (poDate.getMonth() + 1).toString() === monthFilter;
+    } else if (monthFilter && !poDate) {
+      matchesMonth = false;
+    }
+
+    let matchesYear = true;
+    if (yearFilter && poDate) {
+      matchesYear = poDate.getFullYear().toString() === yearFilter;
+    } else if (yearFilter && !poDate) {
+      matchesYear = false;
+    }
+
+    return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesYear;
   });
 
   return (
     <div className="bg-white rounded-xl shadow overflow-hidden p-6">
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <input 
-          type="text" 
-          placeholder="ค้นหาด้วยเลขที่ PO หรือชื่อผู้ขาย..." 
-          className="w-full md:w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <select 
-          className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="ALL">สถานะทั้งหมด</option>
-          <option value="PENDING">รอรับสินค้า</option>
-          <option value="RECEIVED">รับสินค้าแล้ว</option>
-        </select>
+      <div className="flex flex-col gap-4 mb-6">
+        {/* Row 1: Search and Status */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <input 
+            type="text" 
+            placeholder="ค้นหาด้วยเลขที่ PO หรือชื่อผู้ขาย..." 
+            className="w-full md:w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <select 
+            className="w-full md:w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="ALL">สถานะทั้งหมด</option>
+            <option value="PENDING">รอรับสินค้า</option>
+            <option value="RECEIVED">รับสินค้าแล้ว</option>
+          </select>
+        </div>
+
+        {/* Row 2: Date, Month, Year */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <input
+            type="date"
+            className="w-full md:w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          />
+
+          <select
+            className="w-full md:w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            value={monthFilter}
+            onChange={(e) => setMonthFilter(e.target.value)}
+          >
+            <option value="">ทุกเดือน</option>
+            {thaiMonths.map(m => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
+          </select>
+
+          <select
+            className="w-full md:w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            value={yearFilter}
+            onChange={(e) => setYearFilter(e.target.value)}
+          >
+            <option value="">ทุกปี</option>
+            {uniqueYears.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
