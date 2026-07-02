@@ -1,0 +1,84 @@
+'use client';
+import React, { useState } from 'react';
+
+export default function POListClient({ initialPos }: { initialPos: any[] }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+
+  const filteredPos = initialPos.filter(po => {
+    const matchesSearch = po.poNumber?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          po.vendorName?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    let matchesStatus = true;
+    if (statusFilter === 'RECEIVED') {
+      matchesStatus = po.receiveStatus === 'Received';
+    } else if (statusFilter === 'PENDING') {
+      matchesStatus = po.receiveStatus !== 'Received';
+    }
+
+    return matchesSearch && matchesStatus;
+  });
+
+  return (
+    <div className="bg-white rounded-xl shadow overflow-hidden p-6">
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <input 
+          type="text" 
+          placeholder="ค้นหาด้วยเลขที่ PO หรือชื่อผู้ขาย..." 
+          className="w-full md:w-1/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <select 
+          className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="ALL">สถานะทั้งหมด</option>
+          <option value="PENDING">รอรับสินค้า</option>
+          <option value="RECEIVED">รับสินค้าแล้ว</option>
+        </select>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">เลขที่ PO</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">อ้างอิง PR</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ผู้ขาย</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ยอดรวม</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">วันส่งมอบ</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200 text-sm">
+            {filteredPos.length === 0 ? (
+              <tr><td colSpan={6} className="text-center py-4 text-gray-500">ไม่พบข้อมูล</td></tr>
+            ) : (
+              filteredPos.map(po => (
+                <tr key={po.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 font-medium text-gray-900">{po.poNumber}</td>
+                  <td className="px-6 py-4 text-gray-600">{po.prNumber || '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">{po.vendorName || '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">
+                    {po.totalAmount ? Number(po.totalAmount).toLocaleString('th-TH', { style: 'currency', currency: 'THB' }) : '-'}
+                  </td>
+                  <td className="px-6 py-4 text-gray-600">
+                    {po.deliveryDate ? new Date(po.deliveryDate).toLocaleDateString('th-TH') : '-'}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      po.receiveStatus === 'Received' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {po.receiveStatus === 'Received' ? `รับโดย ${po.receivedBy}` : 'รอรับสินค้า'}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

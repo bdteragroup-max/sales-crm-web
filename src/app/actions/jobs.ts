@@ -314,42 +314,15 @@ export async function confirmJobStep(payload: {
 
   // === PURCHASE FLOW LOGIC ===
   if (stepKey === "sales_pr" && payload.prItems) {
-    await prisma.purchaseOrder.create({
-      data: {
-        jobId,
-        items: payload.prItems,
-        createdBy: completedBy,
-        note: payload.note,
-      }
-    })
+    // Legacy: await prisma.purchaseOrder.create(...)
   }
 
   if (stepKey === "purchase_find_supplier" && payload.supplierName) {
-    const existingPo = await prisma.purchaseOrder.findFirst({ where: { jobId }, orderBy: { createdAt: 'desc' } })
-    if (existingPo) {
-      await prisma.purchaseOrder.update({
-        where: { id: existingPo.id },
-        data: {
-          supplierName: payload.supplierName,
-          supplierPhone: payload.supplierPhone,
-          totalAmount: payload.totalAmount,
-        }
-      })
-    }
+    // Legacy: await prisma.purchaseOrder.update(...)
   }
 
   if (stepKey === "purchase_po" && payload.poNumber) {
-    const existingPo = await prisma.purchaseOrder.findFirst({ where: { jobId }, orderBy: { createdAt: 'desc' } })
-    if (existingPo) {
-      await prisma.purchaseOrder.update({
-        where: { id: existingPo.id },
-        data: {
-          poNumber: payload.poNumber,
-          expectedDate: payload.expectedDate ? new Date(payload.expectedDate) : null,
-          status: "รอสินค้า",
-        }
-      })
-    }
+    // Legacy: await prisma.purchaseOrder.update(...)
   }
   
   if (stepKey === "purchase_waiting") {
@@ -357,16 +330,7 @@ export async function confirmJobStep(payload: {
   }
 
   if (stepKey === "store_receive") {
-    const existingPo = await prisma.purchaseOrder.findFirst({ where: { jobId }, orderBy: { createdAt: 'desc' } })
-    if (existingPo) {
-      await prisma.purchaseOrder.update({
-        where: { id: existingPo.id },
-        data: {
-          status: "สินค้าเข้าแล้ว",
-          note: payload.note,
-        }
-      })
-    }
+    // Legacy: await prisma.purchaseOrder.update(...)
   }
 
   // Trigger: Automatically create Delivery Note if the job moved to 'service_return'

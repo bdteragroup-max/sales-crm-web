@@ -363,7 +363,6 @@ model Job {
   stepLogs           JobStepLog[]
   quotation          Quotation?          @relation(fields: [quotationId], references: [id])
   paymentTasks       PaymentTask[]
-  purchaseOrders     PurchaseOrder[]
 
   @@map("jobs")
 }
@@ -1285,21 +1284,47 @@ model employee_trainings {
   employees_employee_trainings_emp_idToemployees      employees  @relation("employee_trainings_emp_idToemployees", fields: [emp_id], references: [emp_id], onDelete: Cascade)
 }
 
+model PurchaseRequest {
+  id             Int             @id @default(autoincrement())
+  no             Int?
+  recordedAt     DateTime?       @db.Timestamptz(6)
+  prNumber       String          @unique
+  projectName    String?
+  itemList       String?
+  requestedBy    String?
+  note           String?
+  reportedBy     String?
+  createdAt      DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime        @updatedAt @db.Timestamptz(6)
+  purchaseOrders PurchaseOrder[]
+
+  @@map("purchase_requests")
+}
+
 model PurchaseOrder {
-  id            String    @id @default(cuid())
-  poNumber      String?
-  jobId         String
-  supplierName  String?
-  supplierPhone String?
-  items         Json?
-  totalAmount   Float?
-  expectedDate  DateTime? @db.Timestamptz(6)
-  status        String    @default("รอสินค้า")
-  createdBy     String?
-  note          String?
-  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime  @updatedAt @db.Timestamptz(6)
-  job           Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  id              Int              @id @default(autoincrement())
+  no              Int?
+  recordedAt      DateTime?        @db.Timestamptz(6)
+  prNumber        String?
+  poNumber        String           @unique
+  vendorName      String?
+  accountNumber   String?
+  totalAmount     Decimal?         @db.Decimal(12, 2)
+  depositAmount   Decimal?         @db.Decimal(12, 2)
+  remainingAmount Decimal?         @db.Decimal(12, 2)
+  payment1        Decimal?         @db.Decimal(12, 2)
+  creditTerm      String?
+  jobName         String?
+  itemList        String?
+  deliveryDate    DateTime?        @db.Timestamptz(6)
+  note            String?
+  reportedBy      String?
+  receiveStatus   String?
+  receivedBy      String?
+  receivedAt      DateTime?        @db.Timestamptz(6)
+  createdAt       DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(6)
+  purchaseRequest PurchaseRequest? @relation(fields: [prNumber], references: [prNumber])
 
   @@map("purchase_orders")
 }

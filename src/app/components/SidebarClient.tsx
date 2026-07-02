@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, PhoneCall,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart
 } from 'lucide-react';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
@@ -33,6 +33,7 @@ const managerNav = [
   { icon: CalendarDays, label: 'จัดการตารางงาน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
   { icon: Users, label: 'ลูกค้าและบริษัท', href: '/clients' },
+  { icon: ShoppingCart, label: 'ระบบจัดซื้อ', href: '/admin/procurement/dashboard' },
   { icon: Settings, label: 'ตั้งค่าระบบ', href: '/settings' },
 ];
 
@@ -62,6 +63,18 @@ const serviceNav = [
 
 const backofficeNav = [
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+];
+
+const purchasingNav = [
+  { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+  { icon: LayoutDashboard, label: 'แดชบอร์ดจัดซื้อ', href: '/admin/procurement/dashboard' },
+  { icon: FileText, label: 'รายการ PR', href: '/admin/procurement/pr' },
+  { icon: ClipboardList, label: 'รายการ PO', href: '/admin/procurement/po' },
+];
+
+const storeNav = [
+  { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+  { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
 ];
 
 const projectNav = [
@@ -100,8 +113,19 @@ export default function SidebarClient(props: SidebarProps) {
     nav = projectNav; // Project users see their projects
   } else if (['marketing', 'การตลาด'].some(r => roleStr.includes(r))) {
     nav = marketingNav; // Marketing role sees marketing dashboard
-  } else if (['purchasing', 'จัดซื้อ', 'warehouse', 'คลังสินค้า', 'admin', 'ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
-    nav = backofficeNav; // Back-office non-sales see their own department queue
+  } else if (['purchasing', 'จัดซื้อ'].some(r => roleStr.includes(r))) {
+    nav = purchasingNav;
+  } else if (['warehouse', 'คลังสินค้า', 'store', 'สโตร์'].some(r => roleStr.includes(r))) {
+    nav = storeNav;
+  } else if (['admin', 'ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
+    // Note: If admin needs procurement links, we can assign them purchasingNav or managerNav
+    // But currently admin is grouped here. Let's give admin the purchasingNav as well, 
+    // since we allowed admin in page.tsx
+    if (roleStr === 'admin') {
+      nav = purchasingNav;
+    } else {
+      nav = backofficeNav; // Back-office non-sales see their own department queue
+    }
   }
   
   return <ResponsiveSidebar {...props} nav={nav} />;

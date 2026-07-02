@@ -1110,18 +1110,41 @@ exports.Prisma.Employee_trainingsScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.PurchaseRequestScalarFieldEnum = {
+  id: 'id',
+  no: 'no',
+  recordedAt: 'recordedAt',
+  prNumber: 'prNumber',
+  projectName: 'projectName',
+  itemList: 'itemList',
+  requestedBy: 'requestedBy',
+  note: 'note',
+  reportedBy: 'reportedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.PurchaseOrderScalarFieldEnum = {
   id: 'id',
+  no: 'no',
+  recordedAt: 'recordedAt',
+  prNumber: 'prNumber',
   poNumber: 'poNumber',
-  jobId: 'jobId',
-  supplierName: 'supplierName',
-  supplierPhone: 'supplierPhone',
-  items: 'items',
+  vendorName: 'vendorName',
+  accountNumber: 'accountNumber',
   totalAmount: 'totalAmount',
-  expectedDate: 'expectedDate',
-  status: 'status',
-  createdBy: 'createdBy',
+  depositAmount: 'depositAmount',
+  remainingAmount: 'remainingAmount',
+  payment1: 'payment1',
+  creditTerm: 'creditTerm',
+  jobName: 'jobName',
+  itemList: 'itemList',
+  deliveryDate: 'deliveryDate',
   note: 'note',
+  reportedBy: 'reportedBy',
+  receiveStatus: 'receiveStatus',
+  receivedBy: 'receivedBy',
+  receivedAt: 'receivedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -1700,6 +1723,7 @@ exports.Prisma.ModelName = {
   sessions: 'sessions',
   travel_claims: 'travel_claims',
   employee_trainings: 'employee_trainings',
+  PurchaseRequest: 'PurchaseRequest',
   PurchaseOrder: 'PurchaseOrder',
   Project: 'Project',
   ProjectEquipment: 'ProjectEquipment',
