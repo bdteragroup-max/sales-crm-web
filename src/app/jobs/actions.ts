@@ -60,10 +60,13 @@ export async function deleteJob(jobId: string) {
 
 export async function createStandaloneJob(data: { customerName: string; item: string; companyCode: string; jobType: string }) {
   const { generateJobNumber } = await import("@/app/lib/job-utils");
+  const { getSteps, getNextStep } = await import("@/app/lib/job-workflow");
   const closedDate = new Date();
   const jobNumber = await generateJobNumber(closedDate);
 
-  const job = await prisma.job.create({
+  const firstStep = getSteps(data.jobType)[0]?.key ?? "service_receive";
+
+  let job = await prisma.job.create({
     data: {
       jobNumber,
       companyCode: data.companyCode,
@@ -73,9 +76,28 @@ export async function createStandaloneJob(data: { customerName: string; item: st
       dateClosed: closedDate,
       customerName: data.customerName,
       item: data.item,
-      currentStep: "service_receive", // Default to service step so they can confirm it
+      currentStep: firstStep,
     }
   });
+
+  if (firstStep === 'sales') {
+    const nextStep = getNextStep(data.jobType, 'sales');
+    if (nextStep) {
+      await prisma.jobStepLog.create({
+        data: {
+          jobId: job.id,
+          step: 'sales',
+          completedBy: "System",
+          department: "sales",
+          note: "ดำเนินการอัตโนมัติเมื่อสร้างงานด่วน",
+        }
+      });
+      job = await prisma.job.update({
+        where: { id: job.id },
+        data: { currentStep: nextStep.key },
+      });
+    }
+  }
 
   if (["งานโปรเจค", "งานติดตั้ง", "งานขาย + ติดตั้ง"].includes(data.jobType)) {
     try {

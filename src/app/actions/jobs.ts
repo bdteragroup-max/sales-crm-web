@@ -98,7 +98,7 @@ export async function createJobFromQuotation(input: CreateJobInput) {
   const jobNumber = await generateJobNumber(closedDate);
 
   // 5. Save Job 
-  const job = await prisma.job.create({ 
+  let job = await prisma.job.create({ 
     data: { 
       jobNumber, 
       companyCode, 
@@ -124,6 +124,29 @@ export async function createJobFromQuotation(input: CreateJobInput) {
       paymentDate: input.paymentDate,
     }, 
   }); 
+
+  // Auto-approve the first step if it is a 'sales' step
+  const { getSteps, getNextStep } = await import("@/app/lib/job-workflow");
+  const firstStep = getSteps(resolvedJobType)[0];
+  
+  if (firstStep?.key === 'sales') {
+    const nextStep = getNextStep(resolvedJobType, 'sales');
+    if (nextStep) {
+      await prisma.jobStepLog.create({
+        data: {
+          jobId: job.id,
+          step: 'sales',
+          completedBy: quotation.salesperson?.fullName ?? "System",
+          department: "sales",
+          note: "ดำเนินการอัตโนมัติเมื่อสร้างงาน",
+        }
+      });
+      job = await prisma.job.update({
+        where: { id: job.id },
+        data: { currentStep: nextStep.key },
+      });
+    }
+  }
 
   // Auto-create PaymentTasks
   if (input.paymentMethod === 'ผ่อนชำระ' && input.installments && input.installments.length > 0) {
