@@ -33,43 +33,90 @@ function parseDateStr(str: any): Date | undefined {
 
   let parsedDate: Date | undefined;
 
-  // Attempt dd/MM/yyyy or dd-MM-yyyy or yyyy-MM-dd
-  const parts = s.split(/[\/\-]/);
-  if (parts.length >= 3) {
-    // If the first part is 4 digits, assume yyyy-mm-dd
-    if (parts[0].length === 4) {
-      let year = parseInt(parts[0], 10);
-      let month = parseInt(parts[1], 10) - 1;
-      let day = parseInt(parts[2], 10);
-      if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-        parsedDate = new Date(year, month, day);
-      }
-    } else {
-      let day = parseInt(parts[0], 10);
-      let month = parseInt(parts[1], 10) - 1;
-      let year = parseInt(parts[2], 10);
-      
-      // Handle 2-digit years natively passed as string
-      if (year < 100) {
-        if (year >= 50) year += 2500;
-        else year += 2000;
-      }
-      
-      if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-        parsedDate = new Date(year, month, day);
-      }
+  // 1. Try ISO-like YYYY-MM-DD
+  const isoMatch = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (isoMatch) {
+    let y = parseInt(isoMatch[1], 10);
+    let m = parseInt(isoMatch[2], 10) - 1;
+    let d = parseInt(isoMatch[3], 10);
+    if (!isNaN(y) && !isNaN(m) && !isNaN(d) && m >= 0 && m <= 11 && d >= 1 && d <= 31) {
+      return fixDate(new Date(y, m, d));
     }
   }
 
-  if (!parsedDate) {
-    const fallback = new Date(s);
-    if (!isNaN(fallback.getTime())) {
-      parsedDate = fallback;
+  // 2. Try DD/MM/YYYY or DD-MM-YYYY anywhere in the string
+  const dmRegex = /(\d{1,2})\s*([\/\-])\s*(\d{1,2})(?:\s*\2\s*(\d{2,4}))?/g;
+  let match;
+  while ((match = dmRegex.exec(s)) !== null) {
+    let d = parseInt(match[1], 10);
+    let m = parseInt(match[3], 10) - 1;
+    let yStr = match[4];
+    
+    if (d >= 1 && d <= 31 && m >= 0 && m <= 11) {
+      let y = new Date().getFullYear(); // default to current year
+      if (yStr) {
+        y = parseInt(yStr, 10);
+        if (y < 100) {
+          if (y >= 50) y += 2500;
+          else y += 2000;
+        }
+      }
+      parsedDate = new Date(y, m, d);
+      break;
     }
   }
 
-  if (parsedDate) {
-    return fixDate(parsedDate);
+  if (parsedDate) return fixDate(parsedDate);
+
+  // 3. Try Thai text months (e.g., "1-3 ก.ค. 69" -> extract "3 ก.ค. 69")
+  const thaiMonthNames = [
+    "ม.ค.", "มกราคม", "ก.พ.", "กุมภาพันธ์", "มี.ค.", "มีนาคม", 
+    "เม.ย.", "เมษายน", "พ.ค.", "พฤษภาคม", "มิ.ย.", "มิถุนายน", 
+    "ก.ค.", "กรกฎาคม", "ส.ค.", "สิงหาคม", "ก.ย.", "กันยายน", 
+    "ต.ค.", "ตุลาคม", "พ.ย.", "พฤศจิกายน", "ธ.ค.", "ธันวาคม"
+  ];
+  
+  const thaiRegexStr = `(\\d{1,2})\\s*(${thaiMonthNames.join('|').replace(/\./g, '\\.')})\\s*(\\d{2,4})?`;
+  const thaiRegex = new RegExp(thaiRegexStr, 'g');
+  
+  while ((match = thaiRegex.exec(s)) !== null) {
+    let d = parseInt(match[1], 10);
+    let monthStr = match[2];
+    let yStr = match[3];
+    
+    let m = -1;
+    if (monthStr.includes("ม.ค.") || monthStr.includes("มกราคม")) m = 0;
+    else if (monthStr.includes("ก.พ.") || monthStr.includes("กุมภาพันธ์")) m = 1;
+    else if (monthStr.includes("มี.ค.") || monthStr.includes("มีนาคม")) m = 2;
+    else if (monthStr.includes("เม.ย.") || monthStr.includes("เมษายน")) m = 3;
+    else if (monthStr.includes("พ.ค.") || monthStr.includes("พฤษภาคม")) m = 4;
+    else if (monthStr.includes("มิ.ย.") || monthStr.includes("มิถุนายน")) m = 5;
+    else if (monthStr.includes("ก.ค.") || monthStr.includes("กรกฎาคม")) m = 6;
+    else if (monthStr.includes("ส.ค.") || monthStr.includes("สิงหาคม")) m = 7;
+    else if (monthStr.includes("ก.ย.") || monthStr.includes("กันยายน")) m = 8;
+    else if (monthStr.includes("ต.ค.") || monthStr.includes("ตุลาคม")) m = 9;
+    else if (monthStr.includes("พ.ย.") || monthStr.includes("พฤศจิกายน")) m = 10;
+    else if (monthStr.includes("ธ.ค.") || monthStr.includes("ธันวาคม")) m = 11;
+
+    if (d >= 1 && d <= 31 && m >= 0) {
+      let y = new Date().getFullYear();
+      if (yStr) {
+        y = parseInt(yStr, 10);
+        if (y < 100) {
+          if (y >= 50) y += 2500;
+          else y += 2000;
+        }
+      }
+      parsedDate = new Date(y, m, d);
+      break;
+    }
+  }
+
+  if (parsedDate) return fixDate(parsedDate);
+
+  const fallback = new Date(s);
+  if (!isNaN(fallback.getTime())) {
+    return fixDate(fallback);
   }
   
   return undefined;
