@@ -24,12 +24,24 @@ function fixDate(d: Date): Date {
   return d;
 }
 
+// Ensure the date is strictly anchored to midnight in Thailand (UTC+7) 
+// regardless of where the backend server is geographically hosted.
+function createThaiDate(y: number, m: number, d: number): Date {
+  return new Date(Date.UTC(y, m, d, -7, 0, 0, 0));
+}
+
 function parseDateStr(str: any): Date | undefined {
   if (!str) return undefined;
   if (str instanceof Date) return fixDate(new Date(str.getTime()));
   
   const s = String(str).trim();
   if (!s) return undefined;
+
+  // 0. If it's already an ISO string sent by Google Apps Script, parse it directly to preserve exact time
+  if (s.includes('T') && s.endsWith('Z')) {
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) return fixDate(d);
+  }
 
   let parsedDate: Date | undefined;
 
@@ -40,7 +52,7 @@ function parseDateStr(str: any): Date | undefined {
     let m = parseInt(isoMatch[2], 10) - 1;
     let d = parseInt(isoMatch[3], 10);
     if (!isNaN(y) && !isNaN(m) && !isNaN(d) && m >= 0 && m <= 11 && d >= 1 && d <= 31) {
-      return fixDate(new Date(y, m, d));
+      return fixDate(createThaiDate(y, m, d));
     }
   }
 
@@ -61,7 +73,7 @@ function parseDateStr(str: any): Date | undefined {
           else y += 2000;
         }
       }
-      parsedDate = new Date(y, m, d);
+      parsedDate = createThaiDate(y, m, d);
       break;
     }
   }
@@ -107,7 +119,7 @@ function parseDateStr(str: any): Date | undefined {
           else y += 2000;
         }
       }
-      parsedDate = new Date(y, m, d);
+      parsedDate = createThaiDate(y, m, d);
       break;
     }
   }
