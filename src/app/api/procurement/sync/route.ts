@@ -39,16 +39,19 @@ function parseDateStr(str: any): Date | undefined {
   return undefined;
 }
 
-// Helper to find a value by normalizing the key (removing spaces and lowercasing)
+// Helper to find a value by normalizing the key (removing spaces, dashes)
 function findValue(payload: any, possibleKeys: string[]) {
   const normalizedPayload: Record<string, any> = {};
   for (const [k, v] of Object.entries(payload)) {
-    normalizedPayload[k.toLowerCase().replace(/[^a-z0-9]/g, '')] = v;
+    if (k) {
+      normalizedPayload[String(k).toLowerCase().replace(/[\s\-_]/g, '')] = v;
+    }
   }
-  for (const pk of possibleKeys) {
-    const nk = pk.toLowerCase().replace(/[^a-z0-9]/g, '');
-    if (normalizedPayload[nk] !== undefined && normalizedPayload[nk] !== '') {
-      return normalizedPayload[nk];
+  
+  for (const key of possibleKeys) {
+    const normKey = key.toLowerCase().replace(/[\s\-_]/g, '');
+    if (normalizedPayload[normKey] !== undefined && normalizedPayload[normKey] !== '') {
+      return normalizedPayload[normKey];
     }
   }
   return undefined;
@@ -62,10 +65,12 @@ export async function POST(req: NextRequest) {
     }
 
     const payload = await req.json();
+    console.log('Received sync payload:', JSON.stringify(payload, null, 2));
+
     const type = payload.type; // "PR" or "PO"
 
     if (type === 'PR') {
-      const prNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number']);
+      const prNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number', 'เลขที่ PR', 'เลข PR']);
       if (!prNumber) {
         return NextResponse.json({ error: 'Missing PR Number' }, { status: 400 });
       }
@@ -73,13 +78,13 @@ export async function POST(req: NextRequest) {
       await prisma.purchaseRequest.upsert({
         where: { prNumber: String(prNumber) },
         update: {
-          no: parseNumber(findValue(payload, ['No', 'Number'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date'])),
-          projectName: findValue(payload, ['Project Name', 'Project']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items']),
-          requestedBy: findValue(payload, ['Purchasing Requestor', 'Requestor']),
-          note: findValue(payload, ['Note', 'Remarks']),
-          reportedBy: findValue(payload, ['Notifier', 'Reported By']),
+          no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
+          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่'])),
+          projectName: findValue(payload, ['Project Name', 'Project', 'ชื่อโครงการ', 'โครงการ']),
+          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า']),
+          requestedBy: findValue(payload, ['Purchasing Requestor', 'Requestor', 'ผู้ขอซื้อ', 'ผู้เบิก']),
+          note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
+          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
         },
         create: {
           prNumber: String(prNumber),
@@ -96,12 +101,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: `PR ${prNumber} synced` });
 
     } else if (type === 'PO') {
-      const poNumber = findValue(payload, ['PO Number', 'PO', 'PONumber', 'po_number']);
+      const poNumber = findValue(payload, ['PO Number', 'PO', 'PONumber', 'po_number', 'เลขที่ PO', 'เลข PO']);
       if (!poNumber) {
         return NextResponse.json({ error: 'Missing PO Number' }, { status: 400 });
       }
 
-      const prNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number']);
+      const prNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number', 'อ้างอิง PR', 'เลขที่ PR', 'เลข PR']);
       
       // Upsert PR first to prevent FK constraint failure
       if (prNumber) {
@@ -115,39 +120,39 @@ export async function POST(req: NextRequest) {
       await prisma.purchaseOrder.upsert({
         where: { poNumber: String(poNumber) },
         update: {
-          no: parseNumber(findValue(payload, ['No', 'Number'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date'])),
+          no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
+          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่'])),
           prNumber: prNumber ? String(prNumber) : null,
-          vendorName: findValue(payload, ['Vendor Name', 'Vendor', 'Supplier']),
-          accountNumber: findValue(payload, ['Account Number', 'Account']),
-          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total'])),
-          depositAmount: parseNumber(findValue(payload, ['Deposit Amount', 'Deposit'])),
-          remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining'])),
-          payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1'])),
-          creditTerm: findValue(payload, ['Credit Term', 'Credit']),
-          jobName: findValue(payload, ['Job Name', 'Job']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items']),
-          deliveryDate: parseDateStr(findValue(payload, ['Delivery Date', 'Delivery'])),
-          note: findValue(payload, ['Note', 'Remarks']),
-          reportedBy: findValue(payload, ['Notifier', 'Reported By']),
+          vendorName: findValue(payload, ['Vendor Name', 'Vendor', 'Supplier', 'ผู้ขาย', 'ชื่อผู้ขาย', 'ร้านค้า', 'ซัพพลายเออร์']),
+          accountNumber: findValue(payload, ['Account Number', 'Account', 'เลขที่บัญชี', 'บัญชี']),
+          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอดจัดซื้อ', 'จำนวนเงิน', 'ยอดเงิน'])),
+          depositAmount: parseNumber(findValue(payload, ['Deposit Amount', 'Deposit', 'มัดจำ', 'ยอดมัดจำ'])),
+          remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ'])),
+          payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1'])),
+          creditTerm: findValue(payload, ['Credit Term', 'Credit', 'เครดิตเทอม', 'เครดิต']),
+          jobName: findValue(payload, ['Job Name', 'Job', 'ชื่องาน', 'รหัสงาน']),
+          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า']),
+          deliveryDate: parseDateStr(findValue(payload, ['Delivery Date', 'Delivery', 'วันส่งมอบ', 'กำหนดส่ง', 'วันที่ส่ง'])),
+          note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
+          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
         },
         create: {
           poNumber: String(poNumber),
-          no: parseNumber(findValue(payload, ['No', 'Number'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date'])),
+          no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
+          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่'])),
           prNumber: prNumber ? String(prNumber) : null,
-          vendorName: findValue(payload, ['Vendor Name', 'Vendor', 'Supplier']),
-          accountNumber: findValue(payload, ['Account Number', 'Account']),
-          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total'])),
-          depositAmount: parseNumber(findValue(payload, ['Deposit Amount', 'Deposit'])),
-          remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining'])),
-          payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1'])),
-          creditTerm: findValue(payload, ['Credit Term', 'Credit']),
-          jobName: findValue(payload, ['Job Name', 'Job']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items']),
-          deliveryDate: parseDateStr(findValue(payload, ['Delivery Date', 'Delivery'])),
-          note: findValue(payload, ['Note', 'Remarks']),
-          reportedBy: findValue(payload, ['Notifier', 'Reported By']),
+          vendorName: findValue(payload, ['Vendor Name', 'Vendor', 'Supplier', 'ผู้ขาย', 'ชื่อผู้ขาย', 'ร้านค้า', 'ซัพพลายเออร์']),
+          accountNumber: findValue(payload, ['Account Number', 'Account', 'เลขที่บัญชี', 'บัญชี']),
+          totalAmount: parseNumber(findValue(payload, ['Total Amount', 'Total', 'ยอดรวม', 'ยอดจัดซื้อ', 'จำนวนเงิน', 'ยอดเงิน'])),
+          depositAmount: parseNumber(findValue(payload, ['Deposit Amount', 'Deposit', 'มัดจำ', 'ยอดมัดจำ'])),
+          remainingAmount: parseNumber(findValue(payload, ['Remaining Amount', 'Remaining', 'คงเหลือ', 'ยอดคงเหลือ'])),
+          payment1: parseNumber(findValue(payload, ['Payment 1', 'Payment1', 'จ่ายครั้งที่ 1', 'งวดที่ 1'])),
+          creditTerm: findValue(payload, ['Credit Term', 'Credit', 'เครดิตเทอม', 'เครดิต']),
+          jobName: findValue(payload, ['Job Name', 'Job', 'ชื่องาน', 'รหัสงาน']),
+          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า']),
+          deliveryDate: parseDateStr(findValue(payload, ['Delivery Date', 'Delivery', 'วันส่งมอบ', 'กำหนดส่ง', 'วันที่ส่ง'])),
+          note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
+          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
         }
       });
 
