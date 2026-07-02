@@ -88,13 +88,13 @@ export async function POST(req: NextRequest) {
         },
         create: {
           prNumber: String(prNumber),
-          no: parseNumber(findValue(payload, ['No', 'Number'])),
-          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date'])),
-          projectName: findValue(payload, ['Project Name', 'Project']),
-          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items']),
-          requestedBy: findValue(payload, ['Purchasing Requestor', 'Requestor']),
-          note: findValue(payload, ['Note', 'Remarks']),
-          reportedBy: findValue(payload, ['Notifier', 'Reported By']),
+          no: parseNumber(findValue(payload, ['No', 'Number', 'ลำดับ'])),
+          recordedAt: parseDateStr(findValue(payload, ['Date Recorded', 'Date', 'วันที่'])),
+          projectName: findValue(payload, ['Project Name', 'Project', 'ชื่อโครงการ', 'โครงการ']),
+          itemList: findValue(payload, ['Purchase Item', 'Item List', 'Items', 'รายการ', 'รายการสินค้า', 'สินค้า']),
+          requestedBy: findValue(payload, ['Purchasing Requestor', 'Requestor', 'ผู้ขอซื้อ', 'ผู้เบิก']),
+          note: findValue(payload, ['Note', 'Remarks', 'หมายเหตุ']),
+          reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
         }
       });
 
