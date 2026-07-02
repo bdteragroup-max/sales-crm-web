@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Missing PO Number' }, { status: 400 });
       }
 
-      const prNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number', 'อ้างอิง PR', 'เลขที่ PR', 'เลข PR']);
+      const prNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number', 'อ้างอิง PR', 'เลขที่ PR', 'เลข PR', 'เลขที่ PR (ref)']);
 
       // Upsert PR first to prevent FK constraint failure
       if (prNumber) {
