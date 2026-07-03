@@ -107,8 +107,8 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
 
   const handleOpenModal = (req: any) => {
     setSelectedReq(req);
-    setEstimatedPrice('');
-    setEstimationNote('');
+    setEstimatedPrice(req.estimatedPrice !== null && req.estimatedPrice !== undefined ? req.estimatedPrice : '');
+    setEstimationNote(req.estimationNote || '');
     setIsModalOpen(true);
   };
 
@@ -435,9 +435,9 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
                       <Printer size={14} /> ดาวน์โหลด PDF
                     </Link>
                     
-                    {activeTab === 'PENDING' && (
+                    {(activeTab === 'PENDING' || activeTab === 'ESTIMATED' || activeTab === 'MONTHLY') && (
                       <div className="flex items-center gap-2">
-                        {isManager && (
+                        {(activeTab === 'PENDING' || (activeTab === 'MONTHLY' && record.estimationStatus !== 'ESTIMATED')) && isManager && (
                           <button 
                             onClick={() => handleOpenAssignModal(record)}
                             className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-[#ff2301] border border-red-200 text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-red-50 hover:border-[#ff2301] shadow-sm transition-all"
@@ -449,7 +449,7 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
                           onClick={() => handleOpenModal(record)}
                           className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-[11px] font-black uppercase tracking-wider rounded-xl hover:bg-[#ff2301] hover:shadow-lg hover:shadow-red-200 transition-all transform hover:-translate-y-0.5"
                         >
-                          <Calculator size={14} /> ประเมินราคา
+                          <Calculator size={14} /> {record.estimationStatus === 'ESTIMATED' ? 'แก้ไขราคา' : 'ประเมินราคา'}
                         </button>
                       </div>
                     )}

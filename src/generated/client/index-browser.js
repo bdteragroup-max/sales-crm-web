@@ -875,7 +875,8 @@ exports.Prisma.Leave_requestsScalarFieldEnum = {
   attachment_url: 'attachment_url',
   supervisor_approved_at: 'supervisor_approved_at',
   supervisor_id: 'supervisor_id',
-  handover_person: 'handover_person'
+  handover_person: 'handover_person',
+  substitute_date: 'substitute_date'
 };
 
 exports.Prisma.Leave_typesScalarFieldEnum = {

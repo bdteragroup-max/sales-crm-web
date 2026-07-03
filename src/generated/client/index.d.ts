@@ -64480,6 +64480,7 @@ export namespace Prisma {
     supervisor_approved_at: Date | null
     supervisor_id: string | null
     handover_person: string | null
+    substitute_date: Date | null
   }
 
   export type Leave_requestsMaxAggregateOutputType = {
@@ -64503,6 +64504,7 @@ export namespace Prisma {
     supervisor_approved_at: Date | null
     supervisor_id: string | null
     handover_person: string | null
+    substitute_date: Date | null
   }
 
   export type Leave_requestsCountAggregateOutputType = {
@@ -64526,6 +64528,7 @@ export namespace Prisma {
     supervisor_approved_at: number
     supervisor_id: number
     handover_person: number
+    substitute_date: number
     _all: number
   }
 
@@ -64561,6 +64564,7 @@ export namespace Prisma {
     supervisor_approved_at?: true
     supervisor_id?: true
     handover_person?: true
+    substitute_date?: true
   }
 
   export type Leave_requestsMaxAggregateInputType = {
@@ -64584,6 +64588,7 @@ export namespace Prisma {
     supervisor_approved_at?: true
     supervisor_id?: true
     handover_person?: true
+    substitute_date?: true
   }
 
   export type Leave_requestsCountAggregateInputType = {
@@ -64607,6 +64612,7 @@ export namespace Prisma {
     supervisor_approved_at?: true
     supervisor_id?: true
     handover_person?: true
+    substitute_date?: true
     _all?: true
   }
 
@@ -64717,6 +64723,7 @@ export namespace Prisma {
     supervisor_approved_at: Date | null
     supervisor_id: string | null
     handover_person: string | null
+    substitute_date: Date | null
     _count: Leave_requestsCountAggregateOutputType | null
     _avg: Leave_requestsAvgAggregateOutputType | null
     _sum: Leave_requestsSumAggregateOutputType | null
@@ -64759,6 +64766,7 @@ export namespace Prisma {
     supervisor_approved_at?: boolean
     supervisor_id?: boolean
     handover_person?: boolean
+    substitute_date?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["leave_requests"]>
 
@@ -64783,6 +64791,7 @@ export namespace Prisma {
     supervisor_approved_at?: boolean
     supervisor_id?: boolean
     handover_person?: boolean
+    substitute_date?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["leave_requests"]>
 
@@ -64807,6 +64816,7 @@ export namespace Prisma {
     supervisor_approved_at?: boolean
     supervisor_id?: boolean
     handover_person?: boolean
+    substitute_date?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["leave_requests"]>
 
@@ -64831,9 +64841,10 @@ export namespace Prisma {
     supervisor_approved_at?: boolean
     supervisor_id?: boolean
     handover_person?: boolean
+    substitute_date?: boolean
   }
 
-  export type leave_requestsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "timestamp" | "emp_id" | "name" | "leave_type_id" | "leave_type" | "start_date" | "end_date" | "days" | "reason" | "status" | "approved_by" | "approved_at" | "start_at" | "end_at" | "minutes" | "attachment_url" | "supervisor_approved_at" | "supervisor_id" | "handover_person", ExtArgs["result"]["leave_requests"]>
+  export type leave_requestsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "timestamp" | "emp_id" | "name" | "leave_type_id" | "leave_type" | "start_date" | "end_date" | "days" | "reason" | "status" | "approved_by" | "approved_at" | "start_at" | "end_at" | "minutes" | "attachment_url" | "supervisor_approved_at" | "supervisor_id" | "handover_person" | "substitute_date", ExtArgs["result"]["leave_requests"]>
   export type leave_requestsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }
@@ -64870,6 +64881,7 @@ export namespace Prisma {
       supervisor_approved_at: Date | null
       supervisor_id: string | null
       handover_person: string | null
+      substitute_date: Date | null
     }, ExtArgs["result"]["leave_requests"]>
     composites: {}
   }
@@ -65314,6 +65326,7 @@ export namespace Prisma {
     readonly supervisor_approved_at: FieldRef<"leave_requests", 'DateTime'>
     readonly supervisor_id: FieldRef<"leave_requests", 'String'>
     readonly handover_person: FieldRef<"leave_requests", 'String'>
+    readonly substitute_date: FieldRef<"leave_requests", 'DateTime'>
   }
     
 
@@ -129627,7 +129640,8 @@ export namespace Prisma {
     attachment_url: 'attachment_url',
     supervisor_approved_at: 'supervisor_approved_at',
     supervisor_id: 'supervisor_id',
-    handover_person: 'handover_person'
+    handover_person: 'handover_person',
+    substitute_date: 'substitute_date'
   };
 
   export type Leave_requestsScalarFieldEnum = (typeof Leave_requestsScalarFieldEnum)[keyof typeof Leave_requestsScalarFieldEnum]
@@ -135386,6 +135400,7 @@ export namespace Prisma {
     supervisor_approved_at?: DateTimeNullableFilter<"leave_requests"> | Date | string | null
     supervisor_id?: StringNullableFilter<"leave_requests"> | string | null
     handover_person?: StringNullableFilter<"leave_requests"> | string | null
+    substitute_date?: DateTimeNullableFilter<"leave_requests"> | Date | string | null
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }
 
@@ -135410,6 +135425,7 @@ export namespace Prisma {
     supervisor_approved_at?: SortOrderInput | SortOrder
     supervisor_id?: SortOrderInput | SortOrder
     handover_person?: SortOrderInput | SortOrder
+    substitute_date?: SortOrderInput | SortOrder
     employees?: employeesOrderByWithRelationInput
   }
 
@@ -135437,6 +135453,7 @@ export namespace Prisma {
     supervisor_approved_at?: DateTimeNullableFilter<"leave_requests"> | Date | string | null
     supervisor_id?: StringNullableFilter<"leave_requests"> | string | null
     handover_person?: StringNullableFilter<"leave_requests"> | string | null
+    substitute_date?: DateTimeNullableFilter<"leave_requests"> | Date | string | null
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }, "id">
 
@@ -135461,6 +135478,7 @@ export namespace Prisma {
     supervisor_approved_at?: SortOrderInput | SortOrder
     supervisor_id?: SortOrderInput | SortOrder
     handover_person?: SortOrderInput | SortOrder
+    substitute_date?: SortOrderInput | SortOrder
     _count?: leave_requestsCountOrderByAggregateInput
     _avg?: leave_requestsAvgOrderByAggregateInput
     _max?: leave_requestsMaxOrderByAggregateInput
@@ -135492,6 +135510,7 @@ export namespace Prisma {
     supervisor_approved_at?: DateTimeNullableWithAggregatesFilter<"leave_requests"> | Date | string | null
     supervisor_id?: StringNullableWithAggregatesFilter<"leave_requests"> | string | null
     handover_person?: StringNullableWithAggregatesFilter<"leave_requests"> | string | null
+    substitute_date?: DateTimeNullableWithAggregatesFilter<"leave_requests"> | Date | string | null
   }
 
   export type leave_typesWhereInput = {
@@ -145814,6 +145833,7 @@ export namespace Prisma {
     supervisor_approved_at?: Date | string | null
     supervisor_id?: string | null
     handover_person?: string | null
+    substitute_date?: Date | string | null
     employees: employeesCreateNestedOneWithoutLeave_requestsInput
   }
 
@@ -145838,6 +145858,7 @@ export namespace Prisma {
     supervisor_approved_at?: Date | string | null
     supervisor_id?: string | null
     handover_person?: string | null
+    substitute_date?: Date | string | null
   }
 
   export type leave_requestsUpdateInput = {
@@ -145860,6 +145881,7 @@ export namespace Prisma {
     supervisor_approved_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     handover_person?: NullableStringFieldUpdateOperationsInput | string | null
+    substitute_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employees?: employeesUpdateOneRequiredWithoutLeave_requestsNestedInput
   }
 
@@ -145884,6 +145906,7 @@ export namespace Prisma {
     supervisor_approved_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     handover_person?: NullableStringFieldUpdateOperationsInput | string | null
+    substitute_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type leave_requestsCreateManyInput = {
@@ -145907,6 +145930,7 @@ export namespace Prisma {
     supervisor_approved_at?: Date | string | null
     supervisor_id?: string | null
     handover_person?: string | null
+    substitute_date?: Date | string | null
   }
 
   export type leave_requestsUpdateManyMutationInput = {
@@ -145929,6 +145953,7 @@ export namespace Prisma {
     supervisor_approved_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     handover_person?: NullableStringFieldUpdateOperationsInput | string | null
+    substitute_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type leave_requestsUncheckedUpdateManyInput = {
@@ -145952,6 +145977,7 @@ export namespace Prisma {
     supervisor_approved_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     handover_person?: NullableStringFieldUpdateOperationsInput | string | null
+    substitute_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type leave_typesCreateInput = {
@@ -155060,6 +155086,7 @@ export namespace Prisma {
     supervisor_approved_at?: SortOrder
     supervisor_id?: SortOrder
     handover_person?: SortOrder
+    substitute_date?: SortOrder
   }
 
   export type leave_requestsAvgOrderByAggregateInput = {
@@ -155088,6 +155115,7 @@ export namespace Prisma {
     supervisor_approved_at?: SortOrder
     supervisor_id?: SortOrder
     handover_person?: SortOrder
+    substitute_date?: SortOrder
   }
 
   export type leave_requestsMinOrderByAggregateInput = {
@@ -155111,6 +155139,7 @@ export namespace Prisma {
     supervisor_approved_at?: SortOrder
     supervisor_id?: SortOrder
     handover_person?: SortOrder
+    substitute_date?: SortOrder
   }
 
   export type leave_requestsSumOrderByAggregateInput = {
@@ -177292,6 +177321,7 @@ export namespace Prisma {
     supervisor_approved_at?: Date | string | null
     supervisor_id?: string | null
     handover_person?: string | null
+    substitute_date?: Date | string | null
   }
 
   export type leave_requestsUncheckedCreateWithoutEmployeesInput = {
@@ -177314,6 +177344,7 @@ export namespace Prisma {
     supervisor_approved_at?: Date | string | null
     supervisor_id?: string | null
     handover_person?: string | null
+    substitute_date?: Date | string | null
   }
 
   export type leave_requestsCreateOrConnectWithoutEmployeesInput = {
@@ -178899,6 +178930,7 @@ export namespace Prisma {
     supervisor_approved_at?: DateTimeNullableFilter<"leave_requests"> | Date | string | null
     supervisor_id?: StringNullableFilter<"leave_requests"> | string | null
     handover_person?: StringNullableFilter<"leave_requests"> | string | null
+    substitute_date?: DateTimeNullableFilter<"leave_requests"> | Date | string | null
   }
 
   export type monthly_payroll_dataUpsertWithWhereUniqueWithoutEmployeesInput = {
@@ -200142,6 +200174,7 @@ export namespace Prisma {
     supervisor_approved_at?: Date | string | null
     supervisor_id?: string | null
     handover_person?: string | null
+    substitute_date?: Date | string | null
   }
 
   export type monthly_payroll_dataCreateManyEmployeesInput = {
@@ -201450,6 +201483,7 @@ export namespace Prisma {
     supervisor_approved_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     handover_person?: NullableStringFieldUpdateOperationsInput | string | null
+    substitute_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type leave_requestsUncheckedUpdateWithoutEmployeesInput = {
@@ -201472,6 +201506,7 @@ export namespace Prisma {
     supervisor_approved_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     handover_person?: NullableStringFieldUpdateOperationsInput | string | null
+    substitute_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type leave_requestsUncheckedUpdateManyWithoutEmployeesInput = {
@@ -201494,6 +201529,7 @@ export namespace Prisma {
     supervisor_approved_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
     handover_person?: NullableStringFieldUpdateOperationsInput | string | null
+    substitute_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type monthly_payroll_dataUpdateWithoutEmployeesInput = {
