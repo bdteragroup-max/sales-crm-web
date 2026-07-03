@@ -16,11 +16,14 @@ import { getUser } from "@/app/lib/dal";
 import { checkAndAwardServiceGold } from "@/app/actions/coins";
 
 export async function sendRequirementForEstimation(requirementId: string) {
+  const boqNumber = await generateBoqNumber();
+  
   const req = await prisma.customerRequirement.update({
     where: { id: requirementId },
     data: {
       isSentToService: true,
       estimationStatus: "PENDING",
+      boqNumber: boqNumber,
     },
   });
 
@@ -83,7 +86,12 @@ export async function submitEstimation(
   data: { estimatedPrice: number; estimationNote: string },
   servicePersonName: string
 ) {
-  const boqNumber = await generateBoqNumber();
+  const existingReq = await prisma.customerRequirement.findUnique({
+    where: { id: requirementId },
+    select: { boqNumber: true }
+  });
+  
+  const boqNumber = existingReq?.boqNumber || await generateBoqNumber();
   const techUser = await prisma.user.findFirst({ where: { fullName: servicePersonName } });
   const userId = techUser?.id;
 
