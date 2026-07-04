@@ -3,10 +3,12 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { CalendarDays, Plus, Search, Edit2, Calendar, CheckCircle2, Clock, XCircle, LayoutList, FileSignature, Trash2 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import { deleteSchedule } from '@/app/actions/schedule'
 import NewScheduleForm from './components/NewScheduleForm'
 import UpdateScheduleForm from './components/UpdateScheduleForm'
 import ScheduleCalendar from './components/ScheduleCalendar'
+import * as XLSX from 'xlsx'
 
 interface ScheduleClientPageProps {
   initialSchedules: any[]
@@ -26,10 +28,17 @@ function statusBadge(status: string) {
 }
 
 export default function ScheduleClientPage({ initialSchedules, staffList, userRole, currentUserId, businessTypes = [] }: ScheduleClientPageProps) {
-  const [activeTab, setActiveTab] = useState<'new' | 'list' | 'calendar'>('calendar')
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState<'new' | 'list' | 'calendar'>(
+    (searchParams.get('tab') as 'new' | 'list' | 'calendar') || 'calendar'
+  )
   const [schedules, setSchedules] = useState(initialSchedules)
   const [selectedSchedule, setSelectedSchedule] = useState<any | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [staffFilter, setStaffFilter] = useState('')
 
   const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase())
 
@@ -67,11 +76,72 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
     }
   }
 
-  const filteredSchedules = schedules.filter(s =>
-    s.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.user?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredSchedules = schedules.filter(s => {
+    const matchesSearch = s.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          s.user?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          s.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          s.company?.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
+                          
+    let matchesDate = true
+    if (startDate || endDate) {
+      const sDate = new Date(s.date)
+      sDate.setHours(0,0,0,0)
+      if (startDate) {
+        const start = new Date(startDate)
+        start.setHours(0,0,0,0)
+        if (sDate < start) matchesDate = false
+      }
+      if (endDate) {
+        const end = new Date(endDate)
+        end.setHours(0,0,0,0)
+        if (sDate > end) matchesDate = false
+      }
+    }
+
+    let matchesStatus = true
+    if (statusFilter) {
+       if (statusFilter === 'Pending') {
+           matchesStatus = !s.status || (s.status !== 'Completed' && s.status !== 'เสร็จสิ้น' && s.status !== 'Cancelled' && s.status !== 'ยกเลิก')
+       } else if (statusFilter === 'Completed') {
+           matchesStatus = s.status === 'Completed' || s.status === 'เสร็จสิ้น'
+       } else if (statusFilter === 'Cancelled') {
+           matchesStatus = s.status === 'Cancelled' || s.status === 'ยกเลิก'
+       }
+    }
+
+    let matchesStaff = true
+    if (staffFilter) {
+       matchesStaff = s.userId === staffFilter || s.user?.id === staffFilter
+    }
+
+    return matchesSearch && matchesDate && matchesStatus && matchesStaff
+  })
+
+  const handleExportExcel = () => {
+    if (filteredSchedules.length === 0) {
+      alert('ไม่มีข้อมูลให้ส่งออก');
+      return;
+    }
+
+    const dataToExport = filteredSchedules.map((s, index) => ({
+      'ลำดับ (No.)': index + 1,
+      'วันที่ (Date)': new Date(s.date).toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+      'เวลา (Time)': new Date(s.date).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+      'พนักงาน (Sales)': s.user?.fullName || '-',
+      'ชื่อบริษัท (Company)': s.company?.companyName || '-',
+      'หัวข้อ (Title)': s.title || '-',
+      'รายละเอียด (Description)': s.description || '-',
+      'รหัส QT/PO/IV': [s.quotationNumber, s.poNumber, s.invoiceNumber].filter(Boolean).join(', ') || '-',
+      'รายงานผล (Visit Report)': s.visitReport || '-',
+      'สถานะ (Status)': s.status || 'รอทำ (Planned)',
+      'หมายเหตุ (Notes)': s.notes || '-'
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    XLSX.utils.book_append_sheet(wb, ws, "Schedules");
+    XLSX.writeFile(wb, `Schedules_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
+  }
 
   const completedCount = schedules.filter(s => s.status === 'Completed' || s.status === 'เสร็จสิ้น').length
   const pendingCount = schedules.filter(s => !s.status || (s.status !== 'Completed' && s.status !== 'เสร็จสิ้น' && s.status !== 'Cancelled' && s.status !== 'ยกเลิก')).length
@@ -203,6 +273,7 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
               isManager={isManager}
               currentUserId={currentUserId}
               businessTypes={businessTypes}
+              initialCompanyName={searchParams.get('customerName') || ''}
             />
           </div>
 
@@ -216,16 +287,63 @@ export default function ScheduleClientPage({ initialSchedules, staffList, userRo
 
         ) : (
           <div className="p-4 md:p-8 space-y-4 md:space-y-6">
-            {/* Search */}
-            <div className="relative w-full max-w-sm">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="ค้นหาหัวข้อ, พนักงาน..."
-                className="w-full pl-9 pr-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-              />
+            {/* Filters and Search */}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative w-full sm:w-64 shrink-0">
+                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="ค้นหาหัวข้อ, ลูกค้า, พนักงาน..."
+                    className="w-full pl-9 pr-4 py-2 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input type="date" className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white" 
+                    value={startDate} 
+                    onChange={(e) => setStartDate(e.target.value)} 
+                  />
+                  <span className="text-gray-400">-</span>
+                  <input type="date" className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white" 
+                    value={endDate} 
+                    onChange={(e) => setEndDate(e.target.value)} 
+                  />
+                </div>
+
+                <select className="w-full sm:w-auto px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="">ทุกสถานะ</option>
+                  <option value="Pending">รอทำ (Planned)</option>
+                  <option value="Completed">เสร็จสิ้น (Completed)</option>
+                  <option value="Cancelled">ยกเลิก (Cancelled)</option>
+                </select>
+
+                {isManager && staffList && (
+                  <select className="w-full sm:w-auto px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red bg-white"
+                    value={staffFilter}
+                    onChange={(e) => setStaffFilter(e.target.value)}
+                  >
+                    <option value="">พนักงานทุกคน</option>
+                    {staffList.map(rep => (
+                      <option key={rep.id} value={rep.id}>{rep.fullName}</option>
+                    ))}
+                  </select>
+                )}
+
+                <button
+                  onClick={handleExportExcel}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-all ml-auto"
+                  title="ส่งออกเป็นไฟล์ Excel"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  ส่งออก Excel
+                </button>
+              </div>
             </div>
 
             {/* Table */}

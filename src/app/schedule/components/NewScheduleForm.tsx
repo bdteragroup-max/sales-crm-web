@@ -11,9 +11,10 @@ interface NewScheduleFormProps {
   isManager: boolean
   currentUserId?: string
   businessTypes?: string[]
+  initialCompanyName?: string
 }
 
-export default function NewScheduleForm({ staffList, onSuccess, isManager, currentUserId, businessTypes = [] }: NewScheduleFormProps) {
+export default function NewScheduleForm({ staffList, onSuccess, isManager, currentUserId, businessTypes = [], initialCompanyName = '' }: NewScheduleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   // Company Search & Info States
@@ -28,7 +29,7 @@ export default function NewScheduleForm({ staffList, onSuccess, isManager, curre
   const [selectedMinute, setSelectedMinute] = useState('00');
   
   const [formData, setFormData] = useState<any>({
-    companyName: '',
+    companyName: initialCompanyName,
     businessType: '',
     taxId: '',
     address: '',

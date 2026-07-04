@@ -159,12 +159,10 @@ export default function CheckinsClientPage() {
                 ) : (
                   <div className="space-y-2">
                     {checkins.map((c, idx) => {
+                      const newerC = checkins.slice(0, idx).reverse().find(next => next.employeeName === c.employeeName);
                       let distanceToPrev = 0;
-                      if (idx > 0) {
-                        const newerC = checkins[idx - 1]; // this is newer in desc order
-                        if (c.employeeName === newerC.employeeName && c.lat && c.lon && newerC.lat && newerC.lon) {
-                          distanceToPrev = getDistanceFromLatLonInKm(newerC.lat, newerC.lon, c.lat, c.lon);
-                        }
+                      if (newerC && c.lat && c.lon && newerC.lat && newerC.lon) {
+                        distanceToPrev = getDistanceFromLatLonInKm(newerC.lat, newerC.lon, c.lat, c.lon);
                       }
                       
                       const olderC = checkins.slice(idx + 1).find(prev => prev.employeeName === c.employeeName);
@@ -173,8 +171,34 @@ export default function CheckinsClientPage() {
                          distanceToBranch = getDistanceFromLatLonInKm(c.branchLat, c.branchLon, c.lat, c.lon);
                       }
 
+                      let distanceToReturn = 0;
+                      if (!newerC && c.branchLat && c.branchLon && c.lat && c.lon) {
+                         distanceToReturn = getDistanceFromLatLonInKm(c.lat, c.lon, c.branchLat, c.branchLon);
+                      }
+
                       return (
                         <React.Fragment key={c.id}>
+                          {distanceToReturn > 0 && (
+                            <>
+                              <div className="p-3 rounded-xl border border-indigo-100 bg-indigo-50/50 mb-2 relative z-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="bg-indigo-100 text-indigo-700 border border-indigo-200 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0">
+                                    <MapPin size={12} />
+                                  </span>
+                                  <div>
+                                    <span className="text-[11px] font-bold text-indigo-900 block">จุดสิ้นสุด (สาขาหลัก)</span>
+                                    <span className="text-[10px] text-indigo-500">{c.employeeName}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex justify-center -my-1 relative z-10 mb-2">
+                                <span className="bg-indigo-50 text-indigo-600 border border-indigo-200 text-[10px] px-2 py-0.5 rounded-full font-medium shadow-sm">
+                                  ระยะทางกลับสาขา: {distanceToReturn.toFixed(2)} km
+                                </span>
+                              </div>
+                            </>
+                          )}
+
                           {distanceToPrev > 0 && (
                             <div className="flex justify-center -my-1 relative z-10">
                               <span className="bg-blue-50 text-blue-600 border border-blue-200 text-[10px] px-2 py-0.5 rounded-full font-medium shadow-sm">

@@ -22,8 +22,10 @@ export async function GET(request: Request) {
     const employeeId = searchParams.get('employeeId');
     const departmentId = searchParams.get('departmentId');
     const managerExport = searchParams.get('managerId'); // Optional, if manager is exporting their team
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
 
-    if (!month) return NextResponse.json({ error: 'Month parameter is required' }, { status: 400 });
+    if (!month && !(startDate && endDate)) return NextResponse.json({ error: 'Month or Date range parameter is required' }, { status: 400 });
 
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('session');
@@ -37,9 +39,20 @@ export async function GET(request: Request) {
     });
     if (!user || !user.employeeId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const [yearStr, monthStr] = month.split('-');
-    const startOfMonth = new Date(parseInt(yearStr), parseInt(monthStr) - 1, 1);
-    const endOfMonth = new Date(parseInt(yearStr), parseInt(monthStr), 0, 23, 59, 59, 999);
+    let startOfMonth: Date;
+    let endOfMonth: Date;
+    const periodLabel = (startDate && endDate) ? `${startDate}_to_${endDate}` : month!;
+
+    if (startDate && endDate) {
+      const [y1, m1, d1] = startDate.split('-');
+      startOfMonth = new Date(parseInt(y1), parseInt(m1) - 1, parseInt(d1), 0, 0, 0, 0);
+      const [y2, m2, d2] = endDate.split('-');
+      endOfMonth = new Date(parseInt(y2), parseInt(m2) - 1, parseInt(d2), 23, 59, 59, 999);
+    } else {
+      const [yearStr, monthStr] = month!.split('-');
+      startOfMonth = new Date(parseInt(yearStr), parseInt(monthStr) - 1, 1);
+      endOfMonth = new Date(parseInt(yearStr), parseInt(monthStr), 0, 23, 59, 59, 999);
+    }
 
     // 1. Determine which employees to fetch
     let employees: any[] = [];
@@ -215,13 +228,13 @@ export async function GET(request: Request) {
        const empData = reportData[employeeId];
        if (!empData) return NextResponse.json({ error: 'No data for employee' }, { status: 404 });
        
-       const buffer = await generateFuelExcelBuffer(empData, month);
+       const buffer = await generateFuelExcelBuffer(empData, periodLabel);
        
        return new NextResponse(buffer as any, {
          status: 200,
          headers: {
            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-           'Content-Disposition': `attachment; filename="Travel_Expense_${empData.name}_${month}.xlsx"`,
+           'Content-Disposition': `attachment; filename="Travel_Expense_${empData.name}_${periodLabel}.xlsx"`,
          }
        });
     } else {
@@ -231,8 +244,8 @@ export async function GET(request: Request) {
        // Process sequentially to save memory as requested
        const empValues = Object.values(reportData);
        for (const emp of empValues) {
-          const buffer = await generateFuelExcelBuffer(emp, month);
-          zip.file(`Travel_Expense_${emp.name}_${month}.xlsx`, buffer);
+          const buffer = await generateFuelExcelBuffer(emp, periodLabel);
+          zip.file(`Travel_Expense_${emp.name}_${periodLabel}.xlsx`, buffer);
        }
        
        const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
@@ -241,7 +254,7 @@ export async function GET(request: Request) {
          status: 200,
          headers: {
            'Content-Type': 'application/zip',
-           'Content-Disposition': `attachment; filename="Travel_Expenses_Department_${month}.zip"`,
+           'Content-Disposition': `attachment; filename="Travel_Expenses_Department_${periodLabel}.zip"`,
          }
        });
     }

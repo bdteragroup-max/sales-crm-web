@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FileText, Plus, Search, Edit2, FileSpreadsheet, PhoneCall, CheckCircle2, Clock } from 'lucide-react';
+import { FileText, Plus, Search, Edit2, FileSpreadsheet, PhoneCall, CheckCircle2, Clock, Calendar } from 'lucide-react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import NewTelesaleForm from './components/NewTelesaleForm';
 import TelesaleBulkUploadModal from './components/TelesaleBulkUploadModal';
@@ -354,13 +354,24 @@ export default function TelesalesClientPage({
                           {record.callbackAt ? new Date(record.callbackAt).toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-'}
                         </td>
                         <td className="py-4 px-5 text-center">
-                          <button 
-                            onClick={() => handleEdit(record)}
-                            className="p-2 text-gray-300 hover:text-brand-red hover:bg-red-50 rounded-xl transition-all group-hover:text-gray-500"
-                            title="แก้ไข"
-                          >
-                            <Edit2 size={15} />
-                          </button>
+                          <div className="flex items-center justify-center gap-2">
+                            <button 
+                              onClick={() => {
+                                window.location.href = `/schedule?tab=new&customerName=${encodeURIComponent(record.company?.companyName || '')}`;
+                              }}
+                              className="p-2 text-gray-300 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all group-hover:text-emerald-400"
+                              title="นัดหมายเข้าพบ (Schedule Visit)"
+                            >
+                              <Calendar size={15} />
+                            </button>
+                            <button 
+                              onClick={() => handleEdit(record)}
+                              className="p-2 text-gray-300 hover:text-brand-red hover:bg-red-50 rounded-xl transition-all group-hover:text-gray-500"
+                              title="แก้ไข"
+                            >
+                              <Edit2 size={15} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -567,30 +578,41 @@ export default function TelesalesClientPage({
                             </div>
                           </td>
                           <td className="py-4 px-5 text-center">
-                            <button 
-                              onClick={() => {
-                                if (primaryContact) {
-                                  if (primaryContact.mobilePhone) {
-                                    // 1. Open native dialer
-                                    window.location.href = `tel:${primaryContact.mobilePhone}`;
-                                    // 2. Redirect to log page after 1200ms
-                                    setTimeout(() => {
+                            <div className="flex items-center justify-center gap-2">
+                              <button 
+                                onClick={() => {
+                                  window.location.href = `/schedule?tab=new&customerName=${encodeURIComponent(record.company?.companyName || '')}`;
+                                }}
+                                className="p-2 text-gray-300 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all group-hover:text-emerald-400"
+                                title="นัดหมายเข้าพบ (Schedule Visit)"
+                              >
+                                <Calendar size={15} />
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  if (primaryContact) {
+                                    if (primaryContact.mobilePhone) {
+                                      // 1. Open native dialer
+                                      window.location.href = `tel:${primaryContact.mobilePhone}`;
+                                      // 2. Redirect to log page after 1200ms
+                                      setTimeout(() => {
+                                        window.location.href = `/telesales/log?contactId=${primaryContact.id}&companyId=${record.companyId}&telesaleId=${record.id}&returnTo=/telesales?tab=callbacks`;
+                                      }, 1200);
+                                    } else {
+                                      // Redirect to log page anyway (without auto-dialing)
                                       window.location.href = `/telesales/log?contactId=${primaryContact.id}&companyId=${record.companyId}&telesaleId=${record.id}&returnTo=/telesales?tab=callbacks`;
-                                    }, 1200);
+                                    }
                                   } else {
-                                    // Redirect to log page anyway (without auto-dialing)
-                                    window.location.href = `/telesales/log?contactId=${primaryContact.id}&companyId=${record.companyId}&telesaleId=${record.id}&returnTo=/telesales?tab=callbacks`;
+                                    // Cannot log without contact. Alert and redirect to clients.
+                                    alert('ไม่พบข้อมูลผู้ติดต่อหลัก กรุณาเพิ่มผู้ติดต่อในเมนูฐานข้อมูลลูกค้าก่อนทำการบันทึกการโทร');
+                                    window.location.href = `/clients?page=1`;
                                   }
-                                } else {
-                                  // Cannot log without contact. Alert and redirect to clients.
-                                  alert('ไม่พบข้อมูลผู้ติดต่อหลัก กรุณาเพิ่มผู้ติดต่อในเมนูฐานข้อมูลลูกค้าก่อนทำการบันทึกการโทร');
-                                  window.location.href = `/clients?page=1`;
-                                }
-                              }}
-                              className="bg-brand-red text-white px-5 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase shadow-lg shadow-red-200 hover:scale-105 transition-all"
-                            >
-                              CALL NOW
-                            </button>
+                                }}
+                                className="bg-brand-red text-white px-5 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase shadow-lg shadow-red-200 hover:scale-105 transition-all"
+                              >
+                                CALL NOW
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );

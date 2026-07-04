@@ -26,6 +26,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const month = searchParams.get('month'); // e.g., '2026-07'
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
     
     const session = (await cookies()).get('session')?.value;
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -72,7 +74,12 @@ export async function GET(request: Request) {
     let startOfMonth: Date;
     let endOfMonth: Date;
 
-    if (month) {
+    if (startDate && endDate) {
+      const [y1, m1, d1] = startDate.split('-');
+      startOfMonth = new Date(Date.UTC(parseInt(y1), parseInt(m1) - 1, parseInt(d1), 0, 0, 0, 0));
+      const [y2, m2, d2] = endDate.split('-');
+      endOfMonth = new Date(Date.UTC(parseInt(y2), parseInt(m2) - 1, parseInt(d2), 23, 59, 59, 999));
+    } else if (month) {
       const [y, m] = month.split('-');
       const year = parseInt(y);
       const monthIdx = parseInt(m) - 1;

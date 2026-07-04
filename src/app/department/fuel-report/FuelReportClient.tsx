@@ -25,9 +25,16 @@ function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon
 }
 
 export default function FuelReportClient() {
-  const [month, setMonth] = useState(() => {
+  const [startDate, setStartDate] = useState(() => {
     const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    d.setDate(1);
+    return d.toISOString().split("T")[0];
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    d.setDate(0);
+    return d.toISOString().split("T")[0];
   });
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +46,7 @@ export default function FuelReportClient() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/department/fuel-report?month=${month}`);
+      const res = await fetch(`/api/department/fuel-report?startDate=${startDate}&endDate=${endDate}`);
       const result = await res.json();
       if (res.ok) {
         setData(result.data || []);
@@ -56,7 +63,7 @@ export default function FuelReportClient() {
 
   useEffect(() => {
     loadData();
-  }, [month]);
+  }, [startDate, endDate]);
 
   const handleReviewSubmit = async () => {
     if (!reviewingFlag) return;
@@ -87,7 +94,7 @@ export default function FuelReportClient() {
 
   const exportToExcel = () => {
     // Navigate to the new API endpoint which handles ZIP generation
-    window.location.href = `/api/admin/reports/offsite-fuel/export?month=${month}&managerId=true`;
+    window.location.href = `/api/admin/reports/offsite-fuel/export?startDate=${startDate}&endDate=${endDate}&managerId=true`;
   };
 
   return (
@@ -115,14 +122,26 @@ export default function FuelReportClient() {
             <Download size={16} />
             ส่งออก Excel
           </button>
-          <div className="relative w-full sm:w-auto">
-            <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input 
-              type="month"
-              value={month}
-              onChange={(e) => setMonth(e.target.value)}
-              className="w-full sm:w-auto pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-            />
+          <div className="relative w-full sm:w-auto flex flex-col sm:flex-row items-center gap-2">
+            <div className="relative w-full sm:w-auto">
+              <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input 
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full sm:w-auto pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+              />
+            </div>
+            <span className="hidden sm:block text-gray-400 text-sm">-</span>
+            <div className="relative w-full sm:w-auto">
+              <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input 
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full sm:w-auto pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+              />
+            </div>
           </div>
         </div>
       </header>
@@ -135,8 +154,8 @@ export default function FuelReportClient() {
         ) : data.length === 0 ? (
           <div className="h-[400px] flex flex-col items-center justify-center text-gray-400 p-8 text-center bg-white rounded-3xl border border-gray-100 shadow-sm">
             <ShieldCheck size={48} className="mb-4 text-gray-200" />
-            <p className="text-lg font-bold text-gray-700">ไม่พบข้อมูลในเดือนนี้</p>
-            <p className="text-sm mt-1">ลองเปลี่ยนเดือนเพื่อดูข้อมูลอื่น</p>
+            <p className="text-lg font-bold text-gray-700">ไม่พบข้อมูลในช่วงเวลานี้</p>
+            <p className="text-sm mt-1">ลองเปลี่ยนวันที่เพื่อดูข้อมูลอื่น</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -239,6 +258,34 @@ export default function FuelReportClient() {
                                         </React.Fragment>
                                       );
                                     })}
+                                    {emp.branch_lat && emp.branch_lon && day.checkinsList.length > 0 && (() => {
+                                      const lastChk = day.checkinsList[day.checkinsList.length - 1];
+                                      let distanceToBranch = 0;
+                                      if (lastChk.lat && lastChk.lon) {
+                                        distanceToBranch = getDistanceFromLatLonInKm(lastChk.lat, lastChk.lon, emp.branch_lat, emp.branch_lon);
+                                      }
+                                      return (
+                                        <React.Fragment>
+                                          {distanceToBranch > 0 && (
+                                            <div className="text-[10px] text-blue-500 font-medium pl-6 py-0.5 border-l-2 border-dashed border-blue-200 ml-2 my-0.5 flex items-center gap-1">
+                                              ↓ {distanceToBranch.toFixed(2)} km
+                                            </div>
+                                          )}
+                                          <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 text-[10px] mt-1">
+                                            <span className="font-bold text-indigo-700 w-4 h-4 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 border border-indigo-200">
+                                              {day.checkinsList.length + 1}
+                                            </span>
+                                            <span className="px-1.5 py-0.5 rounded font-medium bg-indigo-50 text-indigo-600 border border-indigo-100 whitespace-nowrap">
+                                              จุดสิ้นสุด (สาขาหลัก)
+                                            </span>
+                                            <a href={`https://maps.google.com/?q=${emp.branch_lat},${emp.branch_lon}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-0.5 sm:ml-1 whitespace-nowrap">
+                                              <MapPin size={10} className="shrink-0" />
+                                              <span className="whitespace-nowrap">{emp.branch_lat.toFixed(4)}, {emp.branch_lon.toFixed(4)}</span>
+                                            </a>
+                                          </div>
+                                        </React.Fragment>
+                                      );
+                                    })()}
                                   </div>
                                 ) : (
                                   <span className="text-gray-400 text-xs">-</span>
