@@ -1968,3 +1968,31 @@ model announcements {
   created_by Int?
   admins     admins?  @relation(fields: [created_by], references: [id])
 }
+
+model FuelFlagReview {
+  id         Int       @id @default(autoincrement())
+  employeeId String    @db.VarChar(20)
+  flagDate   DateTime  @db.Date
+  flagType   String
+  reviewedBy String?
+  reviewedAt DateTime? @db.Timestamptz(6)
+  note       String?
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@unique([employeeId, flagDate, flagType])
+}
+
+model fleetcards {
+  id      Int    @id @default(autoincrement())
+  card_no String @unique
+  emp_id  String @db.VarChar(20)
+}
+
+model fleetcard_transactions {
+  id      Int      @id @default(autoincrement())
+  card_no String
+  date    DateTime @db.Timestamptz(6)
+  liters  Decimal  @db.Decimal(10, 2)
+  amount  Decimal  @db.Decimal(10, 2)
+  status  String   @db.VarChar(50)
+}

@@ -30,10 +30,11 @@ const managerNav = [
   { icon: MapPin, label: 'สำรวจไซต์งาน', href: '/sales/surveys' },
   { icon: LayoutDashboard, label: 'Marketing', href: '/marketing' },
   { icon: Users, label: 'จัดการทีม', href: '/team' },
+  { icon: MapPin, label: 'ตรวจสอบ GPS ลงเวลา', href: '/department/checkins' },
+  { icon: FileText, label: 'รายงานใช้น้ำมัน & GPS', href: '/department/fuel-report' },
   { icon: CalendarDays, label: 'จัดการตารางงาน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
   { icon: Users, label: 'ลูกค้าและบริษัท', href: '/clients' },
-  { icon: ShoppingCart, label: 'ระบบจัดซื้อ', href: '/admin/procurement/dashboard' },
   { icon: Settings, label: 'ตั้งค่าระบบ', href: '/settings' },
 ];
 

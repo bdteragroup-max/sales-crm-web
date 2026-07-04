@@ -1658,6 +1658,32 @@ exports.Prisma.AnnouncementsScalarFieldEnum = {
   created_by: 'created_by'
 };
 
+exports.Prisma.FuelFlagReviewScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  flagDate: 'flagDate',
+  flagType: 'flagType',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  note: 'note',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.FleetcardsScalarFieldEnum = {
+  id: 'id',
+  card_no: 'card_no',
+  emp_id: 'emp_id'
+};
+
+exports.Prisma.Fleetcard_transactionsScalarFieldEnum = {
+  id: 'id',
+  card_no: 'card_no',
+  date: 'date',
+  liters: 'liters',
+  amount: 'amount',
+  status: 'status'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1784,7 +1810,10 @@ exports.Prisma.ModelName = {
   SurveyPhoto: 'SurveyPhoto',
   SurveyDocument: 'SurveyDocument',
   SurveyBill: 'SurveyBill',
-  announcements: 'announcements'
+  announcements: 'announcements',
+  FuelFlagReview: 'FuelFlagReview',
+  fleetcards: 'fleetcards',
+  fleetcard_transactions: 'fleetcard_transactions'
 };
 
 /**

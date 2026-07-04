@@ -488,6 +488,21 @@ export type SurveyBill = $Result.DefaultSelection<Prisma.$SurveyBillPayload>
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type announcements = $Result.DefaultSelection<Prisma.$announcementsPayload>
+/**
+ * Model FuelFlagReview
+ * 
+ */
+export type FuelFlagReview = $Result.DefaultSelection<Prisma.$FuelFlagReviewPayload>
+/**
+ * Model fleetcards
+ * 
+ */
+export type fleetcards = $Result.DefaultSelection<Prisma.$fleetcardsPayload>
+/**
+ * Model fleetcard_transactions
+ * 
+ */
+export type fleetcard_transactions = $Result.DefaultSelection<Prisma.$fleetcard_transactionsPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1559,6 +1574,36 @@ export class PrismaClient<
     * ```
     */
   get announcements(): Prisma.announcementsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.fuelFlagReview`: Exposes CRUD operations for the **FuelFlagReview** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FuelFlagReviews
+    * const fuelFlagReviews = await prisma.fuelFlagReview.findMany()
+    * ```
+    */
+  get fuelFlagReview(): Prisma.FuelFlagReviewDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.fleetcards`: Exposes CRUD operations for the **fleetcards** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Fleetcards
+    * const fleetcards = await prisma.fleetcards.findMany()
+    * ```
+    */
+  get fleetcards(): Prisma.fleetcardsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.fleetcard_transactions`: Exposes CRUD operations for the **fleetcard_transactions** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Fleetcard_transactions
+    * const fleetcard_transactions = await prisma.fleetcard_transactions.findMany()
+    * ```
+    */
+  get fleetcard_transactions(): Prisma.fleetcard_transactionsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2087,7 +2132,10 @@ export namespace Prisma {
     SurveyPhoto: 'SurveyPhoto',
     SurveyDocument: 'SurveyDocument',
     SurveyBill: 'SurveyBill',
-    announcements: 'announcements'
+    announcements: 'announcements',
+    FuelFlagReview: 'FuelFlagReview',
+    fleetcards: 'fleetcards',
+    fleetcard_transactions: 'fleetcard_transactions'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2103,7 +2151,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -9137,6 +9185,228 @@ export namespace Prisma {
           }
         }
       }
+      FuelFlagReview: {
+        payload: Prisma.$FuelFlagReviewPayload<ExtArgs>
+        fields: Prisma.FuelFlagReviewFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FuelFlagReviewFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FuelFlagReviewFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload>
+          }
+          findFirst: {
+            args: Prisma.FuelFlagReviewFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FuelFlagReviewFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload>
+          }
+          findMany: {
+            args: Prisma.FuelFlagReviewFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload>[]
+          }
+          create: {
+            args: Prisma.FuelFlagReviewCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload>
+          }
+          createMany: {
+            args: Prisma.FuelFlagReviewCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FuelFlagReviewCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload>[]
+          }
+          delete: {
+            args: Prisma.FuelFlagReviewDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload>
+          }
+          update: {
+            args: Prisma.FuelFlagReviewUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload>
+          }
+          deleteMany: {
+            args: Prisma.FuelFlagReviewDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FuelFlagReviewUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FuelFlagReviewUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload>[]
+          }
+          upsert: {
+            args: Prisma.FuelFlagReviewUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FuelFlagReviewPayload>
+          }
+          aggregate: {
+            args: Prisma.FuelFlagReviewAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFuelFlagReview>
+          }
+          groupBy: {
+            args: Prisma.FuelFlagReviewGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FuelFlagReviewGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FuelFlagReviewCountArgs<ExtArgs>
+            result: $Utils.Optional<FuelFlagReviewCountAggregateOutputType> | number
+          }
+        }
+      }
+      fleetcards: {
+        payload: Prisma.$fleetcardsPayload<ExtArgs>
+        fields: Prisma.fleetcardsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.fleetcardsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.fleetcardsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload>
+          }
+          findFirst: {
+            args: Prisma.fleetcardsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.fleetcardsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload>
+          }
+          findMany: {
+            args: Prisma.fleetcardsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload>[]
+          }
+          create: {
+            args: Prisma.fleetcardsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload>
+          }
+          createMany: {
+            args: Prisma.fleetcardsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.fleetcardsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload>[]
+          }
+          delete: {
+            args: Prisma.fleetcardsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload>
+          }
+          update: {
+            args: Prisma.fleetcardsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload>
+          }
+          deleteMany: {
+            args: Prisma.fleetcardsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.fleetcardsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.fleetcardsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload>[]
+          }
+          upsert: {
+            args: Prisma.fleetcardsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcardsPayload>
+          }
+          aggregate: {
+            args: Prisma.FleetcardsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFleetcards>
+          }
+          groupBy: {
+            args: Prisma.fleetcardsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FleetcardsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.fleetcardsCountArgs<ExtArgs>
+            result: $Utils.Optional<FleetcardsCountAggregateOutputType> | number
+          }
+        }
+      }
+      fleetcard_transactions: {
+        payload: Prisma.$fleetcard_transactionsPayload<ExtArgs>
+        fields: Prisma.fleetcard_transactionsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.fleetcard_transactionsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.fleetcard_transactionsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload>
+          }
+          findFirst: {
+            args: Prisma.fleetcard_transactionsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.fleetcard_transactionsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload>
+          }
+          findMany: {
+            args: Prisma.fleetcard_transactionsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload>[]
+          }
+          create: {
+            args: Prisma.fleetcard_transactionsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload>
+          }
+          createMany: {
+            args: Prisma.fleetcard_transactionsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.fleetcard_transactionsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload>[]
+          }
+          delete: {
+            args: Prisma.fleetcard_transactionsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload>
+          }
+          update: {
+            args: Prisma.fleetcard_transactionsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload>
+          }
+          deleteMany: {
+            args: Prisma.fleetcard_transactionsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.fleetcard_transactionsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.fleetcard_transactionsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload>[]
+          }
+          upsert: {
+            args: Prisma.fleetcard_transactionsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$fleetcard_transactionsPayload>
+          }
+          aggregate: {
+            args: Prisma.Fleetcard_transactionsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFleetcard_transactions>
+          }
+          groupBy: {
+            args: Prisma.fleetcard_transactionsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Fleetcard_transactionsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.fleetcard_transactionsCountArgs<ExtArgs>
+            result: $Utils.Optional<Fleetcard_transactionsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -9340,6 +9610,9 @@ export namespace Prisma {
     surveyDocument?: SurveyDocumentOmit
     surveyBill?: SurveyBillOmit
     announcements?: announcementsOmit
+    fuelFlagReview?: FuelFlagReviewOmit
+    fleetcards?: fleetcardsOmit
+    fleetcard_transactions?: fleetcard_transactionsOmit
   }
 
   /* Types for Logging */
@@ -128746,6 +129019,3142 @@ export namespace Prisma {
 
 
   /**
+   * Model FuelFlagReview
+   */
+
+  export type AggregateFuelFlagReview = {
+    _count: FuelFlagReviewCountAggregateOutputType | null
+    _avg: FuelFlagReviewAvgAggregateOutputType | null
+    _sum: FuelFlagReviewSumAggregateOutputType | null
+    _min: FuelFlagReviewMinAggregateOutputType | null
+    _max: FuelFlagReviewMaxAggregateOutputType | null
+  }
+
+  export type FuelFlagReviewAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type FuelFlagReviewSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type FuelFlagReviewMinAggregateOutputType = {
+    id: number | null
+    employeeId: string | null
+    flagDate: Date | null
+    flagType: string | null
+    reviewedBy: string | null
+    reviewedAt: Date | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type FuelFlagReviewMaxAggregateOutputType = {
+    id: number | null
+    employeeId: string | null
+    flagDate: Date | null
+    flagType: string | null
+    reviewedBy: string | null
+    reviewedAt: Date | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type FuelFlagReviewCountAggregateOutputType = {
+    id: number
+    employeeId: number
+    flagDate: number
+    flagType: number
+    reviewedBy: number
+    reviewedAt: number
+    note: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type FuelFlagReviewAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type FuelFlagReviewSumAggregateInputType = {
+    id?: true
+  }
+
+  export type FuelFlagReviewMinAggregateInputType = {
+    id?: true
+    employeeId?: true
+    flagDate?: true
+    flagType?: true
+    reviewedBy?: true
+    reviewedAt?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type FuelFlagReviewMaxAggregateInputType = {
+    id?: true
+    employeeId?: true
+    flagDate?: true
+    flagType?: true
+    reviewedBy?: true
+    reviewedAt?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type FuelFlagReviewCountAggregateInputType = {
+    id?: true
+    employeeId?: true
+    flagDate?: true
+    flagType?: true
+    reviewedBy?: true
+    reviewedAt?: true
+    note?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type FuelFlagReviewAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FuelFlagReview to aggregate.
+     */
+    where?: FuelFlagReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FuelFlagReviews to fetch.
+     */
+    orderBy?: FuelFlagReviewOrderByWithRelationInput | FuelFlagReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FuelFlagReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FuelFlagReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FuelFlagReviews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FuelFlagReviews
+    **/
+    _count?: true | FuelFlagReviewCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FuelFlagReviewAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FuelFlagReviewSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FuelFlagReviewMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FuelFlagReviewMaxAggregateInputType
+  }
+
+  export type GetFuelFlagReviewAggregateType<T extends FuelFlagReviewAggregateArgs> = {
+        [P in keyof T & keyof AggregateFuelFlagReview]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFuelFlagReview[P]>
+      : GetScalarType<T[P], AggregateFuelFlagReview[P]>
+  }
+
+
+
+
+  export type FuelFlagReviewGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FuelFlagReviewWhereInput
+    orderBy?: FuelFlagReviewOrderByWithAggregationInput | FuelFlagReviewOrderByWithAggregationInput[]
+    by: FuelFlagReviewScalarFieldEnum[] | FuelFlagReviewScalarFieldEnum
+    having?: FuelFlagReviewScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FuelFlagReviewCountAggregateInputType | true
+    _avg?: FuelFlagReviewAvgAggregateInputType
+    _sum?: FuelFlagReviewSumAggregateInputType
+    _min?: FuelFlagReviewMinAggregateInputType
+    _max?: FuelFlagReviewMaxAggregateInputType
+  }
+
+  export type FuelFlagReviewGroupByOutputType = {
+    id: number
+    employeeId: string
+    flagDate: Date
+    flagType: string
+    reviewedBy: string | null
+    reviewedAt: Date | null
+    note: string | null
+    createdAt: Date
+    _count: FuelFlagReviewCountAggregateOutputType | null
+    _avg: FuelFlagReviewAvgAggregateOutputType | null
+    _sum: FuelFlagReviewSumAggregateOutputType | null
+    _min: FuelFlagReviewMinAggregateOutputType | null
+    _max: FuelFlagReviewMaxAggregateOutputType | null
+  }
+
+  type GetFuelFlagReviewGroupByPayload<T extends FuelFlagReviewGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FuelFlagReviewGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FuelFlagReviewGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FuelFlagReviewGroupByOutputType[P]>
+            : GetScalarType<T[P], FuelFlagReviewGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FuelFlagReviewSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    employeeId?: boolean
+    flagDate?: boolean
+    flagType?: boolean
+    reviewedBy?: boolean
+    reviewedAt?: boolean
+    note?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["fuelFlagReview"]>
+
+  export type FuelFlagReviewSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    employeeId?: boolean
+    flagDate?: boolean
+    flagType?: boolean
+    reviewedBy?: boolean
+    reviewedAt?: boolean
+    note?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["fuelFlagReview"]>
+
+  export type FuelFlagReviewSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    employeeId?: boolean
+    flagDate?: boolean
+    flagType?: boolean
+    reviewedBy?: boolean
+    reviewedAt?: boolean
+    note?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["fuelFlagReview"]>
+
+  export type FuelFlagReviewSelectScalar = {
+    id?: boolean
+    employeeId?: boolean
+    flagDate?: boolean
+    flagType?: boolean
+    reviewedBy?: boolean
+    reviewedAt?: boolean
+    note?: boolean
+    createdAt?: boolean
+  }
+
+  export type FuelFlagReviewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employeeId" | "flagDate" | "flagType" | "reviewedBy" | "reviewedAt" | "note" | "createdAt", ExtArgs["result"]["fuelFlagReview"]>
+
+  export type $FuelFlagReviewPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FuelFlagReview"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      employeeId: string
+      flagDate: Date
+      flagType: string
+      reviewedBy: string | null
+      reviewedAt: Date | null
+      note: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["fuelFlagReview"]>
+    composites: {}
+  }
+
+  type FuelFlagReviewGetPayload<S extends boolean | null | undefined | FuelFlagReviewDefaultArgs> = $Result.GetResult<Prisma.$FuelFlagReviewPayload, S>
+
+  type FuelFlagReviewCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FuelFlagReviewFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FuelFlagReviewCountAggregateInputType | true
+    }
+
+  export interface FuelFlagReviewDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FuelFlagReview'], meta: { name: 'FuelFlagReview' } }
+    /**
+     * Find zero or one FuelFlagReview that matches the filter.
+     * @param {FuelFlagReviewFindUniqueArgs} args - Arguments to find a FuelFlagReview
+     * @example
+     * // Get one FuelFlagReview
+     * const fuelFlagReview = await prisma.fuelFlagReview.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FuelFlagReviewFindUniqueArgs>(args: SelectSubset<T, FuelFlagReviewFindUniqueArgs<ExtArgs>>): Prisma__FuelFlagReviewClient<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FuelFlagReview that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FuelFlagReviewFindUniqueOrThrowArgs} args - Arguments to find a FuelFlagReview
+     * @example
+     * // Get one FuelFlagReview
+     * const fuelFlagReview = await prisma.fuelFlagReview.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FuelFlagReviewFindUniqueOrThrowArgs>(args: SelectSubset<T, FuelFlagReviewFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FuelFlagReviewClient<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FuelFlagReview that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FuelFlagReviewFindFirstArgs} args - Arguments to find a FuelFlagReview
+     * @example
+     * // Get one FuelFlagReview
+     * const fuelFlagReview = await prisma.fuelFlagReview.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FuelFlagReviewFindFirstArgs>(args?: SelectSubset<T, FuelFlagReviewFindFirstArgs<ExtArgs>>): Prisma__FuelFlagReviewClient<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FuelFlagReview that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FuelFlagReviewFindFirstOrThrowArgs} args - Arguments to find a FuelFlagReview
+     * @example
+     * // Get one FuelFlagReview
+     * const fuelFlagReview = await prisma.fuelFlagReview.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FuelFlagReviewFindFirstOrThrowArgs>(args?: SelectSubset<T, FuelFlagReviewFindFirstOrThrowArgs<ExtArgs>>): Prisma__FuelFlagReviewClient<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FuelFlagReviews that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FuelFlagReviewFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FuelFlagReviews
+     * const fuelFlagReviews = await prisma.fuelFlagReview.findMany()
+     * 
+     * // Get first 10 FuelFlagReviews
+     * const fuelFlagReviews = await prisma.fuelFlagReview.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const fuelFlagReviewWithIdOnly = await prisma.fuelFlagReview.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FuelFlagReviewFindManyArgs>(args?: SelectSubset<T, FuelFlagReviewFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FuelFlagReview.
+     * @param {FuelFlagReviewCreateArgs} args - Arguments to create a FuelFlagReview.
+     * @example
+     * // Create one FuelFlagReview
+     * const FuelFlagReview = await prisma.fuelFlagReview.create({
+     *   data: {
+     *     // ... data to create a FuelFlagReview
+     *   }
+     * })
+     * 
+     */
+    create<T extends FuelFlagReviewCreateArgs>(args: SelectSubset<T, FuelFlagReviewCreateArgs<ExtArgs>>): Prisma__FuelFlagReviewClient<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FuelFlagReviews.
+     * @param {FuelFlagReviewCreateManyArgs} args - Arguments to create many FuelFlagReviews.
+     * @example
+     * // Create many FuelFlagReviews
+     * const fuelFlagReview = await prisma.fuelFlagReview.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FuelFlagReviewCreateManyArgs>(args?: SelectSubset<T, FuelFlagReviewCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FuelFlagReviews and returns the data saved in the database.
+     * @param {FuelFlagReviewCreateManyAndReturnArgs} args - Arguments to create many FuelFlagReviews.
+     * @example
+     * // Create many FuelFlagReviews
+     * const fuelFlagReview = await prisma.fuelFlagReview.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FuelFlagReviews and only return the `id`
+     * const fuelFlagReviewWithIdOnly = await prisma.fuelFlagReview.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FuelFlagReviewCreateManyAndReturnArgs>(args?: SelectSubset<T, FuelFlagReviewCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FuelFlagReview.
+     * @param {FuelFlagReviewDeleteArgs} args - Arguments to delete one FuelFlagReview.
+     * @example
+     * // Delete one FuelFlagReview
+     * const FuelFlagReview = await prisma.fuelFlagReview.delete({
+     *   where: {
+     *     // ... filter to delete one FuelFlagReview
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FuelFlagReviewDeleteArgs>(args: SelectSubset<T, FuelFlagReviewDeleteArgs<ExtArgs>>): Prisma__FuelFlagReviewClient<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FuelFlagReview.
+     * @param {FuelFlagReviewUpdateArgs} args - Arguments to update one FuelFlagReview.
+     * @example
+     * // Update one FuelFlagReview
+     * const fuelFlagReview = await prisma.fuelFlagReview.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FuelFlagReviewUpdateArgs>(args: SelectSubset<T, FuelFlagReviewUpdateArgs<ExtArgs>>): Prisma__FuelFlagReviewClient<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FuelFlagReviews.
+     * @param {FuelFlagReviewDeleteManyArgs} args - Arguments to filter FuelFlagReviews to delete.
+     * @example
+     * // Delete a few FuelFlagReviews
+     * const { count } = await prisma.fuelFlagReview.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FuelFlagReviewDeleteManyArgs>(args?: SelectSubset<T, FuelFlagReviewDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FuelFlagReviews.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FuelFlagReviewUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FuelFlagReviews
+     * const fuelFlagReview = await prisma.fuelFlagReview.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FuelFlagReviewUpdateManyArgs>(args: SelectSubset<T, FuelFlagReviewUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FuelFlagReviews and returns the data updated in the database.
+     * @param {FuelFlagReviewUpdateManyAndReturnArgs} args - Arguments to update many FuelFlagReviews.
+     * @example
+     * // Update many FuelFlagReviews
+     * const fuelFlagReview = await prisma.fuelFlagReview.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FuelFlagReviews and only return the `id`
+     * const fuelFlagReviewWithIdOnly = await prisma.fuelFlagReview.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FuelFlagReviewUpdateManyAndReturnArgs>(args: SelectSubset<T, FuelFlagReviewUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FuelFlagReview.
+     * @param {FuelFlagReviewUpsertArgs} args - Arguments to update or create a FuelFlagReview.
+     * @example
+     * // Update or create a FuelFlagReview
+     * const fuelFlagReview = await prisma.fuelFlagReview.upsert({
+     *   create: {
+     *     // ... data to create a FuelFlagReview
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FuelFlagReview we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FuelFlagReviewUpsertArgs>(args: SelectSubset<T, FuelFlagReviewUpsertArgs<ExtArgs>>): Prisma__FuelFlagReviewClient<$Result.GetResult<Prisma.$FuelFlagReviewPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FuelFlagReviews.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FuelFlagReviewCountArgs} args - Arguments to filter FuelFlagReviews to count.
+     * @example
+     * // Count the number of FuelFlagReviews
+     * const count = await prisma.fuelFlagReview.count({
+     *   where: {
+     *     // ... the filter for the FuelFlagReviews we want to count
+     *   }
+     * })
+    **/
+    count<T extends FuelFlagReviewCountArgs>(
+      args?: Subset<T, FuelFlagReviewCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FuelFlagReviewCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FuelFlagReview.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FuelFlagReviewAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FuelFlagReviewAggregateArgs>(args: Subset<T, FuelFlagReviewAggregateArgs>): Prisma.PrismaPromise<GetFuelFlagReviewAggregateType<T>>
+
+    /**
+     * Group by FuelFlagReview.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FuelFlagReviewGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FuelFlagReviewGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FuelFlagReviewGroupByArgs['orderBy'] }
+        : { orderBy?: FuelFlagReviewGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FuelFlagReviewGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFuelFlagReviewGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FuelFlagReview model
+   */
+  readonly fields: FuelFlagReviewFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FuelFlagReview.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FuelFlagReviewClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FuelFlagReview model
+   */
+  interface FuelFlagReviewFieldRefs {
+    readonly id: FieldRef<"FuelFlagReview", 'Int'>
+    readonly employeeId: FieldRef<"FuelFlagReview", 'String'>
+    readonly flagDate: FieldRef<"FuelFlagReview", 'DateTime'>
+    readonly flagType: FieldRef<"FuelFlagReview", 'String'>
+    readonly reviewedBy: FieldRef<"FuelFlagReview", 'String'>
+    readonly reviewedAt: FieldRef<"FuelFlagReview", 'DateTime'>
+    readonly note: FieldRef<"FuelFlagReview", 'String'>
+    readonly createdAt: FieldRef<"FuelFlagReview", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FuelFlagReview findUnique
+   */
+  export type FuelFlagReviewFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * Filter, which FuelFlagReview to fetch.
+     */
+    where: FuelFlagReviewWhereUniqueInput
+  }
+
+  /**
+   * FuelFlagReview findUniqueOrThrow
+   */
+  export type FuelFlagReviewFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * Filter, which FuelFlagReview to fetch.
+     */
+    where: FuelFlagReviewWhereUniqueInput
+  }
+
+  /**
+   * FuelFlagReview findFirst
+   */
+  export type FuelFlagReviewFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * Filter, which FuelFlagReview to fetch.
+     */
+    where?: FuelFlagReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FuelFlagReviews to fetch.
+     */
+    orderBy?: FuelFlagReviewOrderByWithRelationInput | FuelFlagReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FuelFlagReviews.
+     */
+    cursor?: FuelFlagReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FuelFlagReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FuelFlagReviews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FuelFlagReviews.
+     */
+    distinct?: FuelFlagReviewScalarFieldEnum | FuelFlagReviewScalarFieldEnum[]
+  }
+
+  /**
+   * FuelFlagReview findFirstOrThrow
+   */
+  export type FuelFlagReviewFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * Filter, which FuelFlagReview to fetch.
+     */
+    where?: FuelFlagReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FuelFlagReviews to fetch.
+     */
+    orderBy?: FuelFlagReviewOrderByWithRelationInput | FuelFlagReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FuelFlagReviews.
+     */
+    cursor?: FuelFlagReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FuelFlagReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FuelFlagReviews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FuelFlagReviews.
+     */
+    distinct?: FuelFlagReviewScalarFieldEnum | FuelFlagReviewScalarFieldEnum[]
+  }
+
+  /**
+   * FuelFlagReview findMany
+   */
+  export type FuelFlagReviewFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * Filter, which FuelFlagReviews to fetch.
+     */
+    where?: FuelFlagReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FuelFlagReviews to fetch.
+     */
+    orderBy?: FuelFlagReviewOrderByWithRelationInput | FuelFlagReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FuelFlagReviews.
+     */
+    cursor?: FuelFlagReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FuelFlagReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FuelFlagReviews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FuelFlagReviews.
+     */
+    distinct?: FuelFlagReviewScalarFieldEnum | FuelFlagReviewScalarFieldEnum[]
+  }
+
+  /**
+   * FuelFlagReview create
+   */
+  export type FuelFlagReviewCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * The data needed to create a FuelFlagReview.
+     */
+    data: XOR<FuelFlagReviewCreateInput, FuelFlagReviewUncheckedCreateInput>
+  }
+
+  /**
+   * FuelFlagReview createMany
+   */
+  export type FuelFlagReviewCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FuelFlagReviews.
+     */
+    data: FuelFlagReviewCreateManyInput | FuelFlagReviewCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FuelFlagReview createManyAndReturn
+   */
+  export type FuelFlagReviewCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * The data used to create many FuelFlagReviews.
+     */
+    data: FuelFlagReviewCreateManyInput | FuelFlagReviewCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FuelFlagReview update
+   */
+  export type FuelFlagReviewUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * The data needed to update a FuelFlagReview.
+     */
+    data: XOR<FuelFlagReviewUpdateInput, FuelFlagReviewUncheckedUpdateInput>
+    /**
+     * Choose, which FuelFlagReview to update.
+     */
+    where: FuelFlagReviewWhereUniqueInput
+  }
+
+  /**
+   * FuelFlagReview updateMany
+   */
+  export type FuelFlagReviewUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FuelFlagReviews.
+     */
+    data: XOR<FuelFlagReviewUpdateManyMutationInput, FuelFlagReviewUncheckedUpdateManyInput>
+    /**
+     * Filter which FuelFlagReviews to update
+     */
+    where?: FuelFlagReviewWhereInput
+    /**
+     * Limit how many FuelFlagReviews to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FuelFlagReview updateManyAndReturn
+   */
+  export type FuelFlagReviewUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * The data used to update FuelFlagReviews.
+     */
+    data: XOR<FuelFlagReviewUpdateManyMutationInput, FuelFlagReviewUncheckedUpdateManyInput>
+    /**
+     * Filter which FuelFlagReviews to update
+     */
+    where?: FuelFlagReviewWhereInput
+    /**
+     * Limit how many FuelFlagReviews to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FuelFlagReview upsert
+   */
+  export type FuelFlagReviewUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * The filter to search for the FuelFlagReview to update in case it exists.
+     */
+    where: FuelFlagReviewWhereUniqueInput
+    /**
+     * In case the FuelFlagReview found by the `where` argument doesn't exist, create a new FuelFlagReview with this data.
+     */
+    create: XOR<FuelFlagReviewCreateInput, FuelFlagReviewUncheckedCreateInput>
+    /**
+     * In case the FuelFlagReview was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FuelFlagReviewUpdateInput, FuelFlagReviewUncheckedUpdateInput>
+  }
+
+  /**
+   * FuelFlagReview delete
+   */
+  export type FuelFlagReviewDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+    /**
+     * Filter which FuelFlagReview to delete.
+     */
+    where: FuelFlagReviewWhereUniqueInput
+  }
+
+  /**
+   * FuelFlagReview deleteMany
+   */
+  export type FuelFlagReviewDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FuelFlagReviews to delete
+     */
+    where?: FuelFlagReviewWhereInput
+    /**
+     * Limit how many FuelFlagReviews to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FuelFlagReview without action
+   */
+  export type FuelFlagReviewDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FuelFlagReview
+     */
+    select?: FuelFlagReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FuelFlagReview
+     */
+    omit?: FuelFlagReviewOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model fleetcards
+   */
+
+  export type AggregateFleetcards = {
+    _count: FleetcardsCountAggregateOutputType | null
+    _avg: FleetcardsAvgAggregateOutputType | null
+    _sum: FleetcardsSumAggregateOutputType | null
+    _min: FleetcardsMinAggregateOutputType | null
+    _max: FleetcardsMaxAggregateOutputType | null
+  }
+
+  export type FleetcardsAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type FleetcardsSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type FleetcardsMinAggregateOutputType = {
+    id: number | null
+    card_no: string | null
+    emp_id: string | null
+  }
+
+  export type FleetcardsMaxAggregateOutputType = {
+    id: number | null
+    card_no: string | null
+    emp_id: string | null
+  }
+
+  export type FleetcardsCountAggregateOutputType = {
+    id: number
+    card_no: number
+    emp_id: number
+    _all: number
+  }
+
+
+  export type FleetcardsAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type FleetcardsSumAggregateInputType = {
+    id?: true
+  }
+
+  export type FleetcardsMinAggregateInputType = {
+    id?: true
+    card_no?: true
+    emp_id?: true
+  }
+
+  export type FleetcardsMaxAggregateInputType = {
+    id?: true
+    card_no?: true
+    emp_id?: true
+  }
+
+  export type FleetcardsCountAggregateInputType = {
+    id?: true
+    card_no?: true
+    emp_id?: true
+    _all?: true
+  }
+
+  export type FleetcardsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which fleetcards to aggregate.
+     */
+    where?: fleetcardsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of fleetcards to fetch.
+     */
+    orderBy?: fleetcardsOrderByWithRelationInput | fleetcardsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: fleetcardsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` fleetcards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` fleetcards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned fleetcards
+    **/
+    _count?: true | FleetcardsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FleetcardsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FleetcardsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FleetcardsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FleetcardsMaxAggregateInputType
+  }
+
+  export type GetFleetcardsAggregateType<T extends FleetcardsAggregateArgs> = {
+        [P in keyof T & keyof AggregateFleetcards]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFleetcards[P]>
+      : GetScalarType<T[P], AggregateFleetcards[P]>
+  }
+
+
+
+
+  export type fleetcardsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: fleetcardsWhereInput
+    orderBy?: fleetcardsOrderByWithAggregationInput | fleetcardsOrderByWithAggregationInput[]
+    by: FleetcardsScalarFieldEnum[] | FleetcardsScalarFieldEnum
+    having?: fleetcardsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FleetcardsCountAggregateInputType | true
+    _avg?: FleetcardsAvgAggregateInputType
+    _sum?: FleetcardsSumAggregateInputType
+    _min?: FleetcardsMinAggregateInputType
+    _max?: FleetcardsMaxAggregateInputType
+  }
+
+  export type FleetcardsGroupByOutputType = {
+    id: number
+    card_no: string
+    emp_id: string
+    _count: FleetcardsCountAggregateOutputType | null
+    _avg: FleetcardsAvgAggregateOutputType | null
+    _sum: FleetcardsSumAggregateOutputType | null
+    _min: FleetcardsMinAggregateOutputType | null
+    _max: FleetcardsMaxAggregateOutputType | null
+  }
+
+  type GetFleetcardsGroupByPayload<T extends fleetcardsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FleetcardsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FleetcardsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FleetcardsGroupByOutputType[P]>
+            : GetScalarType<T[P], FleetcardsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type fleetcardsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    card_no?: boolean
+    emp_id?: boolean
+  }, ExtArgs["result"]["fleetcards"]>
+
+  export type fleetcardsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    card_no?: boolean
+    emp_id?: boolean
+  }, ExtArgs["result"]["fleetcards"]>
+
+  export type fleetcardsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    card_no?: boolean
+    emp_id?: boolean
+  }, ExtArgs["result"]["fleetcards"]>
+
+  export type fleetcardsSelectScalar = {
+    id?: boolean
+    card_no?: boolean
+    emp_id?: boolean
+  }
+
+  export type fleetcardsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "card_no" | "emp_id", ExtArgs["result"]["fleetcards"]>
+
+  export type $fleetcardsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "fleetcards"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      card_no: string
+      emp_id: string
+    }, ExtArgs["result"]["fleetcards"]>
+    composites: {}
+  }
+
+  type fleetcardsGetPayload<S extends boolean | null | undefined | fleetcardsDefaultArgs> = $Result.GetResult<Prisma.$fleetcardsPayload, S>
+
+  type fleetcardsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<fleetcardsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FleetcardsCountAggregateInputType | true
+    }
+
+  export interface fleetcardsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['fleetcards'], meta: { name: 'fleetcards' } }
+    /**
+     * Find zero or one Fleetcards that matches the filter.
+     * @param {fleetcardsFindUniqueArgs} args - Arguments to find a Fleetcards
+     * @example
+     * // Get one Fleetcards
+     * const fleetcards = await prisma.fleetcards.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends fleetcardsFindUniqueArgs>(args: SelectSubset<T, fleetcardsFindUniqueArgs<ExtArgs>>): Prisma__fleetcardsClient<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Fleetcards that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {fleetcardsFindUniqueOrThrowArgs} args - Arguments to find a Fleetcards
+     * @example
+     * // Get one Fleetcards
+     * const fleetcards = await prisma.fleetcards.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends fleetcardsFindUniqueOrThrowArgs>(args: SelectSubset<T, fleetcardsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__fleetcardsClient<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Fleetcards that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcardsFindFirstArgs} args - Arguments to find a Fleetcards
+     * @example
+     * // Get one Fleetcards
+     * const fleetcards = await prisma.fleetcards.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends fleetcardsFindFirstArgs>(args?: SelectSubset<T, fleetcardsFindFirstArgs<ExtArgs>>): Prisma__fleetcardsClient<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Fleetcards that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcardsFindFirstOrThrowArgs} args - Arguments to find a Fleetcards
+     * @example
+     * // Get one Fleetcards
+     * const fleetcards = await prisma.fleetcards.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends fleetcardsFindFirstOrThrowArgs>(args?: SelectSubset<T, fleetcardsFindFirstOrThrowArgs<ExtArgs>>): Prisma__fleetcardsClient<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Fleetcards that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcardsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Fleetcards
+     * const fleetcards = await prisma.fleetcards.findMany()
+     * 
+     * // Get first 10 Fleetcards
+     * const fleetcards = await prisma.fleetcards.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const fleetcardsWithIdOnly = await prisma.fleetcards.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends fleetcardsFindManyArgs>(args?: SelectSubset<T, fleetcardsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Fleetcards.
+     * @param {fleetcardsCreateArgs} args - Arguments to create a Fleetcards.
+     * @example
+     * // Create one Fleetcards
+     * const Fleetcards = await prisma.fleetcards.create({
+     *   data: {
+     *     // ... data to create a Fleetcards
+     *   }
+     * })
+     * 
+     */
+    create<T extends fleetcardsCreateArgs>(args: SelectSubset<T, fleetcardsCreateArgs<ExtArgs>>): Prisma__fleetcardsClient<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Fleetcards.
+     * @param {fleetcardsCreateManyArgs} args - Arguments to create many Fleetcards.
+     * @example
+     * // Create many Fleetcards
+     * const fleetcards = await prisma.fleetcards.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends fleetcardsCreateManyArgs>(args?: SelectSubset<T, fleetcardsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Fleetcards and returns the data saved in the database.
+     * @param {fleetcardsCreateManyAndReturnArgs} args - Arguments to create many Fleetcards.
+     * @example
+     * // Create many Fleetcards
+     * const fleetcards = await prisma.fleetcards.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Fleetcards and only return the `id`
+     * const fleetcardsWithIdOnly = await prisma.fleetcards.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends fleetcardsCreateManyAndReturnArgs>(args?: SelectSubset<T, fleetcardsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Fleetcards.
+     * @param {fleetcardsDeleteArgs} args - Arguments to delete one Fleetcards.
+     * @example
+     * // Delete one Fleetcards
+     * const Fleetcards = await prisma.fleetcards.delete({
+     *   where: {
+     *     // ... filter to delete one Fleetcards
+     *   }
+     * })
+     * 
+     */
+    delete<T extends fleetcardsDeleteArgs>(args: SelectSubset<T, fleetcardsDeleteArgs<ExtArgs>>): Prisma__fleetcardsClient<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Fleetcards.
+     * @param {fleetcardsUpdateArgs} args - Arguments to update one Fleetcards.
+     * @example
+     * // Update one Fleetcards
+     * const fleetcards = await prisma.fleetcards.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends fleetcardsUpdateArgs>(args: SelectSubset<T, fleetcardsUpdateArgs<ExtArgs>>): Prisma__fleetcardsClient<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Fleetcards.
+     * @param {fleetcardsDeleteManyArgs} args - Arguments to filter Fleetcards to delete.
+     * @example
+     * // Delete a few Fleetcards
+     * const { count } = await prisma.fleetcards.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends fleetcardsDeleteManyArgs>(args?: SelectSubset<T, fleetcardsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Fleetcards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcardsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Fleetcards
+     * const fleetcards = await prisma.fleetcards.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends fleetcardsUpdateManyArgs>(args: SelectSubset<T, fleetcardsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Fleetcards and returns the data updated in the database.
+     * @param {fleetcardsUpdateManyAndReturnArgs} args - Arguments to update many Fleetcards.
+     * @example
+     * // Update many Fleetcards
+     * const fleetcards = await prisma.fleetcards.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Fleetcards and only return the `id`
+     * const fleetcardsWithIdOnly = await prisma.fleetcards.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends fleetcardsUpdateManyAndReturnArgs>(args: SelectSubset<T, fleetcardsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Fleetcards.
+     * @param {fleetcardsUpsertArgs} args - Arguments to update or create a Fleetcards.
+     * @example
+     * // Update or create a Fleetcards
+     * const fleetcards = await prisma.fleetcards.upsert({
+     *   create: {
+     *     // ... data to create a Fleetcards
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Fleetcards we want to update
+     *   }
+     * })
+     */
+    upsert<T extends fleetcardsUpsertArgs>(args: SelectSubset<T, fleetcardsUpsertArgs<ExtArgs>>): Prisma__fleetcardsClient<$Result.GetResult<Prisma.$fleetcardsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Fleetcards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcardsCountArgs} args - Arguments to filter Fleetcards to count.
+     * @example
+     * // Count the number of Fleetcards
+     * const count = await prisma.fleetcards.count({
+     *   where: {
+     *     // ... the filter for the Fleetcards we want to count
+     *   }
+     * })
+    **/
+    count<T extends fleetcardsCountArgs>(
+      args?: Subset<T, fleetcardsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FleetcardsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Fleetcards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FleetcardsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FleetcardsAggregateArgs>(args: Subset<T, FleetcardsAggregateArgs>): Prisma.PrismaPromise<GetFleetcardsAggregateType<T>>
+
+    /**
+     * Group by Fleetcards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcardsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends fleetcardsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: fleetcardsGroupByArgs['orderBy'] }
+        : { orderBy?: fleetcardsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, fleetcardsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFleetcardsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the fleetcards model
+   */
+  readonly fields: fleetcardsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for fleetcards.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__fleetcardsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the fleetcards model
+   */
+  interface fleetcardsFieldRefs {
+    readonly id: FieldRef<"fleetcards", 'Int'>
+    readonly card_no: FieldRef<"fleetcards", 'String'>
+    readonly emp_id: FieldRef<"fleetcards", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * fleetcards findUnique
+   */
+  export type fleetcardsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * Filter, which fleetcards to fetch.
+     */
+    where: fleetcardsWhereUniqueInput
+  }
+
+  /**
+   * fleetcards findUniqueOrThrow
+   */
+  export type fleetcardsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * Filter, which fleetcards to fetch.
+     */
+    where: fleetcardsWhereUniqueInput
+  }
+
+  /**
+   * fleetcards findFirst
+   */
+  export type fleetcardsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * Filter, which fleetcards to fetch.
+     */
+    where?: fleetcardsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of fleetcards to fetch.
+     */
+    orderBy?: fleetcardsOrderByWithRelationInput | fleetcardsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for fleetcards.
+     */
+    cursor?: fleetcardsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` fleetcards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` fleetcards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of fleetcards.
+     */
+    distinct?: FleetcardsScalarFieldEnum | FleetcardsScalarFieldEnum[]
+  }
+
+  /**
+   * fleetcards findFirstOrThrow
+   */
+  export type fleetcardsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * Filter, which fleetcards to fetch.
+     */
+    where?: fleetcardsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of fleetcards to fetch.
+     */
+    orderBy?: fleetcardsOrderByWithRelationInput | fleetcardsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for fleetcards.
+     */
+    cursor?: fleetcardsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` fleetcards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` fleetcards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of fleetcards.
+     */
+    distinct?: FleetcardsScalarFieldEnum | FleetcardsScalarFieldEnum[]
+  }
+
+  /**
+   * fleetcards findMany
+   */
+  export type fleetcardsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * Filter, which fleetcards to fetch.
+     */
+    where?: fleetcardsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of fleetcards to fetch.
+     */
+    orderBy?: fleetcardsOrderByWithRelationInput | fleetcardsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing fleetcards.
+     */
+    cursor?: fleetcardsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` fleetcards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` fleetcards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of fleetcards.
+     */
+    distinct?: FleetcardsScalarFieldEnum | FleetcardsScalarFieldEnum[]
+  }
+
+  /**
+   * fleetcards create
+   */
+  export type fleetcardsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a fleetcards.
+     */
+    data: XOR<fleetcardsCreateInput, fleetcardsUncheckedCreateInput>
+  }
+
+  /**
+   * fleetcards createMany
+   */
+  export type fleetcardsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many fleetcards.
+     */
+    data: fleetcardsCreateManyInput | fleetcardsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * fleetcards createManyAndReturn
+   */
+  export type fleetcardsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * The data used to create many fleetcards.
+     */
+    data: fleetcardsCreateManyInput | fleetcardsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * fleetcards update
+   */
+  export type fleetcardsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a fleetcards.
+     */
+    data: XOR<fleetcardsUpdateInput, fleetcardsUncheckedUpdateInput>
+    /**
+     * Choose, which fleetcards to update.
+     */
+    where: fleetcardsWhereUniqueInput
+  }
+
+  /**
+   * fleetcards updateMany
+   */
+  export type fleetcardsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update fleetcards.
+     */
+    data: XOR<fleetcardsUpdateManyMutationInput, fleetcardsUncheckedUpdateManyInput>
+    /**
+     * Filter which fleetcards to update
+     */
+    where?: fleetcardsWhereInput
+    /**
+     * Limit how many fleetcards to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * fleetcards updateManyAndReturn
+   */
+  export type fleetcardsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * The data used to update fleetcards.
+     */
+    data: XOR<fleetcardsUpdateManyMutationInput, fleetcardsUncheckedUpdateManyInput>
+    /**
+     * Filter which fleetcards to update
+     */
+    where?: fleetcardsWhereInput
+    /**
+     * Limit how many fleetcards to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * fleetcards upsert
+   */
+  export type fleetcardsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the fleetcards to update in case it exists.
+     */
+    where: fleetcardsWhereUniqueInput
+    /**
+     * In case the fleetcards found by the `where` argument doesn't exist, create a new fleetcards with this data.
+     */
+    create: XOR<fleetcardsCreateInput, fleetcardsUncheckedCreateInput>
+    /**
+     * In case the fleetcards was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<fleetcardsUpdateInput, fleetcardsUncheckedUpdateInput>
+  }
+
+  /**
+   * fleetcards delete
+   */
+  export type fleetcardsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+    /**
+     * Filter which fleetcards to delete.
+     */
+    where: fleetcardsWhereUniqueInput
+  }
+
+  /**
+   * fleetcards deleteMany
+   */
+  export type fleetcardsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which fleetcards to delete
+     */
+    where?: fleetcardsWhereInput
+    /**
+     * Limit how many fleetcards to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * fleetcards without action
+   */
+  export type fleetcardsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcards
+     */
+    select?: fleetcardsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcards
+     */
+    omit?: fleetcardsOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model fleetcard_transactions
+   */
+
+  export type AggregateFleetcard_transactions = {
+    _count: Fleetcard_transactionsCountAggregateOutputType | null
+    _avg: Fleetcard_transactionsAvgAggregateOutputType | null
+    _sum: Fleetcard_transactionsSumAggregateOutputType | null
+    _min: Fleetcard_transactionsMinAggregateOutputType | null
+    _max: Fleetcard_transactionsMaxAggregateOutputType | null
+  }
+
+  export type Fleetcard_transactionsAvgAggregateOutputType = {
+    id: number | null
+    liters: Decimal | null
+    amount: Decimal | null
+  }
+
+  export type Fleetcard_transactionsSumAggregateOutputType = {
+    id: number | null
+    liters: Decimal | null
+    amount: Decimal | null
+  }
+
+  export type Fleetcard_transactionsMinAggregateOutputType = {
+    id: number | null
+    card_no: string | null
+    date: Date | null
+    liters: Decimal | null
+    amount: Decimal | null
+    status: string | null
+  }
+
+  export type Fleetcard_transactionsMaxAggregateOutputType = {
+    id: number | null
+    card_no: string | null
+    date: Date | null
+    liters: Decimal | null
+    amount: Decimal | null
+    status: string | null
+  }
+
+  export type Fleetcard_transactionsCountAggregateOutputType = {
+    id: number
+    card_no: number
+    date: number
+    liters: number
+    amount: number
+    status: number
+    _all: number
+  }
+
+
+  export type Fleetcard_transactionsAvgAggregateInputType = {
+    id?: true
+    liters?: true
+    amount?: true
+  }
+
+  export type Fleetcard_transactionsSumAggregateInputType = {
+    id?: true
+    liters?: true
+    amount?: true
+  }
+
+  export type Fleetcard_transactionsMinAggregateInputType = {
+    id?: true
+    card_no?: true
+    date?: true
+    liters?: true
+    amount?: true
+    status?: true
+  }
+
+  export type Fleetcard_transactionsMaxAggregateInputType = {
+    id?: true
+    card_no?: true
+    date?: true
+    liters?: true
+    amount?: true
+    status?: true
+  }
+
+  export type Fleetcard_transactionsCountAggregateInputType = {
+    id?: true
+    card_no?: true
+    date?: true
+    liters?: true
+    amount?: true
+    status?: true
+    _all?: true
+  }
+
+  export type Fleetcard_transactionsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which fleetcard_transactions to aggregate.
+     */
+    where?: fleetcard_transactionsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of fleetcard_transactions to fetch.
+     */
+    orderBy?: fleetcard_transactionsOrderByWithRelationInput | fleetcard_transactionsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: fleetcard_transactionsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` fleetcard_transactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` fleetcard_transactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned fleetcard_transactions
+    **/
+    _count?: true | Fleetcard_transactionsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Fleetcard_transactionsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Fleetcard_transactionsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Fleetcard_transactionsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Fleetcard_transactionsMaxAggregateInputType
+  }
+
+  export type GetFleetcard_transactionsAggregateType<T extends Fleetcard_transactionsAggregateArgs> = {
+        [P in keyof T & keyof AggregateFleetcard_transactions]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFleetcard_transactions[P]>
+      : GetScalarType<T[P], AggregateFleetcard_transactions[P]>
+  }
+
+
+
+
+  export type fleetcard_transactionsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: fleetcard_transactionsWhereInput
+    orderBy?: fleetcard_transactionsOrderByWithAggregationInput | fleetcard_transactionsOrderByWithAggregationInput[]
+    by: Fleetcard_transactionsScalarFieldEnum[] | Fleetcard_transactionsScalarFieldEnum
+    having?: fleetcard_transactionsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Fleetcard_transactionsCountAggregateInputType | true
+    _avg?: Fleetcard_transactionsAvgAggregateInputType
+    _sum?: Fleetcard_transactionsSumAggregateInputType
+    _min?: Fleetcard_transactionsMinAggregateInputType
+    _max?: Fleetcard_transactionsMaxAggregateInputType
+  }
+
+  export type Fleetcard_transactionsGroupByOutputType = {
+    id: number
+    card_no: string
+    date: Date
+    liters: Decimal
+    amount: Decimal
+    status: string
+    _count: Fleetcard_transactionsCountAggregateOutputType | null
+    _avg: Fleetcard_transactionsAvgAggregateOutputType | null
+    _sum: Fleetcard_transactionsSumAggregateOutputType | null
+    _min: Fleetcard_transactionsMinAggregateOutputType | null
+    _max: Fleetcard_transactionsMaxAggregateOutputType | null
+  }
+
+  type GetFleetcard_transactionsGroupByPayload<T extends fleetcard_transactionsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Fleetcard_transactionsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Fleetcard_transactionsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Fleetcard_transactionsGroupByOutputType[P]>
+            : GetScalarType<T[P], Fleetcard_transactionsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type fleetcard_transactionsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    card_no?: boolean
+    date?: boolean
+    liters?: boolean
+    amount?: boolean
+    status?: boolean
+  }, ExtArgs["result"]["fleetcard_transactions"]>
+
+  export type fleetcard_transactionsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    card_no?: boolean
+    date?: boolean
+    liters?: boolean
+    amount?: boolean
+    status?: boolean
+  }, ExtArgs["result"]["fleetcard_transactions"]>
+
+  export type fleetcard_transactionsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    card_no?: boolean
+    date?: boolean
+    liters?: boolean
+    amount?: boolean
+    status?: boolean
+  }, ExtArgs["result"]["fleetcard_transactions"]>
+
+  export type fleetcard_transactionsSelectScalar = {
+    id?: boolean
+    card_no?: boolean
+    date?: boolean
+    liters?: boolean
+    amount?: boolean
+    status?: boolean
+  }
+
+  export type fleetcard_transactionsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "card_no" | "date" | "liters" | "amount" | "status", ExtArgs["result"]["fleetcard_transactions"]>
+
+  export type $fleetcard_transactionsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "fleetcard_transactions"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      card_no: string
+      date: Date
+      liters: Prisma.Decimal
+      amount: Prisma.Decimal
+      status: string
+    }, ExtArgs["result"]["fleetcard_transactions"]>
+    composites: {}
+  }
+
+  type fleetcard_transactionsGetPayload<S extends boolean | null | undefined | fleetcard_transactionsDefaultArgs> = $Result.GetResult<Prisma.$fleetcard_transactionsPayload, S>
+
+  type fleetcard_transactionsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<fleetcard_transactionsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Fleetcard_transactionsCountAggregateInputType | true
+    }
+
+  export interface fleetcard_transactionsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['fleetcard_transactions'], meta: { name: 'fleetcard_transactions' } }
+    /**
+     * Find zero or one Fleetcard_transactions that matches the filter.
+     * @param {fleetcard_transactionsFindUniqueArgs} args - Arguments to find a Fleetcard_transactions
+     * @example
+     * // Get one Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends fleetcard_transactionsFindUniqueArgs>(args: SelectSubset<T, fleetcard_transactionsFindUniqueArgs<ExtArgs>>): Prisma__fleetcard_transactionsClient<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Fleetcard_transactions that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {fleetcard_transactionsFindUniqueOrThrowArgs} args - Arguments to find a Fleetcard_transactions
+     * @example
+     * // Get one Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends fleetcard_transactionsFindUniqueOrThrowArgs>(args: SelectSubset<T, fleetcard_transactionsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__fleetcard_transactionsClient<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Fleetcard_transactions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcard_transactionsFindFirstArgs} args - Arguments to find a Fleetcard_transactions
+     * @example
+     * // Get one Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends fleetcard_transactionsFindFirstArgs>(args?: SelectSubset<T, fleetcard_transactionsFindFirstArgs<ExtArgs>>): Prisma__fleetcard_transactionsClient<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Fleetcard_transactions that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcard_transactionsFindFirstOrThrowArgs} args - Arguments to find a Fleetcard_transactions
+     * @example
+     * // Get one Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends fleetcard_transactionsFindFirstOrThrowArgs>(args?: SelectSubset<T, fleetcard_transactionsFindFirstOrThrowArgs<ExtArgs>>): Prisma__fleetcard_transactionsClient<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Fleetcard_transactions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcard_transactionsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.findMany()
+     * 
+     * // Get first 10 Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const fleetcard_transactionsWithIdOnly = await prisma.fleetcard_transactions.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends fleetcard_transactionsFindManyArgs>(args?: SelectSubset<T, fleetcard_transactionsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Fleetcard_transactions.
+     * @param {fleetcard_transactionsCreateArgs} args - Arguments to create a Fleetcard_transactions.
+     * @example
+     * // Create one Fleetcard_transactions
+     * const Fleetcard_transactions = await prisma.fleetcard_transactions.create({
+     *   data: {
+     *     // ... data to create a Fleetcard_transactions
+     *   }
+     * })
+     * 
+     */
+    create<T extends fleetcard_transactionsCreateArgs>(args: SelectSubset<T, fleetcard_transactionsCreateArgs<ExtArgs>>): Prisma__fleetcard_transactionsClient<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Fleetcard_transactions.
+     * @param {fleetcard_transactionsCreateManyArgs} args - Arguments to create many Fleetcard_transactions.
+     * @example
+     * // Create many Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends fleetcard_transactionsCreateManyArgs>(args?: SelectSubset<T, fleetcard_transactionsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Fleetcard_transactions and returns the data saved in the database.
+     * @param {fleetcard_transactionsCreateManyAndReturnArgs} args - Arguments to create many Fleetcard_transactions.
+     * @example
+     * // Create many Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Fleetcard_transactions and only return the `id`
+     * const fleetcard_transactionsWithIdOnly = await prisma.fleetcard_transactions.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends fleetcard_transactionsCreateManyAndReturnArgs>(args?: SelectSubset<T, fleetcard_transactionsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Fleetcard_transactions.
+     * @param {fleetcard_transactionsDeleteArgs} args - Arguments to delete one Fleetcard_transactions.
+     * @example
+     * // Delete one Fleetcard_transactions
+     * const Fleetcard_transactions = await prisma.fleetcard_transactions.delete({
+     *   where: {
+     *     // ... filter to delete one Fleetcard_transactions
+     *   }
+     * })
+     * 
+     */
+    delete<T extends fleetcard_transactionsDeleteArgs>(args: SelectSubset<T, fleetcard_transactionsDeleteArgs<ExtArgs>>): Prisma__fleetcard_transactionsClient<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Fleetcard_transactions.
+     * @param {fleetcard_transactionsUpdateArgs} args - Arguments to update one Fleetcard_transactions.
+     * @example
+     * // Update one Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends fleetcard_transactionsUpdateArgs>(args: SelectSubset<T, fleetcard_transactionsUpdateArgs<ExtArgs>>): Prisma__fleetcard_transactionsClient<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Fleetcard_transactions.
+     * @param {fleetcard_transactionsDeleteManyArgs} args - Arguments to filter Fleetcard_transactions to delete.
+     * @example
+     * // Delete a few Fleetcard_transactions
+     * const { count } = await prisma.fleetcard_transactions.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends fleetcard_transactionsDeleteManyArgs>(args?: SelectSubset<T, fleetcard_transactionsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Fleetcard_transactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcard_transactionsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends fleetcard_transactionsUpdateManyArgs>(args: SelectSubset<T, fleetcard_transactionsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Fleetcard_transactions and returns the data updated in the database.
+     * @param {fleetcard_transactionsUpdateManyAndReturnArgs} args - Arguments to update many Fleetcard_transactions.
+     * @example
+     * // Update many Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Fleetcard_transactions and only return the `id`
+     * const fleetcard_transactionsWithIdOnly = await prisma.fleetcard_transactions.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends fleetcard_transactionsUpdateManyAndReturnArgs>(args: SelectSubset<T, fleetcard_transactionsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Fleetcard_transactions.
+     * @param {fleetcard_transactionsUpsertArgs} args - Arguments to update or create a Fleetcard_transactions.
+     * @example
+     * // Update or create a Fleetcard_transactions
+     * const fleetcard_transactions = await prisma.fleetcard_transactions.upsert({
+     *   create: {
+     *     // ... data to create a Fleetcard_transactions
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Fleetcard_transactions we want to update
+     *   }
+     * })
+     */
+    upsert<T extends fleetcard_transactionsUpsertArgs>(args: SelectSubset<T, fleetcard_transactionsUpsertArgs<ExtArgs>>): Prisma__fleetcard_transactionsClient<$Result.GetResult<Prisma.$fleetcard_transactionsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Fleetcard_transactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcard_transactionsCountArgs} args - Arguments to filter Fleetcard_transactions to count.
+     * @example
+     * // Count the number of Fleetcard_transactions
+     * const count = await prisma.fleetcard_transactions.count({
+     *   where: {
+     *     // ... the filter for the Fleetcard_transactions we want to count
+     *   }
+     * })
+    **/
+    count<T extends fleetcard_transactionsCountArgs>(
+      args?: Subset<T, fleetcard_transactionsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Fleetcard_transactionsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Fleetcard_transactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Fleetcard_transactionsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Fleetcard_transactionsAggregateArgs>(args: Subset<T, Fleetcard_transactionsAggregateArgs>): Prisma.PrismaPromise<GetFleetcard_transactionsAggregateType<T>>
+
+    /**
+     * Group by Fleetcard_transactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {fleetcard_transactionsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends fleetcard_transactionsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: fleetcard_transactionsGroupByArgs['orderBy'] }
+        : { orderBy?: fleetcard_transactionsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, fleetcard_transactionsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFleetcard_transactionsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the fleetcard_transactions model
+   */
+  readonly fields: fleetcard_transactionsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for fleetcard_transactions.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__fleetcard_transactionsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the fleetcard_transactions model
+   */
+  interface fleetcard_transactionsFieldRefs {
+    readonly id: FieldRef<"fleetcard_transactions", 'Int'>
+    readonly card_no: FieldRef<"fleetcard_transactions", 'String'>
+    readonly date: FieldRef<"fleetcard_transactions", 'DateTime'>
+    readonly liters: FieldRef<"fleetcard_transactions", 'Decimal'>
+    readonly amount: FieldRef<"fleetcard_transactions", 'Decimal'>
+    readonly status: FieldRef<"fleetcard_transactions", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * fleetcard_transactions findUnique
+   */
+  export type fleetcard_transactionsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * Filter, which fleetcard_transactions to fetch.
+     */
+    where: fleetcard_transactionsWhereUniqueInput
+  }
+
+  /**
+   * fleetcard_transactions findUniqueOrThrow
+   */
+  export type fleetcard_transactionsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * Filter, which fleetcard_transactions to fetch.
+     */
+    where: fleetcard_transactionsWhereUniqueInput
+  }
+
+  /**
+   * fleetcard_transactions findFirst
+   */
+  export type fleetcard_transactionsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * Filter, which fleetcard_transactions to fetch.
+     */
+    where?: fleetcard_transactionsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of fleetcard_transactions to fetch.
+     */
+    orderBy?: fleetcard_transactionsOrderByWithRelationInput | fleetcard_transactionsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for fleetcard_transactions.
+     */
+    cursor?: fleetcard_transactionsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` fleetcard_transactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` fleetcard_transactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of fleetcard_transactions.
+     */
+    distinct?: Fleetcard_transactionsScalarFieldEnum | Fleetcard_transactionsScalarFieldEnum[]
+  }
+
+  /**
+   * fleetcard_transactions findFirstOrThrow
+   */
+  export type fleetcard_transactionsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * Filter, which fleetcard_transactions to fetch.
+     */
+    where?: fleetcard_transactionsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of fleetcard_transactions to fetch.
+     */
+    orderBy?: fleetcard_transactionsOrderByWithRelationInput | fleetcard_transactionsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for fleetcard_transactions.
+     */
+    cursor?: fleetcard_transactionsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` fleetcard_transactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` fleetcard_transactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of fleetcard_transactions.
+     */
+    distinct?: Fleetcard_transactionsScalarFieldEnum | Fleetcard_transactionsScalarFieldEnum[]
+  }
+
+  /**
+   * fleetcard_transactions findMany
+   */
+  export type fleetcard_transactionsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * Filter, which fleetcard_transactions to fetch.
+     */
+    where?: fleetcard_transactionsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of fleetcard_transactions to fetch.
+     */
+    orderBy?: fleetcard_transactionsOrderByWithRelationInput | fleetcard_transactionsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing fleetcard_transactions.
+     */
+    cursor?: fleetcard_transactionsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` fleetcard_transactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` fleetcard_transactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of fleetcard_transactions.
+     */
+    distinct?: Fleetcard_transactionsScalarFieldEnum | Fleetcard_transactionsScalarFieldEnum[]
+  }
+
+  /**
+   * fleetcard_transactions create
+   */
+  export type fleetcard_transactionsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a fleetcard_transactions.
+     */
+    data: XOR<fleetcard_transactionsCreateInput, fleetcard_transactionsUncheckedCreateInput>
+  }
+
+  /**
+   * fleetcard_transactions createMany
+   */
+  export type fleetcard_transactionsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many fleetcard_transactions.
+     */
+    data: fleetcard_transactionsCreateManyInput | fleetcard_transactionsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * fleetcard_transactions createManyAndReturn
+   */
+  export type fleetcard_transactionsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * The data used to create many fleetcard_transactions.
+     */
+    data: fleetcard_transactionsCreateManyInput | fleetcard_transactionsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * fleetcard_transactions update
+   */
+  export type fleetcard_transactionsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a fleetcard_transactions.
+     */
+    data: XOR<fleetcard_transactionsUpdateInput, fleetcard_transactionsUncheckedUpdateInput>
+    /**
+     * Choose, which fleetcard_transactions to update.
+     */
+    where: fleetcard_transactionsWhereUniqueInput
+  }
+
+  /**
+   * fleetcard_transactions updateMany
+   */
+  export type fleetcard_transactionsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update fleetcard_transactions.
+     */
+    data: XOR<fleetcard_transactionsUpdateManyMutationInput, fleetcard_transactionsUncheckedUpdateManyInput>
+    /**
+     * Filter which fleetcard_transactions to update
+     */
+    where?: fleetcard_transactionsWhereInput
+    /**
+     * Limit how many fleetcard_transactions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * fleetcard_transactions updateManyAndReturn
+   */
+  export type fleetcard_transactionsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * The data used to update fleetcard_transactions.
+     */
+    data: XOR<fleetcard_transactionsUpdateManyMutationInput, fleetcard_transactionsUncheckedUpdateManyInput>
+    /**
+     * Filter which fleetcard_transactions to update
+     */
+    where?: fleetcard_transactionsWhereInput
+    /**
+     * Limit how many fleetcard_transactions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * fleetcard_transactions upsert
+   */
+  export type fleetcard_transactionsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the fleetcard_transactions to update in case it exists.
+     */
+    where: fleetcard_transactionsWhereUniqueInput
+    /**
+     * In case the fleetcard_transactions found by the `where` argument doesn't exist, create a new fleetcard_transactions with this data.
+     */
+    create: XOR<fleetcard_transactionsCreateInput, fleetcard_transactionsUncheckedCreateInput>
+    /**
+     * In case the fleetcard_transactions was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<fleetcard_transactionsUpdateInput, fleetcard_transactionsUncheckedUpdateInput>
+  }
+
+  /**
+   * fleetcard_transactions delete
+   */
+  export type fleetcard_transactionsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+    /**
+     * Filter which fleetcard_transactions to delete.
+     */
+    where: fleetcard_transactionsWhereUniqueInput
+  }
+
+  /**
+   * fleetcard_transactions deleteMany
+   */
+  export type fleetcard_transactionsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which fleetcard_transactions to delete
+     */
+    where?: fleetcard_transactionsWhereInput
+    /**
+     * Limit how many fleetcard_transactions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * fleetcard_transactions without action
+   */
+  export type fleetcard_transactionsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the fleetcard_transactions
+     */
+    select?: fleetcard_transactionsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the fleetcard_transactions
+     */
+    omit?: fleetcard_transactionsOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -130580,6 +133989,41 @@ export namespace Prisma {
   };
 
   export type AnnouncementsScalarFieldEnum = (typeof AnnouncementsScalarFieldEnum)[keyof typeof AnnouncementsScalarFieldEnum]
+
+
+  export const FuelFlagReviewScalarFieldEnum: {
+    id: 'id',
+    employeeId: 'employeeId',
+    flagDate: 'flagDate',
+    flagType: 'flagType',
+    reviewedBy: 'reviewedBy',
+    reviewedAt: 'reviewedAt',
+    note: 'note',
+    createdAt: 'createdAt'
+  };
+
+  export type FuelFlagReviewScalarFieldEnum = (typeof FuelFlagReviewScalarFieldEnum)[keyof typeof FuelFlagReviewScalarFieldEnum]
+
+
+  export const FleetcardsScalarFieldEnum: {
+    id: 'id',
+    card_no: 'card_no',
+    emp_id: 'emp_id'
+  };
+
+  export type FleetcardsScalarFieldEnum = (typeof FleetcardsScalarFieldEnum)[keyof typeof FleetcardsScalarFieldEnum]
+
+
+  export const Fleetcard_transactionsScalarFieldEnum: {
+    id: 'id',
+    card_no: 'card_no',
+    date: 'date',
+    liters: 'liters',
+    amount: 'amount',
+    status: 'status'
+  };
+
+  export type Fleetcard_transactionsScalarFieldEnum = (typeof Fleetcard_transactionsScalarFieldEnum)[keyof typeof Fleetcard_transactionsScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -140415,6 +143859,179 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"announcements"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"announcements"> | Date | string
     created_by?: IntNullableWithAggregatesFilter<"announcements"> | number | null
+  }
+
+  export type FuelFlagReviewWhereInput = {
+    AND?: FuelFlagReviewWhereInput | FuelFlagReviewWhereInput[]
+    OR?: FuelFlagReviewWhereInput[]
+    NOT?: FuelFlagReviewWhereInput | FuelFlagReviewWhereInput[]
+    id?: IntFilter<"FuelFlagReview"> | number
+    employeeId?: StringFilter<"FuelFlagReview"> | string
+    flagDate?: DateTimeFilter<"FuelFlagReview"> | Date | string
+    flagType?: StringFilter<"FuelFlagReview"> | string
+    reviewedBy?: StringNullableFilter<"FuelFlagReview"> | string | null
+    reviewedAt?: DateTimeNullableFilter<"FuelFlagReview"> | Date | string | null
+    note?: StringNullableFilter<"FuelFlagReview"> | string | null
+    createdAt?: DateTimeFilter<"FuelFlagReview"> | Date | string
+  }
+
+  export type FuelFlagReviewOrderByWithRelationInput = {
+    id?: SortOrder
+    employeeId?: SortOrder
+    flagDate?: SortOrder
+    flagType?: SortOrder
+    reviewedBy?: SortOrderInput | SortOrder
+    reviewedAt?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FuelFlagReviewWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    employeeId_flagDate_flagType?: FuelFlagReviewEmployeeIdFlagDateFlagTypeCompoundUniqueInput
+    AND?: FuelFlagReviewWhereInput | FuelFlagReviewWhereInput[]
+    OR?: FuelFlagReviewWhereInput[]
+    NOT?: FuelFlagReviewWhereInput | FuelFlagReviewWhereInput[]
+    employeeId?: StringFilter<"FuelFlagReview"> | string
+    flagDate?: DateTimeFilter<"FuelFlagReview"> | Date | string
+    flagType?: StringFilter<"FuelFlagReview"> | string
+    reviewedBy?: StringNullableFilter<"FuelFlagReview"> | string | null
+    reviewedAt?: DateTimeNullableFilter<"FuelFlagReview"> | Date | string | null
+    note?: StringNullableFilter<"FuelFlagReview"> | string | null
+    createdAt?: DateTimeFilter<"FuelFlagReview"> | Date | string
+  }, "id" | "employeeId_flagDate_flagType">
+
+  export type FuelFlagReviewOrderByWithAggregationInput = {
+    id?: SortOrder
+    employeeId?: SortOrder
+    flagDate?: SortOrder
+    flagType?: SortOrder
+    reviewedBy?: SortOrderInput | SortOrder
+    reviewedAt?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: FuelFlagReviewCountOrderByAggregateInput
+    _avg?: FuelFlagReviewAvgOrderByAggregateInput
+    _max?: FuelFlagReviewMaxOrderByAggregateInput
+    _min?: FuelFlagReviewMinOrderByAggregateInput
+    _sum?: FuelFlagReviewSumOrderByAggregateInput
+  }
+
+  export type FuelFlagReviewScalarWhereWithAggregatesInput = {
+    AND?: FuelFlagReviewScalarWhereWithAggregatesInput | FuelFlagReviewScalarWhereWithAggregatesInput[]
+    OR?: FuelFlagReviewScalarWhereWithAggregatesInput[]
+    NOT?: FuelFlagReviewScalarWhereWithAggregatesInput | FuelFlagReviewScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"FuelFlagReview"> | number
+    employeeId?: StringWithAggregatesFilter<"FuelFlagReview"> | string
+    flagDate?: DateTimeWithAggregatesFilter<"FuelFlagReview"> | Date | string
+    flagType?: StringWithAggregatesFilter<"FuelFlagReview"> | string
+    reviewedBy?: StringNullableWithAggregatesFilter<"FuelFlagReview"> | string | null
+    reviewedAt?: DateTimeNullableWithAggregatesFilter<"FuelFlagReview"> | Date | string | null
+    note?: StringNullableWithAggregatesFilter<"FuelFlagReview"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"FuelFlagReview"> | Date | string
+  }
+
+  export type fleetcardsWhereInput = {
+    AND?: fleetcardsWhereInput | fleetcardsWhereInput[]
+    OR?: fleetcardsWhereInput[]
+    NOT?: fleetcardsWhereInput | fleetcardsWhereInput[]
+    id?: IntFilter<"fleetcards"> | number
+    card_no?: StringFilter<"fleetcards"> | string
+    emp_id?: StringFilter<"fleetcards"> | string
+  }
+
+  export type fleetcardsOrderByWithRelationInput = {
+    id?: SortOrder
+    card_no?: SortOrder
+    emp_id?: SortOrder
+  }
+
+  export type fleetcardsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    card_no?: string
+    AND?: fleetcardsWhereInput | fleetcardsWhereInput[]
+    OR?: fleetcardsWhereInput[]
+    NOT?: fleetcardsWhereInput | fleetcardsWhereInput[]
+    emp_id?: StringFilter<"fleetcards"> | string
+  }, "id" | "card_no">
+
+  export type fleetcardsOrderByWithAggregationInput = {
+    id?: SortOrder
+    card_no?: SortOrder
+    emp_id?: SortOrder
+    _count?: fleetcardsCountOrderByAggregateInput
+    _avg?: fleetcardsAvgOrderByAggregateInput
+    _max?: fleetcardsMaxOrderByAggregateInput
+    _min?: fleetcardsMinOrderByAggregateInput
+    _sum?: fleetcardsSumOrderByAggregateInput
+  }
+
+  export type fleetcardsScalarWhereWithAggregatesInput = {
+    AND?: fleetcardsScalarWhereWithAggregatesInput | fleetcardsScalarWhereWithAggregatesInput[]
+    OR?: fleetcardsScalarWhereWithAggregatesInput[]
+    NOT?: fleetcardsScalarWhereWithAggregatesInput | fleetcardsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"fleetcards"> | number
+    card_no?: StringWithAggregatesFilter<"fleetcards"> | string
+    emp_id?: StringWithAggregatesFilter<"fleetcards"> | string
+  }
+
+  export type fleetcard_transactionsWhereInput = {
+    AND?: fleetcard_transactionsWhereInput | fleetcard_transactionsWhereInput[]
+    OR?: fleetcard_transactionsWhereInput[]
+    NOT?: fleetcard_transactionsWhereInput | fleetcard_transactionsWhereInput[]
+    id?: IntFilter<"fleetcard_transactions"> | number
+    card_no?: StringFilter<"fleetcard_transactions"> | string
+    date?: DateTimeFilter<"fleetcard_transactions"> | Date | string
+    liters?: DecimalFilter<"fleetcard_transactions"> | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFilter<"fleetcard_transactions"> | Decimal | DecimalJsLike | number | string
+    status?: StringFilter<"fleetcard_transactions"> | string
+  }
+
+  export type fleetcard_transactionsOrderByWithRelationInput = {
+    id?: SortOrder
+    card_no?: SortOrder
+    date?: SortOrder
+    liters?: SortOrder
+    amount?: SortOrder
+    status?: SortOrder
+  }
+
+  export type fleetcard_transactionsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: fleetcard_transactionsWhereInput | fleetcard_transactionsWhereInput[]
+    OR?: fleetcard_transactionsWhereInput[]
+    NOT?: fleetcard_transactionsWhereInput | fleetcard_transactionsWhereInput[]
+    card_no?: StringFilter<"fleetcard_transactions"> | string
+    date?: DateTimeFilter<"fleetcard_transactions"> | Date | string
+    liters?: DecimalFilter<"fleetcard_transactions"> | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFilter<"fleetcard_transactions"> | Decimal | DecimalJsLike | number | string
+    status?: StringFilter<"fleetcard_transactions"> | string
+  }, "id">
+
+  export type fleetcard_transactionsOrderByWithAggregationInput = {
+    id?: SortOrder
+    card_no?: SortOrder
+    date?: SortOrder
+    liters?: SortOrder
+    amount?: SortOrder
+    status?: SortOrder
+    _count?: fleetcard_transactionsCountOrderByAggregateInput
+    _avg?: fleetcard_transactionsAvgOrderByAggregateInput
+    _max?: fleetcard_transactionsMaxOrderByAggregateInput
+    _min?: fleetcard_transactionsMinOrderByAggregateInput
+    _sum?: fleetcard_transactionsSumOrderByAggregateInput
+  }
+
+  export type fleetcard_transactionsScalarWhereWithAggregatesInput = {
+    AND?: fleetcard_transactionsScalarWhereWithAggregatesInput | fleetcard_transactionsScalarWhereWithAggregatesInput[]
+    OR?: fleetcard_transactionsScalarWhereWithAggregatesInput[]
+    NOT?: fleetcard_transactionsScalarWhereWithAggregatesInput | fleetcard_transactionsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"fleetcard_transactions"> | number
+    card_no?: StringWithAggregatesFilter<"fleetcard_transactions"> | string
+    date?: DateTimeWithAggregatesFilter<"fleetcard_transactions"> | Date | string
+    liters?: DecimalWithAggregatesFilter<"fleetcard_transactions"> | Decimal | DecimalJsLike | number | string
+    amount?: DecimalWithAggregatesFilter<"fleetcard_transactions"> | Decimal | DecimalJsLike | number | string
+    status?: StringWithAggregatesFilter<"fleetcard_transactions"> | string
   }
 
   export type UserCreateInput = {
@@ -151412,6 +155029,179 @@ export namespace Prisma {
     created_by?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
+  export type FuelFlagReviewCreateInput = {
+    employeeId: string
+    flagDate: Date | string
+    flagType: string
+    reviewedBy?: string | null
+    reviewedAt?: Date | string | null
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type FuelFlagReviewUncheckedCreateInput = {
+    id?: number
+    employeeId: string
+    flagDate: Date | string
+    flagType: string
+    reviewedBy?: string | null
+    reviewedAt?: Date | string | null
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type FuelFlagReviewUpdateInput = {
+    employeeId?: StringFieldUpdateOperationsInput | string
+    flagDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    flagType?: StringFieldUpdateOperationsInput | string
+    reviewedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FuelFlagReviewUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    employeeId?: StringFieldUpdateOperationsInput | string
+    flagDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    flagType?: StringFieldUpdateOperationsInput | string
+    reviewedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FuelFlagReviewCreateManyInput = {
+    id?: number
+    employeeId: string
+    flagDate: Date | string
+    flagType: string
+    reviewedBy?: string | null
+    reviewedAt?: Date | string | null
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type FuelFlagReviewUpdateManyMutationInput = {
+    employeeId?: StringFieldUpdateOperationsInput | string
+    flagDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    flagType?: StringFieldUpdateOperationsInput | string
+    reviewedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FuelFlagReviewUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    employeeId?: StringFieldUpdateOperationsInput | string
+    flagDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    flagType?: StringFieldUpdateOperationsInput | string
+    reviewedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type fleetcardsCreateInput = {
+    card_no: string
+    emp_id: string
+  }
+
+  export type fleetcardsUncheckedCreateInput = {
+    id?: number
+    card_no: string
+    emp_id: string
+  }
+
+  export type fleetcardsUpdateInput = {
+    card_no?: StringFieldUpdateOperationsInput | string
+    emp_id?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type fleetcardsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    card_no?: StringFieldUpdateOperationsInput | string
+    emp_id?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type fleetcardsCreateManyInput = {
+    id?: number
+    card_no: string
+    emp_id: string
+  }
+
+  export type fleetcardsUpdateManyMutationInput = {
+    card_no?: StringFieldUpdateOperationsInput | string
+    emp_id?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type fleetcardsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    card_no?: StringFieldUpdateOperationsInput | string
+    emp_id?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type fleetcard_transactionsCreateInput = {
+    card_no: string
+    date: Date | string
+    liters: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    status: string
+  }
+
+  export type fleetcard_transactionsUncheckedCreateInput = {
+    id?: number
+    card_no: string
+    date: Date | string
+    liters: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    status: string
+  }
+
+  export type fleetcard_transactionsUpdateInput = {
+    card_no?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    liters?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type fleetcard_transactionsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    card_no?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    liters?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type fleetcard_transactionsCreateManyInput = {
+    id?: number
+    card_no: string
+    date: Date | string
+    liters: Decimal | DecimalJsLike | number | string
+    amount: Decimal | DecimalJsLike | number | string
+    status: string
+  }
+
+  export type fleetcard_transactionsUpdateManyMutationInput = {
+    card_no?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    liters?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type fleetcard_transactionsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    card_no?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    liters?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -158353,6 +162143,118 @@ export namespace Prisma {
   export type announcementsSumOrderByAggregateInput = {
     id?: SortOrder
     created_by?: SortOrder
+  }
+
+  export type FuelFlagReviewEmployeeIdFlagDateFlagTypeCompoundUniqueInput = {
+    employeeId: string
+    flagDate: Date | string
+    flagType: string
+  }
+
+  export type FuelFlagReviewCountOrderByAggregateInput = {
+    id?: SortOrder
+    employeeId?: SortOrder
+    flagDate?: SortOrder
+    flagType?: SortOrder
+    reviewedBy?: SortOrder
+    reviewedAt?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FuelFlagReviewAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type FuelFlagReviewMaxOrderByAggregateInput = {
+    id?: SortOrder
+    employeeId?: SortOrder
+    flagDate?: SortOrder
+    flagType?: SortOrder
+    reviewedBy?: SortOrder
+    reviewedAt?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FuelFlagReviewMinOrderByAggregateInput = {
+    id?: SortOrder
+    employeeId?: SortOrder
+    flagDate?: SortOrder
+    flagType?: SortOrder
+    reviewedBy?: SortOrder
+    reviewedAt?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FuelFlagReviewSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type fleetcardsCountOrderByAggregateInput = {
+    id?: SortOrder
+    card_no?: SortOrder
+    emp_id?: SortOrder
+  }
+
+  export type fleetcardsAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type fleetcardsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    card_no?: SortOrder
+    emp_id?: SortOrder
+  }
+
+  export type fleetcardsMinOrderByAggregateInput = {
+    id?: SortOrder
+    card_no?: SortOrder
+    emp_id?: SortOrder
+  }
+
+  export type fleetcardsSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type fleetcard_transactionsCountOrderByAggregateInput = {
+    id?: SortOrder
+    card_no?: SortOrder
+    date?: SortOrder
+    liters?: SortOrder
+    amount?: SortOrder
+    status?: SortOrder
+  }
+
+  export type fleetcard_transactionsAvgOrderByAggregateInput = {
+    id?: SortOrder
+    liters?: SortOrder
+    amount?: SortOrder
+  }
+
+  export type fleetcard_transactionsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    card_no?: SortOrder
+    date?: SortOrder
+    liters?: SortOrder
+    amount?: SortOrder
+    status?: SortOrder
+  }
+
+  export type fleetcard_transactionsMinOrderByAggregateInput = {
+    id?: SortOrder
+    card_no?: SortOrder
+    date?: SortOrder
+    liters?: SortOrder
+    amount?: SortOrder
+    status?: SortOrder
+  }
+
+  export type fleetcard_transactionsSumOrderByAggregateInput = {
+    id?: SortOrder
+    liters?: SortOrder
+    amount?: SortOrder
   }
 
   export type CompanyCreateNestedManyWithoutAssignedUserInput = {
