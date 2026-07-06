@@ -46,6 +46,7 @@ export default async function NewRepairOrderPage(
         customerCompany: job.customerName || "",
         company: job.companyCode || "",
         salesPerson: job.sellerName || "",
+        job: job,
       };
     }
   }

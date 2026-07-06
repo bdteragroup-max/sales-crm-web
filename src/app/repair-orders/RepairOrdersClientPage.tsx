@@ -184,6 +184,12 @@ export default function RepairOrdersClientPage({
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">
                       ลูกค้า
                     </th>
+                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest max-w-[200px]">
+                      สินค้าเบื้องต้น (จาก Sales)
+                    </th>
+                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                      พนักงานขาย
+                    </th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">
                       ประเภทงาน
                     </th>
@@ -228,6 +234,16 @@ export default function RepairOrdersClientPage({
                         <td className="py-4 px-5 max-w-[200px]">
                           <p className="text-xs font-bold text-gray-900 truncate">
                             {record.customerCompany || record.job?.customerName || "—"}
+                          </p>
+                        </td>
+                        <td className="py-4 px-5 max-w-[200px]">
+                          <p className="text-xs text-gray-600 truncate" title={record.job?.item || ""}>
+                            {record.job?.item || "—"}
+                          </p>
+                        </td>
+                        <td className="py-4 px-5">
+                          <p className="text-[11px] font-bold text-gray-600 truncate">
+                            {record.job?.sellerName || "—"}
                           </p>
                         </td>
                         <td className="py-4 px-5">

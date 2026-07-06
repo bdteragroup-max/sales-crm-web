@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Save, X, Plus, Trash2, Camera, Printer, ArrowLeft } from 'lucide-react';
+import { Save, X, Plus, Trash2, Camera, Printer, ArrowLeft, ClipboardList } from 'lucide-react';
 import { LoadingButton } from '@/app/components/LoadingButton';
 import { createRepairOrder } from '@/app/actions/repairOrders';
 import { searchContacts } from '@/app/actions/sales';
@@ -288,6 +288,38 @@ export default function EditRepairOrderForm({ companies = [], users = [], initia
 
   return (
     <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-6 relative">
+      {formData?.job && (
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50/30 p-5 md:p-6 rounded-2xl border border-blue-100 shadow-sm relative overflow-hidden mb-6">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100/50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+          <h2 className="text-sm font-black text-blue-800 uppercase tracking-wide mb-4 flex items-center gap-2">
+            <ClipboardList size={16} className="text-blue-600" />
+            ข้อมูลงานเบื้องต้นจาก Sales
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 relative z-10">
+            <div>
+              <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">เลขที่งาน (Job)</p>
+              <p className="text-sm font-bold text-gray-800">{formData.job.jobNumber || "-"}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">ลูกค้า/บริษัท</p>
+              <p className="text-sm font-bold text-gray-800">{formData.job.customerName || "-"}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">พนักงานขาย</p>
+              <p className="text-sm font-bold text-gray-800">{formData.job.sellerName || "-"}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">ใบเสนอราคา / PO</p>
+              <p className="text-sm font-bold text-gray-800">{formData.job.quotationNumber || "-"} / {formData.job.poNumber || "-"}</p>
+            </div>
+            <div className="sm:col-span-2 lg:col-span-4">
+              <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">สินค้า/อาการเสียเบื้องต้น</p>
+              <p className="text-sm font-medium text-gray-700 bg-white/60 p-2.5 rounded-lg border border-blue-50/50 mt-1">{formData.job.item || "-"}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* ── Section 1: Repair Information ── */}
         <Card title="Section 1: ข้อมูลการซ่อม (Repair Information)">
