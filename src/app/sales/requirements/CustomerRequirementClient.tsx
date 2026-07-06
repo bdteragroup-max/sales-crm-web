@@ -150,7 +150,7 @@ export default function CustomerRequirementClient({ currentUser, history }: Cust
                   if (record.formData?.["สินค้า_SOLAR_ROOF"]) products.push("SOLAR ROOF");
                   if (record.formData?.["สินค้า_SOLAR_PUMP"]) products.push("SOLAR PUMP");
                   
-                  const hasElectricalPanel = ['สินค้า_INVERTER','สินค้า_MDB','สินค้า_DB','สินค้า_CONTROL'].some(key => record.formData?.[key]);
+                  const hasElectricalPanel = ['สินค้า_INVERTER','สินค้า_MDB','สินค้า_DB','สินค้า_CONTROL','สินค้า_MOTOR','สินค้า_PUMP','สินค้า_SOLAR_ROOF','สินค้า_SOLAR_PUMP'].some(key => record.formData?.[key]);
                   
                   return (
                     <div key={record.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-brand-red/30 transition-all duration-300 flex flex-col group overflow-hidden">

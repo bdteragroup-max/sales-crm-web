@@ -31,9 +31,13 @@ export async function sendRequirementForEstimation(requirementId: string) {
   const items = [];
   const fd = req.formData as any;
   if (fd["สินค้า_INVERTER"]) items.push("Inverter");
+  if (fd["สินค้า_MOTOR"]) items.push("Motor");
+  if (fd["สินค้า_PUMP"]) items.push("Pump");
   if (fd["สินค้า_MDB"]) items.push("MDB");
   if (fd["สินค้า_DB"]) items.push("DB");
   if (fd["สินค้า_CONTROL"]) items.push("Control");
+  if (fd["สินค้า_SOLAR_ROOF"]) items.push("Solar Roof");
+  if (fd["สินค้า_SOLAR_PUMP"]) items.push("Solar Pump");
 
   const msg = estimationRequestMessage(req.companyName, items, req.salesperson, req.id);
 
@@ -154,9 +158,13 @@ export async function assignEstimation(
   const items = [];
   const fd = req.formData as any;
   if (fd["สินค้า_INVERTER"]) items.push("Inverter");
+  if (fd["สินค้า_MOTOR"]) items.push("Motor");
+  if (fd["สินค้า_PUMP"]) items.push("Pump");
   if (fd["สินค้า_MDB"]) items.push("MDB");
   if (fd["สินค้า_DB"]) items.push("DB");
   if (fd["สินค้า_CONTROL"]) items.push("Control");
+  if (fd["สินค้า_SOLAR_ROOF"]) items.push("Solar Roof");
+  if (fd["สินค้า_SOLAR_PUMP"]) items.push("Solar Pump");
 
   const msg = estimationAssignedMessage(
     req.companyName,

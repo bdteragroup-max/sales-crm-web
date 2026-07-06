@@ -278,9 +278,13 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
             filteredRecords.map((record: any) => {
               const products = [];
               if (record.formData?.["สินค้า_INVERTER"]) products.push("INVERTER");
+              if (record.formData?.["สินค้า_MOTOR"]) products.push("MOTOR");
+              if (record.formData?.["สินค้า_PUMP"]) products.push("PUMP");
               if (record.formData?.["สินค้า_MDB"]) products.push("MDB");
               if (record.formData?.["สินค้า_DB"]) products.push("DB");
               if (record.formData?.["สินค้า_CONTROL"]) products.push("CONTROL");
+              if (record.formData?.["สินค้า_SOLAR_ROOF"]) products.push("SOLAR ROOF");
+              if (record.formData?.["สินค้า_SOLAR_PUMP"]) products.push("SOLAR PUMP");
               
               return (
                 <div key={record.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col group overflow-hidden">
