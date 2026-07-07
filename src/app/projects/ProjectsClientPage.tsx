@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, FolderOpen, Clock, CheckCircle2, AlertCircle, LayoutDashboard, Search, FileText, Download, Settings2, Check } from 'lucide-react';
+import { Plus, FolderOpen, Clock, CheckCircle2, AlertCircle, LayoutDashboard, Search, FileText, Download, Settings2, Check, Pencil, Trash2, X, AlertTriangle, Loader2 } from 'lucide-react';
+import { deleteProject } from '@/app/actions/projects';
 
 interface ProjectsClientPageProps {
   currentUser: any;
@@ -15,6 +16,9 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
   const [showColumnMenu, setShowColumnMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
     sequence: true,
     projectNumber: true,
@@ -93,6 +97,25 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
+    setIsDeleting(true);
+    try {
+      await deleteProject(deleteConfirmId);
+      setDeleteConfirmId(null);
+    } catch (error) {
+      console.error(error);
+      alert('เกิดข้อผิดพลาดในการลบโครงการ');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const columnsList = [
@@ -364,9 +387,21 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
                         </td>
                       )}
                       <td className="py-3 px-4 whitespace-nowrap text-right sticky right-0 z-10 bg-white group-hover:bg-gray-50/80 transition-colors shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.05)]">
-                        <Link href={`/projects/${project.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex px-3 py-1.5 bg-white border border-gray-200 text-gray-600 hover:text-brand-red hover:border-brand-red/30 hover:bg-red-50 rounded-lg text-[11px] font-bold transition-colors">
-                          รายละเอียด
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          <Link href={`/projects/${project.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex px-3 py-1.5 bg-white border border-gray-200 text-gray-600 hover:text-brand-red hover:border-brand-red/30 hover:bg-red-50 rounded-lg text-[11px] font-bold transition-colors">
+                            รายละเอียด
+                          </Link>
+                          {isManager && (
+                            <>
+                              <Link href={`/projects/${project.id}/edit`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 text-blue-600 hover:text-blue-700 hover:border-blue-300 hover:bg-blue-50 rounded-lg transition-colors" title="แก้ไข (Edit)">
+                                <Pencil size={12} />
+                              </Link>
+                              <button onClick={(e) => handleDelete(e, project.id)} className="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 text-red-600 hover:text-red-700 hover:border-red-300 hover:bg-red-50 rounded-lg transition-colors" title="ลบ (Delete)">
+                                <Trash2 size={12} />
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   )
@@ -442,7 +477,7 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-gray-100/50 pt-4">
+                  <div className="flex items-center justify-between border-t border-gray-100/50 pt-4 mt-2">
                     <div className="flex items-center gap-1.5 text-[10px] font-medium">
                       <Clock size={12} className={isProjectOverdue ? 'text-red-400' : 'text-gray-400'} />
                       <span className={isProjectOverdue ? 'text-red-500 font-bold' : 'text-gray-600'}>
@@ -452,14 +487,27 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
                       </span>
                     </div>
                     
-                    <div className="flex items-center gap-2 min-w-[100px]">
-                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full ${overallProgress === 100 ? 'bg-emerald-500' : 'bg-brand-red'}`}
-                          style={{ width: `${Math.min(100, Math.max(0, overallProgress))}%` }}
-                        ></div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 min-w-[80px]">
+                        <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full ${overallProgress === 100 ? 'bg-emerald-500' : 'bg-brand-red'}`}
+                            style={{ width: `${Math.min(100, Math.max(0, overallProgress))}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-[10px] font-black text-gray-600 w-6 text-right">{overallProgress}%</span>
                       </div>
-                      <span className="text-[10px] font-black text-gray-600 w-8 text-right">{overallProgress}%</span>
+                      
+                      {isManager && (
+                        <div className="flex items-center gap-1.5 border-l border-gray-200 pl-3 ml-1">
+                          <Link href={`/projects/${project.id}/edit`} onClick={(e) => e.stopPropagation()} className="p-1.5 text-blue-500 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors" title="แก้ไข (Edit)">
+                            <Pencil size={12} />
+                          </Link>
+                          <button onClick={(e) => handleDelete(e, project.id)} className="p-1.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-md transition-colors" title="ลบ (Delete)">
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -472,6 +520,58 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => !isDeleting && setDeleteConfirmId(null)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="text-red-500" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-gray-900">ยืนยันการลบโครงการ</h3>
+                    <p className="text-sm font-medium text-gray-500 mt-1">คุณแน่ใจหรือไม่ที่จะลบโครงการนี้? การกระทำนี้ไม่สามารถเรียกคืนได้</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setDeleteConfirmId(null)}
+                  disabled={isDeleting}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="mt-8 flex items-center justify-end gap-3">
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  disabled={isDeleting}
+                  className="px-4 py-2 text-sm font-bold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  ยกเลิก (Cancel)
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-red-500 rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      กำลังลบ...
+                    </>
+                  ) : (
+                    'ลบโครงการ (Delete)'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

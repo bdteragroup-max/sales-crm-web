@@ -503,6 +503,26 @@ export type fleetcards = $Result.DefaultSelection<Prisma.$fleetcardsPayload>
  * 
  */
 export type fleetcard_transactions = $Result.DefaultSelection<Prisma.$fleetcard_transactionsPayload>
+/**
+ * Model company_settings
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type company_settings = $Result.DefaultSelection<Prisma.$company_settingsPayload>
+/**
+ * Model tax_configs
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type tax_configs = $Result.DefaultSelection<Prisma.$tax_configsPayload>
+/**
+ * Model withholding_tax_documents
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type withholding_tax_documents = $Result.DefaultSelection<Prisma.$withholding_tax_documentsPayload>
+/**
+ * Model withholding_tax_income_items
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type withholding_tax_income_items = $Result.DefaultSelection<Prisma.$withholding_tax_income_itemsPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1604,6 +1624,46 @@ export class PrismaClient<
     * ```
     */
   get fleetcard_transactions(): Prisma.fleetcard_transactionsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.company_settings`: Exposes CRUD operations for the **company_settings** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Company_settings
+    * const company_settings = await prisma.company_settings.findMany()
+    * ```
+    */
+  get company_settings(): Prisma.company_settingsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tax_configs`: Exposes CRUD operations for the **tax_configs** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Tax_configs
+    * const tax_configs = await prisma.tax_configs.findMany()
+    * ```
+    */
+  get tax_configs(): Prisma.tax_configsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.withholding_tax_documents`: Exposes CRUD operations for the **withholding_tax_documents** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Withholding_tax_documents
+    * const withholding_tax_documents = await prisma.withholding_tax_documents.findMany()
+    * ```
+    */
+  get withholding_tax_documents(): Prisma.withholding_tax_documentsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.withholding_tax_income_items`: Exposes CRUD operations for the **withholding_tax_income_items** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Withholding_tax_income_items
+    * const withholding_tax_income_items = await prisma.withholding_tax_income_items.findMany()
+    * ```
+    */
+  get withholding_tax_income_items(): Prisma.withholding_tax_income_itemsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2135,7 +2195,11 @@ export namespace Prisma {
     announcements: 'announcements',
     FuelFlagReview: 'FuelFlagReview',
     fleetcards: 'fleetcards',
-    fleetcard_transactions: 'fleetcard_transactions'
+    fleetcard_transactions: 'fleetcard_transactions',
+    company_settings: 'company_settings',
+    tax_configs: 'tax_configs',
+    withholding_tax_documents: 'withholding_tax_documents',
+    withholding_tax_income_items: 'withholding_tax_income_items'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2151,7 +2215,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -9407,6 +9471,302 @@ export namespace Prisma {
           }
         }
       }
+      company_settings: {
+        payload: Prisma.$company_settingsPayload<ExtArgs>
+        fields: Prisma.company_settingsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.company_settingsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.company_settingsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload>
+          }
+          findFirst: {
+            args: Prisma.company_settingsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.company_settingsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload>
+          }
+          findMany: {
+            args: Prisma.company_settingsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload>[]
+          }
+          create: {
+            args: Prisma.company_settingsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload>
+          }
+          createMany: {
+            args: Prisma.company_settingsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.company_settingsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload>[]
+          }
+          delete: {
+            args: Prisma.company_settingsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload>
+          }
+          update: {
+            args: Prisma.company_settingsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload>
+          }
+          deleteMany: {
+            args: Prisma.company_settingsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.company_settingsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.company_settingsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload>[]
+          }
+          upsert: {
+            args: Prisma.company_settingsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$company_settingsPayload>
+          }
+          aggregate: {
+            args: Prisma.Company_settingsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCompany_settings>
+          }
+          groupBy: {
+            args: Prisma.company_settingsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Company_settingsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.company_settingsCountArgs<ExtArgs>
+            result: $Utils.Optional<Company_settingsCountAggregateOutputType> | number
+          }
+        }
+      }
+      tax_configs: {
+        payload: Prisma.$tax_configsPayload<ExtArgs>
+        fields: Prisma.tax_configsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.tax_configsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.tax_configsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload>
+          }
+          findFirst: {
+            args: Prisma.tax_configsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.tax_configsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload>
+          }
+          findMany: {
+            args: Prisma.tax_configsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload>[]
+          }
+          create: {
+            args: Prisma.tax_configsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload>
+          }
+          createMany: {
+            args: Prisma.tax_configsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.tax_configsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload>[]
+          }
+          delete: {
+            args: Prisma.tax_configsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload>
+          }
+          update: {
+            args: Prisma.tax_configsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload>
+          }
+          deleteMany: {
+            args: Prisma.tax_configsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.tax_configsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.tax_configsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload>[]
+          }
+          upsert: {
+            args: Prisma.tax_configsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tax_configsPayload>
+          }
+          aggregate: {
+            args: Prisma.Tax_configsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTax_configs>
+          }
+          groupBy: {
+            args: Prisma.tax_configsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Tax_configsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.tax_configsCountArgs<ExtArgs>
+            result: $Utils.Optional<Tax_configsCountAggregateOutputType> | number
+          }
+        }
+      }
+      withholding_tax_documents: {
+        payload: Prisma.$withholding_tax_documentsPayload<ExtArgs>
+        fields: Prisma.withholding_tax_documentsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.withholding_tax_documentsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.withholding_tax_documentsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload>
+          }
+          findFirst: {
+            args: Prisma.withholding_tax_documentsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.withholding_tax_documentsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload>
+          }
+          findMany: {
+            args: Prisma.withholding_tax_documentsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload>[]
+          }
+          create: {
+            args: Prisma.withholding_tax_documentsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload>
+          }
+          createMany: {
+            args: Prisma.withholding_tax_documentsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.withholding_tax_documentsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload>[]
+          }
+          delete: {
+            args: Prisma.withholding_tax_documentsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload>
+          }
+          update: {
+            args: Prisma.withholding_tax_documentsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload>
+          }
+          deleteMany: {
+            args: Prisma.withholding_tax_documentsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.withholding_tax_documentsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.withholding_tax_documentsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload>[]
+          }
+          upsert: {
+            args: Prisma.withholding_tax_documentsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_documentsPayload>
+          }
+          aggregate: {
+            args: Prisma.Withholding_tax_documentsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWithholding_tax_documents>
+          }
+          groupBy: {
+            args: Prisma.withholding_tax_documentsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Withholding_tax_documentsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.withholding_tax_documentsCountArgs<ExtArgs>
+            result: $Utils.Optional<Withholding_tax_documentsCountAggregateOutputType> | number
+          }
+        }
+      }
+      withholding_tax_income_items: {
+        payload: Prisma.$withholding_tax_income_itemsPayload<ExtArgs>
+        fields: Prisma.withholding_tax_income_itemsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.withholding_tax_income_itemsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.withholding_tax_income_itemsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload>
+          }
+          findFirst: {
+            args: Prisma.withholding_tax_income_itemsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.withholding_tax_income_itemsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload>
+          }
+          findMany: {
+            args: Prisma.withholding_tax_income_itemsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload>[]
+          }
+          create: {
+            args: Prisma.withholding_tax_income_itemsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload>
+          }
+          createMany: {
+            args: Prisma.withholding_tax_income_itemsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.withholding_tax_income_itemsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload>[]
+          }
+          delete: {
+            args: Prisma.withholding_tax_income_itemsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload>
+          }
+          update: {
+            args: Prisma.withholding_tax_income_itemsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload>
+          }
+          deleteMany: {
+            args: Prisma.withholding_tax_income_itemsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.withholding_tax_income_itemsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.withholding_tax_income_itemsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload>[]
+          }
+          upsert: {
+            args: Prisma.withholding_tax_income_itemsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$withholding_tax_income_itemsPayload>
+          }
+          aggregate: {
+            args: Prisma.Withholding_tax_income_itemsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWithholding_tax_income_items>
+          }
+          groupBy: {
+            args: Prisma.withholding_tax_income_itemsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Withholding_tax_income_itemsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.withholding_tax_income_itemsCountArgs<ExtArgs>
+            result: $Utils.Optional<Withholding_tax_income_itemsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -9613,6 +9973,10 @@ export namespace Prisma {
     fuelFlagReview?: FuelFlagReviewOmit
     fleetcards?: fleetcardsOmit
     fleetcard_transactions?: fleetcard_transactionsOmit
+    company_settings?: company_settingsOmit
+    tax_configs?: tax_configsOmit
+    withholding_tax_documents?: withholding_tax_documentsOmit
+    withholding_tax_income_items?: withholding_tax_income_itemsOmit
   }
 
   /* Types for Logging */
@@ -10344,6 +10708,7 @@ export namespace Prisma {
     task_assignments: number
     tasks: number
     travel_claims: number
+    withholding_tax_documents: number
   }
 
   export type EmployeesCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10378,6 +10743,7 @@ export namespace Prisma {
     task_assignments?: boolean | EmployeesCountOutputTypeCountTask_assignmentsArgs
     tasks?: boolean | EmployeesCountOutputTypeCountTasksArgs
     travel_claims?: boolean | EmployeesCountOutputTypeCountTravel_claimsArgs
+    withholding_tax_documents?: boolean | EmployeesCountOutputTypeCountWithholding_tax_documentsArgs
   }
 
   // Custom InputTypes
@@ -10606,6 +10972,13 @@ export namespace Prisma {
    */
   export type EmployeesCountOutputTypeCountTravel_claimsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: travel_claimsWhereInput
+  }
+
+  /**
+   * EmployeesCountOutputType without action
+   */
+  export type EmployeesCountOutputTypeCountWithholding_tax_documentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: withholding_tax_documentsWhereInput
   }
 
 
@@ -11276,6 +11649,37 @@ export namespace Prisma {
    */
   export type SurveyStructureCountOutputTypeCountRoofAgesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SurveyRoofAgeWhereInput
+  }
+
+
+  /**
+   * Count Type Withholding_tax_documentsCountOutputType
+   */
+
+  export type Withholding_tax_documentsCountOutputType = {
+    withholding_tax_income_items: number
+  }
+
+  export type Withholding_tax_documentsCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    withholding_tax_income_items?: boolean | Withholding_tax_documentsCountOutputTypeCountWithholding_tax_income_itemsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * Withholding_tax_documentsCountOutputType without action
+   */
+  export type Withholding_tax_documentsCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Withholding_tax_documentsCountOutputType
+     */
+    select?: Withholding_tax_documentsCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * Withholding_tax_documentsCountOutputType without action
+   */
+  export type Withholding_tax_documentsCountOutputTypeCountWithholding_tax_income_itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: withholding_tax_income_itemsWhereInput
   }
 
 
@@ -54959,6 +55363,11 @@ export namespace Prisma {
     fixed_travel_allowance: Decimal | null
     fixed_tax_deduction: Decimal | null
     current_streak: number | null
+    car_benefit: Decimal | null
+    housing_benefit: Decimal | null
+    provident_fund_amt: Decimal | null
+    provident_fund_rate: Decimal | null
+    tax_deduction_override: Decimal | null
   }
 
   export type EmployeesSumAggregateOutputType = {
@@ -54972,6 +55381,11 @@ export namespace Prisma {
     fixed_travel_allowance: Decimal | null
     fixed_tax_deduction: Decimal | null
     current_streak: number | null
+    car_benefit: Decimal | null
+    housing_benefit: Decimal | null
+    provident_fund_amt: Decimal | null
+    provident_fund_rate: Decimal | null
+    tax_deduction_override: Decimal | null
   }
 
   export type EmployeesMinAggregateOutputType = {
@@ -55016,6 +55430,16 @@ export namespace Prisma {
     fixed_travel_allowance: Decimal | null
     fixed_tax_deduction: Decimal | null
     current_streak: number | null
+    sso_include_fixed_accommodation: boolean | null
+    sso_include_fixed_meal: boolean | null
+    sso_include_fixed_travel: boolean | null
+    sso_include_general_allowance: boolean | null
+    sso_include_position_allowance: boolean | null
+    car_benefit: Decimal | null
+    housing_benefit: Decimal | null
+    provident_fund_amt: Decimal | null
+    provident_fund_rate: Decimal | null
+    tax_deduction_override: Decimal | null
   }
 
   export type EmployeesMaxAggregateOutputType = {
@@ -55060,6 +55484,16 @@ export namespace Prisma {
     fixed_travel_allowance: Decimal | null
     fixed_tax_deduction: Decimal | null
     current_streak: number | null
+    sso_include_fixed_accommodation: boolean | null
+    sso_include_fixed_meal: boolean | null
+    sso_include_fixed_travel: boolean | null
+    sso_include_general_allowance: boolean | null
+    sso_include_position_allowance: boolean | null
+    car_benefit: Decimal | null
+    housing_benefit: Decimal | null
+    provident_fund_amt: Decimal | null
+    provident_fund_rate: Decimal | null
+    tax_deduction_override: Decimal | null
   }
 
   export type EmployeesCountAggregateOutputType = {
@@ -55104,6 +55538,16 @@ export namespace Prisma {
     fixed_travel_allowance: number
     fixed_tax_deduction: number
     current_streak: number
+    sso_include_fixed_accommodation: number
+    sso_include_fixed_meal: number
+    sso_include_fixed_travel: number
+    sso_include_general_allowance: number
+    sso_include_position_allowance: number
+    car_benefit: number
+    housing_benefit: number
+    provident_fund_amt: number
+    provident_fund_rate: number
+    tax_deduction_override: number
     _all: number
   }
 
@@ -55119,6 +55563,11 @@ export namespace Prisma {
     fixed_travel_allowance?: true
     fixed_tax_deduction?: true
     current_streak?: true
+    car_benefit?: true
+    housing_benefit?: true
+    provident_fund_amt?: true
+    provident_fund_rate?: true
+    tax_deduction_override?: true
   }
 
   export type EmployeesSumAggregateInputType = {
@@ -55132,6 +55581,11 @@ export namespace Prisma {
     fixed_travel_allowance?: true
     fixed_tax_deduction?: true
     current_streak?: true
+    car_benefit?: true
+    housing_benefit?: true
+    provident_fund_amt?: true
+    provident_fund_rate?: true
+    tax_deduction_override?: true
   }
 
   export type EmployeesMinAggregateInputType = {
@@ -55176,6 +55630,16 @@ export namespace Prisma {
     fixed_travel_allowance?: true
     fixed_tax_deduction?: true
     current_streak?: true
+    sso_include_fixed_accommodation?: true
+    sso_include_fixed_meal?: true
+    sso_include_fixed_travel?: true
+    sso_include_general_allowance?: true
+    sso_include_position_allowance?: true
+    car_benefit?: true
+    housing_benefit?: true
+    provident_fund_amt?: true
+    provident_fund_rate?: true
+    tax_deduction_override?: true
   }
 
   export type EmployeesMaxAggregateInputType = {
@@ -55220,6 +55684,16 @@ export namespace Prisma {
     fixed_travel_allowance?: true
     fixed_tax_deduction?: true
     current_streak?: true
+    sso_include_fixed_accommodation?: true
+    sso_include_fixed_meal?: true
+    sso_include_fixed_travel?: true
+    sso_include_general_allowance?: true
+    sso_include_position_allowance?: true
+    car_benefit?: true
+    housing_benefit?: true
+    provident_fund_amt?: true
+    provident_fund_rate?: true
+    tax_deduction_override?: true
   }
 
   export type EmployeesCountAggregateInputType = {
@@ -55264,6 +55738,16 @@ export namespace Prisma {
     fixed_travel_allowance?: true
     fixed_tax_deduction?: true
     current_streak?: true
+    sso_include_fixed_accommodation?: true
+    sso_include_fixed_meal?: true
+    sso_include_fixed_travel?: true
+    sso_include_general_allowance?: true
+    sso_include_position_allowance?: true
+    car_benefit?: true
+    housing_benefit?: true
+    provident_fund_amt?: true
+    provident_fund_rate?: true
+    tax_deduction_override?: true
     _all?: true
   }
 
@@ -55395,6 +55879,16 @@ export namespace Prisma {
     fixed_travel_allowance: Decimal | null
     fixed_tax_deduction: Decimal | null
     current_streak: number
+    sso_include_fixed_accommodation: boolean
+    sso_include_fixed_meal: boolean
+    sso_include_fixed_travel: boolean
+    sso_include_general_allowance: boolean
+    sso_include_position_allowance: boolean
+    car_benefit: Decimal | null
+    housing_benefit: Decimal | null
+    provident_fund_amt: Decimal | null
+    provident_fund_rate: Decimal | null
+    tax_deduction_override: Decimal | null
     _count: EmployeesCountAggregateOutputType | null
     _avg: EmployeesAvgAggregateOutputType | null
     _sum: EmployeesSumAggregateOutputType | null
@@ -55458,6 +55952,16 @@ export namespace Prisma {
     fixed_travel_allowance?: boolean
     fixed_tax_deduction?: boolean
     current_streak?: boolean
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: boolean
+    housing_benefit?: boolean
+    provident_fund_amt?: boolean
+    provident_fund_rate?: boolean
+    tax_deduction_override?: boolean
     asset_borrowings?: boolean | employees$asset_borrowingsArgs<ExtArgs>
     birthday_claims?: boolean | employees$birthday_claimsArgs<ExtArgs>
     clothing_requests?: boolean | employees$clothing_requestsArgs<ExtArgs>
@@ -55496,6 +56000,7 @@ export namespace Prisma {
     tasks?: boolean | employees$tasksArgs<ExtArgs>
     transfer_budgets?: boolean | employees$transfer_budgetsArgs<ExtArgs>
     travel_claims?: boolean | employees$travel_claimsArgs<ExtArgs>
+    withholding_tax_documents?: boolean | employees$withholding_tax_documentsArgs<ExtArgs>
     _count?: boolean | EmployeesCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["employees"]>
 
@@ -55541,6 +56046,16 @@ export namespace Prisma {
     fixed_travel_allowance?: boolean
     fixed_tax_deduction?: boolean
     current_streak?: boolean
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: boolean
+    housing_benefit?: boolean
+    provident_fund_amt?: boolean
+    provident_fund_rate?: boolean
+    tax_deduction_override?: boolean
     departments?: boolean | employees$departmentsArgs<ExtArgs>
     job_positions?: boolean | employees$job_positionsArgs<ExtArgs>
     employees_employees_secondary_supervisor_idToemployees?: boolean | employees$employees_employees_secondary_supervisor_idToemployeesArgs<ExtArgs>
@@ -55590,6 +56105,16 @@ export namespace Prisma {
     fixed_travel_allowance?: boolean
     fixed_tax_deduction?: boolean
     current_streak?: boolean
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: boolean
+    housing_benefit?: boolean
+    provident_fund_amt?: boolean
+    provident_fund_rate?: boolean
+    tax_deduction_override?: boolean
     departments?: boolean | employees$departmentsArgs<ExtArgs>
     job_positions?: boolean | employees$job_positionsArgs<ExtArgs>
     employees_employees_secondary_supervisor_idToemployees?: boolean | employees$employees_employees_secondary_supervisor_idToemployeesArgs<ExtArgs>
@@ -55639,9 +56164,19 @@ export namespace Prisma {
     fixed_travel_allowance?: boolean
     fixed_tax_deduction?: boolean
     current_streak?: boolean
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: boolean
+    housing_benefit?: boolean
+    provident_fund_amt?: boolean
+    provident_fund_rate?: boolean
+    tax_deduction_override?: boolean
   }
 
-  export type employeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"emp_id" | "name" | "branch_id" | "is_active" | "created_at" | "updated_at" | "pin_hash" | "gender" | "hire_date" | "birth_date" | "phone_number" | "base_salary" | "department_id" | "job_position_id" | "otp_code" | "otp_expires_at" | "supervisor_id" | "bank_account_no" | "bank_name" | "is_on_trial" | "has_telephone_allowance" | "position_allowance" | "address" | "national_id_card" | "salary_type" | "line_user_id" | "is_checkin_exempt" | "probation_end_date" | "resignation_date" | "secondary_supervisor_id" | "nickname" | "email" | "general_allowance" | "probation_accommodation_allowance" | "probation_meal_allowance" | "probation_travel_allowance" | "fixed_accommodation_allowance" | "fixed_meal_allowance" | "fixed_travel_allowance" | "fixed_tax_deduction" | "current_streak", ExtArgs["result"]["employees"]>
+  export type employeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"emp_id" | "name" | "branch_id" | "is_active" | "created_at" | "updated_at" | "pin_hash" | "gender" | "hire_date" | "birth_date" | "phone_number" | "base_salary" | "department_id" | "job_position_id" | "otp_code" | "otp_expires_at" | "supervisor_id" | "bank_account_no" | "bank_name" | "is_on_trial" | "has_telephone_allowance" | "position_allowance" | "address" | "national_id_card" | "salary_type" | "line_user_id" | "is_checkin_exempt" | "probation_end_date" | "resignation_date" | "secondary_supervisor_id" | "nickname" | "email" | "general_allowance" | "probation_accommodation_allowance" | "probation_meal_allowance" | "probation_travel_allowance" | "fixed_accommodation_allowance" | "fixed_meal_allowance" | "fixed_travel_allowance" | "fixed_tax_deduction" | "current_streak" | "sso_include_fixed_accommodation" | "sso_include_fixed_meal" | "sso_include_fixed_travel" | "sso_include_general_allowance" | "sso_include_position_allowance" | "car_benefit" | "housing_benefit" | "provident_fund_amt" | "provident_fund_rate" | "tax_deduction_override", ExtArgs["result"]["employees"]>
   export type employeesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     asset_borrowings?: boolean | employees$asset_borrowingsArgs<ExtArgs>
     birthday_claims?: boolean | employees$birthday_claimsArgs<ExtArgs>
@@ -55681,6 +56216,7 @@ export namespace Prisma {
     tasks?: boolean | employees$tasksArgs<ExtArgs>
     transfer_budgets?: boolean | employees$transfer_budgetsArgs<ExtArgs>
     travel_claims?: boolean | employees$travel_claimsArgs<ExtArgs>
+    withholding_tax_documents?: boolean | employees$withholding_tax_documentsArgs<ExtArgs>
     _count?: boolean | EmployeesCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type employeesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -55739,6 +56275,7 @@ export namespace Prisma {
       tasks: Prisma.$tasksPayload<ExtArgs>[]
       transfer_budgets: Prisma.$transfer_budgetsPayload<ExtArgs> | null
       travel_claims: Prisma.$travel_claimsPayload<ExtArgs>[]
+      withholding_tax_documents: Prisma.$withholding_tax_documentsPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       emp_id: string
@@ -55782,6 +56319,16 @@ export namespace Prisma {
       fixed_travel_allowance: Prisma.Decimal | null
       fixed_tax_deduction: Prisma.Decimal | null
       current_streak: number
+      sso_include_fixed_accommodation: boolean
+      sso_include_fixed_meal: boolean
+      sso_include_fixed_travel: boolean
+      sso_include_general_allowance: boolean
+      sso_include_position_allowance: boolean
+      car_benefit: Prisma.Decimal | null
+      housing_benefit: Prisma.Decimal | null
+      provident_fund_amt: Prisma.Decimal | null
+      provident_fund_rate: Prisma.Decimal | null
+      tax_deduction_override: Prisma.Decimal | null
     }, ExtArgs["result"]["employees"]>
     composites: {}
   }
@@ -56214,6 +56761,7 @@ export namespace Prisma {
     tasks<T extends employees$tasksArgs<ExtArgs> = {}>(args?: Subset<T, employees$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$tasksPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     transfer_budgets<T extends employees$transfer_budgetsArgs<ExtArgs> = {}>(args?: Subset<T, employees$transfer_budgetsArgs<ExtArgs>>): Prisma__transfer_budgetsClient<$Result.GetResult<Prisma.$transfer_budgetsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     travel_claims<T extends employees$travel_claimsArgs<ExtArgs> = {}>(args?: Subset<T, employees$travel_claimsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$travel_claimsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    withholding_tax_documents<T extends employees$withholding_tax_documentsArgs<ExtArgs> = {}>(args?: Subset<T, employees$withholding_tax_documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -56284,6 +56832,16 @@ export namespace Prisma {
     readonly fixed_travel_allowance: FieldRef<"employees", 'Decimal'>
     readonly fixed_tax_deduction: FieldRef<"employees", 'Decimal'>
     readonly current_streak: FieldRef<"employees", 'Int'>
+    readonly sso_include_fixed_accommodation: FieldRef<"employees", 'Boolean'>
+    readonly sso_include_fixed_meal: FieldRef<"employees", 'Boolean'>
+    readonly sso_include_fixed_travel: FieldRef<"employees", 'Boolean'>
+    readonly sso_include_general_allowance: FieldRef<"employees", 'Boolean'>
+    readonly sso_include_position_allowance: FieldRef<"employees", 'Boolean'>
+    readonly car_benefit: FieldRef<"employees", 'Decimal'>
+    readonly housing_benefit: FieldRef<"employees", 'Decimal'>
+    readonly provident_fund_amt: FieldRef<"employees", 'Decimal'>
+    readonly provident_fund_rate: FieldRef<"employees", 'Decimal'>
+    readonly tax_deduction_override: FieldRef<"employees", 'Decimal'>
   }
     
 
@@ -57559,6 +58117,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Travel_claimsScalarFieldEnum | Travel_claimsScalarFieldEnum[]
+  }
+
+  /**
+   * employees.withholding_tax_documents
+   */
+  export type employees$withholding_tax_documentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+    where?: withholding_tax_documentsWhereInput
+    orderBy?: withholding_tax_documentsOrderByWithRelationInput | withholding_tax_documentsOrderByWithRelationInput[]
+    cursor?: withholding_tax_documentsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Withholding_tax_documentsScalarFieldEnum | Withholding_tax_documentsScalarFieldEnum[]
   }
 
   /**
@@ -68349,6 +68931,10 @@ export namespace Prisma {
     insurance: Decimal | null
     insurance_income: Decimal | null
     general_allowance_override: Decimal | null
+    car_benefit: Decimal | null
+    housing_benefit: Decimal | null
+    provident_fund: Decimal | null
+    taxable_income: Decimal | null
   }
 
   export type Monthly_payroll_dataSumAggregateOutputType = {
@@ -68378,6 +68964,10 @@ export namespace Prisma {
     insurance: Decimal | null
     insurance_income: Decimal | null
     general_allowance_override: Decimal | null
+    car_benefit: Decimal | null
+    housing_benefit: Decimal | null
+    provident_fund: Decimal | null
+    taxable_income: Decimal | null
   }
 
   export type Monthly_payroll_dataMinAggregateOutputType = {
@@ -68411,6 +69001,10 @@ export namespace Prisma {
     insurance: Decimal | null
     insurance_income: Decimal | null
     general_allowance_override: Decimal | null
+    car_benefit: Decimal | null
+    housing_benefit: Decimal | null
+    provident_fund: Decimal | null
+    taxable_income: Decimal | null
   }
 
   export type Monthly_payroll_dataMaxAggregateOutputType = {
@@ -68444,6 +69038,10 @@ export namespace Prisma {
     insurance: Decimal | null
     insurance_income: Decimal | null
     general_allowance_override: Decimal | null
+    car_benefit: Decimal | null
+    housing_benefit: Decimal | null
+    provident_fund: Decimal | null
+    taxable_income: Decimal | null
   }
 
   export type Monthly_payroll_dataCountAggregateOutputType = {
@@ -68477,6 +69075,10 @@ export namespace Prisma {
     insurance: number
     insurance_income: number
     general_allowance_override: number
+    car_benefit: number
+    housing_benefit: number
+    provident_fund: number
+    taxable_income: number
     _all: number
   }
 
@@ -68508,6 +69110,10 @@ export namespace Prisma {
     insurance?: true
     insurance_income?: true
     general_allowance_override?: true
+    car_benefit?: true
+    housing_benefit?: true
+    provident_fund?: true
+    taxable_income?: true
   }
 
   export type Monthly_payroll_dataSumAggregateInputType = {
@@ -68537,6 +69143,10 @@ export namespace Prisma {
     insurance?: true
     insurance_income?: true
     general_allowance_override?: true
+    car_benefit?: true
+    housing_benefit?: true
+    provident_fund?: true
+    taxable_income?: true
   }
 
   export type Monthly_payroll_dataMinAggregateInputType = {
@@ -68570,6 +69180,10 @@ export namespace Prisma {
     insurance?: true
     insurance_income?: true
     general_allowance_override?: true
+    car_benefit?: true
+    housing_benefit?: true
+    provident_fund?: true
+    taxable_income?: true
   }
 
   export type Monthly_payroll_dataMaxAggregateInputType = {
@@ -68603,6 +69217,10 @@ export namespace Prisma {
     insurance?: true
     insurance_income?: true
     general_allowance_override?: true
+    car_benefit?: true
+    housing_benefit?: true
+    provident_fund?: true
+    taxable_income?: true
   }
 
   export type Monthly_payroll_dataCountAggregateInputType = {
@@ -68636,6 +69254,10 @@ export namespace Prisma {
     insurance?: true
     insurance_income?: true
     general_allowance_override?: true
+    car_benefit?: true
+    housing_benefit?: true
+    provident_fund?: true
+    taxable_income?: true
     _all?: true
   }
 
@@ -68756,6 +69378,10 @@ export namespace Prisma {
     insurance: Decimal | null
     insurance_income: Decimal | null
     general_allowance_override: Decimal | null
+    car_benefit: Decimal | null
+    housing_benefit: Decimal | null
+    provident_fund: Decimal | null
+    taxable_income: Decimal | null
     _count: Monthly_payroll_dataCountAggregateOutputType | null
     _avg: Monthly_payroll_dataAvgAggregateOutputType | null
     _sum: Monthly_payroll_dataSumAggregateOutputType | null
@@ -68808,6 +69434,10 @@ export namespace Prisma {
     insurance?: boolean
     insurance_income?: boolean
     general_allowance_override?: boolean
+    car_benefit?: boolean
+    housing_benefit?: boolean
+    provident_fund?: boolean
+    taxable_income?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["monthly_payroll_data"]>
 
@@ -68842,6 +69472,10 @@ export namespace Prisma {
     insurance?: boolean
     insurance_income?: boolean
     general_allowance_override?: boolean
+    car_benefit?: boolean
+    housing_benefit?: boolean
+    provident_fund?: boolean
+    taxable_income?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["monthly_payroll_data"]>
 
@@ -68876,6 +69510,10 @@ export namespace Prisma {
     insurance?: boolean
     insurance_income?: boolean
     general_allowance_override?: boolean
+    car_benefit?: boolean
+    housing_benefit?: boolean
+    provident_fund?: boolean
+    taxable_income?: boolean
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["monthly_payroll_data"]>
 
@@ -68910,9 +69548,13 @@ export namespace Prisma {
     insurance?: boolean
     insurance_income?: boolean
     general_allowance_override?: boolean
+    car_benefit?: boolean
+    housing_benefit?: boolean
+    provident_fund?: boolean
+    taxable_income?: boolean
   }
 
-  export type monthly_payroll_dataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emp_id" | "cycle_month" | "cycle_year" | "social_security" | "student_loan" | "other_deductions" | "other_benefits" | "override_salary" | "created_at" | "updated_at" | "accommodation_allowance_override" | "diligence_allowance_override" | "holiday_1_x_hours_override" | "holiday_3_x_hours_override" | "meal_allowance_override" | "normal_1_5x_hours_override" | "phone_allowance_override" | "position_allowance_override" | "travel_accommodation_override" | "travel_allowance_override" | "travel_site_allowance_override" | "tax" | "unpaid_absenteeism" | "bonus" | "commissions" | "is_published" | "insurance" | "insurance_income" | "general_allowance_override", ExtArgs["result"]["monthly_payroll_data"]>
+  export type monthly_payroll_dataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emp_id" | "cycle_month" | "cycle_year" | "social_security" | "student_loan" | "other_deductions" | "other_benefits" | "override_salary" | "created_at" | "updated_at" | "accommodation_allowance_override" | "diligence_allowance_override" | "holiday_1_x_hours_override" | "holiday_3_x_hours_override" | "meal_allowance_override" | "normal_1_5x_hours_override" | "phone_allowance_override" | "position_allowance_override" | "travel_accommodation_override" | "travel_allowance_override" | "travel_site_allowance_override" | "tax" | "unpaid_absenteeism" | "bonus" | "commissions" | "is_published" | "insurance" | "insurance_income" | "general_allowance_override" | "car_benefit" | "housing_benefit" | "provident_fund" | "taxable_income", ExtArgs["result"]["monthly_payroll_data"]>
   export type monthly_payroll_dataInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }
@@ -68959,6 +69601,10 @@ export namespace Prisma {
       insurance: Prisma.Decimal | null
       insurance_income: Prisma.Decimal | null
       general_allowance_override: Prisma.Decimal | null
+      car_benefit: Prisma.Decimal | null
+      housing_benefit: Prisma.Decimal | null
+      provident_fund: Prisma.Decimal | null
+      taxable_income: Prisma.Decimal | null
     }, ExtArgs["result"]["monthly_payroll_data"]>
     composites: {}
   }
@@ -69413,6 +70059,10 @@ export namespace Prisma {
     readonly insurance: FieldRef<"monthly_payroll_data", 'Decimal'>
     readonly insurance_income: FieldRef<"monthly_payroll_data", 'Decimal'>
     readonly general_allowance_override: FieldRef<"monthly_payroll_data", 'Decimal'>
+    readonly car_benefit: FieldRef<"monthly_payroll_data", 'Decimal'>
+    readonly housing_benefit: FieldRef<"monthly_payroll_data", 'Decimal'>
+    readonly provident_fund: FieldRef<"monthly_payroll_data", 'Decimal'>
+    readonly taxable_income: FieldRef<"monthly_payroll_data", 'Decimal'>
   }
     
 
@@ -132155,6 +132805,4717 @@ export namespace Prisma {
 
 
   /**
+   * Model company_settings
+   */
+
+  export type AggregateCompany_settings = {
+    _count: Company_settingsCountAggregateOutputType | null
+    _avg: Company_settingsAvgAggregateOutputType | null
+    _sum: Company_settingsSumAggregateOutputType | null
+    _min: Company_settingsMinAggregateOutputType | null
+    _max: Company_settingsMaxAggregateOutputType | null
+  }
+
+  export type Company_settingsAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type Company_settingsSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type Company_settingsMinAggregateOutputType = {
+    id: number | null
+    tax_id: string | null
+    name: string | null
+    address: string | null
+    branch_no: string | null
+    updated_at: Date | null
+  }
+
+  export type Company_settingsMaxAggregateOutputType = {
+    id: number | null
+    tax_id: string | null
+    name: string | null
+    address: string | null
+    branch_no: string | null
+    updated_at: Date | null
+  }
+
+  export type Company_settingsCountAggregateOutputType = {
+    id: number
+    tax_id: number
+    name: number
+    address: number
+    branch_no: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type Company_settingsAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type Company_settingsSumAggregateInputType = {
+    id?: true
+  }
+
+  export type Company_settingsMinAggregateInputType = {
+    id?: true
+    tax_id?: true
+    name?: true
+    address?: true
+    branch_no?: true
+    updated_at?: true
+  }
+
+  export type Company_settingsMaxAggregateInputType = {
+    id?: true
+    tax_id?: true
+    name?: true
+    address?: true
+    branch_no?: true
+    updated_at?: true
+  }
+
+  export type Company_settingsCountAggregateInputType = {
+    id?: true
+    tax_id?: true
+    name?: true
+    address?: true
+    branch_no?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type Company_settingsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which company_settings to aggregate.
+     */
+    where?: company_settingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of company_settings to fetch.
+     */
+    orderBy?: company_settingsOrderByWithRelationInput | company_settingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: company_settingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` company_settings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` company_settings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned company_settings
+    **/
+    _count?: true | Company_settingsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Company_settingsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Company_settingsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Company_settingsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Company_settingsMaxAggregateInputType
+  }
+
+  export type GetCompany_settingsAggregateType<T extends Company_settingsAggregateArgs> = {
+        [P in keyof T & keyof AggregateCompany_settings]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCompany_settings[P]>
+      : GetScalarType<T[P], AggregateCompany_settings[P]>
+  }
+
+
+
+
+  export type company_settingsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: company_settingsWhereInput
+    orderBy?: company_settingsOrderByWithAggregationInput | company_settingsOrderByWithAggregationInput[]
+    by: Company_settingsScalarFieldEnum[] | Company_settingsScalarFieldEnum
+    having?: company_settingsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Company_settingsCountAggregateInputType | true
+    _avg?: Company_settingsAvgAggregateInputType
+    _sum?: Company_settingsSumAggregateInputType
+    _min?: Company_settingsMinAggregateInputType
+    _max?: Company_settingsMaxAggregateInputType
+  }
+
+  export type Company_settingsGroupByOutputType = {
+    id: number
+    tax_id: string
+    name: string
+    address: string
+    branch_no: string | null
+    updated_at: Date
+    _count: Company_settingsCountAggregateOutputType | null
+    _avg: Company_settingsAvgAggregateOutputType | null
+    _sum: Company_settingsSumAggregateOutputType | null
+    _min: Company_settingsMinAggregateOutputType | null
+    _max: Company_settingsMaxAggregateOutputType | null
+  }
+
+  type GetCompany_settingsGroupByPayload<T extends company_settingsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Company_settingsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Company_settingsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Company_settingsGroupByOutputType[P]>
+            : GetScalarType<T[P], Company_settingsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type company_settingsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tax_id?: boolean
+    name?: boolean
+    address?: boolean
+    branch_no?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["company_settings"]>
+
+  export type company_settingsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tax_id?: boolean
+    name?: boolean
+    address?: boolean
+    branch_no?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["company_settings"]>
+
+  export type company_settingsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tax_id?: boolean
+    name?: boolean
+    address?: boolean
+    branch_no?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["company_settings"]>
+
+  export type company_settingsSelectScalar = {
+    id?: boolean
+    tax_id?: boolean
+    name?: boolean
+    address?: boolean
+    branch_no?: boolean
+    updated_at?: boolean
+  }
+
+  export type company_settingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tax_id" | "name" | "address" | "branch_no" | "updated_at", ExtArgs["result"]["company_settings"]>
+
+  export type $company_settingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "company_settings"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      tax_id: string
+      name: string
+      address: string
+      branch_no: string | null
+      updated_at: Date
+    }, ExtArgs["result"]["company_settings"]>
+    composites: {}
+  }
+
+  type company_settingsGetPayload<S extends boolean | null | undefined | company_settingsDefaultArgs> = $Result.GetResult<Prisma.$company_settingsPayload, S>
+
+  type company_settingsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<company_settingsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Company_settingsCountAggregateInputType | true
+    }
+
+  export interface company_settingsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['company_settings'], meta: { name: 'company_settings' } }
+    /**
+     * Find zero or one Company_settings that matches the filter.
+     * @param {company_settingsFindUniqueArgs} args - Arguments to find a Company_settings
+     * @example
+     * // Get one Company_settings
+     * const company_settings = await prisma.company_settings.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends company_settingsFindUniqueArgs>(args: SelectSubset<T, company_settingsFindUniqueArgs<ExtArgs>>): Prisma__company_settingsClient<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Company_settings that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {company_settingsFindUniqueOrThrowArgs} args - Arguments to find a Company_settings
+     * @example
+     * // Get one Company_settings
+     * const company_settings = await prisma.company_settings.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends company_settingsFindUniqueOrThrowArgs>(args: SelectSubset<T, company_settingsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__company_settingsClient<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Company_settings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {company_settingsFindFirstArgs} args - Arguments to find a Company_settings
+     * @example
+     * // Get one Company_settings
+     * const company_settings = await prisma.company_settings.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends company_settingsFindFirstArgs>(args?: SelectSubset<T, company_settingsFindFirstArgs<ExtArgs>>): Prisma__company_settingsClient<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Company_settings that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {company_settingsFindFirstOrThrowArgs} args - Arguments to find a Company_settings
+     * @example
+     * // Get one Company_settings
+     * const company_settings = await prisma.company_settings.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends company_settingsFindFirstOrThrowArgs>(args?: SelectSubset<T, company_settingsFindFirstOrThrowArgs<ExtArgs>>): Prisma__company_settingsClient<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Company_settings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {company_settingsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Company_settings
+     * const company_settings = await prisma.company_settings.findMany()
+     * 
+     * // Get first 10 Company_settings
+     * const company_settings = await prisma.company_settings.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const company_settingsWithIdOnly = await prisma.company_settings.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends company_settingsFindManyArgs>(args?: SelectSubset<T, company_settingsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Company_settings.
+     * @param {company_settingsCreateArgs} args - Arguments to create a Company_settings.
+     * @example
+     * // Create one Company_settings
+     * const Company_settings = await prisma.company_settings.create({
+     *   data: {
+     *     // ... data to create a Company_settings
+     *   }
+     * })
+     * 
+     */
+    create<T extends company_settingsCreateArgs>(args: SelectSubset<T, company_settingsCreateArgs<ExtArgs>>): Prisma__company_settingsClient<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Company_settings.
+     * @param {company_settingsCreateManyArgs} args - Arguments to create many Company_settings.
+     * @example
+     * // Create many Company_settings
+     * const company_settings = await prisma.company_settings.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends company_settingsCreateManyArgs>(args?: SelectSubset<T, company_settingsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Company_settings and returns the data saved in the database.
+     * @param {company_settingsCreateManyAndReturnArgs} args - Arguments to create many Company_settings.
+     * @example
+     * // Create many Company_settings
+     * const company_settings = await prisma.company_settings.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Company_settings and only return the `id`
+     * const company_settingsWithIdOnly = await prisma.company_settings.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends company_settingsCreateManyAndReturnArgs>(args?: SelectSubset<T, company_settingsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Company_settings.
+     * @param {company_settingsDeleteArgs} args - Arguments to delete one Company_settings.
+     * @example
+     * // Delete one Company_settings
+     * const Company_settings = await prisma.company_settings.delete({
+     *   where: {
+     *     // ... filter to delete one Company_settings
+     *   }
+     * })
+     * 
+     */
+    delete<T extends company_settingsDeleteArgs>(args: SelectSubset<T, company_settingsDeleteArgs<ExtArgs>>): Prisma__company_settingsClient<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Company_settings.
+     * @param {company_settingsUpdateArgs} args - Arguments to update one Company_settings.
+     * @example
+     * // Update one Company_settings
+     * const company_settings = await prisma.company_settings.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends company_settingsUpdateArgs>(args: SelectSubset<T, company_settingsUpdateArgs<ExtArgs>>): Prisma__company_settingsClient<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Company_settings.
+     * @param {company_settingsDeleteManyArgs} args - Arguments to filter Company_settings to delete.
+     * @example
+     * // Delete a few Company_settings
+     * const { count } = await prisma.company_settings.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends company_settingsDeleteManyArgs>(args?: SelectSubset<T, company_settingsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Company_settings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {company_settingsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Company_settings
+     * const company_settings = await prisma.company_settings.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends company_settingsUpdateManyArgs>(args: SelectSubset<T, company_settingsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Company_settings and returns the data updated in the database.
+     * @param {company_settingsUpdateManyAndReturnArgs} args - Arguments to update many Company_settings.
+     * @example
+     * // Update many Company_settings
+     * const company_settings = await prisma.company_settings.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Company_settings and only return the `id`
+     * const company_settingsWithIdOnly = await prisma.company_settings.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends company_settingsUpdateManyAndReturnArgs>(args: SelectSubset<T, company_settingsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Company_settings.
+     * @param {company_settingsUpsertArgs} args - Arguments to update or create a Company_settings.
+     * @example
+     * // Update or create a Company_settings
+     * const company_settings = await prisma.company_settings.upsert({
+     *   create: {
+     *     // ... data to create a Company_settings
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Company_settings we want to update
+     *   }
+     * })
+     */
+    upsert<T extends company_settingsUpsertArgs>(args: SelectSubset<T, company_settingsUpsertArgs<ExtArgs>>): Prisma__company_settingsClient<$Result.GetResult<Prisma.$company_settingsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Company_settings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {company_settingsCountArgs} args - Arguments to filter Company_settings to count.
+     * @example
+     * // Count the number of Company_settings
+     * const count = await prisma.company_settings.count({
+     *   where: {
+     *     // ... the filter for the Company_settings we want to count
+     *   }
+     * })
+    **/
+    count<T extends company_settingsCountArgs>(
+      args?: Subset<T, company_settingsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Company_settingsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Company_settings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Company_settingsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Company_settingsAggregateArgs>(args: Subset<T, Company_settingsAggregateArgs>): Prisma.PrismaPromise<GetCompany_settingsAggregateType<T>>
+
+    /**
+     * Group by Company_settings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {company_settingsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends company_settingsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: company_settingsGroupByArgs['orderBy'] }
+        : { orderBy?: company_settingsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, company_settingsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCompany_settingsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the company_settings model
+   */
+  readonly fields: company_settingsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for company_settings.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__company_settingsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the company_settings model
+   */
+  interface company_settingsFieldRefs {
+    readonly id: FieldRef<"company_settings", 'Int'>
+    readonly tax_id: FieldRef<"company_settings", 'String'>
+    readonly name: FieldRef<"company_settings", 'String'>
+    readonly address: FieldRef<"company_settings", 'String'>
+    readonly branch_no: FieldRef<"company_settings", 'String'>
+    readonly updated_at: FieldRef<"company_settings", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * company_settings findUnique
+   */
+  export type company_settingsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * Filter, which company_settings to fetch.
+     */
+    where: company_settingsWhereUniqueInput
+  }
+
+  /**
+   * company_settings findUniqueOrThrow
+   */
+  export type company_settingsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * Filter, which company_settings to fetch.
+     */
+    where: company_settingsWhereUniqueInput
+  }
+
+  /**
+   * company_settings findFirst
+   */
+  export type company_settingsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * Filter, which company_settings to fetch.
+     */
+    where?: company_settingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of company_settings to fetch.
+     */
+    orderBy?: company_settingsOrderByWithRelationInput | company_settingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for company_settings.
+     */
+    cursor?: company_settingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` company_settings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` company_settings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of company_settings.
+     */
+    distinct?: Company_settingsScalarFieldEnum | Company_settingsScalarFieldEnum[]
+  }
+
+  /**
+   * company_settings findFirstOrThrow
+   */
+  export type company_settingsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * Filter, which company_settings to fetch.
+     */
+    where?: company_settingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of company_settings to fetch.
+     */
+    orderBy?: company_settingsOrderByWithRelationInput | company_settingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for company_settings.
+     */
+    cursor?: company_settingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` company_settings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` company_settings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of company_settings.
+     */
+    distinct?: Company_settingsScalarFieldEnum | Company_settingsScalarFieldEnum[]
+  }
+
+  /**
+   * company_settings findMany
+   */
+  export type company_settingsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * Filter, which company_settings to fetch.
+     */
+    where?: company_settingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of company_settings to fetch.
+     */
+    orderBy?: company_settingsOrderByWithRelationInput | company_settingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing company_settings.
+     */
+    cursor?: company_settingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` company_settings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` company_settings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of company_settings.
+     */
+    distinct?: Company_settingsScalarFieldEnum | Company_settingsScalarFieldEnum[]
+  }
+
+  /**
+   * company_settings create
+   */
+  export type company_settingsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a company_settings.
+     */
+    data: XOR<company_settingsCreateInput, company_settingsUncheckedCreateInput>
+  }
+
+  /**
+   * company_settings createMany
+   */
+  export type company_settingsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many company_settings.
+     */
+    data: company_settingsCreateManyInput | company_settingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * company_settings createManyAndReturn
+   */
+  export type company_settingsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * The data used to create many company_settings.
+     */
+    data: company_settingsCreateManyInput | company_settingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * company_settings update
+   */
+  export type company_settingsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a company_settings.
+     */
+    data: XOR<company_settingsUpdateInput, company_settingsUncheckedUpdateInput>
+    /**
+     * Choose, which company_settings to update.
+     */
+    where: company_settingsWhereUniqueInput
+  }
+
+  /**
+   * company_settings updateMany
+   */
+  export type company_settingsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update company_settings.
+     */
+    data: XOR<company_settingsUpdateManyMutationInput, company_settingsUncheckedUpdateManyInput>
+    /**
+     * Filter which company_settings to update
+     */
+    where?: company_settingsWhereInput
+    /**
+     * Limit how many company_settings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * company_settings updateManyAndReturn
+   */
+  export type company_settingsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * The data used to update company_settings.
+     */
+    data: XOR<company_settingsUpdateManyMutationInput, company_settingsUncheckedUpdateManyInput>
+    /**
+     * Filter which company_settings to update
+     */
+    where?: company_settingsWhereInput
+    /**
+     * Limit how many company_settings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * company_settings upsert
+   */
+  export type company_settingsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the company_settings to update in case it exists.
+     */
+    where: company_settingsWhereUniqueInput
+    /**
+     * In case the company_settings found by the `where` argument doesn't exist, create a new company_settings with this data.
+     */
+    create: XOR<company_settingsCreateInput, company_settingsUncheckedCreateInput>
+    /**
+     * In case the company_settings was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<company_settingsUpdateInput, company_settingsUncheckedUpdateInput>
+  }
+
+  /**
+   * company_settings delete
+   */
+  export type company_settingsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+    /**
+     * Filter which company_settings to delete.
+     */
+    where: company_settingsWhereUniqueInput
+  }
+
+  /**
+   * company_settings deleteMany
+   */
+  export type company_settingsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which company_settings to delete
+     */
+    where?: company_settingsWhereInput
+    /**
+     * Limit how many company_settings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * company_settings without action
+   */
+  export type company_settingsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the company_settings
+     */
+    select?: company_settingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the company_settings
+     */
+    omit?: company_settingsOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model tax_configs
+   */
+
+  export type AggregateTax_configs = {
+    _count: Tax_configsCountAggregateOutputType | null
+    _avg: Tax_configsAvgAggregateOutputType | null
+    _sum: Tax_configsSumAggregateOutputType | null
+    _min: Tax_configsMinAggregateOutputType | null
+    _max: Tax_configsMaxAggregateOutputType | null
+  }
+
+  export type Tax_configsAvgAggregateOutputType = {
+    id: number | null
+    year: number | null
+    sso_rate: Decimal | null
+    sso_max_monthly: Decimal | null
+    sso_max_yearly: Decimal | null
+    expense_deduct_rate: Decimal | null
+    expense_deduct_max: Decimal | null
+    personal_allowance: Decimal | null
+  }
+
+  export type Tax_configsSumAggregateOutputType = {
+    id: number | null
+    year: number | null
+    sso_rate: Decimal | null
+    sso_max_monthly: Decimal | null
+    sso_max_yearly: Decimal | null
+    expense_deduct_rate: Decimal | null
+    expense_deduct_max: Decimal | null
+    personal_allowance: Decimal | null
+  }
+
+  export type Tax_configsMinAggregateOutputType = {
+    id: number | null
+    year: number | null
+    sso_rate: Decimal | null
+    sso_max_monthly: Decimal | null
+    sso_max_yearly: Decimal | null
+    expense_deduct_rate: Decimal | null
+    expense_deduct_max: Decimal | null
+    personal_allowance: Decimal | null
+    updated_at: Date | null
+  }
+
+  export type Tax_configsMaxAggregateOutputType = {
+    id: number | null
+    year: number | null
+    sso_rate: Decimal | null
+    sso_max_monthly: Decimal | null
+    sso_max_yearly: Decimal | null
+    expense_deduct_rate: Decimal | null
+    expense_deduct_max: Decimal | null
+    personal_allowance: Decimal | null
+    updated_at: Date | null
+  }
+
+  export type Tax_configsCountAggregateOutputType = {
+    id: number
+    year: number
+    sso_rate: number
+    sso_max_monthly: number
+    sso_max_yearly: number
+    expense_deduct_rate: number
+    expense_deduct_max: number
+    personal_allowance: number
+    tax_brackets: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type Tax_configsAvgAggregateInputType = {
+    id?: true
+    year?: true
+    sso_rate?: true
+    sso_max_monthly?: true
+    sso_max_yearly?: true
+    expense_deduct_rate?: true
+    expense_deduct_max?: true
+    personal_allowance?: true
+  }
+
+  export type Tax_configsSumAggregateInputType = {
+    id?: true
+    year?: true
+    sso_rate?: true
+    sso_max_monthly?: true
+    sso_max_yearly?: true
+    expense_deduct_rate?: true
+    expense_deduct_max?: true
+    personal_allowance?: true
+  }
+
+  export type Tax_configsMinAggregateInputType = {
+    id?: true
+    year?: true
+    sso_rate?: true
+    sso_max_monthly?: true
+    sso_max_yearly?: true
+    expense_deduct_rate?: true
+    expense_deduct_max?: true
+    personal_allowance?: true
+    updated_at?: true
+  }
+
+  export type Tax_configsMaxAggregateInputType = {
+    id?: true
+    year?: true
+    sso_rate?: true
+    sso_max_monthly?: true
+    sso_max_yearly?: true
+    expense_deduct_rate?: true
+    expense_deduct_max?: true
+    personal_allowance?: true
+    updated_at?: true
+  }
+
+  export type Tax_configsCountAggregateInputType = {
+    id?: true
+    year?: true
+    sso_rate?: true
+    sso_max_monthly?: true
+    sso_max_yearly?: true
+    expense_deduct_rate?: true
+    expense_deduct_max?: true
+    personal_allowance?: true
+    tax_brackets?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type Tax_configsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which tax_configs to aggregate.
+     */
+    where?: tax_configsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of tax_configs to fetch.
+     */
+    orderBy?: tax_configsOrderByWithRelationInput | tax_configsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: tax_configsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` tax_configs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` tax_configs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned tax_configs
+    **/
+    _count?: true | Tax_configsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Tax_configsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Tax_configsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Tax_configsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Tax_configsMaxAggregateInputType
+  }
+
+  export type GetTax_configsAggregateType<T extends Tax_configsAggregateArgs> = {
+        [P in keyof T & keyof AggregateTax_configs]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTax_configs[P]>
+      : GetScalarType<T[P], AggregateTax_configs[P]>
+  }
+
+
+
+
+  export type tax_configsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: tax_configsWhereInput
+    orderBy?: tax_configsOrderByWithAggregationInput | tax_configsOrderByWithAggregationInput[]
+    by: Tax_configsScalarFieldEnum[] | Tax_configsScalarFieldEnum
+    having?: tax_configsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Tax_configsCountAggregateInputType | true
+    _avg?: Tax_configsAvgAggregateInputType
+    _sum?: Tax_configsSumAggregateInputType
+    _min?: Tax_configsMinAggregateInputType
+    _max?: Tax_configsMaxAggregateInputType
+  }
+
+  export type Tax_configsGroupByOutputType = {
+    id: number
+    year: number
+    sso_rate: Decimal
+    sso_max_monthly: Decimal
+    sso_max_yearly: Decimal
+    expense_deduct_rate: Decimal
+    expense_deduct_max: Decimal
+    personal_allowance: Decimal
+    tax_brackets: JsonValue
+    updated_at: Date
+    _count: Tax_configsCountAggregateOutputType | null
+    _avg: Tax_configsAvgAggregateOutputType | null
+    _sum: Tax_configsSumAggregateOutputType | null
+    _min: Tax_configsMinAggregateOutputType | null
+    _max: Tax_configsMaxAggregateOutputType | null
+  }
+
+  type GetTax_configsGroupByPayload<T extends tax_configsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Tax_configsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Tax_configsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Tax_configsGroupByOutputType[P]>
+            : GetScalarType<T[P], Tax_configsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type tax_configsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    year?: boolean
+    sso_rate?: boolean
+    sso_max_monthly?: boolean
+    sso_max_yearly?: boolean
+    expense_deduct_rate?: boolean
+    expense_deduct_max?: boolean
+    personal_allowance?: boolean
+    tax_brackets?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["tax_configs"]>
+
+  export type tax_configsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    year?: boolean
+    sso_rate?: boolean
+    sso_max_monthly?: boolean
+    sso_max_yearly?: boolean
+    expense_deduct_rate?: boolean
+    expense_deduct_max?: boolean
+    personal_allowance?: boolean
+    tax_brackets?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["tax_configs"]>
+
+  export type tax_configsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    year?: boolean
+    sso_rate?: boolean
+    sso_max_monthly?: boolean
+    sso_max_yearly?: boolean
+    expense_deduct_rate?: boolean
+    expense_deduct_max?: boolean
+    personal_allowance?: boolean
+    tax_brackets?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["tax_configs"]>
+
+  export type tax_configsSelectScalar = {
+    id?: boolean
+    year?: boolean
+    sso_rate?: boolean
+    sso_max_monthly?: boolean
+    sso_max_yearly?: boolean
+    expense_deduct_rate?: boolean
+    expense_deduct_max?: boolean
+    personal_allowance?: boolean
+    tax_brackets?: boolean
+    updated_at?: boolean
+  }
+
+  export type tax_configsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "year" | "sso_rate" | "sso_max_monthly" | "sso_max_yearly" | "expense_deduct_rate" | "expense_deduct_max" | "personal_allowance" | "tax_brackets" | "updated_at", ExtArgs["result"]["tax_configs"]>
+
+  export type $tax_configsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "tax_configs"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      year: number
+      sso_rate: Prisma.Decimal
+      sso_max_monthly: Prisma.Decimal
+      sso_max_yearly: Prisma.Decimal
+      expense_deduct_rate: Prisma.Decimal
+      expense_deduct_max: Prisma.Decimal
+      personal_allowance: Prisma.Decimal
+      tax_brackets: Prisma.JsonValue
+      updated_at: Date
+    }, ExtArgs["result"]["tax_configs"]>
+    composites: {}
+  }
+
+  type tax_configsGetPayload<S extends boolean | null | undefined | tax_configsDefaultArgs> = $Result.GetResult<Prisma.$tax_configsPayload, S>
+
+  type tax_configsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<tax_configsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Tax_configsCountAggregateInputType | true
+    }
+
+  export interface tax_configsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['tax_configs'], meta: { name: 'tax_configs' } }
+    /**
+     * Find zero or one Tax_configs that matches the filter.
+     * @param {tax_configsFindUniqueArgs} args - Arguments to find a Tax_configs
+     * @example
+     * // Get one Tax_configs
+     * const tax_configs = await prisma.tax_configs.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends tax_configsFindUniqueArgs>(args: SelectSubset<T, tax_configsFindUniqueArgs<ExtArgs>>): Prisma__tax_configsClient<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Tax_configs that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {tax_configsFindUniqueOrThrowArgs} args - Arguments to find a Tax_configs
+     * @example
+     * // Get one Tax_configs
+     * const tax_configs = await prisma.tax_configs.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends tax_configsFindUniqueOrThrowArgs>(args: SelectSubset<T, tax_configsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__tax_configsClient<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Tax_configs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tax_configsFindFirstArgs} args - Arguments to find a Tax_configs
+     * @example
+     * // Get one Tax_configs
+     * const tax_configs = await prisma.tax_configs.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends tax_configsFindFirstArgs>(args?: SelectSubset<T, tax_configsFindFirstArgs<ExtArgs>>): Prisma__tax_configsClient<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Tax_configs that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tax_configsFindFirstOrThrowArgs} args - Arguments to find a Tax_configs
+     * @example
+     * // Get one Tax_configs
+     * const tax_configs = await prisma.tax_configs.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends tax_configsFindFirstOrThrowArgs>(args?: SelectSubset<T, tax_configsFindFirstOrThrowArgs<ExtArgs>>): Prisma__tax_configsClient<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Tax_configs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tax_configsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Tax_configs
+     * const tax_configs = await prisma.tax_configs.findMany()
+     * 
+     * // Get first 10 Tax_configs
+     * const tax_configs = await prisma.tax_configs.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tax_configsWithIdOnly = await prisma.tax_configs.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends tax_configsFindManyArgs>(args?: SelectSubset<T, tax_configsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Tax_configs.
+     * @param {tax_configsCreateArgs} args - Arguments to create a Tax_configs.
+     * @example
+     * // Create one Tax_configs
+     * const Tax_configs = await prisma.tax_configs.create({
+     *   data: {
+     *     // ... data to create a Tax_configs
+     *   }
+     * })
+     * 
+     */
+    create<T extends tax_configsCreateArgs>(args: SelectSubset<T, tax_configsCreateArgs<ExtArgs>>): Prisma__tax_configsClient<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Tax_configs.
+     * @param {tax_configsCreateManyArgs} args - Arguments to create many Tax_configs.
+     * @example
+     * // Create many Tax_configs
+     * const tax_configs = await prisma.tax_configs.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends tax_configsCreateManyArgs>(args?: SelectSubset<T, tax_configsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Tax_configs and returns the data saved in the database.
+     * @param {tax_configsCreateManyAndReturnArgs} args - Arguments to create many Tax_configs.
+     * @example
+     * // Create many Tax_configs
+     * const tax_configs = await prisma.tax_configs.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Tax_configs and only return the `id`
+     * const tax_configsWithIdOnly = await prisma.tax_configs.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends tax_configsCreateManyAndReturnArgs>(args?: SelectSubset<T, tax_configsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Tax_configs.
+     * @param {tax_configsDeleteArgs} args - Arguments to delete one Tax_configs.
+     * @example
+     * // Delete one Tax_configs
+     * const Tax_configs = await prisma.tax_configs.delete({
+     *   where: {
+     *     // ... filter to delete one Tax_configs
+     *   }
+     * })
+     * 
+     */
+    delete<T extends tax_configsDeleteArgs>(args: SelectSubset<T, tax_configsDeleteArgs<ExtArgs>>): Prisma__tax_configsClient<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Tax_configs.
+     * @param {tax_configsUpdateArgs} args - Arguments to update one Tax_configs.
+     * @example
+     * // Update one Tax_configs
+     * const tax_configs = await prisma.tax_configs.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends tax_configsUpdateArgs>(args: SelectSubset<T, tax_configsUpdateArgs<ExtArgs>>): Prisma__tax_configsClient<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Tax_configs.
+     * @param {tax_configsDeleteManyArgs} args - Arguments to filter Tax_configs to delete.
+     * @example
+     * // Delete a few Tax_configs
+     * const { count } = await prisma.tax_configs.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends tax_configsDeleteManyArgs>(args?: SelectSubset<T, tax_configsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Tax_configs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tax_configsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Tax_configs
+     * const tax_configs = await prisma.tax_configs.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends tax_configsUpdateManyArgs>(args: SelectSubset<T, tax_configsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Tax_configs and returns the data updated in the database.
+     * @param {tax_configsUpdateManyAndReturnArgs} args - Arguments to update many Tax_configs.
+     * @example
+     * // Update many Tax_configs
+     * const tax_configs = await prisma.tax_configs.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Tax_configs and only return the `id`
+     * const tax_configsWithIdOnly = await prisma.tax_configs.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends tax_configsUpdateManyAndReturnArgs>(args: SelectSubset<T, tax_configsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Tax_configs.
+     * @param {tax_configsUpsertArgs} args - Arguments to update or create a Tax_configs.
+     * @example
+     * // Update or create a Tax_configs
+     * const tax_configs = await prisma.tax_configs.upsert({
+     *   create: {
+     *     // ... data to create a Tax_configs
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Tax_configs we want to update
+     *   }
+     * })
+     */
+    upsert<T extends tax_configsUpsertArgs>(args: SelectSubset<T, tax_configsUpsertArgs<ExtArgs>>): Prisma__tax_configsClient<$Result.GetResult<Prisma.$tax_configsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Tax_configs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tax_configsCountArgs} args - Arguments to filter Tax_configs to count.
+     * @example
+     * // Count the number of Tax_configs
+     * const count = await prisma.tax_configs.count({
+     *   where: {
+     *     // ... the filter for the Tax_configs we want to count
+     *   }
+     * })
+    **/
+    count<T extends tax_configsCountArgs>(
+      args?: Subset<T, tax_configsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Tax_configsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Tax_configs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Tax_configsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Tax_configsAggregateArgs>(args: Subset<T, Tax_configsAggregateArgs>): Prisma.PrismaPromise<GetTax_configsAggregateType<T>>
+
+    /**
+     * Group by Tax_configs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tax_configsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends tax_configsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: tax_configsGroupByArgs['orderBy'] }
+        : { orderBy?: tax_configsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, tax_configsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTax_configsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the tax_configs model
+   */
+  readonly fields: tax_configsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for tax_configs.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__tax_configsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the tax_configs model
+   */
+  interface tax_configsFieldRefs {
+    readonly id: FieldRef<"tax_configs", 'Int'>
+    readonly year: FieldRef<"tax_configs", 'Int'>
+    readonly sso_rate: FieldRef<"tax_configs", 'Decimal'>
+    readonly sso_max_monthly: FieldRef<"tax_configs", 'Decimal'>
+    readonly sso_max_yearly: FieldRef<"tax_configs", 'Decimal'>
+    readonly expense_deduct_rate: FieldRef<"tax_configs", 'Decimal'>
+    readonly expense_deduct_max: FieldRef<"tax_configs", 'Decimal'>
+    readonly personal_allowance: FieldRef<"tax_configs", 'Decimal'>
+    readonly tax_brackets: FieldRef<"tax_configs", 'Json'>
+    readonly updated_at: FieldRef<"tax_configs", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * tax_configs findUnique
+   */
+  export type tax_configsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * Filter, which tax_configs to fetch.
+     */
+    where: tax_configsWhereUniqueInput
+  }
+
+  /**
+   * tax_configs findUniqueOrThrow
+   */
+  export type tax_configsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * Filter, which tax_configs to fetch.
+     */
+    where: tax_configsWhereUniqueInput
+  }
+
+  /**
+   * tax_configs findFirst
+   */
+  export type tax_configsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * Filter, which tax_configs to fetch.
+     */
+    where?: tax_configsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of tax_configs to fetch.
+     */
+    orderBy?: tax_configsOrderByWithRelationInput | tax_configsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for tax_configs.
+     */
+    cursor?: tax_configsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` tax_configs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` tax_configs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of tax_configs.
+     */
+    distinct?: Tax_configsScalarFieldEnum | Tax_configsScalarFieldEnum[]
+  }
+
+  /**
+   * tax_configs findFirstOrThrow
+   */
+  export type tax_configsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * Filter, which tax_configs to fetch.
+     */
+    where?: tax_configsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of tax_configs to fetch.
+     */
+    orderBy?: tax_configsOrderByWithRelationInput | tax_configsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for tax_configs.
+     */
+    cursor?: tax_configsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` tax_configs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` tax_configs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of tax_configs.
+     */
+    distinct?: Tax_configsScalarFieldEnum | Tax_configsScalarFieldEnum[]
+  }
+
+  /**
+   * tax_configs findMany
+   */
+  export type tax_configsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * Filter, which tax_configs to fetch.
+     */
+    where?: tax_configsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of tax_configs to fetch.
+     */
+    orderBy?: tax_configsOrderByWithRelationInput | tax_configsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing tax_configs.
+     */
+    cursor?: tax_configsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` tax_configs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` tax_configs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of tax_configs.
+     */
+    distinct?: Tax_configsScalarFieldEnum | Tax_configsScalarFieldEnum[]
+  }
+
+  /**
+   * tax_configs create
+   */
+  export type tax_configsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a tax_configs.
+     */
+    data: XOR<tax_configsCreateInput, tax_configsUncheckedCreateInput>
+  }
+
+  /**
+   * tax_configs createMany
+   */
+  export type tax_configsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many tax_configs.
+     */
+    data: tax_configsCreateManyInput | tax_configsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * tax_configs createManyAndReturn
+   */
+  export type tax_configsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * The data used to create many tax_configs.
+     */
+    data: tax_configsCreateManyInput | tax_configsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * tax_configs update
+   */
+  export type tax_configsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a tax_configs.
+     */
+    data: XOR<tax_configsUpdateInput, tax_configsUncheckedUpdateInput>
+    /**
+     * Choose, which tax_configs to update.
+     */
+    where: tax_configsWhereUniqueInput
+  }
+
+  /**
+   * tax_configs updateMany
+   */
+  export type tax_configsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update tax_configs.
+     */
+    data: XOR<tax_configsUpdateManyMutationInput, tax_configsUncheckedUpdateManyInput>
+    /**
+     * Filter which tax_configs to update
+     */
+    where?: tax_configsWhereInput
+    /**
+     * Limit how many tax_configs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * tax_configs updateManyAndReturn
+   */
+  export type tax_configsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * The data used to update tax_configs.
+     */
+    data: XOR<tax_configsUpdateManyMutationInput, tax_configsUncheckedUpdateManyInput>
+    /**
+     * Filter which tax_configs to update
+     */
+    where?: tax_configsWhereInput
+    /**
+     * Limit how many tax_configs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * tax_configs upsert
+   */
+  export type tax_configsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the tax_configs to update in case it exists.
+     */
+    where: tax_configsWhereUniqueInput
+    /**
+     * In case the tax_configs found by the `where` argument doesn't exist, create a new tax_configs with this data.
+     */
+    create: XOR<tax_configsCreateInput, tax_configsUncheckedCreateInput>
+    /**
+     * In case the tax_configs was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<tax_configsUpdateInput, tax_configsUncheckedUpdateInput>
+  }
+
+  /**
+   * tax_configs delete
+   */
+  export type tax_configsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+    /**
+     * Filter which tax_configs to delete.
+     */
+    where: tax_configsWhereUniqueInput
+  }
+
+  /**
+   * tax_configs deleteMany
+   */
+  export type tax_configsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which tax_configs to delete
+     */
+    where?: tax_configsWhereInput
+    /**
+     * Limit how many tax_configs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * tax_configs without action
+   */
+  export type tax_configsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tax_configs
+     */
+    select?: tax_configsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tax_configs
+     */
+    omit?: tax_configsOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model withholding_tax_documents
+   */
+
+  export type AggregateWithholding_tax_documents = {
+    _count: Withholding_tax_documentsCountAggregateOutputType | null
+    _avg: Withholding_tax_documentsAvgAggregateOutputType | null
+    _sum: Withholding_tax_documentsSumAggregateOutputType | null
+    _min: Withholding_tax_documentsMinAggregateOutputType | null
+    _max: Withholding_tax_documentsMaxAggregateOutputType | null
+  }
+
+  export type Withholding_tax_documentsAvgAggregateOutputType = {
+    id: number | null
+    copy_type: number | null
+    total_payment_amount: Decimal | null
+    total_tax_withheld: Decimal | null
+    deduct_provident_fund_1: Decimal | null
+    deduct_social_security: Decimal | null
+    deduct_provident_fund_2: Decimal | null
+    payment_condition: number | null
+  }
+
+  export type Withholding_tax_documentsSumAggregateOutputType = {
+    id: number | null
+    copy_type: number | null
+    total_payment_amount: Decimal | null
+    total_tax_withheld: Decimal | null
+    deduct_provident_fund_1: Decimal | null
+    deduct_social_security: Decimal | null
+    deduct_provident_fund_2: Decimal | null
+    payment_condition: number | null
+  }
+
+  export type Withholding_tax_documentsMinAggregateOutputType = {
+    id: number | null
+    emp_id: string | null
+    book_number: string | null
+    document_number: string | null
+    copy_type: number | null
+    payer_name: string | null
+    payer_tax_id: string | null
+    payer_address: string | null
+    payee_name: string | null
+    payee_tax_id: string | null
+    payee_address: string | null
+    tax_form_type: string | null
+    total_payment_amount: Decimal | null
+    total_tax_withheld: Decimal | null
+    total_tax_text: string | null
+    deduct_provident_fund_1: Decimal | null
+    deduct_social_security: Decimal | null
+    deduct_provident_fund_2: Decimal | null
+    payment_condition: number | null
+    payment_condition_other_desc: string | null
+    signer_name: string | null
+    issue_date: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type Withholding_tax_documentsMaxAggregateOutputType = {
+    id: number | null
+    emp_id: string | null
+    book_number: string | null
+    document_number: string | null
+    copy_type: number | null
+    payer_name: string | null
+    payer_tax_id: string | null
+    payer_address: string | null
+    payee_name: string | null
+    payee_tax_id: string | null
+    payee_address: string | null
+    tax_form_type: string | null
+    total_payment_amount: Decimal | null
+    total_tax_withheld: Decimal | null
+    total_tax_text: string | null
+    deduct_provident_fund_1: Decimal | null
+    deduct_social_security: Decimal | null
+    deduct_provident_fund_2: Decimal | null
+    payment_condition: number | null
+    payment_condition_other_desc: string | null
+    signer_name: string | null
+    issue_date: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type Withholding_tax_documentsCountAggregateOutputType = {
+    id: number
+    emp_id: number
+    book_number: number
+    document_number: number
+    copy_type: number
+    payer_name: number
+    payer_tax_id: number
+    payer_address: number
+    payee_name: number
+    payee_tax_id: number
+    payee_address: number
+    tax_form_type: number
+    total_payment_amount: number
+    total_tax_withheld: number
+    total_tax_text: number
+    deduct_provident_fund_1: number
+    deduct_social_security: number
+    deduct_provident_fund_2: number
+    payment_condition: number
+    payment_condition_other_desc: number
+    signer_name: number
+    issue_date: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type Withholding_tax_documentsAvgAggregateInputType = {
+    id?: true
+    copy_type?: true
+    total_payment_amount?: true
+    total_tax_withheld?: true
+    deduct_provident_fund_1?: true
+    deduct_social_security?: true
+    deduct_provident_fund_2?: true
+    payment_condition?: true
+  }
+
+  export type Withholding_tax_documentsSumAggregateInputType = {
+    id?: true
+    copy_type?: true
+    total_payment_amount?: true
+    total_tax_withheld?: true
+    deduct_provident_fund_1?: true
+    deduct_social_security?: true
+    deduct_provident_fund_2?: true
+    payment_condition?: true
+  }
+
+  export type Withholding_tax_documentsMinAggregateInputType = {
+    id?: true
+    emp_id?: true
+    book_number?: true
+    document_number?: true
+    copy_type?: true
+    payer_name?: true
+    payer_tax_id?: true
+    payer_address?: true
+    payee_name?: true
+    payee_tax_id?: true
+    payee_address?: true
+    tax_form_type?: true
+    total_payment_amount?: true
+    total_tax_withheld?: true
+    total_tax_text?: true
+    deduct_provident_fund_1?: true
+    deduct_social_security?: true
+    deduct_provident_fund_2?: true
+    payment_condition?: true
+    payment_condition_other_desc?: true
+    signer_name?: true
+    issue_date?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type Withholding_tax_documentsMaxAggregateInputType = {
+    id?: true
+    emp_id?: true
+    book_number?: true
+    document_number?: true
+    copy_type?: true
+    payer_name?: true
+    payer_tax_id?: true
+    payer_address?: true
+    payee_name?: true
+    payee_tax_id?: true
+    payee_address?: true
+    tax_form_type?: true
+    total_payment_amount?: true
+    total_tax_withheld?: true
+    total_tax_text?: true
+    deduct_provident_fund_1?: true
+    deduct_social_security?: true
+    deduct_provident_fund_2?: true
+    payment_condition?: true
+    payment_condition_other_desc?: true
+    signer_name?: true
+    issue_date?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type Withholding_tax_documentsCountAggregateInputType = {
+    id?: true
+    emp_id?: true
+    book_number?: true
+    document_number?: true
+    copy_type?: true
+    payer_name?: true
+    payer_tax_id?: true
+    payer_address?: true
+    payee_name?: true
+    payee_tax_id?: true
+    payee_address?: true
+    tax_form_type?: true
+    total_payment_amount?: true
+    total_tax_withheld?: true
+    total_tax_text?: true
+    deduct_provident_fund_1?: true
+    deduct_social_security?: true
+    deduct_provident_fund_2?: true
+    payment_condition?: true
+    payment_condition_other_desc?: true
+    signer_name?: true
+    issue_date?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type Withholding_tax_documentsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which withholding_tax_documents to aggregate.
+     */
+    where?: withholding_tax_documentsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of withholding_tax_documents to fetch.
+     */
+    orderBy?: withholding_tax_documentsOrderByWithRelationInput | withholding_tax_documentsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: withholding_tax_documentsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` withholding_tax_documents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` withholding_tax_documents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned withholding_tax_documents
+    **/
+    _count?: true | Withholding_tax_documentsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Withholding_tax_documentsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Withholding_tax_documentsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Withholding_tax_documentsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Withholding_tax_documentsMaxAggregateInputType
+  }
+
+  export type GetWithholding_tax_documentsAggregateType<T extends Withholding_tax_documentsAggregateArgs> = {
+        [P in keyof T & keyof AggregateWithholding_tax_documents]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWithholding_tax_documents[P]>
+      : GetScalarType<T[P], AggregateWithholding_tax_documents[P]>
+  }
+
+
+
+
+  export type withholding_tax_documentsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: withholding_tax_documentsWhereInput
+    orderBy?: withholding_tax_documentsOrderByWithAggregationInput | withholding_tax_documentsOrderByWithAggregationInput[]
+    by: Withholding_tax_documentsScalarFieldEnum[] | Withholding_tax_documentsScalarFieldEnum
+    having?: withholding_tax_documentsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Withholding_tax_documentsCountAggregateInputType | true
+    _avg?: Withholding_tax_documentsAvgAggregateInputType
+    _sum?: Withholding_tax_documentsSumAggregateInputType
+    _min?: Withholding_tax_documentsMinAggregateInputType
+    _max?: Withholding_tax_documentsMaxAggregateInputType
+  }
+
+  export type Withholding_tax_documentsGroupByOutputType = {
+    id: number
+    emp_id: string
+    book_number: string | null
+    document_number: string
+    copy_type: number
+    payer_name: string
+    payer_tax_id: string
+    payer_address: string
+    payee_name: string
+    payee_tax_id: string
+    payee_address: string
+    tax_form_type: string
+    total_payment_amount: Decimal
+    total_tax_withheld: Decimal
+    total_tax_text: string
+    deduct_provident_fund_1: Decimal | null
+    deduct_social_security: Decimal | null
+    deduct_provident_fund_2: Decimal | null
+    payment_condition: number
+    payment_condition_other_desc: string | null
+    signer_name: string
+    issue_date: Date
+    created_at: Date
+    updated_at: Date
+    _count: Withholding_tax_documentsCountAggregateOutputType | null
+    _avg: Withholding_tax_documentsAvgAggregateOutputType | null
+    _sum: Withholding_tax_documentsSumAggregateOutputType | null
+    _min: Withholding_tax_documentsMinAggregateOutputType | null
+    _max: Withholding_tax_documentsMaxAggregateOutputType | null
+  }
+
+  type GetWithholding_tax_documentsGroupByPayload<T extends withholding_tax_documentsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Withholding_tax_documentsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Withholding_tax_documentsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Withholding_tax_documentsGroupByOutputType[P]>
+            : GetScalarType<T[P], Withholding_tax_documentsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type withholding_tax_documentsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    book_number?: boolean
+    document_number?: boolean
+    copy_type?: boolean
+    payer_name?: boolean
+    payer_tax_id?: boolean
+    payer_address?: boolean
+    payee_name?: boolean
+    payee_tax_id?: boolean
+    payee_address?: boolean
+    tax_form_type?: boolean
+    total_payment_amount?: boolean
+    total_tax_withheld?: boolean
+    total_tax_text?: boolean
+    deduct_provident_fund_1?: boolean
+    deduct_social_security?: boolean
+    deduct_provident_fund_2?: boolean
+    payment_condition?: boolean
+    payment_condition_other_desc?: boolean
+    signer_name?: boolean
+    issue_date?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    withholding_tax_income_items?: boolean | withholding_tax_documents$withholding_tax_income_itemsArgs<ExtArgs>
+    _count?: boolean | Withholding_tax_documentsCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["withholding_tax_documents"]>
+
+  export type withholding_tax_documentsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    book_number?: boolean
+    document_number?: boolean
+    copy_type?: boolean
+    payer_name?: boolean
+    payer_tax_id?: boolean
+    payer_address?: boolean
+    payee_name?: boolean
+    payee_tax_id?: boolean
+    payee_address?: boolean
+    tax_form_type?: boolean
+    total_payment_amount?: boolean
+    total_tax_withheld?: boolean
+    total_tax_text?: boolean
+    deduct_provident_fund_1?: boolean
+    deduct_social_security?: boolean
+    deduct_provident_fund_2?: boolean
+    payment_condition?: boolean
+    payment_condition_other_desc?: boolean
+    signer_name?: boolean
+    issue_date?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["withholding_tax_documents"]>
+
+  export type withholding_tax_documentsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    book_number?: boolean
+    document_number?: boolean
+    copy_type?: boolean
+    payer_name?: boolean
+    payer_tax_id?: boolean
+    payer_address?: boolean
+    payee_name?: boolean
+    payee_tax_id?: boolean
+    payee_address?: boolean
+    tax_form_type?: boolean
+    total_payment_amount?: boolean
+    total_tax_withheld?: boolean
+    total_tax_text?: boolean
+    deduct_provident_fund_1?: boolean
+    deduct_social_security?: boolean
+    deduct_provident_fund_2?: boolean
+    payment_condition?: boolean
+    payment_condition_other_desc?: boolean
+    signer_name?: boolean
+    issue_date?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["withholding_tax_documents"]>
+
+  export type withholding_tax_documentsSelectScalar = {
+    id?: boolean
+    emp_id?: boolean
+    book_number?: boolean
+    document_number?: boolean
+    copy_type?: boolean
+    payer_name?: boolean
+    payer_tax_id?: boolean
+    payer_address?: boolean
+    payee_name?: boolean
+    payee_tax_id?: boolean
+    payee_address?: boolean
+    tax_form_type?: boolean
+    total_payment_amount?: boolean
+    total_tax_withheld?: boolean
+    total_tax_text?: boolean
+    deduct_provident_fund_1?: boolean
+    deduct_social_security?: boolean
+    deduct_provident_fund_2?: boolean
+    payment_condition?: boolean
+    payment_condition_other_desc?: boolean
+    signer_name?: boolean
+    issue_date?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type withholding_tax_documentsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emp_id" | "book_number" | "document_number" | "copy_type" | "payer_name" | "payer_tax_id" | "payer_address" | "payee_name" | "payee_tax_id" | "payee_address" | "tax_form_type" | "total_payment_amount" | "total_tax_withheld" | "total_tax_text" | "deduct_provident_fund_1" | "deduct_social_security" | "deduct_provident_fund_2" | "payment_condition" | "payment_condition_other_desc" | "signer_name" | "issue_date" | "created_at" | "updated_at", ExtArgs["result"]["withholding_tax_documents"]>
+  export type withholding_tax_documentsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    withholding_tax_income_items?: boolean | withholding_tax_documents$withholding_tax_income_itemsArgs<ExtArgs>
+    _count?: boolean | Withholding_tax_documentsCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type withholding_tax_documentsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+  }
+  export type withholding_tax_documentsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+  }
+
+  export type $withholding_tax_documentsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "withholding_tax_documents"
+    objects: {
+      employees: Prisma.$employeesPayload<ExtArgs>
+      withholding_tax_income_items: Prisma.$withholding_tax_income_itemsPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      emp_id: string
+      book_number: string | null
+      document_number: string
+      copy_type: number
+      payer_name: string
+      payer_tax_id: string
+      payer_address: string
+      payee_name: string
+      payee_tax_id: string
+      payee_address: string
+      tax_form_type: string
+      total_payment_amount: Prisma.Decimal
+      total_tax_withheld: Prisma.Decimal
+      total_tax_text: string
+      deduct_provident_fund_1: Prisma.Decimal | null
+      deduct_social_security: Prisma.Decimal | null
+      deduct_provident_fund_2: Prisma.Decimal | null
+      payment_condition: number
+      payment_condition_other_desc: string | null
+      signer_name: string
+      issue_date: Date
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["withholding_tax_documents"]>
+    composites: {}
+  }
+
+  type withholding_tax_documentsGetPayload<S extends boolean | null | undefined | withholding_tax_documentsDefaultArgs> = $Result.GetResult<Prisma.$withholding_tax_documentsPayload, S>
+
+  type withholding_tax_documentsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<withholding_tax_documentsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Withholding_tax_documentsCountAggregateInputType | true
+    }
+
+  export interface withholding_tax_documentsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['withholding_tax_documents'], meta: { name: 'withholding_tax_documents' } }
+    /**
+     * Find zero or one Withholding_tax_documents that matches the filter.
+     * @param {withholding_tax_documentsFindUniqueArgs} args - Arguments to find a Withholding_tax_documents
+     * @example
+     * // Get one Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends withholding_tax_documentsFindUniqueArgs>(args: SelectSubset<T, withholding_tax_documentsFindUniqueArgs<ExtArgs>>): Prisma__withholding_tax_documentsClient<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Withholding_tax_documents that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {withholding_tax_documentsFindUniqueOrThrowArgs} args - Arguments to find a Withholding_tax_documents
+     * @example
+     * // Get one Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends withholding_tax_documentsFindUniqueOrThrowArgs>(args: SelectSubset<T, withholding_tax_documentsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__withholding_tax_documentsClient<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Withholding_tax_documents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_documentsFindFirstArgs} args - Arguments to find a Withholding_tax_documents
+     * @example
+     * // Get one Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends withholding_tax_documentsFindFirstArgs>(args?: SelectSubset<T, withholding_tax_documentsFindFirstArgs<ExtArgs>>): Prisma__withholding_tax_documentsClient<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Withholding_tax_documents that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_documentsFindFirstOrThrowArgs} args - Arguments to find a Withholding_tax_documents
+     * @example
+     * // Get one Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends withholding_tax_documentsFindFirstOrThrowArgs>(args?: SelectSubset<T, withholding_tax_documentsFindFirstOrThrowArgs<ExtArgs>>): Prisma__withholding_tax_documentsClient<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Withholding_tax_documents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_documentsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.findMany()
+     * 
+     * // Get first 10 Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const withholding_tax_documentsWithIdOnly = await prisma.withholding_tax_documents.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends withholding_tax_documentsFindManyArgs>(args?: SelectSubset<T, withholding_tax_documentsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Withholding_tax_documents.
+     * @param {withholding_tax_documentsCreateArgs} args - Arguments to create a Withholding_tax_documents.
+     * @example
+     * // Create one Withholding_tax_documents
+     * const Withholding_tax_documents = await prisma.withholding_tax_documents.create({
+     *   data: {
+     *     // ... data to create a Withholding_tax_documents
+     *   }
+     * })
+     * 
+     */
+    create<T extends withholding_tax_documentsCreateArgs>(args: SelectSubset<T, withholding_tax_documentsCreateArgs<ExtArgs>>): Prisma__withholding_tax_documentsClient<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Withholding_tax_documents.
+     * @param {withholding_tax_documentsCreateManyArgs} args - Arguments to create many Withholding_tax_documents.
+     * @example
+     * // Create many Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends withholding_tax_documentsCreateManyArgs>(args?: SelectSubset<T, withholding_tax_documentsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Withholding_tax_documents and returns the data saved in the database.
+     * @param {withholding_tax_documentsCreateManyAndReturnArgs} args - Arguments to create many Withholding_tax_documents.
+     * @example
+     * // Create many Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Withholding_tax_documents and only return the `id`
+     * const withholding_tax_documentsWithIdOnly = await prisma.withholding_tax_documents.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends withholding_tax_documentsCreateManyAndReturnArgs>(args?: SelectSubset<T, withholding_tax_documentsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Withholding_tax_documents.
+     * @param {withholding_tax_documentsDeleteArgs} args - Arguments to delete one Withholding_tax_documents.
+     * @example
+     * // Delete one Withholding_tax_documents
+     * const Withholding_tax_documents = await prisma.withholding_tax_documents.delete({
+     *   where: {
+     *     // ... filter to delete one Withholding_tax_documents
+     *   }
+     * })
+     * 
+     */
+    delete<T extends withholding_tax_documentsDeleteArgs>(args: SelectSubset<T, withholding_tax_documentsDeleteArgs<ExtArgs>>): Prisma__withholding_tax_documentsClient<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Withholding_tax_documents.
+     * @param {withholding_tax_documentsUpdateArgs} args - Arguments to update one Withholding_tax_documents.
+     * @example
+     * // Update one Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends withholding_tax_documentsUpdateArgs>(args: SelectSubset<T, withholding_tax_documentsUpdateArgs<ExtArgs>>): Prisma__withholding_tax_documentsClient<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Withholding_tax_documents.
+     * @param {withholding_tax_documentsDeleteManyArgs} args - Arguments to filter Withholding_tax_documents to delete.
+     * @example
+     * // Delete a few Withholding_tax_documents
+     * const { count } = await prisma.withholding_tax_documents.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends withholding_tax_documentsDeleteManyArgs>(args?: SelectSubset<T, withholding_tax_documentsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Withholding_tax_documents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_documentsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends withholding_tax_documentsUpdateManyArgs>(args: SelectSubset<T, withholding_tax_documentsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Withholding_tax_documents and returns the data updated in the database.
+     * @param {withholding_tax_documentsUpdateManyAndReturnArgs} args - Arguments to update many Withholding_tax_documents.
+     * @example
+     * // Update many Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Withholding_tax_documents and only return the `id`
+     * const withholding_tax_documentsWithIdOnly = await prisma.withholding_tax_documents.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends withholding_tax_documentsUpdateManyAndReturnArgs>(args: SelectSubset<T, withholding_tax_documentsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Withholding_tax_documents.
+     * @param {withholding_tax_documentsUpsertArgs} args - Arguments to update or create a Withholding_tax_documents.
+     * @example
+     * // Update or create a Withholding_tax_documents
+     * const withholding_tax_documents = await prisma.withholding_tax_documents.upsert({
+     *   create: {
+     *     // ... data to create a Withholding_tax_documents
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Withholding_tax_documents we want to update
+     *   }
+     * })
+     */
+    upsert<T extends withholding_tax_documentsUpsertArgs>(args: SelectSubset<T, withholding_tax_documentsUpsertArgs<ExtArgs>>): Prisma__withholding_tax_documentsClient<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Withholding_tax_documents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_documentsCountArgs} args - Arguments to filter Withholding_tax_documents to count.
+     * @example
+     * // Count the number of Withholding_tax_documents
+     * const count = await prisma.withholding_tax_documents.count({
+     *   where: {
+     *     // ... the filter for the Withholding_tax_documents we want to count
+     *   }
+     * })
+    **/
+    count<T extends withholding_tax_documentsCountArgs>(
+      args?: Subset<T, withholding_tax_documentsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Withholding_tax_documentsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Withholding_tax_documents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Withholding_tax_documentsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Withholding_tax_documentsAggregateArgs>(args: Subset<T, Withholding_tax_documentsAggregateArgs>): Prisma.PrismaPromise<GetWithholding_tax_documentsAggregateType<T>>
+
+    /**
+     * Group by Withholding_tax_documents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_documentsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends withholding_tax_documentsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: withholding_tax_documentsGroupByArgs['orderBy'] }
+        : { orderBy?: withholding_tax_documentsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, withholding_tax_documentsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWithholding_tax_documentsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the withholding_tax_documents model
+   */
+  readonly fields: withholding_tax_documentsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for withholding_tax_documents.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__withholding_tax_documentsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employees<T extends employeesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, employeesDefaultArgs<ExtArgs>>): Prisma__employeesClient<$Result.GetResult<Prisma.$employeesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    withholding_tax_income_items<T extends withholding_tax_documents$withholding_tax_income_itemsArgs<ExtArgs> = {}>(args?: Subset<T, withholding_tax_documents$withholding_tax_income_itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the withholding_tax_documents model
+   */
+  interface withholding_tax_documentsFieldRefs {
+    readonly id: FieldRef<"withholding_tax_documents", 'Int'>
+    readonly emp_id: FieldRef<"withholding_tax_documents", 'String'>
+    readonly book_number: FieldRef<"withholding_tax_documents", 'String'>
+    readonly document_number: FieldRef<"withholding_tax_documents", 'String'>
+    readonly copy_type: FieldRef<"withholding_tax_documents", 'Int'>
+    readonly payer_name: FieldRef<"withholding_tax_documents", 'String'>
+    readonly payer_tax_id: FieldRef<"withholding_tax_documents", 'String'>
+    readonly payer_address: FieldRef<"withholding_tax_documents", 'String'>
+    readonly payee_name: FieldRef<"withholding_tax_documents", 'String'>
+    readonly payee_tax_id: FieldRef<"withholding_tax_documents", 'String'>
+    readonly payee_address: FieldRef<"withholding_tax_documents", 'String'>
+    readonly tax_form_type: FieldRef<"withholding_tax_documents", 'String'>
+    readonly total_payment_amount: FieldRef<"withholding_tax_documents", 'Decimal'>
+    readonly total_tax_withheld: FieldRef<"withholding_tax_documents", 'Decimal'>
+    readonly total_tax_text: FieldRef<"withholding_tax_documents", 'String'>
+    readonly deduct_provident_fund_1: FieldRef<"withholding_tax_documents", 'Decimal'>
+    readonly deduct_social_security: FieldRef<"withholding_tax_documents", 'Decimal'>
+    readonly deduct_provident_fund_2: FieldRef<"withholding_tax_documents", 'Decimal'>
+    readonly payment_condition: FieldRef<"withholding_tax_documents", 'Int'>
+    readonly payment_condition_other_desc: FieldRef<"withholding_tax_documents", 'String'>
+    readonly signer_name: FieldRef<"withholding_tax_documents", 'String'>
+    readonly issue_date: FieldRef<"withholding_tax_documents", 'DateTime'>
+    readonly created_at: FieldRef<"withholding_tax_documents", 'DateTime'>
+    readonly updated_at: FieldRef<"withholding_tax_documents", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * withholding_tax_documents findUnique
+   */
+  export type withholding_tax_documentsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+    /**
+     * Filter, which withholding_tax_documents to fetch.
+     */
+    where: withholding_tax_documentsWhereUniqueInput
+  }
+
+  /**
+   * withholding_tax_documents findUniqueOrThrow
+   */
+  export type withholding_tax_documentsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+    /**
+     * Filter, which withholding_tax_documents to fetch.
+     */
+    where: withholding_tax_documentsWhereUniqueInput
+  }
+
+  /**
+   * withholding_tax_documents findFirst
+   */
+  export type withholding_tax_documentsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+    /**
+     * Filter, which withholding_tax_documents to fetch.
+     */
+    where?: withholding_tax_documentsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of withholding_tax_documents to fetch.
+     */
+    orderBy?: withholding_tax_documentsOrderByWithRelationInput | withholding_tax_documentsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for withholding_tax_documents.
+     */
+    cursor?: withholding_tax_documentsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` withholding_tax_documents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` withholding_tax_documents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of withholding_tax_documents.
+     */
+    distinct?: Withholding_tax_documentsScalarFieldEnum | Withholding_tax_documentsScalarFieldEnum[]
+  }
+
+  /**
+   * withholding_tax_documents findFirstOrThrow
+   */
+  export type withholding_tax_documentsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+    /**
+     * Filter, which withholding_tax_documents to fetch.
+     */
+    where?: withholding_tax_documentsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of withholding_tax_documents to fetch.
+     */
+    orderBy?: withholding_tax_documentsOrderByWithRelationInput | withholding_tax_documentsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for withholding_tax_documents.
+     */
+    cursor?: withholding_tax_documentsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` withholding_tax_documents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` withholding_tax_documents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of withholding_tax_documents.
+     */
+    distinct?: Withholding_tax_documentsScalarFieldEnum | Withholding_tax_documentsScalarFieldEnum[]
+  }
+
+  /**
+   * withholding_tax_documents findMany
+   */
+  export type withholding_tax_documentsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+    /**
+     * Filter, which withholding_tax_documents to fetch.
+     */
+    where?: withholding_tax_documentsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of withholding_tax_documents to fetch.
+     */
+    orderBy?: withholding_tax_documentsOrderByWithRelationInput | withholding_tax_documentsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing withholding_tax_documents.
+     */
+    cursor?: withholding_tax_documentsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` withholding_tax_documents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` withholding_tax_documents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of withholding_tax_documents.
+     */
+    distinct?: Withholding_tax_documentsScalarFieldEnum | Withholding_tax_documentsScalarFieldEnum[]
+  }
+
+  /**
+   * withholding_tax_documents create
+   */
+  export type withholding_tax_documentsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a withholding_tax_documents.
+     */
+    data: XOR<withholding_tax_documentsCreateInput, withholding_tax_documentsUncheckedCreateInput>
+  }
+
+  /**
+   * withholding_tax_documents createMany
+   */
+  export type withholding_tax_documentsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many withholding_tax_documents.
+     */
+    data: withholding_tax_documentsCreateManyInput | withholding_tax_documentsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * withholding_tax_documents createManyAndReturn
+   */
+  export type withholding_tax_documentsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * The data used to create many withholding_tax_documents.
+     */
+    data: withholding_tax_documentsCreateManyInput | withholding_tax_documentsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * withholding_tax_documents update
+   */
+  export type withholding_tax_documentsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a withholding_tax_documents.
+     */
+    data: XOR<withholding_tax_documentsUpdateInput, withholding_tax_documentsUncheckedUpdateInput>
+    /**
+     * Choose, which withholding_tax_documents to update.
+     */
+    where: withholding_tax_documentsWhereUniqueInput
+  }
+
+  /**
+   * withholding_tax_documents updateMany
+   */
+  export type withholding_tax_documentsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update withholding_tax_documents.
+     */
+    data: XOR<withholding_tax_documentsUpdateManyMutationInput, withholding_tax_documentsUncheckedUpdateManyInput>
+    /**
+     * Filter which withholding_tax_documents to update
+     */
+    where?: withholding_tax_documentsWhereInput
+    /**
+     * Limit how many withholding_tax_documents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * withholding_tax_documents updateManyAndReturn
+   */
+  export type withholding_tax_documentsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * The data used to update withholding_tax_documents.
+     */
+    data: XOR<withholding_tax_documentsUpdateManyMutationInput, withholding_tax_documentsUncheckedUpdateManyInput>
+    /**
+     * Filter which withholding_tax_documents to update
+     */
+    where?: withholding_tax_documentsWhereInput
+    /**
+     * Limit how many withholding_tax_documents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * withholding_tax_documents upsert
+   */
+  export type withholding_tax_documentsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the withholding_tax_documents to update in case it exists.
+     */
+    where: withholding_tax_documentsWhereUniqueInput
+    /**
+     * In case the withholding_tax_documents found by the `where` argument doesn't exist, create a new withholding_tax_documents with this data.
+     */
+    create: XOR<withholding_tax_documentsCreateInput, withholding_tax_documentsUncheckedCreateInput>
+    /**
+     * In case the withholding_tax_documents was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<withholding_tax_documentsUpdateInput, withholding_tax_documentsUncheckedUpdateInput>
+  }
+
+  /**
+   * withholding_tax_documents delete
+   */
+  export type withholding_tax_documentsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+    /**
+     * Filter which withholding_tax_documents to delete.
+     */
+    where: withholding_tax_documentsWhereUniqueInput
+  }
+
+  /**
+   * withholding_tax_documents deleteMany
+   */
+  export type withholding_tax_documentsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which withholding_tax_documents to delete
+     */
+    where?: withholding_tax_documentsWhereInput
+    /**
+     * Limit how many withholding_tax_documents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * withholding_tax_documents.withholding_tax_income_items
+   */
+  export type withholding_tax_documents$withholding_tax_income_itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+    where?: withholding_tax_income_itemsWhereInput
+    orderBy?: withholding_tax_income_itemsOrderByWithRelationInput | withholding_tax_income_itemsOrderByWithRelationInput[]
+    cursor?: withholding_tax_income_itemsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Withholding_tax_income_itemsScalarFieldEnum | Withholding_tax_income_itemsScalarFieldEnum[]
+  }
+
+  /**
+   * withholding_tax_documents without action
+   */
+  export type withholding_tax_documentsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_documents
+     */
+    select?: withholding_tax_documentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_documents
+     */
+    omit?: withholding_tax_documentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_documentsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model withholding_tax_income_items
+   */
+
+  export type AggregateWithholding_tax_income_items = {
+    _count: Withholding_tax_income_itemsCountAggregateOutputType | null
+    _avg: Withholding_tax_income_itemsAvgAggregateOutputType | null
+    _sum: Withholding_tax_income_itemsSumAggregateOutputType | null
+    _min: Withholding_tax_income_itemsMinAggregateOutputType | null
+    _max: Withholding_tax_income_itemsMaxAggregateOutputType | null
+  }
+
+  export type Withholding_tax_income_itemsAvgAggregateOutputType = {
+    id: number | null
+    document_id: number | null
+    income_type_id: number | null
+    payment_amount: Decimal | null
+    tax_withheld: Decimal | null
+  }
+
+  export type Withholding_tax_income_itemsSumAggregateOutputType = {
+    id: number | null
+    document_id: number | null
+    income_type_id: number | null
+    payment_amount: Decimal | null
+    tax_withheld: Decimal | null
+  }
+
+  export type Withholding_tax_income_itemsMinAggregateOutputType = {
+    id: number | null
+    document_id: number | null
+    income_type_id: number | null
+    income_description: string | null
+    payment_date: Date | null
+    payment_amount: Decimal | null
+    tax_withheld: Decimal | null
+  }
+
+  export type Withholding_tax_income_itemsMaxAggregateOutputType = {
+    id: number | null
+    document_id: number | null
+    income_type_id: number | null
+    income_description: string | null
+    payment_date: Date | null
+    payment_amount: Decimal | null
+    tax_withheld: Decimal | null
+  }
+
+  export type Withholding_tax_income_itemsCountAggregateOutputType = {
+    id: number
+    document_id: number
+    income_type_id: number
+    income_description: number
+    payment_date: number
+    payment_amount: number
+    tax_withheld: number
+    _all: number
+  }
+
+
+  export type Withholding_tax_income_itemsAvgAggregateInputType = {
+    id?: true
+    document_id?: true
+    income_type_id?: true
+    payment_amount?: true
+    tax_withheld?: true
+  }
+
+  export type Withholding_tax_income_itemsSumAggregateInputType = {
+    id?: true
+    document_id?: true
+    income_type_id?: true
+    payment_amount?: true
+    tax_withheld?: true
+  }
+
+  export type Withholding_tax_income_itemsMinAggregateInputType = {
+    id?: true
+    document_id?: true
+    income_type_id?: true
+    income_description?: true
+    payment_date?: true
+    payment_amount?: true
+    tax_withheld?: true
+  }
+
+  export type Withholding_tax_income_itemsMaxAggregateInputType = {
+    id?: true
+    document_id?: true
+    income_type_id?: true
+    income_description?: true
+    payment_date?: true
+    payment_amount?: true
+    tax_withheld?: true
+  }
+
+  export type Withholding_tax_income_itemsCountAggregateInputType = {
+    id?: true
+    document_id?: true
+    income_type_id?: true
+    income_description?: true
+    payment_date?: true
+    payment_amount?: true
+    tax_withheld?: true
+    _all?: true
+  }
+
+  export type Withholding_tax_income_itemsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which withholding_tax_income_items to aggregate.
+     */
+    where?: withholding_tax_income_itemsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of withholding_tax_income_items to fetch.
+     */
+    orderBy?: withholding_tax_income_itemsOrderByWithRelationInput | withholding_tax_income_itemsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: withholding_tax_income_itemsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` withholding_tax_income_items from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` withholding_tax_income_items.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned withholding_tax_income_items
+    **/
+    _count?: true | Withholding_tax_income_itemsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Withholding_tax_income_itemsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Withholding_tax_income_itemsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Withholding_tax_income_itemsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Withholding_tax_income_itemsMaxAggregateInputType
+  }
+
+  export type GetWithholding_tax_income_itemsAggregateType<T extends Withholding_tax_income_itemsAggregateArgs> = {
+        [P in keyof T & keyof AggregateWithholding_tax_income_items]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWithholding_tax_income_items[P]>
+      : GetScalarType<T[P], AggregateWithholding_tax_income_items[P]>
+  }
+
+
+
+
+  export type withholding_tax_income_itemsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: withholding_tax_income_itemsWhereInput
+    orderBy?: withholding_tax_income_itemsOrderByWithAggregationInput | withholding_tax_income_itemsOrderByWithAggregationInput[]
+    by: Withholding_tax_income_itemsScalarFieldEnum[] | Withholding_tax_income_itemsScalarFieldEnum
+    having?: withholding_tax_income_itemsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Withholding_tax_income_itemsCountAggregateInputType | true
+    _avg?: Withholding_tax_income_itemsAvgAggregateInputType
+    _sum?: Withholding_tax_income_itemsSumAggregateInputType
+    _min?: Withholding_tax_income_itemsMinAggregateInputType
+    _max?: Withholding_tax_income_itemsMaxAggregateInputType
+  }
+
+  export type Withholding_tax_income_itemsGroupByOutputType = {
+    id: number
+    document_id: number
+    income_type_id: number
+    income_description: string | null
+    payment_date: Date
+    payment_amount: Decimal
+    tax_withheld: Decimal
+    _count: Withholding_tax_income_itemsCountAggregateOutputType | null
+    _avg: Withholding_tax_income_itemsAvgAggregateOutputType | null
+    _sum: Withholding_tax_income_itemsSumAggregateOutputType | null
+    _min: Withholding_tax_income_itemsMinAggregateOutputType | null
+    _max: Withholding_tax_income_itemsMaxAggregateOutputType | null
+  }
+
+  type GetWithholding_tax_income_itemsGroupByPayload<T extends withholding_tax_income_itemsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Withholding_tax_income_itemsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Withholding_tax_income_itemsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Withholding_tax_income_itemsGroupByOutputType[P]>
+            : GetScalarType<T[P], Withholding_tax_income_itemsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type withholding_tax_income_itemsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    document_id?: boolean
+    income_type_id?: boolean
+    income_description?: boolean
+    payment_date?: boolean
+    payment_amount?: boolean
+    tax_withheld?: boolean
+    withholding_tax_documents?: boolean | withholding_tax_documentsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["withholding_tax_income_items"]>
+
+  export type withholding_tax_income_itemsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    document_id?: boolean
+    income_type_id?: boolean
+    income_description?: boolean
+    payment_date?: boolean
+    payment_amount?: boolean
+    tax_withheld?: boolean
+    withholding_tax_documents?: boolean | withholding_tax_documentsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["withholding_tax_income_items"]>
+
+  export type withholding_tax_income_itemsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    document_id?: boolean
+    income_type_id?: boolean
+    income_description?: boolean
+    payment_date?: boolean
+    payment_amount?: boolean
+    tax_withheld?: boolean
+    withholding_tax_documents?: boolean | withholding_tax_documentsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["withholding_tax_income_items"]>
+
+  export type withholding_tax_income_itemsSelectScalar = {
+    id?: boolean
+    document_id?: boolean
+    income_type_id?: boolean
+    income_description?: boolean
+    payment_date?: boolean
+    payment_amount?: boolean
+    tax_withheld?: boolean
+  }
+
+  export type withholding_tax_income_itemsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "document_id" | "income_type_id" | "income_description" | "payment_date" | "payment_amount" | "tax_withheld", ExtArgs["result"]["withholding_tax_income_items"]>
+  export type withholding_tax_income_itemsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    withholding_tax_documents?: boolean | withholding_tax_documentsDefaultArgs<ExtArgs>
+  }
+  export type withholding_tax_income_itemsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    withholding_tax_documents?: boolean | withholding_tax_documentsDefaultArgs<ExtArgs>
+  }
+  export type withholding_tax_income_itemsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    withholding_tax_documents?: boolean | withholding_tax_documentsDefaultArgs<ExtArgs>
+  }
+
+  export type $withholding_tax_income_itemsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "withholding_tax_income_items"
+    objects: {
+      withholding_tax_documents: Prisma.$withholding_tax_documentsPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      document_id: number
+      income_type_id: number
+      income_description: string | null
+      payment_date: Date
+      payment_amount: Prisma.Decimal
+      tax_withheld: Prisma.Decimal
+    }, ExtArgs["result"]["withholding_tax_income_items"]>
+    composites: {}
+  }
+
+  type withholding_tax_income_itemsGetPayload<S extends boolean | null | undefined | withholding_tax_income_itemsDefaultArgs> = $Result.GetResult<Prisma.$withholding_tax_income_itemsPayload, S>
+
+  type withholding_tax_income_itemsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<withholding_tax_income_itemsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Withholding_tax_income_itemsCountAggregateInputType | true
+    }
+
+  export interface withholding_tax_income_itemsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['withholding_tax_income_items'], meta: { name: 'withholding_tax_income_items' } }
+    /**
+     * Find zero or one Withholding_tax_income_items that matches the filter.
+     * @param {withholding_tax_income_itemsFindUniqueArgs} args - Arguments to find a Withholding_tax_income_items
+     * @example
+     * // Get one Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends withholding_tax_income_itemsFindUniqueArgs>(args: SelectSubset<T, withholding_tax_income_itemsFindUniqueArgs<ExtArgs>>): Prisma__withholding_tax_income_itemsClient<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Withholding_tax_income_items that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {withholding_tax_income_itemsFindUniqueOrThrowArgs} args - Arguments to find a Withholding_tax_income_items
+     * @example
+     * // Get one Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends withholding_tax_income_itemsFindUniqueOrThrowArgs>(args: SelectSubset<T, withholding_tax_income_itemsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__withholding_tax_income_itemsClient<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Withholding_tax_income_items that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_income_itemsFindFirstArgs} args - Arguments to find a Withholding_tax_income_items
+     * @example
+     * // Get one Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends withholding_tax_income_itemsFindFirstArgs>(args?: SelectSubset<T, withholding_tax_income_itemsFindFirstArgs<ExtArgs>>): Prisma__withholding_tax_income_itemsClient<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Withholding_tax_income_items that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_income_itemsFindFirstOrThrowArgs} args - Arguments to find a Withholding_tax_income_items
+     * @example
+     * // Get one Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends withholding_tax_income_itemsFindFirstOrThrowArgs>(args?: SelectSubset<T, withholding_tax_income_itemsFindFirstOrThrowArgs<ExtArgs>>): Prisma__withholding_tax_income_itemsClient<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Withholding_tax_income_items that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_income_itemsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.findMany()
+     * 
+     * // Get first 10 Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const withholding_tax_income_itemsWithIdOnly = await prisma.withholding_tax_income_items.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends withholding_tax_income_itemsFindManyArgs>(args?: SelectSubset<T, withholding_tax_income_itemsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Withholding_tax_income_items.
+     * @param {withholding_tax_income_itemsCreateArgs} args - Arguments to create a Withholding_tax_income_items.
+     * @example
+     * // Create one Withholding_tax_income_items
+     * const Withholding_tax_income_items = await prisma.withholding_tax_income_items.create({
+     *   data: {
+     *     // ... data to create a Withholding_tax_income_items
+     *   }
+     * })
+     * 
+     */
+    create<T extends withholding_tax_income_itemsCreateArgs>(args: SelectSubset<T, withholding_tax_income_itemsCreateArgs<ExtArgs>>): Prisma__withholding_tax_income_itemsClient<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Withholding_tax_income_items.
+     * @param {withholding_tax_income_itemsCreateManyArgs} args - Arguments to create many Withholding_tax_income_items.
+     * @example
+     * // Create many Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends withholding_tax_income_itemsCreateManyArgs>(args?: SelectSubset<T, withholding_tax_income_itemsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Withholding_tax_income_items and returns the data saved in the database.
+     * @param {withholding_tax_income_itemsCreateManyAndReturnArgs} args - Arguments to create many Withholding_tax_income_items.
+     * @example
+     * // Create many Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Withholding_tax_income_items and only return the `id`
+     * const withholding_tax_income_itemsWithIdOnly = await prisma.withholding_tax_income_items.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends withholding_tax_income_itemsCreateManyAndReturnArgs>(args?: SelectSubset<T, withholding_tax_income_itemsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Withholding_tax_income_items.
+     * @param {withholding_tax_income_itemsDeleteArgs} args - Arguments to delete one Withholding_tax_income_items.
+     * @example
+     * // Delete one Withholding_tax_income_items
+     * const Withholding_tax_income_items = await prisma.withholding_tax_income_items.delete({
+     *   where: {
+     *     // ... filter to delete one Withholding_tax_income_items
+     *   }
+     * })
+     * 
+     */
+    delete<T extends withholding_tax_income_itemsDeleteArgs>(args: SelectSubset<T, withholding_tax_income_itemsDeleteArgs<ExtArgs>>): Prisma__withholding_tax_income_itemsClient<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Withholding_tax_income_items.
+     * @param {withholding_tax_income_itemsUpdateArgs} args - Arguments to update one Withholding_tax_income_items.
+     * @example
+     * // Update one Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends withholding_tax_income_itemsUpdateArgs>(args: SelectSubset<T, withholding_tax_income_itemsUpdateArgs<ExtArgs>>): Prisma__withholding_tax_income_itemsClient<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Withholding_tax_income_items.
+     * @param {withholding_tax_income_itemsDeleteManyArgs} args - Arguments to filter Withholding_tax_income_items to delete.
+     * @example
+     * // Delete a few Withholding_tax_income_items
+     * const { count } = await prisma.withholding_tax_income_items.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends withholding_tax_income_itemsDeleteManyArgs>(args?: SelectSubset<T, withholding_tax_income_itemsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Withholding_tax_income_items.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_income_itemsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends withholding_tax_income_itemsUpdateManyArgs>(args: SelectSubset<T, withholding_tax_income_itemsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Withholding_tax_income_items and returns the data updated in the database.
+     * @param {withholding_tax_income_itemsUpdateManyAndReturnArgs} args - Arguments to update many Withholding_tax_income_items.
+     * @example
+     * // Update many Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Withholding_tax_income_items and only return the `id`
+     * const withholding_tax_income_itemsWithIdOnly = await prisma.withholding_tax_income_items.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends withholding_tax_income_itemsUpdateManyAndReturnArgs>(args: SelectSubset<T, withholding_tax_income_itemsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Withholding_tax_income_items.
+     * @param {withholding_tax_income_itemsUpsertArgs} args - Arguments to update or create a Withholding_tax_income_items.
+     * @example
+     * // Update or create a Withholding_tax_income_items
+     * const withholding_tax_income_items = await prisma.withholding_tax_income_items.upsert({
+     *   create: {
+     *     // ... data to create a Withholding_tax_income_items
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Withholding_tax_income_items we want to update
+     *   }
+     * })
+     */
+    upsert<T extends withholding_tax_income_itemsUpsertArgs>(args: SelectSubset<T, withholding_tax_income_itemsUpsertArgs<ExtArgs>>): Prisma__withholding_tax_income_itemsClient<$Result.GetResult<Prisma.$withholding_tax_income_itemsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Withholding_tax_income_items.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_income_itemsCountArgs} args - Arguments to filter Withholding_tax_income_items to count.
+     * @example
+     * // Count the number of Withholding_tax_income_items
+     * const count = await prisma.withholding_tax_income_items.count({
+     *   where: {
+     *     // ... the filter for the Withholding_tax_income_items we want to count
+     *   }
+     * })
+    **/
+    count<T extends withholding_tax_income_itemsCountArgs>(
+      args?: Subset<T, withholding_tax_income_itemsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Withholding_tax_income_itemsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Withholding_tax_income_items.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Withholding_tax_income_itemsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Withholding_tax_income_itemsAggregateArgs>(args: Subset<T, Withholding_tax_income_itemsAggregateArgs>): Prisma.PrismaPromise<GetWithholding_tax_income_itemsAggregateType<T>>
+
+    /**
+     * Group by Withholding_tax_income_items.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {withholding_tax_income_itemsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends withholding_tax_income_itemsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: withholding_tax_income_itemsGroupByArgs['orderBy'] }
+        : { orderBy?: withholding_tax_income_itemsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, withholding_tax_income_itemsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWithholding_tax_income_itemsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the withholding_tax_income_items model
+   */
+  readonly fields: withholding_tax_income_itemsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for withholding_tax_income_items.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__withholding_tax_income_itemsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    withholding_tax_documents<T extends withholding_tax_documentsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, withholding_tax_documentsDefaultArgs<ExtArgs>>): Prisma__withholding_tax_documentsClient<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the withholding_tax_income_items model
+   */
+  interface withholding_tax_income_itemsFieldRefs {
+    readonly id: FieldRef<"withholding_tax_income_items", 'Int'>
+    readonly document_id: FieldRef<"withholding_tax_income_items", 'Int'>
+    readonly income_type_id: FieldRef<"withholding_tax_income_items", 'Int'>
+    readonly income_description: FieldRef<"withholding_tax_income_items", 'String'>
+    readonly payment_date: FieldRef<"withholding_tax_income_items", 'DateTime'>
+    readonly payment_amount: FieldRef<"withholding_tax_income_items", 'Decimal'>
+    readonly tax_withheld: FieldRef<"withholding_tax_income_items", 'Decimal'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * withholding_tax_income_items findUnique
+   */
+  export type withholding_tax_income_itemsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+    /**
+     * Filter, which withholding_tax_income_items to fetch.
+     */
+    where: withholding_tax_income_itemsWhereUniqueInput
+  }
+
+  /**
+   * withholding_tax_income_items findUniqueOrThrow
+   */
+  export type withholding_tax_income_itemsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+    /**
+     * Filter, which withholding_tax_income_items to fetch.
+     */
+    where: withholding_tax_income_itemsWhereUniqueInput
+  }
+
+  /**
+   * withholding_tax_income_items findFirst
+   */
+  export type withholding_tax_income_itemsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+    /**
+     * Filter, which withholding_tax_income_items to fetch.
+     */
+    where?: withholding_tax_income_itemsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of withholding_tax_income_items to fetch.
+     */
+    orderBy?: withholding_tax_income_itemsOrderByWithRelationInput | withholding_tax_income_itemsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for withholding_tax_income_items.
+     */
+    cursor?: withholding_tax_income_itemsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` withholding_tax_income_items from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` withholding_tax_income_items.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of withholding_tax_income_items.
+     */
+    distinct?: Withholding_tax_income_itemsScalarFieldEnum | Withholding_tax_income_itemsScalarFieldEnum[]
+  }
+
+  /**
+   * withholding_tax_income_items findFirstOrThrow
+   */
+  export type withholding_tax_income_itemsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+    /**
+     * Filter, which withholding_tax_income_items to fetch.
+     */
+    where?: withholding_tax_income_itemsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of withholding_tax_income_items to fetch.
+     */
+    orderBy?: withholding_tax_income_itemsOrderByWithRelationInput | withholding_tax_income_itemsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for withholding_tax_income_items.
+     */
+    cursor?: withholding_tax_income_itemsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` withholding_tax_income_items from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` withholding_tax_income_items.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of withholding_tax_income_items.
+     */
+    distinct?: Withholding_tax_income_itemsScalarFieldEnum | Withholding_tax_income_itemsScalarFieldEnum[]
+  }
+
+  /**
+   * withholding_tax_income_items findMany
+   */
+  export type withholding_tax_income_itemsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+    /**
+     * Filter, which withholding_tax_income_items to fetch.
+     */
+    where?: withholding_tax_income_itemsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of withholding_tax_income_items to fetch.
+     */
+    orderBy?: withholding_tax_income_itemsOrderByWithRelationInput | withholding_tax_income_itemsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing withholding_tax_income_items.
+     */
+    cursor?: withholding_tax_income_itemsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` withholding_tax_income_items from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` withholding_tax_income_items.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of withholding_tax_income_items.
+     */
+    distinct?: Withholding_tax_income_itemsScalarFieldEnum | Withholding_tax_income_itemsScalarFieldEnum[]
+  }
+
+  /**
+   * withholding_tax_income_items create
+   */
+  export type withholding_tax_income_itemsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a withholding_tax_income_items.
+     */
+    data: XOR<withholding_tax_income_itemsCreateInput, withholding_tax_income_itemsUncheckedCreateInput>
+  }
+
+  /**
+   * withholding_tax_income_items createMany
+   */
+  export type withholding_tax_income_itemsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many withholding_tax_income_items.
+     */
+    data: withholding_tax_income_itemsCreateManyInput | withholding_tax_income_itemsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * withholding_tax_income_items createManyAndReturn
+   */
+  export type withholding_tax_income_itemsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * The data used to create many withholding_tax_income_items.
+     */
+    data: withholding_tax_income_itemsCreateManyInput | withholding_tax_income_itemsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * withholding_tax_income_items update
+   */
+  export type withholding_tax_income_itemsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a withholding_tax_income_items.
+     */
+    data: XOR<withholding_tax_income_itemsUpdateInput, withholding_tax_income_itemsUncheckedUpdateInput>
+    /**
+     * Choose, which withholding_tax_income_items to update.
+     */
+    where: withholding_tax_income_itemsWhereUniqueInput
+  }
+
+  /**
+   * withholding_tax_income_items updateMany
+   */
+  export type withholding_tax_income_itemsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update withholding_tax_income_items.
+     */
+    data: XOR<withholding_tax_income_itemsUpdateManyMutationInput, withholding_tax_income_itemsUncheckedUpdateManyInput>
+    /**
+     * Filter which withholding_tax_income_items to update
+     */
+    where?: withholding_tax_income_itemsWhereInput
+    /**
+     * Limit how many withholding_tax_income_items to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * withholding_tax_income_items updateManyAndReturn
+   */
+  export type withholding_tax_income_itemsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * The data used to update withholding_tax_income_items.
+     */
+    data: XOR<withholding_tax_income_itemsUpdateManyMutationInput, withholding_tax_income_itemsUncheckedUpdateManyInput>
+    /**
+     * Filter which withholding_tax_income_items to update
+     */
+    where?: withholding_tax_income_itemsWhereInput
+    /**
+     * Limit how many withholding_tax_income_items to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * withholding_tax_income_items upsert
+   */
+  export type withholding_tax_income_itemsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the withholding_tax_income_items to update in case it exists.
+     */
+    where: withholding_tax_income_itemsWhereUniqueInput
+    /**
+     * In case the withholding_tax_income_items found by the `where` argument doesn't exist, create a new withholding_tax_income_items with this data.
+     */
+    create: XOR<withholding_tax_income_itemsCreateInput, withholding_tax_income_itemsUncheckedCreateInput>
+    /**
+     * In case the withholding_tax_income_items was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<withholding_tax_income_itemsUpdateInput, withholding_tax_income_itemsUncheckedUpdateInput>
+  }
+
+  /**
+   * withholding_tax_income_items delete
+   */
+  export type withholding_tax_income_itemsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+    /**
+     * Filter which withholding_tax_income_items to delete.
+     */
+    where: withholding_tax_income_itemsWhereUniqueInput
+  }
+
+  /**
+   * withholding_tax_income_items deleteMany
+   */
+  export type withholding_tax_income_itemsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which withholding_tax_income_items to delete
+     */
+    where?: withholding_tax_income_itemsWhereInput
+    /**
+     * Limit how many withholding_tax_income_items to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * withholding_tax_income_items without action
+   */
+  export type withholding_tax_income_itemsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the withholding_tax_income_items
+     */
+    select?: withholding_tax_income_itemsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the withholding_tax_income_items
+     */
+    omit?: withholding_tax_income_itemsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: withholding_tax_income_itemsInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -132922,7 +138283,17 @@ export namespace Prisma {
     fixed_meal_allowance: 'fixed_meal_allowance',
     fixed_travel_allowance: 'fixed_travel_allowance',
     fixed_tax_deduction: 'fixed_tax_deduction',
-    current_streak: 'current_streak'
+    current_streak: 'current_streak',
+    sso_include_fixed_accommodation: 'sso_include_fixed_accommodation',
+    sso_include_fixed_meal: 'sso_include_fixed_meal',
+    sso_include_fixed_travel: 'sso_include_fixed_travel',
+    sso_include_general_allowance: 'sso_include_general_allowance',
+    sso_include_position_allowance: 'sso_include_position_allowance',
+    car_benefit: 'car_benefit',
+    housing_benefit: 'housing_benefit',
+    provident_fund_amt: 'provident_fund_amt',
+    provident_fund_rate: 'provident_fund_rate',
+    tax_deduction_override: 'tax_deduction_override'
   };
 
   export type EmployeesScalarFieldEnum = (typeof EmployeesScalarFieldEnum)[keyof typeof EmployeesScalarFieldEnum]
@@ -133113,7 +138484,11 @@ export namespace Prisma {
     is_published: 'is_published',
     insurance: 'insurance',
     insurance_income: 'insurance_income',
-    general_allowance_override: 'general_allowance_override'
+    general_allowance_override: 'general_allowance_override',
+    car_benefit: 'car_benefit',
+    housing_benefit: 'housing_benefit',
+    provident_fund: 'provident_fund',
+    taxable_income: 'taxable_income'
   };
 
   export type Monthly_payroll_dataScalarFieldEnum = (typeof Monthly_payroll_dataScalarFieldEnum)[keyof typeof Monthly_payroll_dataScalarFieldEnum]
@@ -134024,6 +139399,77 @@ export namespace Prisma {
   };
 
   export type Fleetcard_transactionsScalarFieldEnum = (typeof Fleetcard_transactionsScalarFieldEnum)[keyof typeof Fleetcard_transactionsScalarFieldEnum]
+
+
+  export const Company_settingsScalarFieldEnum: {
+    id: 'id',
+    tax_id: 'tax_id',
+    name: 'name',
+    address: 'address',
+    branch_no: 'branch_no',
+    updated_at: 'updated_at'
+  };
+
+  export type Company_settingsScalarFieldEnum = (typeof Company_settingsScalarFieldEnum)[keyof typeof Company_settingsScalarFieldEnum]
+
+
+  export const Tax_configsScalarFieldEnum: {
+    id: 'id',
+    year: 'year',
+    sso_rate: 'sso_rate',
+    sso_max_monthly: 'sso_max_monthly',
+    sso_max_yearly: 'sso_max_yearly',
+    expense_deduct_rate: 'expense_deduct_rate',
+    expense_deduct_max: 'expense_deduct_max',
+    personal_allowance: 'personal_allowance',
+    tax_brackets: 'tax_brackets',
+    updated_at: 'updated_at'
+  };
+
+  export type Tax_configsScalarFieldEnum = (typeof Tax_configsScalarFieldEnum)[keyof typeof Tax_configsScalarFieldEnum]
+
+
+  export const Withholding_tax_documentsScalarFieldEnum: {
+    id: 'id',
+    emp_id: 'emp_id',
+    book_number: 'book_number',
+    document_number: 'document_number',
+    copy_type: 'copy_type',
+    payer_name: 'payer_name',
+    payer_tax_id: 'payer_tax_id',
+    payer_address: 'payer_address',
+    payee_name: 'payee_name',
+    payee_tax_id: 'payee_tax_id',
+    payee_address: 'payee_address',
+    tax_form_type: 'tax_form_type',
+    total_payment_amount: 'total_payment_amount',
+    total_tax_withheld: 'total_tax_withheld',
+    total_tax_text: 'total_tax_text',
+    deduct_provident_fund_1: 'deduct_provident_fund_1',
+    deduct_social_security: 'deduct_social_security',
+    deduct_provident_fund_2: 'deduct_provident_fund_2',
+    payment_condition: 'payment_condition',
+    payment_condition_other_desc: 'payment_condition_other_desc',
+    signer_name: 'signer_name',
+    issue_date: 'issue_date',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type Withholding_tax_documentsScalarFieldEnum = (typeof Withholding_tax_documentsScalarFieldEnum)[keyof typeof Withholding_tax_documentsScalarFieldEnum]
+
+
+  export const Withholding_tax_income_itemsScalarFieldEnum: {
+    id: 'id',
+    document_id: 'document_id',
+    income_type_id: 'income_type_id',
+    income_description: 'income_description',
+    payment_date: 'payment_date',
+    payment_amount: 'payment_amount',
+    tax_withheld: 'tax_withheld'
+  };
+
+  export type Withholding_tax_income_itemsScalarFieldEnum = (typeof Withholding_tax_income_itemsScalarFieldEnum)[keyof typeof Withholding_tax_income_itemsScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -137989,6 +143435,16 @@ export namespace Prisma {
     fixed_travel_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFilter<"employees"> | number
+    sso_include_fixed_accommodation?: BoolFilter<"employees"> | boolean
+    sso_include_fixed_meal?: BoolFilter<"employees"> | boolean
+    sso_include_fixed_travel?: BoolFilter<"employees"> | boolean
+    sso_include_general_allowance?: BoolFilter<"employees"> | boolean
+    sso_include_position_allowance?: BoolFilter<"employees"> | boolean
+    car_benefit?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: Asset_borrowingsListRelationFilter
     birthday_claims?: Birthday_claimsListRelationFilter
     clothing_requests?: Clothing_requestsListRelationFilter
@@ -138027,6 +143483,7 @@ export namespace Prisma {
     tasks?: TasksListRelationFilter
     transfer_budgets?: XOR<Transfer_budgetsNullableScalarRelationFilter, transfer_budgetsWhereInput> | null
     travel_claims?: Travel_claimsListRelationFilter
+    withholding_tax_documents?: Withholding_tax_documentsListRelationFilter
   }
 
   export type employeesOrderByWithRelationInput = {
@@ -138071,6 +143528,16 @@ export namespace Prisma {
     fixed_travel_allowance?: SortOrderInput | SortOrder
     fixed_tax_deduction?: SortOrderInput | SortOrder
     current_streak?: SortOrder
+    sso_include_fixed_accommodation?: SortOrder
+    sso_include_fixed_meal?: SortOrder
+    sso_include_fixed_travel?: SortOrder
+    sso_include_general_allowance?: SortOrder
+    sso_include_position_allowance?: SortOrder
+    car_benefit?: SortOrderInput | SortOrder
+    housing_benefit?: SortOrderInput | SortOrder
+    provident_fund_amt?: SortOrderInput | SortOrder
+    provident_fund_rate?: SortOrderInput | SortOrder
+    tax_deduction_override?: SortOrderInput | SortOrder
     asset_borrowings?: asset_borrowingsOrderByRelationAggregateInput
     birthday_claims?: birthday_claimsOrderByRelationAggregateInput
     clothing_requests?: clothing_requestsOrderByRelationAggregateInput
@@ -138109,6 +143576,7 @@ export namespace Prisma {
     tasks?: tasksOrderByRelationAggregateInput
     transfer_budgets?: transfer_budgetsOrderByWithRelationInput
     travel_claims?: travel_claimsOrderByRelationAggregateInput
+    withholding_tax_documents?: withholding_tax_documentsOrderByRelationAggregateInput
   }
 
   export type employeesWhereUniqueInput = Prisma.AtLeast<{
@@ -138156,6 +143624,16 @@ export namespace Prisma {
     fixed_travel_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFilter<"employees"> | number
+    sso_include_fixed_accommodation?: BoolFilter<"employees"> | boolean
+    sso_include_fixed_meal?: BoolFilter<"employees"> | boolean
+    sso_include_fixed_travel?: BoolFilter<"employees"> | boolean
+    sso_include_general_allowance?: BoolFilter<"employees"> | boolean
+    sso_include_position_allowance?: BoolFilter<"employees"> | boolean
+    car_benefit?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: Asset_borrowingsListRelationFilter
     birthday_claims?: Birthday_claimsListRelationFilter
     clothing_requests?: Clothing_requestsListRelationFilter
@@ -138194,6 +143672,7 @@ export namespace Prisma {
     tasks?: TasksListRelationFilter
     transfer_budgets?: XOR<Transfer_budgetsNullableScalarRelationFilter, transfer_budgetsWhereInput> | null
     travel_claims?: Travel_claimsListRelationFilter
+    withholding_tax_documents?: Withholding_tax_documentsListRelationFilter
   }, "emp_id" | "line_user_id">
 
   export type employeesOrderByWithAggregationInput = {
@@ -138238,6 +143717,16 @@ export namespace Prisma {
     fixed_travel_allowance?: SortOrderInput | SortOrder
     fixed_tax_deduction?: SortOrderInput | SortOrder
     current_streak?: SortOrder
+    sso_include_fixed_accommodation?: SortOrder
+    sso_include_fixed_meal?: SortOrder
+    sso_include_fixed_travel?: SortOrder
+    sso_include_general_allowance?: SortOrder
+    sso_include_position_allowance?: SortOrder
+    car_benefit?: SortOrderInput | SortOrder
+    housing_benefit?: SortOrderInput | SortOrder
+    provident_fund_amt?: SortOrderInput | SortOrder
+    provident_fund_rate?: SortOrderInput | SortOrder
+    tax_deduction_override?: SortOrderInput | SortOrder
     _count?: employeesCountOrderByAggregateInput
     _avg?: employeesAvgOrderByAggregateInput
     _max?: employeesMaxOrderByAggregateInput
@@ -138290,6 +143779,16 @@ export namespace Prisma {
     fixed_travel_allowance?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntWithAggregatesFilter<"employees"> | number
+    sso_include_fixed_accommodation?: BoolWithAggregatesFilter<"employees"> | boolean
+    sso_include_fixed_meal?: BoolWithAggregatesFilter<"employees"> | boolean
+    sso_include_fixed_travel?: BoolWithAggregatesFilter<"employees"> | boolean
+    sso_include_general_allowance?: BoolWithAggregatesFilter<"employees"> | boolean
+    sso_include_position_allowance?: BoolWithAggregatesFilter<"employees"> | boolean
+    car_benefit?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type general_welfare_claimsWhereInput = {
@@ -139130,6 +144629,10 @@ export namespace Prisma {
     insurance?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     insurance_income?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }
 
@@ -139164,6 +144667,10 @@ export namespace Prisma {
     insurance?: SortOrderInput | SortOrder
     insurance_income?: SortOrderInput | SortOrder
     general_allowance_override?: SortOrderInput | SortOrder
+    car_benefit?: SortOrderInput | SortOrder
+    housing_benefit?: SortOrderInput | SortOrder
+    provident_fund?: SortOrderInput | SortOrder
+    taxable_income?: SortOrderInput | SortOrder
     employees?: employeesOrderByWithRelationInput
   }
 
@@ -139202,6 +144709,10 @@ export namespace Prisma {
     insurance?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     insurance_income?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }, "id" | "emp_id_cycle_month_cycle_year">
 
@@ -139236,6 +144747,10 @@ export namespace Prisma {
     insurance?: SortOrderInput | SortOrder
     insurance_income?: SortOrderInput | SortOrder
     general_allowance_override?: SortOrderInput | SortOrder
+    car_benefit?: SortOrderInput | SortOrder
+    housing_benefit?: SortOrderInput | SortOrder
+    provident_fund?: SortOrderInput | SortOrder
+    taxable_income?: SortOrderInput | SortOrder
     _count?: monthly_payroll_dataCountOrderByAggregateInput
     _avg?: monthly_payroll_dataAvgOrderByAggregateInput
     _max?: monthly_payroll_dataMaxOrderByAggregateInput
@@ -139277,6 +144792,10 @@ export namespace Prisma {
     insurance?: DecimalNullableWithAggregatesFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     insurance_income?: DecimalNullableWithAggregatesFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: DecimalNullableWithAggregatesFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: DecimalNullableWithAggregatesFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: DecimalNullableWithAggregatesFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: DecimalNullableWithAggregatesFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: DecimalNullableWithAggregatesFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ot_requestsWhereInput = {
@@ -144034,6 +149553,366 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"fleetcard_transactions"> | string
   }
 
+  export type company_settingsWhereInput = {
+    AND?: company_settingsWhereInput | company_settingsWhereInput[]
+    OR?: company_settingsWhereInput[]
+    NOT?: company_settingsWhereInput | company_settingsWhereInput[]
+    id?: IntFilter<"company_settings"> | number
+    tax_id?: StringFilter<"company_settings"> | string
+    name?: StringFilter<"company_settings"> | string
+    address?: StringFilter<"company_settings"> | string
+    branch_no?: StringNullableFilter<"company_settings"> | string | null
+    updated_at?: DateTimeFilter<"company_settings"> | Date | string
+  }
+
+  export type company_settingsOrderByWithRelationInput = {
+    id?: SortOrder
+    tax_id?: SortOrder
+    name?: SortOrder
+    address?: SortOrder
+    branch_no?: SortOrderInput | SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type company_settingsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: company_settingsWhereInput | company_settingsWhereInput[]
+    OR?: company_settingsWhereInput[]
+    NOT?: company_settingsWhereInput | company_settingsWhereInput[]
+    tax_id?: StringFilter<"company_settings"> | string
+    name?: StringFilter<"company_settings"> | string
+    address?: StringFilter<"company_settings"> | string
+    branch_no?: StringNullableFilter<"company_settings"> | string | null
+    updated_at?: DateTimeFilter<"company_settings"> | Date | string
+  }, "id">
+
+  export type company_settingsOrderByWithAggregationInput = {
+    id?: SortOrder
+    tax_id?: SortOrder
+    name?: SortOrder
+    address?: SortOrder
+    branch_no?: SortOrderInput | SortOrder
+    updated_at?: SortOrder
+    _count?: company_settingsCountOrderByAggregateInput
+    _avg?: company_settingsAvgOrderByAggregateInput
+    _max?: company_settingsMaxOrderByAggregateInput
+    _min?: company_settingsMinOrderByAggregateInput
+    _sum?: company_settingsSumOrderByAggregateInput
+  }
+
+  export type company_settingsScalarWhereWithAggregatesInput = {
+    AND?: company_settingsScalarWhereWithAggregatesInput | company_settingsScalarWhereWithAggregatesInput[]
+    OR?: company_settingsScalarWhereWithAggregatesInput[]
+    NOT?: company_settingsScalarWhereWithAggregatesInput | company_settingsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"company_settings"> | number
+    tax_id?: StringWithAggregatesFilter<"company_settings"> | string
+    name?: StringWithAggregatesFilter<"company_settings"> | string
+    address?: StringWithAggregatesFilter<"company_settings"> | string
+    branch_no?: StringNullableWithAggregatesFilter<"company_settings"> | string | null
+    updated_at?: DateTimeWithAggregatesFilter<"company_settings"> | Date | string
+  }
+
+  export type tax_configsWhereInput = {
+    AND?: tax_configsWhereInput | tax_configsWhereInput[]
+    OR?: tax_configsWhereInput[]
+    NOT?: tax_configsWhereInput | tax_configsWhereInput[]
+    id?: IntFilter<"tax_configs"> | number
+    year?: IntFilter<"tax_configs"> | number
+    sso_rate?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    sso_max_monthly?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    sso_max_yearly?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    expense_deduct_rate?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    expense_deduct_max?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    personal_allowance?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    tax_brackets?: JsonFilter<"tax_configs">
+    updated_at?: DateTimeFilter<"tax_configs"> | Date | string
+  }
+
+  export type tax_configsOrderByWithRelationInput = {
+    id?: SortOrder
+    year?: SortOrder
+    sso_rate?: SortOrder
+    sso_max_monthly?: SortOrder
+    sso_max_yearly?: SortOrder
+    expense_deduct_rate?: SortOrder
+    expense_deduct_max?: SortOrder
+    personal_allowance?: SortOrder
+    tax_brackets?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type tax_configsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    year?: number
+    AND?: tax_configsWhereInput | tax_configsWhereInput[]
+    OR?: tax_configsWhereInput[]
+    NOT?: tax_configsWhereInput | tax_configsWhereInput[]
+    sso_rate?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    sso_max_monthly?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    sso_max_yearly?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    expense_deduct_rate?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    expense_deduct_max?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    personal_allowance?: DecimalFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    tax_brackets?: JsonFilter<"tax_configs">
+    updated_at?: DateTimeFilter<"tax_configs"> | Date | string
+  }, "id" | "year">
+
+  export type tax_configsOrderByWithAggregationInput = {
+    id?: SortOrder
+    year?: SortOrder
+    sso_rate?: SortOrder
+    sso_max_monthly?: SortOrder
+    sso_max_yearly?: SortOrder
+    expense_deduct_rate?: SortOrder
+    expense_deduct_max?: SortOrder
+    personal_allowance?: SortOrder
+    tax_brackets?: SortOrder
+    updated_at?: SortOrder
+    _count?: tax_configsCountOrderByAggregateInput
+    _avg?: tax_configsAvgOrderByAggregateInput
+    _max?: tax_configsMaxOrderByAggregateInput
+    _min?: tax_configsMinOrderByAggregateInput
+    _sum?: tax_configsSumOrderByAggregateInput
+  }
+
+  export type tax_configsScalarWhereWithAggregatesInput = {
+    AND?: tax_configsScalarWhereWithAggregatesInput | tax_configsScalarWhereWithAggregatesInput[]
+    OR?: tax_configsScalarWhereWithAggregatesInput[]
+    NOT?: tax_configsScalarWhereWithAggregatesInput | tax_configsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"tax_configs"> | number
+    year?: IntWithAggregatesFilter<"tax_configs"> | number
+    sso_rate?: DecimalWithAggregatesFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    sso_max_monthly?: DecimalWithAggregatesFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    sso_max_yearly?: DecimalWithAggregatesFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    expense_deduct_rate?: DecimalWithAggregatesFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    expense_deduct_max?: DecimalWithAggregatesFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    personal_allowance?: DecimalWithAggregatesFilter<"tax_configs"> | Decimal | DecimalJsLike | number | string
+    tax_brackets?: JsonWithAggregatesFilter<"tax_configs">
+    updated_at?: DateTimeWithAggregatesFilter<"tax_configs"> | Date | string
+  }
+
+  export type withholding_tax_documentsWhereInput = {
+    AND?: withholding_tax_documentsWhereInput | withholding_tax_documentsWhereInput[]
+    OR?: withholding_tax_documentsWhereInput[]
+    NOT?: withholding_tax_documentsWhereInput | withholding_tax_documentsWhereInput[]
+    id?: IntFilter<"withholding_tax_documents"> | number
+    emp_id?: StringFilter<"withholding_tax_documents"> | string
+    book_number?: StringNullableFilter<"withholding_tax_documents"> | string | null
+    document_number?: StringFilter<"withholding_tax_documents"> | string
+    copy_type?: IntFilter<"withholding_tax_documents"> | number
+    payer_name?: StringFilter<"withholding_tax_documents"> | string
+    payer_tax_id?: StringFilter<"withholding_tax_documents"> | string
+    payer_address?: StringFilter<"withholding_tax_documents"> | string
+    payee_name?: StringFilter<"withholding_tax_documents"> | string
+    payee_tax_id?: StringFilter<"withholding_tax_documents"> | string
+    payee_address?: StringFilter<"withholding_tax_documents"> | string
+    tax_form_type?: StringFilter<"withholding_tax_documents"> | string
+    total_payment_amount?: DecimalFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFilter<"withholding_tax_documents"> | string
+    deduct_provident_fund_1?: DecimalNullableFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: DecimalNullableFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: DecimalNullableFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFilter<"withholding_tax_documents"> | number
+    payment_condition_other_desc?: StringNullableFilter<"withholding_tax_documents"> | string | null
+    signer_name?: StringFilter<"withholding_tax_documents"> | string
+    issue_date?: DateTimeFilter<"withholding_tax_documents"> | Date | string
+    created_at?: DateTimeFilter<"withholding_tax_documents"> | Date | string
+    updated_at?: DateTimeFilter<"withholding_tax_documents"> | Date | string
+    employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
+    withholding_tax_income_items?: Withholding_tax_income_itemsListRelationFilter
+  }
+
+  export type withholding_tax_documentsOrderByWithRelationInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    book_number?: SortOrderInput | SortOrder
+    document_number?: SortOrder
+    copy_type?: SortOrder
+    payer_name?: SortOrder
+    payer_tax_id?: SortOrder
+    payer_address?: SortOrder
+    payee_name?: SortOrder
+    payee_tax_id?: SortOrder
+    payee_address?: SortOrder
+    tax_form_type?: SortOrder
+    total_payment_amount?: SortOrder
+    total_tax_withheld?: SortOrder
+    total_tax_text?: SortOrder
+    deduct_provident_fund_1?: SortOrderInput | SortOrder
+    deduct_social_security?: SortOrderInput | SortOrder
+    deduct_provident_fund_2?: SortOrderInput | SortOrder
+    payment_condition?: SortOrder
+    payment_condition_other_desc?: SortOrderInput | SortOrder
+    signer_name?: SortOrder
+    issue_date?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    employees?: employeesOrderByWithRelationInput
+    withholding_tax_income_items?: withholding_tax_income_itemsOrderByRelationAggregateInput
+  }
+
+  export type withholding_tax_documentsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    document_number?: string
+    AND?: withholding_tax_documentsWhereInput | withholding_tax_documentsWhereInput[]
+    OR?: withholding_tax_documentsWhereInput[]
+    NOT?: withholding_tax_documentsWhereInput | withholding_tax_documentsWhereInput[]
+    emp_id?: StringFilter<"withholding_tax_documents"> | string
+    book_number?: StringNullableFilter<"withholding_tax_documents"> | string | null
+    copy_type?: IntFilter<"withholding_tax_documents"> | number
+    payer_name?: StringFilter<"withholding_tax_documents"> | string
+    payer_tax_id?: StringFilter<"withholding_tax_documents"> | string
+    payer_address?: StringFilter<"withholding_tax_documents"> | string
+    payee_name?: StringFilter<"withholding_tax_documents"> | string
+    payee_tax_id?: StringFilter<"withholding_tax_documents"> | string
+    payee_address?: StringFilter<"withholding_tax_documents"> | string
+    tax_form_type?: StringFilter<"withholding_tax_documents"> | string
+    total_payment_amount?: DecimalFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFilter<"withholding_tax_documents"> | string
+    deduct_provident_fund_1?: DecimalNullableFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: DecimalNullableFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: DecimalNullableFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFilter<"withholding_tax_documents"> | number
+    payment_condition_other_desc?: StringNullableFilter<"withholding_tax_documents"> | string | null
+    signer_name?: StringFilter<"withholding_tax_documents"> | string
+    issue_date?: DateTimeFilter<"withholding_tax_documents"> | Date | string
+    created_at?: DateTimeFilter<"withholding_tax_documents"> | Date | string
+    updated_at?: DateTimeFilter<"withholding_tax_documents"> | Date | string
+    employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
+    withholding_tax_income_items?: Withholding_tax_income_itemsListRelationFilter
+  }, "id" | "document_number">
+
+  export type withholding_tax_documentsOrderByWithAggregationInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    book_number?: SortOrderInput | SortOrder
+    document_number?: SortOrder
+    copy_type?: SortOrder
+    payer_name?: SortOrder
+    payer_tax_id?: SortOrder
+    payer_address?: SortOrder
+    payee_name?: SortOrder
+    payee_tax_id?: SortOrder
+    payee_address?: SortOrder
+    tax_form_type?: SortOrder
+    total_payment_amount?: SortOrder
+    total_tax_withheld?: SortOrder
+    total_tax_text?: SortOrder
+    deduct_provident_fund_1?: SortOrderInput | SortOrder
+    deduct_social_security?: SortOrderInput | SortOrder
+    deduct_provident_fund_2?: SortOrderInput | SortOrder
+    payment_condition?: SortOrder
+    payment_condition_other_desc?: SortOrderInput | SortOrder
+    signer_name?: SortOrder
+    issue_date?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: withholding_tax_documentsCountOrderByAggregateInput
+    _avg?: withholding_tax_documentsAvgOrderByAggregateInput
+    _max?: withholding_tax_documentsMaxOrderByAggregateInput
+    _min?: withholding_tax_documentsMinOrderByAggregateInput
+    _sum?: withholding_tax_documentsSumOrderByAggregateInput
+  }
+
+  export type withholding_tax_documentsScalarWhereWithAggregatesInput = {
+    AND?: withholding_tax_documentsScalarWhereWithAggregatesInput | withholding_tax_documentsScalarWhereWithAggregatesInput[]
+    OR?: withholding_tax_documentsScalarWhereWithAggregatesInput[]
+    NOT?: withholding_tax_documentsScalarWhereWithAggregatesInput | withholding_tax_documentsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"withholding_tax_documents"> | number
+    emp_id?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    book_number?: StringNullableWithAggregatesFilter<"withholding_tax_documents"> | string | null
+    document_number?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    copy_type?: IntWithAggregatesFilter<"withholding_tax_documents"> | number
+    payer_name?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    payer_tax_id?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    payer_address?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    payee_name?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    payee_tax_id?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    payee_address?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    tax_form_type?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    total_payment_amount?: DecimalWithAggregatesFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalWithAggregatesFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    deduct_provident_fund_1?: DecimalNullableWithAggregatesFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: DecimalNullableWithAggregatesFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: DecimalNullableWithAggregatesFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntWithAggregatesFilter<"withholding_tax_documents"> | number
+    payment_condition_other_desc?: StringNullableWithAggregatesFilter<"withholding_tax_documents"> | string | null
+    signer_name?: StringWithAggregatesFilter<"withholding_tax_documents"> | string
+    issue_date?: DateTimeWithAggregatesFilter<"withholding_tax_documents"> | Date | string
+    created_at?: DateTimeWithAggregatesFilter<"withholding_tax_documents"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"withholding_tax_documents"> | Date | string
+  }
+
+  export type withholding_tax_income_itemsWhereInput = {
+    AND?: withholding_tax_income_itemsWhereInput | withholding_tax_income_itemsWhereInput[]
+    OR?: withholding_tax_income_itemsWhereInput[]
+    NOT?: withholding_tax_income_itemsWhereInput | withholding_tax_income_itemsWhereInput[]
+    id?: IntFilter<"withholding_tax_income_items"> | number
+    document_id?: IntFilter<"withholding_tax_income_items"> | number
+    income_type_id?: IntFilter<"withholding_tax_income_items"> | number
+    income_description?: StringNullableFilter<"withholding_tax_income_items"> | string | null
+    payment_date?: DateTimeFilter<"withholding_tax_income_items"> | Date | string
+    payment_amount?: DecimalFilter<"withholding_tax_income_items"> | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalFilter<"withholding_tax_income_items"> | Decimal | DecimalJsLike | number | string
+    withholding_tax_documents?: XOR<Withholding_tax_documentsScalarRelationFilter, withholding_tax_documentsWhereInput>
+  }
+
+  export type withholding_tax_income_itemsOrderByWithRelationInput = {
+    id?: SortOrder
+    document_id?: SortOrder
+    income_type_id?: SortOrder
+    income_description?: SortOrderInput | SortOrder
+    payment_date?: SortOrder
+    payment_amount?: SortOrder
+    tax_withheld?: SortOrder
+    withholding_tax_documents?: withholding_tax_documentsOrderByWithRelationInput
+  }
+
+  export type withholding_tax_income_itemsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: withholding_tax_income_itemsWhereInput | withholding_tax_income_itemsWhereInput[]
+    OR?: withholding_tax_income_itemsWhereInput[]
+    NOT?: withholding_tax_income_itemsWhereInput | withholding_tax_income_itemsWhereInput[]
+    document_id?: IntFilter<"withholding_tax_income_items"> | number
+    income_type_id?: IntFilter<"withholding_tax_income_items"> | number
+    income_description?: StringNullableFilter<"withholding_tax_income_items"> | string | null
+    payment_date?: DateTimeFilter<"withholding_tax_income_items"> | Date | string
+    payment_amount?: DecimalFilter<"withholding_tax_income_items"> | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalFilter<"withholding_tax_income_items"> | Decimal | DecimalJsLike | number | string
+    withholding_tax_documents?: XOR<Withholding_tax_documentsScalarRelationFilter, withholding_tax_documentsWhereInput>
+  }, "id">
+
+  export type withholding_tax_income_itemsOrderByWithAggregationInput = {
+    id?: SortOrder
+    document_id?: SortOrder
+    income_type_id?: SortOrder
+    income_description?: SortOrderInput | SortOrder
+    payment_date?: SortOrder
+    payment_amount?: SortOrder
+    tax_withheld?: SortOrder
+    _count?: withholding_tax_income_itemsCountOrderByAggregateInput
+    _avg?: withholding_tax_income_itemsAvgOrderByAggregateInput
+    _max?: withholding_tax_income_itemsMaxOrderByAggregateInput
+    _min?: withholding_tax_income_itemsMinOrderByAggregateInput
+    _sum?: withholding_tax_income_itemsSumOrderByAggregateInput
+  }
+
+  export type withholding_tax_income_itemsScalarWhereWithAggregatesInput = {
+    AND?: withholding_tax_income_itemsScalarWhereWithAggregatesInput | withholding_tax_income_itemsScalarWhereWithAggregatesInput[]
+    OR?: withholding_tax_income_itemsScalarWhereWithAggregatesInput[]
+    NOT?: withholding_tax_income_itemsScalarWhereWithAggregatesInput | withholding_tax_income_itemsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"withholding_tax_income_items"> | number
+    document_id?: IntWithAggregatesFilter<"withholding_tax_income_items"> | number
+    income_type_id?: IntWithAggregatesFilter<"withholding_tax_income_items"> | number
+    income_description?: StringNullableWithAggregatesFilter<"withholding_tax_income_items"> | string | null
+    payment_date?: DateTimeWithAggregatesFilter<"withholding_tax_income_items"> | Date | string
+    payment_amount?: DecimalWithAggregatesFilter<"withholding_tax_income_items"> | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalWithAggregatesFilter<"withholding_tax_income_items"> | Decimal | DecimalJsLike | number | string
+  }
+
   export type UserCreateInput = {
     id?: string
     employeeId: string
@@ -148458,6 +154337,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -148496,6 +154385,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateInput = {
@@ -148540,6 +154430,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -148573,6 +154473,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUpdateInput = {
@@ -148612,6 +154513,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -148650,6 +154561,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateInput = {
@@ -148694,6 +154606,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -148727,6 +154649,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateManyInput = {
@@ -148771,6 +154694,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesUpdateManyMutationInput = {
@@ -148810,6 +154743,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesUncheckedUpdateManyInput = {
@@ -148854,6 +154797,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type general_welfare_claimsCreateInput = {
@@ -149778,6 +155731,10 @@ export namespace Prisma {
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: Decimal | DecimalJsLike | number | string | null
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund?: Decimal | DecimalJsLike | number | string | null
+    taxable_income?: Decimal | DecimalJsLike | number | string | null
     employees: employeesCreateNestedOneWithoutMonthly_payroll_dataInput
   }
 
@@ -149812,6 +155769,10 @@ export namespace Prisma {
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: Decimal | DecimalJsLike | number | string | null
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund?: Decimal | DecimalJsLike | number | string | null
+    taxable_income?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUpdateInput = {
@@ -149843,6 +155804,10 @@ export namespace Prisma {
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     employees?: employeesUpdateOneRequiredWithoutMonthly_payroll_dataNestedInput
   }
 
@@ -149877,6 +155842,10 @@ export namespace Prisma {
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataCreateManyInput = {
@@ -149910,6 +155879,10 @@ export namespace Prisma {
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: Decimal | DecimalJsLike | number | string | null
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund?: Decimal | DecimalJsLike | number | string | null
+    taxable_income?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUpdateManyMutationInput = {
@@ -149941,6 +155914,10 @@ export namespace Prisma {
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUncheckedUpdateManyInput = {
@@ -149974,6 +155951,10 @@ export namespace Prisma {
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ot_requestsCreateInput = {
@@ -155202,6 +161183,409 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
   }
 
+  export type company_settingsCreateInput = {
+    tax_id: string
+    name: string
+    address: string
+    branch_no?: string | null
+    updated_at?: Date | string
+  }
+
+  export type company_settingsUncheckedCreateInput = {
+    id?: number
+    tax_id: string
+    name: string
+    address: string
+    branch_no?: string | null
+    updated_at?: Date | string
+  }
+
+  export type company_settingsUpdateInput = {
+    tax_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    branch_no?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type company_settingsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tax_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    branch_no?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type company_settingsCreateManyInput = {
+    id?: number
+    tax_id: string
+    name: string
+    address: string
+    branch_no?: string | null
+    updated_at?: Date | string
+  }
+
+  export type company_settingsUpdateManyMutationInput = {
+    tax_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    branch_no?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type company_settingsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    tax_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    branch_no?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type tax_configsCreateInput = {
+    year: number
+    sso_rate: Decimal | DecimalJsLike | number | string
+    sso_max_monthly: Decimal | DecimalJsLike | number | string
+    sso_max_yearly: Decimal | DecimalJsLike | number | string
+    expense_deduct_rate: Decimal | DecimalJsLike | number | string
+    expense_deduct_max: Decimal | DecimalJsLike | number | string
+    personal_allowance: Decimal | DecimalJsLike | number | string
+    tax_brackets: JsonNullValueInput | InputJsonValue
+    updated_at?: Date | string
+  }
+
+  export type tax_configsUncheckedCreateInput = {
+    id?: number
+    year: number
+    sso_rate: Decimal | DecimalJsLike | number | string
+    sso_max_monthly: Decimal | DecimalJsLike | number | string
+    sso_max_yearly: Decimal | DecimalJsLike | number | string
+    expense_deduct_rate: Decimal | DecimalJsLike | number | string
+    expense_deduct_max: Decimal | DecimalJsLike | number | string
+    personal_allowance: Decimal | DecimalJsLike | number | string
+    tax_brackets: JsonNullValueInput | InputJsonValue
+    updated_at?: Date | string
+  }
+
+  export type tax_configsUpdateInput = {
+    year?: IntFieldUpdateOperationsInput | number
+    sso_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sso_max_monthly?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sso_max_yearly?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expense_deduct_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expense_deduct_max?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    personal_allowance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_brackets?: JsonNullValueInput | InputJsonValue
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type tax_configsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    sso_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sso_max_monthly?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sso_max_yearly?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expense_deduct_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expense_deduct_max?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    personal_allowance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_brackets?: JsonNullValueInput | InputJsonValue
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type tax_configsCreateManyInput = {
+    id?: number
+    year: number
+    sso_rate: Decimal | DecimalJsLike | number | string
+    sso_max_monthly: Decimal | DecimalJsLike | number | string
+    sso_max_yearly: Decimal | DecimalJsLike | number | string
+    expense_deduct_rate: Decimal | DecimalJsLike | number | string
+    expense_deduct_max: Decimal | DecimalJsLike | number | string
+    personal_allowance: Decimal | DecimalJsLike | number | string
+    tax_brackets: JsonNullValueInput | InputJsonValue
+    updated_at?: Date | string
+  }
+
+  export type tax_configsUpdateManyMutationInput = {
+    year?: IntFieldUpdateOperationsInput | number
+    sso_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sso_max_monthly?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sso_max_yearly?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expense_deduct_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expense_deduct_max?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    personal_allowance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_brackets?: JsonNullValueInput | InputJsonValue
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type tax_configsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    sso_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sso_max_monthly?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    sso_max_yearly?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expense_deduct_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expense_deduct_max?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    personal_allowance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_brackets?: JsonNullValueInput | InputJsonValue
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type withholding_tax_documentsCreateInput = {
+    book_number?: string | null
+    document_number: string
+    copy_type: number
+    payer_name: string
+    payer_tax_id: string
+    payer_address: string
+    payee_name: string
+    payee_tax_id: string
+    payee_address: string
+    tax_form_type: string
+    total_payment_amount: Decimal | DecimalJsLike | number | string
+    total_tax_withheld: Decimal | DecimalJsLike | number | string
+    total_tax_text: string
+    deduct_provident_fund_1?: Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: Decimal | DecimalJsLike | number | string | null
+    payment_condition: number
+    payment_condition_other_desc?: string | null
+    signer_name: string
+    issue_date: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string
+    employees: employeesCreateNestedOneWithoutWithholding_tax_documentsInput
+    withholding_tax_income_items?: withholding_tax_income_itemsCreateNestedManyWithoutWithholding_tax_documentsInput
+  }
+
+  export type withholding_tax_documentsUncheckedCreateInput = {
+    id?: number
+    emp_id: string
+    book_number?: string | null
+    document_number: string
+    copy_type: number
+    payer_name: string
+    payer_tax_id: string
+    payer_address: string
+    payee_name: string
+    payee_tax_id: string
+    payee_address: string
+    tax_form_type: string
+    total_payment_amount: Decimal | DecimalJsLike | number | string
+    total_tax_withheld: Decimal | DecimalJsLike | number | string
+    total_tax_text: string
+    deduct_provident_fund_1?: Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: Decimal | DecimalJsLike | number | string | null
+    payment_condition: number
+    payment_condition_other_desc?: string | null
+    signer_name: string
+    issue_date: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string
+    withholding_tax_income_items?: withholding_tax_income_itemsUncheckedCreateNestedManyWithoutWithholding_tax_documentsInput
+  }
+
+  export type withholding_tax_documentsUpdateInput = {
+    book_number?: NullableStringFieldUpdateOperationsInput | string | null
+    document_number?: StringFieldUpdateOperationsInput | string
+    copy_type?: IntFieldUpdateOperationsInput | number
+    payer_name?: StringFieldUpdateOperationsInput | string
+    payer_tax_id?: StringFieldUpdateOperationsInput | string
+    payer_address?: StringFieldUpdateOperationsInput | string
+    payee_name?: StringFieldUpdateOperationsInput | string
+    payee_tax_id?: StringFieldUpdateOperationsInput | string
+    payee_address?: StringFieldUpdateOperationsInput | string
+    tax_form_type?: StringFieldUpdateOperationsInput | string
+    total_payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFieldUpdateOperationsInput | string
+    deduct_provident_fund_1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFieldUpdateOperationsInput | number
+    payment_condition_other_desc?: NullableStringFieldUpdateOperationsInput | string | null
+    signer_name?: StringFieldUpdateOperationsInput | string
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    employees?: employeesUpdateOneRequiredWithoutWithholding_tax_documentsNestedInput
+    withholding_tax_income_items?: withholding_tax_income_itemsUpdateManyWithoutWithholding_tax_documentsNestedInput
+  }
+
+  export type withholding_tax_documentsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    book_number?: NullableStringFieldUpdateOperationsInput | string | null
+    document_number?: StringFieldUpdateOperationsInput | string
+    copy_type?: IntFieldUpdateOperationsInput | number
+    payer_name?: StringFieldUpdateOperationsInput | string
+    payer_tax_id?: StringFieldUpdateOperationsInput | string
+    payer_address?: StringFieldUpdateOperationsInput | string
+    payee_name?: StringFieldUpdateOperationsInput | string
+    payee_tax_id?: StringFieldUpdateOperationsInput | string
+    payee_address?: StringFieldUpdateOperationsInput | string
+    tax_form_type?: StringFieldUpdateOperationsInput | string
+    total_payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFieldUpdateOperationsInput | string
+    deduct_provident_fund_1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFieldUpdateOperationsInput | number
+    payment_condition_other_desc?: NullableStringFieldUpdateOperationsInput | string | null
+    signer_name?: StringFieldUpdateOperationsInput | string
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    withholding_tax_income_items?: withholding_tax_income_itemsUncheckedUpdateManyWithoutWithholding_tax_documentsNestedInput
+  }
+
+  export type withholding_tax_documentsCreateManyInput = {
+    id?: number
+    emp_id: string
+    book_number?: string | null
+    document_number: string
+    copy_type: number
+    payer_name: string
+    payer_tax_id: string
+    payer_address: string
+    payee_name: string
+    payee_tax_id: string
+    payee_address: string
+    tax_form_type: string
+    total_payment_amount: Decimal | DecimalJsLike | number | string
+    total_tax_withheld: Decimal | DecimalJsLike | number | string
+    total_tax_text: string
+    deduct_provident_fund_1?: Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: Decimal | DecimalJsLike | number | string | null
+    payment_condition: number
+    payment_condition_other_desc?: string | null
+    signer_name: string
+    issue_date: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type withholding_tax_documentsUpdateManyMutationInput = {
+    book_number?: NullableStringFieldUpdateOperationsInput | string | null
+    document_number?: StringFieldUpdateOperationsInput | string
+    copy_type?: IntFieldUpdateOperationsInput | number
+    payer_name?: StringFieldUpdateOperationsInput | string
+    payer_tax_id?: StringFieldUpdateOperationsInput | string
+    payer_address?: StringFieldUpdateOperationsInput | string
+    payee_name?: StringFieldUpdateOperationsInput | string
+    payee_tax_id?: StringFieldUpdateOperationsInput | string
+    payee_address?: StringFieldUpdateOperationsInput | string
+    tax_form_type?: StringFieldUpdateOperationsInput | string
+    total_payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFieldUpdateOperationsInput | string
+    deduct_provident_fund_1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFieldUpdateOperationsInput | number
+    payment_condition_other_desc?: NullableStringFieldUpdateOperationsInput | string | null
+    signer_name?: StringFieldUpdateOperationsInput | string
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type withholding_tax_documentsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    book_number?: NullableStringFieldUpdateOperationsInput | string | null
+    document_number?: StringFieldUpdateOperationsInput | string
+    copy_type?: IntFieldUpdateOperationsInput | number
+    payer_name?: StringFieldUpdateOperationsInput | string
+    payer_tax_id?: StringFieldUpdateOperationsInput | string
+    payer_address?: StringFieldUpdateOperationsInput | string
+    payee_name?: StringFieldUpdateOperationsInput | string
+    payee_tax_id?: StringFieldUpdateOperationsInput | string
+    payee_address?: StringFieldUpdateOperationsInput | string
+    tax_form_type?: StringFieldUpdateOperationsInput | string
+    total_payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFieldUpdateOperationsInput | string
+    deduct_provident_fund_1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFieldUpdateOperationsInput | number
+    payment_condition_other_desc?: NullableStringFieldUpdateOperationsInput | string | null
+    signer_name?: StringFieldUpdateOperationsInput | string
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type withholding_tax_income_itemsCreateInput = {
+    income_type_id: number
+    income_description?: string | null
+    payment_date: Date | string
+    payment_amount: Decimal | DecimalJsLike | number | string
+    tax_withheld: Decimal | DecimalJsLike | number | string
+    withholding_tax_documents: withholding_tax_documentsCreateNestedOneWithoutWithholding_tax_income_itemsInput
+  }
+
+  export type withholding_tax_income_itemsUncheckedCreateInput = {
+    id?: number
+    document_id: number
+    income_type_id: number
+    income_description?: string | null
+    payment_date: Date | string
+    payment_amount: Decimal | DecimalJsLike | number | string
+    tax_withheld: Decimal | DecimalJsLike | number | string
+  }
+
+  export type withholding_tax_income_itemsUpdateInput = {
+    income_type_id?: IntFieldUpdateOperationsInput | number
+    income_description?: NullableStringFieldUpdateOperationsInput | string | null
+    payment_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    withholding_tax_documents?: withholding_tax_documentsUpdateOneRequiredWithoutWithholding_tax_income_itemsNestedInput
+  }
+
+  export type withholding_tax_income_itemsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    document_id?: IntFieldUpdateOperationsInput | number
+    income_type_id?: IntFieldUpdateOperationsInput | number
+    income_description?: NullableStringFieldUpdateOperationsInput | string | null
+    payment_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type withholding_tax_income_itemsCreateManyInput = {
+    id?: number
+    document_id: number
+    income_type_id: number
+    income_description?: string | null
+    payment_date: Date | string
+    payment_amount: Decimal | DecimalJsLike | number | string
+    tax_withheld: Decimal | DecimalJsLike | number | string
+  }
+
+  export type withholding_tax_income_itemsUpdateManyMutationInput = {
+    income_type_id?: IntFieldUpdateOperationsInput | number
+    income_description?: NullableStringFieldUpdateOperationsInput | string | null
+    payment_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type withholding_tax_income_itemsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    document_id?: IntFieldUpdateOperationsInput | number
+    income_type_id?: IntFieldUpdateOperationsInput | number
+    income_description?: NullableStringFieldUpdateOperationsInput | string | null
+    payment_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -158267,6 +164651,12 @@ export namespace Prisma {
     none?: travel_claimsWhereInput
   }
 
+  export type Withholding_tax_documentsListRelationFilter = {
+    every?: withholding_tax_documentsWhereInput
+    some?: withholding_tax_documentsWhereInput
+    none?: withholding_tax_documentsWhereInput
+  }
+
   export type birthday_claimsOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -158359,6 +164749,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type withholding_tax_documentsOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type employeesCountOrderByAggregateInput = {
     emp_id?: SortOrder
     name?: SortOrder
@@ -158401,6 +164795,16 @@ export namespace Prisma {
     fixed_travel_allowance?: SortOrder
     fixed_tax_deduction?: SortOrder
     current_streak?: SortOrder
+    sso_include_fixed_accommodation?: SortOrder
+    sso_include_fixed_meal?: SortOrder
+    sso_include_fixed_travel?: SortOrder
+    sso_include_general_allowance?: SortOrder
+    sso_include_position_allowance?: SortOrder
+    car_benefit?: SortOrder
+    housing_benefit?: SortOrder
+    provident_fund_amt?: SortOrder
+    provident_fund_rate?: SortOrder
+    tax_deduction_override?: SortOrder
   }
 
   export type employeesAvgOrderByAggregateInput = {
@@ -158414,6 +164818,11 @@ export namespace Prisma {
     fixed_travel_allowance?: SortOrder
     fixed_tax_deduction?: SortOrder
     current_streak?: SortOrder
+    car_benefit?: SortOrder
+    housing_benefit?: SortOrder
+    provident_fund_amt?: SortOrder
+    provident_fund_rate?: SortOrder
+    tax_deduction_override?: SortOrder
   }
 
   export type employeesMaxOrderByAggregateInput = {
@@ -158458,6 +164867,16 @@ export namespace Prisma {
     fixed_travel_allowance?: SortOrder
     fixed_tax_deduction?: SortOrder
     current_streak?: SortOrder
+    sso_include_fixed_accommodation?: SortOrder
+    sso_include_fixed_meal?: SortOrder
+    sso_include_fixed_travel?: SortOrder
+    sso_include_general_allowance?: SortOrder
+    sso_include_position_allowance?: SortOrder
+    car_benefit?: SortOrder
+    housing_benefit?: SortOrder
+    provident_fund_amt?: SortOrder
+    provident_fund_rate?: SortOrder
+    tax_deduction_override?: SortOrder
   }
 
   export type employeesMinOrderByAggregateInput = {
@@ -158502,6 +164921,16 @@ export namespace Prisma {
     fixed_travel_allowance?: SortOrder
     fixed_tax_deduction?: SortOrder
     current_streak?: SortOrder
+    sso_include_fixed_accommodation?: SortOrder
+    sso_include_fixed_meal?: SortOrder
+    sso_include_fixed_travel?: SortOrder
+    sso_include_general_allowance?: SortOrder
+    sso_include_position_allowance?: SortOrder
+    car_benefit?: SortOrder
+    housing_benefit?: SortOrder
+    provident_fund_amt?: SortOrder
+    provident_fund_rate?: SortOrder
+    tax_deduction_override?: SortOrder
   }
 
   export type employeesSumOrderByAggregateInput = {
@@ -158515,6 +164944,11 @@ export namespace Prisma {
     fixed_travel_allowance?: SortOrder
     fixed_tax_deduction?: SortOrder
     current_streak?: SortOrder
+    car_benefit?: SortOrder
+    housing_benefit?: SortOrder
+    provident_fund_amt?: SortOrder
+    provident_fund_rate?: SortOrder
+    tax_deduction_override?: SortOrder
   }
 
   export type general_welfare_claimsCountOrderByAggregateInput = {
@@ -159067,6 +165501,10 @@ export namespace Prisma {
     insurance?: SortOrder
     insurance_income?: SortOrder
     general_allowance_override?: SortOrder
+    car_benefit?: SortOrder
+    housing_benefit?: SortOrder
+    provident_fund?: SortOrder
+    taxable_income?: SortOrder
   }
 
   export type monthly_payroll_dataAvgOrderByAggregateInput = {
@@ -159096,6 +165534,10 @@ export namespace Prisma {
     insurance?: SortOrder
     insurance_income?: SortOrder
     general_allowance_override?: SortOrder
+    car_benefit?: SortOrder
+    housing_benefit?: SortOrder
+    provident_fund?: SortOrder
+    taxable_income?: SortOrder
   }
 
   export type monthly_payroll_dataMaxOrderByAggregateInput = {
@@ -159129,6 +165571,10 @@ export namespace Prisma {
     insurance?: SortOrder
     insurance_income?: SortOrder
     general_allowance_override?: SortOrder
+    car_benefit?: SortOrder
+    housing_benefit?: SortOrder
+    provident_fund?: SortOrder
+    taxable_income?: SortOrder
   }
 
   export type monthly_payroll_dataMinOrderByAggregateInput = {
@@ -159162,6 +165608,10 @@ export namespace Prisma {
     insurance?: SortOrder
     insurance_income?: SortOrder
     general_allowance_override?: SortOrder
+    car_benefit?: SortOrder
+    housing_benefit?: SortOrder
+    provident_fund?: SortOrder
+    taxable_income?: SortOrder
   }
 
   export type monthly_payroll_dataSumOrderByAggregateInput = {
@@ -159191,6 +165641,10 @@ export namespace Prisma {
     insurance?: SortOrder
     insurance_income?: SortOrder
     general_allowance_override?: SortOrder
+    car_benefit?: SortOrder
+    housing_benefit?: SortOrder
+    provident_fund?: SortOrder
+    taxable_income?: SortOrder
   }
 
   export type ot_requestsCountOrderByAggregateInput = {
@@ -162257,6 +168711,264 @@ export namespace Prisma {
     amount?: SortOrder
   }
 
+  export type company_settingsCountOrderByAggregateInput = {
+    id?: SortOrder
+    tax_id?: SortOrder
+    name?: SortOrder
+    address?: SortOrder
+    branch_no?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type company_settingsAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type company_settingsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tax_id?: SortOrder
+    name?: SortOrder
+    address?: SortOrder
+    branch_no?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type company_settingsMinOrderByAggregateInput = {
+    id?: SortOrder
+    tax_id?: SortOrder
+    name?: SortOrder
+    address?: SortOrder
+    branch_no?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type company_settingsSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type tax_configsCountOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    sso_rate?: SortOrder
+    sso_max_monthly?: SortOrder
+    sso_max_yearly?: SortOrder
+    expense_deduct_rate?: SortOrder
+    expense_deduct_max?: SortOrder
+    personal_allowance?: SortOrder
+    tax_brackets?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type tax_configsAvgOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    sso_rate?: SortOrder
+    sso_max_monthly?: SortOrder
+    sso_max_yearly?: SortOrder
+    expense_deduct_rate?: SortOrder
+    expense_deduct_max?: SortOrder
+    personal_allowance?: SortOrder
+  }
+
+  export type tax_configsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    sso_rate?: SortOrder
+    sso_max_monthly?: SortOrder
+    sso_max_yearly?: SortOrder
+    expense_deduct_rate?: SortOrder
+    expense_deduct_max?: SortOrder
+    personal_allowance?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type tax_configsMinOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    sso_rate?: SortOrder
+    sso_max_monthly?: SortOrder
+    sso_max_yearly?: SortOrder
+    expense_deduct_rate?: SortOrder
+    expense_deduct_max?: SortOrder
+    personal_allowance?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type tax_configsSumOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    sso_rate?: SortOrder
+    sso_max_monthly?: SortOrder
+    sso_max_yearly?: SortOrder
+    expense_deduct_rate?: SortOrder
+    expense_deduct_max?: SortOrder
+    personal_allowance?: SortOrder
+  }
+
+  export type Withholding_tax_income_itemsListRelationFilter = {
+    every?: withholding_tax_income_itemsWhereInput
+    some?: withholding_tax_income_itemsWhereInput
+    none?: withholding_tax_income_itemsWhereInput
+  }
+
+  export type withholding_tax_income_itemsOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type withholding_tax_documentsCountOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    book_number?: SortOrder
+    document_number?: SortOrder
+    copy_type?: SortOrder
+    payer_name?: SortOrder
+    payer_tax_id?: SortOrder
+    payer_address?: SortOrder
+    payee_name?: SortOrder
+    payee_tax_id?: SortOrder
+    payee_address?: SortOrder
+    tax_form_type?: SortOrder
+    total_payment_amount?: SortOrder
+    total_tax_withheld?: SortOrder
+    total_tax_text?: SortOrder
+    deduct_provident_fund_1?: SortOrder
+    deduct_social_security?: SortOrder
+    deduct_provident_fund_2?: SortOrder
+    payment_condition?: SortOrder
+    payment_condition_other_desc?: SortOrder
+    signer_name?: SortOrder
+    issue_date?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type withholding_tax_documentsAvgOrderByAggregateInput = {
+    id?: SortOrder
+    copy_type?: SortOrder
+    total_payment_amount?: SortOrder
+    total_tax_withheld?: SortOrder
+    deduct_provident_fund_1?: SortOrder
+    deduct_social_security?: SortOrder
+    deduct_provident_fund_2?: SortOrder
+    payment_condition?: SortOrder
+  }
+
+  export type withholding_tax_documentsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    book_number?: SortOrder
+    document_number?: SortOrder
+    copy_type?: SortOrder
+    payer_name?: SortOrder
+    payer_tax_id?: SortOrder
+    payer_address?: SortOrder
+    payee_name?: SortOrder
+    payee_tax_id?: SortOrder
+    payee_address?: SortOrder
+    tax_form_type?: SortOrder
+    total_payment_amount?: SortOrder
+    total_tax_withheld?: SortOrder
+    total_tax_text?: SortOrder
+    deduct_provident_fund_1?: SortOrder
+    deduct_social_security?: SortOrder
+    deduct_provident_fund_2?: SortOrder
+    payment_condition?: SortOrder
+    payment_condition_other_desc?: SortOrder
+    signer_name?: SortOrder
+    issue_date?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type withholding_tax_documentsMinOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    book_number?: SortOrder
+    document_number?: SortOrder
+    copy_type?: SortOrder
+    payer_name?: SortOrder
+    payer_tax_id?: SortOrder
+    payer_address?: SortOrder
+    payee_name?: SortOrder
+    payee_tax_id?: SortOrder
+    payee_address?: SortOrder
+    tax_form_type?: SortOrder
+    total_payment_amount?: SortOrder
+    total_tax_withheld?: SortOrder
+    total_tax_text?: SortOrder
+    deduct_provident_fund_1?: SortOrder
+    deduct_social_security?: SortOrder
+    deduct_provident_fund_2?: SortOrder
+    payment_condition?: SortOrder
+    payment_condition_other_desc?: SortOrder
+    signer_name?: SortOrder
+    issue_date?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type withholding_tax_documentsSumOrderByAggregateInput = {
+    id?: SortOrder
+    copy_type?: SortOrder
+    total_payment_amount?: SortOrder
+    total_tax_withheld?: SortOrder
+    deduct_provident_fund_1?: SortOrder
+    deduct_social_security?: SortOrder
+    deduct_provident_fund_2?: SortOrder
+    payment_condition?: SortOrder
+  }
+
+  export type Withholding_tax_documentsScalarRelationFilter = {
+    is?: withholding_tax_documentsWhereInput
+    isNot?: withholding_tax_documentsWhereInput
+  }
+
+  export type withholding_tax_income_itemsCountOrderByAggregateInput = {
+    id?: SortOrder
+    document_id?: SortOrder
+    income_type_id?: SortOrder
+    income_description?: SortOrder
+    payment_date?: SortOrder
+    payment_amount?: SortOrder
+    tax_withheld?: SortOrder
+  }
+
+  export type withholding_tax_income_itemsAvgOrderByAggregateInput = {
+    id?: SortOrder
+    document_id?: SortOrder
+    income_type_id?: SortOrder
+    payment_amount?: SortOrder
+    tax_withheld?: SortOrder
+  }
+
+  export type withholding_tax_income_itemsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    document_id?: SortOrder
+    income_type_id?: SortOrder
+    income_description?: SortOrder
+    payment_date?: SortOrder
+    payment_amount?: SortOrder
+    tax_withheld?: SortOrder
+  }
+
+  export type withholding_tax_income_itemsMinOrderByAggregateInput = {
+    id?: SortOrder
+    document_id?: SortOrder
+    income_type_id?: SortOrder
+    income_description?: SortOrder
+    payment_date?: SortOrder
+    payment_amount?: SortOrder
+    tax_withheld?: SortOrder
+  }
+
+  export type withholding_tax_income_itemsSumOrderByAggregateInput = {
+    id?: SortOrder
+    document_id?: SortOrder
+    income_type_id?: SortOrder
+    payment_amount?: SortOrder
+    tax_withheld?: SortOrder
+  }
+
   export type CompanyCreateNestedManyWithoutAssignedUserInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -165075,6 +171787,13 @@ export namespace Prisma {
     connect?: travel_claimsWhereUniqueInput | travel_claimsWhereUniqueInput[]
   }
 
+  export type withholding_tax_documentsCreateNestedManyWithoutEmployeesInput = {
+    create?: XOR<withholding_tax_documentsCreateWithoutEmployeesInput, withholding_tax_documentsUncheckedCreateWithoutEmployeesInput> | withholding_tax_documentsCreateWithoutEmployeesInput[] | withholding_tax_documentsUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: withholding_tax_documentsCreateOrConnectWithoutEmployeesInput | withholding_tax_documentsCreateOrConnectWithoutEmployeesInput[]
+    createMany?: withholding_tax_documentsCreateManyEmployeesInputEnvelope
+    connect?: withholding_tax_documentsWhereUniqueInput | withholding_tax_documentsWhereUniqueInput[]
+  }
+
   export type asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput = {
     create?: XOR<asset_borrowingsCreateWithoutEmployeesInput, asset_borrowingsUncheckedCreateWithoutEmployeesInput> | asset_borrowingsCreateWithoutEmployeesInput[] | asset_borrowingsUncheckedCreateWithoutEmployeesInput[]
     connectOrCreate?: asset_borrowingsCreateOrConnectWithoutEmployeesInput | asset_borrowingsCreateOrConnectWithoutEmployeesInput[]
@@ -165302,6 +172021,13 @@ export namespace Prisma {
     connectOrCreate?: travel_claimsCreateOrConnectWithoutEmployeesInput | travel_claimsCreateOrConnectWithoutEmployeesInput[]
     createMany?: travel_claimsCreateManyEmployeesInputEnvelope
     connect?: travel_claimsWhereUniqueInput | travel_claimsWhereUniqueInput[]
+  }
+
+  export type withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput = {
+    create?: XOR<withholding_tax_documentsCreateWithoutEmployeesInput, withholding_tax_documentsUncheckedCreateWithoutEmployeesInput> | withholding_tax_documentsCreateWithoutEmployeesInput[] | withholding_tax_documentsUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: withholding_tax_documentsCreateOrConnectWithoutEmployeesInput | withholding_tax_documentsCreateOrConnectWithoutEmployeesInput[]
+    createMany?: withholding_tax_documentsCreateManyEmployeesInputEnvelope
+    connect?: withholding_tax_documentsWhereUniqueInput | withholding_tax_documentsWhereUniqueInput[]
   }
 
   export type asset_borrowingsUpdateManyWithoutEmployeesNestedInput = {
@@ -165808,6 +172534,20 @@ export namespace Prisma {
     deleteMany?: travel_claimsScalarWhereInput | travel_claimsScalarWhereInput[]
   }
 
+  export type withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput = {
+    create?: XOR<withholding_tax_documentsCreateWithoutEmployeesInput, withholding_tax_documentsUncheckedCreateWithoutEmployeesInput> | withholding_tax_documentsCreateWithoutEmployeesInput[] | withholding_tax_documentsUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: withholding_tax_documentsCreateOrConnectWithoutEmployeesInput | withholding_tax_documentsCreateOrConnectWithoutEmployeesInput[]
+    upsert?: withholding_tax_documentsUpsertWithWhereUniqueWithoutEmployeesInput | withholding_tax_documentsUpsertWithWhereUniqueWithoutEmployeesInput[]
+    createMany?: withholding_tax_documentsCreateManyEmployeesInputEnvelope
+    set?: withholding_tax_documentsWhereUniqueInput | withholding_tax_documentsWhereUniqueInput[]
+    disconnect?: withholding_tax_documentsWhereUniqueInput | withholding_tax_documentsWhereUniqueInput[]
+    delete?: withholding_tax_documentsWhereUniqueInput | withholding_tax_documentsWhereUniqueInput[]
+    connect?: withholding_tax_documentsWhereUniqueInput | withholding_tax_documentsWhereUniqueInput[]
+    update?: withholding_tax_documentsUpdateWithWhereUniqueWithoutEmployeesInput | withholding_tax_documentsUpdateWithWhereUniqueWithoutEmployeesInput[]
+    updateMany?: withholding_tax_documentsUpdateManyWithWhereWithoutEmployeesInput | withholding_tax_documentsUpdateManyWithWhereWithoutEmployeesInput[]
+    deleteMany?: withholding_tax_documentsScalarWhereInput | withholding_tax_documentsScalarWhereInput[]
+  }
+
   export type asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput = {
     create?: XOR<asset_borrowingsCreateWithoutEmployeesInput, asset_borrowingsUncheckedCreateWithoutEmployeesInput> | asset_borrowingsCreateWithoutEmployeesInput[] | asset_borrowingsUncheckedCreateWithoutEmployeesInput[]
     connectOrCreate?: asset_borrowingsCreateOrConnectWithoutEmployeesInput | asset_borrowingsCreateOrConnectWithoutEmployeesInput[]
@@ -166260,6 +173000,20 @@ export namespace Prisma {
     update?: travel_claimsUpdateWithWhereUniqueWithoutEmployeesInput | travel_claimsUpdateWithWhereUniqueWithoutEmployeesInput[]
     updateMany?: travel_claimsUpdateManyWithWhereWithoutEmployeesInput | travel_claimsUpdateManyWithWhereWithoutEmployeesInput[]
     deleteMany?: travel_claimsScalarWhereInput | travel_claimsScalarWhereInput[]
+  }
+
+  export type withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput = {
+    create?: XOR<withholding_tax_documentsCreateWithoutEmployeesInput, withholding_tax_documentsUncheckedCreateWithoutEmployeesInput> | withholding_tax_documentsCreateWithoutEmployeesInput[] | withholding_tax_documentsUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: withholding_tax_documentsCreateOrConnectWithoutEmployeesInput | withholding_tax_documentsCreateOrConnectWithoutEmployeesInput[]
+    upsert?: withholding_tax_documentsUpsertWithWhereUniqueWithoutEmployeesInput | withholding_tax_documentsUpsertWithWhereUniqueWithoutEmployeesInput[]
+    createMany?: withholding_tax_documentsCreateManyEmployeesInputEnvelope
+    set?: withholding_tax_documentsWhereUniqueInput | withholding_tax_documentsWhereUniqueInput[]
+    disconnect?: withholding_tax_documentsWhereUniqueInput | withholding_tax_documentsWhereUniqueInput[]
+    delete?: withholding_tax_documentsWhereUniqueInput | withholding_tax_documentsWhereUniqueInput[]
+    connect?: withholding_tax_documentsWhereUniqueInput | withholding_tax_documentsWhereUniqueInput[]
+    update?: withholding_tax_documentsUpdateWithWhereUniqueWithoutEmployeesInput | withholding_tax_documentsUpdateWithWhereUniqueWithoutEmployeesInput[]
+    updateMany?: withholding_tax_documentsUpdateManyWithWhereWithoutEmployeesInput | withholding_tax_documentsUpdateManyWithWhereWithoutEmployeesInput[]
+    deleteMany?: withholding_tax_documentsScalarWhereInput | withholding_tax_documentsScalarWhereInput[]
   }
 
   export type employeesCreateNestedOneWithoutGeneral_welfare_claimsInput = {
@@ -168723,6 +175477,76 @@ export namespace Prisma {
     delete?: adminsWhereInput | boolean
     connect?: adminsWhereUniqueInput
     update?: XOR<XOR<adminsUpdateToOneWithWhereWithoutAnnouncementsInput, adminsUpdateWithoutAnnouncementsInput>, adminsUncheckedUpdateWithoutAnnouncementsInput>
+  }
+
+  export type employeesCreateNestedOneWithoutWithholding_tax_documentsInput = {
+    create?: XOR<employeesCreateWithoutWithholding_tax_documentsInput, employeesUncheckedCreateWithoutWithholding_tax_documentsInput>
+    connectOrCreate?: employeesCreateOrConnectWithoutWithholding_tax_documentsInput
+    connect?: employeesWhereUniqueInput
+  }
+
+  export type withholding_tax_income_itemsCreateNestedManyWithoutWithholding_tax_documentsInput = {
+    create?: XOR<withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput, withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput> | withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput[] | withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput[]
+    connectOrCreate?: withholding_tax_income_itemsCreateOrConnectWithoutWithholding_tax_documentsInput | withholding_tax_income_itemsCreateOrConnectWithoutWithholding_tax_documentsInput[]
+    createMany?: withholding_tax_income_itemsCreateManyWithholding_tax_documentsInputEnvelope
+    connect?: withholding_tax_income_itemsWhereUniqueInput | withholding_tax_income_itemsWhereUniqueInput[]
+  }
+
+  export type withholding_tax_income_itemsUncheckedCreateNestedManyWithoutWithholding_tax_documentsInput = {
+    create?: XOR<withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput, withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput> | withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput[] | withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput[]
+    connectOrCreate?: withholding_tax_income_itemsCreateOrConnectWithoutWithholding_tax_documentsInput | withholding_tax_income_itemsCreateOrConnectWithoutWithholding_tax_documentsInput[]
+    createMany?: withholding_tax_income_itemsCreateManyWithholding_tax_documentsInputEnvelope
+    connect?: withholding_tax_income_itemsWhereUniqueInput | withholding_tax_income_itemsWhereUniqueInput[]
+  }
+
+  export type employeesUpdateOneRequiredWithoutWithholding_tax_documentsNestedInput = {
+    create?: XOR<employeesCreateWithoutWithholding_tax_documentsInput, employeesUncheckedCreateWithoutWithholding_tax_documentsInput>
+    connectOrCreate?: employeesCreateOrConnectWithoutWithholding_tax_documentsInput
+    upsert?: employeesUpsertWithoutWithholding_tax_documentsInput
+    connect?: employeesWhereUniqueInput
+    update?: XOR<XOR<employeesUpdateToOneWithWhereWithoutWithholding_tax_documentsInput, employeesUpdateWithoutWithholding_tax_documentsInput>, employeesUncheckedUpdateWithoutWithholding_tax_documentsInput>
+  }
+
+  export type withholding_tax_income_itemsUpdateManyWithoutWithholding_tax_documentsNestedInput = {
+    create?: XOR<withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput, withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput> | withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput[] | withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput[]
+    connectOrCreate?: withholding_tax_income_itemsCreateOrConnectWithoutWithholding_tax_documentsInput | withholding_tax_income_itemsCreateOrConnectWithoutWithholding_tax_documentsInput[]
+    upsert?: withholding_tax_income_itemsUpsertWithWhereUniqueWithoutWithholding_tax_documentsInput | withholding_tax_income_itemsUpsertWithWhereUniqueWithoutWithholding_tax_documentsInput[]
+    createMany?: withholding_tax_income_itemsCreateManyWithholding_tax_documentsInputEnvelope
+    set?: withholding_tax_income_itemsWhereUniqueInput | withholding_tax_income_itemsWhereUniqueInput[]
+    disconnect?: withholding_tax_income_itemsWhereUniqueInput | withholding_tax_income_itemsWhereUniqueInput[]
+    delete?: withholding_tax_income_itemsWhereUniqueInput | withholding_tax_income_itemsWhereUniqueInput[]
+    connect?: withholding_tax_income_itemsWhereUniqueInput | withholding_tax_income_itemsWhereUniqueInput[]
+    update?: withholding_tax_income_itemsUpdateWithWhereUniqueWithoutWithholding_tax_documentsInput | withholding_tax_income_itemsUpdateWithWhereUniqueWithoutWithholding_tax_documentsInput[]
+    updateMany?: withholding_tax_income_itemsUpdateManyWithWhereWithoutWithholding_tax_documentsInput | withholding_tax_income_itemsUpdateManyWithWhereWithoutWithholding_tax_documentsInput[]
+    deleteMany?: withholding_tax_income_itemsScalarWhereInput | withholding_tax_income_itemsScalarWhereInput[]
+  }
+
+  export type withholding_tax_income_itemsUncheckedUpdateManyWithoutWithholding_tax_documentsNestedInput = {
+    create?: XOR<withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput, withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput> | withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput[] | withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput[]
+    connectOrCreate?: withholding_tax_income_itemsCreateOrConnectWithoutWithholding_tax_documentsInput | withholding_tax_income_itemsCreateOrConnectWithoutWithholding_tax_documentsInput[]
+    upsert?: withholding_tax_income_itemsUpsertWithWhereUniqueWithoutWithholding_tax_documentsInput | withholding_tax_income_itemsUpsertWithWhereUniqueWithoutWithholding_tax_documentsInput[]
+    createMany?: withholding_tax_income_itemsCreateManyWithholding_tax_documentsInputEnvelope
+    set?: withholding_tax_income_itemsWhereUniqueInput | withholding_tax_income_itemsWhereUniqueInput[]
+    disconnect?: withholding_tax_income_itemsWhereUniqueInput | withholding_tax_income_itemsWhereUniqueInput[]
+    delete?: withholding_tax_income_itemsWhereUniqueInput | withholding_tax_income_itemsWhereUniqueInput[]
+    connect?: withholding_tax_income_itemsWhereUniqueInput | withholding_tax_income_itemsWhereUniqueInput[]
+    update?: withholding_tax_income_itemsUpdateWithWhereUniqueWithoutWithholding_tax_documentsInput | withholding_tax_income_itemsUpdateWithWhereUniqueWithoutWithholding_tax_documentsInput[]
+    updateMany?: withholding_tax_income_itemsUpdateManyWithWhereWithoutWithholding_tax_documentsInput | withholding_tax_income_itemsUpdateManyWithWhereWithoutWithholding_tax_documentsInput[]
+    deleteMany?: withholding_tax_income_itemsScalarWhereInput | withholding_tax_income_itemsScalarWhereInput[]
+  }
+
+  export type withholding_tax_documentsCreateNestedOneWithoutWithholding_tax_income_itemsInput = {
+    create?: XOR<withholding_tax_documentsCreateWithoutWithholding_tax_income_itemsInput, withholding_tax_documentsUncheckedCreateWithoutWithholding_tax_income_itemsInput>
+    connectOrCreate?: withholding_tax_documentsCreateOrConnectWithoutWithholding_tax_income_itemsInput
+    connect?: withholding_tax_documentsWhereUniqueInput
+  }
+
+  export type withholding_tax_documentsUpdateOneRequiredWithoutWithholding_tax_income_itemsNestedInput = {
+    create?: XOR<withholding_tax_documentsCreateWithoutWithholding_tax_income_itemsInput, withholding_tax_documentsUncheckedCreateWithoutWithholding_tax_income_itemsInput>
+    connectOrCreate?: withholding_tax_documentsCreateOrConnectWithoutWithholding_tax_income_itemsInput
+    upsert?: withholding_tax_documentsUpsertWithoutWithholding_tax_income_itemsInput
+    connect?: withholding_tax_documentsWhereUniqueInput
+    update?: XOR<XOR<withholding_tax_documentsUpdateToOneWithWhereWithoutWithholding_tax_income_itemsInput, withholding_tax_documentsUpdateWithoutWithholding_tax_income_itemsInput>, withholding_tax_documentsUncheckedUpdateWithoutWithholding_tax_income_itemsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -177611,6 +184435,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesCreateNestedManyWithoutEmployeesInput
@@ -177648,6 +184482,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutAsset_borrowingsInput = {
@@ -177692,6 +184527,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesUncheckedCreateNestedManyWithoutEmployeesInput
@@ -177724,6 +184569,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutAsset_borrowingsInput = {
@@ -177827,6 +184673,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUpdateManyWithoutEmployeesNestedInput
@@ -177864,6 +184720,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutAsset_borrowingsInput = {
@@ -177908,6 +184765,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -177940,6 +184807,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type asset_borrowingsCreateWithoutAssetsInput = {
@@ -178083,6 +184951,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesCreateNestedManyWithoutEmployeesInput
@@ -178120,6 +184998,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutBirthday_claimsInput = {
@@ -178164,6 +185043,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesUncheckedCreateNestedManyWithoutEmployeesInput
@@ -178196,6 +185085,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutBirthday_claimsInput = {
@@ -178251,6 +185141,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUpdateManyWithoutEmployeesNestedInput
@@ -178288,6 +185188,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutBirthday_claimsInput = {
@@ -178332,6 +185233,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -178364,6 +185275,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateWithoutBranchesInput = {
@@ -178403,6 +185315,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -178440,6 +185362,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutBranchesInput = {
@@ -178483,6 +185406,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -178516,6 +185449,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutBranchesInput = {
@@ -178589,6 +185523,16 @@ export namespace Prisma {
     fixed_travel_allowance?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFilter<"employees"> | number
+    sso_include_fixed_accommodation?: BoolFilter<"employees"> | boolean
+    sso_include_fixed_meal?: BoolFilter<"employees"> | boolean
+    sso_include_fixed_travel?: BoolFilter<"employees"> | boolean
+    sso_include_general_allowance?: BoolFilter<"employees"> | boolean
+    sso_include_position_allowance?: BoolFilter<"employees"> | boolean
+    car_benefit?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesCreateWithoutCommission_claimsInput = {
@@ -178628,6 +185572,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -178665,6 +185619,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutCommission_claimsInput = {
@@ -178709,6 +185664,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -178741,6 +185706,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutCommission_claimsInput = {
@@ -178796,6 +185762,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -178833,6 +185809,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutCommission_claimsInput = {
@@ -178877,6 +185854,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -178909,6 +185896,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateWithoutDaily_work_plansInput = {
@@ -178948,6 +185936,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -178985,6 +185983,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutDaily_work_plansInput = {
@@ -179029,6 +186028,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -179061,6 +186070,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutDaily_work_plansInput = {
@@ -179116,6 +186126,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -179153,6 +186173,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutDaily_work_plansInput = {
@@ -179197,6 +186218,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -179229,6 +186260,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type divisionsCreateWithoutDepartmentsInput = {
@@ -179286,6 +186318,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -179323,6 +186365,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutDepartmentsInput = {
@@ -179366,6 +186409,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -179399,6 +186452,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutDepartmentsInput = {
@@ -179608,6 +186662,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -179645,6 +186709,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutEmployee_warningsInput = {
@@ -179689,6 +186754,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -179721,6 +186796,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutEmployee_warningsInput = {
@@ -179776,6 +186852,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -179813,6 +186899,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutEmployee_warningsInput = {
@@ -179857,6 +186944,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -179889,6 +186986,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type asset_borrowingsCreateWithoutEmployeesInput = {
@@ -180423,6 +187521,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -180460,6 +187568,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput = {
@@ -180504,6 +187613,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -180536,6 +187655,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput = {
@@ -180580,6 +187700,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -180617,6 +187747,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutEmployees_employees_secondary_supervisor_idToemployeesInput = {
@@ -180660,6 +187791,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -180693,6 +187834,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutEmployees_employees_secondary_supervisor_idToemployeesInput = {
@@ -180742,6 +187884,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -180779,6 +187931,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutOther_employees_employees_supervisor_idToemployeesInput = {
@@ -180823,6 +187976,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -180855,6 +188018,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutOther_employees_employees_supervisor_idToemployeesInput = {
@@ -180899,6 +188063,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -180936,6 +188110,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutEmployees_employees_supervisor_idToemployeesInput = {
@@ -180979,6 +188154,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -181012,6 +188197,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutEmployees_employees_supervisor_idToemployeesInput = {
@@ -181288,6 +188474,10 @@ export namespace Prisma {
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: Decimal | DecimalJsLike | number | string | null
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund?: Decimal | DecimalJsLike | number | string | null
+    taxable_income?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUncheckedCreateWithoutEmployeesInput = {
@@ -181320,6 +188510,10 @@ export namespace Prisma {
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: Decimal | DecimalJsLike | number | string | null
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund?: Decimal | DecimalJsLike | number | string | null
+    taxable_income?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataCreateOrConnectWithoutEmployeesInput = {
@@ -181881,6 +189075,69 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type withholding_tax_documentsCreateWithoutEmployeesInput = {
+    book_number?: string | null
+    document_number: string
+    copy_type: number
+    payer_name: string
+    payer_tax_id: string
+    payer_address: string
+    payee_name: string
+    payee_tax_id: string
+    payee_address: string
+    tax_form_type: string
+    total_payment_amount: Decimal | DecimalJsLike | number | string
+    total_tax_withheld: Decimal | DecimalJsLike | number | string
+    total_tax_text: string
+    deduct_provident_fund_1?: Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: Decimal | DecimalJsLike | number | string | null
+    payment_condition: number
+    payment_condition_other_desc?: string | null
+    signer_name: string
+    issue_date: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string
+    withholding_tax_income_items?: withholding_tax_income_itemsCreateNestedManyWithoutWithholding_tax_documentsInput
+  }
+
+  export type withholding_tax_documentsUncheckedCreateWithoutEmployeesInput = {
+    id?: number
+    book_number?: string | null
+    document_number: string
+    copy_type: number
+    payer_name: string
+    payer_tax_id: string
+    payer_address: string
+    payee_name: string
+    payee_tax_id: string
+    payee_address: string
+    tax_form_type: string
+    total_payment_amount: Decimal | DecimalJsLike | number | string
+    total_tax_withheld: Decimal | DecimalJsLike | number | string
+    total_tax_text: string
+    deduct_provident_fund_1?: Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: Decimal | DecimalJsLike | number | string | null
+    payment_condition: number
+    payment_condition_other_desc?: string | null
+    signer_name: string
+    issue_date: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string
+    withholding_tax_income_items?: withholding_tax_income_itemsUncheckedCreateNestedManyWithoutWithholding_tax_documentsInput
+  }
+
+  export type withholding_tax_documentsCreateOrConnectWithoutEmployeesInput = {
+    where: withholding_tax_documentsWhereUniqueInput
+    create: XOR<withholding_tax_documentsCreateWithoutEmployeesInput, withholding_tax_documentsUncheckedCreateWithoutEmployeesInput>
+  }
+
+  export type withholding_tax_documentsCreateManyEmployeesInputEnvelope = {
+    data: withholding_tax_documentsCreateManyEmployeesInput | withholding_tax_documentsCreateManyEmployeesInput[]
+    skipDuplicates?: boolean
+  }
+
   export type asset_borrowingsUpsertWithWhereUniqueWithoutEmployeesInput = {
     where: asset_borrowingsWhereUniqueInput
     update: XOR<asset_borrowingsUpdateWithoutEmployeesInput, asset_borrowingsUncheckedUpdateWithoutEmployeesInput>
@@ -182356,6 +189613,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -182393,6 +189660,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput = {
@@ -182437,6 +189705,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -182469,6 +189747,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUpsertWithWhereUniqueWithoutEmployees_employees_secondary_supervisor_idToemployeesInput = {
@@ -182535,6 +189814,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -182572,6 +189861,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutOther_employees_employees_supervisor_idToemployeesInput = {
@@ -182616,6 +189906,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -182648,6 +189948,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUpsertWithWhereUniqueWithoutEmployees_employees_supervisor_idToemployeesInput = {
@@ -182885,6 +190186,10 @@ export namespace Prisma {
     insurance?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     insurance_income?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: DecimalNullableFilter<"monthly_payroll_data"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ot_requestsUpsertWithWhereUniqueWithoutEmployeesInput = {
@@ -183296,6 +190601,52 @@ export namespace Prisma {
     end_date?: DateTimeNullableFilter<"travel_claims"> | Date | string | null
   }
 
+  export type withholding_tax_documentsUpsertWithWhereUniqueWithoutEmployeesInput = {
+    where: withholding_tax_documentsWhereUniqueInput
+    update: XOR<withholding_tax_documentsUpdateWithoutEmployeesInput, withholding_tax_documentsUncheckedUpdateWithoutEmployeesInput>
+    create: XOR<withholding_tax_documentsCreateWithoutEmployeesInput, withholding_tax_documentsUncheckedCreateWithoutEmployeesInput>
+  }
+
+  export type withholding_tax_documentsUpdateWithWhereUniqueWithoutEmployeesInput = {
+    where: withholding_tax_documentsWhereUniqueInput
+    data: XOR<withholding_tax_documentsUpdateWithoutEmployeesInput, withholding_tax_documentsUncheckedUpdateWithoutEmployeesInput>
+  }
+
+  export type withholding_tax_documentsUpdateManyWithWhereWithoutEmployeesInput = {
+    where: withholding_tax_documentsScalarWhereInput
+    data: XOR<withholding_tax_documentsUpdateManyMutationInput, withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesInput>
+  }
+
+  export type withholding_tax_documentsScalarWhereInput = {
+    AND?: withholding_tax_documentsScalarWhereInput | withholding_tax_documentsScalarWhereInput[]
+    OR?: withholding_tax_documentsScalarWhereInput[]
+    NOT?: withholding_tax_documentsScalarWhereInput | withholding_tax_documentsScalarWhereInput[]
+    id?: IntFilter<"withholding_tax_documents"> | number
+    emp_id?: StringFilter<"withholding_tax_documents"> | string
+    book_number?: StringNullableFilter<"withholding_tax_documents"> | string | null
+    document_number?: StringFilter<"withholding_tax_documents"> | string
+    copy_type?: IntFilter<"withholding_tax_documents"> | number
+    payer_name?: StringFilter<"withholding_tax_documents"> | string
+    payer_tax_id?: StringFilter<"withholding_tax_documents"> | string
+    payer_address?: StringFilter<"withholding_tax_documents"> | string
+    payee_name?: StringFilter<"withholding_tax_documents"> | string
+    payee_tax_id?: StringFilter<"withholding_tax_documents"> | string
+    payee_address?: StringFilter<"withholding_tax_documents"> | string
+    tax_form_type?: StringFilter<"withholding_tax_documents"> | string
+    total_payment_amount?: DecimalFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFilter<"withholding_tax_documents"> | string
+    deduct_provident_fund_1?: DecimalNullableFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: DecimalNullableFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: DecimalNullableFilter<"withholding_tax_documents"> | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFilter<"withholding_tax_documents"> | number
+    payment_condition_other_desc?: StringNullableFilter<"withholding_tax_documents"> | string | null
+    signer_name?: StringFilter<"withholding_tax_documents"> | string
+    issue_date?: DateTimeFilter<"withholding_tax_documents"> | Date | string
+    created_at?: DateTimeFilter<"withholding_tax_documents"> | Date | string
+    updated_at?: DateTimeFilter<"withholding_tax_documents"> | Date | string
+  }
+
   export type employeesCreateWithoutGeneral_welfare_claimsInput = {
     emp_id: string
     name: string
@@ -183333,6 +190684,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -183370,6 +190731,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutGeneral_welfare_claimsInput = {
@@ -183414,6 +190776,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -183446,6 +190818,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutGeneral_welfare_claimsInput = {
@@ -183501,6 +190874,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -183538,6 +190921,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutGeneral_welfare_claimsInput = {
@@ -183582,6 +190966,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -183614,6 +191008,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateWithoutJob_positionsInput = {
@@ -183653,6 +191048,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -183690,6 +191095,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutJob_positionsInput = {
@@ -183733,6 +191139,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -183766,6 +191182,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutJob_positionsInput = {
@@ -183998,6 +191415,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -184035,6 +191462,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutKpi_evaluations_kpi_evaluations_emp_idToemployeesInput = {
@@ -184079,6 +191507,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -184111,6 +191549,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutKpi_evaluations_kpi_evaluations_emp_idToemployeesInput = {
@@ -184155,6 +191594,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -184192,6 +191641,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutKpi_evaluations_kpi_evaluations_supervisor_idToemployeesInput = {
@@ -184236,6 +191686,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -184268,6 +191728,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutKpi_evaluations_kpi_evaluations_supervisor_idToemployeesInput = {
@@ -184364,6 +191825,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -184401,6 +191872,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutKpi_evaluations_kpi_evaluations_emp_idToemployeesInput = {
@@ -184445,6 +191917,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -184477,6 +191959,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUpsertWithoutKpi_evaluations_kpi_evaluations_supervisor_idToemployeesInput = {
@@ -184527,6 +192010,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -184564,6 +192057,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutKpi_evaluations_kpi_evaluations_supervisor_idToemployeesInput = {
@@ -184608,6 +192102,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -184640,6 +192144,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type kpi_itemsUpsertWithWhereUniqueWithoutKpi_evaluationsInput = {
@@ -184881,6 +192386,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -184918,6 +192433,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutLeave_requestsInput = {
@@ -184962,6 +192478,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -184994,6 +192520,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutLeave_requestsInput = {
@@ -185049,6 +192576,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -185086,6 +192623,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutLeave_requestsInput = {
@@ -185130,6 +192668,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -185162,6 +192710,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type leave_entitlementsCreateWithoutLeave_typesInput = {
@@ -185299,6 +192848,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -185336,6 +192895,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutMonthly_payroll_dataInput = {
@@ -185380,6 +192940,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -185412,6 +192982,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutMonthly_payroll_dataInput = {
@@ -185467,6 +193038,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -185504,6 +193085,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutMonthly_payroll_dataInput = {
@@ -185548,6 +193130,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -185580,6 +193172,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateWithoutOt_requestsInput = {
@@ -185619,6 +193212,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -185656,6 +193259,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutOt_requestsInput = {
@@ -185700,6 +193304,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -185732,6 +193346,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutOt_requestsInput = {
@@ -185787,6 +193402,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -185824,6 +193449,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutOt_requestsInput = {
@@ -185868,6 +193494,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -185900,6 +193536,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput = {
@@ -185939,6 +193576,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -185976,6 +193623,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput = {
@@ -186020,6 +193668,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -186052,6 +193710,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput = {
@@ -186096,6 +193755,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -186133,6 +193802,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput = {
@@ -186177,6 +193847,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -186209,6 +193889,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput = {
@@ -186264,6 +193945,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -186301,6 +193992,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutProbation_evaluations_probation_evaluations_emp_idToemployeesInput = {
@@ -186345,6 +194037,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -186377,6 +194079,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUpsertWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput = {
@@ -186427,6 +194130,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -186464,6 +194177,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutProbation_evaluations_probation_evaluations_supervisor_idToemployeesInput = {
@@ -186508,6 +194222,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -186540,6 +194264,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateWithoutProduct_borrowingsInput = {
@@ -186579,6 +194304,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -186616,6 +194351,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutProduct_borrowingsInput = {
@@ -186660,6 +194396,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -186692,6 +194438,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutProduct_borrowingsInput = {
@@ -186779,6 +194526,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -186816,6 +194573,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutProduct_borrowingsInput = {
@@ -186860,6 +194618,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -186892,6 +194660,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type productsUpsertWithoutProduct_borrowingsInput = {
@@ -187060,6 +194829,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -187097,6 +194876,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutRoom_booking_attendeesInput = {
@@ -187141,6 +194921,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -187173,6 +194963,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutRoom_booking_attendeesInput = {
@@ -187264,6 +195055,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -187301,6 +195102,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutRoom_booking_attendeesInput = {
@@ -187345,6 +195147,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -187377,6 +195189,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type room_booking_attendeesCreateWithoutRoom_bookingsInput = {
@@ -187435,6 +195248,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -187472,6 +195295,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutRoom_bookingsInput = {
@@ -187516,6 +195340,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -187548,6 +195382,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutRoom_bookingsInput = {
@@ -187643,6 +195478,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -187680,6 +195525,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutRoom_bookingsInput = {
@@ -187724,6 +195570,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -187756,6 +195612,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type meeting_roomsUpsertWithoutRoom_bookingsInput = {
@@ -187883,6 +195740,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -187920,6 +195787,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsCreateNestedOneWithoutEmployeesInput
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutTravel_claimsInput = {
@@ -187964,6 +195832,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -187996,6 +195874,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutTravel_claimsInput = {
@@ -188051,6 +195930,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -188088,6 +195977,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUpdateOneWithoutEmployeesNestedInput
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutTravel_claimsInput = {
@@ -188132,6 +196022,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -188164,6 +196064,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
@@ -188203,6 +196104,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -188240,6 +196151,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
@@ -188284,6 +196196,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -188316,6 +196238,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
@@ -188360,6 +196283,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -188397,6 +196330,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
@@ -188441,6 +196375,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -188473,6 +196417,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
@@ -188528,6 +196473,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -188565,6 +196520,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_assessor_idToemployeesInput = {
@@ -188609,6 +196565,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -188641,6 +196607,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUpsertWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
@@ -188691,6 +196658,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -188728,6 +196705,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutEmployee_trainings_employee_trainings_emp_idToemployeesInput = {
@@ -188772,6 +196750,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -188804,6 +196792,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type PurchaseOrderCreateWithoutPurchaseRequestInput = {
@@ -191631,6 +199620,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesCreateNestedManyWithoutEmployeesInput
@@ -191668,6 +199667,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutClothing_requestsInput = {
@@ -191712,6 +199712,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesUncheckedCreateNestedManyWithoutEmployeesInput
@@ -191744,6 +199754,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutClothing_requestsInput = {
@@ -191817,6 +199828,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUpdateManyWithoutEmployeesNestedInput
@@ -191854,6 +199875,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutClothing_requestsInput = {
@@ -191898,6 +199920,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -191930,6 +199962,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type clothing_variantsUpsertWithoutClothing_requestsInput = {
@@ -192218,6 +200251,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -192255,6 +200298,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutCoin_exchangesInput = {
@@ -192299,6 +200343,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -192331,6 +200385,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutCoin_exchangesInput = {
@@ -192386,6 +200441,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -192423,6 +200488,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutCoin_exchangesInput = {
@@ -192467,6 +200533,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -192499,6 +200575,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type coin_typesCreateWithoutCoin_ledgersInput = {
@@ -192565,6 +200642,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -192602,6 +200689,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutCoin_ledgersInput = {
@@ -192646,6 +200734,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -192678,6 +200776,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutCoin_ledgersInput = {
@@ -192766,6 +200865,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -192803,6 +200912,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutCoin_ledgersInput = {
@@ -192847,6 +200957,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -192879,6 +200999,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateWithoutCoin_transfers_coin_transfers_receiver_emp_idToemployeesInput = {
@@ -192918,6 +201039,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -192955,6 +201086,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutCoin_transfers_coin_transfers_receiver_emp_idToemployeesInput = {
@@ -192999,6 +201131,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -193031,6 +201173,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutCoin_transfers_coin_transfers_receiver_emp_idToemployeesInput = {
@@ -193075,6 +201218,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -193112,6 +201265,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutCoin_transfers_coin_transfers_sender_emp_idToemployeesInput = {
@@ -193156,6 +201310,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -193188,6 +201352,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutCoin_transfers_coin_transfers_sender_emp_idToemployeesInput = {
@@ -193243,6 +201408,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -193280,6 +201455,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutCoin_transfers_coin_transfers_receiver_emp_idToemployeesInput = {
@@ -193324,6 +201500,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -193356,6 +201542,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUpsertWithoutCoin_transfers_coin_transfers_sender_emp_idToemployeesInput = {
@@ -193406,6 +201593,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -193443,6 +201640,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutCoin_transfers_coin_transfers_sender_emp_idToemployeesInput = {
@@ -193487,6 +201685,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -193519,6 +201727,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type coin_exchange_ratesCreateWithoutCoin_types_coin_exchange_rates_from_coin_typeTocoin_typesInput = {
@@ -193758,6 +201967,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -193795,6 +202014,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutEmployee_coinsInput = {
@@ -193839,6 +202059,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -193871,6 +202101,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutEmployee_coinsInput = {
@@ -193959,6 +202190,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -193996,6 +202237,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutEmployee_coinsInput = {
@@ -194040,6 +202282,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -194072,6 +202324,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateWithoutReward_redemptions_reward_redemptions_emp_idToemployeesInput = {
@@ -194111,6 +202364,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -194148,6 +202411,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutReward_redemptions_reward_redemptions_emp_idToemployeesInput = {
@@ -194192,6 +202456,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -194224,6 +202498,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutReward_redemptions_reward_redemptions_emp_idToemployeesInput = {
@@ -194268,6 +202543,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -194305,6 +202590,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutReward_redemptions_reward_redemptions_processed_byToemployeesInput = {
@@ -194349,6 +202635,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -194381,6 +202677,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutReward_redemptions_reward_redemptions_processed_byToemployeesInput = {
@@ -194468,6 +202765,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -194505,6 +202812,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutReward_redemptions_reward_redemptions_emp_idToemployeesInput = {
@@ -194549,6 +202857,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -194581,6 +202899,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUpsertWithoutReward_redemptions_reward_redemptions_processed_byToemployeesInput = {
@@ -194631,6 +202950,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -194668,6 +202997,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutReward_redemptions_reward_redemptions_processed_byToemployeesInput = {
@@ -194712,6 +203042,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -194744,6 +203084,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type rewardsUpsertWithoutReward_redemptionsInput = {
@@ -194874,6 +203215,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -194911,6 +203262,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutTask_assignmentsInput = {
@@ -194955,6 +203307,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -194987,6 +203349,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutTask_assignmentsInput = {
@@ -195064,6 +203427,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -195101,6 +203474,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutTask_assignmentsInput = {
@@ -195145,6 +203519,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -195177,6 +203561,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type tasksUpsertWithoutTask_assignmentsInput = {
@@ -195244,6 +203629,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -195281,6 +203676,7 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutTask_coin_budgetsInput = {
@@ -195325,6 +203721,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -195357,6 +203763,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutTask_coin_budgetsInput = {
@@ -195412,6 +203819,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -195449,6 +203866,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutTask_coin_budgetsInput = {
@@ -195493,6 +203911,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -195525,6 +203953,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type task_assignmentsCreateWithoutTasksInput = {
@@ -195589,6 +204018,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -195626,6 +204065,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsCreateNestedOneWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutTasksInput = {
@@ -195670,6 +204110,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -195702,6 +204152,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutTasksInput = {
@@ -195773,6 +204224,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -195810,6 +204271,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUpdateOneWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutTasksInput = {
@@ -195854,6 +204316,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -195886,6 +204358,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesCreateWithoutTransfer_budgetsInput = {
@@ -195925,6 +204398,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -195962,6 +204445,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsCreateNestedOneWithoutEmployeesInput
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutTransfer_budgetsInput = {
@@ -196006,6 +204490,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -196038,6 +204532,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutTransfer_budgetsInput = {
@@ -196093,6 +204588,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -196130,6 +204635,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUpdateOneWithoutEmployeesNestedInput
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutTransfer_budgetsInput = {
@@ -196174,6 +204680,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -196206,6 +204722,7 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type UserCreateWithoutAssignedMarketingLeadsInput = {
@@ -199774,6 +208291,548 @@ export namespace Prisma {
     sessions?: sessionsUncheckedUpdateManyWithoutAdminsNestedInput
   }
 
+  export type employeesCreateWithoutWithholding_tax_documentsInput = {
+    emp_id: string
+    name: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    pin_hash?: string | null
+    gender?: string | null
+    hire_date?: Date | string | null
+    birth_date?: Date | string | null
+    phone_number?: string | null
+    base_salary?: Decimal | DecimalJsLike | number | string | null
+    otp_code?: string | null
+    otp_expires_at?: Date | string | null
+    bank_account_no?: string | null
+    bank_name?: string | null
+    is_on_trial?: boolean
+    has_telephone_allowance?: boolean
+    position_allowance?: Decimal | DecimalJsLike | number | string | null
+    address?: string | null
+    national_id_card?: string | null
+    salary_type?: string | null
+    line_user_id?: string | null
+    is_checkin_exempt?: boolean
+    probation_end_date?: Date | string | null
+    resignation_date?: Date | string | null
+    nickname?: string | null
+    email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
+    current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
+    birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
+    clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
+    coin_exchanges?: coin_exchangesCreateNestedManyWithoutEmployeesInput
+    coin_ledgers?: coin_ledgersCreateNestedManyWithoutEmployeesInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersCreateNestedManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersCreateNestedManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesInput
+    commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
+    daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_coins?: employee_coinsCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
+    employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
+    departments?: departmentsCreateNestedOneWithoutEmployeesInput
+    job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
+    employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
+    employees_employees_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_supervisor_idToemployeesInput
+    other_employees_employees_supervisor_idToemployees?: employeesCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
+    branches?: branchesCreateNestedOneWithoutEmployeesInput
+    general_welfare_claims?: general_welfare_claimsCreateNestedManyWithoutEmployeesInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsCreateNestedManyWithoutEmployees_kpi_evaluations_emp_idToemployeesInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsCreateNestedManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesInput
+    leave_requests?: leave_requestsCreateNestedManyWithoutEmployeesInput
+    monthly_payroll_data?: monthly_payroll_dataCreateNestedManyWithoutEmployeesInput
+    ot_requests?: ot_requestsCreateNestedManyWithoutEmployeesInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsCreateNestedManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsCreateNestedManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput
+    product_borrowings?: product_borrowingsCreateNestedManyWithoutEmployeesInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsCreateNestedManyWithoutEmployees_reward_redemptions_emp_idToemployeesInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsCreateNestedManyWithoutEmployees_reward_redemptions_processed_byToemployeesInput
+    room_booking_attendees?: room_booking_attendeesCreateNestedManyWithoutEmployeesInput
+    room_bookings?: room_bookingsCreateNestedManyWithoutEmployeesInput
+    task_assignments?: task_assignmentsCreateNestedManyWithoutEmployeesInput
+    task_coin_budgets?: task_coin_budgetsCreateNestedOneWithoutEmployeesInput
+    tasks?: tasksCreateNestedManyWithoutEmployeesInput
+    transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
+    travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+  }
+
+  export type employeesUncheckedCreateWithoutWithholding_tax_documentsInput = {
+    emp_id: string
+    name: string
+    branch_id?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    pin_hash?: string | null
+    gender?: string | null
+    hire_date?: Date | string | null
+    birth_date?: Date | string | null
+    phone_number?: string | null
+    base_salary?: Decimal | DecimalJsLike | number | string | null
+    department_id?: number | null
+    job_position_id?: number | null
+    otp_code?: string | null
+    otp_expires_at?: Date | string | null
+    supervisor_id?: string | null
+    bank_account_no?: string | null
+    bank_name?: string | null
+    is_on_trial?: boolean
+    has_telephone_allowance?: boolean
+    position_allowance?: Decimal | DecimalJsLike | number | string | null
+    address?: string | null
+    national_id_card?: string | null
+    salary_type?: string | null
+    line_user_id?: string | null
+    is_checkin_exempt?: boolean
+    probation_end_date?: Date | string | null
+    resignation_date?: Date | string | null
+    secondary_supervisor_id?: string | null
+    nickname?: string | null
+    email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
+    current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
+    birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    coin_exchanges?: coin_exchangesUncheckedCreateNestedManyWithoutEmployeesInput
+    coin_ledgers?: coin_ledgersUncheckedCreateNestedManyWithoutEmployeesInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersUncheckedCreateNestedManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersUncheckedCreateNestedManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesInput
+    commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_coins?: employee_coinsUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
+    employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
+    other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
+    general_welfare_claims?: general_welfare_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUncheckedCreateNestedManyWithoutEmployees_kpi_evaluations_emp_idToemployeesInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUncheckedCreateNestedManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesInput
+    leave_requests?: leave_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    monthly_payroll_data?: monthly_payroll_dataUncheckedCreateNestedManyWithoutEmployeesInput
+    ot_requests?: ot_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUncheckedCreateNestedManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUncheckedCreateNestedManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput
+    product_borrowings?: product_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsUncheckedCreateNestedManyWithoutEmployees_reward_redemptions_emp_idToemployeesInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsUncheckedCreateNestedManyWithoutEmployees_reward_redemptions_processed_byToemployeesInput
+    room_booking_attendees?: room_booking_attendeesUncheckedCreateNestedManyWithoutEmployeesInput
+    room_bookings?: room_bookingsUncheckedCreateNestedManyWithoutEmployeesInput
+    task_assignments?: task_assignmentsUncheckedCreateNestedManyWithoutEmployeesInput
+    task_coin_budgets?: task_coin_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
+    tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
+    transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
+    travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+  }
+
+  export type employeesCreateOrConnectWithoutWithholding_tax_documentsInput = {
+    where: employeesWhereUniqueInput
+    create: XOR<employeesCreateWithoutWithholding_tax_documentsInput, employeesUncheckedCreateWithoutWithholding_tax_documentsInput>
+  }
+
+  export type withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput = {
+    income_type_id: number
+    income_description?: string | null
+    payment_date: Date | string
+    payment_amount: Decimal | DecimalJsLike | number | string
+    tax_withheld: Decimal | DecimalJsLike | number | string
+  }
+
+  export type withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput = {
+    id?: number
+    income_type_id: number
+    income_description?: string | null
+    payment_date: Date | string
+    payment_amount: Decimal | DecimalJsLike | number | string
+    tax_withheld: Decimal | DecimalJsLike | number | string
+  }
+
+  export type withholding_tax_income_itemsCreateOrConnectWithoutWithholding_tax_documentsInput = {
+    where: withholding_tax_income_itemsWhereUniqueInput
+    create: XOR<withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput, withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput>
+  }
+
+  export type withholding_tax_income_itemsCreateManyWithholding_tax_documentsInputEnvelope = {
+    data: withholding_tax_income_itemsCreateManyWithholding_tax_documentsInput | withholding_tax_income_itemsCreateManyWithholding_tax_documentsInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type employeesUpsertWithoutWithholding_tax_documentsInput = {
+    update: XOR<employeesUpdateWithoutWithholding_tax_documentsInput, employeesUncheckedUpdateWithoutWithholding_tax_documentsInput>
+    create: XOR<employeesCreateWithoutWithholding_tax_documentsInput, employeesUncheckedCreateWithoutWithholding_tax_documentsInput>
+    where?: employeesWhereInput
+  }
+
+  export type employeesUpdateToOneWithWhereWithoutWithholding_tax_documentsInput = {
+    where?: employeesWhereInput
+    data: XOR<employeesUpdateWithoutWithholding_tax_documentsInput, employeesUncheckedUpdateWithoutWithholding_tax_documentsInput>
+  }
+
+  export type employeesUpdateWithoutWithholding_tax_documentsInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pin_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    hire_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    base_salary?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    otp_code?: NullableStringFieldUpdateOperationsInput | string | null
+    otp_expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    bank_account_no?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_on_trial?: BoolFieldUpdateOperationsInput | boolean
+    has_telephone_allowance?: BoolFieldUpdateOperationsInput | boolean
+    position_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    national_id_card?: NullableStringFieldUpdateOperationsInput | string | null
+    salary_type?: NullableStringFieldUpdateOperationsInput | string | null
+    line_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_checkin_exempt?: BoolFieldUpdateOperationsInput | boolean
+    probation_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
+    birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
+    clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
+    coin_exchanges?: coin_exchangesUpdateManyWithoutEmployeesNestedInput
+    coin_ledgers?: coin_ledgersUpdateManyWithoutEmployeesNestedInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersUpdateManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesNestedInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersUpdateManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesNestedInput
+    commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
+    daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_coins?: employee_coinsUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
+    employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
+    departments?: departmentsUpdateOneWithoutEmployeesNestedInput
+    job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
+    employees_employees_secondary_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesNestedInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
+    employees_employees_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_supervisor_idToemployeesNestedInput
+    other_employees_employees_supervisor_idToemployees?: employeesUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
+    branches?: branchesUpdateOneWithoutEmployeesNestedInput
+    general_welfare_claims?: general_welfare_claimsUpdateManyWithoutEmployeesNestedInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUpdateManyWithoutEmployees_kpi_evaluations_emp_idToemployeesNestedInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUpdateManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesNestedInput
+    leave_requests?: leave_requestsUpdateManyWithoutEmployeesNestedInput
+    monthly_payroll_data?: monthly_payroll_dataUpdateManyWithoutEmployeesNestedInput
+    ot_requests?: ot_requestsUpdateManyWithoutEmployeesNestedInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesNestedInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesNestedInput
+    product_borrowings?: product_borrowingsUpdateManyWithoutEmployeesNestedInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsUpdateManyWithoutEmployees_reward_redemptions_emp_idToemployeesNestedInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsUpdateManyWithoutEmployees_reward_redemptions_processed_byToemployeesNestedInput
+    room_booking_attendees?: room_booking_attendeesUpdateManyWithoutEmployeesNestedInput
+    room_bookings?: room_bookingsUpdateManyWithoutEmployeesNestedInput
+    task_assignments?: task_assignmentsUpdateManyWithoutEmployeesNestedInput
+    task_coin_budgets?: task_coin_budgetsUpdateOneWithoutEmployeesNestedInput
+    tasks?: tasksUpdateManyWithoutEmployeesNestedInput
+    transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
+    travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+  }
+
+  export type employeesUncheckedUpdateWithoutWithholding_tax_documentsInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    branch_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pin_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    hire_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    base_salary?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    department_id?: NullableIntFieldUpdateOperationsInput | number | null
+    job_position_id?: NullableIntFieldUpdateOperationsInput | number | null
+    otp_code?: NullableStringFieldUpdateOperationsInput | string | null
+    otp_expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_account_no?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_on_trial?: BoolFieldUpdateOperationsInput | boolean
+    has_telephone_allowance?: BoolFieldUpdateOperationsInput | boolean
+    position_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    national_id_card?: NullableStringFieldUpdateOperationsInput | string | null
+    salary_type?: NullableStringFieldUpdateOperationsInput | string | null
+    line_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_checkin_exempt?: BoolFieldUpdateOperationsInput | boolean
+    probation_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    coin_exchanges?: coin_exchangesUncheckedUpdateManyWithoutEmployeesNestedInput
+    coin_ledgers?: coin_ledgersUncheckedUpdateManyWithoutEmployeesNestedInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersUncheckedUpdateManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesNestedInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersUncheckedUpdateManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesNestedInput
+    commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_coins?: employee_coinsUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
+    employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
+    other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
+    general_welfare_claims?: general_welfare_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUncheckedUpdateManyWithoutEmployees_kpi_evaluations_emp_idToemployeesNestedInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUncheckedUpdateManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesNestedInput
+    leave_requests?: leave_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    monthly_payroll_data?: monthly_payroll_dataUncheckedUpdateManyWithoutEmployeesNestedInput
+    ot_requests?: ot_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesNestedInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesNestedInput
+    product_borrowings?: product_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsUncheckedUpdateManyWithoutEmployees_reward_redemptions_emp_idToemployeesNestedInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsUncheckedUpdateManyWithoutEmployees_reward_redemptions_processed_byToemployeesNestedInput
+    room_booking_attendees?: room_booking_attendeesUncheckedUpdateManyWithoutEmployeesNestedInput
+    room_bookings?: room_bookingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    task_assignments?: task_assignmentsUncheckedUpdateManyWithoutEmployeesNestedInput
+    task_coin_budgets?: task_coin_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
+    tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
+    transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
+    travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+  }
+
+  export type withholding_tax_income_itemsUpsertWithWhereUniqueWithoutWithholding_tax_documentsInput = {
+    where: withholding_tax_income_itemsWhereUniqueInput
+    update: XOR<withholding_tax_income_itemsUpdateWithoutWithholding_tax_documentsInput, withholding_tax_income_itemsUncheckedUpdateWithoutWithholding_tax_documentsInput>
+    create: XOR<withholding_tax_income_itemsCreateWithoutWithholding_tax_documentsInput, withholding_tax_income_itemsUncheckedCreateWithoutWithholding_tax_documentsInput>
+  }
+
+  export type withholding_tax_income_itemsUpdateWithWhereUniqueWithoutWithholding_tax_documentsInput = {
+    where: withholding_tax_income_itemsWhereUniqueInput
+    data: XOR<withholding_tax_income_itemsUpdateWithoutWithholding_tax_documentsInput, withholding_tax_income_itemsUncheckedUpdateWithoutWithholding_tax_documentsInput>
+  }
+
+  export type withholding_tax_income_itemsUpdateManyWithWhereWithoutWithholding_tax_documentsInput = {
+    where: withholding_tax_income_itemsScalarWhereInput
+    data: XOR<withholding_tax_income_itemsUpdateManyMutationInput, withholding_tax_income_itemsUncheckedUpdateManyWithoutWithholding_tax_documentsInput>
+  }
+
+  export type withholding_tax_income_itemsScalarWhereInput = {
+    AND?: withholding_tax_income_itemsScalarWhereInput | withholding_tax_income_itemsScalarWhereInput[]
+    OR?: withholding_tax_income_itemsScalarWhereInput[]
+    NOT?: withholding_tax_income_itemsScalarWhereInput | withholding_tax_income_itemsScalarWhereInput[]
+    id?: IntFilter<"withholding_tax_income_items"> | number
+    document_id?: IntFilter<"withholding_tax_income_items"> | number
+    income_type_id?: IntFilter<"withholding_tax_income_items"> | number
+    income_description?: StringNullableFilter<"withholding_tax_income_items"> | string | null
+    payment_date?: DateTimeFilter<"withholding_tax_income_items"> | Date | string
+    payment_amount?: DecimalFilter<"withholding_tax_income_items"> | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalFilter<"withholding_tax_income_items"> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type withholding_tax_documentsCreateWithoutWithholding_tax_income_itemsInput = {
+    book_number?: string | null
+    document_number: string
+    copy_type: number
+    payer_name: string
+    payer_tax_id: string
+    payer_address: string
+    payee_name: string
+    payee_tax_id: string
+    payee_address: string
+    tax_form_type: string
+    total_payment_amount: Decimal | DecimalJsLike | number | string
+    total_tax_withheld: Decimal | DecimalJsLike | number | string
+    total_tax_text: string
+    deduct_provident_fund_1?: Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: Decimal | DecimalJsLike | number | string | null
+    payment_condition: number
+    payment_condition_other_desc?: string | null
+    signer_name: string
+    issue_date: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string
+    employees: employeesCreateNestedOneWithoutWithholding_tax_documentsInput
+  }
+
+  export type withholding_tax_documentsUncheckedCreateWithoutWithholding_tax_income_itemsInput = {
+    id?: number
+    emp_id: string
+    book_number?: string | null
+    document_number: string
+    copy_type: number
+    payer_name: string
+    payer_tax_id: string
+    payer_address: string
+    payee_name: string
+    payee_tax_id: string
+    payee_address: string
+    tax_form_type: string
+    total_payment_amount: Decimal | DecimalJsLike | number | string
+    total_tax_withheld: Decimal | DecimalJsLike | number | string
+    total_tax_text: string
+    deduct_provident_fund_1?: Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: Decimal | DecimalJsLike | number | string | null
+    payment_condition: number
+    payment_condition_other_desc?: string | null
+    signer_name: string
+    issue_date: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type withholding_tax_documentsCreateOrConnectWithoutWithholding_tax_income_itemsInput = {
+    where: withholding_tax_documentsWhereUniqueInput
+    create: XOR<withholding_tax_documentsCreateWithoutWithholding_tax_income_itemsInput, withholding_tax_documentsUncheckedCreateWithoutWithholding_tax_income_itemsInput>
+  }
+
+  export type withholding_tax_documentsUpsertWithoutWithholding_tax_income_itemsInput = {
+    update: XOR<withholding_tax_documentsUpdateWithoutWithholding_tax_income_itemsInput, withholding_tax_documentsUncheckedUpdateWithoutWithholding_tax_income_itemsInput>
+    create: XOR<withholding_tax_documentsCreateWithoutWithholding_tax_income_itemsInput, withholding_tax_documentsUncheckedCreateWithoutWithholding_tax_income_itemsInput>
+    where?: withholding_tax_documentsWhereInput
+  }
+
+  export type withholding_tax_documentsUpdateToOneWithWhereWithoutWithholding_tax_income_itemsInput = {
+    where?: withholding_tax_documentsWhereInput
+    data: XOR<withholding_tax_documentsUpdateWithoutWithholding_tax_income_itemsInput, withholding_tax_documentsUncheckedUpdateWithoutWithholding_tax_income_itemsInput>
+  }
+
+  export type withholding_tax_documentsUpdateWithoutWithholding_tax_income_itemsInput = {
+    book_number?: NullableStringFieldUpdateOperationsInput | string | null
+    document_number?: StringFieldUpdateOperationsInput | string
+    copy_type?: IntFieldUpdateOperationsInput | number
+    payer_name?: StringFieldUpdateOperationsInput | string
+    payer_tax_id?: StringFieldUpdateOperationsInput | string
+    payer_address?: StringFieldUpdateOperationsInput | string
+    payee_name?: StringFieldUpdateOperationsInput | string
+    payee_tax_id?: StringFieldUpdateOperationsInput | string
+    payee_address?: StringFieldUpdateOperationsInput | string
+    tax_form_type?: StringFieldUpdateOperationsInput | string
+    total_payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFieldUpdateOperationsInput | string
+    deduct_provident_fund_1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFieldUpdateOperationsInput | number
+    payment_condition_other_desc?: NullableStringFieldUpdateOperationsInput | string | null
+    signer_name?: StringFieldUpdateOperationsInput | string
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    employees?: employeesUpdateOneRequiredWithoutWithholding_tax_documentsNestedInput
+  }
+
+  export type withholding_tax_documentsUncheckedUpdateWithoutWithholding_tax_income_itemsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    book_number?: NullableStringFieldUpdateOperationsInput | string | null
+    document_number?: StringFieldUpdateOperationsInput | string
+    copy_type?: IntFieldUpdateOperationsInput | number
+    payer_name?: StringFieldUpdateOperationsInput | string
+    payer_tax_id?: StringFieldUpdateOperationsInput | string
+    payer_address?: StringFieldUpdateOperationsInput | string
+    payee_name?: StringFieldUpdateOperationsInput | string
+    payee_tax_id?: StringFieldUpdateOperationsInput | string
+    payee_address?: StringFieldUpdateOperationsInput | string
+    tax_form_type?: StringFieldUpdateOperationsInput | string
+    total_payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFieldUpdateOperationsInput | string
+    deduct_provident_fund_1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFieldUpdateOperationsInput | number
+    payment_condition_other_desc?: NullableStringFieldUpdateOperationsInput | string | null
+    signer_name?: StringFieldUpdateOperationsInput | string
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CompanyCreateManyAssignedUserInput = {
     id?: string
     companyName: string
@@ -203234,6 +212293,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesUpdateWithoutBranchesInput = {
@@ -203273,6 +212342,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -203310,6 +212389,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutBranchesInput = {
@@ -203353,6 +212433,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -203386,6 +212476,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateManyWithoutBranchesInput = {
@@ -203429,6 +212520,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesCreateManyDepartmentsInput = {
@@ -203472,6 +212573,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type job_positionsCreateManyDepartmentsInput = {
@@ -203522,6 +212633,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -203559,6 +212680,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutDepartmentsInput = {
@@ -203602,6 +212724,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -203635,6 +212767,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateManyWithoutDepartmentsInput = {
@@ -203678,6 +212811,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type job_positionsUpdateWithoutDepartmentsInput = {
@@ -203950,6 +213093,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesCreateManyEmployees_employees_supervisor_idToemployeesInput = {
@@ -203993,6 +213146,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type general_welfare_claimsCreateManyEmployeesInput = {
@@ -204109,6 +213272,10 @@ export namespace Prisma {
     insurance?: Decimal | DecimalJsLike | number | string | null
     insurance_income?: Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: Decimal | DecimalJsLike | number | string | null
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund?: Decimal | DecimalJsLike | number | string | null
+    taxable_income?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type ot_requestsCreateManyEmployeesInput = {
@@ -204313,6 +213480,32 @@ export namespace Prisma {
     created_at?: Date | string
     remark?: string | null
     end_date?: Date | string | null
+  }
+
+  export type withholding_tax_documentsCreateManyEmployeesInput = {
+    id?: number
+    book_number?: string | null
+    document_number: string
+    copy_type: number
+    payer_name: string
+    payer_tax_id: string
+    payer_address: string
+    payee_name: string
+    payee_tax_id: string
+    payee_address: string
+    tax_form_type: string
+    total_payment_amount: Decimal | DecimalJsLike | number | string
+    total_tax_withheld: Decimal | DecimalJsLike | number | string
+    total_tax_text: string
+    deduct_provident_fund_1?: Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: Decimal | DecimalJsLike | number | string | null
+    payment_condition: number
+    payment_condition_other_desc?: string | null
+    signer_name: string
+    issue_date: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string
   }
 
   export type asset_borrowingsUpdateWithoutEmployeesInput = {
@@ -204827,6 +214020,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -204864,6 +214067,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutEmployees_employees_secondary_supervisor_idToemployeesInput = {
@@ -204907,6 +214111,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -204940,6 +214154,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput = {
@@ -204983,6 +214198,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type employeesUpdateWithoutEmployees_employees_supervisor_idToemployeesInput = {
@@ -205022,6 +214247,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -205059,6 +214294,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutEmployees_employees_supervisor_idToemployeesInput = {
@@ -205102,6 +214338,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -205135,6 +214381,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesInput = {
@@ -205178,6 +214425,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type general_welfare_claimsUpdateWithoutEmployeesInput = {
@@ -205463,6 +214720,10 @@ export namespace Prisma {
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUncheckedUpdateWithoutEmployeesInput = {
@@ -205495,6 +214756,10 @@ export namespace Prisma {
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type monthly_payroll_dataUncheckedUpdateManyWithoutEmployeesInput = {
@@ -205527,6 +214792,10 @@ export namespace Prisma {
     insurance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     insurance_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     general_allowance_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxable_income?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ot_requestsUpdateWithoutEmployeesInput = {
@@ -206135,6 +215404,85 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type withholding_tax_documentsUpdateWithoutEmployeesInput = {
+    book_number?: NullableStringFieldUpdateOperationsInput | string | null
+    document_number?: StringFieldUpdateOperationsInput | string
+    copy_type?: IntFieldUpdateOperationsInput | number
+    payer_name?: StringFieldUpdateOperationsInput | string
+    payer_tax_id?: StringFieldUpdateOperationsInput | string
+    payer_address?: StringFieldUpdateOperationsInput | string
+    payee_name?: StringFieldUpdateOperationsInput | string
+    payee_tax_id?: StringFieldUpdateOperationsInput | string
+    payee_address?: StringFieldUpdateOperationsInput | string
+    tax_form_type?: StringFieldUpdateOperationsInput | string
+    total_payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFieldUpdateOperationsInput | string
+    deduct_provident_fund_1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFieldUpdateOperationsInput | number
+    payment_condition_other_desc?: NullableStringFieldUpdateOperationsInput | string | null
+    signer_name?: StringFieldUpdateOperationsInput | string
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    withholding_tax_income_items?: withholding_tax_income_itemsUpdateManyWithoutWithholding_tax_documentsNestedInput
+  }
+
+  export type withholding_tax_documentsUncheckedUpdateWithoutEmployeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    book_number?: NullableStringFieldUpdateOperationsInput | string | null
+    document_number?: StringFieldUpdateOperationsInput | string
+    copy_type?: IntFieldUpdateOperationsInput | number
+    payer_name?: StringFieldUpdateOperationsInput | string
+    payer_tax_id?: StringFieldUpdateOperationsInput | string
+    payer_address?: StringFieldUpdateOperationsInput | string
+    payee_name?: StringFieldUpdateOperationsInput | string
+    payee_tax_id?: StringFieldUpdateOperationsInput | string
+    payee_address?: StringFieldUpdateOperationsInput | string
+    tax_form_type?: StringFieldUpdateOperationsInput | string
+    total_payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFieldUpdateOperationsInput | string
+    deduct_provident_fund_1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFieldUpdateOperationsInput | number
+    payment_condition_other_desc?: NullableStringFieldUpdateOperationsInput | string | null
+    signer_name?: StringFieldUpdateOperationsInput | string
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    withholding_tax_income_items?: withholding_tax_income_itemsUncheckedUpdateManyWithoutWithholding_tax_documentsNestedInput
+  }
+
+  export type withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    book_number?: NullableStringFieldUpdateOperationsInput | string | null
+    document_number?: StringFieldUpdateOperationsInput | string
+    copy_type?: IntFieldUpdateOperationsInput | number
+    payer_name?: StringFieldUpdateOperationsInput | string
+    payer_tax_id?: StringFieldUpdateOperationsInput | string
+    payer_address?: StringFieldUpdateOperationsInput | string
+    payee_name?: StringFieldUpdateOperationsInput | string
+    payee_tax_id?: StringFieldUpdateOperationsInput | string
+    payee_address?: StringFieldUpdateOperationsInput | string
+    tax_form_type?: StringFieldUpdateOperationsInput | string
+    total_payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    total_tax_text?: StringFieldUpdateOperationsInput | string
+    deduct_provident_fund_1?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_social_security?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    deduct_provident_fund_2?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    payment_condition?: IntFieldUpdateOperationsInput | number
+    payment_condition_other_desc?: NullableStringFieldUpdateOperationsInput | string | null
+    signer_name?: StringFieldUpdateOperationsInput | string
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type employeesCreateManyJob_positionsInput = {
     emp_id: string
     name: string
@@ -206176,6 +215524,16 @@ export namespace Prisma {
     fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
     current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type job_positionsCreateManyJob_positionsInput = {
@@ -206226,6 +215584,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -206263,6 +215631,7 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutJob_positionsInput = {
@@ -206306,6 +215675,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -206339,6 +215718,7 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateManyWithoutJob_positionsInput = {
@@ -206382,6 +215762,16 @@ export namespace Prisma {
     fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type job_positionsUpdateWithoutJob_positionsInput = {
@@ -207754,6 +217144,41 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     roofType?: StringFieldUpdateOperationsInput | string
     ageYear?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type withholding_tax_income_itemsCreateManyWithholding_tax_documentsInput = {
+    id?: number
+    income_type_id: number
+    income_description?: string | null
+    payment_date: Date | string
+    payment_amount: Decimal | DecimalJsLike | number | string
+    tax_withheld: Decimal | DecimalJsLike | number | string
+  }
+
+  export type withholding_tax_income_itemsUpdateWithoutWithholding_tax_documentsInput = {
+    income_type_id?: IntFieldUpdateOperationsInput | number
+    income_description?: NullableStringFieldUpdateOperationsInput | string | null
+    payment_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type withholding_tax_income_itemsUncheckedUpdateWithoutWithholding_tax_documentsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    income_type_id?: IntFieldUpdateOperationsInput | number
+    income_description?: NullableStringFieldUpdateOperationsInput | string | null
+    payment_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type withholding_tax_income_itemsUncheckedUpdateManyWithoutWithholding_tax_documentsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    income_type_id?: IntFieldUpdateOperationsInput | number
+    income_description?: NullableStringFieldUpdateOperationsInput | string | null
+    payment_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
   }
 
 

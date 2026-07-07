@@ -47,13 +47,15 @@ export default async function ProjectDashboardPage() {
     orderBy: { createdAt: 'desc' }
   });
 
+  const serializedProjects = JSON.parse(JSON.stringify(projects));
+
   return (
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
       <Sidebar activeRoute="/projects/dashboard" userFullName={user.fullName} userId={user.id} userRole={user.role} />
       
       <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
         <div className="max-w-7xl mx-auto w-full">
-          <ProjectDashboardClient projects={projects} />
+          <ProjectDashboardClient projects={serializedProjects} />
         </div>
       </main>
     </div>

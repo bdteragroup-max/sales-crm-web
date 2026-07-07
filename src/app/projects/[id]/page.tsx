@@ -61,11 +61,15 @@ export default async function ProjectDetailPage(props: { params: Promise<{ id: s
     select: { id: true, fullName: true, role: true }
   });
 
+  const serializedProject = JSON.parse(JSON.stringify(project));
+  const serializedUser = JSON.parse(JSON.stringify(user));
+  const serializedUsers = JSON.parse(JSON.stringify(users));
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Sidebar activeRoute="/projects" userFullName={user.fullName} userId={user.employeeId} userRole={user.role} />
       <main className="flex-1 overflow-hidden relative custom-scrollbar flex flex-col h-full bg-gray-50/50 pt-16 md:pt-0">
-        <ProjectDetailClient project={project} currentUser={user} isManager={isManager} allUsers={users} />
+        <ProjectDetailClient project={serializedProject} currentUser={serializedUser} isManager={isManager} allUsers={serializedUsers} />
       </main>
     </div>
   )

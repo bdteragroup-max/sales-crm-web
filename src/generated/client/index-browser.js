@@ -769,7 +769,17 @@ exports.Prisma.EmployeesScalarFieldEnum = {
   fixed_meal_allowance: 'fixed_meal_allowance',
   fixed_travel_allowance: 'fixed_travel_allowance',
   fixed_tax_deduction: 'fixed_tax_deduction',
-  current_streak: 'current_streak'
+  current_streak: 'current_streak',
+  sso_include_fixed_accommodation: 'sso_include_fixed_accommodation',
+  sso_include_fixed_meal: 'sso_include_fixed_meal',
+  sso_include_fixed_travel: 'sso_include_fixed_travel',
+  sso_include_general_allowance: 'sso_include_general_allowance',
+  sso_include_position_allowance: 'sso_include_position_allowance',
+  car_benefit: 'car_benefit',
+  housing_benefit: 'housing_benefit',
+  provident_fund_amt: 'provident_fund_amt',
+  provident_fund_rate: 'provident_fund_rate',
+  tax_deduction_override: 'tax_deduction_override'
 };
 
 exports.Prisma.General_welfare_claimsScalarFieldEnum = {
@@ -930,7 +940,11 @@ exports.Prisma.Monthly_payroll_dataScalarFieldEnum = {
   is_published: 'is_published',
   insurance: 'insurance',
   insurance_income: 'insurance_income',
-  general_allowance_override: 'general_allowance_override'
+  general_allowance_override: 'general_allowance_override',
+  car_benefit: 'car_benefit',
+  housing_benefit: 'housing_benefit',
+  provident_fund: 'provident_fund',
+  taxable_income: 'taxable_income'
 };
 
 exports.Prisma.Ot_requestsScalarFieldEnum = {
@@ -1684,6 +1698,65 @@ exports.Prisma.Fleetcard_transactionsScalarFieldEnum = {
   status: 'status'
 };
 
+exports.Prisma.Company_settingsScalarFieldEnum = {
+  id: 'id',
+  tax_id: 'tax_id',
+  name: 'name',
+  address: 'address',
+  branch_no: 'branch_no',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Tax_configsScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  sso_rate: 'sso_rate',
+  sso_max_monthly: 'sso_max_monthly',
+  sso_max_yearly: 'sso_max_yearly',
+  expense_deduct_rate: 'expense_deduct_rate',
+  expense_deduct_max: 'expense_deduct_max',
+  personal_allowance: 'personal_allowance',
+  tax_brackets: 'tax_brackets',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Withholding_tax_documentsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  book_number: 'book_number',
+  document_number: 'document_number',
+  copy_type: 'copy_type',
+  payer_name: 'payer_name',
+  payer_tax_id: 'payer_tax_id',
+  payer_address: 'payer_address',
+  payee_name: 'payee_name',
+  payee_tax_id: 'payee_tax_id',
+  payee_address: 'payee_address',
+  tax_form_type: 'tax_form_type',
+  total_payment_amount: 'total_payment_amount',
+  total_tax_withheld: 'total_tax_withheld',
+  total_tax_text: 'total_tax_text',
+  deduct_provident_fund_1: 'deduct_provident_fund_1',
+  deduct_social_security: 'deduct_social_security',
+  deduct_provident_fund_2: 'deduct_provident_fund_2',
+  payment_condition: 'payment_condition',
+  payment_condition_other_desc: 'payment_condition_other_desc',
+  signer_name: 'signer_name',
+  issue_date: 'issue_date',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Withholding_tax_income_itemsScalarFieldEnum = {
+  id: 'id',
+  document_id: 'document_id',
+  income_type_id: 'income_type_id',
+  income_description: 'income_description',
+  payment_date: 'payment_date',
+  payment_amount: 'payment_amount',
+  tax_withheld: 'tax_withheld'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1813,7 +1886,11 @@ exports.Prisma.ModelName = {
   announcements: 'announcements',
   FuelFlagReview: 'FuelFlagReview',
   fleetcards: 'fleetcards',
-  fleetcard_transactions: 'fleetcard_transactions'
+  fleetcard_transactions: 'fleetcard_transactions',
+  company_settings: 'company_settings',
+  tax_configs: 'tax_configs',
+  withholding_tax_documents: 'withholding_tax_documents',
+  withholding_tax_income_items: 'withholding_tax_income_items'
 };
 
 /**
