@@ -12,22 +12,36 @@ export async function getManagerCheckins(dateStart?: Date, dateEnd?: Date, filte
   // Find the current user's employee record to get department_id
   const currentEmp = await prisma.employees.findUnique({
     where: { emp_id: user.employeeId },
-    select: { department_id: true, emp_id: true }
+    select: { department_id: true, emp_id: true, branch_id: true }
   });
 
   if (!currentEmp) {
     throw new Error("Employee record not found");
   }
 
+  const roleLower = (user.role || '').toLowerCase();
+  const employeeSale = (user as any).employeeSale;
+  const positionLower = (employeeSale?.position || '').toLowerCase();
+  const isBranchManager = roleLower === 'ผู้จัดการ' || roleLower === 'manager' ||
+                          roleLower.includes('branch') || roleLower.includes('สาขา') || 
+                          positionLower.includes('branch') || positionLower.includes('สาขา') ||
+                          positionLower === 'ผู้จัดการ' || positionLower === 'manager';
+
+  const employeeWhereClause: any = {
+    is_active: true,
+    OR: [
+      { department_id: currentEmp.department_id },
+      { supervisor_id: currentEmp.emp_id }
+    ]
+  };
+
+  if (isBranchManager && currentEmp.branch_id) {
+    employeeWhereClause.branch_id = currentEmp.branch_id;
+  }
+
   // Get all employees in the same department or directly supervised by this manager
   const supervisedEmployees = await prisma.employees.findMany({
-    where: {
-      is_active: true,
-      OR: [
-        { department_id: currentEmp.department_id },
-        { supervisor_id: currentEmp.emp_id }
-      ]
-    },
+    where: employeeWhereClause,
     select: {
       emp_id: true,
       name: true,

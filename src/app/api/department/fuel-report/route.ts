@@ -37,7 +37,11 @@ export async function GET(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      select: { employeeId: true }
+      select: { 
+        employeeId: true,
+        role: true,
+        employeeSale: { select: { position: true } }
+      }
     });
 
     if (!user?.employeeId) {
@@ -46,22 +50,35 @@ export async function GET(request: Request) {
 
     const currentEmp = await prisma.employees.findUnique({
       where: { emp_id: user.employeeId },
-      select: { department_id: true, emp_id: true }
+      select: { department_id: true, emp_id: true, branch_id: true }
     });
 
     if (!currentEmp) {
       return NextResponse.json({ error: 'Employee record not found' }, { status: 400 });
     }
 
+    const roleLower = (user.role || '').toLowerCase();
+    const positionLower = (user.employeeSale?.position || '').toLowerCase();
+    const isBranchManager = roleLower === 'ผู้จัดการ' || roleLower === 'manager' ||
+                            roleLower.includes('branch') || roleLower.includes('สาขา') || 
+                            positionLower.includes('branch') || positionLower.includes('สาขา') ||
+                            positionLower === 'ผู้จัดการ' || positionLower === 'manager';
+
+    const employeeWhereClause: any = {
+      is_active: true,
+      OR: [
+        { department_id: currentEmp.department_id },
+        { supervisor_id: currentEmp.emp_id }
+      ]
+    };
+
+    if (isBranchManager && currentEmp.branch_id) {
+      employeeWhereClause.branch_id = currentEmp.branch_id;
+    }
+
     // Get employees in manager's department or directly supervised
     const employees = await prisma.employees.findMany({
-      where: {
-        is_active: true,
-        OR: [
-          { department_id: currentEmp.department_id },
-          { supervisor_id: currentEmp.emp_id }
-        ]
-      },
+      where: employeeWhereClause,
       select: { emp_id: true, name: true, branches: { select: { name: true, center_lat: true, center_lon: true } } }
     });
 
