@@ -27,6 +27,11 @@ export async function updatePaymentTaskStatus(taskId: string, status: string, no
         where: { id: task.jobId },
         data: { paymentStatus: 'paid' }
       });
+
+      if (task.job.quotationId) {
+        const { awardGoldOnDealClosed } = await import('@/app/actions/coins');
+        await awardGoldOnDealClosed(task.job.quotationId);
+      }
     }
   }
 

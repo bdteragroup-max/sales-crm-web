@@ -105,17 +105,6 @@ export async function updateQuotationStatus(
       const existingOrder = await prisma.order.findFirst({
         where: { quotationId: quotation.id }
       });
-      
-      // Award Gold Coins when closed
-      if (newStatus === 'เปิดบิลแล้ว') {
-        const { awardGoldOnDealClosed } = await import('@/app/actions/coins');
-        const coinRes = await awardGoldOnDealClosed(quotation.id);
-        if (coinRes.success && 'awardedGold' in coinRes && coinRes.awardedGold) {
-          awardedGold = coinRes.awardedGold;
-          awardMessage = coinRes.message || '';
-        }
-      }
-
       if (!existingOrder && quotation.companyId) {
         const baseOrderNumber = updateData.poNumber || updateData.quotationNumber || quotation.quotationNumber || `ORD-${quotation.id.slice(0, 8)}`;
         let finalOrderNumber = baseOrderNumber;
