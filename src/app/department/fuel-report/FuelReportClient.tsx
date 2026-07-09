@@ -116,25 +116,33 @@ export default function FuelReportClient() {
       alert("ไม่มีข้อมูลสำหรับส่งออก");
       return;
     }
-    const wb = XLSX.utils.book_new();
+    
     const exportData: any[] = [];
 
     filteredData.forEach(emp => {
-      emp.dailyList.forEach((day: any) => {
-        exportData.push({
-          'ชื่อพนักงาน': emp.name,
-          'สาขา': emp.branch_name || 'ไม่ระบุสาขา',
-          'วันที่': day.date,
-          'ระยะทาง GPS (กม.)': day.distance,
-          'ค่าเสื่อม (3บ/กม)': day.depreciation,
-          'เติมน้ำมัน (ลิตร)': day.fuelLiters || 0,
-          'ยอดเงิน Fleetcard': day.fuelAmount || 0,
-          'เบิกจ่าย Manual': day.manualExpenseAmount || 0,
-          'การแจ้งเตือน': day.flags.map((f: any) => f.type).join(', ') || '-'
+      if (emp.dailyList && emp.dailyList.length > 0) {
+        emp.dailyList.forEach((day: any) => {
+          exportData.push({
+            'ชื่อพนักงาน': emp.name,
+            'สาขา': emp.branch_name || 'ไม่ระบุสาขา',
+            'วันที่': day.date,
+            'ระยะทาง GPS (กม.)': day.distance,
+            'ค่าเสื่อม (3บ/กม)': day.depreciation,
+            'เติมน้ำมัน (ลิตร)': day.fuelLiters || 0,
+            'ยอดเงิน Fleetcard': day.fuelAmount || 0,
+            'เบิกจ่าย Manual': day.manualExpenseAmount || 0,
+            'การแจ้งเตือน': (day.flags || []).map((f: any) => f.type).join(', ') || '-'
+          });
         });
-      });
+      }
     });
 
+    if (exportData.length === 0) {
+      alert("ไม่มีข้อมูลรายวันสำหรับส่งออกในช่วงเวลานี้ (No daily data to export for this period)");
+      return;
+    }
+
+    const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(exportData);
     XLSX.utils.book_append_sheet(wb, ws, "Fuel Report");
     XLSX.writeFile(wb, `Fuel_Report_${startDate}_to_${endDate}.xlsx`);
