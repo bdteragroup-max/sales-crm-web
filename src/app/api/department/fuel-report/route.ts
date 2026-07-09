@@ -91,7 +91,12 @@ export async function GET(request: Request) {
     // Get employees in manager's department or directly supervised
     const employees = await prisma.employees.findMany({
       where: employeeWhereClause,
-      select: { emp_id: true, name: true, branches: { select: { name: true, center_lat: true, center_lon: true } } }
+      select: { 
+        emp_id: true, 
+        name: true, 
+        branches: { select: { name: true, center_lat: true, center_lon: true } },
+        departments: { select: { name: true } }
+      }
     });
 
     const employeeIds = employees.map(e => e.emp_id);
@@ -192,6 +197,7 @@ export async function GET(request: Request) {
         emp_id: emp.emp_id,
         name: emp.name,
         branch_name: emp.branches?.name || null,
+        department_name: emp.departments?.name || null,
         branch_lat: emp.branches?.center_lat ? Number(emp.branches.center_lat) : null,
         branch_lon: emp.branches?.center_lon ? Number(emp.branches.center_lon) : null,
         dailyStats: {}
@@ -280,6 +286,14 @@ export async function GET(request: Request) {
               }
            }
         });
+
+        // Add return trip to branch
+        if (stat.checkinsList.length > 0) {
+           const lastChk = stat.checkinsList[stat.checkinsList.length - 1];
+           if (emp.branch_lat && emp.branch_lon && lastChk.lat && lastChk.lon) {
+              calculatedDistance += getDistanceFromLatLonInKm(lastChk.lat, lastChk.lon, emp.branch_lat, emp.branch_lon);
+           }
+        }
         
         // Use calculated distance, round to 2 decimals for display/calc
         stat.distance = parseFloat(calculatedDistance.toFixed(2));

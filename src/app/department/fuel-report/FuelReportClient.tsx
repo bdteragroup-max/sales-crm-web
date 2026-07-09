@@ -41,6 +41,7 @@ export default function FuelReportClient() {
   const [expandedEmp, setExpandedEmp] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
 
   const [reviewNote, setReviewNote] = useState("");
   const [reviewingFlag, setReviewingFlag] = useState<any>(null);
@@ -114,6 +115,16 @@ export default function FuelReportClient() {
     return Array.from(branches).sort();
   }, [data]);
 
+  const uniqueDepartments = React.useMemo(() => {
+    const departments = new Set<string>();
+    data.forEach(emp => {
+      if (emp.department_name) {
+        departments.add(emp.department_name);
+      }
+    });
+    return Array.from(departments).sort();
+  }, [data]);
+
   const filteredData = React.useMemo(() => {
     return data.map(emp => {
       if (!selectedBranch) return emp;
@@ -132,12 +143,13 @@ export default function FuelReportClient() {
       };
     }).filter(emp => {
       if (selectedBranch && emp.branch_name !== selectedBranch && (!emp.dailyList || emp.dailyList.length === 0)) return false;
+      if (selectedDepartment && emp.department_name !== selectedDepartment) return false;
       
       if (!searchQuery) return true;
       const q = searchQuery.toLowerCase();
       return emp.name && emp.name.toLowerCase().includes(q);
     });
-  }, [data, selectedBranch, searchQuery]);
+  }, [data, selectedBranch, selectedDepartment, searchQuery]);
 
   const exportToExcel = () => {
     if (filteredData.length === 0) {
@@ -150,10 +162,45 @@ export default function FuelReportClient() {
     filteredData.forEach(emp => {
       if (emp.dailyList && emp.dailyList.length > 0) {
         emp.dailyList.forEach((day: any) => {
+          let routeDetails = "";
+          if (day.checkinsList && day.checkinsList.length > 0) {
+            routeDetails = "จุดเริ่มต้น: สาขาหลัก";
+            day.checkinsList.forEach((chk: any, idx: number) => {
+              let distanceToPrev = 0;
+              if (idx > 0) {
+                const prevChk = day.checkinsList[idx - 1];
+                if (chk.lat && chk.lon && prevChk.lat && prevChk.lon) {
+                  distanceToPrev = getDistanceFromLatLonInKm(prevChk.lat, prevChk.lon, chk.lat, chk.lon);
+                }
+              } else {
+                if (chk.lat && chk.lon && emp.branch_lat && emp.branch_lon) {
+                  distanceToPrev = getDistanceFromLatLonInKm(emp.branch_lat, emp.branch_lon, chk.lat, chk.lon);
+                }
+              }
+              if (distanceToPrev > 0) {
+                routeDetails += `\n↓ ${distanceToPrev.toFixed(2)} km\n${idx + 1}. ${chk.type}`;
+              } else {
+                routeDetails += `\n${idx + 1}. ${chk.type}`;
+              }
+            });
+            const lastChk = day.checkinsList[day.checkinsList.length - 1];
+            let distanceToBranch = 0;
+            if (lastChk.lat && lastChk.lon && emp.branch_lat && emp.branch_lon) {
+              distanceToBranch = getDistanceFromLatLonInKm(lastChk.lat, lastChk.lon, emp.branch_lat, emp.branch_lon);
+            }
+            if (distanceToBranch > 0) {
+              routeDetails += `\n↓ ${distanceToBranch.toFixed(2)} km\nจุดสิ้นสุด: สาขาหลัก`;
+            } else {
+              routeDetails += `\nจุดสิ้นสุด: สาขาหลัก`;
+            }
+          }
+
           exportData.push({
             'ชื่อพนักงาน': emp.name,
+            'แผนก': emp.department_name || 'ไม่ระบุแผนก',
             'สาขา': emp.branch_name || 'ไม่ระบุสาขา',
             'วันที่': day.date,
+            'รายละเอียดเส้นทาง': routeDetails,
             'ระยะทาง GPS (กม.)': day.distance,
             'ค่าเสื่อม (3บ/กม)': day.depreciation,
             'เติมน้ำมัน (ลิตร)': day.fuelLiters || 0,
@@ -190,18 +237,33 @@ export default function FuelReportClient() {
         </div>
         
         <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full xl:w-auto">
-          <div className="relative w-full sm:w-auto">
-            <select
-              value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.target.value)}
-              className="w-full sm:w-40 px-3 py-2 pr-8 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none text-gray-700"
-            >
-              <option value="">ทุกสาขา</option>
-              {uniqueBranches.map(branch => (
-                <option key={branch} value={branch}>{branch}</option>
-              ))}
-            </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <div className="relative w-full sm:w-auto flex gap-2">
+            <div className="relative w-full sm:w-auto">
+              <select
+                value={selectedDepartment}
+                onChange={(e) => setSelectedDepartment(e.target.value)}
+                className="w-full sm:w-32 px-3 py-2 pr-8 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none text-gray-700"
+              >
+                <option value="">ทุกแผนก</option>
+                {uniqueDepartments.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
+            <div className="relative w-full sm:w-auto">
+              <select
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="w-full sm:w-32 px-3 py-2 pr-8 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none text-gray-700"
+              >
+                <option value="">ทุกสาขา</option>
+                {uniqueBranches.map(branch => (
+                  <option key={branch} value={branch}>{branch}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
           </div>
           <div className="relative w-full sm:w-auto">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -272,7 +334,10 @@ export default function FuelReportClient() {
                       </div>
                       <div className="min-w-0">
                         <h3 className="text-sm sm:text-base font-bold text-gray-900 truncate">{emp.name}</h3>
-                        <p className="text-[10px] sm:text-xs text-gray-500 truncate">{emp.branch_name || "ไม่ระบุสาขา"}</p>
+                        <p className="text-[10px] sm:text-xs text-gray-500 truncate">
+                          {emp.department_name ? `${emp.department_name} • ` : ''}
+                          {emp.branch_name || "ไม่ระบุสาขา"}
+                        </p>
                       </div>
                     </div>
                   <div className="flex items-center gap-4">
