@@ -39,6 +39,8 @@ export default function FuelReportClient() {
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedEmp, setExpandedEmp] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("");
 
   const [reviewNote, setReviewNote] = useState("");
   const [reviewingFlag, setReviewingFlag] = useState<any>(null);
@@ -92,25 +94,89 @@ export default function FuelReportClient() {
     }
   };
 
+  const uniqueBranches = React.useMemo(() => {
+    const branches = new Set<string>();
+    data.forEach(emp => {
+      if (emp.branch_name) {
+        branches.add(emp.branch_name);
+      }
+    });
+    return Array.from(branches).sort();
+  }, [data]);
+
+  const filteredData = data.filter(emp => {
+    if (selectedBranch && emp.branch_name !== selectedBranch) return false;
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return emp.name && emp.name.toLowerCase().includes(q);
+  });
+
   const exportToExcel = () => {
-    // Navigate to the new API endpoint which handles ZIP generation
-    window.location.href = `/api/admin/reports/offsite-fuel/export?startDate=${startDate}&endDate=${endDate}&managerId=true`;
+    if (filteredData.length === 0) {
+      alert("ไม่มีข้อมูลสำหรับส่งออก");
+      return;
+    }
+    const wb = XLSX.utils.book_new();
+    const exportData: any[] = [];
+
+    filteredData.forEach(emp => {
+      emp.dailyList.forEach((day: any) => {
+        exportData.push({
+          'ชื่อพนักงาน': emp.name,
+          'สาขา': emp.branch_name || 'ไม่ระบุสาขา',
+          'วันที่': day.date,
+          'ระยะทาง GPS (กม.)': day.distance,
+          'ค่าเสื่อม (3บ/กม)': day.depreciation,
+          'เติมน้ำมัน (ลิตร)': day.fuelLiters || 0,
+          'ยอดเงิน Fleetcard': day.fuelAmount || 0,
+          'เบิกจ่าย Manual': day.manualExpenseAmount || 0,
+          'การแจ้งเตือน': day.flags.map((f: any) => f.type).join(', ') || '-'
+        });
+      });
+    });
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(wb, ws, "Fuel Report");
+    XLSX.writeFile(wb, `Fuel_Report_${startDate}_to_${endDate}.xlsx`);
   };
 
   return (
     <div className="h-full flex flex-col bg-gray-50/30 overflow-hidden flex-1 w-full">
-      <header className="shrink-0 bg-white border-b border-gray-100 px-4 md:px-10 py-4 md:py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 z-10 relative">
-        <div className="flex items-center gap-3 md:gap-4">
+      <header className="shrink-0 bg-white border-b border-gray-100 px-4 md:px-6 py-4 flex flex-col xl:flex-row xl:items-center justify-between gap-4 z-10 relative">
+        <div className="flex items-center gap-3 shrink-0">
           <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-lg shadow-red-200 shrink-0">
             <ShieldCheck className="text-white w-5 h-5 md:w-6 md:h-6" />
           </div>
           <div>
-            <h1 className="text-lg md:text-2xl font-black text-gray-900 tracking-tight leading-tight">รายงานการใช้น้ำมันและพิกัด (Fuel & GPS)</h1>
+            <h1 className="text-lg md:text-2xl font-black text-gray-900 tracking-tight leading-tight whitespace-nowrap">รายงานการใช้น้ำมันและพิกัด (Fuel & GPS)</h1>
             <p className="text-[10px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Fleetcard & Depreciation Review</p>
           </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto mt-2 md:mt-0">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full xl:w-auto">
+          <div className="relative w-full sm:w-auto">
+            <select
+              value={selectedBranch}
+              onChange={(e) => setSelectedBranch(e.target.value)}
+              className="w-full sm:w-40 px-3 py-2 pr-8 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none text-gray-700"
+            >
+              <option value="">ทุกสาขา</option>
+              {uniqueBranches.map(branch => (
+                <option key={branch} value={branch}>{branch}</option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          </div>
+          <div className="relative w-full sm:w-auto">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input 
+              type="text"
+              placeholder="ค้นหาชื่อพนักงาน..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full sm:w-48 pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+            />
+          </div>
           <Link href="/sales/expenses" className="flex items-center justify-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-100 transition-colors border border-blue-100 whitespace-nowrap">
             <Receipt size={16} />
             บันทึกการเบิกจ่าย
@@ -151,15 +217,14 @@ export default function FuelReportClient() {
           <div className="h-[400px] flex items-center justify-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600"></div>
           </div>
-        ) : data.length === 0 ? (
+        ) : filteredData.length === 0 ? (
           <div className="h-[400px] flex flex-col items-center justify-center text-gray-400 p-8 text-center bg-white rounded-3xl border border-gray-100 shadow-sm">
             <ShieldCheck size={48} className="mb-4 text-gray-200" />
-            <p className="text-lg font-bold text-gray-700">ไม่พบข้อมูลในช่วงเวลานี้</p>
-            <p className="text-sm mt-1">ลองเปลี่ยนวันที่เพื่อดูข้อมูลอื่น</p>
+            <p className="text-lg font-bold text-gray-700">ไม่พบข้อมูลที่ค้นหา</p>
           </div>
         ) : (
           <div className="space-y-6">
-            {data.map((emp) => (
+            {filteredData.map((emp) => (
               <div key={emp.emp_id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div 
                   className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 cursor-pointer hover:bg-gray-100/50 transition-colors"

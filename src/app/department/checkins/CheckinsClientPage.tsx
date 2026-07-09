@@ -39,6 +39,7 @@ export default function CheckinsClientPage() {
     return d.toISOString().split("T")[0];
   });
   const [filterEmpId, setFilterEmpId] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("");
   const [checkins, setCheckins] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +52,39 @@ export default function CheckinsClientPage() {
       end.setHours(23, 59, 59, 999);
       
       const data = await getManagerCheckins(start, end, filterEmpId || undefined);
-      setCheckins(data.checkins);
+      
+      let finalCheckins = data.checkins;
+      if (selectedBranch) {
+        const allowedEmpIds = new Set(data.employees.filter((e: any) => e.branches?.name === selectedBranch).map((e: any) => e.emp_id));
+        finalCheckins = finalCheckins.filter((c: any) => allowedEmpIds.has(c.emp_id));
+      }
+      
+      const COLORS = [
+        '#dc2626', // Red
+        '#2563eb', // Blue
+        '#16a34a', // Green
+        '#d97706', // Orange
+        '#9333ea', // Purple
+        '#0891b2', // Cyan
+        '#be123c', // Rose
+        '#4f46e5', // Indigo
+        '#059669', // Emerald
+        '#b45309', // Amber
+      ];
+      
+      const employeeColors = new Map<string, string>();
+      const processedCheckins = finalCheckins.map((c: any, idx: number) => {
+        if (!employeeColors.has(c.employeeName)) {
+          employeeColors.set(c.employeeName, COLORS[employeeColors.size % COLORS.length]);
+        }
+        return {
+          ...c,
+          color: employeeColors.get(c.employeeName),
+          displayNumber: finalCheckins.length - idx
+        };
+      });
+
+      setCheckins(processedCheckins);
       if (employees.length === 0 && !filterEmpId) {
         setEmployees(data.employees);
       }
@@ -65,7 +98,11 @@ export default function CheckinsClientPage() {
 
   useEffect(() => {
     loadData();
-  }, [dateStart, dateEnd, filterEmpId]);
+  }, [dateStart, dateEnd, filterEmpId, selectedBranch]);
+
+  const uniqueBranches = React.useMemo(() => {
+    return Array.from(new Set(employees.map(e => e.branches?.name).filter(Boolean))).sort();
+  }, [employees]);
 
   return (
     <div className="h-full flex flex-col bg-gray-50/30 overflow-hidden flex-1 w-full">
@@ -117,6 +154,27 @@ export default function CheckinsClientPage() {
                   </div>
                 </div>
                 <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">สาขา</label>
+                  <div className="relative">
+                    <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <select
+                      value={selectedBranch}
+                      onChange={(e) => {
+                        setSelectedBranch(e.target.value);
+                        setFilterEmpId(""); // Reset employee filter when branch changes
+                      }}
+                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none"
+                    >
+                      <option value="">ทุกสาขา</option>
+                      {uniqueBranches.map(branch => (
+                        <option key={branch as string} value={branch as string}>
+                          {branch as string}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div>
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">พนักงาน</label>
                   <div className="relative">
                     <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -126,8 +184,10 @@ export default function CheckinsClientPage() {
                       className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none"
                     >
                       <option value="">ทั้งหมดในแผนก</option>
-                      {employees.map(emp => (
-                        <option key={emp.emp_id} value={emp.emp_id}>{emp.name}</option>
+                      {employees.filter(emp => !selectedBranch || emp.branches?.name === selectedBranch).map(emp => (
+                        <option key={emp.emp_id} value={emp.emp_id}>
+                          {emp.name}{emp.nickname ? ` (${emp.nickname})` : ''}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -209,7 +269,12 @@ export default function CheckinsClientPage() {
                           <div className="p-4 rounded-xl border border-gray-100 bg-white hover:bg-gray-50 transition-colors cursor-pointer group relative z-0">
                             <div className="flex justify-between items-start mb-2">
                               <div className="flex items-start gap-2">
-                                <span className="bg-red-100 text-red-700 border border-red-200 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0">{checkins.length - idx}</span>
+                                <span 
+                                  className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 text-white shadow-sm border border-white"
+                                  style={{ backgroundColor: c.color }}
+                                >
+                                  {c.displayNumber}
+                                </span>
                                 <div>
                                   <span className="text-[11px] font-bold text-gray-900 block">{c.employeeName}</span>
                                   <span className="text-[10px] text-gray-500">

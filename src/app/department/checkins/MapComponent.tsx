@@ -6,10 +6,10 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
 // Numbered icon generator
-const getNumberedIcon = (number: number) => {
+const getNumberedIcon = (number: number, color: string = '#dc2626') => {
   return L.divIcon({
     className: "custom-div-icon",
-    html: `<div style="background-color: #dc2626; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">${number}</div>`,
+    html: `<div style="background-color: ${color}; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">${number}</div>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14],
     popupAnchor: [0, -14],
@@ -25,6 +25,8 @@ interface Checkin {
   project_name: string | null;
   timestamp: string;
   photo_url: string | null;
+  color?: string;
+  displayNumber?: number;
 }
 
 interface MapComponentProps {
@@ -73,8 +75,8 @@ export default function MapComponent({ checkins }: MapComponentProps) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {validCheckins.map((c, idx) => (
-          <Marker key={c.id} position={[c.lat as number, c.lon as number]} icon={getNumberedIcon(idx + 1)}>
+        {validCheckins.map((c) => (
+          <Marker key={c.id} position={[c.lat as number, c.lon as number]} icon={getNumberedIcon(c.displayNumber || 0, c.color)}>
             <Popup>
               <div className="flex flex-col gap-1 p-1 min-w-[200px]">
                 <strong className="text-sm">{c.employeeName}</strong>

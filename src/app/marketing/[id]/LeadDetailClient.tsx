@@ -225,20 +225,26 @@ export default function LeadDetailClient({ lead, salesReps }: { lead: any, sales
                           >
                             -- เลือกฝ่ายขาย --
                           </li>
-                          {salesReps.filter(r => r.fullName.toLowerCase().includes(searchRepQuery.toLowerCase())).map((rep) => (
+                          {salesReps.filter(r => 
+                            r.fullName.toLowerCase().includes(searchRepQuery.toLowerCase()) || 
+                            (r.nickname && r.nickname.toLowerCase().includes(searchRepQuery.toLowerCase()))
+                          ).map((rep) => (
                             <li
                               key={rep.id}
                               onClick={() => {
                                 setSelectedRep(rep.id)
-                                setSearchRepQuery(rep.fullName)
+                                setSearchRepQuery(`${rep.fullName}${rep.nickname ? ` (${rep.nickname})` : ''}`)
                                 setShowRepDropdown(false)
                               }}
                               className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm font-bold text-gray-700 border-t border-gray-50"
                             >
-                              {rep.fullName}
+                              {rep.fullName}{rep.nickname ? ` (${rep.nickname})` : ''}
                             </li>
                           ))}
-                          {searchRepQuery && salesReps.filter(r => r.fullName.toLowerCase().includes(searchRepQuery.toLowerCase())).length === 0 && (
+                          {searchRepQuery && salesReps.filter(r => 
+                            r.fullName.toLowerCase().includes(searchRepQuery.toLowerCase()) || 
+                            (r.nickname && r.nickname.toLowerCase().includes(searchRepQuery.toLowerCase()))
+                          ).length === 0 && (
                             <li className="px-4 py-3 text-sm text-gray-400 text-center">
                               ไม่พบพนักงานชื่อนี้
                             </li>

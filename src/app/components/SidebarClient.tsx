@@ -119,6 +119,7 @@ export default function SidebarClient(props: SidebarProps) {
     nav = [
       { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
       { icon: DollarSign, label: 'งานการเงิน/บัญชี', href: '/accounting' },
+      { icon: FileText, label: 'รายงานใช้น้ำมัน & GPS', href: '/department/fuel-report' },
     ];
   } else if (['project', 'โปรเจค', 'โปรเจกต์'].some(r => roleStr.includes(r))) {
     nav = projectNav; // Project users see their projects

@@ -64,7 +64,9 @@ export async function GET(request: Request) {
                             positionLower.includes('branch') || positionLower.includes('สาขา') ||
                             positionLower === 'ผู้จัดการ' || positionLower === 'manager';
 
-    const employeeWhereClause: any = {
+    const isExpenseAdmin = ['accounting', 'บัญชี', 'admin', 'finance', 'การเงิน'].some(r => roleLower.includes(r));
+
+    let employeeWhereClause: any = {
       is_active: true,
       OR: [
         { department_id: currentEmp.department_id },
@@ -72,7 +74,9 @@ export async function GET(request: Request) {
       ]
     };
 
-    if (isBranchManager && currentEmp.branch_id) {
+    if (isExpenseAdmin) {
+      employeeWhereClause = { is_active: true }; // Admin/Accounting sees everyone
+    } else if (isBranchManager && currentEmp.branch_id) {
       employeeWhereClause.branch_id = currentEmp.branch_id;
     }
 

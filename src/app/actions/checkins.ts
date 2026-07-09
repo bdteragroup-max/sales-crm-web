@@ -27,7 +27,9 @@ export async function getManagerCheckins(dateStart?: Date, dateEnd?: Date, filte
                           positionLower.includes('branch') || positionLower.includes('สาขา') ||
                           positionLower === 'ผู้จัดการ' || positionLower === 'manager';
 
-  const employeeWhereClause: any = {
+  const isExpenseAdmin = ['accounting', 'บัญชี', 'admin', 'finance', 'การเงิน'].some(r => roleLower.includes(r));
+
+  let employeeWhereClause: any = {
     is_active: true,
     OR: [
       { department_id: currentEmp.department_id },
@@ -35,7 +37,9 @@ export async function getManagerCheckins(dateStart?: Date, dateEnd?: Date, filte
     ]
   };
 
-  if (isBranchManager && currentEmp.branch_id) {
+  if (isExpenseAdmin) {
+    employeeWhereClause = { is_active: true }; // Admin/Accounting sees everyone
+  } else if (isBranchManager && currentEmp.branch_id) {
     employeeWhereClause.branch_id = currentEmp.branch_id;
   }
 
@@ -45,6 +49,7 @@ export async function getManagerCheckins(dateStart?: Date, dateEnd?: Date, filte
     select: {
       emp_id: true,
       name: true,
+      nickname: true,
       branches: {
         select: {
           name: true,
@@ -108,7 +113,11 @@ export async function getManagerCheckins(dateStart?: Date, dateEnd?: Date, filte
       timestamp: c.timestamp.toISOString(),
       date_key: c.date_key.toISOString(),
       time_key: c.time_key.toISOString(),
-      employeeName: supervisedEmployees.find(e => e.emp_id === c.emp_id)?.name || c.name,
+      employeeName: (() => {
+        const emp = supervisedEmployees.find(e => e.emp_id === c.emp_id);
+        if (emp) return `${emp.name}${emp.nickname ? ` (${emp.nickname})` : ''}`;
+        return c.name;
+      })(),
       branchLat: supervisedEmployees.find(e => e.emp_id === c.emp_id)?.branches?.center_lat ? Number(supervisedEmployees.find(e => e.emp_id === c.emp_id)?.branches?.center_lat) : null,
       branchLon: supervisedEmployees.find(e => e.emp_id === c.emp_id)?.branches?.center_lon ? Number(supervisedEmployees.find(e => e.emp_id === c.emp_id)?.branches?.center_lon) : null
     }));

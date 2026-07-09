@@ -12,21 +12,38 @@ export default async function NewMarketingLeadPage() {
     redirect('/')
   }
 
-  const salesReps = await prisma.user.findMany({
+  const dbUsers = await prisma.user.findMany({
     where: { 
       isActive: true,
-      OR: [
-        { role: { contains: 'sale', mode: 'insensitive' } },
-        { role: { contains: 'ขาย' } },
-        { role: { contains: 'เซล' } },
-        { role: { contains: 'manager', mode: 'insensitive' } },
-        { role: { contains: 'ผู้จัดการ' } },
-        { role: { contains: 'หัวหน้า' } }
-      ]
     },
-    select: { id: true, fullName: true },
+    select: { 
+      id: true, 
+      fullName: true,
+      employeeId: true
+    },
     orderBy: { fullName: 'asc' }
   })
+
+  let salesReps: any[] = []
+  if (dbUsers.length > 0) {
+    const { teraDb } = await import('@/app/lib/teraDb')
+    const employeeIds = dbUsers.map(u => u.employeeId).filter(Boolean) as string[]
+    let hrEmployeeMap = new Map<string, string>()
+    
+    if (employeeIds.length > 0) {
+      const hrEmployees = await teraDb.employees.findMany({
+        where: { emp_id: { in: employeeIds } },
+        select: { emp_id: true, nickname: true }
+      })
+      hrEmployeeMap = new Map(hrEmployees.map(e => [e.emp_id, e.nickname || '']))
+    }
+
+    salesReps = dbUsers.map(u => ({
+      id: u.id,
+      fullName: u.fullName,
+      nickname: u.employeeId ? hrEmployeeMap.get(u.employeeId) || null : null
+    }))
+  }
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
