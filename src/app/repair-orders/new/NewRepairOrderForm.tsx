@@ -413,15 +413,17 @@ export default function NewRepairOrderForm({
               <input type="date" value={receivedDate} onChange={(e) => setReceivedDate(e.target.value)} className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>รูปแบบงาน</label>
-              <div className="flex items-center gap-6 py-2">
-                {["ซ่อม", "เคลม", "ไม่ซ่อม/คืนสินค้า"].map((opt) => (
-                  <label key={opt} className="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
-                    <input type="radio" name="workType" value={opt} checked={workType === opt} onChange={(e) => setWorkType(e.target.value)} className="w-4 h-4 text-red-600 focus:ring-red-500" />
-                    <span>{opt}</span>
-                  </label>
-                ))}
-              </div>
+              <label className={labelClass}>รูปแบบงาน (Job Type)</label>
+              <select 
+                value={workType} 
+                onChange={(e) => setWorkType(e.target.value)} 
+                className={inputClass}
+              >
+                <option value="ซ่อม">ซ่อม</option>
+                <option value="เคลม">เคลม</option>
+                <option value="ไม่ซ่อม/คืนสินค้า">ไม่ซ่อม/คืนสินค้า</option>
+                <option value="ตรวจเช็ค">ตรวจเช็ค</option>
+              </select>
             </div>
             
             <div>

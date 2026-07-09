@@ -100,16 +100,44 @@ export default function FuelReportClient() {
       if (emp.branch_name) {
         branches.add(emp.branch_name);
       }
+      if (emp.dailyList) {
+        emp.dailyList.forEach((day: any) => {
+          if (day.checkinsList) {
+            day.checkinsList.forEach((chk: any) => {
+              if (chk.branch_name) branches.add(chk.branch_name);
+              if (chk.project_name) branches.add(chk.project_name);
+            });
+          }
+        });
+      }
     });
     return Array.from(branches).sort();
   }, [data]);
 
-  const filteredData = data.filter(emp => {
-    if (selectedBranch && emp.branch_name !== selectedBranch) return false;
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return emp.name && emp.name.toLowerCase().includes(q);
-  });
+  const filteredData = React.useMemo(() => {
+    return data.map(emp => {
+      if (!selectedBranch) return emp;
+      
+      if (emp.branch_name === selectedBranch) return emp;
+
+      const filteredDailyList = (emp.dailyList || []).filter((day: any) => {
+        return day.checkinsList && day.checkinsList.some((c: any) => 
+          c.branch_name === selectedBranch || c.project_name === selectedBranch
+        );
+      });
+
+      return {
+        ...emp,
+        dailyList: filteredDailyList
+      };
+    }).filter(emp => {
+      if (selectedBranch && emp.branch_name !== selectedBranch && (!emp.dailyList || emp.dailyList.length === 0)) return false;
+      
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return emp.name && emp.name.toLowerCase().includes(q);
+    });
+  }, [data, selectedBranch, searchQuery]);
 
   const exportToExcel = () => {
     if (filteredData.length === 0) {

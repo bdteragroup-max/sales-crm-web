@@ -65,19 +65,27 @@ export async function GET(request: Request) {
                             positionLower === 'ผู้จัดการ' || positionLower === 'manager';
 
     const isExpenseAdmin = ['accounting', 'บัญชี', 'admin', 'finance', 'การเงิน'].some(r => roleLower.includes(r));
+    
+    const isMarketingRole = roleLower.includes('marketing') || roleLower.includes('การตลาด') || positionLower.includes('marketing') || positionLower.includes('การตลาด');
+    const isManagerRole = roleLower.includes('manager') || roleLower.includes('ผู้จัดการ') || positionLower.includes('manager') || positionLower.includes('ผู้จัดการ');
+    const isMarketingManager = isMarketingRole && isManagerRole;
+
+    let orClauses: any[] = [
+      { department_id: currentEmp.department_id },
+      { supervisor_id: currentEmp.emp_id }
+    ];
+
+    if (isBranchManager && currentEmp.branch_id) {
+      orClauses.push({ branch_id: currentEmp.branch_id });
+    }
 
     let employeeWhereClause: any = {
       is_active: true,
-      OR: [
-        { department_id: currentEmp.department_id },
-        { supervisor_id: currentEmp.emp_id }
-      ]
+      OR: orClauses
     };
 
-    if (isExpenseAdmin) {
-      employeeWhereClause = { is_active: true }; // Admin/Accounting sees everyone
-    } else if (isBranchManager && currentEmp.branch_id) {
-      employeeWhereClause.branch_id = currentEmp.branch_id;
+    if (isExpenseAdmin || isMarketingManager) {
+      employeeWhereClause = { is_active: true }; // Admin/Accounting/Marketing Manager sees everyone
     }
 
     // Get employees in manager's department or directly supervised
