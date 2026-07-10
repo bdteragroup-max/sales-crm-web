@@ -8,7 +8,7 @@ import PrintButton from "./PrintButton"
 
 const sarabun = Sarabun({
   weight: ["400", "700"],
-  subsets: ["thai"],
+  subsets: ["thai", "latin"],
 })
 
 export const metadata = {
@@ -121,6 +121,9 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
           <img src="/17f3de5f-9a16-4fdd-8682-6157042b8cfd.png" alt="TERA Logo" style={{ height: '18mm', objectFit: 'contain' }} />
         </div>
 
+        <div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '1mm' }}>
+          {currentCompany.name}
+        </div>
         <div style={{ fontSize: '10.5pt', color: '#333', marginBottom: '2mm' }}>
           {currentCompany.address}
         </div>
@@ -135,12 +138,6 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
               <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap', flexShrink: 0, marginRight: '6px' }}>วันที่ส่งมอบงาน :</span>
               <span style={{ fontWeight: 'normal', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                 {delivery.deliveryDate ? new Date(delivery.deliveryDate).toLocaleDateString('th-TH') : delivery.createdAt ? new Date(delivery.createdAt).toLocaleDateString('th-TH') : ''}
-              </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '1mm' }}>
-              <span style={{ fontWeight: 'bold', whiteSpace: 'nowrap', flexShrink: 0, marginRight: '6px' }}>บริษัท :</span>
-              <span style={{ fontWeight: 'normal', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                {currentCompany.name}
               </span>
             </div>
           </div>
