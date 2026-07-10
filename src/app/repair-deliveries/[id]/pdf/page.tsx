@@ -2,14 +2,7 @@ import { getUser } from "@/app/lib/dal"
 import prisma from "@/app/lib/db"
 import { notFound } from "next/navigation"
 import Image from "next/image"
-import { Sarabun } from "next/font/google"
-
 import PrintButton from "./PrintButton"
-
-const sarabun = Sarabun({
-  weight: ["400", "700"],
-  subsets: ["thai", "latin"],
-})
 
 export const metadata = {
   title: "ใบส่งมอบงาน | Sales CRM",
@@ -85,9 +78,21 @@ export default async function DeliveryNotePDF({ params }: { params: Promise<{ id
   const currentCompany = companyInfoMap[compCode] || companyInfoMap['TG'];
 
   return (
-    <div className={`bg-gray-100 w-full h-full min-h-screen overflow-y-auto text-black pb-10 print:bg-white print:p-0 ${sarabun.className}`}>
+    <div className="bg-gray-100 w-full h-full min-h-screen overflow-y-auto text-black pb-10 print:bg-white print:p-0" style={{ fontFamily: "'TH Sarabun New', sans-serif" }}>
       <style type="text/css">
         {`
+          @font-face {
+            font-family: 'TH Sarabun New';
+            font-style: normal;
+            font-weight: 400;
+            src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2');
+          }
+          @font-face {
+            font-family: 'TH Sarabun New';
+            font-style: normal;
+            font-weight: 700;
+            src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2');
+          }
           @media print {
             @page {
               size: A4;

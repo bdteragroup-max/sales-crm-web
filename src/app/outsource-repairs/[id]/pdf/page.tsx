@@ -183,12 +183,23 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 400;
+          src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2');
+        }
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 700;
+          src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2');
+        }
         
         .ro-print-wrapper {
           min-height: 100vh;
           background: #e0e0e0;
-          font-family: 'Sarabun', sans-serif;
+          font-family: 'TH Sarabun New', sans-serif;
           color: #000;
           padding: 20px 0;
         }
@@ -201,7 +212,7 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
         .ro-print-wrapper div, 
         .ro-print-wrapper td, 
         .ro-print-wrapper th {
-          font-family: 'Sarabun', sans-serif;
+          font-family: 'TH Sarabun New', sans-serif;
           font-size: 14px;
           line-height: 1.35;
           -webkit-print-color-adjust: exact;
@@ -487,7 +498,7 @@ export default async function OutsourceRepairPDF({ params }: { params: Promise<{
           cursor: pointer;
           border: none;
           transition: all 0.2s;
-          font-family: 'Sarabun', sans-serif;
+          font-family: 'TH Sarabun New', sans-serif;
         }
 
         .ro-fab-back {

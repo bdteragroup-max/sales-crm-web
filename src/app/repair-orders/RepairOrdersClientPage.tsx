@@ -193,10 +193,10 @@ export default function RepairOrdersClientPage({
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">
                       ประเภทงาน
                     </th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
                       ผู้รับซ่อม
                     </th>
-                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
                       ช่างซ่อม
                     </th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">
@@ -251,12 +251,12 @@ export default function RepairOrdersClientPage({
                             {record.workType || record.job?.jobType || "—"}
                           </span>
                         </td>
-                        <td className="py-4 px-5">
+                        <td className="py-4 px-5 whitespace-nowrap">
                           <p className="text-[11px] font-bold text-gray-600">
                             {record.receiverName || "—"}
                           </p>
                         </td>
-                        <td className="py-4 px-5">
+                        <td className="py-4 px-5 whitespace-nowrap">
                           {record.jobId ? (
                             <div className="relative inline-block">
                               <input

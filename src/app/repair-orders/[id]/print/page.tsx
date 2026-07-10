@@ -331,7 +331,18 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
   return (
     <div className="ro-print-wrapper w-full h-full overflow-y-auto print:overflow-visible print:h-auto">
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 400;
+          src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew.woff2') format('woff2');
+        }
+        @font-face {
+          font-family: 'TH Sarabun New';
+          font-style: normal;
+          font-weight: 700;
+          src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/THSarabunNew/THSarabunNew-Bold.woff2') format('woff2');
+        }
 
         /* ── Page setup ── */
         @page {
@@ -347,7 +358,7 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
         }
 
         .ro-print-wrapper {
-          font-family: 'Sarabun', sans-serif;
+          font-family: 'TH Sarabun New', sans-serif;
           color: #111;
           font-size: 14px;
           line-height: 1.35;
@@ -740,7 +751,7 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
           cursor: pointer;
           border: none;
           transition: all 0.2s;
-          font-family: 'Sarabun', sans-serif;
+          font-family: 'TH Sarabun New', sans-serif;
         }
 
         .ro-fab-back {
