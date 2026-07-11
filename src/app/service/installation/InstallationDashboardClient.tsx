@@ -45,8 +45,11 @@ export default function InstallationDashboardClient({ orders, users, currentUser
   const completedOrders = orders.filter(o => isCompleted(o.status)).length
   const inProgressOrders = totalOrders - completedOrders
 
+  // Exclude Return Repair Jobs for summary lists
+  const validListOrders = orders.filter(o => !o.jobName?.startsWith("[ส่งคืนงานซ่อม]"))
+
   // Tab 2: By Company Data
-  const companyMap = orders.reduce((acc, order) => {
+  const companyMap = validListOrders.reduce((acc, order) => {
     const comp = order.company || "ไม่ระบุบริษัท"
     if (!acc[comp]) acc[comp] = []
     acc[comp].push(order)
@@ -60,7 +63,7 @@ export default function InstallationDashboardClient({ orders, users, currentUser
   })).sort((a, b) => b.count - a.count)
 
   // Tab 3: Technician Data
-  const techMap = orders.reduce((acc, order) => {
+  const techMap = validListOrders.reduce((acc, order) => {
     const tech = order.technician || "ไม่ระบุช่าง"
     if (!acc[tech]) acc[tech] = []
     acc[tech].push(order)
@@ -141,6 +144,32 @@ export default function InstallationDashboardClient({ orders, users, currentUser
            roleStr.includes('service engineer mgr');
   };
 
+  const canViewSchedule = () => {
+    const roleStr = (currentUser?.role || '').toLowerCase();
+    return roleStr === 'admin' || 
+           roleStr === 'ผู้ดูแลระบบ' || 
+           roleStr.includes('service') || 
+           roleStr.includes('บริการ') || 
+           roleStr.includes('ซ่อม') || 
+           roleStr.includes('ช่าง') ||
+           roleStr === 'ผู้จัดการ' || 
+           roleStr.includes('manager') ||
+           roleStr.includes('ผู้จัดการ') ||
+           roleStr.includes('sales') ||
+           roleStr.includes('marketing') ||
+           roleStr.includes('ตัวแทนฝ่ายขาย');
+  };
+
+  const canEditInstallation = () => {
+    const roleStr = (currentUser?.role || '').toLowerCase();
+    return roleStr === 'admin' || 
+           roleStr === 'ผู้ดูแลระบบ' || 
+           roleStr.includes('service') || 
+           roleStr.includes('บริการ') || 
+           roleStr.includes('ซ่อม') || 
+           roleStr.includes('ช่าง');
+  };
+
   const outstandingOrders = orders.filter(o => 
     !isCompleted(o.status) && 
     o.status !== "ยกเลิก - PO" &&
@@ -219,16 +248,18 @@ export default function InstallationDashboardClient({ orders, users, currentUser
           >
             <Users size={16} /> รายงานตามช่าง
           </button>
-          <button 
-            onClick={() => setActiveTab("schedule")} 
-            className={`pb-4 px-2 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === "schedule" ? "border-orange-500 text-orange-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}
-          >
-            <CalendarDays size={16} /> ตารางคิวงาน
-          </button>
+          {canViewSchedule() && (
+            <button 
+              onClick={() => setActiveTab("schedule")} 
+              className={`pb-4 px-2 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === "schedule" ? "border-orange-500 text-orange-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}
+            >
+              <CalendarDays size={16} /> ตารางคิวงาน
+            </button>
+          )}
         </div>
 
         <div className="p-6 bg-slate-50/50 min-h-[400px]">
-          {activeTab === "schedule" && (
+          {activeTab === "schedule" && canViewSchedule() && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-x-auto min-w-[800px] animate-in fade-in duration-200">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-black text-gray-800">{monthNames[month]} {year + 543}</h2>
@@ -292,6 +323,7 @@ export default function InstallationDashboardClient({ orders, users, currentUser
           {activeTab === "all" && (() => {
             const statusFilter = searchParams.get("status") || "all";
             const filteredOrders = orders.filter(o => {
+              if (o.jobName?.startsWith("[ส่งคืนงานซ่อม]")) return false;
               if (statusFilter === "completed") return isCompleted(o.status);
               if (statusFilter === "in-progress") return !isCompleted(o.status);
               if (statusFilter === "outstanding") return outstandingOrders.includes(o);
@@ -335,13 +367,19 @@ export default function InstallationDashboardClient({ orders, users, currentUser
                         </Link>
                       </td>
                       <td className="px-4 py-3 min-w-[200px] relative">
-                        <SearchableSelect
-                          value={order.technician || ""}
-                          onChange={(val) => handleTechnicianChange(order.id, val)}
-                          disabled={isUpdating === order.id || order.id.startsWith("mock-")}
-                          options={users?.map(user => ({ label: `${user.fullName}`, value: user.fullName })) || []}
-                          placeholder="- เลือกช่าง -"
-                        />
+                        {canEditInstallation() ? (
+                          <SearchableSelect
+                            value={order.technician || ""}
+                            onChange={(val) => handleTechnicianChange(order.id, val)}
+                            disabled={isUpdating === order.id || order.id.startsWith("mock-")}
+                            options={users?.map(user => ({ label: `${user.fullName}`, value: user.fullName })) || []}
+                            placeholder="- เลือกช่าง -"
+                          />
+                        ) : (
+                          <div className="text-gray-900 text-sm font-medium">
+                            {order.technician || <span className="text-gray-400 italic">ยังไม่ระบุช่าง</span>}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">{order.job?.sellerName || '-'}</td>
                       <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{order.sender || '-'}</td>
@@ -378,7 +416,7 @@ export default function InstallationDashboardClient({ orders, users, currentUser
                           <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full tracking-wider ${getStatusColor("รอดำเนินการ")}`}>
                             รอดำเนินการ
                           </span>
-                        ) : (
+                        ) : canEditInstallation() ? (
                           <select
                             value={STATUS_OPTIONS.includes(order.status) ? order.status : "เปิด Job - ยังไม่เริ่มติดตั้ง"}
                             onChange={(e) => handleStatusChange(order.id, e.target.value)}
@@ -391,6 +429,10 @@ export default function InstallationDashboardClient({ orders, users, currentUser
                               <option key={opt} value={opt} className="bg-white text-gray-900 font-normal">{opt}</option>
                             ))}
                           </select>
+                        ) : (
+                          <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full tracking-wider ${getStatusColor(order.status)}`}>
+                            {order.status || "รอดำเนินการ"}
+                          </span>
                         )}
                       </td>
                     </tr>

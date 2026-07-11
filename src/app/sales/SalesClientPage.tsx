@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { FileText, FileSpreadsheet, Plus, Search, Edit2, Trash2, TrendingUp, CheckCircle2, Clock, XCircle, ArrowUpDown } from 'lucide-react';
 import NewQuotationForm from './components/NewQuotationForm';
 import BulkUploadModal from './components/BulkUploadModal';
+
 import { deleteQuotation } from '@/app/actions/sales';
 import { updateQuotationStatus } from '@/app/actions/pipeline';
 import Link from 'next/link';
@@ -71,6 +72,7 @@ function statusBadge(status: string) {
 export default function SalesClientPage({ initialQuotations = [], businessTypes = [], currentUserSale, prefillData, editingQuotation }: SalesClientPageProps) {
   const router = useRouter();
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
+
 
   // If a full quotation was passed in for editing (from pipeline), open on the edit form immediately
   const [activeTab, setActiveTab] = useState<'new' | 'list'>(editingQuotation ? 'new' : 'new');
@@ -218,6 +220,7 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
         </div>
 
         <div className="flex items-center gap-3">
+
           <button
             onClick={() => setIsBulkUploadOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-gray-500 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm"
@@ -545,6 +548,7 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
         onClose={() => setIsBulkUploadOpen(false)}
         onSuccess={() => { }}
       />
+
       {showCoinModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl scale-in-center">

@@ -28,6 +28,7 @@ const managerNav = [
   { icon: DollarSign, label: 'บันทึกค่าใช้จ่าย', href: '/sales/expenses' },
   { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
   { icon: MapPin, label: 'สำรวจไซต์งาน', href: '/sales/surveys' },
+  { icon: ClipboardList, label: 'แดชบอร์ดงานติดตั้ง', href: '/service/installation' },
   { icon: LayoutDashboard, label: 'Marketing', href: '/marketing' },
   { icon: Users, label: 'จัดการทีม', href: '/team' },
   { icon: MapPin, label: 'ตรวจสอบ GPS ลงเวลา', href: '/department/checkins' },
@@ -46,6 +47,7 @@ const repNav = [
   { icon: DollarSign, label: 'บันทึกค่าใช้จ่าย', href: '/sales/expenses' },
   { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
   { icon: MapPin, label: 'สำรวจไซต์งาน', href: '/sales/surveys' },
+  { icon: ClipboardList, label: 'แดชบอร์ดงานติดตั้ง', href: '/service/installation' },
   { icon: CalendarDays, label: 'ตารางงานของฉัน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
   { icon: Users, label: 'ลูกค้าและบริษัท', href: '/clients' },
@@ -97,6 +99,7 @@ const marketingNav = [
   { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
   { icon: Users, label: 'Marketing Leads', href: '/marketing' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+  { icon: ClipboardList, label: 'แดชบอร์ดงานติดตั้ง', href: '/service/installation' },
 ];
 
 const projectAdminNav = [

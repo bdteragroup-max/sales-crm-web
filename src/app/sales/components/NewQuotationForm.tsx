@@ -17,6 +17,7 @@ interface NewQuotationFormProps {
 }
 
 export default function NewQuotationForm({ businessTypes = [], initialData, currentUserSale, onSuccess }: NewQuotationFormProps) {
+  const isEditing = initialData && !initialData.isPrefilled;
   const [status, setStatus] = useState('');
   const [winLossReason, setWinLossReason] = useState('');
   const [salesBeforeVat, setSalesBeforeVat] = useState(0);
@@ -284,10 +285,10 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           followUp2: '',
           followUp3: '',
           followUp4: '',
-          workName: '',
+          workName: initialData.productInterest || '',
           salesBranch: currentUserSale?.branch || '',
           salesTeamLeader: currentUserSale?.teamLeader || '',
-          remarks: '',
+          remarks: initialData.remarks || '',
           salesOrderDate: formatDateForInput(new Date()),
           paymentDate: '',
         });
@@ -399,7 +400,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
     }
     
     let res;
-    if (initialData?.id) {
+    if (isEditing) {
       formDataObj.append('id', initialData.id);
       res = await updateSalesData(initialData.id, formDataObj);
     } else {
@@ -407,8 +408,8 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
     }
 
     if (res.success) {
-      setMessage(initialData ? 'แก้ไขข้อมูลเรียบร้อยแล้ว' : 'บันทึกข้อมูลเรียบร้อยแล้ว');
-      if (!initialData) {
+      setMessage(isEditing ? 'แก้ไขข้อมูลเรียบร้อยแล้ว' : 'บันทึกข้อมูลเรียบร้อยแล้ว');
+      if (!isEditing) {
         (e.target as HTMLFormElement).reset();
         setSalesBeforeVat(0);
         setTransportationFee(0);
@@ -463,12 +464,12 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-red-200 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100"
         >
           {!isSubmitting && <Save size={18} />}
-          {initialData ? 'ยืนยันการแก้ไข' : 'บันทึกข้อมูล'}
+          {isEditing ? 'ยืนยันการแก้ไข' : 'บันทึกข้อมูล'}
         </LoadingButton>
         <button 
           type="button" 
           onClick={() => {
-            if (initialData) onSuccess?.();
+            if (isEditing) onSuccess?.();
             else {
               setFormData({});
               setStatus('');
@@ -480,7 +481,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow-sm transition-all"
         >
           <X size={18} />
-          {initialData ? 'ยกเลิก' : 'ล้างข้อมูล'}
+          {isEditing ? 'ยกเลิก' : 'ล้างข้อมูล'}
         </button>
         {message && (
           <div className="text-sm font-bold px-4 py-2.5 rounded-xl bg-green-50 text-green-700 border border-green-100 ml-auto animate-in fade-in slide-in-from-right-4">

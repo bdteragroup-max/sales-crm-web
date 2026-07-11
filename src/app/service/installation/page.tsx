@@ -12,13 +12,22 @@ export default async function ServiceInstallationPage() {
     orderBy: { createdAt: 'desc' }
   })
 
-  // Fetch all jobs that involve installation (e.g., jobType contains "ติดตั้ง")
+  // Fetch all jobs that involve installation (e.g., jobType contains "ติดตั้ง"),
+  // OR jobs that have a completed repair order (sentDate is not null)
   const installationJobs = await prisma.job.findMany({
     where: {
       OR: [
         { jobType: { contains: 'ติดตั้ง' } },
-        { jobType: { contains: 'ตรวจเช็ค' } }
+        { jobType: { contains: 'ตรวจเช็ค' } },
+        {
+          repairOrder: {
+            sentDate: { not: null }
+          }
+        }
       ]
+    },
+    include: {
+      repairOrder: true
     },
     orderBy: { createdAt: 'desc' }
   })
@@ -31,14 +40,23 @@ export default async function ServiceInstallationPage() {
 
   for (const job of installationJobs) {
     if (!orderMap.has(job.id)) {
+      let fallbackDate = job.createdAt;
+      let jobName = job.item || job.jobNumber;
+      
+      // If it's a completed repair order, use sentDate as the target date and add a prefix
+      if (job.repairOrder && job.repairOrder.sentDate) {
+        fallbackDate = job.repairOrder.sentDate;
+        jobName = `[ส่งคืนงานซ่อม] ${jobName}`;
+      }
+
       // Mock an order object for the dashboard
       mergedOrders.push({
         id: `mock-${job.id}`,
         jobId: job.id,
         installationNo: `-รอสร้างใบงาน-`,
-        installationDate: job.createdAt, // Fallback date
+        installationDate: fallbackDate, // Fallback date
         company: job.customerName || "ไม่ระบุ",
-        jobName: job.item || job.jobNumber,
+        jobName: jobName,
         technician: "",
         sender: "",
         status: "รอดำเนินการ",
