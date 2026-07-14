@@ -25,6 +25,7 @@ interface UserData {
   id: string;
   fullName: string;
   role: string;
+  employeeId?: string | null;
 }
 
 interface ServiceSchedule {
@@ -169,6 +170,9 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
   const isServiceStaff = roleStr.includes('service') || roleStr.includes('ช่าง') || roleStr.includes('บริการ');
 
   const canEdit = (userId: string) => {
+    // Watthika Mumthong can edit everyone
+    if (currentUser.employeeId === 'TP65004' || currentUser.fullName.includes('วัฐฐิกา')) return true;
+
     // Service Engineer MGR can edit everyone
     if (isServiceManager && isServiceStaff) return true;
 

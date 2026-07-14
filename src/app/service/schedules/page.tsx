@@ -44,7 +44,8 @@ export default async function ServiceSchedulesPage() {
   const currentUser = {
     id: user.id,
     fullName: user.fullName,
-    role: user.role
+    role: user.role,
+    employeeId: user.employeeId
   };
 
   return (
