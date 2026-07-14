@@ -23,6 +23,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const rawSalespersonId = typeof searchParams.salespersonId === 'string' ? searchParams.salespersonId : undefined;
   const salespersonIds = rawSalespersonId ? rawSalespersonId.split(',') : [];
   const province = typeof searchParams.province === 'string' ? searchParams.province : undefined;
+  const equipmentType = typeof searchParams.equipmentType === 'string' ? searchParams.equipmentType : undefined;
   const PROVINCE_MAPPING: Record<string, string> = {
     'กรุงเทพ': 'กรุงเทพมหานคร',
     'กรุงเทพฯ': 'กรุงเทพมหานคร',
@@ -230,6 +231,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const getQuotationWhereClause = (start: Date, end: Date) => ({
     salespersonId: { in: filterIds },
     company: provinceCondition ? { province: provinceCondition } : undefined,
+    productType: equipmentType ? equipmentType : undefined,
     OR: [
     {
       status: 'เปิดบิลแล้ว',
@@ -615,7 +617,13 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       }
     }
   });
-
+  
+  const allProductTypesRaw = await prisma.quotation.findMany({
+    select: { productType: true },
+    distinct: ['productType'],
+    where: { productType: { not: null } }
+  });
+  const allProductTypes = allProductTypesRaw.map(p => p.productType).filter(Boolean) as string[];
 
   // --- Processing Logic ---
 
@@ -1785,7 +1793,8 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
           telesalesRecords={historyTelesales}
           telesalesBenchmark={teamTelesalesBenchmark}
           branchExpenses={branchExpenses}
-          monthlyTargets={monthlyTargetResult} />
+          monthlyTargets={monthlyTargetResult}
+          allProductTypes={allProductTypes} />
         
       </Suspense>
     </main>);

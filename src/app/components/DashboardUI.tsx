@@ -114,6 +114,7 @@ interface DashboardUIProps {
   telesalesเกณฑ์มาตรฐาน?: any[];
   branchExpenses?: any[];
   monthlyTargets?: any[];
+  allProductTypes?: string[];
 }
 
 export default function DashboardUI({
@@ -157,6 +158,7 @@ export default function DashboardUI({
   telesalesเกณฑ์มาตรฐาน = [],
   branchExpenses = [],
   monthlyTargets = [],
+  allProductTypes = [],
 }: DashboardUIProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -515,6 +517,22 @@ export default function DashboardUI({
               </div>
             </div>
 
+            <div className="relative">
+              <select
+                className="text-[11px] font-black bg-white border border-gray-200 rounded-2xl px-4 py-2 outline-none appearance-none cursor-pointer hover:border-brand-red transition-all pr-8 shadow-sm"
+                onChange={(e) => handleFilterChange('equipmentType', e.target.value)}
+                value={searchParams.get('equipmentType') || ''}
+              >
+                <option value="">ทุกกลุ่มสินค้า</option>
+                {[...allProductTypes].sort().map(p => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                <ChevronDown size={12} />
+              </div>
+            </div>
+
             <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-2xl px-3 py-1.5 shadow-sm">
               <input
                 type="date"
@@ -550,11 +568,11 @@ export default function DashboardUI({
                 <KPICard
                   label="เป้าหมายรายเดือน (MTD)"
                   value={`${metrics.targetAch.mtd.toFixed(1)}%`}
-                  subValue={`฿${(metrics.revenue.mtd / 1000000).toFixed(2)}M / ฿${(metrics.actualSales.target / 1000000).toFixed(1)}M`}
+                  subValue={`฿${(metrics.revenue.mtd).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / ฿${(metrics.actualSales.target).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                   statusColor={getAchColor(metrics.targetAch.mtd)}
                   icon={<Target size={18} />}
                   trend={metrics.growth.mom}
-                  benchmark={salespersonIds.length > 0 ? `ทีม: ฿${((metrics.teamGlobal?.revenue?.mtd || 0) / 1000000).toFixed(2)}M` : undefined}
+                  benchmark={salespersonIds.length > 0 ? `ทีม: ฿${(metrics.teamGlobal?.revenue?.mtd || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : undefined}
                 />
                 <KPICard
                   label="อัตราปิดการขายชนะ (Win Rate)"
@@ -572,7 +590,7 @@ export default function DashboardUI({
                 />
                 <KPICard
                   label="คาดการณ์ยอดปิดรวม (Method 3)"
-                  value={`฿${(metrics.forecast.value / 1000000).toFixed(2)}M`}
+                  value={`฿${(metrics.forecast.value).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                   subValue="ประเมินจากท่อการขาย (แม่นยำที่สุด)"
                   statusColor="#3b82f6"
                   icon={<TrendingUp size={18} />}
@@ -596,7 +614,7 @@ export default function DashboardUI({
                         <div key={status} className="bg-gray-50 rounded-2xl p-4 flex flex-col gap-1 border border-gray-100">
                           <span className="text-[11px] font-black text-gray-500 uppercase tracking-wider">{status}</span>
                           <span className="text-xl font-black text-gray-900">{count} ออเดอร์</span>
-                          <span className="text-[10px] font-bold text-gray-400">มูลค่า ฿{(value / 1000000).toFixed(2)}M</span>
+                          <span className="text-[10px] font-bold text-gray-400">มูลค่า ฿{(value).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
                       );
                     })}
@@ -815,7 +833,7 @@ export default function DashboardUI({
                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">กำลังเจรจา</span>
                     <div className="flex items-baseline gap-2">
                       <span className="text-2xl font-black text-gray-900">{metrics.pipeline.count} ดีล</span>
-                      <span className="text-[9px] font-bold text-gray-400">มูลค่า ฿{(metrics.pipeline.value / 1000000).toFixed(2)}M</span>
+                      <span className="text-[9px] font-bold text-gray-400">มูลค่า ฿{(metrics.pipeline.value).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <span className="text-[9px] font-bold text-gray-400">เฉลี่ย ฿{metrics.pipeline.count > 0 ? Math.round(metrics.pipeline.value / metrics.pipeline.count).toLocaleString() : 0} / ดีล</span>
                   </div>
@@ -1028,7 +1046,7 @@ export default function DashboardUI({
                           </div>
                           <div className="flex justify-between text-[9px] font-bold text-gray-400">
                             <span>รายการเปลี่ยนสถานะ: {stage.count} / {prevStage.count} ดีล</span>
-                            <span>มูลค่า: ฿{(stage.value / 1000).toFixed(0)}k</span>
+                            <span>มูลค่า: ฿{(stage.value).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                           </div>
                         </div>
                       );
@@ -1580,7 +1598,7 @@ export default function DashboardUI({
                             )}
                           </span>
                           <span className="text-lg font-black text-gray-900">{m.accuracy}%</span>
-                          <span className="text-[8px] font-bold text-gray-400">เป้า ฿{(m.forecast / 1000).toFixed(0)}K / จริง ฿{(m.actual / 1000).toFixed(0)}K</span>
+                          <span className="text-[8px] font-bold text-gray-400">เป้า ฿{(m.forecast).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / จริง ฿{(m.actual).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                         </div>
                       ))}
                     </div>

@@ -50,7 +50,7 @@ export function SalesOverviewChart({ data, visibleSeries, dailyTarget, showMoMOv
             tickLine={false} 
             tick={{ fill: '#94a3b8', fontSize: 10 }}
             dx={-10}
-            tickFormatter={(val) => `฿${(val / 1000000).toFixed(1)}M`}
+            tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           />
           
           <YAxis 
@@ -348,7 +348,7 @@ export function RegionalBarChart({ data }: { data: any[] }) {
           width={70}
         />
         <RechartsTooltip 
-          formatter={(val: any) => [`฿${(val/1000).toFixed(0)}k`, 'ยอดขาย']}
+          formatter={(val: any) => [`฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, 'ยอดขาย']}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
         <Bar dataKey="value" fill="#4B5563" radius={[0, 4, 4, 0]} barSize={12}>
@@ -369,7 +369,7 @@ export function GrowthComparisonChart({ data }: { data: any[] }) {
         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
         <YAxis hide />
         <RechartsTooltip 
-          formatter={(val: any) => [`฿${(val/1000000).toFixed(2)}M`, '']}
+          formatter={(val: any) => [`฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, '']}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
         <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold' }} />
@@ -492,7 +492,7 @@ export function ProductPerformanceChart({ data }: { data: any[] }) {
       <ComposedChart key={data?.length || 0} data={data} margin={{ top: 20, right: 20, left: 20, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
-        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(val) => `฿${(val / 1000).toFixed(0)}k`} />
+        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`} />
         <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
         <RechartsTooltip 
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
@@ -528,7 +528,7 @@ export function HorizontalLeaderboardChart({ data }: { data: any[] }) {
           width={90}
         />
         <RechartsTooltip 
-          formatter={(val: any) => [`฿${(val/1000000).toFixed(2)}M`, 'ยอดขาย']}
+          formatter={(val: any) => [`฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'ยอดขาย']}
           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '10px' }}
         />
         <Bar dataKey="won" name="ยอดขาย" radius={[0, 10, 10, 0]} barSize={20}>
@@ -573,7 +573,7 @@ export function ComposedActivityCorrelationChart({ data }: { data: any[] }) {
             axisLine={false} 
             tickLine={false} 
             tick={{ fill: '#64748b', fontSize: 10 }}
-            tickFormatter={(val) => `฿${(val / 1000).toFixed(0)}k`}
+            tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           />
           <YAxis 
             yAxisId="right"
@@ -679,7 +679,7 @@ export function PipelineComposedStageChart({ data }: { data: any[] }) {
             axisLine={false} 
             tickLine={false} 
             tick={{ fill: '#64748b', fontSize: 10 }}
-            tickFormatter={(val) => `฿${(val / 1000).toFixed(0)}k`}
+            tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             label={{ value: 'มูลค่า (บาท)', angle: 90, position: 'insideRight', style: { fill: '#64748b', fontSize: 9, fontWeight: 'bold' } }}
           />
           <RechartsTooltip 
@@ -767,7 +767,7 @@ export function ProductPerformanceComposedChart({ data }: { data: any[] }) {
             axisLine={false} 
             tickLine={false} 
             tick={{ fill: '#475569', fontSize: 10 }}
-            tickFormatter={(val) => `฿${(val / 1000).toFixed(0)}k`}
+            tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             label={{ value: 'มูลค่า (บาท)', angle: -90, position: 'insideLeft', style: { fill: '#475569', fontSize: 9, fontWeight: 'bold' } }}
           />
           <YAxis 
@@ -822,7 +822,7 @@ export function RegionalComposedChart({ data }: { data: any[] }) {
           axisLine={false} 
           tickLine={false} 
           tick={{ fill: '#475569', fontSize: 10 }}
-          tickFormatter={(val) => `฿${(val/1000).toFixed(0)}k`}
+          tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           label={{ value: 'ยอดขายรวม (บาท)', angle: -90, position: 'insideLeft', style: { fill: '#475569', fontSize: 9, fontWeight: 'bold' } }}
         />
         <YAxis 
@@ -978,7 +978,7 @@ export function ForecastAccuracyChart({ data }: { data: any[] }) {
           axisLine={false} 
           tickLine={false} 
           tick={{ fill: '#94a3b8', fontSize: 10 }}
-          tickFormatter={(val) => `฿${(val / 1000000).toFixed(1)}M`}
+          tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         />
         <YAxis 
           yAxisId="right"
@@ -1179,7 +1179,7 @@ export function ProductGroupTargetChart({ data }: { data: any[] }) {
             axisLine={false} 
             tickLine={false} 
             tick={{ fill: '#475569', fontSize: 10 }}
-            tickFormatter={(val) => `฿${(val / 1000000).toFixed(1)}M`}
+            tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           />
           <RechartsTooltip 
             formatter={(value: any, name: any) => [`฿${value.toLocaleString()}`, name]}
@@ -1211,7 +1211,7 @@ export function BranchPerformanceChart({ data }: { data: any[] }) {
             axisLine={false} 
             tickLine={false} 
             tick={{ fill: '#475569', fontSize: 10 }}
-            tickFormatter={(val) => `฿${(val / 1000000).toFixed(1)}M`}
+            tickFormatter={(val) => `฿${(val).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           />
           <RechartsTooltip 
             formatter={(value: any, name: any) => [`฿${value.toLocaleString()}`, name]}
