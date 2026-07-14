@@ -2092,6 +2092,4 @@ model ServiceSchedule {
   createdAt      DateTime @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
   user           User     @relation(fields: [userId], references: [id])
-
-  @@unique([userId, date])
 }

@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { userId, date, status, jobType, jobDescription, duration, province } = body;
+    const { id, userId, date, status, jobType, jobDescription, duration, province } = body;
 
     if (!userId || !date || !status) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -109,35 +109,77 @@ export async function POST(request: NextRequest) {
 
     const scheduleDate = new Date(date);
 
-    // Upsert the schedule
-    const schedule = await prisma.serviceSchedule.upsert({
-      where: {
-        userId_date: {
-          userId,
-          date: scheduleDate
+    let schedule;
+    if (id) {
+      schedule = await prisma.serviceSchedule.update({
+        where: { id },
+        data: {
+          status,
+          jobType: jobType || null,
+          jobDescription: jobDescription || null,
+          duration: duration || null,
+          province: province || null,
         }
-      },
-      update: {
-        status,
-        jobType: jobType || null,
-        jobDescription: jobDescription || null,
-        duration: duration || null,
-        province: province || null,
-      },
-      create: {
-        userId,
-        date: scheduleDate,
-        status,
-        jobType: jobType || null,
-        jobDescription: jobDescription || null,
-        duration: duration || null,
-        province: province || null,
-      }
-    });
+      });
+    } else {
+      schedule = await prisma.serviceSchedule.create({
+        data: {
+          userId,
+          date: scheduleDate,
+          status,
+          jobType: jobType || null,
+          jobDescription: jobDescription || null,
+          duration: duration || null,
+          province: province || null,
+        }
+      });
+    }
 
     return NextResponse.json({ schedule });
   } catch (error) {
     console.error("Error saving service schedule:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing schedule id" }, { status: 400 });
+    }
+
+    const schedule = await prisma.serviceSchedule.findUnique({
+      where: { id }
+    });
+
+    if (!schedule) {
+      return NextResponse.json({ error: "Schedule not found" }, { status: 404 });
+    }
+
+    const roleStr = (user.role || '').toLowerCase();
+    const isManager = roleStr.includes('manager') || roleStr.includes('ผู้จัดการ') || roleStr === 'แอดมิน' || roleStr === 'หัวหน้า';
+    const isWatthika = user.employeeId === 'TP65004';
+    
+    // Check permissions
+    if (user.id !== schedule.userId && !isManager && !isWatthika) {
+      return NextResponse.json({ error: "Forbidden: You can only delete your own schedule" }, { status: 403 });
+    }
+
+    await prisma.serviceSchedule.delete({
+      where: { id }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting service schedule:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

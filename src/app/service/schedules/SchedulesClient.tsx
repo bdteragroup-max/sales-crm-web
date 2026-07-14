@@ -75,7 +75,14 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ServiceUser | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    id?: string;
+    status: string;
+    jobType: string;
+    jobDescription: string;
+    duration: string;
+    province: string;
+  }>({
     status: 'ออฟฟิศ',
     jobType: '',
     jobDescription: '',
@@ -83,6 +90,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
     province: ''
   });
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error') => {
@@ -192,17 +200,16 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
     return false;
   };
 
-  const openModal = (user: ServiceUser, date: Date) => {
+  const openModal = (user: ServiceUser, date: Date, existingSchedule?: ServiceSchedule) => {
     if (!canEdit(user.id)) {
       showToast('คุณไม่สามารถแก้ไขตารางงานของบุคคลอื่นได้', 'error');
       return;
     }
 
-    const existingSchedule = user.serviceSchedules.find(s => isSameDay(parseISO(s.date), date));
-
     setSelectedUser(user);
     setSelectedDate(date);
     setFormData({
+      id: existingSchedule?.id,
       status: existingSchedule?.status || 'ออฟฟิศ',
       jobType: existingSchedule?.jobType || '',
       jobDescription: existingSchedule?.jobDescription || '',
@@ -227,9 +234,14 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          id: formData.id,
           userId: selectedUser.id,
           date: selectedDate.toISOString(),
-          ...formData
+          status: formData.status,
+          jobType: formData.jobType,
+          jobDescription: formData.jobDescription,
+          duration: formData.duration,
+          province: formData.province
         })
       });
 
@@ -243,6 +255,24 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
       fetchSchedules(); // refresh
     } catch (error: any) {
       showToast(error.message || 'บันทึกล้มเหลว', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteSchedule = async () => {
+    if (!formData.id) return;
+    
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/service/schedules?id=${formData.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      showToast('ลบข้อมูลเรียบร้อย', 'success');
+      setShowDeleteConfirm(false);
+      setIsModalOpen(false);
+      fetchSchedules();
+    } catch (error: any) {
+      showToast(error.message || 'ลบล้มเหลว', 'error');
     } finally {
       setSaving(false);
     }
@@ -433,7 +463,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                         const dayIso = day.toISOString().split('T')[0];
                         const holiday = holidays.find(h => h.date.startsWith(dayIso));
                         const leave = userLeavesMap[user.employeeId]?.[dayIso];
-                        const schedule = user.serviceSchedules.find(s => s.date.startsWith(dayIso));
+                        const schedules = user.serviceSchedules.filter(s => s.date.startsWith(dayIso));
 
                         const isHoliday = !!holiday;
                         const editable = canEdit(user.id) && !isHoliday;
@@ -441,18 +471,22 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                         return (
                           <td
                             key={day.toISOString()}
-                            className={`p-2 border-r border-b border-gray-200 relative ${editable ? 'cursor-pointer hover:bg-blue-50/50' : ''}`}
-                            onClick={() => editable && openModal(user, day)}
+                            className={`p-2 border-r border-b border-gray-200 relative ${editable ? 'hover:bg-blue-50/50' : ''}`}
+                            onClick={(e) => {
+                              if (editable && e.target === e.currentTarget) {
+                                openModal(user, day);
+                              }
+                            }}
                           >
                             {isHoliday ? (
-                              <div className="bg-red-50 text-red-700 border-red-200 p-2 rounded-md border text-center text-sm font-bold flex flex-col justify-center h-full min-h-[4rem]">
+                              <div className="bg-red-50 text-red-700 border-red-200 p-2 rounded-md border text-center text-sm font-bold flex flex-col justify-center h-full min-h-[4rem] cursor-not-allowed">
                                 <span>วันหยุด</span>
                                 <span className="text-xs opacity-90 mt-1">{holiday.name}</span>
                               </div>
                             ) : (
-                              <div className="w-full h-full min-h-[4rem] flex flex-col gap-1 p-1">
+                              <div className="w-full h-full min-h-[4rem] flex flex-col gap-1 p-1 pointer-events-none">
                                 {leave && (
-                                  <div className={`flex items-center justify-center gap-1 text-xs px-2 py-1 rounded-md text-center font-bold ${leave.status === 'approved' ? 'bg-red-100 text-red-700 border-red-300 border' : 'bg-yellow-100 text-yellow-700 border-yellow-300 border opacity-90'}`}>
+                                  <div className={`flex items-center justify-center gap-1 text-xs px-2 py-1 rounded-md text-center font-bold pointer-events-auto ${leave.status === 'approved' ? 'bg-red-100 text-red-700 border-red-300 border' : 'bg-yellow-100 text-yellow-700 border-yellow-300 border opacity-90'}`}>
                                     {leave.status === 'approved' ? (
                                       <><CheckCircle2 className="w-3 h-3" /> ลา (อนุมัติ)</>
                                     ) : (
@@ -461,32 +495,50 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                                   </div>
                                 )}
 
-                                {schedule ? (
-                                  <div className={`flex-1 flex flex-col gap-1 items-center justify-center rounded-md border p-1 text-sm transition-transform ${editable ? 'group-hover:scale-[1.02]' : ''} ${getStatusColor(schedule.status)}`}>
-                                    <span className="font-bold">{schedule.status}</span>
-                                    {schedule.province && (
-                                      <span className="text-xs opacity-90 flex items-center gap-1 justify-center">
-                                        <MapPin className="w-3 h-3" />
-                                        {schedule.province}
+                                {schedules.length > 0 ? (
+                                  schedules.map(schedule => (
+                                    <div 
+                                      key={schedule.id}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (editable) openModal(user, day, schedule);
+                                      }}
+                                      className={`flex-1 flex flex-col gap-1 items-center justify-center rounded-md border p-1 text-sm transition-transform pointer-events-auto ${editable ? 'cursor-pointer hover:scale-[1.02]' : ''} ${getStatusColor(schedule.status)}`}
+                                    >
+                                      <span className="font-bold flex items-center gap-1">
+                                          {schedule.status}
+                                          {schedule.duration && schedule.duration !== 'เต็มวัน' && <span className="text-[10px] bg-white/50 px-1 rounded">{schedule.duration}</span>}
                                       </span>
-                                    )}
-                                    {schedule.jobType && (
-                                      <span className="text-xs px-1.5 py-0.5 rounded-full bg-black/10 mt-1">
-                                        {schedule.jobType === 'installation' ? 'ติดตั้ง' :
-                                          schedule.jobType === 'repair' ? 'ซ่อม/PM' :
-                                            schedule.jobType === 'survey' ? 'ดูหน้างาน' :
-                                              schedule.jobType === 'meeting' ? 'ประชุม' :
-                                                schedule.jobType === 'training' ? 'อบรม' : 'อื่นๆ'}
-                                      </span>
-                                    )}
-                                  </div>
+                                      {schedule.province && (
+                                        <span className="text-xs opacity-90 flex items-center gap-1 justify-center">
+                                          <MapPin className="w-3 h-3" />
+                                          {schedule.province}
+                                        </span>
+                                      )}
+                                      {schedule.jobType && (
+                                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-black/10 mt-1">
+                                          {schedule.jobType === 'installation' ? 'ติดตั้ง' :
+                                            schedule.jobType === 'repair' ? 'ซ่อม/PM' :
+                                              schedule.jobType === 'survey' ? 'ดูหน้างาน' :
+                                                schedule.jobType === 'meeting' ? 'ประชุม' :
+                                                  schedule.jobType === 'training' ? 'อบรม' : 'อื่นๆ'}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))
                                 ) : (
                                   !leave && (
-                                    <div className="flex-1 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex-1 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                                       {editable && (
-                                        <span className="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded-md border border-blue-200 flex items-center gap-1">
+                                        <button 
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            openModal(user, day);
+                                          }}
+                                          className="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded-md border border-blue-200 flex items-center gap-1 pointer-events-auto cursor-pointer"
+                                        >
                                           <Edit3 className="w-3 h-3" /> เพิ่ม
-                                        </span>
+                                        </button>
                                       )}
                                     </div>
                                   )
@@ -626,6 +678,17 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
 
               <div className="flex-1"></div>
               <div className="flex justify-end gap-3 mt-4 pt-5 border-t border-gray-100 bg-white sticky bottom-0 z-10 pb-2">
+                {formData.id && (
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={saving}
+                    className="px-4 py-2 text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors mr-auto"
+                    title="ลบรายการ"
+                  >
+                    ลบ
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -650,6 +713,35 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-[90%] max-w-sm border border-gray-100 animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">ยืนยันการลบ</h3>
+            <p className="text-gray-600 mb-6">คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้? การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={saving}
+                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                onClick={deleteSchedule}
+                disabled={saving}
+                className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg font-medium flex items-center justify-center gap-2 min-w-[80px] transition-colors"
+              >
+                {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'ลบ'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toast Notification */}
       {toast && (
         <div className={`fixed bottom-4 right-4 p-4 rounded-xl shadow-xl flex items-center gap-3 z-[300] animate-fade-in ${
