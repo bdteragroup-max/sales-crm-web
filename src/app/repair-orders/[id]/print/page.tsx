@@ -159,11 +159,7 @@ export default function RepairOrderPrintPage({ params }: { params: Promise<{ id:
             ? data.deliveryNoteNo 
             : (data?.job?.jobNumber && !data.job.jobNumber.startsWith('RO') ? data.job.jobNumber : '-')}
         </span></div>
-        <div className="ro-info-row"><span className="ro-lbl">เลขที่ใบส่งสินค้า:</span><span className="ro-val">
-          {data?.deliveryNoteNo?.toUpperCase().startsWith('JB') 
-            ? '-' 
-            : (data?.deliveryNoteNo || '-')}
-        </span></div>
+
         <div className="ro-info-row"><span className="ro-lbl">เลขที่ Invoice:</span><span className="ro-val">{data?.invoiceNo || '-'}</span></div>
         <div className="ro-info-row"><span className="ro-lbl">ผู้รับซ่อม:</span><span className="ro-val">{data?.receiverName || '-'}</span></div>
         <div className="ro-info-row"><span className="ro-lbl">ส่งซ่อมโดย:</span><span className="ro-val">{data?.senderName || '-'}</span></div>
