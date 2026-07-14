@@ -18,7 +18,7 @@ import {
   parseISO
 } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Calendar, User, MapPin, Edit3, X, Save, Clock, Briefcase, CheckCircle2, Download } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, User, MapPin, Edit3, X, Save, Clock, Briefcase, CheckCircle2, Download, AlertCircle } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface UserData {
@@ -83,6 +83,12 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
     province: ''
   });
   const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   // Derived dates
   const dateRange = useMemo(() => {
@@ -116,7 +122,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
       setLeaveRequests(data.leaveRequests || []);
     } catch (error) {
       console.error(error);
-      alert('โหลดข้อมูลล้มเหลว');
+      showToast('โหลดข้อมูลล้มเหลว', 'error');
     } finally {
       setLoading(false);
     }
@@ -188,7 +194,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
 
   const openModal = (user: ServiceUser, date: Date) => {
     if (!canEdit(user.id)) {
-      alert('คุณไม่สามารถแก้ไขตารางงานของบุคคลอื่นได้');
+      showToast('คุณไม่สามารถแก้ไขตารางงานของบุคคลอื่นได้', 'error');
       return;
     }
 
@@ -211,7 +217,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
     if (!selectedUser || !selectedDate) return;
 
     if (formData.status === 'ออกต่างจังหวัด' && !formData.province) {
-      alert('กรุณาระบุจังหวัดเมื่อเลือกออกต่างจังหวัด');
+      showToast('กรุณาระบุจังหวัดเมื่อเลือกออกต่างจังหวัด', 'error');
       return;
     }
 
@@ -232,11 +238,11 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
         throw new Error(err.error || 'Failed to save');
       }
 
-      alert('บันทึกข้อมูลเรียบร้อย');
+      showToast('บันทึกข้อมูลเรียบร้อย', 'success');
       setIsModalOpen(false);
       fetchSchedules(); // refresh
     } catch (error: any) {
-      alert(error.message || 'บันทึกล้มเหลว');
+      showToast(error.message || 'บันทึกล้มเหลว', 'error');
     } finally {
       setSaving(false);
     }
@@ -642,6 +648,17 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
               </div>
             </form>
           </div>
+        </div>
+      )}
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed bottom-4 right-4 p-4 rounded-xl shadow-xl flex items-center gap-3 z-[300] animate-fade-in ${
+          toast.type === 'success' 
+            ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' 
+            : 'bg-red-50 border border-red-200 text-red-800'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle2 size={20} className="text-emerald-500" /> : <AlertCircle size={20} className="text-red-500" />}
+          <span className="font-bold text-sm">{toast.message}</span>
         </div>
       )}
     </div>
