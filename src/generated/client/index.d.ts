@@ -523,6 +523,11 @@ export type withholding_tax_documents = $Result.DefaultSelection<Prisma.$withhol
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type withholding_tax_income_items = $Result.DefaultSelection<Prisma.$withholding_tax_income_itemsPayload>
+/**
+ * Model ServiceSchedule
+ * 
+ */
+export type ServiceSchedule = $Result.DefaultSelection<Prisma.$ServiceSchedulePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1664,6 +1669,16 @@ export class PrismaClient<
     * ```
     */
   get withholding_tax_income_items(): Prisma.withholding_tax_income_itemsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.serviceSchedule`: Exposes CRUD operations for the **ServiceSchedule** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ServiceSchedules
+    * const serviceSchedules = await prisma.serviceSchedule.findMany()
+    * ```
+    */
+  get serviceSchedule(): Prisma.ServiceScheduleDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2199,7 +2214,8 @@ export namespace Prisma {
     company_settings: 'company_settings',
     tax_configs: 'tax_configs',
     withholding_tax_documents: 'withholding_tax_documents',
-    withholding_tax_income_items: 'withholding_tax_income_items'
+    withholding_tax_income_items: 'withholding_tax_income_items',
+    ServiceSchedule: 'ServiceSchedule'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2215,7 +2231,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -9767,6 +9783,80 @@ export namespace Prisma {
           }
         }
       }
+      ServiceSchedule: {
+        payload: Prisma.$ServiceSchedulePayload<ExtArgs>
+        fields: Prisma.ServiceScheduleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ServiceScheduleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ServiceScheduleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload>
+          }
+          findFirst: {
+            args: Prisma.ServiceScheduleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ServiceScheduleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload>
+          }
+          findMany: {
+            args: Prisma.ServiceScheduleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload>[]
+          }
+          create: {
+            args: Prisma.ServiceScheduleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload>
+          }
+          createMany: {
+            args: Prisma.ServiceScheduleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ServiceScheduleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload>[]
+          }
+          delete: {
+            args: Prisma.ServiceScheduleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload>
+          }
+          update: {
+            args: Prisma.ServiceScheduleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload>
+          }
+          deleteMany: {
+            args: Prisma.ServiceScheduleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ServiceScheduleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ServiceScheduleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload>[]
+          }
+          upsert: {
+            args: Prisma.ServiceScheduleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServiceSchedulePayload>
+          }
+          aggregate: {
+            args: Prisma.ServiceScheduleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateServiceSchedule>
+          }
+          groupBy: {
+            args: Prisma.ServiceScheduleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ServiceScheduleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ServiceScheduleCountArgs<ExtArgs>
+            result: $Utils.Optional<ServiceScheduleCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -9977,6 +10067,7 @@ export namespace Prisma {
     tax_configs?: tax_configsOmit
     withholding_tax_documents?: withholding_tax_documentsOmit
     withholding_tax_income_items?: withholding_tax_income_itemsOmit
+    serviceSchedule?: ServiceScheduleOmit
   }
 
   /* Types for Logging */
@@ -10072,6 +10163,7 @@ export namespace Prisma {
     assignedTasks: number
     quotations: number
     schedules: number
+    serviceSchedules: number
     estimatedSurveys: number
     siteSurveys: number
     telesales: number
@@ -10095,6 +10187,7 @@ export namespace Prisma {
     assignedTasks?: boolean | UserCountOutputTypeCountAssignedTasksArgs
     quotations?: boolean | UserCountOutputTypeCountQuotationsArgs
     schedules?: boolean | UserCountOutputTypeCountSchedulesArgs
+    serviceSchedules?: boolean | UserCountOutputTypeCountServiceSchedulesArgs
     estimatedSurveys?: boolean | UserCountOutputTypeCountEstimatedSurveysArgs
     siteSurveys?: boolean | UserCountOutputTypeCountSiteSurveysArgs
     telesales?: boolean | UserCountOutputTypeCountTelesalesArgs
@@ -10216,6 +10309,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountSchedulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ScheduleWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountServiceSchedulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ServiceScheduleWhereInput
   }
 
   /**
@@ -11930,6 +12030,7 @@ export namespace Prisma {
     assignedTasks?: boolean | User$assignedTasksArgs<ExtArgs>
     quotations?: boolean | User$quotationsArgs<ExtArgs>
     schedules?: boolean | User$schedulesArgs<ExtArgs>
+    serviceSchedules?: boolean | User$serviceSchedulesArgs<ExtArgs>
     estimatedSurveys?: boolean | User$estimatedSurveysArgs<ExtArgs>
     siteSurveys?: boolean | User$siteSurveysArgs<ExtArgs>
     telesales?: boolean | User$telesalesArgs<ExtArgs>
@@ -12004,6 +12105,7 @@ export namespace Prisma {
     assignedTasks?: boolean | User$assignedTasksArgs<ExtArgs>
     quotations?: boolean | User$quotationsArgs<ExtArgs>
     schedules?: boolean | User$schedulesArgs<ExtArgs>
+    serviceSchedules?: boolean | User$serviceSchedulesArgs<ExtArgs>
     estimatedSurveys?: boolean | User$estimatedSurveysArgs<ExtArgs>
     siteSurveys?: boolean | User$siteSurveysArgs<ExtArgs>
     telesales?: boolean | User$telesalesArgs<ExtArgs>
@@ -12033,6 +12135,7 @@ export namespace Prisma {
       assignedTasks: Prisma.$ProjectTaskPayload<ExtArgs>[]
       quotations: Prisma.$QuotationPayload<ExtArgs>[]
       schedules: Prisma.$SchedulePayload<ExtArgs>[]
+      serviceSchedules: Prisma.$ServiceSchedulePayload<ExtArgs>[]
       estimatedSurveys: Prisma.$SiteSurveyPayload<ExtArgs>[]
       siteSurveys: Prisma.$SiteSurveyPayload<ExtArgs>[]
       telesales: Prisma.$TelesalePayload<ExtArgs>[]
@@ -12463,6 +12566,7 @@ export namespace Prisma {
     assignedTasks<T extends User$assignedTasksArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotations<T extends User$quotationsArgs<ExtArgs> = {}>(args?: Subset<T, User$quotationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     schedules<T extends User$schedulesArgs<ExtArgs> = {}>(args?: Subset<T, User$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    serviceSchedules<T extends User$serviceSchedulesArgs<ExtArgs> = {}>(args?: Subset<T, User$serviceSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     estimatedSurveys<T extends User$estimatedSurveysArgs<ExtArgs> = {}>(args?: Subset<T, User$estimatedSurveysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SiteSurveyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     siteSurveys<T extends User$siteSurveysArgs<ExtArgs> = {}>(args?: Subset<T, User$siteSurveysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SiteSurveyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     telesales<T extends User$telesalesArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -13261,6 +13365,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ScheduleScalarFieldEnum | ScheduleScalarFieldEnum[]
+  }
+
+  /**
+   * User.serviceSchedules
+   */
+  export type User$serviceSchedulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+    where?: ServiceScheduleWhereInput
+    orderBy?: ServiceScheduleOrderByWithRelationInput | ServiceScheduleOrderByWithRelationInput[]
+    cursor?: ServiceScheduleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ServiceScheduleScalarFieldEnum | ServiceScheduleScalarFieldEnum[]
   }
 
   /**
@@ -137533,6 +137661,1134 @@ export namespace Prisma {
 
 
   /**
+   * Model ServiceSchedule
+   */
+
+  export type AggregateServiceSchedule = {
+    _count: ServiceScheduleCountAggregateOutputType | null
+    _min: ServiceScheduleMinAggregateOutputType | null
+    _max: ServiceScheduleMaxAggregateOutputType | null
+  }
+
+  export type ServiceScheduleMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    date: Date | null
+    status: string | null
+    jobType: string | null
+    jobDescription: string | null
+    duration: string | null
+    province: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ServiceScheduleMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    date: Date | null
+    status: string | null
+    jobType: string | null
+    jobDescription: string | null
+    duration: string | null
+    province: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ServiceScheduleCountAggregateOutputType = {
+    id: number
+    userId: number
+    date: number
+    status: number
+    jobType: number
+    jobDescription: number
+    duration: number
+    province: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ServiceScheduleMinAggregateInputType = {
+    id?: true
+    userId?: true
+    date?: true
+    status?: true
+    jobType?: true
+    jobDescription?: true
+    duration?: true
+    province?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ServiceScheduleMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    date?: true
+    status?: true
+    jobType?: true
+    jobDescription?: true
+    duration?: true
+    province?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ServiceScheduleCountAggregateInputType = {
+    id?: true
+    userId?: true
+    date?: true
+    status?: true
+    jobType?: true
+    jobDescription?: true
+    duration?: true
+    province?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ServiceScheduleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ServiceSchedule to aggregate.
+     */
+    where?: ServiceScheduleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServiceSchedules to fetch.
+     */
+    orderBy?: ServiceScheduleOrderByWithRelationInput | ServiceScheduleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ServiceScheduleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServiceSchedules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServiceSchedules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ServiceSchedules
+    **/
+    _count?: true | ServiceScheduleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ServiceScheduleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ServiceScheduleMaxAggregateInputType
+  }
+
+  export type GetServiceScheduleAggregateType<T extends ServiceScheduleAggregateArgs> = {
+        [P in keyof T & keyof AggregateServiceSchedule]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateServiceSchedule[P]>
+      : GetScalarType<T[P], AggregateServiceSchedule[P]>
+  }
+
+
+
+
+  export type ServiceScheduleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ServiceScheduleWhereInput
+    orderBy?: ServiceScheduleOrderByWithAggregationInput | ServiceScheduleOrderByWithAggregationInput[]
+    by: ServiceScheduleScalarFieldEnum[] | ServiceScheduleScalarFieldEnum
+    having?: ServiceScheduleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ServiceScheduleCountAggregateInputType | true
+    _min?: ServiceScheduleMinAggregateInputType
+    _max?: ServiceScheduleMaxAggregateInputType
+  }
+
+  export type ServiceScheduleGroupByOutputType = {
+    id: string
+    userId: string
+    date: Date
+    status: string
+    jobType: string | null
+    jobDescription: string | null
+    duration: string | null
+    province: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ServiceScheduleCountAggregateOutputType | null
+    _min: ServiceScheduleMinAggregateOutputType | null
+    _max: ServiceScheduleMaxAggregateOutputType | null
+  }
+
+  type GetServiceScheduleGroupByPayload<T extends ServiceScheduleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ServiceScheduleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ServiceScheduleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ServiceScheduleGroupByOutputType[P]>
+            : GetScalarType<T[P], ServiceScheduleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ServiceScheduleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    date?: boolean
+    status?: boolean
+    jobType?: boolean
+    jobDescription?: boolean
+    duration?: boolean
+    province?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["serviceSchedule"]>
+
+  export type ServiceScheduleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    date?: boolean
+    status?: boolean
+    jobType?: boolean
+    jobDescription?: boolean
+    duration?: boolean
+    province?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["serviceSchedule"]>
+
+  export type ServiceScheduleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    date?: boolean
+    status?: boolean
+    jobType?: boolean
+    jobDescription?: boolean
+    duration?: boolean
+    province?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["serviceSchedule"]>
+
+  export type ServiceScheduleSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    date?: boolean
+    status?: boolean
+    jobType?: boolean
+    jobDescription?: boolean
+    duration?: boolean
+    province?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ServiceScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "date" | "status" | "jobType" | "jobDescription" | "duration" | "province" | "createdAt" | "updatedAt", ExtArgs["result"]["serviceSchedule"]>
+  export type ServiceScheduleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ServiceScheduleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ServiceScheduleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $ServiceSchedulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ServiceSchedule"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      date: Date
+      status: string
+      jobType: string | null
+      jobDescription: string | null
+      duration: string | null
+      province: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["serviceSchedule"]>
+    composites: {}
+  }
+
+  type ServiceScheduleGetPayload<S extends boolean | null | undefined | ServiceScheduleDefaultArgs> = $Result.GetResult<Prisma.$ServiceSchedulePayload, S>
+
+  type ServiceScheduleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ServiceScheduleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ServiceScheduleCountAggregateInputType | true
+    }
+
+  export interface ServiceScheduleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ServiceSchedule'], meta: { name: 'ServiceSchedule' } }
+    /**
+     * Find zero or one ServiceSchedule that matches the filter.
+     * @param {ServiceScheduleFindUniqueArgs} args - Arguments to find a ServiceSchedule
+     * @example
+     * // Get one ServiceSchedule
+     * const serviceSchedule = await prisma.serviceSchedule.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ServiceScheduleFindUniqueArgs>(args: SelectSubset<T, ServiceScheduleFindUniqueArgs<ExtArgs>>): Prisma__ServiceScheduleClient<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ServiceSchedule that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ServiceScheduleFindUniqueOrThrowArgs} args - Arguments to find a ServiceSchedule
+     * @example
+     * // Get one ServiceSchedule
+     * const serviceSchedule = await prisma.serviceSchedule.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ServiceScheduleFindUniqueOrThrowArgs>(args: SelectSubset<T, ServiceScheduleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ServiceScheduleClient<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ServiceSchedule that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceScheduleFindFirstArgs} args - Arguments to find a ServiceSchedule
+     * @example
+     * // Get one ServiceSchedule
+     * const serviceSchedule = await prisma.serviceSchedule.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ServiceScheduleFindFirstArgs>(args?: SelectSubset<T, ServiceScheduleFindFirstArgs<ExtArgs>>): Prisma__ServiceScheduleClient<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ServiceSchedule that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceScheduleFindFirstOrThrowArgs} args - Arguments to find a ServiceSchedule
+     * @example
+     * // Get one ServiceSchedule
+     * const serviceSchedule = await prisma.serviceSchedule.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ServiceScheduleFindFirstOrThrowArgs>(args?: SelectSubset<T, ServiceScheduleFindFirstOrThrowArgs<ExtArgs>>): Prisma__ServiceScheduleClient<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ServiceSchedules that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceScheduleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ServiceSchedules
+     * const serviceSchedules = await prisma.serviceSchedule.findMany()
+     * 
+     * // Get first 10 ServiceSchedules
+     * const serviceSchedules = await prisma.serviceSchedule.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const serviceScheduleWithIdOnly = await prisma.serviceSchedule.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ServiceScheduleFindManyArgs>(args?: SelectSubset<T, ServiceScheduleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ServiceSchedule.
+     * @param {ServiceScheduleCreateArgs} args - Arguments to create a ServiceSchedule.
+     * @example
+     * // Create one ServiceSchedule
+     * const ServiceSchedule = await prisma.serviceSchedule.create({
+     *   data: {
+     *     // ... data to create a ServiceSchedule
+     *   }
+     * })
+     * 
+     */
+    create<T extends ServiceScheduleCreateArgs>(args: SelectSubset<T, ServiceScheduleCreateArgs<ExtArgs>>): Prisma__ServiceScheduleClient<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ServiceSchedules.
+     * @param {ServiceScheduleCreateManyArgs} args - Arguments to create many ServiceSchedules.
+     * @example
+     * // Create many ServiceSchedules
+     * const serviceSchedule = await prisma.serviceSchedule.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ServiceScheduleCreateManyArgs>(args?: SelectSubset<T, ServiceScheduleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ServiceSchedules and returns the data saved in the database.
+     * @param {ServiceScheduleCreateManyAndReturnArgs} args - Arguments to create many ServiceSchedules.
+     * @example
+     * // Create many ServiceSchedules
+     * const serviceSchedule = await prisma.serviceSchedule.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ServiceSchedules and only return the `id`
+     * const serviceScheduleWithIdOnly = await prisma.serviceSchedule.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ServiceScheduleCreateManyAndReturnArgs>(args?: SelectSubset<T, ServiceScheduleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ServiceSchedule.
+     * @param {ServiceScheduleDeleteArgs} args - Arguments to delete one ServiceSchedule.
+     * @example
+     * // Delete one ServiceSchedule
+     * const ServiceSchedule = await prisma.serviceSchedule.delete({
+     *   where: {
+     *     // ... filter to delete one ServiceSchedule
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ServiceScheduleDeleteArgs>(args: SelectSubset<T, ServiceScheduleDeleteArgs<ExtArgs>>): Prisma__ServiceScheduleClient<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ServiceSchedule.
+     * @param {ServiceScheduleUpdateArgs} args - Arguments to update one ServiceSchedule.
+     * @example
+     * // Update one ServiceSchedule
+     * const serviceSchedule = await prisma.serviceSchedule.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ServiceScheduleUpdateArgs>(args: SelectSubset<T, ServiceScheduleUpdateArgs<ExtArgs>>): Prisma__ServiceScheduleClient<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ServiceSchedules.
+     * @param {ServiceScheduleDeleteManyArgs} args - Arguments to filter ServiceSchedules to delete.
+     * @example
+     * // Delete a few ServiceSchedules
+     * const { count } = await prisma.serviceSchedule.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ServiceScheduleDeleteManyArgs>(args?: SelectSubset<T, ServiceScheduleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ServiceSchedules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceScheduleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ServiceSchedules
+     * const serviceSchedule = await prisma.serviceSchedule.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ServiceScheduleUpdateManyArgs>(args: SelectSubset<T, ServiceScheduleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ServiceSchedules and returns the data updated in the database.
+     * @param {ServiceScheduleUpdateManyAndReturnArgs} args - Arguments to update many ServiceSchedules.
+     * @example
+     * // Update many ServiceSchedules
+     * const serviceSchedule = await prisma.serviceSchedule.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ServiceSchedules and only return the `id`
+     * const serviceScheduleWithIdOnly = await prisma.serviceSchedule.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ServiceScheduleUpdateManyAndReturnArgs>(args: SelectSubset<T, ServiceScheduleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ServiceSchedule.
+     * @param {ServiceScheduleUpsertArgs} args - Arguments to update or create a ServiceSchedule.
+     * @example
+     * // Update or create a ServiceSchedule
+     * const serviceSchedule = await prisma.serviceSchedule.upsert({
+     *   create: {
+     *     // ... data to create a ServiceSchedule
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ServiceSchedule we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ServiceScheduleUpsertArgs>(args: SelectSubset<T, ServiceScheduleUpsertArgs<ExtArgs>>): Prisma__ServiceScheduleClient<$Result.GetResult<Prisma.$ServiceSchedulePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ServiceSchedules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceScheduleCountArgs} args - Arguments to filter ServiceSchedules to count.
+     * @example
+     * // Count the number of ServiceSchedules
+     * const count = await prisma.serviceSchedule.count({
+     *   where: {
+     *     // ... the filter for the ServiceSchedules we want to count
+     *   }
+     * })
+    **/
+    count<T extends ServiceScheduleCountArgs>(
+      args?: Subset<T, ServiceScheduleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ServiceScheduleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ServiceSchedule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceScheduleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ServiceScheduleAggregateArgs>(args: Subset<T, ServiceScheduleAggregateArgs>): Prisma.PrismaPromise<GetServiceScheduleAggregateType<T>>
+
+    /**
+     * Group by ServiceSchedule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServiceScheduleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ServiceScheduleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ServiceScheduleGroupByArgs['orderBy'] }
+        : { orderBy?: ServiceScheduleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ServiceScheduleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetServiceScheduleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ServiceSchedule model
+   */
+  readonly fields: ServiceScheduleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ServiceSchedule.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ServiceScheduleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ServiceSchedule model
+   */
+  interface ServiceScheduleFieldRefs {
+    readonly id: FieldRef<"ServiceSchedule", 'String'>
+    readonly userId: FieldRef<"ServiceSchedule", 'String'>
+    readonly date: FieldRef<"ServiceSchedule", 'DateTime'>
+    readonly status: FieldRef<"ServiceSchedule", 'String'>
+    readonly jobType: FieldRef<"ServiceSchedule", 'String'>
+    readonly jobDescription: FieldRef<"ServiceSchedule", 'String'>
+    readonly duration: FieldRef<"ServiceSchedule", 'String'>
+    readonly province: FieldRef<"ServiceSchedule", 'String'>
+    readonly createdAt: FieldRef<"ServiceSchedule", 'DateTime'>
+    readonly updatedAt: FieldRef<"ServiceSchedule", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ServiceSchedule findUnique
+   */
+  export type ServiceScheduleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+    /**
+     * Filter, which ServiceSchedule to fetch.
+     */
+    where: ServiceScheduleWhereUniqueInput
+  }
+
+  /**
+   * ServiceSchedule findUniqueOrThrow
+   */
+  export type ServiceScheduleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+    /**
+     * Filter, which ServiceSchedule to fetch.
+     */
+    where: ServiceScheduleWhereUniqueInput
+  }
+
+  /**
+   * ServiceSchedule findFirst
+   */
+  export type ServiceScheduleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+    /**
+     * Filter, which ServiceSchedule to fetch.
+     */
+    where?: ServiceScheduleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServiceSchedules to fetch.
+     */
+    orderBy?: ServiceScheduleOrderByWithRelationInput | ServiceScheduleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ServiceSchedules.
+     */
+    cursor?: ServiceScheduleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServiceSchedules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServiceSchedules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServiceSchedules.
+     */
+    distinct?: ServiceScheduleScalarFieldEnum | ServiceScheduleScalarFieldEnum[]
+  }
+
+  /**
+   * ServiceSchedule findFirstOrThrow
+   */
+  export type ServiceScheduleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+    /**
+     * Filter, which ServiceSchedule to fetch.
+     */
+    where?: ServiceScheduleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServiceSchedules to fetch.
+     */
+    orderBy?: ServiceScheduleOrderByWithRelationInput | ServiceScheduleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ServiceSchedules.
+     */
+    cursor?: ServiceScheduleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServiceSchedules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServiceSchedules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServiceSchedules.
+     */
+    distinct?: ServiceScheduleScalarFieldEnum | ServiceScheduleScalarFieldEnum[]
+  }
+
+  /**
+   * ServiceSchedule findMany
+   */
+  export type ServiceScheduleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+    /**
+     * Filter, which ServiceSchedules to fetch.
+     */
+    where?: ServiceScheduleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServiceSchedules to fetch.
+     */
+    orderBy?: ServiceScheduleOrderByWithRelationInput | ServiceScheduleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ServiceSchedules.
+     */
+    cursor?: ServiceScheduleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServiceSchedules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServiceSchedules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServiceSchedules.
+     */
+    distinct?: ServiceScheduleScalarFieldEnum | ServiceScheduleScalarFieldEnum[]
+  }
+
+  /**
+   * ServiceSchedule create
+   */
+  export type ServiceScheduleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ServiceSchedule.
+     */
+    data: XOR<ServiceScheduleCreateInput, ServiceScheduleUncheckedCreateInput>
+  }
+
+  /**
+   * ServiceSchedule createMany
+   */
+  export type ServiceScheduleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ServiceSchedules.
+     */
+    data: ServiceScheduleCreateManyInput | ServiceScheduleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ServiceSchedule createManyAndReturn
+   */
+  export type ServiceScheduleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * The data used to create many ServiceSchedules.
+     */
+    data: ServiceScheduleCreateManyInput | ServiceScheduleCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ServiceSchedule update
+   */
+  export type ServiceScheduleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ServiceSchedule.
+     */
+    data: XOR<ServiceScheduleUpdateInput, ServiceScheduleUncheckedUpdateInput>
+    /**
+     * Choose, which ServiceSchedule to update.
+     */
+    where: ServiceScheduleWhereUniqueInput
+  }
+
+  /**
+   * ServiceSchedule updateMany
+   */
+  export type ServiceScheduleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ServiceSchedules.
+     */
+    data: XOR<ServiceScheduleUpdateManyMutationInput, ServiceScheduleUncheckedUpdateManyInput>
+    /**
+     * Filter which ServiceSchedules to update
+     */
+    where?: ServiceScheduleWhereInput
+    /**
+     * Limit how many ServiceSchedules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ServiceSchedule updateManyAndReturn
+   */
+  export type ServiceScheduleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * The data used to update ServiceSchedules.
+     */
+    data: XOR<ServiceScheduleUpdateManyMutationInput, ServiceScheduleUncheckedUpdateManyInput>
+    /**
+     * Filter which ServiceSchedules to update
+     */
+    where?: ServiceScheduleWhereInput
+    /**
+     * Limit how many ServiceSchedules to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ServiceSchedule upsert
+   */
+  export type ServiceScheduleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ServiceSchedule to update in case it exists.
+     */
+    where: ServiceScheduleWhereUniqueInput
+    /**
+     * In case the ServiceSchedule found by the `where` argument doesn't exist, create a new ServiceSchedule with this data.
+     */
+    create: XOR<ServiceScheduleCreateInput, ServiceScheduleUncheckedCreateInput>
+    /**
+     * In case the ServiceSchedule was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ServiceScheduleUpdateInput, ServiceScheduleUncheckedUpdateInput>
+  }
+
+  /**
+   * ServiceSchedule delete
+   */
+  export type ServiceScheduleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+    /**
+     * Filter which ServiceSchedule to delete.
+     */
+    where: ServiceScheduleWhereUniqueInput
+  }
+
+  /**
+   * ServiceSchedule deleteMany
+   */
+  export type ServiceScheduleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ServiceSchedules to delete
+     */
+    where?: ServiceScheduleWhereInput
+    /**
+     * Limit how many ServiceSchedules to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ServiceSchedule without action
+   */
+  export type ServiceScheduleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServiceSchedule
+     */
+    select?: ServiceScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServiceSchedule
+     */
+    omit?: ServiceScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServiceScheduleInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -139490,6 +140746,22 @@ export namespace Prisma {
   export type Withholding_tax_income_itemsScalarFieldEnum = (typeof Withholding_tax_income_itemsScalarFieldEnum)[keyof typeof Withholding_tax_income_itemsScalarFieldEnum]
 
 
+  export const ServiceScheduleScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    date: 'date',
+    status: 'status',
+    jobType: 'jobType',
+    jobDescription: 'jobDescription',
+    duration: 'duration',
+    province: 'province',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ServiceScheduleScalarFieldEnum = (typeof ServiceScheduleScalarFieldEnum)[keyof typeof ServiceScheduleScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -139683,6 +140955,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskListRelationFilter
     quotations?: QuotationListRelationFilter
     schedules?: ScheduleListRelationFilter
+    serviceSchedules?: ServiceScheduleListRelationFilter
     estimatedSurveys?: SiteSurveyListRelationFilter
     siteSurveys?: SiteSurveyListRelationFilter
     telesales?: TelesaleListRelationFilter
@@ -139720,6 +140993,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskOrderByRelationAggregateInput
     quotations?: QuotationOrderByRelationAggregateInput
     schedules?: ScheduleOrderByRelationAggregateInput
+    serviceSchedules?: ServiceScheduleOrderByRelationAggregateInput
     estimatedSurveys?: SiteSurveyOrderByRelationAggregateInput
     siteSurveys?: SiteSurveyOrderByRelationAggregateInput
     telesales?: TelesaleOrderByRelationAggregateInput
@@ -139760,6 +141034,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskListRelationFilter
     quotations?: QuotationListRelationFilter
     schedules?: ScheduleListRelationFilter
+    serviceSchedules?: ServiceScheduleListRelationFilter
     estimatedSurveys?: SiteSurveyListRelationFilter
     siteSurveys?: SiteSurveyListRelationFilter
     telesales?: TelesaleListRelationFilter
@@ -149936,6 +151211,87 @@ export namespace Prisma {
     tax_withheld?: DecimalWithAggregatesFilter<"withholding_tax_income_items"> | Decimal | DecimalJsLike | number | string
   }
 
+  export type ServiceScheduleWhereInput = {
+    AND?: ServiceScheduleWhereInput | ServiceScheduleWhereInput[]
+    OR?: ServiceScheduleWhereInput[]
+    NOT?: ServiceScheduleWhereInput | ServiceScheduleWhereInput[]
+    id?: StringFilter<"ServiceSchedule"> | string
+    userId?: StringFilter<"ServiceSchedule"> | string
+    date?: DateTimeFilter<"ServiceSchedule"> | Date | string
+    status?: StringFilter<"ServiceSchedule"> | string
+    jobType?: StringNullableFilter<"ServiceSchedule"> | string | null
+    jobDescription?: StringNullableFilter<"ServiceSchedule"> | string | null
+    duration?: StringNullableFilter<"ServiceSchedule"> | string | null
+    province?: StringNullableFilter<"ServiceSchedule"> | string | null
+    createdAt?: DateTimeFilter<"ServiceSchedule"> | Date | string
+    updatedAt?: DateTimeFilter<"ServiceSchedule"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type ServiceScheduleOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    date?: SortOrder
+    status?: SortOrder
+    jobType?: SortOrderInput | SortOrder
+    jobDescription?: SortOrderInput | SortOrder
+    duration?: SortOrderInput | SortOrder
+    province?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type ServiceScheduleWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_date?: ServiceScheduleUserIdDateCompoundUniqueInput
+    AND?: ServiceScheduleWhereInput | ServiceScheduleWhereInput[]
+    OR?: ServiceScheduleWhereInput[]
+    NOT?: ServiceScheduleWhereInput | ServiceScheduleWhereInput[]
+    userId?: StringFilter<"ServiceSchedule"> | string
+    date?: DateTimeFilter<"ServiceSchedule"> | Date | string
+    status?: StringFilter<"ServiceSchedule"> | string
+    jobType?: StringNullableFilter<"ServiceSchedule"> | string | null
+    jobDescription?: StringNullableFilter<"ServiceSchedule"> | string | null
+    duration?: StringNullableFilter<"ServiceSchedule"> | string | null
+    province?: StringNullableFilter<"ServiceSchedule"> | string | null
+    createdAt?: DateTimeFilter<"ServiceSchedule"> | Date | string
+    updatedAt?: DateTimeFilter<"ServiceSchedule"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_date">
+
+  export type ServiceScheduleOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    date?: SortOrder
+    status?: SortOrder
+    jobType?: SortOrderInput | SortOrder
+    jobDescription?: SortOrderInput | SortOrder
+    duration?: SortOrderInput | SortOrder
+    province?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ServiceScheduleCountOrderByAggregateInput
+    _max?: ServiceScheduleMaxOrderByAggregateInput
+    _min?: ServiceScheduleMinOrderByAggregateInput
+  }
+
+  export type ServiceScheduleScalarWhereWithAggregatesInput = {
+    AND?: ServiceScheduleScalarWhereWithAggregatesInput | ServiceScheduleScalarWhereWithAggregatesInput[]
+    OR?: ServiceScheduleScalarWhereWithAggregatesInput[]
+    NOT?: ServiceScheduleScalarWhereWithAggregatesInput | ServiceScheduleScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ServiceSchedule"> | string
+    userId?: StringWithAggregatesFilter<"ServiceSchedule"> | string
+    date?: DateTimeWithAggregatesFilter<"ServiceSchedule"> | Date | string
+    status?: StringWithAggregatesFilter<"ServiceSchedule"> | string
+    jobType?: StringNullableWithAggregatesFilter<"ServiceSchedule"> | string | null
+    jobDescription?: StringNullableWithAggregatesFilter<"ServiceSchedule"> | string | null
+    duration?: StringNullableWithAggregatesFilter<"ServiceSchedule"> | string | null
+    province?: StringNullableWithAggregatesFilter<"ServiceSchedule"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ServiceSchedule"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ServiceSchedule"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     employeeId: string
@@ -149965,6 +151321,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -150002,6 +151359,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -150039,6 +151397,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -150076,6 +151435,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -161616,6 +162976,96 @@ export namespace Prisma {
     tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
   }
 
+  export type ServiceScheduleCreateInput = {
+    id?: string
+    date: Date | string
+    status: string
+    jobType?: string | null
+    jobDescription?: string | null
+    duration?: string | null
+    province?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutServiceSchedulesInput
+  }
+
+  export type ServiceScheduleUncheckedCreateInput = {
+    id?: string
+    userId: string
+    date: Date | string
+    status: string
+    jobType?: string | null
+    jobDescription?: string | null
+    duration?: string | null
+    province?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServiceScheduleUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    jobType?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutServiceSchedulesNestedInput
+  }
+
+  export type ServiceScheduleUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    jobType?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServiceScheduleCreateManyInput = {
+    id?: string
+    userId: string
+    date: Date | string
+    status: string
+    jobType?: string | null
+    jobDescription?: string | null
+    duration?: string | null
+    province?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServiceScheduleUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    jobType?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServiceScheduleUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    jobType?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -161751,6 +163201,12 @@ export namespace Prisma {
     none?: ScheduleWhereInput
   }
 
+  export type ServiceScheduleListRelationFilter = {
+    every?: ServiceScheduleWhereInput
+    some?: ServiceScheduleWhereInput
+    none?: ServiceScheduleWhereInput
+  }
+
   export type SiteSurveyListRelationFilter = {
     every?: SiteSurveyWhereInput
     some?: SiteSurveyWhereInput
@@ -161834,6 +163290,10 @@ export namespace Prisma {
   }
 
   export type ScheduleOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ServiceScheduleOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -169004,6 +170464,50 @@ export namespace Prisma {
     tax_withheld?: SortOrder
   }
 
+  export type ServiceScheduleUserIdDateCompoundUniqueInput = {
+    userId: string
+    date: Date | string
+  }
+
+  export type ServiceScheduleCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    date?: SortOrder
+    status?: SortOrder
+    jobType?: SortOrder
+    jobDescription?: SortOrder
+    duration?: SortOrder
+    province?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ServiceScheduleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    date?: SortOrder
+    status?: SortOrder
+    jobType?: SortOrder
+    jobDescription?: SortOrder
+    duration?: SortOrder
+    province?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ServiceScheduleMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    date?: SortOrder
+    status?: SortOrder
+    jobType?: SortOrder
+    jobDescription?: SortOrder
+    duration?: SortOrder
+    province?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type CompanyCreateNestedManyWithoutAssignedUserInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -169107,6 +170611,13 @@ export namespace Prisma {
     connectOrCreate?: ScheduleCreateOrConnectWithoutUserInput | ScheduleCreateOrConnectWithoutUserInput[]
     createMany?: ScheduleCreateManyUserInputEnvelope
     connect?: ScheduleWhereUniqueInput | ScheduleWhereUniqueInput[]
+  }
+
+  export type ServiceScheduleCreateNestedManyWithoutUserInput = {
+    create?: XOR<ServiceScheduleCreateWithoutUserInput, ServiceScheduleUncheckedCreateWithoutUserInput> | ServiceScheduleCreateWithoutUserInput[] | ServiceScheduleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ServiceScheduleCreateOrConnectWithoutUserInput | ServiceScheduleCreateOrConnectWithoutUserInput[]
+    createMany?: ServiceScheduleCreateManyUserInputEnvelope
+    connect?: ServiceScheduleWhereUniqueInput | ServiceScheduleWhereUniqueInput[]
   }
 
   export type SiteSurveyCreateNestedManyWithoutEstimatedByUserInput = {
@@ -169253,6 +170764,13 @@ export namespace Prisma {
     connectOrCreate?: ScheduleCreateOrConnectWithoutUserInput | ScheduleCreateOrConnectWithoutUserInput[]
     createMany?: ScheduleCreateManyUserInputEnvelope
     connect?: ScheduleWhereUniqueInput | ScheduleWhereUniqueInput[]
+  }
+
+  export type ServiceScheduleUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<ServiceScheduleCreateWithoutUserInput, ServiceScheduleUncheckedCreateWithoutUserInput> | ServiceScheduleCreateWithoutUserInput[] | ServiceScheduleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ServiceScheduleCreateOrConnectWithoutUserInput | ServiceScheduleCreateOrConnectWithoutUserInput[]
+    createMany?: ServiceScheduleCreateManyUserInputEnvelope
+    connect?: ServiceScheduleWhereUniqueInput | ServiceScheduleWhereUniqueInput[]
   }
 
   export type SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput = {
@@ -169524,6 +171042,20 @@ export namespace Prisma {
     update?: ScheduleUpdateWithWhereUniqueWithoutUserInput | ScheduleUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: ScheduleUpdateManyWithWhereWithoutUserInput | ScheduleUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: ScheduleScalarWhereInput | ScheduleScalarWhereInput[]
+  }
+
+  export type ServiceScheduleUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ServiceScheduleCreateWithoutUserInput, ServiceScheduleUncheckedCreateWithoutUserInput> | ServiceScheduleCreateWithoutUserInput[] | ServiceScheduleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ServiceScheduleCreateOrConnectWithoutUserInput | ServiceScheduleCreateOrConnectWithoutUserInput[]
+    upsert?: ServiceScheduleUpsertWithWhereUniqueWithoutUserInput | ServiceScheduleUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ServiceScheduleCreateManyUserInputEnvelope
+    set?: ServiceScheduleWhereUniqueInput | ServiceScheduleWhereUniqueInput[]
+    disconnect?: ServiceScheduleWhereUniqueInput | ServiceScheduleWhereUniqueInput[]
+    delete?: ServiceScheduleWhereUniqueInput | ServiceScheduleWhereUniqueInput[]
+    connect?: ServiceScheduleWhereUniqueInput | ServiceScheduleWhereUniqueInput[]
+    update?: ServiceScheduleUpdateWithWhereUniqueWithoutUserInput | ServiceScheduleUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ServiceScheduleUpdateManyWithWhereWithoutUserInput | ServiceScheduleUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ServiceScheduleScalarWhereInput | ServiceScheduleScalarWhereInput[]
   }
 
   export type SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput = {
@@ -169814,6 +171346,20 @@ export namespace Prisma {
     update?: ScheduleUpdateWithWhereUniqueWithoutUserInput | ScheduleUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: ScheduleUpdateManyWithWhereWithoutUserInput | ScheduleUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: ScheduleScalarWhereInput | ScheduleScalarWhereInput[]
+  }
+
+  export type ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ServiceScheduleCreateWithoutUserInput, ServiceScheduleUncheckedCreateWithoutUserInput> | ServiceScheduleCreateWithoutUserInput[] | ServiceScheduleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ServiceScheduleCreateOrConnectWithoutUserInput | ServiceScheduleCreateOrConnectWithoutUserInput[]
+    upsert?: ServiceScheduleUpsertWithWhereUniqueWithoutUserInput | ServiceScheduleUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ServiceScheduleCreateManyUserInputEnvelope
+    set?: ServiceScheduleWhereUniqueInput | ServiceScheduleWhereUniqueInput[]
+    disconnect?: ServiceScheduleWhereUniqueInput | ServiceScheduleWhereUniqueInput[]
+    delete?: ServiceScheduleWhereUniqueInput | ServiceScheduleWhereUniqueInput[]
+    connect?: ServiceScheduleWhereUniqueInput | ServiceScheduleWhereUniqueInput[]
+    update?: ServiceScheduleUpdateWithWhereUniqueWithoutUserInput | ServiceScheduleUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ServiceScheduleUpdateManyWithWhereWithoutUserInput | ServiceScheduleUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ServiceScheduleScalarWhereInput | ServiceScheduleScalarWhereInput[]
   }
 
   export type SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput = {
@@ -175584,6 +177130,20 @@ export namespace Prisma {
     update?: XOR<XOR<withholding_tax_documentsUpdateToOneWithWhereWithoutWithholding_tax_income_itemsInput, withholding_tax_documentsUpdateWithoutWithholding_tax_income_itemsInput>, withholding_tax_documentsUncheckedUpdateWithoutWithholding_tax_income_itemsInput>
   }
 
+  export type UserCreateNestedOneWithoutServiceSchedulesInput = {
+    create?: XOR<UserCreateWithoutServiceSchedulesInput, UserUncheckedCreateWithoutServiceSchedulesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutServiceSchedulesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutServiceSchedulesNestedInput = {
+    create?: XOR<UserCreateWithoutServiceSchedulesInput, UserUncheckedCreateWithoutServiceSchedulesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutServiceSchedulesInput
+    upsert?: UserUpsertWithoutServiceSchedulesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutServiceSchedulesInput, UserUpdateWithoutServiceSchedulesInput>, UserUncheckedUpdateWithoutServiceSchedulesInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -176807,6 +178367,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ServiceScheduleCreateWithoutUserInput = {
+    id?: string
+    date: Date | string
+    status: string
+    jobType?: string | null
+    jobDescription?: string | null
+    duration?: string | null
+    province?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServiceScheduleUncheckedCreateWithoutUserInput = {
+    id?: string
+    date: Date | string
+    status: string
+    jobType?: string | null
+    jobDescription?: string | null
+    duration?: string | null
+    province?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServiceScheduleCreateOrConnectWithoutUserInput = {
+    where: ServiceScheduleWhereUniqueInput
+    create: XOR<ServiceScheduleCreateWithoutUserInput, ServiceScheduleUncheckedCreateWithoutUserInput>
+  }
+
+  export type ServiceScheduleCreateManyUserInputEnvelope = {
+    data: ServiceScheduleCreateManyUserInput | ServiceScheduleCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SiteSurveyCreateWithoutEstimatedByUserInput = {
     id?: string
     surveyNumber: string
@@ -177734,6 +179328,38 @@ export namespace Prisma {
     telesaleId?: StringNullableFilter<"Schedule"> | string | null
   }
 
+  export type ServiceScheduleUpsertWithWhereUniqueWithoutUserInput = {
+    where: ServiceScheduleWhereUniqueInput
+    update: XOR<ServiceScheduleUpdateWithoutUserInput, ServiceScheduleUncheckedUpdateWithoutUserInput>
+    create: XOR<ServiceScheduleCreateWithoutUserInput, ServiceScheduleUncheckedCreateWithoutUserInput>
+  }
+
+  export type ServiceScheduleUpdateWithWhereUniqueWithoutUserInput = {
+    where: ServiceScheduleWhereUniqueInput
+    data: XOR<ServiceScheduleUpdateWithoutUserInput, ServiceScheduleUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ServiceScheduleUpdateManyWithWhereWithoutUserInput = {
+    where: ServiceScheduleScalarWhereInput
+    data: XOR<ServiceScheduleUpdateManyMutationInput, ServiceScheduleUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type ServiceScheduleScalarWhereInput = {
+    AND?: ServiceScheduleScalarWhereInput | ServiceScheduleScalarWhereInput[]
+    OR?: ServiceScheduleScalarWhereInput[]
+    NOT?: ServiceScheduleScalarWhereInput | ServiceScheduleScalarWhereInput[]
+    id?: StringFilter<"ServiceSchedule"> | string
+    userId?: StringFilter<"ServiceSchedule"> | string
+    date?: DateTimeFilter<"ServiceSchedule"> | Date | string
+    status?: StringFilter<"ServiceSchedule"> | string
+    jobType?: StringNullableFilter<"ServiceSchedule"> | string | null
+    jobDescription?: StringNullableFilter<"ServiceSchedule"> | string | null
+    duration?: StringNullableFilter<"ServiceSchedule"> | string | null
+    province?: StringNullableFilter<"ServiceSchedule"> | string | null
+    createdAt?: DateTimeFilter<"ServiceSchedule"> | Date | string
+    updatedAt?: DateTimeFilter<"ServiceSchedule"> | Date | string
+  }
+
   export type SiteSurveyUpsertWithWhereUniqueWithoutEstimatedByUserInput = {
     where: SiteSurveyWhereUniqueInput
     update: XOR<SiteSurveyUpdateWithoutEstimatedByUserInput, SiteSurveyUncheckedUpdateWithoutEstimatedByUserInput>
@@ -177973,6 +179599,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -178009,6 +179636,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -178061,6 +179689,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -178097,6 +179726,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -178259,6 +179889,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -178295,6 +179926,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -178485,6 +180117,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -178521,6 +180154,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -178558,6 +180192,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -178594,6 +180229,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -178646,6 +180282,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -178682,6 +180319,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -178717,6 +180355,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -178753,6 +180392,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -179159,6 +180799,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -179195,6 +180836,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -179787,6 +181429,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -179823,6 +181466,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -180231,6 +181875,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -180267,6 +181912,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -180570,6 +182216,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -180606,6 +182253,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -180788,6 +182436,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -180824,6 +182473,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -180860,6 +182510,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -180896,6 +182547,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -180948,6 +182600,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -180984,6 +182637,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -181179,6 +182833,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -181215,6 +182870,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -181465,6 +183121,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -181501,6 +183158,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -182794,6 +184452,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -182830,6 +184489,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -182967,6 +184627,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -183003,6 +184664,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -183566,6 +185228,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -183602,6 +185265,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -183745,6 +185409,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -183781,6 +185446,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -183993,6 +185659,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -184029,6 +185696,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -184070,6 +185738,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -184106,6 +185775,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -184158,6 +185828,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -184194,6 +185865,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -184241,6 +185913,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -184277,6 +185950,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -197323,6 +198997,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -197359,6 +199034,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -197676,6 +199352,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -197712,6 +199389,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -198171,6 +199849,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -198207,6 +199886,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -198378,6 +200058,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -198414,6 +200095,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -198450,6 +200132,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -198486,6 +200169,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -198754,6 +200438,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -198790,6 +200475,7 @@ export namespace Prisma {
     projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -199289,6 +200975,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -199325,6 +201012,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -199525,6 +201213,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -199561,6 +201250,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -204788,6 +206478,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -204824,6 +206515,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -204865,6 +206557,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -204901,6 +206594,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -205036,6 +206730,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -205072,6 +206767,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -205119,6 +206815,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -205155,6 +206852,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -205280,6 +206978,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
@@ -205316,6 +207015,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
@@ -205368,6 +207068,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
@@ -205404,6 +207105,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
@@ -205606,6 +207308,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -205642,6 +207345,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -205683,6 +207387,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
@@ -205719,6 +207424,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
     estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
@@ -206126,6 +207832,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -206162,6 +207869,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -206209,6 +207917,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
@@ -206245,6 +207954,7 @@ export namespace Prisma {
     assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
     estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
@@ -208868,6 +210578,170 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type UserCreateWithoutServiceSchedulesInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserUncheckedCreateWithoutServiceSchedulesInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserCreateOrConnectWithoutServiceSchedulesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutServiceSchedulesInput, UserUncheckedCreateWithoutServiceSchedulesInput>
+  }
+
+  export type UserUpsertWithoutServiceSchedulesInput = {
+    update: XOR<UserUpdateWithoutServiceSchedulesInput, UserUncheckedUpdateWithoutServiceSchedulesInput>
+    create: XOR<UserCreateWithoutServiceSchedulesInput, UserUncheckedCreateWithoutServiceSchedulesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutServiceSchedulesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutServiceSchedulesInput, UserUncheckedUpdateWithoutServiceSchedulesInput>
+  }
+
+  export type UserUpdateWithoutServiceSchedulesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutServiceSchedulesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+  }
+
   export type CompanyCreateManyAssignedUserInput = {
     id?: string
     companyName: string
@@ -209200,6 +211074,18 @@ export namespace Prisma {
     updatedAt?: Date | string
     companyId?: string | null
     telesaleId?: string | null
+  }
+
+  export type ServiceScheduleCreateManyUserInput = {
+    id?: string
+    date: Date | string
+    status: string
+    jobType?: string | null
+    jobDescription?: string | null
+    duration?: string | null
+    province?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type SiteSurveyCreateManyEstimatedByUserInput = {
@@ -210343,6 +212229,42 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     telesaleId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ServiceScheduleUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    jobType?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServiceScheduleUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    jobType?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServiceScheduleUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    jobType?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDescription?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SiteSurveyUpdateWithoutEstimatedByUserInput = {

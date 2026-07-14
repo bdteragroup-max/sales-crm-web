@@ -4,7 +4,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
-  LayoutDashboard, Users, CalendarDays, PhoneCall,
+  LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall,
   LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart
 } from 'lucide-react';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -28,7 +28,7 @@ const managerNav = [
   { icon: DollarSign, label: 'บันทึกค่าใช้จ่าย', href: '/sales/expenses' },
   { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
   { icon: MapPin, label: 'สำรวจไซต์งาน', href: '/sales/surveys' },
-  { icon: ClipboardList, label: 'แดชบอร์ดงานติดตั้ง', href: '/service/installation' },
+  { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
   { icon: LayoutDashboard, label: 'Marketing', href: '/marketing' },
   { icon: Users, label: 'จัดการทีม', href: '/team' },
   { icon: MapPin, label: 'ตรวจสอบ GPS ลงเวลา', href: '/department/checkins' },
@@ -47,7 +47,7 @@ const repNav = [
   { icon: DollarSign, label: 'บันทึกค่าใช้จ่าย', href: '/sales/expenses' },
   { icon: FileText, label: 'ใบรับความต้องการ', href: '/sales/requirements' },
   { icon: MapPin, label: 'สำรวจไซต์งาน', href: '/sales/surveys' },
-  { icon: ClipboardList, label: 'แดชบอร์ดงานติดตั้ง', href: '/service/installation' },
+  { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
   { icon: CalendarDays, label: 'ตารางงานของฉัน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
   { icon: Users, label: 'ลูกค้าและบริษัท', href: '/clients' },
@@ -62,6 +62,7 @@ const serviceNav = [
   { icon: ClipboardList, label: 'แดชบอร์ดงานติดตั้ง', href: '/service/installation' },
   { icon: Calculator, label: 'ประเมินราคางานซ่อม/ประกอบ', href: '/service/estimations' },
   { icon: UserSquare, label: 'งานของฉัน', href: '/service/my-tasks' },
+  { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
 ];
 
 const backofficeNav = [

@@ -36,6 +36,7 @@ model User {
   assignedTasks          ProjectTask[]
   quotations             Quotation[]
   schedules              Schedule[]
+  serviceSchedules       ServiceSchedule[]
   estimatedSurveys       SiteSurvey[]          @relation("SurveyEstimator")
   siteSurveys            SiteSurvey[]
   telesales              Telesale[]
@@ -294,7 +295,7 @@ model Order {
   companyId          String
   quotationId        String?
   salespersonId      String?
-  status             String           @default("เธฃเธญเธขเธทเธเธขเธฑเธ")
+  status             String           @default("เน€เธเธเน€เธเธเน€เธเธเน€เธเธ—เน€เธยเน€เธเธเน€เธเธ‘เน€เธย")
   value              Float            @default(0)
   priority           String           @default("Normal")
   targetDeliveryDate DateTime?        @db.Timestamptz(6)
@@ -370,7 +371,7 @@ model Job {
 model PaymentTask {
   id                String    @id @default(cuid())
   jobId             String
-  status            String    @default("รอดำเนินการ")
+  status            String    @default("เธฃเธญเธ”เธณเน€เธเธดเธเธเธฒเธฃ")
   assignedTo        String?
   dueDate           DateTime? @db.Timestamptz(6)
   paidAmount        Float?
@@ -1435,7 +1436,7 @@ model ProjectEquipment {
   name               String
   registrationNumber String?
   quantity           Int      @default(1)
-  status             String   @default("ใช้งาน")
+  status             String   @default("เนเธเนเธเธฒเธ")
   details            String?
   createdAt          DateTime @default(now()) @db.Timestamptz(6)
   project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -2077,4 +2078,20 @@ model withholding_tax_income_items {
   payment_amount            Decimal                   @db.Decimal(10, 2)
   tax_withheld              Decimal                   @db.Decimal(10, 2)
   withholding_tax_documents withholding_tax_documents @relation(fields: [document_id], references: [id], onDelete: Cascade)
+}
+
+model ServiceSchedule {
+  id             String   @id @default(cuid())
+  userId         String
+  date           DateTime @db.Date
+  status         String
+  jobType        String?
+  jobDescription String?
+  duration       String?
+  province       String?
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date])
 }

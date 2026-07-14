@@ -1758,6 +1758,19 @@ exports.Prisma.Withholding_tax_income_itemsScalarFieldEnum = {
   tax_withheld: 'tax_withheld'
 };
 
+exports.Prisma.ServiceScheduleScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  date: 'date',
+  status: 'status',
+  jobType: 'jobType',
+  jobDescription: 'jobDescription',
+  duration: 'duration',
+  province: 'province',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1891,7 +1904,8 @@ exports.Prisma.ModelName = {
   company_settings: 'company_settings',
   tax_configs: 'tax_configs',
   withholding_tax_documents: 'withholding_tax_documents',
-  withholding_tax_income_items: 'withholding_tax_income_items'
+  withholding_tax_income_items: 'withholding_tax_income_items',
+  ServiceSchedule: 'ServiceSchedule'
 };
 
 /**
