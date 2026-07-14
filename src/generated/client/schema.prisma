@@ -1533,6 +1533,7 @@ model BranchExpense {
   notes         String?
   createdAt     DateTime @default(now()) @db.Timestamptz(6)
   updatedAt     DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  odometer      Decimal? @db.Decimal(10, 2)
 
   @@index([branch])
   @@index([salespersonId])

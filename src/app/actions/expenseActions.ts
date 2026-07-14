@@ -21,6 +21,14 @@ export async function createExpense(formData: FormData) {
     const expenseType = formData.get("expenseType") as string;
     const notes = formData.get("notes") as string;
     
+    let odometer: number | null = null;
+    if (expenseType && expenseType.toLowerCase().includes("travel")) {
+      const odoStr = formData.get("odometer") as string;
+      if (odoStr && !isNaN(parseFloat(odoStr))) {
+        odometer = parseFloat(odoStr);
+      }
+    }
+    
     // For managers, allow setting another user. Otherwise, default to self.
     let targetUserId = user.id;
     let targetBranch = user.employeeSale?.branch || "Head Office";
@@ -50,6 +58,7 @@ export async function createExpense(formData: FormData) {
         amount,
         date,
         notes,
+        odometer
       }
     });
 
@@ -97,7 +106,11 @@ export async function getExpenses() {
       orderBy: { date: 'desc' },
       take: 200,
     });
-    return expenses;
+    
+    return expenses.map(exp => ({
+      ...exp,
+      odometer: exp.odometer ? Number(exp.odometer) : null
+    }));
   } catch (error) {
     console.error("Error fetching expenses:", error);
     return [];

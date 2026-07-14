@@ -94739,10 +94739,12 @@ export namespace Prisma {
 
   export type BranchExpenseAvgAggregateOutputType = {
     amount: number | null
+    odometer: Decimal | null
   }
 
   export type BranchExpenseSumAggregateOutputType = {
     amount: number | null
+    odometer: Decimal | null
   }
 
   export type BranchExpenseMinAggregateOutputType = {
@@ -94755,6 +94757,7 @@ export namespace Prisma {
     notes: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    odometer: Decimal | null
   }
 
   export type BranchExpenseMaxAggregateOutputType = {
@@ -94767,6 +94770,7 @@ export namespace Prisma {
     notes: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    odometer: Decimal | null
   }
 
   export type BranchExpenseCountAggregateOutputType = {
@@ -94779,16 +94783,19 @@ export namespace Prisma {
     notes: number
     createdAt: number
     updatedAt: number
+    odometer: number
     _all: number
   }
 
 
   export type BranchExpenseAvgAggregateInputType = {
     amount?: true
+    odometer?: true
   }
 
   export type BranchExpenseSumAggregateInputType = {
     amount?: true
+    odometer?: true
   }
 
   export type BranchExpenseMinAggregateInputType = {
@@ -94801,6 +94808,7 @@ export namespace Prisma {
     notes?: true
     createdAt?: true
     updatedAt?: true
+    odometer?: true
   }
 
   export type BranchExpenseMaxAggregateInputType = {
@@ -94813,6 +94821,7 @@ export namespace Prisma {
     notes?: true
     createdAt?: true
     updatedAt?: true
+    odometer?: true
   }
 
   export type BranchExpenseCountAggregateInputType = {
@@ -94825,6 +94834,7 @@ export namespace Prisma {
     notes?: true
     createdAt?: true
     updatedAt?: true
+    odometer?: true
     _all?: true
   }
 
@@ -94924,6 +94934,7 @@ export namespace Prisma {
     notes: string | null
     createdAt: Date
     updatedAt: Date
+    odometer: Decimal | null
     _count: BranchExpenseCountAggregateOutputType | null
     _avg: BranchExpenseAvgAggregateOutputType | null
     _sum: BranchExpenseSumAggregateOutputType | null
@@ -94955,6 +94966,7 @@ export namespace Prisma {
     notes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    odometer?: boolean
   }, ExtArgs["result"]["branchExpense"]>
 
   export type BranchExpenseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -94967,6 +94979,7 @@ export namespace Prisma {
     notes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    odometer?: boolean
   }, ExtArgs["result"]["branchExpense"]>
 
   export type BranchExpenseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -94979,6 +94992,7 @@ export namespace Prisma {
     notes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    odometer?: boolean
   }, ExtArgs["result"]["branchExpense"]>
 
   export type BranchExpenseSelectScalar = {
@@ -94991,9 +95005,10 @@ export namespace Prisma {
     notes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    odometer?: boolean
   }
 
-  export type BranchExpenseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "branch" | "salespersonId" | "expenseType" | "amount" | "date" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["branchExpense"]>
+  export type BranchExpenseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "branch" | "salespersonId" | "expenseType" | "amount" | "date" | "notes" | "createdAt" | "updatedAt" | "odometer", ExtArgs["result"]["branchExpense"]>
 
   export type $BranchExpensePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "BranchExpense"
@@ -95008,6 +95023,7 @@ export namespace Prisma {
       notes: string | null
       createdAt: Date
       updatedAt: Date
+      odometer: Prisma.Decimal | null
     }, ExtArgs["result"]["branchExpense"]>
     composites: {}
   }
@@ -95440,6 +95456,7 @@ export namespace Prisma {
     readonly notes: FieldRef<"BranchExpense", 'String'>
     readonly createdAt: FieldRef<"BranchExpense", 'DateTime'>
     readonly updatedAt: FieldRef<"BranchExpense", 'DateTime'>
+    readonly odometer: FieldRef<"BranchExpense", 'Decimal'>
   }
     
 
@@ -138929,7 +138946,8 @@ export namespace Prisma {
     date: 'date',
     notes: 'notes',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    odometer: 'odometer'
   };
 
   export type BranchExpenseScalarFieldEnum = (typeof BranchExpenseScalarFieldEnum)[keyof typeof BranchExpenseScalarFieldEnum]
@@ -147032,6 +147050,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"BranchExpense"> | string | null
     createdAt?: DateTimeFilter<"BranchExpense"> | Date | string
     updatedAt?: DateTimeFilter<"BranchExpense"> | Date | string
+    odometer?: DecimalNullableFilter<"BranchExpense"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type BranchExpenseOrderByWithRelationInput = {
@@ -147044,6 +147063,7 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    odometer?: SortOrderInput | SortOrder
   }
 
   export type BranchExpenseWhereUniqueInput = Prisma.AtLeast<{
@@ -147059,6 +147079,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"BranchExpense"> | string | null
     createdAt?: DateTimeFilter<"BranchExpense"> | Date | string
     updatedAt?: DateTimeFilter<"BranchExpense"> | Date | string
+    odometer?: DecimalNullableFilter<"BranchExpense"> | Decimal | DecimalJsLike | number | string | null
   }, "id">
 
   export type BranchExpenseOrderByWithAggregationInput = {
@@ -147071,6 +147092,7 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    odometer?: SortOrderInput | SortOrder
     _count?: BranchExpenseCountOrderByAggregateInput
     _avg?: BranchExpenseAvgOrderByAggregateInput
     _max?: BranchExpenseMaxOrderByAggregateInput
@@ -147091,6 +147113,7 @@ export namespace Prisma {
     notes?: StringNullableWithAggregatesFilter<"BranchExpense"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"BranchExpense"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"BranchExpense"> | Date | string
+    odometer?: DecimalNullableWithAggregatesFilter<"BranchExpense"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type clothing_itemsWhereInput = {
@@ -158532,6 +158555,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    odometer?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type BranchExpenseUncheckedCreateInput = {
@@ -158544,6 +158568,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    odometer?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type BranchExpenseUpdateInput = {
@@ -158556,6 +158581,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    odometer?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type BranchExpenseUncheckedUpdateInput = {
@@ -158568,6 +158594,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    odometer?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type BranchExpenseCreateManyInput = {
@@ -158580,6 +158607,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    odometer?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type BranchExpenseUpdateManyMutationInput = {
@@ -158592,6 +158620,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    odometer?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type BranchExpenseUncheckedUpdateManyInput = {
@@ -158604,6 +158633,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    odometer?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type clothing_itemsCreateInput = {
@@ -167126,10 +167156,12 @@ export namespace Prisma {
     notes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    odometer?: SortOrder
   }
 
   export type BranchExpenseAvgOrderByAggregateInput = {
     amount?: SortOrder
+    odometer?: SortOrder
   }
 
   export type BranchExpenseMaxOrderByAggregateInput = {
@@ -167142,6 +167174,7 @@ export namespace Prisma {
     notes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    odometer?: SortOrder
   }
 
   export type BranchExpenseMinOrderByAggregateInput = {
@@ -167154,10 +167187,12 @@ export namespace Prisma {
     notes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    odometer?: SortOrder
   }
 
   export type BranchExpenseSumOrderByAggregateInput = {
     amount?: SortOrder
+    odometer?: SortOrder
   }
 
   export type Clothing_variantsListRelationFilter = {

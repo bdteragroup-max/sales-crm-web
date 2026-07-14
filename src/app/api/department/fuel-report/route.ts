@@ -220,7 +220,7 @@ export async function GET(request: Request) {
 
       const dateStr = c.date_key.toISOString().split('T')[0];
       const empData = reportData[c.emp_id].dailyStats;
-      if (!empData[dateStr]) empData[dateStr] = { distance: 0, fuelAmount: 0, fuelLiters: 0, flags: [], manualExpenseAmount: 0, checkinsList: [] };
+      if (!empData[dateStr]) empData[dateStr] = { distance: 0, fuelAmount: 0, fuelLiters: 0, flags: [], manualExpenseAmount: 0, checkinsList: [], odometer: null, odometerDistance: null };
 
       // Add to list for coordinates and details
       empData[dateStr].checkinsList.push({
@@ -248,7 +248,7 @@ export async function GET(request: Request) {
       if (emp_id && reportData[emp_id]) {
         const dateStr = tx.date.toISOString().split('T')[0];
         const empData = reportData[emp_id].dailyStats;
-        if (!empData[dateStr]) empData[dateStr] = { distance: 0, fuelAmount: 0, fuelLiters: 0, flags: [], manualExpenseAmount: 0, checkinsList: [] };
+        if (!empData[dateStr]) empData[dateStr] = { distance: 0, fuelAmount: 0, fuelLiters: 0, flags: [], manualExpenseAmount: 0, checkinsList: [], odometer: null, odometerDistance: null };
         
         empData[dateStr].fuelAmount += Number(tx.amount);
         empData[dateStr].fuelLiters += Number(tx.liters);
@@ -261,15 +261,23 @@ export async function GET(request: Request) {
       if (emp_id && reportData[emp_id]) {
         const dateStr = exp.date.toISOString().split('T')[0];
         const empData = reportData[emp_id].dailyStats;
-        if (!empData[dateStr]) empData[dateStr] = { distance: 0, fuelAmount: 0, fuelLiters: 0, flags: [], manualExpenseAmount: 0, checkinsList: [] };
+        if (!empData[dateStr]) empData[dateStr] = { distance: 0, fuelAmount: 0, fuelLiters: 0, flags: [], manualExpenseAmount: 0, checkinsList: [], odometer: null, odometerDistance: null };
         
         empData[dateStr].manualExpenseAmount += Number(exp.amount);
+        if (exp.odometer != null) {
+          const odo = Number(exp.odometer);
+          if (empData[dateStr].odometer === null || odo > empData[dateStr].odometer) {
+             empData[dateStr].odometer = odo;
+          }
+        }
       }
     });
 
     // Apply Server-side Flag Logic and Attach Existing Reviews
     Object.values(reportData).forEach((emp: any) => {
-      Object.keys(emp.dailyStats).forEach(dateStr => {
+      let previousOdometer: number | null = null;
+      const sortedDates = Object.keys(emp.dailyStats).sort();
+      sortedDates.forEach(dateStr => {
         const stat = emp.dailyStats[dateStr];
         
         // Calculate exact distance based on coordinates
@@ -323,6 +331,22 @@ export async function GET(request: Request) {
              type: generatedFlag,
              review: existingReview || null
            });
+        }
+
+        if (stat.odometer !== null) {
+          if (previousOdometer !== null) {
+            stat.odometerDistance = parseFloat((stat.odometer - previousOdometer).toFixed(2));
+            if (stat.distance > 0) {
+              const diff = Math.abs(stat.odometerDistance - stat.distance);
+              if (diff > stat.distance * 0.3) {
+                stat.flags.push({
+                  type: 'ODOMETER_MISMATCH',
+                  review: null
+                });
+              }
+            }
+          }
+          previousOdometer = stat.odometer;
         }
       });
     });

@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { createExpense, deleteExpense } from '@/app/actions/expenseActions';
-import { Plus, Trash2, Calendar, DollarSign, Tag, FileText, Loader2, User } from 'lucide-react';
+import { Plus, Trash2, Calendar, DollarSign, Tag, FileText, Loader2, User, MapPin } from 'lucide-react';
 
 interface ExpenseManagerProps {
   initialExpenses: any[];
@@ -32,6 +32,7 @@ export default function ExpenseManager({ initialExpenses, currentUser, salesReps
     date: new Date().toISOString().split('T')[0],
     expenseType: 'ค่าเดินทาง (Travel)',
     notes: '',
+    odometer: '',
     salespersonId: currentUser.id
   });
 
@@ -44,6 +45,9 @@ export default function ExpenseManager({ initialExpenses, currentUser, salesReps
       data.append('date', formData.date);
       data.append('expenseType', formData.expenseType);
       data.append('notes', formData.notes);
+      if (formData.expenseType.includes('Travel') && formData.odometer) {
+        data.append('odometer', formData.odometer);
+      }
       if (isManager) {
         data.append('salespersonId', formData.salespersonId);
       }
@@ -156,6 +160,22 @@ export default function ExpenseManager({ initialExpenses, currentUser, salesReps
                 </select>
               </div>
 
+              {formData.expenseType.includes('Travel') && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <MapPin size={14} /> เลขไมล์ (Odometer)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="เลขไมล์รถหน้าปัด"
+                    className="bg-gray-50 border border-gray-200 text-gray-900 text-sm font-bold rounded-xl focus:ring-[#ff2301]/20 focus:border-[#ff2301] block w-full p-3 outline-none transition-all"
+                    value={formData.odometer}
+                    onChange={(e) => setFormData({ ...formData, odometer: e.target.value })}
+                  />
+                </div>
+              )}
+
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
                   <FileText size={14} /> รายละเอียด / หมายเหตุ
@@ -222,6 +242,11 @@ export default function ExpenseManager({ initialExpenses, currentUser, salesReps
                             <div className="flex flex-col gap-1">
                               <span className="text-xs font-black text-[#ff2301] uppercase tracking-wider">{exp.expenseType}</span>
                               <span className="text-sm font-bold text-gray-700">{exp.notes}</span>
+                              {exp.odometer != null && (
+                                <span className="text-xs font-bold text-gray-400 mt-1 flex items-center gap-1">
+                                  <MapPin size={12} /> ไมล์: {Number(exp.odometer).toLocaleString()}
+                                </span>
+                              )}
                             </div>
                           </td>
                           <td className="px-6 py-4 text-sm font-black text-red-500 text-right whitespace-nowrap">

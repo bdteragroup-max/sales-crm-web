@@ -1325,7 +1325,8 @@ exports.Prisma.BranchExpenseScalarFieldEnum = {
   date: 'date',
   notes: 'notes',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  odometer: 'odometer'
 };
 
 exports.Prisma.Clothing_itemsScalarFieldEnum = {

@@ -202,6 +202,7 @@ export default function FuelReportClient() {
             'วันที่': day.date,
             'รายละเอียดเส้นทาง': routeDetails,
             'ระยะทาง GPS (กม.)': day.distance,
+            'ระยะทางไมล์ (กม.)': day.odometerDistance != null ? day.odometerDistance : '-',
             'ค่าเสื่อม (3บ/กม)': day.depreciation,
             'เติมน้ำมัน (ลิตร)': day.fuelLiters || 0,
             'ยอดเงิน Fleetcard': day.fuelAmount || 0,
@@ -357,6 +358,7 @@ export default function FuelReportClient() {
                           <tr className="bg-white border-b border-gray-100">
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">วันที่</th>
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap text-right">ระยะทาง GPS</th>
+                            <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap text-right">ระยะทางไมล์รถ</th>
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap text-right">ค่าเสื่อม (3บ/กม)</th>
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">พิกัด GPS</th>
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap text-right">เติมน้ำมัน (ลิตร)</th>
@@ -370,6 +372,7 @@ export default function FuelReportClient() {
                             <tr key={day.date} className="hover:bg-gray-50/50 transition-colors align-top">
                               <td className="px-4 md:px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{day.date}</td>
                               <td className="px-4 md:px-6 py-4 text-sm text-gray-600 text-right">{day.distance.toLocaleString()} กม.</td>
+                              <td className="px-4 md:px-6 py-4 text-sm text-gray-600 text-right">{day.odometerDistance != null ? `${day.odometerDistance.toLocaleString()} กม.` : '-'}</td>
                               <td className="px-4 md:px-6 py-4 text-sm text-gray-600 text-right">{day.depreciation.toLocaleString()} ฿</td>
                               <td className="px-4 md:px-6 py-4 text-sm text-gray-600">
                                 {day.checkinsList && day.checkinsList.length > 0 ? (

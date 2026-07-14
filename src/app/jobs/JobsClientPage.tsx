@@ -851,7 +851,7 @@ export default function JobsClientPage({
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col gap-1">
-                      <span className="font-mono font-black text-brand-red tracking-wide text-sm">{job.jobNumber}</span>
+                      <span className="font-mono font-black text-brand-red tracking-wide text-sm whitespace-nowrap">{job.jobNumber}</span>
                       <span className="text-[11px] font-bold text-gray-400">{formatDate(job.dateClosed)}</span>
                     </div>
                     <div className="flex gap-2 items-center">
@@ -955,7 +955,7 @@ export default function JobsClientPage({
                       <td className="px-5 py-4 text-gray-400">
                         {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                       </td>
-                      <td className="px-5 py-4 font-mono font-black text-brand-red tracking-wide text-xs">
+                      <td className="px-5 py-4 font-mono font-black text-brand-red tracking-wide text-xs whitespace-nowrap">
                         {job.jobNumber}
                       </td>
                       <td className="px-5 py-4">
