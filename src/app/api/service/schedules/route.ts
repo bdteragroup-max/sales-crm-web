@@ -100,9 +100,10 @@ export async function POST(request: NextRequest) {
 
     const roleStr = (user.role || '').toLowerCase();
     const isManager = roleStr.includes('manager') || roleStr.includes('ผู้จัดการ') || roleStr === 'แอดมิน' || roleStr === 'หัวหน้า';
+    const isWatthika = user.employeeId === 'TP65004';
     
     // Check permissions
-    if (user.id !== userId && !isManager) {
+    if (user.id !== userId && !isManager && !isWatthika) {
       return NextResponse.json({ error: "Forbidden: You can only edit your own schedule" }, { status: 403 });
     }
 
