@@ -93,6 +93,7 @@ const storeAndPurchasingNav = [
 const projectNav = [
   { icon: FolderOpen, label: 'โครงการของฉัน', href: '/projects' },
   { icon: MapPin, label: 'แบบสำรวจไซต์งาน', href: '/sales/surveys' },
+  { icon: Calculator, label: 'ประเมินราคางานซ่อม/ประกอบ', href: '/service/estimations' },
 ];
 
 const marketingNav = [

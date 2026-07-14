@@ -65,3 +65,13 @@ export async function createCompanyForSurvey(companyName: string) {
     return { success: false, error: error.message };
   }
 }
+
+export async function deleteSiteSurvey(id: string) {
+  try {
+    await prisma.siteSurvey.delete({ where: { id } });
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deleting site survey:', error);
+    return { success: false, error: error.message };
+  }
+}

@@ -22,7 +22,10 @@ export default async function EstimationsPage() {
 
   // Fetch service team members for assignment (MGR role only)
   let serviceTeamMembers: any[] = [];
-  const isManager = (currentUser.role || '').toLowerCase().includes('service engineer mgr') || currentUser.role === 'ผู้จัดการ';
+  const isManager = (currentUser.role || '').toLowerCase().includes('service engineer mgr') || 
+                    (currentUser.role || '').toLowerCase().includes('project manager') ||
+                    (currentUser.role || '').toLowerCase().includes('ผู้จัดการโครงการ') ||
+                    currentUser.role === 'ผู้จัดการ';
   console.log('[EstimationsPage] User role:', currentUser.role, 'isManager:', isManager);
   
   if (isManager) {
@@ -32,7 +35,11 @@ export default async function EstimationsPage() {
         OR: [
           { role: { contains: "service", mode: "insensitive" } },
           { role: { contains: "บริการ", mode: "insensitive" } },
-          { role: { contains: "ช่าง", mode: "insensitive" } }
+          { role: { contains: "ช่าง", mode: "insensitive" } },
+          { role: { contains: "project", mode: "insensitive" } },
+          { role: { contains: "โปรเจค", mode: "insensitive" } },
+          { role: { contains: "design", mode: "insensitive" } },
+          { role: { contains: "ออกแบบ", mode: "insensitive" } }
         ]
       },
       select: {

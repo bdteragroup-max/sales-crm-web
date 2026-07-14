@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, Search, FileText, ChevronRight, CheckCircle2, Clock } from 'lucide-react';
+import { Plus, Search, FileText, ChevronRight, CheckCircle2, Clock, Trash2 } from 'lucide-react';
 import SiteSurveyForm from './SiteSurveyForm';
 import { format } from 'date-fns';
+import { deleteSiteSurvey } from '@/app/actions/siteSurveys';
 
 type SurveyManagerProps = {
   initialSurveys: any[];
@@ -34,6 +35,20 @@ export default function SurveyManager({ initialSurveys, companies, salesReps, cu
     setView('list');
     setEditingSurveyId(null);
     // Ideally, we'd trigger a re-fetch of the surveys here via Server Action, but for now we rely on router.refresh() from the form on success.
+  };
+
+  const handleDeleteSurvey = async (id: string) => {
+    if (!window.confirm('คุณแน่ใจหรือไม่ที่จะลบแบบสำรวจนี้? (Are you sure you want to delete this survey?)')) return;
+    try {
+      const res = await deleteSiteSurvey(id);
+      if (res.success) {
+        setSurveys(prev => prev.filter(s => s.id !== id));
+      } else {
+        alert('Failed to delete: ' + res.error);
+      }
+    } catch (err: any) {
+      alert('Error deleting survey: ' + err.message);
+    }
   };
 
   const filteredSurveys = surveys.filter(s => 
@@ -148,12 +163,19 @@ export default function SurveyManager({ initialSurveys, companies, salesReps, cu
                           {survey.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3 px-4 text-right space-x-3">
                         <button 
                           onClick={() => handleEditSurvey(survey.id)}
                           className="text-[#ff2301] hover:text-red-800 hover:underline font-medium text-sm transition-all"
                         >
                           เปิดดู / แก้ไข
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteSurvey(survey.id)}
+                          className="text-gray-400 hover:text-red-600 font-medium text-sm transition-all"
+                          title="ลบ"
+                        >
+                          <Trash2 className="w-4 h-4 inline" />
                         </button>
                       </td>
                     </tr>
@@ -202,12 +224,20 @@ export default function SurveyManager({ initialSurveys, companies, salesReps, cu
                     <span className="text-xs text-gray-500">
                       เซลส์: <span className="font-medium text-gray-700">{survey.salesperson?.fullName || '-'}</span>
                     </span>
-                    <button 
-                      onClick={() => handleEditSurvey(survey.id)}
-                      className="text-[#ff2301] font-medium text-sm transition-all"
-                    >
-                      เปิดดู / แก้ไข
-                    </button>
+                    <div className="space-x-3">
+                      <button 
+                        onClick={() => handleEditSurvey(survey.id)}
+                        className="text-[#ff2301] font-medium text-sm transition-all"
+                      >
+                        เปิดดู / แก้ไข
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteSurvey(survey.id)}
+                        className="text-gray-400 hover:text-red-600 transition-all"
+                      >
+                        <Trash2 className="w-4 h-4 inline" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
