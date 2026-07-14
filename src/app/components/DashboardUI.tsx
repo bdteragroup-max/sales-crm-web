@@ -84,6 +84,8 @@ interface DashboardUIProps {
   filterStartDate?: string;
   filterEndDate?: string;
   productMix: any[];
+  productMixWon?: any[];
+  productMixLost?: any[];
   productPerformance?: any[];
   branchPerformance?: any[];
   productWinRates: any[];
@@ -128,6 +130,8 @@ export default function DashboardUI({
   filterStartDate,
   filterEndDate,
   productMix,
+  productMixWon = [],
+  productMixLost = [],
   productPerformance = [],
   branchPerformance = [],
   productWinRates,
@@ -1047,6 +1051,37 @@ export default function DashboardUI({
                         <span>ต้องปรับปรุง (&lt;50%)</span>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* 5.5. PRODUCT MIX: WON vs LOST */}
+              <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 pb-8">
+                {/* Product Mix Won */}
+                <div className="bg-white rounded-3xl p-4 md:p-8 shadow-sm border border-gray-100 flex flex-col justify-center h-[400px]">
+                  <div className="text-center mb-4">
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center justify-center gap-2">
+                      <Package size={16} className="text-green-600" />
+                      สัดส่วนผลิตภัณฑ์ที่ปิดการขายได้ (Won Deals by Product)
+                    </h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">แบ่งตามยอดรวมที่ปิดการขายสำเร็จ</p>
+                  </div>
+                  <div className="flex-1 w-full min-h-0 flex items-center justify-center">
+                    <ProductMixPieChart data={productMixWon} />
+                  </div>
+                </div>
+
+                {/* Product Mix Lost */}
+                <div className="bg-white rounded-3xl p-4 md:p-8 shadow-sm border border-gray-100 flex flex-col justify-center h-[400px]">
+                  <div className="text-center mb-4">
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight flex items-center justify-center gap-2">
+                      <Package size={16} className="text-red-500" />
+                      สัดส่วนผลิตภัณฑ์ที่สูญเสีย (Lost Deals by Product)
+                    </h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">แบ่งตามยอดรวมที่ไม่สามารถปิดการขายได้</p>
+                  </div>
+                  <div className="flex-1 w-full min-h-0 flex items-center justify-center">
+                    <ProductMixPieChart data={productMixLost} />
                   </div>
                 </div>
               </section>

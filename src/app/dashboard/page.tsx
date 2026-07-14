@@ -1715,6 +1715,26 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
               grossProfit
             };
           })}
+          productMixWon={(() => {
+            const wonData: Record<string, number> = {};
+            (analyticalData as any[]).forEach(q => {
+              if (q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')) {
+                const name = q.productType || 'อื่นๆ';
+                wonData[name] = (wonData[name] || 0) + (q.actualClosingAmount || q.totalAmountBeforeVat || 0);
+              }
+            });
+            return Object.entries(wonData).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+          })()}
+          productMixLost={(() => {
+            const lostData: Record<string, number> = {};
+            (analyticalData as any[]).forEach(q => {
+              if (q.status?.startsWith('ปฏิเสธ') || q.status?.startsWith('ยกเลิก')) {
+                const name = q.productType || 'อื่นๆ';
+                lostData[name] = (lostData[name] || 0) + (q.totalAmountBeforeVat || 0);
+              }
+            });
+            return Object.entries(lostData).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+          })()}
           productWinRates={productTypes.map((pType) => {
             const pQuotes = (analyticalData as any[]).filter((q) => (q.productType || 'อื่นๆ') === pType);
             const pWinningCount = pQuotes.filter((q) => q.status === 'เปิดบิลแล้ว' || q.status?.startsWith('PO')).length;
