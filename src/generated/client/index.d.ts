@@ -151244,7 +151244,6 @@ export namespace Prisma {
 
   export type ServiceScheduleWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    userId_date?: ServiceScheduleUserIdDateCompoundUniqueInput
     AND?: ServiceScheduleWhereInput | ServiceScheduleWhereInput[]
     OR?: ServiceScheduleWhereInput[]
     NOT?: ServiceScheduleWhereInput | ServiceScheduleWhereInput[]
@@ -151258,7 +151257,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ServiceSchedule"> | Date | string
     updatedAt?: DateTimeFilter<"ServiceSchedule"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id" | "userId_date">
+  }, "id">
 
   export type ServiceScheduleOrderByWithAggregationInput = {
     id?: SortOrder
@@ -170462,11 +170461,6 @@ export namespace Prisma {
     income_type_id?: SortOrder
     payment_amount?: SortOrder
     tax_withheld?: SortOrder
-  }
-
-  export type ServiceScheduleUserIdDateCompoundUniqueInput = {
-    userId: string
-    date: Date | string
   }
 
   export type ServiceScheduleCountOrderByAggregateInput = {
