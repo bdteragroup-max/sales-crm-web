@@ -175,35 +175,28 @@ function JobProcurementStatus({ customerName, projectName }: { customerName: str
         <FolderOpen size={12} />
         สถานะจัดซื้อ (Procurement)
       </p>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-2">
         {data.map(pr => (
-          <div key={pr.id} className="bg-white p-3 md:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-3 transition-colors hover:border-blue-200">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-              <span className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs">PR</span>
+          <div key={pr.id} className="bg-gray-50/50 p-2.5 rounded-lg border border-gray-100 flex flex-col gap-2 w-fit min-w-[240px]">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[10px]">PR</span>
                 {pr.prNumber}
               </span>
-              <span className="text-xs text-gray-500">{new Date(pr.createdAt).toLocaleDateString('th-TH')}</span>
+              <span className="text-[10px] text-gray-500">{new Date(pr.createdAt).toLocaleDateString('th-TH')}</span>
             </div>
-            
             {pr.purchaseOrders?.length > 0 ? (
-              <div className="flex flex-col gap-2 mt-1">
+              <div className="flex flex-wrap gap-1.5">
                 {pr.purchaseOrders.map((po: any) => (
-                  <div key={po.id} className="flex justify-between items-center bg-gray-50/80 px-3 py-2 rounded-lg border border-gray-50">
-                    <span className="text-xs font-semibold text-gray-700 flex items-center gap-2">
-                      <span className="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded border border-purple-100">PO</span>
-                      {po.poNumber}
-                    </span>
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap ${po.receiveStatus === 'Received' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
-                      {po.receiveStatus === 'Received' ? `รับสินค้าแล้ว` : 'รอรับสินค้า'}
-                    </span>
+                  <div key={po.id} className={`flex items-center gap-1.5 px-2 py-1 rounded border text-[10px] font-medium ${po.receiveStatus === 'Received' ? 'bg-green-50 border-green-100 text-green-700' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
+                    <span>{po.poNumber}</span>
+                    <span className="text-gray-300">|</span>
+                    <span>{po.receiveStatus === 'Received' ? 'รับแล้ว' : 'รอรับ'}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-xs text-gray-400 bg-gray-50/50 px-3 py-2 rounded-lg border border-dashed border-gray-200 text-center">
-                รอเปิด PO (Purchase Order)
-              </div>
+              <div className="text-[10px] text-gray-400">รอเปิด PO (Purchase Order)</div>
             )}
           </div>
         ))}
@@ -843,6 +836,10 @@ export default function JobsClientPage({
           )}
           {filtered.map((job) => {
             const isOpen = expanded === job.id;
+            const derivedSellerName = job.sellerName || job.project?.contractSignatory || job.project?.manager?.fullName || "—";
+            const hasInstallments = job.project?.installment1 || job.project?.installment2 || job.project?.installment3 || job.project?.installment4;
+            const derivedPaymentMethod = job.paymentMethod || (hasInstallments ? "แบ่งชำระ" : "—");
+            
             return (
               <React.Fragment key={`mobile-${job.id}`}>
                 <div
@@ -889,11 +886,11 @@ export default function JobsClientPage({
                     </div>
                     <div>
                       <span className="text-gray-400 font-medium">พนักงานขาย:</span>
-                      <p className="font-bold text-gray-700">{job.sellerName ?? "—"}</p>
+                      <p className="font-bold text-gray-700">{derivedSellerName}</p>
                     </div>
                     <div>
                       <span className="text-gray-400 font-medium">การชำระเงิน:</span>
-                      <p className="font-bold text-green-700">{job.paymentMethod ?? "—"}</p>
+                      <p className="font-bold text-green-700">{derivedPaymentMethod}</p>
                     </div>
                   </div>
                 </div>
@@ -946,6 +943,12 @@ export default function JobsClientPage({
               )}
               {filtered.map((job) => {
                 const isOpen = expanded === job.id;
+                const derivedSellerName = job.sellerName || job.project?.contractSignatory || job.project?.manager?.fullName || "—";
+                const derivedDeliveryDate = job.deliveryDate || job.project?.endDate || job.project?.deliveryDate;
+                const derivedPaymentDate = job.paymentDate || job.project?.contractSigningDate || job.project?.paymentDate;
+                const hasInstallments = job.project?.installment1 || job.project?.installment2 || job.project?.installment3 || job.project?.installment4;
+                const derivedPaymentMethod = job.paymentMethod || (hasInstallments ? "แบ่งชำระ" : null);
+
                 return (
                   <React.Fragment key={job.id}>
                     <tr
@@ -1019,9 +1022,9 @@ export default function JobsClientPage({
                       </td>
                       <td className="px-5 py-4 text-center">
                         <div className="flex flex-col items-center gap-1.5">
-                          {job.deliveryDate && (
+                          {derivedDeliveryDate && (
                             <span className="text-[10px] font-bold whitespace-nowrap bg-blue-50 border border-blue-100 text-blue-700 px-2 py-0.5 rounded-md" title="วันที่ต้องการ / จัดส่ง">
-                              ต้องการ: {new Date(job.deliveryDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
+                              ต้องการ: {new Date(derivedDeliveryDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                             </span>
                           )}
                           {job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate && (
@@ -1029,7 +1032,7 @@ export default function JobsClientPage({
                               แผน: {new Date(job.installationOrders[0].plannedStartDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })}
                             </span>
                           )}
-                          {!job.deliveryDate && !(job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate) && (
+                          {!derivedDeliveryDate && !(job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate) && (
                             <span className="text-gray-300 text-[11px]">—</span>
                           )}
                         </div>
@@ -1041,16 +1044,16 @@ export default function JobsClientPage({
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex flex-col gap-1">
-                          {job.paymentMethod ? (
+                          {derivedPaymentMethod ? (
                             <span className="text-[10px] font-bold whitespace-nowrap bg-green-50 border border-green-100 text-green-700 px-2 py-0.5 rounded-md w-fit">
-                              {job.paymentMethod}
+                              {derivedPaymentMethod}
                             </span>
                           ) : (
                             <span className="text-gray-300 text-[11px]">—</span>
                           )}
-                          {job.paymentDate && (
+                          {derivedPaymentDate && (
                             <span className="text-[9px] font-bold text-gray-500 whitespace-nowrap">
-                              จ่าย: {new Date(job.paymentDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                              จ่าย: {new Date(derivedPaymentDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                             </span>
                           )}
                         </div>
@@ -1063,7 +1066,7 @@ export default function JobsClientPage({
                       </td>
                       <td className="px-5 py-4">
                         <p className="text-[11px] font-bold text-gray-600 whitespace-nowrap">
-                          {job.sellerName ?? "—"}
+                          {derivedSellerName}
                         </p>
                       </td>
                     </tr>

@@ -6,7 +6,7 @@ import { updateMarketingLead } from '@/app/actions/marketing'
 import { Loader2, Save, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 
-export default function EditLeadClient({ lead }: { lead: any }) {
+export default function EditLeadClient({ lead, salesReps = [] }: { lead: any; salesReps?: any[] }) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -25,6 +25,7 @@ export default function EditLeadClient({ lead }: { lead: any }) {
       productOfInterest: formData.get('productOfInterest') as string,
       productType: formData.get('productType') as string,
       conversationContent: formData.get('conversationContent') as string,
+      assignedToId: (formData.get('assignedToId') as string) || null,
     })
 
     if (result.success) {
@@ -54,6 +55,22 @@ export default function EditLeadClient({ lead }: { lead: any }) {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="space-y-1.5 md:col-span-2">
+          <label className="text-xs font-black text-brand-red uppercase tracking-wider">พนักงานขายที่รับผิดชอบ (Sales Rep)</label>
+          <select 
+            name="assignedToId" 
+            defaultValue={lead.assignedToId || ''}
+            className="w-full px-4 py-3 rounded-xl border border-brand-red/30 bg-red-50/30 focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 outline-none transition-all text-sm font-bold text-brand-red"
+          >
+            <option value="">-- ไม่ระบุ (รอมอบหมาย) --</option>
+            {salesReps.map(rep => (
+              <option key={rep.id} value={rep.id}>
+                {rep.fullName} ({rep.role})
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="space-y-1.5">
           <label className="text-xs font-black text-gray-700 uppercase tracking-wider">ชื่อลูกค้า / บริษัท <span className="text-red-500">*</span></label>
           <input 

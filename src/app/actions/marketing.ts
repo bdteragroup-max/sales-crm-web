@@ -188,6 +188,7 @@ export async function updateMarketingLead(id: string, data: {
   productOfInterest?: string
   productType?: string
   conversationContent?: string
+  assignedToId?: string | null
 }) {
   try {
     const lead = await (prisma as any).marketingLead.update({

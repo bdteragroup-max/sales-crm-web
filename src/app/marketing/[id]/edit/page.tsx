@@ -3,6 +3,7 @@ import EditLeadClient from './EditLeadClient'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import prisma from '@/app/lib/db'
 
 export default async function EditLeadPage({ params }: { params: { id: string } }) {
   const { id } = await Promise.resolve(params);
@@ -11,6 +12,19 @@ export default async function EditLeadPage({ params }: { params: { id: string } 
   if (!success || !lead) {
     redirect('/marketing')
   }
+
+  const dbUsers = await prisma.user.findMany({
+    where: {
+      isActive: true
+    },
+    select: { id: true, fullName: true, role: true },
+    orderBy: { fullName: 'asc' }
+  })
+  const salesReps = dbUsers.map(u => ({
+    id: u.id,
+    fullName: u.fullName,
+    role: u.role || 'Sales'
+  }))
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] pb-24">
@@ -36,7 +50,7 @@ export default async function EditLeadPage({ params }: { params: { id: string } 
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-          <EditLeadClient lead={lead} />
+          <EditLeadClient lead={lead} salesReps={salesReps} />
         </div>
       </div>
     </div>
