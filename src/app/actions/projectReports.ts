@@ -206,11 +206,11 @@ export async function getWeeklyReport(projectId: string, weekStart: Date) {
       }
     });
 
-    return {
+    return JSON.parse(JSON.stringify({
       success: true,
       logs,
       project
-    };
+    }));
   } catch (error: any) {
     console.error("getWeeklyReport error:", error);
     return { success: false, error: error.message };

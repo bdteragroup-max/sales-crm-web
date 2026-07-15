@@ -2,8 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, FolderOpen, Clock, CheckCircle2, AlertCircle, LayoutDashboard, Search, FileText, Download, Settings2, Check, Pencil, Trash2, X, AlertTriangle, Loader2 } from 'lucide-react';
-import { deleteProject } from '@/app/actions/projects';
+import { Plus, FolderOpen, Clock, CheckCircle2, AlertCircle, LayoutDashboard, Search, FileText, Download, Settings2, Check, Pencil, Trash2, X, AlertTriangle, Loader2, Briefcase } from 'lucide-react';
+import { deleteProject, generateJobForProject } from '@/app/actions/projects';
 
 interface ProjectsClientPageProps {
   currentUser: any;
@@ -18,6 +18,10 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
   
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [generateJobProjectId, setGenerateJobProjectId] = useState<string | null>(null);
+  const [generateJobCompanyCode, setGenerateJobCompanyCode] = useState<string>('');
+  const [isGeneratingJob, setIsGeneratingJob] = useState(false);
 
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
     sequence: true,
@@ -58,7 +62,20 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
     return new Date(p.endDate) < new Date();
   }).length;
 
-
+  const handleGenerateJob = async () => {
+    if (!generateJobProjectId || !generateJobCompanyCode) return;
+    setIsGeneratingJob(true);
+    try {
+      await generateJobForProject(generateJobProjectId, generateJobCompanyCode);
+      setGenerateJobProjectId(null);
+      setGenerateJobCompanyCode('');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to generate job');
+    } finally {
+      setIsGeneratingJob(false);
+    }
+  };
 
   const filteredProjects = projects.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -396,6 +413,11 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
                               <Link href={`/projects/${project.id}/edit`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 text-blue-600 hover:text-blue-700 hover:border-blue-300 hover:bg-blue-50 rounded-lg transition-colors" title="แก้ไข (Edit)">
                                 <Pencil size={12} />
                               </Link>
+                              {!project.jobId && (
+                                <button onClick={(e) => { e.stopPropagation(); setGenerateJobProjectId(project.id); }} className="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 text-emerald-600 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 rounded-lg transition-colors" title="สร้าง Job (Create Job)">
+                                  <Briefcase size={12} />
+                                </button>
+                              )}
                               <button onClick={(e) => handleDelete(e, project.id)} className="inline-flex items-center justify-center w-7 h-7 bg-white border border-gray-200 text-red-600 hover:text-red-700 hover:border-red-300 hover:bg-red-50 rounded-lg transition-colors" title="ลบ (Delete)">
                                 <Trash2 size={12} />
                               </button>
@@ -503,6 +525,11 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
                           <Link href={`/projects/${project.id}/edit`} onClick={(e) => e.stopPropagation()} className="p-1.5 text-blue-500 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors" title="แก้ไข (Edit)">
                             <Pencil size={12} />
                           </Link>
+                          {!project.jobId && (
+                            <button onClick={(e) => { e.stopPropagation(); setGenerateJobProjectId(project.id); }} className="p-1.5 text-emerald-500 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors" title="สร้าง Job (Create Job)">
+                              <Briefcase size={12} />
+                            </button>
+                          )}
                           <button onClick={(e) => handleDelete(e, project.id)} className="p-1.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-md transition-colors" title="ลบ (Delete)">
                             <Trash2 size={12} />
                           </button>
@@ -572,6 +599,57 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
           </div>
         </div>
       )}
+
+      {/* Generate Job Modal */}
+      {generateJobProjectId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 mb-4 mx-auto">
+                <Briefcase size={24} />
+              </div>
+              <h3 className="text-xl font-black text-center text-gray-900 mb-2">สร้าง Job ใหม่อัตโนมัติ</h3>
+              <p className="text-center text-sm text-gray-500 mb-6">
+                กรุณาเลือกรหัสบริษัทเพื่อใช้ในการสร้าง Job (Company Code)
+              </p>
+              
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-bold text-gray-700">รหัสบริษัท (Company Code) *</label>
+                  <select 
+                    value={generateJobCompanyCode} 
+                    onChange={e => setGenerateJobCompanyCode(e.target.value)} 
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                  >
+                    <option value="">เลือกรหัสบริษัท</option>
+                    <option value="TP">TP</option>
+                    <option value="TG">TG</option>
+                    <option value="TE">TE</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex flex-col-reverse sm:flex-row justify-end gap-3">
+              <button 
+                onClick={() => { setGenerateJobProjectId(null); setGenerateJobCompanyCode(''); }}
+                disabled={isGeneratingJob}
+                className="px-5 py-2.5 text-sm font-bold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors w-full sm:w-auto"
+              >
+                ยกเลิก (Cancel)
+              </button>
+              <button 
+                onClick={handleGenerateJob}
+                disabled={isGeneratingJob || !generateJobCompanyCode}
+                className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+              >
+                {isGeneratingJob ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                {isGeneratingJob ? 'กำลังสร้าง...' : 'สร้าง Job'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

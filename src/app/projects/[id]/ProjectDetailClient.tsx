@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ListTodo, Users, BarChart3, Plus, Search, Calendar, User as UserIcon, Tag, Clock, AlertCircle, BarChart2, ClipboardList, TrendingUp, Wrench, DollarSign, FileText } from 'lucide-react';
+import { ArrowLeft, ListTodo, Users, BarChart3, Plus, Search, Calendar, User as UserIcon, Tag, Clock, AlertCircle, BarChart2, ClipboardList, TrendingUp, Wrench, DollarSign, FileText, CheckCircle2, Loader2 } from 'lucide-react';
 import { updateTaskStatus, updateProject, updateTaskProgress } from '@/app/actions/projects';
 import GanttChart from './GanttChart';
 import DailyLogTab from './DailyLogTab';
@@ -16,6 +16,22 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
   const [tasks, setTasks] = useState(project.tasks || []);
   const [showMore, setShowMore] = useState(false);
   const [taskView, setTaskView] = useState<'list' | 'gantt'>('list');
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+  const handleMarkAsCompleted = async () => {
+    if (!confirm('ยืนยันการตั้งค่าโครงการนี้เป็นเสร็จสิ้น? (Confirm marking this project as completed?)')) return;
+    
+    setIsUpdatingStatus(true);
+    try {
+      await updateProject(project.id, { status: 'Completed' });
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update project status');
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
 
   // Calculate overall progress based on tasks
   let overallProgress = 0;
@@ -463,6 +479,17 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
             }`}>
               {project.status}
             </span>
+            {isManager && project.status !== 'Completed' && (
+              <button 
+                onClick={handleMarkAsCompleted} 
+                disabled={isUpdatingStatus}
+                title="จบโครงการ (Mark as Completed)"
+                className="flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
+              >
+                {isUpdatingStatus ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                เสร็จสิ้นโครงการ
+              </button>
+            )}
           </div>
           <p className="text-sm text-gray-500 font-medium flex items-center gap-2">
             <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[11px] font-bold">{project.projectNumber}</span>

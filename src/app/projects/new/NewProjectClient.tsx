@@ -66,6 +66,7 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
     updateCompanyProfile: false,
 
     externalTechnicians: '',
+    companyCode: '',
   });
 
   // Section 2: Team
@@ -130,6 +131,7 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
         siteAddress: formData.siteAddress,
         managerId: formData.managerId,
         jobId: formData.jobId || undefined,
+        companyCode: formData.companyCode || undefined,
 
         // Timeline
         startDate: formData.startDate ? new Date(formData.startDate) : undefined,
@@ -246,6 +248,16 @@ export default function NewProjectClient({ users, jobs, currentUserId, initialJo
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-gray-700">ลูกค้า (Client)</label>
               <input type="text" name="clientName" value={formData.clientName} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-bold text-gray-700">รหัสบริษัท (Company Code) *</label>
+              <select name="companyCode" required value={formData.companyCode} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none">
+                <option value="">เลือกรหัสบริษัท</option>
+                <option value="TP">TP</option>
+                <option value="TG">TG</option>
+                <option value="TE">TE</option>
+              </select>
             </div>
 
             <div className="space-y-1.5">

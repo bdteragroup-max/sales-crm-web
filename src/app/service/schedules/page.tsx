@@ -28,7 +28,7 @@ export default async function ServiceSchedulesPage() {
   const roleStr = (user.role || '').toLowerCase();
   
   // Basic access check for service users
-  const isServiceUser = roleStr === 'ช่าง' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ช่าง') || roleStr === 'แอดมิน' || roleStr.includes('manager') || roleStr.includes('ผู้จัดการ') || roleStr.includes('หัวหน้า');
+  const isServiceUser = roleStr === 'ช่าง' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ช่าง') || roleStr === 'แอดมิน' || roleStr.includes('manager') || roleStr.includes('ผู้จัดการ') || roleStr.includes('หัวหน้า') || roleStr.includes('sales') || roleStr.includes('เซล') || roleStr.includes('ขาย');
   
   if (!isServiceUser) {
     redirect('/dashboard');

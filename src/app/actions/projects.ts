@@ -2,6 +2,7 @@
 
 import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
+import { generateJobNumber } from "@/app/lib/job-utils";
 
 export async function createProject(data: any) {
   try {
@@ -35,9 +36,34 @@ export async function createProject(data: any) {
       }
     }
 
+    const { companyCode, ...projectDataRaw } = data;
+    let finalJobId = projectDataRaw.jobId;
+
+    if (!finalJobId && companyCode) {
+      const closedDate = new Date();
+      const jobNum = await generateJobNumber(closedDate);
+      const yearBe = (closedDate.getFullYear() + 543) % 100;
+      const month = closedDate.getMonth() + 1;
+
+      const job = await prisma.job.create({
+        data: {
+          jobNumber: jobNum,
+          companyCode: companyCode,
+          jobType: "งานโปรเจค",
+          month,
+          yearBe,
+          dateClosed: closedDate,
+          customerName: projectDataRaw.clientName || projectDataRaw.name,
+          item: projectDataRaw.name,
+        }
+      });
+      finalJobId = job.id;
+    }
+
     const project = await prisma.project.create({
       data: {
-        ...data,
+        ...projectDataRaw,
+        jobId: finalJobId,
         projectNumber,
       },
     });
@@ -54,7 +80,7 @@ export async function createProject(data: any) {
     }
 
     revalidatePath("/projects");
-    return project;
+    return JSON.parse(JSON.stringify(project));
   } catch (error) {
     console.error("Error creating project:", error);
     throw new Error("Failed to create project");
@@ -69,7 +95,7 @@ export async function updateProject(id: string, data: any) {
     });
     revalidatePath("/projects");
     revalidatePath(`/projects/${id}`);
-    return project;
+    return JSON.parse(JSON.stringify(project));
   } catch (error) {
     console.error("Error updating project:", error);
     throw new Error("Failed to update project");
@@ -233,5 +259,42 @@ export async function deleteProjectEquipment(id: string) {
   } catch (error) {
     console.error("Error deleting equipment:", error);
     throw new Error("Failed to delete equipment");
+  }
+}
+
+export async function generateJobForProject(projectId: string, companyCode: string) {
+  try {
+    const project = await prisma.project.findUnique({ where: { id: projectId } });
+    if (!project) throw new Error("Project not found");
+    if (project.jobId) throw new Error("Project already has a Job");
+
+    const closedDate = new Date();
+    const jobNum = await generateJobNumber(closedDate);
+    const yearBe = (closedDate.getFullYear() + 543) % 100;
+    const month = closedDate.getMonth() + 1;
+
+    const job = await prisma.job.create({
+      data: {
+        jobNumber: jobNum,
+        companyCode: companyCode,
+        jobType: "งานโปรเจค",
+        month,
+        yearBe,
+        dateClosed: closedDate,
+        customerName: project.clientName || project.name,
+        item: project.name,
+      }
+    });
+
+    await prisma.project.update({
+      where: { id: projectId },
+      data: { jobId: job.id }
+    });
+
+    revalidatePath("/projects");
+    return JSON.parse(JSON.stringify(job));
+  } catch (error) {
+    console.error("Error generating job for project:", error);
+    throw new Error("Failed to generate job");
   }
 }

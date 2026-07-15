@@ -79,7 +79,7 @@ export default async function EditProjectPage(props: { params?: Promise<any> | a
       <Sidebar activeRoute="/projects" userFullName={user.fullName} userId={user.employeeId} userRole={user.role} />
       <main className="flex-1 overflow-hidden relative custom-scrollbar flex flex-col h-full bg-gray-50/50 pt-16 md:pt-0">
         <div className="flex-1 overflow-y-auto">
-          <EditProjectClient users={users} jobs={jobs} currentUserId={user.id} project={serializedProject} />
+          <EditProjectClient users={JSON.parse(JSON.stringify(users))} jobs={JSON.parse(JSON.stringify(jobs))} currentUserId={user.id} project={serializedProject} />
         </div>
       </main>
     </div>

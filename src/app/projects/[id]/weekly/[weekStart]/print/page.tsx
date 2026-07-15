@@ -176,10 +176,7 @@ export default async function WeeklyPrintPage({ params }: { params: Promise<{ id
         {/* Action Buttons (Hide on Print) */}
         <div className="mt-12 text-center print:hidden flex gap-4 justify-center">
           <button 
-            onClick={() => {
-              window.history.back();
-            }}
-            className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 font-medium"
+            className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 font-medium hidden"
           >
             กลับ (Back)
           </button>
