@@ -219,6 +219,7 @@ export default function TelesalesClientPage({
                   setEditingRecord(null);
                   handleTabChange('list');
                 }}
+                onEditRecord={handleEdit}
               />
             </div>
           </div>

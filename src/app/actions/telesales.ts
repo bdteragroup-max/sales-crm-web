@@ -4,6 +4,30 @@ import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
 import { checkAndAwardDailyCallCoins } from "@/app/actions/coins";
+
+export async function getCompanyFullHistory(companyId: string) {
+  const history = await prisma.telesale.findMany({
+    where: { companyId },
+    orderBy: { createdAt: "desc" },
+    include: { user: { select: { fullName: true } } },
+  });
+  
+  const contacts = await prisma.contact.findMany({
+    where: { companyId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+  });
+
+  return {
+    history: JSON.parse(JSON.stringify(history)),
+    contacts: JSON.parse(JSON.stringify(contacts)),
+    company: JSON.parse(JSON.stringify(company)),
+  };
+}
+
 export async function saveTelesaleData(formData: FormData) {
   const user = await getUser();
   if (!user) {
@@ -91,12 +115,13 @@ export async function saveTelesaleData(formData: FormData) {
       });
     }
 
+    const finalContactPerson = contactPerson || (phoneNumber ? companyName : "");
     let contact = null;
-    if (contactPerson) {
+    if (finalContactPerson) {
       contact = await prisma.contact.findFirst({
         where: {
           companyId: company.id,
-          contactName: contactPerson,
+          contactName: finalContactPerson,
         },
       });
 
@@ -104,8 +129,8 @@ export async function saveTelesaleData(formData: FormData) {
         contact = await prisma.contact.create({
           data: {
             companyId: company.id,
-            contactName: contactPerson,
-            mobilePhone: phoneNumber,
+            contactName: finalContactPerson,
+            mobilePhone: phoneNumber || null,
           },
         });
       } else if (phoneNumber) {
@@ -260,6 +285,31 @@ export async function updateTelesaleData(id: string, formData: FormData) {
         where: { id: company.id },
         data: { customerType, customerStatus },
       });
+    }
+
+    const finalContactPerson = contactPerson || (phoneNumber ? companyName : "");
+    if (finalContactPerson) {
+      let contact = await prisma.contact.findFirst({
+        where: {
+          companyId: company.id,
+          contactName: finalContactPerson,
+        },
+      });
+
+      if (!contact) {
+        await prisma.contact.create({
+          data: {
+            companyId: company.id,
+            contactName: finalContactPerson,
+            mobilePhone: phoneNumber || null,
+          },
+        });
+      } else if (phoneNumber) {
+        await prisma.contact.update({
+          where: { id: contact.id },
+          data: { mobilePhone: phoneNumber },
+        });
+      }
     }
 
     const telesale = await prisma.telesale.update({

@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Save, X } from 'lucide-react';
-import { saveTelesaleData, updateTelesaleData } from '@/app/actions/telesales';
+import { Save, X, PhoneCall, Clock, Phone, MapPin, Edit2 } from 'lucide-react';
+import { saveTelesaleData, updateTelesaleData, getCompanyFullHistory } from '@/app/actions/telesales';
 import { searchCompanies, searchContacts, searchCompetitors } from '@/app/actions/sales';
 import { getSalesEmployees } from '@/app/actions/user';
 import Card from '@/app/sales/components/Card';
 import InputField from '@/app/sales/components/InputField';
 import SelectField from '@/app/sales/components/SelectField';
-import { MapPin } from 'lucide-react';
+// Removed MapPin import since it's combined above
 
 interface NewTelesaleFormProps {
   userFullName?: string;
   branch?: string;
   initialData?: any;
   onSuccess?: () => void;
+  onEditRecord?: (record: any) => void;
 }
 
-export default function NewTelesaleForm({ userFullName, branch = 'สำนักงานใหญ่', initialData, onSuccess }: NewTelesaleFormProps) {
+export default function NewTelesaleForm({ userFullName, branch = 'สำนักงานใหญ่', initialData, onSuccess, onEditRecord }: NewTelesaleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [formData, setFormData] = useState<any>({});
@@ -27,6 +28,39 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
   const [employees, setEmployees] = useState<any[]>([]);
   const [competitorSuggestions, setCompetitorSuggestions] = useState<any[]>([]);
   const [showCompetitorSuggestions, setShowCompetitorSuggestions] = useState(false);
+  const [fullHistory, setFullHistory] = useState<any[]>([]);
+  const [fullContacts, setFullContacts] = useState<any[]>([]);
+  const [fullCompany, setFullCompany] = useState<any>(null);
+
+  useEffect(() => {
+    async function loadHistory() {
+      if (selectedCompanyId) {
+        try {
+          const res = await getCompanyFullHistory(selectedCompanyId);
+          setFullHistory(res.history || []);
+          const contacts = res.contacts || [];
+          setFullContacts(contacts);
+          setFullCompany(res.company || null);
+          
+          if (contacts.length > 0) {
+            setFormData((prev: any) => {
+              const updates: any = {};
+              if (!prev.contactPerson) updates.contactPerson = contacts[0].contactName || '';
+              if (!prev.phoneNumber) updates.phoneNumber = contacts[0].mobilePhone || '';
+              return Object.keys(updates).length > 0 ? { ...prev, ...updates } : prev;
+            });
+          }
+        } catch (error) {
+          console.error("Failed to load company history", error);
+        }
+      } else {
+        setFullHistory([]);
+        setFullContacts([]);
+        setFullCompany(null);
+      }
+    }
+    loadHistory();
+  }, [selectedCompanyId]);
 
   const formatDateForInput = (date: any) => {
     if (!date) return '';
@@ -64,7 +98,7 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
         visitDate: formatDateTimeForInput(initialData.visitDate),
         marketingLeadId: initialData.marketingLeadId || '',
       });
-      setSelectedCompanyId(initialData.companyId || null);
+      setSelectedCompanyId(initialData.companyId || initialData.company?.id || null);
     } else {
       setFormData({});
       setSelectedCompanyId(null);
@@ -534,6 +568,120 @@ export default function NewTelesaleForm({ userFullName, branch = 'สำนั�
           </Card>
         </div>
       </div>
+
+      {/* ── History & Data Section ── */}
+      {selectedCompanyId && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 bg-slate-50/50 p-6 rounded-3xl border border-brand-red/20 shadow-sm">
+          {/* Detailed Company Info Card */}
+          <Card title="ข้อมูลบริษัทโดยละเอียด">
+            <div className="flex-1 overflow-y-auto max-h-[300px] pr-2 flex flex-col gap-3 custom-scrollbar text-sm">
+              {fullCompany ? (
+                <div className="space-y-2">
+                  <div className="flex flex-col"><span className="text-xs text-gray-500 font-bold">ชื่อบริษัท</span><span className="font-medium text-slate-800">{fullCompany.companyName}</span></div>
+                  {fullCompany.taxId && <div className="flex flex-col"><span className="text-xs text-gray-500 font-bold">เลขประจำตัวผู้เสียภาษี</span><span className="font-medium text-slate-800">{fullCompany.taxId}</span></div>}
+                  {fullCompany.branchOrHeadOffice && <div className="flex flex-col"><span className="text-xs text-gray-500 font-bold">สาขา / สำนักงานใหญ่</span><span className="font-medium text-slate-800">{fullCompany.branchOrHeadOffice}</span></div>}
+                  {(fullCompany.address || fullCompany.province) && (
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-500 font-bold">ที่อยู่</span>
+                      <span className="font-medium text-slate-800">
+                        {fullCompany.address} {fullCompany.subDistrict} {fullCompany.district} {fullCompany.province} {fullCompany.postalCode}
+                      </span>
+                    </div>
+                  )}
+                  {fullCompany.businessType && <div className="flex flex-col"><span className="text-xs text-gray-500 font-bold">ประเภทธุรกิจ</span><span className="font-medium text-slate-800">{fullCompany.businessType}</span></div>}
+                  {fullCompany.customerType && <div className="flex flex-col"><span className="text-xs text-gray-500 font-bold">ประเภทลูกค้า</span><span className="font-medium text-slate-800">{fullCompany.customerType}</span></div>}
+                  {fullCompany.customerStatus && <div className="flex flex-col"><span className="text-xs text-gray-500 font-bold">สถานะลูกค้า</span><span className="font-medium text-slate-800">{fullCompany.customerStatus}</span></div>}
+                </div>
+              ) : (
+                <div className="text-center text-xs font-bold text-slate-400 py-8">ไม่พบข้อมูลบริษัท</div>
+              )}
+            </div>
+          </Card>
+
+          <Card title="ประวัติการติดต่อทั้งหมด (History)">
+            <div className="flex-1 overflow-y-auto max-h-[300px] pr-2 flex flex-col gap-4 custom-scrollbar">
+              {fullHistory.length === 0 ? (
+                <div className="text-center text-xs font-bold text-slate-400 py-8 flex flex-col items-center gap-2">
+                  <Clock size={24} className="text-slate-200" />
+                  <span>ยังไม่มีประวัติการโทรสำหรับบริษัทนี้</span>
+                </div>
+              ) : (
+                <div className="relative border-l border-slate-100 pl-4 ml-2 flex flex-col gap-6">
+                  {fullHistory.map((record: any) => (
+                    <div key={record.id} className="relative flex flex-col gap-1">
+                      <span className={`absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                        record.callStatus === "รับสาย" ? "bg-emerald-500" : "bg-rose-400"
+                      }`} />
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black text-slate-400">
+                          {new Date(record.createdAt).toLocaleDateString("th-TH", {
+                            day: "numeric", month: "short", year: "2-digit", hour: "2-digit", minute: "2-digit"
+                          })} น.
+                        </span>
+                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${
+                          record.callStatus === "รับสาย"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                            : "bg-rose-50 text-rose-700 border border-rose-100"
+                        }`}>
+                          {record.callStatus}
+                        </span>
+                        {onEditRecord && (
+                          <button
+                            type="button"
+                            onClick={() => onEditRecord(record)}
+                            className="ml-auto text-[10px] flex items-center gap-1 text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md transition-colors"
+                          >
+                            <Edit2 size={10} /> แก้ไข
+                          </button>
+                        )}
+                      </div>
+
+                      {record.callOutcome && (
+                        <p className="text-[10px] font-bold text-amber-600">
+                          ผลลัพธ์: {record.callOutcome}
+                        </p>
+                      )}
+
+                      <p className="text-xs font-semibold text-slate-600 leading-relaxed bg-slate-50 p-2 rounded-xl border border-slate-100 mt-1">
+                        {record.conversationSummary || "-"}
+                      </p>
+
+                      <span className="text-[9px] font-bold text-slate-400 self-end mt-0.5">
+                        โดย: {record.user?.fullName || "ไม่ระบุพนักงาน"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Card>
+          
+          <Card title="ข้อมูลผู้ติดต่อ (Contacts)">
+            <div className="flex-1 overflow-y-auto max-h-[300px] pr-2 flex flex-col gap-3 custom-scrollbar">
+              {fullContacts.length === 0 ? (
+                <div className="text-center text-xs font-bold text-slate-400 py-8 flex flex-col items-center gap-2">
+                  <Phone size={24} className="text-slate-200" />
+                  <span>ยังไม่มีผู้ติดต่อสำหรับบริษัทนี้</span>
+                </div>
+              ) : (
+                fullContacts.map((contact: any) => (
+                  <div key={contact.id} className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col gap-1">
+                    <span className="text-sm font-bold text-slate-800">{contact.contactName}</span>
+                    <span className="text-xs font-medium text-slate-500 flex items-center gap-2">
+                      <Phone size={12} /> {contact.mobilePhone || 'ไม่มีเบอร์โทร'}
+                    </span>
+                    {contact.email && (
+                      <span className="text-xs text-slate-400 mt-1">{contact.email}</span>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </Card>
+        </div>
+      )}
+
       {formData.marketingLeadId && (
         <input type="hidden" name="marketingLeadId" value={formData.marketingLeadId} />
       )}
