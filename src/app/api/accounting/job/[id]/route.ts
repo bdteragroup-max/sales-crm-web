@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/lib/db";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: Request,
   context: { params: Promise<{ id: string }> }
@@ -21,6 +23,11 @@ export async function GET(
         },
         stepLogs: {
           orderBy: { completedAt: "asc" }
+        },
+        project: {
+          include: {
+            manager: true
+          }
         }
       }
     });
@@ -35,6 +42,7 @@ export async function GET(
       company: job.quotation?.company,
       paymentTasks: job.paymentTasks,
       stepLogs: job.stepLogs,
+      project: job.project,
     });
   } catch (error) {
     console.error("Failed to fetch job details:", error);

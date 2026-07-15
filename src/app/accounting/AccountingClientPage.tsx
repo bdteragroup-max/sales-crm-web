@@ -7,29 +7,31 @@ import { updatePaymentTaskStatus } from "@/app/actions/accounting";
 
 function formatDate(d: string | Date) {
   const date = new Date(d);
-  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear() + 543}`;
+  let year = date.getFullYear();
+  if (year < 2500) year += 543;
+  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${year}`;
 }
 
-function CompanyBadge({ code }: { code: string }) { 
-  const styles: Record<string, string> = { 
-    TP: "bg-blue-50 text-blue-800 border-blue-200", 
-    TG: "bg-green-50 text-green-800 border-green-200", 
-    TE: "bg-amber-50 text-amber-800 border-amber-200", 
-  }; 
-  return ( 
+function CompanyBadge({ code }: { code: string }) {
+  const styles: Record<string, string> = {
+    TP: "bg-blue-50 text-blue-800 border-blue-200",
+    TG: "bg-green-50 text-green-800 border-green-200",
+    TE: "bg-amber-50 text-amber-800 border-amber-200",
+  };
+  return (
     <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${styles[code] ?? "bg-gray-100 text-gray-700"}`}>
       {code}
     </span>
   );
 }
 
-function JobDetailModal({ 
-  jobId, 
+function JobDetailModal({
+  jobId,
   onClose,
   onConfirmPayment,
   isPending
-}: { 
-  jobId: string, 
+}: {
+  jobId: string,
   onClose: () => void,
   onConfirmPayment: (id: string, status: string) => void,
   isPending: boolean
@@ -38,7 +40,7 @@ function JobDetailModal({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/accounting/job/${jobId}`)
+    fetch(`/api/accounting/job/${jobId}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(res => {
         setData(res);
@@ -74,13 +76,13 @@ function JobDetailModal({
     );
   }
 
-  const { job, quotation, company, paymentTasks, stepLogs } = data;
+  const { job, quotation, company, paymentTasks, stepLogs, project } = data;
   const isCompleted = paymentTasks?.every((pt: any) => pt.status === 'ตรวจสอบและบันทึกแล้ว') || false;
 
   // Format steps timeline
   const renderSteps = () => {
     if (!stepLogs || stepLogs.length === 0) return <p className="text-sm text-gray-500">ไม่มีข้อมูลขั้นตอน</p>;
-    
+
     return (
       <div className="flex flex-wrap items-center gap-2 text-sm">
         {stepLogs.map((log: any, index: number) => (
@@ -144,29 +146,39 @@ function JobDetailModal({
             </div>
           </section>
 
-          {/* Quotation Info */}
+          {/* Quotation / Project Info */}
           <section>
-            <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-3">ข้อมูลใบเสนอราคา</h3>
+            <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-3">
+              {project ? 'ข้อมูลโปรเจค (Project Info)' : 'ข้อมูลใบเสนอราคา'}
+            </h3>
             <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 grid grid-cols-2 gap-y-3 gap-x-6">
               <div>
-                <p className="text-xs text-blue-500/70 mb-1">เลขที่ใบเสนอราคา</p>
-                <p className="text-sm font-bold text-blue-900">{quotation?.quotationNumber || job.quotationNumber || '-'}</p>
+                <p className="text-xs text-blue-500/70 mb-1">{project ? 'เลขที่โปรเจค' : 'เลขที่ใบเสนอราคา'}</p>
+                <p className="text-sm font-bold text-blue-900">{project?.projectNumber || quotation?.quotationNumber || job.quotationNumber || '-'}</p>
               </div>
               <div>
                 <p className="text-xs text-blue-500/70 mb-1">วันที่</p>
-                <p className="text-sm font-medium text-blue-900">{quotation?.quotationDate ? formatDate(quotation.quotationDate) : '-'}</p>
+                <p className="text-sm font-medium text-blue-900">
+                  {project?.contractSigningDate
+                    ? formatDate(project.contractSigningDate)
+                    : (quotation?.quotationDate ? formatDate(quotation.quotationDate) : '-')}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-blue-500/70 mb-1">มูลค่ารวมก่อน VAT</p>
-                <p className="text-sm font-black text-blue-700">{quotation?.totalAmountBeforeVat ? `฿${quotation.totalAmountBeforeVat.toLocaleString()}` : '-'}</p>
+                <p className="text-sm font-black text-blue-700">
+                  {project?.projectValue
+                    ? `฿${Number(project.projectValue).toLocaleString()}`
+                    : (quotation?.totalAmountBeforeVat ? `฿${quotation.totalAmountBeforeVat.toLocaleString()}` : '-')}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-blue-500/70 mb-1">สินค้า/บริการ</p>
-                <p className="text-sm font-medium text-blue-900">{quotation?.subject || job.item || '-'}</p>
+                <p className="text-sm font-medium text-blue-900">{project?.name || quotation?.subject || job.item || '-'}</p>
               </div>
               <div>
                 <p className="text-xs text-blue-500/70 mb-1">ผู้รับผิดชอบ (Sales)</p>
-                <p className="text-sm font-medium text-blue-900">{quotation?.salesperson?.fullName || job.sellerName || '-'}</p>
+                <p className="text-sm font-medium text-blue-900">{project?.contractSignatory || quotation?.salesperson?.fullName || job.sellerName || '-'}</p>
               </div>
             </div>
           </section>
@@ -190,7 +202,7 @@ function JobDetailModal({
                     <p className="text-sm font-semibold">{job.paymentDate ? formatDate(job.paymentDate) : '-'}</p>
                   </div>
                 )}
-                
+
                 {job.paymentMethod !== 'เงินสด' && (
                   <>
                     <div className="col-span-2 flex items-center justify-between">
@@ -236,8 +248,8 @@ function JobDetailModal({
                     <div>
                       <p className="text-xs text-emerald-600/70 mb-1">รูปแบบ</p>
                       <p className="text-sm font-bold text-emerald-900">
-                        {pt.installmentNo 
-                          ? `ผ่อนชำระ (งวดที่ ${pt.installmentNo}/${pt.installmentTotal}) - ฿${pt.installmentAmount?.toLocaleString() || '0'}` 
+                        {pt.installmentNo
+                          ? `ผ่อนชำระ (งวดที่ ${pt.installmentNo}/${pt.installmentTotal}) - ฿${pt.installmentAmount?.toLocaleString() || '0'}`
                           : (pt.job?.paymentMethod || pt.paymentMethod || job.paymentMethod || '-')}
                       </p>
                     </div>
@@ -285,7 +297,7 @@ function JobDetailModal({
         </div>
 
         <div className="sticky bottom-0 bg-white border-t border-gray-100 p-6 flex justify-end gap-3 z-10 rounded-b-2xl">
-          <button 
+          <button
             onClick={onClose}
             className="px-5 py-2.5 text-sm font-bold text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
           >
@@ -301,7 +313,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const [tasks, setTasks] = useState(initialTasks);
   const [isPending, startTransition] = useTransition();
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  
+
   // Filters
   const [filterJobNumber, setFilterJobNumber] = useState("");
   const [filterCustomerItem, setFilterCustomerItem] = useState("");
@@ -310,7 +322,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const [filterStatus, setFilterStatus] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
   const [filterYear, setFilterYear] = useState("");
-  
+
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
@@ -325,43 +337,69 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
     startTransition(async () => {
       await updatePaymentTaskStatus(id, status, note);
-      setTasks(prev => prev.map(t => t.id === id ? { 
-        ...t, 
-        status, 
+      setTasks(prev => prev.map(t => t.id === id ? {
+        ...t,
+        status,
         note: note || t.note,
         paidDate: status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : t.paidDate
       } : t));
     });
   };
 
-  const filtered = tasks.filter(t => {
+  const groupedJobs = React.useMemo(() => {
+    const map = new Map<string, any>();
+    tasks.forEach(t => {
+      if (!t.job) return;
+      if (!map.has(t.job.id)) {
+        map.set(t.job.id, {
+          id: t.job.id,
+          job: t.job,
+          tasks: []
+        });
+      }
+      map.get(t.job.id).tasks.push(t);
+    });
+
+    const groups = Array.from(map.values());
+    groups.forEach(g => {
+      g.tasks.sort((a: any, b: any) => (a.installmentNo || 0) - (b.installmentNo || 0));
+    });
+    return groups;
+  }, [tasks]);
+
+  const filtered = groupedJobs.filter(g => {
     // text match
     const qJob = filterJobNumber.toLowerCase();
-    const matchesJobNumber = !qJob || t.job?.jobNumber?.toLowerCase().includes(qJob);
+    const matchesJobNumber = !qJob || g.job?.jobNumber?.toLowerCase().includes(qJob);
 
     const qCust = filterCustomerItem.toLowerCase();
     const matchesCustomerItem = !qCust || (
-      t.job?.customerName?.toLowerCase().includes(qCust) ||
-      t.job?.item?.toLowerCase().includes(qCust)
+      g.job?.customerName?.toLowerCase().includes(qCust) ||
+      g.job?.item?.toLowerCase().includes(qCust)
     );
 
-    const matchesPayment = !filterPaymentMethod || t.job?.paymentMethod === filterPaymentMethod || (filterPaymentMethod === 'ผ่อนชำระ' && t.installmentNo);
-    
+    const matchesPayment = !filterPaymentMethod ||
+      g.job?.paymentMethod === filterPaymentMethod ||
+      (filterPaymentMethod === 'ผ่อนชำระ' && g.tasks.some((t: any) => t.installmentNo));
+
     // company match
     let matchesCompany = true;
     if (filterCompany) {
-      matchesCompany = t.job?.companyCode === filterCompany || false;
+      matchesCompany = g.job?.companyCode === filterCompany || false;
     }
 
-    const matchesStatus = !filterStatus || t.status === filterStatus;
-    const matchesJobType = selectedJobTypes.length === 0 || selectedJobTypes.includes(t.job?.jobType);
-    const matchesMonth = !filterMonth || t.job?.month === parseInt(filterMonth);
-    const matchesYear = !filterYear || t.job?.yearBe === parseInt(filterYear);
+    const allCompleted = g.tasks.every((t: any) => t.status === 'ตรวจสอบและบันทึกแล้ว');
+    const groupedStatus = allCompleted ? 'ตรวจสอบและบันทึกแล้ว' : 'รอดำเนินการ';
+    const matchesStatus = !filterStatus || groupedStatus === filterStatus;
+
+    const matchesJobType = selectedJobTypes.length === 0 || selectedJobTypes.includes(g.job?.jobType);
+    const matchesMonth = !filterMonth || g.job?.month === parseInt(filterMonth);
+    const matchesYear = !filterYear || g.job?.yearBe === parseInt(filterYear);
 
     return matchesJobNumber && matchesCustomerItem && matchesPayment && matchesCompany && matchesStatus && matchesJobType && matchesMonth && matchesYear;
   });
 
-  const sortedTasks = React.useMemo(() => {
+  const sortedJobs = React.useMemo(() => {
     let sortableItems = [...filtered];
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
@@ -381,8 +419,8 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           aValue = a.job?.companyCode || '';
           bValue = b.job?.companyCode || '';
         } else if (sortConfig.key === 'status') {
-          aValue = a.status || '';
-          bValue = b.status || '';
+          aValue = a.tasks.every((t: any) => t.status === 'ตรวจสอบและบันทึกแล้ว') ? 'ตรวจสอบและบันทึกแล้ว' : 'รอดำเนินการ';
+          bValue = b.tasks.every((t: any) => t.status === 'ตรวจสอบและบันทึกแล้ว') ? 'ตรวจสอบและบันทึกแล้ว' : 'รอดำเนินการ';
         }
 
         if (aValue < bValue) {
@@ -406,48 +444,47 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   };
 
   const exportToExcel = () => {
-    const data = sortedTasks.map((t: any) => {
-      const isPaid = t.status === 'ตรวจสอบและบันทึกแล้ว';
-      let creditDaysLeft = '-';
-      if (!isPaid && t.dueDate) {
-        const diff = new Date(t.dueDate).getTime() - new Date().getTime();
-        creditDaysLeft = Math.ceil(diff / (1000 * 3600 * 24)).toString();
-      }
+    const data = sortedJobs.flatMap((g: any) => {
+      return g.tasks.map((t: any) => {
+        const isPaid = t.status === 'ตรวจสอบและบันทึกแล้ว';
+        let creditDaysLeft = '-';
+        if (!isPaid && t.dueDate) {
+          const diff = new Date(t.dueDate).getTime() - new Date().getTime();
+          creditDaysLeft = Math.ceil(diff / (1000 * 3600 * 24)).toString();
+        }
 
-      // Check all possible fields where value might be stored
-      const totalValue = t.job?.quotation?.actualClosingAmount || t.job?.quotation?.totalAmountBeforeVat || 0;
-      
-      // If it's an installment, use the installment amount. If it's not (e.g. cash, full payment), the amount due is the total value
-      const amountDue = t.installmentAmount || (t.installmentNo ? 0 : totalValue);
+        const totalValue = g.job?.quotation?.actualClosingAmount || g.job?.quotation?.totalAmountBeforeVat || 0;
+        const amountDue = t.installmentAmount || (t.installmentNo ? 0 : totalValue);
 
-      return {
-        'เลขที่งาน (Job No.)': t.job?.jobNumber || '-',
-        'ชื่อลูกค้า (Customer)': t.job?.customerName || '-',
-        'บริษัท (Company)': t.job?.companyCode || '-',
-        'รูปแบบการชำระเงิน': t.job?.paymentMethod || '-',
-        'ยอดรวมทั้งโครงการ': totalValue,
-        'งวดที่': t.installmentNo ? `${t.installmentNo}/${t.installmentTotal}` : '-',
-        'ยอดเงินงวดนี้': amountDue,
-        'วันครบกำหนด': t.dueDate ? formatDate(t.dueDate) : '-',
-        'วันเครดิตคงเหลือ (วัน)': creditDaysLeft,
-        'สถานะการชำระเงิน': t.status || '-'
-      };
+        return {
+          'เลขที่งาน (Job No.)': g.job?.jobNumber || '-',
+          'ชื่อลูกค้า (Customer)': g.job?.customerName || '-',
+          'บริษัท (Company)': g.job?.companyCode || '-',
+          'รูปแบบการชำระเงิน': g.job?.paymentMethod || '-',
+          'ยอดรวมทั้งโครงการ': totalValue,
+          'งวดที่': t.installmentNo ? `${t.installmentNo}/${t.installmentTotal}` : '-',
+          'ยอดเงินงวดนี้': amountDue,
+          'วันครบกำหนด': t.dueDate ? formatDate(t.dueDate) : '-',
+          'วันเครดิตคงเหลือ (วัน)': creditDaysLeft,
+          'สถานะการชำระเงิน': t.status || '-'
+        };
+      });
     });
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Payment Tasks");
-    XLSX.writeFile(workbook, `Accounting_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.writeFile(workbook, `Accounting_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
-  const pendingTasks = filtered.filter(t => t.status !== 'ตรวจสอบและบันทึกแล้ว');
-  const completedTasks = filtered.filter(t => t.status === 'ตรวจสอบและบันทึกแล้ว');
+  const pendingJobs = filtered.filter(g => g.tasks.some((t: any) => t.status !== 'ตรวจสอบและบันทึกแล้ว'));
+  const completedJobs = filtered.filter(g => g.tasks.every((t: any) => t.status === 'ตรวจสอบและบันทึกแล้ว'));
 
   return (
     <div className="p-8">
       {selectedJobId && (
-        <JobDetailModal 
-          jobId={selectedJobId} 
+        <JobDetailModal
+          jobId={selectedJobId}
           onClose={() => setSelectedJobId(null)}
           onConfirmPayment={handleUpdate}
           isPending={isPending}
@@ -463,7 +500,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
             ตรวจสอบและอัปเดตสถานะการชำระเงินของงานต่างๆ
           </p>
         </div>
-        
+
         <div className="flex gap-3">
           <button
             onClick={exportToExcel}
@@ -472,7 +509,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
             <Download size={18} />
             Export to Excel
           </button>
-          
+
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -494,7 +531,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                         checked={selectedJobTypes.includes(type as string)}
                         onChange={(e) => {
                           const val = type as string;
-                          setSelectedJobTypes(prev => 
+                          setSelectedJobTypes(prev =>
                             prev.includes(val) ? prev.filter(t => t !== val) : [...prev, val]
                           );
                         }}
@@ -574,8 +611,8 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
             ))}
           </select>
         </div>
-        <button 
-          onClick={() => { setFilterJobNumber(''); setFilterCustomerItem(''); setFilterPaymentMethod(''); setFilterCompany(''); setFilterStatus(''); setFilterMonth(''); setFilterYear(''); setSelectedJobTypes([]); }} 
+        <button
+          onClick={() => { setFilterJobNumber(''); setFilterCustomerItem(''); setFilterPaymentMethod(''); setFilterCompany(''); setFilterStatus(''); setFilterMonth(''); setFilterYear(''); setSelectedJobTypes([]); }}
           className="px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors whitespace-nowrap h-[38px]"
         >
           ล้างตัวกรองทั้งหมด
@@ -589,17 +626,17 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           </div>
           <div>
             <p className="text-sm font-bold text-amber-700">รอดำเนินการ</p>
-            <p className="text-3xl font-black text-amber-900">{pendingTasks.length}</p>
+            <p className="text-3xl font-black text-amber-900">{pendingJobs.length} งาน</p>
           </div>
         </div>
-        
+
         <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100 flex items-center gap-4 shadow-sm">
           <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
             <CheckCircle size={24} />
           </div>
           <div>
             <p className="text-sm font-bold text-emerald-700">ตรวจสอบแล้ว</p>
-            <p className="text-3xl font-black text-emerald-900">{completedTasks.length}</p>
+            <p className="text-3xl font-black text-emerald-900">{completedJobs.length} งาน</p>
           </div>
         </div>
       </div>
@@ -609,103 +646,120 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
               <th onClick={() => requestSort('jobNumber')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
-                <div className="flex items-center gap-1">เลขที่งาน {sortConfig?.key === 'jobNumber' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+                <div className="flex items-center gap-1">เลขที่งาน {sortConfig?.key === 'jobNumber' && (sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}</div>
               </th>
               <th onClick={() => requestSort('customerName')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
-                <div className="flex items-center gap-1">ลูกค้า / รายการ {sortConfig?.key === 'customerName' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+                <div className="flex items-center gap-1">ลูกค้า / รายการ {sortConfig?.key === 'customerName' && (sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}</div>
               </th>
               <th onClick={() => requestSort('paymentMethod')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
-                <div className="flex items-center gap-1">รูปแบบการชำระเงิน {sortConfig?.key === 'paymentMethod' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+                <div className="flex items-center gap-1">รูปแบบการชำระเงิน {sortConfig?.key === 'paymentMethod' && (sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}</div>
               </th>
               <th onClick={() => requestSort('company')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
-                <div className="flex items-center gap-1">บริษัท {sortConfig?.key === 'company' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+                <div className="flex items-center gap-1">บริษัท {sortConfig?.key === 'company' && (sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}</div>
               </th>
               <th onClick={() => requestSort('status')} className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] cursor-pointer hover:bg-gray-100 transition-colors">
-                <div className="flex items-center gap-1">สถานะ {sortConfig?.key === 'status' && (sortConfig.direction === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>)}</div>
+                <div className="flex items-center gap-1">สถานะ {sortConfig?.key === 'status' && (sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}</div>
               </th>
               <th className="py-4 px-6 font-bold text-gray-500 uppercase tracking-widest text-[10px] text-right">จัดการ</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {sortedTasks.length === 0 && (
+            {sortedJobs.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-12 text-center text-gray-500">
                   ไม่พบข้อมูล
                 </td>
               </tr>
             )}
-            {sortedTasks.map(task => {
-              const isCompleted = task.status === 'ตรวจสอบและบันทึกแล้ว';
-              const isOverdue = !isCompleted && new Date(task.dueDate) < new Date();
+            {sortedJobs.map(group => {
+              const allCompleted = group.tasks.every((t: any) => t.status === 'ตรวจสอบและบันทึกแล้ว');
+              const completedCount = group.tasks.filter((t: any) => t.status === 'ตรวจสอบและบันทึกแล้ว').length;
+              const hasInstallments = group.tasks.length > 1 || group.tasks.some((t: any) => t.installmentNo);
+              const isOverdue = !allCompleted && group.tasks.some((t: any) => t.status !== 'ตรวจสอบและบันทึกแล้ว' && new Date(t.dueDate) < new Date());
+
+              const singlePendingTask = group.tasks.find((t: any) => t.status !== 'ตรวจสอบและบันทึกแล้ว');
 
               return (
-                <tr key={task.id} className="hover:bg-gray-50/50 transition-colors">
+                <tr key={group.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="py-4 px-6">
                     <a
-                      href={`/jobs?highlight=${task.job?.id}`}
+                      href={`/jobs?highlight=${group.job?.id}`}
                       className="font-mono font-black text-brand-red hover:underline"
                     >
-                      {task.job?.jobNumber}
+                      {group.job?.jobNumber}
                     </a>
                   </td>
                   <td className="py-4 px-6">
-                    <p className="font-bold text-gray-900">{task.job?.customerName}</p>
-                    <p className="text-xs text-gray-500">{task.job?.item}</p>
-                    {task.job?.jobType && (
+                    <p className="font-bold text-gray-900">{group.job?.customerName}</p>
+                    <p className="text-xs text-gray-500">{group.job?.item}</p>
+                    {group.job?.jobType && (
                       <span className="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-bold">
-                        {task.job?.jobType}
+                        {group.job?.jobType}
                       </span>
                     )}
                   </td>
                   <td className="py-4 px-6">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
-                      {task.installmentNo 
-                        ? `ผ่อนชำระ (งวดที่ ${task.installmentNo}/${task.installmentTotal})` 
-                        : (task.job?.paymentMethod || '-')}
-                    </span>
-                    {task.installmentAmount && (
-                       <p className="text-[10px] text-gray-500 mt-1 font-bold">฿{task.installmentAmount.toLocaleString()}</p>
+                    {hasInstallments ? (
+                      <div>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100 mb-1">
+                          ผ่อนชำระ ({group.tasks.length} งวด)
+                        </span>
+                        <p className="text-[10px] text-gray-500 font-bold">
+                          รวม ฿{group.tasks.reduce((sum: number, t: any) => sum + (Number(t.installmentAmount) || 0), 0).toLocaleString()}
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                          {group.job?.paymentMethod || '-'}
+                        </span>
+                        {group.tasks[0]?.installmentAmount && (
+                          <p className="text-[10px] text-gray-500 mt-1 font-bold">฿{group.tasks[0].installmentAmount.toLocaleString()}</p>
+                        )}
+                      </div>
                     )}
                   </td>
                   <td className="py-4 px-6">
-                    <CompanyBadge code={task.job?.companyCode || '-'} />
+                    <CompanyBadge code={group.job?.companyCode || '-'} />
                   </td>
                   <td className="py-4 px-6">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                      isCompleted 
-                        ? 'bg-emerald-100 text-emerald-700' 
-                        : 'bg-amber-100 text-amber-700 animate-pulse'
-                    }`}>
-                      {task.status}
-                    </span>
-                    {task.note && (
-                      <p className="text-[10px] text-gray-500 mt-1 italic max-w-[150px] truncate">
-                        หมายเหตุ: {task.note}
-                      </p>
+                    {allCompleted ? (
+                      <div>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700">
+                          ตรวจสอบและบันทึกแล้ว
+                        </span>
+                        {group.tasks[group.tasks.length - 1]?.paidDate && (
+                          <p className="text-[10px] text-gray-400 font-medium mt-1">
+                            {formatDate(group.tasks[group.tasks.length - 1].paidDate)}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-100 text-amber-700 animate-pulse">
+                          รอดำเนินการ {hasInstallments ? `(${completedCount}/${group.tasks.length})` : ''}
+                        </span>
+                        {isOverdue && <p className="text-[10px] text-red-500 font-bold mt-1">เลยกำหนดชำระ!</p>}
+                      </div>
                     )}
                   </td>
                   <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
                     <button
-                      onClick={() => setSelectedJobId(task.job?.id)}
+                      onClick={() => setSelectedJobId(group.job?.id)}
                       className="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold transition-colors border border-slate-200 shadow-sm"
                     >
                       <Eye size={12} />
                       ดูรายละเอียด
                     </button>
-                    {!isCompleted && (
+                    {!hasInstallments && !allCompleted && singlePendingTask && (
                       <button
                         disabled={isPending}
-                        onClick={() => handleUpdate(task.id, 'ตรวจสอบและบันทึกแล้ว')}
+                        onClick={() => handleUpdate(singlePendingTask.id, 'ตรวจสอบและบันทึกแล้ว')}
                         className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50"
                       >
                         <CheckCircle size={14} />
-                        ยืนยันการรับเงิน
+                        ยืนยันรับเงิน
                       </button>
-                    )}
-                    {isCompleted && task.paidDate && (
-                      <span className="inline-block text-xs text-gray-400 font-medium ml-2">
-                        อัปเดตเมื่อ: {formatDate(task.paidDate)}
-                      </span>
                     )}
                   </td>
                 </tr>

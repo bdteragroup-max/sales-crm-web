@@ -21,6 +21,92 @@ export default async function AccountingPage() {
   
   if (!isAccounting) redirect('/dashboard')
 
+  // --- TEMPORARY BACKFILL FOR PROJECT JOBS WITHOUT PAYMENT TASKS ---
+  const projectJobsWithoutTasks = await prisma.job.findMany({
+    where: {
+      jobType: 'งานโปรเจค',
+      paymentTasks: { none: {} }
+    },
+    include: { project: true }
+  })
+  
+  if (projectJobsWithoutTasks.length > 0) {
+    for (const job of projectJobsWithoutTasks) {
+      const p = job.project
+      if (p) {
+        const installments = []
+        if (p.installment1) installments.push({ amount: p.installment1 })
+        if (p.installment2) installments.push({ amount: p.installment2 })
+        if (p.installment3) installments.push({ amount: p.installment3 })
+        if (p.installment4) installments.push({ amount: p.installment4 })
+
+        if (installments.length > 0) {
+          const startDate = p.startDate ? new Date(p.startDate) : new Date(job.createdAt);
+          const endDate = p.endDate ? new Date(p.endDate) : (job.deliveryDate ? new Date(job.deliveryDate) : new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000));
+          const totalDurationMs = endDate.getTime() - startDate.getTime();
+
+          await prisma.paymentTask.createMany({
+            data: installments.map((inst, idx) => {
+              let newDate = endDate;
+              if (installments.length > 1) {
+                const fraction = idx / (installments.length - 1);
+                newDate = new Date(startDate.getTime() + (totalDurationMs * fraction));
+              }
+              return {
+                jobId: job.id,
+                status: 'รอดำเนินการ',
+                dueDate: newDate,
+                installmentNo: idx + 1,
+                installmentTotal: installments.length,
+                installmentAmount: Number(inst.amount)
+              };
+            })
+          })
+        } else {
+          await prisma.paymentTask.create({
+            data: {
+              jobId: job.id,
+              status: 'รอดำเนินการ',
+              dueDate: p.endDate ? new Date(p.endDate) : (job.deliveryDate ? new Date(job.deliveryDate) : null)
+            }
+          })
+        }
+      } else {
+        await prisma.paymentTask.create({
+          data: {
+            jobId: job.id,
+            status: 'รอดำเนินการ',
+            dueDate: job.deliveryDate ? new Date(job.deliveryDate) : null
+          }
+        })
+      }
+    }
+  }
+  // ----------------------------------------------------------------
+
+  // --- TEMPORARY CLEANUP FOR DUPLICATE PAYMENT TASKS ---
+  const allTasksForCleanup = await prisma.paymentTask.findMany({
+    orderBy: { createdAt: 'asc' }
+  });
+  const seenInstallments = new Set();
+  const duplicateTaskIds = [];
+  for (const t of allTasksForCleanup) {
+    if (t.installmentNo) {
+      const key = `${t.jobId}-${t.installmentNo}`;
+      if (seenInstallments.has(key)) {
+        duplicateTaskIds.push(t.id);
+      } else {
+        seenInstallments.add(key);
+      }
+    }
+  }
+  if (duplicateTaskIds.length > 0) {
+    await prisma.paymentTask.deleteMany({
+      where: { id: { in: duplicateTaskIds } }
+    });
+  }
+  // ----------------------------------------------------------------
+
   // Fetch Payment Tasks
   const paymentTasks = await prisma.paymentTask.findMany({
     include: {

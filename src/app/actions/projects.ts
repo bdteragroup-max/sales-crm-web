@@ -69,6 +69,45 @@ export async function createProject(data: any) {
         }
       });
       finalJobId = job.id;
+
+      // Create PaymentTasks for the new Job so it appears in Accounting
+      const installments = [];
+      if (projectDataRaw.installment1) installments.push({ amount: projectDataRaw.installment1 });
+      if (projectDataRaw.installment2) installments.push({ amount: projectDataRaw.installment2 });
+      if (projectDataRaw.installment3) installments.push({ amount: projectDataRaw.installment3 });
+      if (projectDataRaw.installment4) installments.push({ amount: projectDataRaw.installment4 });
+
+      if (installments.length > 0) {
+        const startDate = projectDataRaw.startDate ? new Date(projectDataRaw.startDate) : closedDate;
+        const endDate = projectDataRaw.endDate ? new Date(projectDataRaw.endDate) : (projectDataRaw.deliveryDate ? new Date(projectDataRaw.deliveryDate) : new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000));
+        const totalDurationMs = endDate.getTime() - startDate.getTime();
+
+        await prisma.paymentTask.createMany({
+          data: installments.map((inst, idx) => {
+            let newDate = endDate;
+            if (installments.length > 1) {
+              const fraction = idx / (installments.length - 1);
+              newDate = new Date(startDate.getTime() + (totalDurationMs * fraction));
+            }
+            return {
+              jobId: finalJobId,
+              status: 'รอดำเนินการ',
+              dueDate: newDate,
+              installmentNo: idx + 1,
+              installmentTotal: installments.length,
+              installmentAmount: parseFloat(inst.amount),
+            };
+          })
+        });
+      } else {
+        await prisma.paymentTask.create({
+          data: {
+            jobId: finalJobId,
+            status: 'รอดำเนินการ',
+            dueDate: projectDataRaw.contractSigningDate ? new Date(projectDataRaw.contractSigningDate) : null,
+          }
+        });
+      }
     }
 
     const project = await prisma.project.create({
