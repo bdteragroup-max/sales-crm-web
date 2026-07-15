@@ -400,7 +400,10 @@ export async function getJobs(filters?: {
       ...(filters?.yearBe && { yearBe: filters.yearBe }),
       ...(filters?.jobType && { jobType: filters.jobType }),
     },
-    include: { quotation: true },
+    include: { 
+      quotation: true,
+      project: { include: { manager: true } }
+    },
     orderBy: { dateClosed: "desc" },
   });
 }
@@ -608,7 +611,7 @@ export async function getProcurementForJob(customerName: string, projectName?: s
     },
     include: {
       purchaseOrders: {
-        select: { poNumber: true, receiveStatus: true }
+        select: { id: true, poNumber: true, receiveStatus: true }
       }
     },
     orderBy: { createdAt: 'desc' }

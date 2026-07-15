@@ -329,7 +329,7 @@ function ExpandedRow({
               <EditableField label="บริษัท" value={job.companyCode} type="select" options={COMPANY_CODES} onSave={save("companyCode")} />
               <div>
                 <p className="text-xs text-gray-400 mb-0.5">พนักงานขาย</p>
-                <p className="text-sm text-gray-800">{job.sellerName || <span className="text-gray-400 italic">—</span>}</p>
+                <p className="text-sm text-gray-800">{job.sellerName || job.project?.contractSignatory || job.project?.manager?.fullName || <span className="text-gray-400 italic">—</span>}</p>
               </div>
               <EditableField label="ประเภทงาน" value={job.jobType} type="select" options={JOB_TYPES as unknown as string[]} onSave={save("jobType")} />
 
@@ -343,14 +343,14 @@ function ExpandedRow({
                 <p className="text-sm text-gray-800">{job.poNumber || <span className="text-gray-400 italic">—</span>}</p>
               </div>
               <EditableField label="วันที่ปิดการขาย" value={new Date(job.dateClosed).toISOString().slice(0, 10)} type="date" onSave={save("dateClosed")} />
-              <EditableField label="วันที่ต้องการจัดส่ง" value={job.deliveryDate ? new Date(job.deliveryDate).toISOString().slice(0, 10) : ""} type="date" onSave={save("deliveryDate")} />
+              <EditableField label="วันที่ต้องการจัดส่ง" value={job.deliveryDate ? new Date(job.deliveryDate).toISOString().slice(0, 10) : (job.project?.endDate ? new Date(job.project.endDate).toISOString().slice(0, 10) : (job.project?.deliveryDate ? new Date(job.project.deliveryDate).toISOString().slice(0, 10) : ""))} type="date" onSave={save("deliveryDate")} />
 
               {/* Row 3 */}
               <div className="sm:col-span-2">
                 <EditableField label="รายการสินค้า" value={job.item ?? ""} onSave={save("item")} />
               </div>
-              <EditableField label="รูปแบบการชำระเงิน" value={job.paymentMethod ?? ""} onSave={save("paymentMethod")} />
-              <EditableField label="วันที่ชำระเงิน" value={job.paymentDate ? new Date(job.paymentDate).toISOString().slice(0, 10) : ""} type="date" onSave={save("paymentDate")} />
+              <EditableField label="รูปแบบการชำระเงิน" value={job.paymentMethod || (job.project?.installment1 || job.project?.installment2 || job.project?.installment3 || job.project?.installment4 ? "แบ่งชำระ" : "")} onSave={save("paymentMethod")} />
+              <EditableField label="วันที่ชำระเงิน" value={job.paymentDate ? new Date(job.paymentDate).toISOString().slice(0, 10) : (job.project?.contractSigningDate ? new Date(job.project.contractSigningDate).toISOString().slice(0, 10) : (job.project?.paymentDate ? new Date(job.project.paymentDate).toISOString().slice(0, 10) : ""))} type="date" onSave={save("paymentDate")} />
             </div>
           </div>
 

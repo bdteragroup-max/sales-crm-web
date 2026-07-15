@@ -7,10 +7,10 @@ import { generateJobNumber } from "@/app/lib/job-utils";
 export async function createProject(data: any) {
   try {
     let projectNumber = data.projectNumber;
-    
+
     if (!projectNumber) {
       const yearPrefix = `PJ${new Date().getFullYear().toString().slice(-2)}-`;
-      
+
       // Find the latest project starting with this year's prefix
       const latestProject = await prisma.project.findFirst({
         where: {
@@ -45,16 +45,27 @@ export async function createProject(data: any) {
       const yearBe = (closedDate.getFullYear() + 543) % 100;
       const month = closedDate.getMonth() + 1;
 
+      let managerName = projectDataRaw.contractSignatory;
+      if (!managerName && projectDataRaw.managerId) {
+        const m = await prisma.user.findUnique({ where: { id: projectDataRaw.managerId } });
+        if (m) managerName = m.fullName;
+      }
+
+      const hasInstallments = projectDataRaw.installment1 || projectDataRaw.installment2 || projectDataRaw.installment3 || projectDataRaw.installment4;
+
       const job = await prisma.job.create({
         data: {
           jobNumber: jobNum,
           companyCode: companyCode,
           jobType: "งานโปรเจค",
+          paymentMethod: hasInstallments ? "แบ่งชำระ" : undefined,
           month,
           yearBe,
           dateClosed: closedDate,
           customerName: projectDataRaw.clientName || projectDataRaw.name,
-          item: projectDataRaw.name,
+          sellerName: managerName || undefined,
+          paymentDate: projectDataRaw.contractSigningDate ? new Date(projectDataRaw.contractSigningDate) : (projectDataRaw.paymentDate ? new Date(projectDataRaw.paymentDate) : undefined),
+          deliveryDate: projectDataRaw.endDate ? new Date(projectDataRaw.endDate) : (projectDataRaw.deliveryDate ? new Date(projectDataRaw.deliveryDate) : undefined),
         }
       });
       finalJobId = job.id;
@@ -67,7 +78,7 @@ export async function createProject(data: any) {
         projectNumber,
       },
     });
-    
+
     // Automatically add the manager as a member if provided
     if (data.managerId) {
       await prisma.projectMember.create({
@@ -264,7 +275,10 @@ export async function deleteProjectEquipment(id: string) {
 
 export async function generateJobForProject(projectId: string, companyCode: string) {
   try {
-    const project = await prisma.project.findUnique({ where: { id: projectId } });
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { manager: true }
+    });
     if (!project) throw new Error("Project not found");
     if (project.jobId) throw new Error("Project already has a Job");
 
@@ -273,16 +287,21 @@ export async function generateJobForProject(projectId: string, companyCode: stri
     const yearBe = (closedDate.getFullYear() + 543) % 100;
     const month = closedDate.getMonth() + 1;
 
+    const hasInstallments = project.installment1 || project.installment2 || project.installment3 || project.installment4;
+
     const job = await prisma.job.create({
       data: {
         jobNumber: jobNum,
         companyCode: companyCode,
         jobType: "งานโปรเจค",
+        paymentMethod: hasInstallments ? "แบ่งชำระ" : undefined,
         month,
         yearBe,
         dateClosed: closedDate,
         customerName: project.clientName || project.name,
-        item: project.name,
+        sellerName: project.contractSignatory || project.manager?.fullName || undefined,
+        paymentDate: project.contractSigningDate || project.paymentDate || undefined,
+        deliveryDate: project.endDate || project.deliveryDate || undefined,
       }
     });
 
