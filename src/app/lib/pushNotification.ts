@@ -1,8 +1,13 @@
 import webpush from 'web-push';
 import prisma from '@/app/lib/db';
 
+const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:admin@example.com';
+const formattedSubject = vapidSubject.includes('@') && !vapidSubject.startsWith('mailto:') 
+  ? `mailto:${vapidSubject}` 
+  : vapidSubject;
+
 webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT || 'mailto:admin@example.com',
+  formattedSubject,
   process.env.VAPID_PUBLIC_KEY || '',
   process.env.VAPID_PRIVATE_KEY || ''
 );
