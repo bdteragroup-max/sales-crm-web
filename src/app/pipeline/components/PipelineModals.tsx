@@ -413,7 +413,7 @@ export function POTransitionModal({ quotation, isClosedStatus = false, onConfirm
               วิธีการชำระเงิน <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {['เงินสด', 'จ่ายแล้ว', 'เครดิต', 'เก็บเงินหน้างาน', 'ผ่อนชำระ'].map(method => (
+              {['เงินสด', 'เครดิต', 'ผ่อนชำระ'].map(method => (
                 <button
                   key={method}
                   type="button"

@@ -109,3 +109,16 @@ export async function updateOutsourceRepair(id: string, data: any) {
     return { success: false, error: error.message };
   }
 }
+
+export async function getPendingOutsourceRepairCount() {
+  try {
+    return await prisma.outsourceRepair.count({
+      where: {
+        status: "SENT"
+      }
+    });
+  } catch (error) {
+    console.error("Failed to get pending outsource repair count:", error);
+    return 0;
+  }
+}

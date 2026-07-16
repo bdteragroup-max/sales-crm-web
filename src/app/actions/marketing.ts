@@ -274,6 +274,19 @@ export async function forwardLeadToSales(leadId: string, salesRepId: string) {
       return { lead: updatedLead };
     });
 
+    // 2.5 Send Push Notification
+    try {
+      const { sendPushToUser } = await import('@/app/lib/pushNotification');
+      await sendPushToUser(salesRepId, {
+        title: "มี Lead ใหม่จาก Marketing",
+        body: `ลูกค้า ${result.lead.customerName} สนใจ ${result.lead.productType || result.lead.productOfInterest || 'สินค้า'}`,
+        url: "/sales/leads",
+        category: "MARKETING_LEAD",
+      });
+    } catch (e) {
+      console.error("Failed to send push notification for marketing lead:", e);
+    }
+
     // 3. Attempt LINE Notification (Outside transaction to not block if LINE fails)
     try {
       const { pushLineMessage, getLineUserIdByCrmUserId, customMarketingLeadMessage } = await import('@/app/lib/lineNotify');

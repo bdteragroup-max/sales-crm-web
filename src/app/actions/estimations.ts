@@ -184,3 +184,16 @@ export async function assignEstimation(
   
   return { success: true };
 }
+
+export async function getPendingEstimationCount() {
+  try {
+    return await prisma.customerRequirement.count({
+      where: {
+        estimationStatus: 'PENDING'
+      }
+    });
+  } catch (error) {
+    console.error("Failed to get pending estimation count:", error);
+    return 0;
+  }
+}

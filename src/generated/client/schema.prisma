@@ -34,6 +34,7 @@ model User {
   reportedDailyLogs      ProjectDailyLog[]
   projectMembers         ProjectMember[]
   assignedTasks          ProjectTask[]
+  pushSubscriptions      PushSubscription[]
   quotations             Quotation[]
   schedules              Schedule[]
   serviceSchedules       ServiceSchedule[]
@@ -2092,4 +2093,15 @@ model ServiceSchedule {
   createdAt      DateTime @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
   user           User     @relation(fields: [userId], references: [id])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id])
 }

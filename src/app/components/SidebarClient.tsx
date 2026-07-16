@@ -10,6 +10,10 @@ import {
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
 import { getPendingInstallationCount } from '@/app/actions/installationOrders';
+import { getPendingRepairOrderCount } from '@/app/actions/repairOrders';
+import { getPendingOutsourceRepairCount } from '@/app/actions/outsourceRepairs';
+import { getPendingRepairDeliveryCount } from '@/app/actions/repairDeliveries';
+import { getPendingEstimationCount } from '@/app/actions/estimations';
 import CoinMiniWidget from './CoinMiniWidget';
 import NotificationBell from './NotificationBell';
 
@@ -169,6 +173,10 @@ function ResponsiveSidebar({
 
   const [unpaidCount, setUnpaidCount] = useState(0);
   const [pendingInstallationCount, setPendingInstallationCount] = useState(0);
+  const [pendingRepairCount, setPendingRepairCount] = useState(0);
+  const [pendingOutsourceCount, setPendingOutsourceCount] = useState(0);
+  const [pendingDeliveryCount, setPendingDeliveryCount] = useState(0);
+  const [pendingEstimationCount, setPendingEstimationCount] = useState(0);
 
   const [tooltip, setTooltip] = useState<{ label: string; y: number } | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -190,6 +198,10 @@ function ResponsiveSidebar({
     const isServiceUser = roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง') || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด';
     if (isServiceUser) {
       getPendingInstallationCount().then(setPendingInstallationCount).catch(() => { });
+      getPendingRepairOrderCount().then(setPendingRepairCount).catch(() => { });
+      getPendingOutsourceRepairCount().then(setPendingOutsourceCount).catch(() => { });
+      getPendingRepairDeliveryCount().then(setPendingDeliveryCount).catch(() => { });
+      getPendingEstimationCount().then(setPendingEstimationCount).catch(() => { });
     }
   }, [router, nav, userRole]);
 
@@ -275,6 +287,26 @@ function ResponsiveSidebar({
                   {href === '/service/installation' && pendingInstallationCount > 0 && (
                     <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
                       {pendingInstallationCount > 99 ? '99+' : pendingInstallationCount}
+                    </span>
+                  )}
+                  {href === '/repair-orders' && pendingRepairCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
+                      {pendingRepairCount > 99 ? '99+' : pendingRepairCount}
+                    </span>
+                  )}
+                  {href === '/outsource-repairs' && pendingOutsourceCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
+                      {pendingOutsourceCount > 99 ? '99+' : pendingOutsourceCount}
+                    </span>
+                  )}
+                  {href === '/repair-deliveries' && pendingDeliveryCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
+                      {pendingDeliveryCount > 99 ? '99+' : pendingDeliveryCount}
+                    </span>
+                  )}
+                  {href === '/service/estimations' && pendingEstimationCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10">
+                      {pendingEstimationCount > 99 ? '99+' : pendingEstimationCount}
                     </span>
                   )}
                 </Link>
@@ -437,6 +469,26 @@ function ResponsiveSidebar({
                     {href === '/service/installation' && pendingInstallationCount > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
                         {pendingInstallationCount > 99 ? '99+' : pendingInstallationCount}
+                      </span>
+                    )}
+                    {href === '/repair-orders' && pendingRepairCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingRepairCount > 99 ? '99+' : pendingRepairCount}
+                      </span>
+                    )}
+                    {href === '/outsource-repairs' && pendingOutsourceCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingOutsourceCount > 99 ? '99+' : pendingOutsourceCount}
+                      </span>
+                    )}
+                    {href === '/repair-deliveries' && pendingDeliveryCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingDeliveryCount > 99 ? '99+' : pendingDeliveryCount}
+                      </span>
+                    )}
+                    {href === '/service/estimations' && pendingEstimationCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10">
+                        {pendingEstimationCount > 99 ? '99+' : pendingEstimationCount}
                       </span>
                     )}
                   </div>

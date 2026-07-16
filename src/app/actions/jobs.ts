@@ -238,6 +238,27 @@ export async function updateJob(
     }
   }
 
+  // Sync changes to Quotation to keep Sales & Pipeline pages in sync
+  if (job.quotationId) {
+    const quotationUpdate: any = {};
+    if (data.jobType !== undefined) quotationUpdate.productType = data.jobType;
+    if (data.poNumber !== undefined) quotationUpdate.poNumber = data.poNumber;
+    
+    // In src/app/actions/jobs.ts, data typing might not have quotationNumber, but if passed:
+    if ('quotationNumber' in data && (data as any).quotationNumber !== undefined) {
+      quotationUpdate.quotationNumber = (data as any).quotationNumber;
+    }
+    
+    if (Object.keys(quotationUpdate).length > 0) {
+      await prisma.quotation.update({
+        where: { id: job.quotationId },
+        data: quotationUpdate
+      });
+      revalidatePath("/sales");
+      revalidatePath("/pipeline");
+    }
+  }
+
   revalidatePath("/jobs");
   revalidatePath("/projects");
   return job;
@@ -290,6 +311,45 @@ export async function confirmJobStep(payload: {
       ...(trackingPhotoUrl ? { trackingPhotoUrl } : {}),
     },
   })
+
+  // ---- Notify relevant departments of the next step ----
+  if (nextStep && nextStep.department.length > 0) {
+    try {
+      const { sendPushToUser } = await import('@/app/lib/pushNotification');
+      
+      const targetRoles = nextStep.department.map(d => ({
+        role: { contains: d, mode: 'insensitive' as const }
+      }));
+      
+      const targetUsers = await prisma.user.findMany({
+        where: {
+          OR: targetRoles,
+          isActive: true
+        }
+      });
+      
+      const salesIncluded = nextStep.department.includes('sales');
+      if (salesIncluded && job.sellerName) {
+         const seller = await prisma.user.findFirst({
+           where: { fullName: job.sellerName, isActive: true }
+         });
+         if (seller && !targetUsers.find(u => u.id === seller.id)) {
+           targetUsers.push(seller);
+         }
+      }
+
+      await Promise.all(
+        targetUsers.map(user => sendPushToUser(user.id, {
+          title: "งานใหม่รอการดำเนินการ",
+          body: `งาน ${job.jobNumber} เข้าสู่ขั้นตอน ${nextStep.label}`,
+          url: `/jobs`,
+          category: 'JOB'
+        }))
+      );
+    } catch (e) {
+      console.error("Push notify error in confirmJobStep:", e);
+    }
+  }
 
   // === AUTO-CREATE PROJECT ===
   if (stepKey === "sales" && ["งานโปรเจค", "งานติดตั้ง", "งานขาย + ติดตั้ง"].includes(job.jobType)) {

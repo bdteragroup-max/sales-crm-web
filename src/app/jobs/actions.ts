@@ -48,6 +48,23 @@ export async function updateJob(jobId: string, data: UpdateJobPayload) {
     }
   }
 
+  // Sync changes to Quotation to keep Sales & Pipeline pages in sync
+  if (updated.quotationId) {
+    const quotationUpdate: any = {};
+    if (data.jobType !== undefined) quotationUpdate.productType = data.jobType;
+    if (data.poNumber !== undefined) quotationUpdate.poNumber = data.poNumber;
+    if (data.quotationNumber !== undefined) quotationUpdate.quotationNumber = data.quotationNumber;
+    
+    if (Object.keys(quotationUpdate).length > 0) {
+      await prisma.quotation.update({
+        where: { id: updated.quotationId },
+        data: quotationUpdate
+      });
+      revalidatePath("/sales");
+      revalidatePath("/pipeline");
+    }
+  }
+
   revalidatePath("/jobs"); 
   revalidatePath("/projects");
   return updated;

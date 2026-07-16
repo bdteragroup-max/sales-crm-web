@@ -8,8 +8,56 @@ import { useRouter } from 'next/navigation';
 export default function NotificationBell({ userId }: { userId?: string }) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [showPushBanner, setShowPushBanner] = useState(false);
+  const [isIOSStandalone, setIsIOSStandalone] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window && navigator.serviceWorker) {
+      const alreadyAsked = localStorage.getItem('push-permission-asked');
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+      
+      if (isIOS && !isStandalone) {
+        setIsIOSStandalone(false);
+      }
+
+      if (!alreadyAsked && Notification.permission === 'default') {
+        setShowPushBanner(true);
+      }
+    }
+  }, []);
+
+  const subscribeToPush = async () => {
+    try {
+      const permission = await Notification.requestPermission();
+      localStorage.setItem('push-permission-asked', 'true');
+      setShowPushBanner(false);
+
+      if (permission === 'granted' && navigator.serviceWorker) {
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+        });
+
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription, userId, userAgent: navigator.userAgent }),
+        });
+      }
+    } catch (error) {
+      console.error('Failed to subscribe to push notifications:', error);
+    }
+  };
+
+  const dismissBanner = () => {
+    localStorage.setItem('push-permission-asked', 'true');
+    setShowPushBanner(false);
+  };
 
   useEffect(() => {
     if (!userId) return;
@@ -76,6 +124,45 @@ export default function NotificationBell({ userId }: { userId?: string }) {
           <span className="absolute top-3.5 right-3.5 w-2 h-2 rounded-full bg-red-500 border border-white animate-pulse" />
         )}
       </button>
+
+      {/* Push Notification Permission Banner */}
+      {showPushBanner && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 z-[100] p-4 flex flex-col gap-3 animate-in slide-in-from-top-4 fade-in duration-300">
+          <div className="flex items-start justify-between">
+            <div className="flex gap-3">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                <Bell size={20} className="text-brand-red" />
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900">เปิดรับการแจ้งเตือน</h4>
+                <p className="text-sm text-gray-600 mt-0.5">
+                  รับการแจ้งเตือนเมื่อมีงานใหม่, อนุมัติการลา, และอัปเดตสำคัญต่างๆ
+                </p>
+                {!isIOSStandalone && (
+                  <p className="text-xs font-bold text-brand-red mt-2 bg-red-50 p-2 rounded-lg inline-block">
+                    สำหรับ iOS กรุณากด Share → Add to Home Screen เพื่อรับการแจ้งเตือน
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2 justify-end mt-1">
+            <button 
+              onClick={dismissBanner}
+              className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-50 rounded-xl transition-colors"
+            >
+              ไว้คราวหลัง
+            </button>
+            <button 
+              onClick={subscribeToPush}
+              disabled={!isIOSStandalone}
+              className="px-4 py-2 text-sm font-bold text-white bg-brand-red hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
+            >
+              อนุญาต
+            </button>
+          </div>
+        </div>
+      )}
 
       {isOpen && (
         <div className="fixed left-[84px] bottom-6 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden transform origin-bottom-left transition-all">

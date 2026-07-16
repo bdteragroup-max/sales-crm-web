@@ -92,6 +92,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [customJobType, setCustomJobType] = useState('');
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -202,8 +203,21 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
 
   const openModal = (user: ServiceUser, date: Date, existingSchedule?: ServiceSchedule) => {
     if (!canEdit(user.id)) {
-      showToast('คุณไม่สามารถแก้ไขตารางงานของบุคคลอื่นได้', 'error');
+      showToast('คุณไม่มีสิทธิ์แก้ไขตารางงานของบุคคลนี้', 'error');
       return;
+    }
+    
+    let isStandardType = false;
+    let initialJobType = existingSchedule?.jobType || '';
+    if (['installation', 'repair', 'survey', 'meeting', 'training', 'other'].includes(initialJobType)) {
+      isStandardType = true;
+    }
+    
+    if (initialJobType && !isStandardType) {
+      setCustomJobType(initialJobType);
+      initialJobType = 'other_custom';
+    } else {
+      setCustomJobType('');
     }
 
     setSelectedUser(user);
@@ -211,7 +225,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
     setFormData({
       id: existingSchedule?.id,
       status: existingSchedule?.status || 'ออฟฟิศ',
-      jobType: existingSchedule?.jobType || '',
+      jobType: initialJobType,
       jobDescription: existingSchedule?.jobDescription || '',
       duration: existingSchedule?.duration || 'เต็มวัน',
       province: existingSchedule?.province || ''
@@ -238,7 +252,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
           userId: selectedUser.id,
           date: selectedDate.toISOString(),
           status: formData.status,
-          jobType: formData.jobType,
+          jobType: formData.jobType === 'other_custom' ? customJobType : formData.jobType,
           jobDescription: formData.jobDescription,
           duration: formData.duration,
           province: formData.province
@@ -521,7 +535,8 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                                             schedule.jobType === 'repair' ? 'ซ่อม/PM' :
                                               schedule.jobType === 'survey' ? 'ดูหน้างาน' :
                                                 schedule.jobType === 'meeting' ? 'ประชุม' :
-                                                  schedule.jobType === 'training' ? 'อบรม' : 'อื่นๆ'}
+                                                  schedule.jobType === 'training' ? 'อบรม' : 
+                                                    schedule.jobType === 'other' ? 'อื่นๆ' : schedule.jobType}
                                         </span>
                                       )}
                                     </div>
@@ -641,8 +656,21 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                         <option value="meeting">ประชุม (Meeting)</option>
                         <option value="training">อบรม (Training)</option>
                         <option value="other">อื่นๆ</option>
+                        <option value="other_custom">ระบุประเภทงานเอง...</option>
                       </select>
                     </div>
+                    {formData.jobType === 'other_custom' && (
+                      <div className="mt-2 animate-in fade-in slide-in-from-top-2">
+                         <input
+                           type="text"
+                           value={customJobType}
+                           onChange={(e) => setCustomJobType(e.target.value)}
+                           className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                           placeholder="พิมพ์ระบุประเภทงาน..."
+                           required
+                         />
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">

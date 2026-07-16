@@ -55,6 +55,8 @@ export async function updateQuotationStatus(
       return { success: false, error: "ปฏิเสธการเข้าถึง: คุณสามารถแก้ไขเฉพาะดีลของคุณเองเท่านั้น" };
     }
 
+    const statusChanged = quotation.status !== newStatus;
+
     const updateData: any = { 
       status: newStatus,
       updatedAt: new Date()
@@ -162,6 +164,21 @@ export async function updateQuotationStatus(
     revalidatePath("/sales");
     revalidatePath("/dashboard");
     
+    // Notification for Salesperson when quotation status changes
+    if (statusChanged && updated.salespersonId && updated.salespersonId !== user.id) {
+      try {
+        const { sendPushToUser } = await import('@/app/lib/pushNotification');
+        await sendPushToUser(updated.salespersonId, {
+          title: `สถานะใบเสนอราคาเปลี่ยนแปลง`,
+          body: `ใบเสนอราคา ${updated.quotationNumber || 'ไม่ระบุเลขที่'} เปลี่ยนสถานะเป็น: ${newStatus}`,
+          url: `/pipeline`,
+          category: `QUOTATION_STATUS`,
+        });
+      } catch (e) {
+        console.error("Failed to send push notification for quotation status:", e);
+      }
+    }
+
     return { success: true, data: updated, awardedGold, awardMessage };
   } catch (error: any) {
     console.error("Error updating quotation status:", error);

@@ -1771,6 +1771,16 @@ exports.Prisma.ServiceScheduleScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.PushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1905,7 +1915,8 @@ exports.Prisma.ModelName = {
   tax_configs: 'tax_configs',
   withholding_tax_documents: 'withholding_tax_documents',
   withholding_tax_income_items: 'withholding_tax_income_items',
-  ServiceSchedule: 'ServiceSchedule'
+  ServiceSchedule: 'ServiceSchedule',
+  PushSubscription: 'PushSubscription'
 };
 
 /**

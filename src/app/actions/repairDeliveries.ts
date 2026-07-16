@@ -166,3 +166,16 @@ export async function searchSalespeople(query: string) {
     return { success: false, error: error.message, data: [] };
   }
 }
+
+export async function getPendingRepairDeliveryCount() {
+  try {
+    return await prisma.repairDelivery.count({
+      where: {
+        status: "Draft"
+      }
+    });
+  } catch (error) {
+    console.error("Failed to get pending repair delivery count:", error);
+    return 0;
+  }
+}

@@ -145,6 +145,22 @@ export async function createRepairOrder(formData: RepairOrderFormData) {
             }
           }
         }
+        if (techUser) {
+          try {
+            const { sendPushToUser } = await import('@/app/lib/pushNotification');
+            const orderWithJob = await prisma.repairOrder.findUnique({ where: { id: result.id }, include: { job: true } });
+            if (orderWithJob) {
+              await sendPushToUser(techUser.id, {
+                title: "คุณได้รับมอบหมายงานซ่อม",
+                body: `งานซ่อม ${orderWithJob.job.jobNumber}`,
+                url: `/repair-orders/${orderWithJob.job.id}/edit`,
+                category: 'JOB'
+              });
+            }
+          } catch (pushErr) {
+            console.error("Push notify error (Repair assigned):", pushErr);
+          }
+        }
       } catch (err) {
         console.error("Line notify error (Repair assigned):", err);
       }
@@ -206,10 +222,25 @@ export async function updateRepairOrderStatus(jobId: string, newStep: string) {
       try {
         const { getLineUserIdByEmpId, pushLineMessage, customRepairClosedMessage } = await import('@/app/lib/lineNotify');
         const user = await prisma.user.findFirst({ where: { fullName: job.sellerName } });
-        if (user?.employeeId) {
-          const lineId = await getLineUserIdByEmpId(user.employeeId);
-          if (lineId) {
-            await pushLineMessage(lineId, [customRepairClosedMessage(job)]);
+        
+        if (user) {
+          try {
+            const { sendPushToUser } = await import('@/app/lib/pushNotification');
+            await sendPushToUser(user.id, {
+              title: "งานซ่อมถูกปิดแล้ว",
+              body: `งานซ่อม ${job.jobNumber} ถูกเปลี่ยนสถานะเป็น Closed`,
+              url: `/repair-orders/${job.id}/edit`,
+              category: 'JOB'
+            });
+          } catch (pushErr) {
+            console.error("Push notify error (Repair closed):", pushErr);
+          }
+          
+          if (user.employeeId) {
+            const lineId = await getLineUserIdByEmpId(user.employeeId);
+            if (lineId) {
+              await pushLineMessage(lineId, [customRepairClosedMessage(job)]);
+            }
           }
         }
       } catch (err) {
@@ -236,11 +267,43 @@ export async function updateRepairOrderTechnician(jobId: string, technicianName:
       data: { technicianName },
     });
 
+    try {
+      const { sendPushToUser } = await import('@/app/lib/pushNotification');
+      const user = await prisma.user.findFirst({ where: { fullName: technicianName } });
+      if (user) {
+        await sendPushToUser(user.id, {
+          title: "มีการมอบหมายงานซ่อมให้คุณ",
+          body: `งานซ่อม ${job.jobNumber}`,
+          url: `/repair-orders/${job.id}/edit`,
+          category: 'JOB'
+        });
+      }
+    } catch (e) {
+      console.error("Push notify error:", e);
+    }
+
     revalidatePath("/repair-orders");
     revalidatePath("/service/dashboard");
     return { success: true };
   } catch (error: unknown) {
     console.error("Error updating repair order technician:", error);
     return { success: false, error: error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการอัปเดตผู้ซ่อม" };
+  }
+}
+
+export async function getPendingRepairOrderCount() {
+  try {
+    return await prisma.repairOrder.count({
+      where: {
+        job: {
+          currentStep: {
+            in: ["service_receive", "sales_quote", "customer_approval"]
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Failed to get pending repair order count:", error);
+    return 0;
   }
 }

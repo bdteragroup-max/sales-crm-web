@@ -1,7 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
+import { sendPushToUser } from '@/app/lib/pushNotification';
 
 const SYNC_SECRET = process.env.SYNC_SECRET || 'YOUR_SECRET_HERE';
+
+async function notifyProcurement(title: string, body: string) {
+  try {
+    const procurementUsers = await prisma.user.findMany({
+      where: {
+        OR: [
+          { role: { contains: 'จัดซื้อ', mode: 'insensitive' } },
+          { role: { contains: 'procurement', mode: 'insensitive' } }
+        ]
+      }
+    });
+    
+    for (const user of procurementUsers) {
+      await prisma.notification.create({
+        data: {
+          userId: user.id,
+          title,
+          message: body,
+          type: 'PROCUREMENT_NEW_ENTRY',
+          linkUrl: '/admin/procurement/dashboard',
+        }
+      });
+      
+      await sendPushToUser(user.id, {
+        title,
+        body,
+        url: '/admin/procurement/dashboard',
+        category: 'PROCUREMENT_NEW_ENTRY',
+      });
+    }
+  } catch (e) {
+    console.error("Failed to notify procurement:", e);
+  }
+}
 
 function parseNumber(val: any): number | undefined {
   if (val === undefined || val === null || val === '') return undefined;
@@ -176,6 +211,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Missing PR Number' }, { status: 400 });
       }
 
+      const existingPR = await prisma.purchaseRequest.findUnique({ where: { prNumber: String(prNumber) } });
+      const isNewPR = !existingPR;
+
       await prisma.purchaseRequest.upsert({
         where: { prNumber: String(prNumber) },
         update: {
@@ -199,6 +237,10 @@ export async function POST(req: NextRequest) {
         }
       });
 
+      if (isNewPR) {
+        await notifyProcurement('มี PR ใหม่เข้าสู่ระบบ', `เลขที่ PR: ${prNumber}`);
+      }
+
       return NextResponse.json({ success: true, message: `PR ${prNumber} synced` });
 
     } else if (type === 'PO') {
@@ -208,6 +250,9 @@ export async function POST(req: NextRequest) {
       }
 
       const prNumber = findValue(payload, ['PR Number', 'PR', 'PRNumber', 'pr_number', 'อ้างอิง PR', 'เลขที่ PR', 'เลข PR', 'เลขที่ PR (ref)']);
+      
+      const existingPO = await prisma.purchaseOrder.findUnique({ where: { poNumber: String(poNumber) } });
+      const isNewPO = !existingPO;
 
       // Upsert PR first to prevent FK constraint failure
       if (prNumber) {
@@ -256,6 +301,10 @@ export async function POST(req: NextRequest) {
           reportedBy: findValue(payload, ['Notifier', 'Reported By', 'ผู้แจ้ง']),
         }
       });
+
+      if (isNewPO) {
+        await notifyProcurement('มี PO ใหม่เข้าสู่ระบบ', `เลขที่ PO: ${poNumber}`);
+      }
 
       return NextResponse.json({ success: true, message: `PO ${poNumber} synced` });
 

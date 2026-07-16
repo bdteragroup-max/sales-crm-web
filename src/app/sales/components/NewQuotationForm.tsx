@@ -651,7 +651,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                   {formData.jobType !== 'สินค้าฝากขาย' && formData.jobType !== 'งานขาย' && (
                     <InputField name="workName" label="ชื่อชิ้นงาน (Work Name) :" type="text" placeholder="เช่น ติดตั้งกล้องวงจรปิด" value={formData.workName || ''} onChange={handleInputChange} required />
                   )}
-                  <SelectField name="paymentMethod" label="วิธีการชำระเงิน :" options={['เงินสด', 'จ่ายแล้ว', 'เครดิต', 'เก็บเงินหน้างาน', 'ผ่อนชำระ']} value={formData.paymentMethod || 'เครดิต'} onChange={handleInputChange} />
+                  <SelectField name="paymentMethod" label="วิธีการชำระเงิน :" options={['เงินสด', 'เครดิต', 'ผ่อนชำระ']} value={formData.paymentMethod || 'เครดิต'} onChange={handleInputChange} />
                   
                   {formData.paymentMethod === 'ผ่อนชำระ' && (
                     <div className="flex items-start gap-4">
