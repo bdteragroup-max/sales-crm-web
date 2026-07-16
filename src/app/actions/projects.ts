@@ -130,6 +130,10 @@ export async function createProject(data: any) {
     }
 
     revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
+    if (finalJobId) {
+      revalidatePath("/jobs");
+    }
     return JSON.parse(JSON.stringify(project));
   } catch (error) {
     console.error("Error creating project:", error);
@@ -145,6 +149,10 @@ export async function updateProject(id: string, data: any) {
     });
     revalidatePath("/projects");
     revalidatePath(`/projects/${id}`);
+    revalidatePath("/projects/dashboard");
+    if (project.jobId) {
+      revalidatePath("/jobs");
+    }
     return JSON.parse(JSON.stringify(project));
   } catch (error) {
     console.error("Error updating project:", error);
@@ -158,6 +166,8 @@ export async function deleteProject(id: string) {
       where: { id },
     });
     revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
+    revalidatePath("/jobs");
   } catch (error) {
     console.error("Error deleting project:", error);
     throw new Error("Failed to delete project");
@@ -174,6 +184,8 @@ export async function addProjectMember(projectId: string, userId: string, role: 
       },
     });
     revalidatePath(`/projects/${projectId}`);
+    revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
     return member;
   } catch (error) {
     console.error("Error adding project member:", error);
@@ -192,6 +204,8 @@ export async function removeProjectMember(projectId: string, userId: string) {
       },
     });
     revalidatePath(`/projects/${projectId}`);
+    revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
   } catch (error) {
     console.error("Error removing project member:", error);
     throw new Error("Failed to remove project member");
@@ -207,6 +221,8 @@ export async function createTask(projectId: string, data: any) {
       },
     });
     revalidatePath(`/projects/${projectId}`);
+    revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
     return task;
   } catch (error) {
     console.error("Error creating task:", error);
@@ -221,6 +237,8 @@ export async function updateTask(taskId: string, data: any) {
       data,
     });
     revalidatePath(`/projects/${task.projectId}`);
+    revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
     return task;
   } catch (error) {
     console.error("Error updating task:", error);
@@ -234,6 +252,8 @@ export async function deleteTask(taskId: string) {
       where: { id: taskId },
     });
     revalidatePath(`/projects/${task.projectId}`);
+    revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
     return task;
   } catch (error) {
     console.error("Error deleting task:", error);
@@ -248,6 +268,8 @@ export async function updateTaskStatus(taskId: string, status: string) {
       data: { status },
     });
     revalidatePath(`/projects/${task.projectId}`);
+    revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
     return task;
   } catch (error) {
     console.error("Error updating task status:", error);
@@ -262,6 +284,8 @@ export async function updateTaskProgress(taskId: string, actualPct: number) {
       data: { actualPct },
     });
     revalidatePath(`/projects/${task.projectId}`);
+    revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
     return task;
   } catch (error) {
     console.error("Error updating task progress:", error);
@@ -278,6 +302,8 @@ export async function createProjectEquipment(projectId: string, data: any) {
       },
     });
     revalidatePath(`/projects/${projectId}`);
+    revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
     return equipment;
   } catch (error) {
     console.error("Error creating equipment:", error);
@@ -292,6 +318,8 @@ export async function updateProjectEquipment(id: string, data: any) {
       data,
     });
     revalidatePath(`/projects/${equipment.projectId}`);
+    revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
     return equipment;
   } catch (error) {
     console.error("Error updating equipment:", error);
@@ -305,6 +333,8 @@ export async function deleteProjectEquipment(id: string) {
       where: { id },
     });
     revalidatePath(`/projects/${equipment.projectId}`);
+    revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
     return equipment;
   } catch (error) {
     console.error("Error deleting equipment:", error);
@@ -350,6 +380,8 @@ export async function generateJobForProject(projectId: string, companyCode: stri
     });
 
     revalidatePath("/projects");
+    revalidatePath("/projects/dashboard");
+    revalidatePath("/jobs");
     return JSON.parse(JSON.stringify(job));
   } catch (error) {
     console.error("Error generating job for project:", error);

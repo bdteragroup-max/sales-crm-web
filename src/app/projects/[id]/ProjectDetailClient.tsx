@@ -10,7 +10,7 @@ import DailyLogTab from './DailyLogTab';
 import WeeklyReportTab from './WeeklyReportTab';
 import EquipmentTab from './EquipmentTab';
 
-export default function ProjectDetailClient({ project, currentUser, isManager, allUsers }: { project: any, currentUser: any, isManager: boolean, allUsers: any[] }) {
+export default function ProjectDetailClient({ project, currentUser, isManager, allUsers, pos = [], prs = [] }: { project: any, currentUser: any, isManager: boolean, allUsers: any[], pos?: any[], prs?: any[] }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'tasks' | 'reports'>('dashboard');
   const [tasks, setTasks] = useState(project.tasks || []);
@@ -228,6 +228,10 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
     const pendingTasks = tasks.filter((t: any) => t.status === 'Pending').length;
     const progressTasks = tasks.filter((t: any) => t.status === 'In progress').length;
     
+    const totalExpenditures = pos.reduce((sum, po) => sum + Number(po.totalAmount || 0), 0);
+    const projectRevenue = Number(project.amountIncludingVat || project.projectValue || 0);
+    const profit = projectRevenue - totalExpenditures;
+
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
@@ -394,6 +398,68 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
               </dd>
             </div>
           </dl>
+        </div>
+
+        {/* NEW CARD: Procurement & Expenditures */}
+        <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4 lg:col-span-2">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-lg text-gray-900">ข้อมูลจัดซื้อและการใช้จ่าย (Procurement & Expenditures)</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+              <p className="text-xs font-bold text-gray-500 mb-1">มูลค่าโครงการ (Project Revenue)</p>
+              <p className="text-xl font-black text-gray-900">฿{projectRevenue.toLocaleString()}</p>
+            </div>
+            <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+              <p className="text-xs font-bold text-red-500 mb-1">ยอดจัดซื้อ (Total Expenditures)</p>
+              <p className="text-xl font-black text-brand-red">฿{totalExpenditures.toLocaleString()}</p>
+            </div>
+            <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+              <p className="text-xs font-bold text-emerald-600 mb-1">กำไรเบื้องต้น (Gross Profit)</p>
+              <p className="text-xl font-black text-emerald-600">฿{profit.toLocaleString()}</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 pt-4 border-t border-gray-100">
+            <div>
+              <h4 className="font-bold text-gray-700 text-sm mb-3">ใบสั่งซื้อ (PO) ล่าสุด ({pos.length})</h4>
+              {pos.length > 0 ? (
+                <div className="space-y-2">
+                  {pos.slice(0, 5).map((po: any) => (
+                    <div key={po.id} className="flex justify-between items-center bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                      <div>
+                        <span className="font-bold text-sm text-brand-red mr-2">{po.poNumber}</span>
+                        <span className="text-xs text-gray-500 truncate block max-w-[200px]">{po.vendorName}</span>
+                      </div>
+                      <span className="font-bold text-sm text-gray-900">฿{Number(po.totalAmount || 0).toLocaleString()}</span>
+                    </div>
+                  ))}
+                  {pos.length > 5 && <p className="text-xs text-center text-gray-500 mt-2">...และอีก {pos.length - 5} รายการ</p>}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400">ยังไม่มีข้อมูล PO</p>
+              )}
+            </div>
+            <div>
+              <h4 className="font-bold text-gray-700 text-sm mb-3">ใบขอซื้อ (PR) ล่าสุด ({prs.length})</h4>
+              {prs.length > 0 ? (
+                <div className="space-y-2">
+                  {prs.slice(0, 5).map((pr: any) => (
+                    <div key={pr.id} className="flex justify-between items-center bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                      <div>
+                        <span className="font-bold text-sm text-blue-600 mr-2">{pr.prNumber}</span>
+                        <span className="text-xs text-gray-500 truncate block max-w-[200px]">{pr.requestedBy}</span>
+                      </div>
+                      <span className="text-xs font-bold text-gray-500">{new Date(pr.createdAt).toLocaleDateString('th-TH')}</span>
+                    </div>
+                  ))}
+                  {prs.length > 5 && <p className="text-xs text-center text-gray-500 mt-2">...และอีก {prs.length - 5} รายการ</p>}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400">ยังไม่มีข้อมูล PR</p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     );
