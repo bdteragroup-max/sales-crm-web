@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Save, Plus, FileText, CheckCircle2, Loader2 } from 'lucide-react';
+import { Save, Plus, FileText, CheckCircle2, Loader2, Upload, Trash2, Paperclip } from 'lucide-react';
 import { saveCustomerRequirementHistory, updateCustomerRequirementHistory } from '@/app/actions/requirements';
 import { searchCompanies, searchContacts } from '@/app/actions/sales';
 import Card from '../components/Card';
@@ -12,6 +12,48 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    setIsUploading(true);
+    
+    try {
+      const newAttachments = [...(data.attachments || [])];
+      
+      for (let i = 0; i < e.target.files.length; i++) {
+        const file = e.target.files[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        const result = await res.json();
+        if (result.success && result.url) {
+          newAttachments.push({ name: file.name, url: result.url });
+        } else {
+          alert(`Failed to upload ${file.name}: ${result.error || 'Unknown error'}`);
+        }
+      }
+      
+      setData((prev: any) => ({ ...prev, attachments: newAttachments }));
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading files');
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    const newAttachments = [...(data.attachments || [])];
+    newAttachments.splice(index, 1);
+    setData((prev: any) => ({ ...prev, attachments: newAttachments }));
+  };
   const [data, setData] = useState<any>(initialData || {
     "วัน/เดือน/ปี": new Date().toISOString().split('T')[0],
     "พนักงานขายที่ดูแล": currentUser?.fullName || currentUser?.name || "",
@@ -753,8 +795,42 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
 
 
 
+            {/* === 3. แนบไฟล์ (Attachments) === */}
+            <Card title="3. แนบไฟล์ (Attachments)" collapsible defaultExpanded={true}>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-sm font-bold text-gray-700 rounded-xl cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm">
+                    {isUploading ? <Loader2 size={16} className="animate-spin text-gray-400" /> : <Upload size={16} className="text-gray-500" />}
+                    {isUploading ? 'กำลังอัปโหลด...' : 'เลือกไฟล์แนบ (PDF, รูปภาพ)'}
+                    <input type="file" multiple className="hidden" onChange={handleFileUpload} disabled={isUploading} accept="image/*,application/pdf" />
+                  </label>
+                  <span className="text-xs text-gray-400">รองรับไฟล์รูปภาพและ PDF</span>
+                </div>
+                
+                {data.attachments && data.attachments.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                    {data.attachments.map((file: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center shrink-0">
+                            <Paperclip size={14} className="text-gray-500" />
+                          </div>
+                          <a href={file.url} target="_blank" rel="noreferrer" className="text-sm font-medium text-blue-600 hover:underline truncate">
+                            {file.name}
+                          </a>
+                        </div>
+                        <button type="button" onClick={() => handleRemoveAttachment(idx)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+
             {/* === 4. หมายเหตุ (บังคับ) === */}
-            <Card title="หมายเหตุเพิ่มเติม (Notes) *" collapsible defaultExpanded={true}>
+            <Card title="4. หมายเหตุเพิ่มเติม (Notes) *" collapsible defaultExpanded={true}>
               <div className="flex flex-col gap-4">
                 <textarea
                   name="หมายเหตุ"

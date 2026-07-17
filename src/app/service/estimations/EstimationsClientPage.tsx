@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Calculator, CheckCircle2, Clock, FileText, Search, User, X, Printer, Building2, Users, CalendarDays } from 'lucide-react';
+import { Calculator, CheckCircle2, Clock, FileText, Search, User, X, Printer, Building2, Users, CalendarDays, Paperclip } from 'lucide-react';
 import Link from 'next/link';
 import { submitEstimation, assignEstimation } from '@/app/actions/estimations';
 
@@ -399,6 +399,23 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
                               <strong className="text-emerald-800">งบประมาณลูกค้า:</strong> {record.formData["งบประมาณลูกค้า"]}
                             </div>
                           )}
+
+                          {/* Render Attachments */}
+                          {record.formData.attachments && record.formData.attachments.length > 0 && (
+                            <div className="mt-3 border-t border-gray-100 pt-3">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">ไฟล์แนบ ({record.formData.attachments.length})</p>
+                              <div className="flex flex-col gap-2">
+                                {record.formData.attachments.map((file: any, idx: number) => (
+                                  <a key={idx} href={file.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors shadow-sm">
+                                    <div className="w-6 h-6 rounded bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                                      <Paperclip size={12} className="text-gray-500" />
+                                    </div>
+                                    <span className="text-xs font-medium text-blue-600 hover:underline truncate">{file.name}</span>
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                       
@@ -565,6 +582,22 @@ export default function EstimationsClientPage({ currentUser, initialRecords, ser
                 <p className="text-sm font-bold text-gray-800 mb-1">{selectedReq.companyName}</p>
                 <p className="text-xs text-gray-500">เซลล์: {selectedReq.salesperson}</p>
               </div>
+
+              {selectedReq.formData?.attachments && selectedReq.formData.attachments.length > 0 && (
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">ไฟล์แนบ</label>
+                  <div className="flex flex-col gap-2">
+                    {selectedReq.formData.attachments.map((file: any, idx: number) => (
+                      <a key={idx} href={file.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50 transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-white border border-gray-100 flex items-center justify-center shrink-0">
+                          <Paperclip size={14} className="text-gray-500" />
+                        </div>
+                        <span className="text-sm font-medium text-blue-600 hover:underline truncate">{file.name}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">ราคาประเมิน (บาท) <span className="text-red-500">*</span></label>

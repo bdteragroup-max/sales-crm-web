@@ -1482,7 +1482,7 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
   const expenseFilterStart = new Date(`${filterStartDateStr}T00:00:00.000Z`);
   const expenseFilterEnd = new Date(`${filterEndDateStr}T00:00:00.000Z`);
 
-  const branchExpenses = await prisma.branchExpense.findMany({
+  const branchExpensesRaw = await prisma.branchExpense.findMany({
     where: { 
       date: { gte: expenseFilterStart, lte: expenseFilterEnd },
       OR: [
@@ -1491,6 +1491,12 @@ export default async function Dashboard(props: {searchParams: Promise<{[key: str
       ]
     }
   });
+
+  const branchExpenses = branchExpensesRaw.map(e => ({
+    ...e,
+    amount: Number(e.amount || 0),
+    odometer: e.odometer ? Number(e.odometer) : null
+  }));
 
   const totalActiveRepsCount = await prisma.user.count({ where: { isActive: true } });
   
