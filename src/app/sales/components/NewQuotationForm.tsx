@@ -17,7 +17,7 @@ interface NewQuotationFormProps {
 }
 
 export default function NewQuotationForm({ businessTypes = [], initialData, currentUserSale, onSuccess }: NewQuotationFormProps) {
-  const isEditing = initialData && !initialData.isPrefilled;
+  const isEditing = initialData && !!initialData.id;
   const [status, setStatus] = useState('');
   const [winLossReason, setWinLossReason] = useState('');
   const [salesBeforeVat, setSalesBeforeVat] = useState(0);
