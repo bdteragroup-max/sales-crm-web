@@ -636,6 +636,41 @@ export async function notifyJobStepUpdate(jobId: string, stepKey: string, stepLa
     return;
   }
 
+  if (stepKey === 'accounting') {
+    const { customAccountingMessage } = await import('@/app/lib/lineNotify');
+    const { sendPushToUser } = await import('@/app/lib/pushNotification');
+    
+    const accountingMsg = await customAccountingMessage(job);
+    const pushPayload = {
+      title: '📝 งานรอตรวจสอบบัญชี',
+      body: `งาน ${job.jobNumber} ของลูกค้า ${job.customerName} รอการตรวจสอบบัญชี`,
+      url: `/jobs?jobId=${job.id}`,
+      category: 'accounting_job'
+    };
+    
+    if (salesLineId) await pushLineMessage(salesLineId, [accountingMsg]);
+    if (supervisorLineId) await pushLineMessage(supervisorLineId, [accountingMsg]);
+
+    if (salespersonId) {
+      await sendPushToUser(salespersonId, pushPayload).catch(console.error);
+    }
+
+    const accountingEmployees = await prisma.employeeSale.findMany({
+      where: { department: { contains: 'Account', mode: 'insensitive' } },
+      select: { employeeId: true, userId: true }
+    });
+
+    for (const emp of accountingEmployees) {
+      if (emp.userId) {
+        await sendPushToUser(emp.userId, pushPayload).catch(console.error);
+      }
+      if (!emp.employeeId) continue;
+      const lineId = await getLineUserIdByEmpId(emp.employeeId);
+      if (lineId) await pushLineMessage(lineId, [accountingMsg]);
+    }
+    return;
+  }
+
   // Default notification
   const lineIdsToNotify = new Set<string>();
   if (salesLineId) lineIdsToNotify.add(salesLineId);

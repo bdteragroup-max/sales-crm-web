@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useTransition, useEffect, useRef } from "react";
-import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight, X, Wrench, CheckCircle2, FolderOpen, Plus } from "lucide-react";
+import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight, X, Wrench, CheckCircle2, FolderOpen, Plus, Sparkles, User2 } from "lucide-react";
 import { updateJob, deleteJob, UpdateJobPayload, createStandaloneJob } from "./actions";
 import { JOB_TYPES } from "@/constants/job-types";
 import { useRouter } from "next/navigation";
@@ -45,6 +45,14 @@ type Job = {
   repairOrder?: any;
   project?: any;
   repairDeliveries?: any[];
+  quotation?: {
+    subject: string | null;
+    actualClosingAmount: number | null;
+    totalAmountBeforeVat: number | null;
+    company?: {
+      businessType: string | null;
+    } | null;
+  } | null;
 };
 
 const COMPANY_CODES = ["TP", "TG", "TE"];
@@ -225,141 +233,169 @@ function ExpandedRow({
   userRole: string;
   isMobile?: boolean;
 }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   const save = (field: keyof UpdateJobPayload) => (value: string) =>
     onUpdate(job.id, { [field]: value });
 
   const content = (
     <div className="bg-gray-50/50 p-4 md:p-5 w-full shadow-inner">
-          <div className="mb-5 pb-5 border-b border-gray-100">
-            <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">สถานะการดำเนินงาน (Timeline)</p>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-              <JobTimeline
-                jobId={job.id}
-                jobType={job.jobType}
-                currentStep={job.currentStep}
-                flowVariant={job.flowVariant}
-                stepLogs={job.stepLogs}
-                userName={userName}
-                userDept={userDept}
-                userRole={userRole}
-                isManager={isManager}
-                jobNumber={job.jobNumber}
-                customerName={job.customerName}
-                sellerName={job.sellerName || undefined}
-                paymentTasks={job.paymentTasks}
-                installationOrders={job.installationOrders}
-                repairOrder={job.repairOrder}
-                project={job.project}
-                repairDeliveries={job.repairDeliveries}
-              />
-            </div>
+      <div className="mb-5 pb-5 border-b border-gray-100">
+        <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">สถานะการดำเนินงาน (Timeline)</p>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+          <JobTimeline
+            jobId={job.id}
+            jobType={job.jobType}
+            currentStep={job.currentStep}
+            flowVariant={job.flowVariant}
+            stepLogs={job.stepLogs}
+            userName={userName}
+            userDept={userDept}
+            userRole={userRole}
+            isManager={isManager}
+            jobNumber={job.jobNumber}
+            customerName={job.customerName}
+            sellerName={job.sellerName || undefined}
+            paymentTasks={job.paymentTasks}
+            installationOrders={job.installationOrders}
+            repairOrder={job.repairOrder}
+            project={job.project}
+            repairDeliveries={job.repairDeliveries}
+          />
+        </div>
 
-            {job.deliveryMethod && (
-              <div className="mt-5 pt-5 border-t border-gray-100">
-                <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">ข้อมูลการจัดส่ง</p>
-                <div className="flex flex-wrap gap-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                  <div>
-                    <p className="text-[10px] text-gray-400 font-medium">รูปแบบ</p>
-                    <p className="text-xs font-bold text-gray-700">{job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' : 'บริษัทขนส่ง (Courier)'}</p>
-                  </div>
-                  {job.deliveryMethod === 'in-house' && job.deliveryDate && (
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-medium">วันที่จัดส่ง</p>
-                      <p className="text-xs font-bold text-gray-700">{formatDate(job.deliveryDate)}</p>
-                    </div>
-                  )}
-                  {job.deliveryMethod === 'courier' && (
-                    <>
-                      <div>
-                        <p className="text-[10px] text-gray-400 font-medium">บริษัทขนส่ง</p>
-                        <p className="text-xs font-bold text-brand-red">{job.courierCompany}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-gray-400 font-medium">เลขพัสดุ</p>
-                        <p className="text-xs font-bold text-gray-700">{job.trackingNumber}</p>
-                      </div>
-                    </>
-                  )}
-                  {job.trackingPhotoUrl && (
-                    <div className="w-full mt-2">
-                      <p className="text-[10px] text-gray-400 font-medium mb-2">สลิป/ใบเสร็จ</p>
-                      <a href={job.trackingPhotoUrl} target="_blank" rel="noreferrer" className="inline-block border border-gray-200 rounded-lg overflow-hidden hover:border-brand-red transition-colors shadow-sm">
-                        <img src={job.trackingPhotoUrl} alt="Tracking slip" className="h-32 object-contain bg-gray-50" />
-                      </a>
-                    </div>
-                  )}
+        {job.deliveryMethod && (
+          <div className="mt-5 pt-5 border-t border-gray-100">
+            <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">ข้อมูลการจัดส่ง</p>
+            <div className="flex flex-wrap gap-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+              <div>
+                <p className="text-[10px] text-gray-400 font-medium">รูปแบบ</p>
+                <p className="text-xs font-bold text-gray-700">{job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' : 'บริษัทขนส่ง (Courier)'}</p>
+              </div>
+              {job.deliveryMethod === 'in-house' && job.deliveryDate && (
+                <div>
+                  <p className="text-[10px] text-gray-400 font-medium">วันที่จัดส่ง</p>
+                  <p className="text-xs font-bold text-gray-700">{formatDate(job.deliveryDate)}</p>
                 </div>
-              </div>
-            )}
-
-            <JobProcurementStatus customerName={job.customerName} projectName={job.project?.name} />
-
-            {isManager && (
-              <div className="mt-5 pt-5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
-                <span className="text-xs text-brand-red font-bold flex items-center gap-1.5">
-                  <Wrench size={12} />
-                  แก้ไขสถานะแบบ Manual:
-                </span>
-                <select
-                  value={job.currentStep}
-                  onChange={(e) => onUpdate(job.id, { currentStep: e.target.value } as any)}
-                  className="text-xs border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 font-medium focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red max-w-[250px]"
-                >
-                  <option value={job.currentStep}>-- เลือกสถานะใหม่ --</option>
-                  {getSteps(job.jobType, job.flowVariant)?.map(s => (
-                    <option key={s.key} value={s.key}>{s.label}</option>
-                  )) || <option value={job.currentStep}>{job.currentStep}</option>}
-                </select>
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm mb-4">
-            <p className="text-[10px] font-bold text-gray-400 mb-4 uppercase tracking-widest">ข้อมูลงานเบื้องต้น</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
-              {/* Row 1 */}
-              <EditableField label="ชื่อลูกค้า" value={job.customerName} onSave={save("customerName")} />
-              <EditableField label="บริษัท" value={job.companyCode} type="select" options={COMPANY_CODES} onSave={save("companyCode")} />
-              <div>
-                <p className="text-xs text-gray-400 mb-0.5">พนักงานขาย</p>
-                <p className="text-sm text-gray-800">{job.sellerName || job.project?.contractSignatory || job.project?.manager?.fullName || <span className="text-gray-400 italic">—</span>}</p>
-              </div>
-              <EditableField label="ประเภทงาน" value={job.jobType} type="select" options={JOB_TYPES as unknown as string[]} onSave={save("jobType")} />
-
-              {/* Row 2 */}
-              <div>
-                <p className="text-xs text-gray-400 mb-0.5">ใบเสนอราคา</p>
-                <p className="text-sm text-gray-800">{job.quotationNumber || <span className="text-gray-400 italic">—</span>}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 mb-0.5">หมายเลข PO</p>
-                <p className="text-sm text-gray-800">{job.poNumber || <span className="text-gray-400 italic">—</span>}</p>
-              </div>
-              <EditableField label="วันที่ปิดการขาย" value={new Date(job.dateClosed).toISOString().slice(0, 10)} type="date" onSave={save("dateClosed")} />
-              <EditableField label="วันที่ต้องการจัดส่ง" value={job.deliveryDate ? new Date(job.deliveryDate).toISOString().slice(0, 10) : (job.project?.endDate ? new Date(job.project.endDate).toISOString().slice(0, 10) : (job.project?.deliveryDate ? new Date(job.project.deliveryDate).toISOString().slice(0, 10) : ""))} type="date" onSave={save("deliveryDate")} />
-
-              {/* Row 3 */}
-              <div className="sm:col-span-2">
-                <EditableField label="รายการสินค้า" value={job.item ?? ""} onSave={save("item")} />
-              </div>
-              <EditableField label="รูปแบบการชำระเงิน" value={job.paymentMethod || (job.project?.installment1 || job.project?.installment2 || job.project?.installment3 || job.project?.installment4 ? "แบ่งชำระ" : "")} onSave={save("paymentMethod")} />
-              <EditableField label="วันที่ชำระเงิน" value={job.paymentDate ? new Date(job.paymentDate).toISOString().slice(0, 10) : (job.project?.contractSigningDate ? new Date(job.project.contractSigningDate).toISOString().slice(0, 10) : (job.project?.paymentDate ? new Date(job.project.paymentDate).toISOString().slice(0, 10) : ""))} type="date" onSave={save("paymentDate")} />
+              )}
+              {job.deliveryMethod === 'courier' && (
+                <>
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">บริษัทขนส่ง</p>
+                    <p className="text-xs font-bold text-brand-red">{job.courierCompany}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">เลขพัสดุ</p>
+                    <p className="text-xs font-bold text-gray-700">{job.trackingNumber}</p>
+                  </div>
+                </>
+              )}
+              {job.trackingPhotoUrl && (
+                <div className="w-full mt-2">
+                  <p className="text-[10px] text-gray-400 font-medium mb-2">สลิป/ใบเสร็จ</p>
+                  <a href={job.trackingPhotoUrl} target="_blank" rel="noreferrer" className="inline-block border border-gray-200 rounded-lg overflow-hidden hover:border-brand-red transition-colors shadow-sm">
+                    <img src={job.trackingPhotoUrl} alt="Tracking slip" className="h-32 object-contain bg-gray-50" />
+                  </a>
+                </div>
+              )}
             </div>
           </div>
+        )}
 
-          {isManager && (
-            <div className="flex justify-end">
+        <JobProcurementStatus customerName={job.customerName} projectName={job.project?.name} />
+
+        {isManager && (
+          <div className="mt-5 pt-5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
+            <span className="text-xs text-brand-red font-bold flex items-center gap-1.5">
+              <Wrench size={12} />
+              แก้ไขสถานะแบบ Manual:
+            </span>
+            <select
+              value={job.currentStep}
+              onChange={(e) => onUpdate(job.id, { currentStep: e.target.value } as any)}
+              className="text-xs border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 font-medium focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red max-w-[250px]"
+            >
+              <option value={job.currentStep}>-- เลือกสถานะใหม่ --</option>
+              {getSteps(job.jobType, job.flowVariant)?.map(s => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              )) || <option value={job.currentStep}>{job.currentStep}</option>}
+            </select>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm mb-4">
+        <p className="text-[10px] font-bold text-gray-400 mb-4 uppercase tracking-widest">ข้อมูลงานเบื้องต้น</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
+          {/* Row 1 */}
+          <EditableField label="ชื่อลูกค้า" value={job.customerName} onSave={save("customerName")} />
+          <EditableField label="บริษัท" value={job.companyCode} type="select" options={COMPANY_CODES} onSave={save("companyCode")} />
+          <div>
+            <p className="text-xs text-gray-400 mb-0.5">พนักงานขาย</p>
+            <p className="text-sm text-gray-800">{job.sellerName || job.project?.contractSignatory || job.project?.manager?.fullName || <span className="text-gray-400 italic">—</span>}</p>
+          </div>
+          <EditableField label="ประเภทงาน" value={job.jobType} type="select" options={JOB_TYPES as unknown as string[]} onSave={save("jobType")} />
+
+          {/* Row 2 */}
+          <div>
+            <p className="text-xs text-gray-400 mb-0.5">ใบเสนอราคา</p>
+            <p className="text-sm text-gray-800">{job.quotationNumber || <span className="text-gray-400 italic">—</span>}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400 mb-0.5">หมายเลข PO</p>
+            <p className="text-sm text-gray-800">{job.poNumber || <span className="text-gray-400 italic">—</span>}</p>
+          </div>
+          <EditableField label="วันที่ปิดการขาย" value={new Date(job.dateClosed).toISOString().slice(0, 10)} type="date" onSave={save("dateClosed")} />
+          <EditableField label="วันที่ต้องการจัดส่ง" value={job.deliveryDate ? new Date(job.deliveryDate).toISOString().slice(0, 10) : (job.project?.endDate ? new Date(job.project.endDate).toISOString().slice(0, 10) : (job.project?.deliveryDate ? new Date(job.project.deliveryDate).toISOString().slice(0, 10) : ""))} type="date" onSave={save("deliveryDate")} />
+
+          {/* Row 3 */}
+          <div className="sm:col-span-2">
+            <EditableField label="รายการสินค้า" value={job.item ?? ""} onSave={save("item")} />
+          </div>
+          <EditableField label="รูปแบบการชำระเงิน" value={job.paymentMethod || (job.project?.installment1 || job.project?.installment2 || job.project?.installment3 || job.project?.installment4 ? "แบ่งชำระ" : "")} onSave={save("paymentMethod")} />
+          <EditableField label="วันที่ชำระเงิน" value={job.paymentDate ? new Date(job.paymentDate).toISOString().slice(0, 10) : (job.project?.contractSigningDate ? new Date(job.project.contractSigningDate).toISOString().slice(0, 10) : (job.project?.paymentDate ? new Date(job.project.paymentDate).toISOString().slice(0, 10) : ""))} type="date" onSave={save("paymentDate")} />
+        </div>
+      </div>
+
+      {isManager && (
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="text-xs text-red-500 font-bold hover:text-white hover:bg-red-500 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+          >
+            <Trash2 size={12} /> ลบงานนี้
+          </button>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl animate-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-black text-gray-900 mb-2">ยืนยันการลบงาน</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              คุณต้องการลบงาน <span className="font-bold text-brand-red">{job.jobNumber}</span> ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                ยกเลิก
+              </button>
               <button
                 onClick={() => {
-                  if (confirm(`คุณต้องการลบงาน ${job.jobNumber} ใช่หรือไม่?`)) onDelete(job.id);
+                  setShowDeleteConfirm(false);
+                  onDelete(job.id);
                 }}
-                className="text-xs text-red-500 font-bold hover:text-white hover:bg-red-500 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                className="px-4 py-2 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
               >
-                <Trash2 size={12} /> ลบงานนี้
+                ยืนยันการลบ
               </button>
             </div>
-          )}
+          </div>
         </div>
+      )}
+    </div>
   );
 
   if (isMobile) {
@@ -372,7 +408,7 @@ function ExpandedRow({
 
   return (
     <tr className="animate-in slide-in-from-top-1 fade-in duration-200">
-      <td colSpan={12} className="p-0 border-b border-gray-100">
+      <td colSpan={13} className="p-0 border-b border-gray-100">
         {content}
       </td>
     </tr>
@@ -839,7 +875,7 @@ export default function JobsClientPage({
             const derivedSellerName = job.sellerName || job.project?.contractSignatory || job.project?.manager?.fullName || "—";
             const hasInstallments = job.project?.installment1 || job.project?.installment2 || job.project?.installment3 || job.project?.installment4;
             const derivedPaymentMethod = job.paymentMethod || (hasInstallments ? "แบ่งชำระ" : "—");
-            
+
             return (
               <React.Fragment key={`mobile-${job.id}`}>
                 <div
@@ -858,8 +894,16 @@ export default function JobsClientPage({
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <p className="text-sm font-bold text-gray-900 line-clamp-2">{job.customerName}</p>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-bold text-gray-900 line-clamp-2">{job.customerName}</p>
+                    </div>
+                    {job.quotation?.company?.businessType && (
+                      <span className="inline-block text-[8px] bg-slate-100 text-slate-500 border border-slate-200/50 px-1.5 py-0.5 rounded font-bold w-fit mt-0.5">
+                        {job.quotation.company.businessType}
+                      </span>
+                    )}
+
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                       <JobTypeBadge type={job.jobType} />
                       <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border
                         ${isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
@@ -875,6 +919,26 @@ export default function JobsClientPage({
                     </div>
                   </div>
 
+                  <div className="border-t border-gray-100 my-3" />
+                  
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">ยอดประเมิน</p>
+                      <p className="text-xs font-black text-gray-800 font-mono">
+                        {(job.quotation?.actualClosingAmount || job.quotation?.totalAmountBeforeVat) ? 
+                          `฿${(Number(job.quotation.actualClosingAmount) || Number(job.quotation.totalAmountBeforeVat) || 0).toLocaleString('th-TH', { maximumFractionDigits: 0 })}` 
+                          : "—"}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg">
+                      <User2 size={10} className="text-gray-400 shrink-0" />
+                      <span className="text-[9px] font-bold text-gray-600 truncate max-w-[70px]" title={derivedSellerName}>
+                        {derivedSellerName.split(' ')[0]}
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-2 mt-2 pt-3 border-t border-gray-100 text-[11px]">
                     <div>
                       <span className="text-gray-400 font-medium">ใบเสนอราคา:</span>
@@ -883,10 +947,6 @@ export default function JobsClientPage({
                     <div>
                       <span className="text-gray-400 font-medium">หมายเลข PO:</span>
                       <p className="font-mono font-black text-gray-600">{job.poNumber ?? "—"}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-400 font-medium">พนักงานขาย:</span>
-                      <p className="font-bold text-gray-700">{derivedSellerName}</p>
                     </div>
                     <div>
                       <span className="text-gray-400 font-medium">การชำระเงิน:</span>
@@ -924,10 +984,11 @@ export default function JobsClientPage({
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">สถานะ</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">บริษัท</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ประเภทงาน</th>
-                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่ปิดการขาย</th>
-                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">วันที่ต้องการ / แผนงาน</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ยอดประเมิน</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ลูกค้า</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันปิดการขาย</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">การชำระเงิน</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">นัดหมาย</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ใบเสนอราคา</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">หมายเลข PO</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">พนักงานขาย</th>
@@ -936,7 +997,7 @@ export default function JobsClientPage({
             <tbody className="divide-y divide-gray-50">
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={12} className="text-center py-16 text-gray-400 font-medium">
+                  <td colSpan={13} className="text-center py-16 text-gray-400 font-medium">
                     ไม่พบงานที่ตรงกับเงื่อนไข
                   </td>
                 </tr>
@@ -1000,7 +1061,7 @@ export default function JobsClientPage({
                         <CompanyBadge code={job.companyCode} />
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1 w-32">
                           <JobTypeBadge type={job.jobType} />
                           {(job.jobType === 'Project' || job.jobType === 'งานโปรเจค') && (
                             job.project ? (
@@ -1016,9 +1077,42 @@ export default function JobsClientPage({
                         </div>
                       </td>
                       <td className="px-5 py-4">
+                        <span className="text-xs font-mono font-bold text-gray-700">
+                          {(job.quotation?.actualClosingAmount || job.quotation?.totalAmountBeforeVat) ? 
+                            `฿${(Number(job.quotation.actualClosingAmount) || Number(job.quotation.totalAmountBeforeVat) || 0).toLocaleString('th-TH', { maximumFractionDigits: 0 })}` 
+                            : "—"}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex flex-col gap-1 w-40">
+                          <p className="text-xs font-bold text-gray-900 line-clamp-2" title={job.customerName}>{job.customerName}</p>
+                          {job.quotation?.company?.businessType && (
+                            <span className="text-[9px] font-bold text-gray-500 bg-gray-100 w-fit px-1.5 py-0.5 rounded">
+                              {job.quotation.company.businessType}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
                         <span className="text-[11px] font-bold text-gray-400 whitespace-nowrap">
                           {formatDate(job.dateClosed)}
                         </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex flex-col gap-1">
+                          {derivedPaymentMethod ? (
+                            <span className="text-[10px] font-bold whitespace-nowrap bg-green-50 border border-green-100 text-green-700 px-2 py-0.5 rounded-md w-fit">
+                              {derivedPaymentMethod}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300 text-[11px]">—</span>
+                          )}
+                          {derivedPaymentDate && (
+                            <span className="text-[9px] font-bold text-gray-500 whitespace-nowrap">
+                              จ่าย: {new Date(derivedPaymentDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-5 py-4 text-center">
                         <div className="flex flex-col items-center gap-1.5">
@@ -1037,27 +1131,6 @@ export default function JobsClientPage({
                           )}
                         </div>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-xs font-bold text-gray-900 truncate max-w-[180px]" title={job.customerName}>
-                          {job.customerName}
-                        </p>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex flex-col gap-1">
-                          {derivedPaymentMethod ? (
-                            <span className="text-[10px] font-bold whitespace-nowrap bg-green-50 border border-green-100 text-green-700 px-2 py-0.5 rounded-md w-fit">
-                              {derivedPaymentMethod}
-                            </span>
-                          ) : (
-                            <span className="text-gray-300 text-[11px]">—</span>
-                          )}
-                          {derivedPaymentDate && (
-                            <span className="text-[9px] font-bold text-gray-500 whitespace-nowrap">
-                              จ่าย: {new Date(derivedPaymentDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                            </span>
-                          )}
-                        </div>
-                      </td>
                       <td className="px-5 py-4 font-mono text-[11px] font-black text-gray-800 hover:text-brand-red hover:underline transition-colors">
                         {job.quotationNumber ?? "—"}
                       </td>
@@ -1065,9 +1138,12 @@ export default function JobsClientPage({
                         {job.poNumber ?? <span className="text-gray-300">—</span>}
                       </td>
                       <td className="px-5 py-4">
-                        <p className="text-[11px] font-bold text-gray-600 whitespace-nowrap">
-                          {derivedSellerName}
-                        </p>
+                        <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg w-fit">
+                          <User2 size={10} className="text-gray-400 shrink-0" />
+                          <span className="text-[10px] font-bold text-gray-600 truncate max-w-[80px]" title={derivedSellerName}>
+                            {derivedSellerName.split(' ')[0]}
+                          </span>
+                        </div>
                       </td>
                     </tr>
 

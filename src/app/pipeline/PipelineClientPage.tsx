@@ -280,7 +280,7 @@ export default function PipelineClientPage({
     await executeMove(id, nextDbStatus)
   }
 
-  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string, paymentMethod?: string, installments?: any[], salesOrderDate?: string, deliveryDate?: string, creditTerms?: string, creditDocsUrl?: string, billingRegulations?: string, percentageTerms?: string, paymentDate?: string, companyId?: string }) => {
+  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string, paymentMethod?: string, installments?: any[], salesOrderDate?: string, deliveryDate?: string, creditTerms?: string, creditDocsUrl?: string, billingRegulations?: string, percentageTerms?: string, paymentDate?: string, companyId?: string, companyCode?: string, workName?: string, billingDocsUrl?: string }) => {
     const oldQuotations = [...quotations]
     setQuotations(prev => {
       const updated = prev.map(q => q.id === id ? { 
@@ -868,7 +868,10 @@ export default function PipelineClientPage({
               billingRegulations: data.billingRegulations,
               percentageTerms: data.percentageTerms,
               paymentDate: data.paymentDate,
-              companyId: data.companyId
+              companyId: data.companyId,
+              companyCode: data.companyCode,
+              workName: data.workName,
+              billingDocsUrl: data.billingDocsUrl
             });
             setPendingTransition(null);
           }}
@@ -893,7 +896,10 @@ export default function PipelineClientPage({
               billingRegulations: data.billingRegulations,
               percentageTerms: data.percentageTerms,
               paymentDate: data.paymentDate,
-              companyId: data.companyId
+              companyId: data.companyId,
+              companyCode: data.companyCode,
+              workName: data.workName,
+              billingDocsUrl: data.billingDocsUrl
             });
             setPendingTransition(null);
           }}

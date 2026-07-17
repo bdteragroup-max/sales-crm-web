@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { getSteps, getWorkflow, type StepDef } from "@/app/lib/job-workflow"
 import { confirmJobStep, rejectJobStep } from "@/app/actions/jobs"
 import { XCircle, Edit2 } from "lucide-react"
-import { Check, CheckCircle2, Loader2 } from "lucide-react"
+import { Check, CheckCircle2, Loader2, Briefcase, Package, ShoppingCart, Factory, Wrench, FolderOpen, FileText, Truck, ListPlus, ShieldCheck } from "lucide-react"
 import Link from "next/link"
 type StepLog = {
   step:        string
@@ -33,6 +33,22 @@ type Props = {
   project?: any
   repairDeliveries?: any[]
 }
+
+const getStepIcon = (key: string, isDone: boolean, isActive: boolean, isFuture: boolean) => {
+  const k = key.toLowerCase();
+  let Icon = ShieldCheck;
+  if (k.includes('sale')) Icon = Briefcase;
+  else if (k.includes('store')) Icon = Package;
+  else if (k.includes('purchase')) Icon = ShoppingCart;
+  else if (k.includes('production')) Icon = Factory;
+  else if (k.includes('service')) Icon = Wrench;
+  else if (k.includes('project')) Icon = FolderOpen;
+  else if (k.includes('account')) Icon = FileText;
+  else if (k.includes('delivery')) Icon = Truck;
+  else if (k.includes('variant')) Icon = ListPlus;
+  
+  return <Icon className={`w-6 h-6 mb-2 transition-colors duration-500 ${isDone ? "text-brand-red" : isActive ? "text-brand-red drop-shadow-md" : "text-gray-300"}`} />;
+};
 
 export default function JobTimeline({
   jobId, jobType, currentStep, flowVariant, stepLogs, userName, userDept, userRole, isManager,
@@ -319,7 +335,7 @@ export default function JobTimeline({
       {/* Timeline steps */}
       <div className="relative w-full overflow-x-auto pb-6 scrollbar-hide">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <ol className="flex items-start justify-between min-w-[500px] w-full relative pt-2">
+          <ol className="flex flex-col md:flex-row md:items-start justify-between md:min-w-[500px] w-full relative pt-2 gap-6 md:gap-0">
             {steps.map((step, idx) => {
               const log      = stepLogs.find((l) => l.step === step.key)
               const isDone   = !!log
@@ -327,39 +343,54 @@ export default function JobTimeline({
               const isFuture = idx > currentIdx && !isDone
 
               return (
-                <li key={step.key} className="flex flex-col items-center relative z-10 flex-1 px-1 group">
-                  {/* Connector line to next step */}
+                <li key={step.key} className="flex flex-row md:flex-col items-start md:items-center relative z-10 flex-1 px-0 md:px-1 group">
+                  
+                  {/* Desktop Horizontal Line */}
                   {idx < steps.length - 1 && (
                     <div 
-                      className={`absolute top-[16px] left-[50%] w-full h-[4px] z-[-1] transition-all duration-500 rounded-full
-                        ${isDone && currentIdx > idx ? "bg-emerald-400" : "bg-gray-100"}
+                      className={`hidden md:block absolute top-[48px] left-[50%] w-full h-[3px] z-[-1] transition-all duration-500 rounded-full
+                        ${isDone && currentIdx > idx ? "bg-brand-red" : "bg-gray-200"}
                       `} 
                     />
                   )}
 
-                  {/* Step node */}
-                  <div
-                    className={`
-                      flex items-center justify-center text-xs font-bold transition-all duration-500 shadow-sm
-                      ${isDone   ? "w-8 h-8 rounded-full bg-emerald-500 text-white ring-4 ring-emerald-50 scale-100" : ""}
-                      ${isActive ? "w-10 h-10 rounded-full bg-gradient-to-tr from-brand-red to-red-400 text-white ring-4 ring-red-50 scale-110 shadow-red-200 shadow-lg" : ""}
-                      ${isFuture ? "w-8 h-8 rounded-full bg-white border-2 border-gray-200 text-gray-400 scale-100" : ""}
-                    `}
-                  >
-                    {isDone ? (
-                      <Check className="w-5 h-5 stroke-[3]" />
-                    ) : isActive ? (
-                      <span className="text-sm">{idx + 1}</span>
-                    ) : (
-                      idx + 1
-                    )}
+                  {/* Mobile Vertical Line */}
+                  {idx < steps.length - 1 && (
+                    <div 
+                      className={`md:hidden absolute top-[56px] left-[27px] w-[3px] h-full z-[-1] transition-all duration-500 rounded-full
+                        ${isDone && currentIdx > idx ? "bg-brand-red" : "bg-gray-200"}
+                      `} 
+                    />
+                  )}
+
+                  {/* Icon and Node container */}
+                  <div className="flex flex-col items-center w-14 shrink-0">
+                    {getStepIcon(step.key, isDone, isActive, isFuture)}
+
+                    {/* Step node */}
+                    <div
+                      className={`
+                        flex items-center justify-center text-xs font-bold transition-all duration-500 shadow-sm
+                        ${isDone   ? "w-8 h-8 rounded-full bg-brand-red text-white ring-4 ring-red-50 scale-100" : ""}
+                        ${isActive ? "w-10 h-10 rounded-full bg-gradient-to-tr from-brand-red to-red-400 text-white ring-4 ring-red-100 scale-110 shadow-red-200 shadow-lg" : ""}
+                        ${isFuture ? "w-8 h-8 rounded-full bg-white border-2 border-gray-200 text-gray-400 scale-100" : ""}
+                      `}
+                    >
+                      {isDone ? (
+                        <Check className="w-5 h-5 stroke-[3]" />
+                      ) : isActive ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        idx + 1
+                      )}
+                    </div>
                   </div>
                   
                   {/* Text Label */}
-                  <div className="flex flex-col items-center mt-4">
-                    <span className={`text-[11px] md:text-[13px] font-bold text-center leading-tight break-words max-w-[90px] transition-colors
-                      ${isDone   ? "text-emerald-700" : ""}
-                      ${isActive ? "text-gray-900" : ""}
+                  <div className="flex flex-col items-start md:items-center ml-4 md:ml-0 mt-2 md:mt-3 pb-6 md:pb-0">
+                    <span className={`text-sm md:text-[13px] font-bold text-left md:text-center leading-tight break-words max-w-[200px] md:max-w-[90px] transition-colors
+                      ${isDone   ? "text-brand-red" : ""}
+                      ${isActive ? "text-brand-red" : ""}
                       ${isFuture ? "text-gray-400" : ""}
                     `}>
                       {step.label}
@@ -370,8 +401,8 @@ export default function JobTimeline({
                       </span>
                     )}
                     {isActive && blockReasonMessage && (
-                      <div className="mt-2 bg-red-50 text-red-600 px-2 py-1 rounded-md border border-red-100 max-w-[120px]">
-                        <p className="text-[10px] font-bold text-center leading-tight">
+                      <div className="mt-2 bg-red-50 text-red-600 px-2 py-1 rounded-md border border-red-100 max-w-[200px] md:max-w-[120px]">
+                        <p className="text-[10px] font-bold text-left md:text-center leading-tight">
                           {blockReasonMessage}
                         </p>
                       </div>

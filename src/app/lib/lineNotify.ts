@@ -1499,3 +1499,55 @@ export function customMarketingLeadMessage(lead: any, salespersonName: string) {
     },
   };
 }
+
+export function customAccountingMessage(job: any) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://example.com';
+  
+  return {
+    type: 'flex',
+    altText: `📝 งานรอตรวจสอบบัญชี ${job.jobNumber}`,
+    contents: {
+      type: 'bubble',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#10b981', // Emerald green for accounting
+        contents: [
+          {
+            type: 'text',
+            text: '📝 งานรอตรวจสอบบัญชี',
+            color: '#ffffff',
+            weight: 'bold',
+          },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          { type: 'text', text: `หมายเลขงาน: ${job.jobNumber}`, weight: 'bold', size: 'md' },
+          { type: 'text', text: `ลูกค้า: ${job.customerName}`, size: 'sm', color: '#666666' },
+          { type: 'separator', margin: 'md' },
+          { type: 'text', text: 'งานได้ดำเนินการมาถึงขั้นตอนบัญชี กรุณาตรวจสอบเอกสารและข้อมูลการชำระเงิน', size: 'sm', wrap: true, margin: 'md', color: '#111111' },
+          { type: 'text', text: `เวลา: ${formatBkkTime(new Date())}`, size: 'xs', color: '#999999', margin: 'md' },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'button',
+            style: 'primary',
+            color: '#10b981',
+            action: {
+              type: 'uri',
+              label: 'ตรวจสอบบัญชี',
+              uri: `${appUrl}/jobs?jobId=${job.id}`,
+            },
+          },
+        ],
+      },
+    },
+  };
+}
