@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import { getSteps, getWorkflow, type StepDef } from "@/app/lib/job-workflow"
-import { confirmJobStep, rejectJobStep } from "@/app/actions/jobs"
+import { confirmJobStep, rejectJobStep, getPOsByJobName } from "@/app/actions/jobs"
 import { XCircle, Edit2 } from "lucide-react"
 import { Check, CheckCircle2, Loader2, Briefcase, Package, ShoppingCart, Factory, Wrench, FolderOpen, FileText, Truck, ListPlus, ShieldCheck } from "lucide-react"
 import Link from "next/link"
@@ -76,6 +76,9 @@ export default function JobTimeline({
   const [poNumber, setPoNumber] = useState("")
   const [expectedDate, setExpectedDate] = useState("")
 
+  const [relatedPOs, setRelatedPOs] = useState<any[]>([])
+  const [loadingPOs, setLoadingPOs] = useState(false)
+
   const wf        = getWorkflow(jobType)
   const steps     = getSteps(jobType, flowVariant)
   let currentIdx = steps.findIndex((s) => s.key === currentStep)
@@ -114,14 +117,8 @@ export default function JobTimeline({
         alert("กรุณาระบุรายการสินค้าที่ต้องการสั่งซื้อ");
         return;
       }
-      if (activeStep.key === "purchase_find_supplier" && !supplierName) {
-        alert("กรุณาระบุชื่อร้านค้า/Supplier");
-        return;
-      }
-      if (activeStep.key === "purchase_po" && !poNumber) {
-        alert("กรุณาระบุเลขที่ PO");
-        return;
-      }
+
+
 
       const prItems = prItemsText ? [{ text: prItemsText }] : undefined;
       const numTotalAmount = totalAmount ? parseFloat(totalAmount) : undefined;
@@ -441,41 +438,58 @@ export default function JobTimeline({
             </div>
           )}
 
-          {activeStep.key === "purchase_find_supplier" && (
-            <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200 text-sm shadow-sm space-y-3">
-              <p className="font-bold text-gray-800 mb-1">ข้อมูลร้านค้า (Supplier)</p>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 mb-1">ชื่อร้านค้า / Supplier *</label>
-                <input type="text" value={supplierName} onChange={e => setSupplierName(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" placeholder="กรอกชื่อร้าน..." />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 mb-1">เบอร์ติดต่อร้านค้า</label>
-                <input type="text" value={supplierPhone} onChange={e => setSupplierPhone(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" placeholder="กรอกเบอร์โทร..." />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 mb-1">ราคารวม (บาท)</label>
-                <input type="number" value={totalAmount} onChange={e => setTotalAmount(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" placeholder="0.00" />
-              </div>
-            </div>
-          )}
 
-          {activeStep.key === "sales_acknowledge_po" && (
-            <div className="mb-4 p-4 bg-red-50 rounded-lg border border-red-200 text-sm shadow-sm space-y-3">
-              <p className="font-bold text-brand-red mb-1">ตรวจสอบและรับทราบ PO</p>
-              <p className="text-gray-700">กรุณาตรวจสอบข้อมูลการสั่งซื้อ เมื่อถูกต้องครบถ้วนแล้ว กดยืนยันเพื่อรับทราบ</p>
-            </div>
-          )}
 
-          {activeStep.key === "purchase_po" && (
-            <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200 text-sm shadow-sm space-y-3">
-              <p className="font-bold text-gray-800 mb-1">บันทึก PO</p>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 mb-1">เลขที่เอกสาร PO *</label>
-                <input type="text" value={poNumber} onChange={e => setPoNumber(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" placeholder="เช่น PO-6601001" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 mb-1">วันที่คาดว่าจะได้รับสินค้า</label>
-                <input type="date" value={expectedDate} onChange={e => setExpectedDate(e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red" />
+          {activeStep.key === "store_receive" && (
+            <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200 text-sm shadow-sm flex flex-col gap-3">
+              <p className="font-bold text-gray-800">ตรวจสอบและรับสินค้า (Goods Receipt & Inspection)</p>
+              
+              {loadingPOs ? (
+                <div className="flex items-center gap-2 text-gray-500 py-4 justify-center">
+                  <Loader2 className="w-5 h-5 animate-spin" /> กำลังโหลดข้อมูลใบสั่งซื้อ...
+                </div>
+              ) : relatedPOs.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 border-y border-gray-200">
+                        <th className="px-3 py-2 font-semibold text-gray-600">เลขที่ PO</th>
+                        <th className="px-3 py-2 font-semibold text-gray-600">โปรเจกต์</th>
+                        <th className="px-3 py-2 font-semibold text-gray-600">ร้านค้า (Vendor)</th>
+                        <th className="px-3 py-2 font-semibold text-gray-600">รายการสินค้า (Item List)</th>
+                        <th className="px-3 py-2 font-semibold text-gray-600">วันที่จัดส่ง (Delivery Date)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {relatedPOs.map((po, i) => (
+                        <tr key={i} className="hover:bg-gray-50/50">
+                          <td className="px-3 py-2 font-medium text-brand-red whitespace-nowrap">{po.poNumber || "-"}</td>
+                          <td className="px-3 py-2 text-gray-700">{po.projectName || po.jobName || "-"}</td>
+                          <td className="px-3 py-2 text-gray-700">{po.vendorName || "-"}</td>
+                          <td className="px-3 py-2 text-gray-700 max-w-[200px] truncate" title={po.itemList || ""}>{po.itemList || "-"}</td>
+                          <td className="px-3 py-2 text-gray-600 whitespace-nowrap">
+                            {po.deliveryDate ? new Date(po.deliveryDate).toLocaleDateString('th-TH') : "-"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-gray-500 text-xs italic py-2 text-center bg-gray-50 rounded-lg">
+                  ไม่พบใบสั่งซื้อ (PO) ที่เกี่ยวข้องกับลูกค้านี้
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-2 pt-2 border-t border-gray-100">
+                <Link
+                  href={`/admin/procurement/po?search=${encodeURIComponent(customerName || '')}`}
+                  target="_blank"
+                  className="bg-brand-red/10 text-brand-red font-semibold px-4 py-2.5 rounded-lg hover:bg-brand-red/20 transition-colors flex items-center gap-2 justify-center w-full sm:w-auto"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> 
+                  เปิดระบบจัดซื้อ (PO) 
+                </Link>
               </div>
             </div>
           )}

@@ -39,6 +39,11 @@ export type EmployeeSale = $Result.DefaultSelection<Prisma.$EmployeeSalePayload>
  */
 export type Company = $Result.DefaultSelection<Prisma.$CompanyPayload>
 /**
+ * Model CompanyInteraction
+ * 
+ */
+export type CompanyInteraction = $Result.DefaultSelection<Prisma.$CompanyInteractionPayload>
+/**
  * Model Contact
  * 
  */
@@ -704,6 +709,16 @@ export class PrismaClient<
     * ```
     */
   get company(): Prisma.CompanyDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.companyInteraction`: Exposes CRUD operations for the **CompanyInteraction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CompanyInteractions
+    * const companyInteractions = await prisma.companyInteraction.findMany()
+    * ```
+    */
+  get companyInteraction(): Prisma.CompanyInteractionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.contact`: Exposes CRUD operations for the **Contact** model.
@@ -2133,6 +2148,7 @@ export namespace Prisma {
     Schedule: 'Schedule',
     EmployeeSale: 'EmployeeSale',
     Company: 'Company',
+    CompanyInteraction: 'CompanyInteraction',
     Contact: 'Contact',
     Quotation: 'Quotation',
     Telesale: 'Telesale',
@@ -2247,7 +2263,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2618,6 +2634,80 @@ export namespace Prisma {
           count: {
             args: Prisma.CompanyCountArgs<ExtArgs>
             result: $Utils.Optional<CompanyCountAggregateOutputType> | number
+          }
+        }
+      }
+      CompanyInteraction: {
+        payload: Prisma.$CompanyInteractionPayload<ExtArgs>
+        fields: Prisma.CompanyInteractionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CompanyInteractionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CompanyInteractionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload>
+          }
+          findFirst: {
+            args: Prisma.CompanyInteractionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CompanyInteractionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload>
+          }
+          findMany: {
+            args: Prisma.CompanyInteractionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload>[]
+          }
+          create: {
+            args: Prisma.CompanyInteractionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload>
+          }
+          createMany: {
+            args: Prisma.CompanyInteractionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CompanyInteractionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload>[]
+          }
+          delete: {
+            args: Prisma.CompanyInteractionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload>
+          }
+          update: {
+            args: Prisma.CompanyInteractionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload>
+          }
+          deleteMany: {
+            args: Prisma.CompanyInteractionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CompanyInteractionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CompanyInteractionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload>[]
+          }
+          upsert: {
+            args: Prisma.CompanyInteractionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInteractionPayload>
+          }
+          aggregate: {
+            args: Prisma.CompanyInteractionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCompanyInteraction>
+          }
+          groupBy: {
+            args: Prisma.CompanyInteractionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CompanyInteractionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CompanyInteractionCountArgs<ExtArgs>
+            result: $Utils.Optional<CompanyInteractionCountAggregateOutputType> | number
           }
         }
       }
@@ -10060,6 +10150,7 @@ export namespace Prisma {
     schedule?: ScheduleOmit
     employeeSale?: EmployeeSaleOmit
     company?: CompanyOmit
+    companyInteraction?: CompanyInteractionOmit
     contact?: ContactOmit
     quotation?: QuotationOmit
     telesale?: TelesaleOmit
@@ -10240,6 +10331,7 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     assignedCompanies: number
+    companyInteractions: number
     estimatedRequirements: number
     customerRequirements: number
     installationOrders: number
@@ -10265,6 +10357,7 @@ export namespace Prisma {
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignedCompanies?: boolean | UserCountOutputTypeCountAssignedCompaniesArgs
+    companyInteractions?: boolean | UserCountOutputTypeCountCompanyInteractionsArgs
     estimatedRequirements?: boolean | UserCountOutputTypeCountEstimatedRequirementsArgs
     customerRequirements?: boolean | UserCountOutputTypeCountCustomerRequirementsArgs
     installationOrders?: boolean | UserCountOutputTypeCountInstallationOrdersArgs
@@ -10304,6 +10397,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAssignedCompaniesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CompanyWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCompanyInteractionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyInteractionWhereInput
   }
 
   /**
@@ -10459,6 +10559,7 @@ export namespace Prisma {
    */
 
   export type CompanyCountOutputType = {
+    interactions: number
     contacts: number
     orders: number
     quotations: number
@@ -10468,6 +10569,7 @@ export namespace Prisma {
   }
 
   export type CompanyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    interactions?: boolean | CompanyCountOutputTypeCountInteractionsArgs
     contacts?: boolean | CompanyCountOutputTypeCountContactsArgs
     orders?: boolean | CompanyCountOutputTypeCountOrdersArgs
     quotations?: boolean | CompanyCountOutputTypeCountQuotationsArgs
@@ -10485,6 +10587,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the CompanyCountOutputType
      */
     select?: CompanyCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountInteractionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyInteractionWhereInput
   }
 
   /**
@@ -12116,6 +12225,7 @@ export namespace Prisma {
     otpExpiresAt?: boolean
     isActive?: boolean
     assignedCompanies?: boolean | User$assignedCompaniesArgs<ExtArgs>
+    companyInteractions?: boolean | User$companyInteractionsArgs<ExtArgs>
     estimatedRequirements?: boolean | User$estimatedRequirementsArgs<ExtArgs>
     customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
     installationOrders?: boolean | User$installationOrdersArgs<ExtArgs>
@@ -12192,6 +12302,7 @@ export namespace Prisma {
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employeeId" | "email" | "fullName" | "phoneNumber" | "role" | "position" | "password" | "createdAt" | "updatedAt" | "otpCode" | "otpExpiresAt" | "isActive", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignedCompanies?: boolean | User$assignedCompaniesArgs<ExtArgs>
+    companyInteractions?: boolean | User$companyInteractionsArgs<ExtArgs>
     estimatedRequirements?: boolean | User$estimatedRequirementsArgs<ExtArgs>
     customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
     installationOrders?: boolean | User$installationOrdersArgs<ExtArgs>
@@ -12223,6 +12334,7 @@ export namespace Prisma {
     name: "User"
     objects: {
       assignedCompanies: Prisma.$CompanyPayload<ExtArgs>[]
+      companyInteractions: Prisma.$CompanyInteractionPayload<ExtArgs>[]
       estimatedRequirements: Prisma.$CustomerRequirementPayload<ExtArgs>[]
       customerRequirements: Prisma.$CustomerRequirementPayload<ExtArgs>[]
       installationOrders: Prisma.$InstallationOrderPayload<ExtArgs>[]
@@ -12655,6 +12767,7 @@ export namespace Prisma {
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     assignedCompanies<T extends User$assignedCompaniesArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedCompaniesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    companyInteractions<T extends User$companyInteractionsArgs<ExtArgs> = {}>(args?: Subset<T, User$companyInteractionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     estimatedRequirements<T extends User$estimatedRequirementsArgs<ExtArgs> = {}>(args?: Subset<T, User$estimatedRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerRequirements<T extends User$customerRequirementsArgs<ExtArgs> = {}>(args?: Subset<T, User$customerRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     installationOrders<T extends User$installationOrdersArgs<ExtArgs> = {}>(args?: Subset<T, User$installationOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -13133,6 +13246,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CompanyScalarFieldEnum | CompanyScalarFieldEnum[]
+  }
+
+  /**
+   * User.companyInteractions
+   */
+  export type User$companyInteractionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    where?: CompanyInteractionWhereInput
+    orderBy?: CompanyInteractionOrderByWithRelationInput | CompanyInteractionOrderByWithRelationInput[]
+    cursor?: CompanyInteractionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CompanyInteractionScalarFieldEnum | CompanyInteractionScalarFieldEnum[]
   }
 
   /**
@@ -17299,6 +17436,8 @@ export namespace Prisma {
     shippingProvince: string | null
     shippingPostalCode: string | null
     paymentMethod: string | null
+    region: string | null
+    segment: string | null
   }
 
   export type CompanyMaxAggregateOutputType = {
@@ -17330,6 +17469,8 @@ export namespace Prisma {
     shippingProvince: string | null
     shippingPostalCode: string | null
     paymentMethod: string | null
+    region: string | null
+    segment: string | null
   }
 
   export type CompanyCountAggregateOutputType = {
@@ -17361,6 +17502,9 @@ export namespace Prisma {
     shippingProvince: number
     shippingPostalCode: number
     paymentMethod: number
+    region: number
+    segment: number
+    tags: number
     _all: number
   }
 
@@ -17394,6 +17538,8 @@ export namespace Prisma {
     shippingProvince?: true
     shippingPostalCode?: true
     paymentMethod?: true
+    region?: true
+    segment?: true
   }
 
   export type CompanyMaxAggregateInputType = {
@@ -17425,6 +17571,8 @@ export namespace Prisma {
     shippingProvince?: true
     shippingPostalCode?: true
     paymentMethod?: true
+    region?: true
+    segment?: true
   }
 
   export type CompanyCountAggregateInputType = {
@@ -17456,6 +17604,9 @@ export namespace Prisma {
     shippingProvince?: true
     shippingPostalCode?: true
     paymentMethod?: true
+    region?: true
+    segment?: true
+    tags?: true
     _all?: true
   }
 
@@ -17560,6 +17711,9 @@ export namespace Prisma {
     shippingProvince: string | null
     shippingPostalCode: string | null
     paymentMethod: string | null
+    region: string | null
+    segment: string | null
+    tags: string[]
     _count: CompanyCountAggregateOutputType | null
     _min: CompanyMinAggregateOutputType | null
     _max: CompanyMaxAggregateOutputType | null
@@ -17608,7 +17762,11 @@ export namespace Prisma {
     shippingProvince?: boolean
     shippingPostalCode?: boolean
     paymentMethod?: boolean
+    region?: boolean
+    segment?: boolean
+    tags?: boolean
     assignedUser?: boolean | Company$assignedUserArgs<ExtArgs>
+    interactions?: boolean | Company$interactionsArgs<ExtArgs>
     contacts?: boolean | Company$contactsArgs<ExtArgs>
     orders?: boolean | Company$ordersArgs<ExtArgs>
     quotations?: boolean | Company$quotationsArgs<ExtArgs>
@@ -17647,6 +17805,9 @@ export namespace Prisma {
     shippingProvince?: boolean
     shippingPostalCode?: boolean
     paymentMethod?: boolean
+    region?: boolean
+    segment?: boolean
+    tags?: boolean
     assignedUser?: boolean | Company$assignedUserArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -17679,6 +17840,9 @@ export namespace Prisma {
     shippingProvince?: boolean
     shippingPostalCode?: boolean
     paymentMethod?: boolean
+    region?: boolean
+    segment?: boolean
+    tags?: boolean
     assignedUser?: boolean | Company$assignedUserArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -17711,11 +17875,15 @@ export namespace Prisma {
     shippingProvince?: boolean
     shippingPostalCode?: boolean
     paymentMethod?: boolean
+    region?: boolean
+    segment?: boolean
+    tags?: boolean
   }
 
-  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyName" | "taxId" | "address" | "createdAt" | "updatedAt" | "area" | "branchOrHeadOffice" | "businessType" | "customerAccessChannel" | "customerStatus" | "customerType" | "district" | "postalCode" | "province" | "subDistrict" | "assignedUserId" | "billingAddress" | "billingSubDistrict" | "billingDistrict" | "billingProvince" | "billingPostalCode" | "shippingAddress" | "shippingSubDistrict" | "shippingDistrict" | "shippingProvince" | "shippingPostalCode" | "paymentMethod", ExtArgs["result"]["company"]>
+  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyName" | "taxId" | "address" | "createdAt" | "updatedAt" | "area" | "branchOrHeadOffice" | "businessType" | "customerAccessChannel" | "customerStatus" | "customerType" | "district" | "postalCode" | "province" | "subDistrict" | "assignedUserId" | "billingAddress" | "billingSubDistrict" | "billingDistrict" | "billingProvince" | "billingPostalCode" | "shippingAddress" | "shippingSubDistrict" | "shippingDistrict" | "shippingProvince" | "shippingPostalCode" | "paymentMethod" | "region" | "segment" | "tags", ExtArgs["result"]["company"]>
   export type CompanyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assignedUser?: boolean | Company$assignedUserArgs<ExtArgs>
+    interactions?: boolean | Company$interactionsArgs<ExtArgs>
     contacts?: boolean | Company$contactsArgs<ExtArgs>
     orders?: boolean | Company$ordersArgs<ExtArgs>
     quotations?: boolean | Company$quotationsArgs<ExtArgs>
@@ -17735,6 +17903,7 @@ export namespace Prisma {
     name: "Company"
     objects: {
       assignedUser: Prisma.$UserPayload<ExtArgs> | null
+      interactions: Prisma.$CompanyInteractionPayload<ExtArgs>[]
       contacts: Prisma.$ContactPayload<ExtArgs>[]
       orders: Prisma.$OrderPayload<ExtArgs>[]
       quotations: Prisma.$QuotationPayload<ExtArgs>[]
@@ -17771,6 +17940,9 @@ export namespace Prisma {
       shippingProvince: string | null
       shippingPostalCode: string | null
       paymentMethod: string | null
+      region: string | null
+      segment: string | null
+      tags: string[]
     }, ExtArgs["result"]["company"]>
     composites: {}
   }
@@ -18166,6 +18338,7 @@ export namespace Prisma {
   export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     assignedUser<T extends Company$assignedUserArgs<ExtArgs> = {}>(args?: Subset<T, Company$assignedUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    interactions<T extends Company$interactionsArgs<ExtArgs> = {}>(args?: Subset<T, Company$interactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     contacts<T extends Company$contactsArgs<ExtArgs> = {}>(args?: Subset<T, Company$contactsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orders<T extends Company$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Company$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotations<T extends Company$quotationsArgs<ExtArgs> = {}>(args?: Subset<T, Company$quotationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -18229,6 +18402,9 @@ export namespace Prisma {
     readonly shippingProvince: FieldRef<"Company", 'String'>
     readonly shippingPostalCode: FieldRef<"Company", 'String'>
     readonly paymentMethod: FieldRef<"Company", 'String'>
+    readonly region: FieldRef<"Company", 'String'>
+    readonly segment: FieldRef<"Company", 'String'>
+    readonly tags: FieldRef<"Company", 'String[]'>
   }
     
 
@@ -18649,6 +18825,30 @@ export namespace Prisma {
   }
 
   /**
+   * Company.interactions
+   */
+  export type Company$interactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    where?: CompanyInteractionWhereInput
+    orderBy?: CompanyInteractionOrderByWithRelationInput | CompanyInteractionOrderByWithRelationInput[]
+    cursor?: CompanyInteractionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CompanyInteractionScalarFieldEnum | CompanyInteractionScalarFieldEnum[]
+  }
+
+  /**
    * Company.contacts
    */
   export type Company$contactsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -18808,6 +19008,1116 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: CompanyInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CompanyInteraction
+   */
+
+  export type AggregateCompanyInteraction = {
+    _count: CompanyInteractionCountAggregateOutputType | null
+    _min: CompanyInteractionMinAggregateOutputType | null
+    _max: CompanyInteractionMaxAggregateOutputType | null
+  }
+
+  export type CompanyInteractionMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    userId: string | null
+    type: string | null
+    title: string | null
+    description: string | null
+    occurredAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type CompanyInteractionMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    userId: string | null
+    type: string | null
+    title: string | null
+    description: string | null
+    occurredAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type CompanyInteractionCountAggregateOutputType = {
+    id: number
+    companyId: number
+    userId: number
+    type: number
+    title: number
+    description: number
+    occurredAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CompanyInteractionMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    userId?: true
+    type?: true
+    title?: true
+    description?: true
+    occurredAt?: true
+    createdAt?: true
+  }
+
+  export type CompanyInteractionMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    userId?: true
+    type?: true
+    title?: true
+    description?: true
+    occurredAt?: true
+    createdAt?: true
+  }
+
+  export type CompanyInteractionCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    userId?: true
+    type?: true
+    title?: true
+    description?: true
+    occurredAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CompanyInteractionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyInteraction to aggregate.
+     */
+    where?: CompanyInteractionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyInteractions to fetch.
+     */
+    orderBy?: CompanyInteractionOrderByWithRelationInput | CompanyInteractionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CompanyInteractionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyInteractions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyInteractions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CompanyInteractions
+    **/
+    _count?: true | CompanyInteractionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CompanyInteractionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CompanyInteractionMaxAggregateInputType
+  }
+
+  export type GetCompanyInteractionAggregateType<T extends CompanyInteractionAggregateArgs> = {
+        [P in keyof T & keyof AggregateCompanyInteraction]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCompanyInteraction[P]>
+      : GetScalarType<T[P], AggregateCompanyInteraction[P]>
+  }
+
+
+
+
+  export type CompanyInteractionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyInteractionWhereInput
+    orderBy?: CompanyInteractionOrderByWithAggregationInput | CompanyInteractionOrderByWithAggregationInput[]
+    by: CompanyInteractionScalarFieldEnum[] | CompanyInteractionScalarFieldEnum
+    having?: CompanyInteractionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CompanyInteractionCountAggregateInputType | true
+    _min?: CompanyInteractionMinAggregateInputType
+    _max?: CompanyInteractionMaxAggregateInputType
+  }
+
+  export type CompanyInteractionGroupByOutputType = {
+    id: string
+    companyId: string
+    userId: string
+    type: string
+    title: string
+    description: string | null
+    occurredAt: Date
+    createdAt: Date
+    _count: CompanyInteractionCountAggregateOutputType | null
+    _min: CompanyInteractionMinAggregateOutputType | null
+    _max: CompanyInteractionMaxAggregateOutputType | null
+  }
+
+  type GetCompanyInteractionGroupByPayload<T extends CompanyInteractionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CompanyInteractionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CompanyInteractionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CompanyInteractionGroupByOutputType[P]>
+            : GetScalarType<T[P], CompanyInteractionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CompanyInteractionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    userId?: boolean
+    type?: boolean
+    title?: boolean
+    description?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyInteraction"]>
+
+  export type CompanyInteractionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    userId?: boolean
+    type?: boolean
+    title?: boolean
+    description?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyInteraction"]>
+
+  export type CompanyInteractionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    userId?: boolean
+    type?: boolean
+    title?: boolean
+    description?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyInteraction"]>
+
+  export type CompanyInteractionSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    userId?: boolean
+    type?: boolean
+    title?: boolean
+    description?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type CompanyInteractionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "userId" | "type" | "title" | "description" | "occurredAt" | "createdAt", ExtArgs["result"]["companyInteraction"]>
+  export type CompanyInteractionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type CompanyInteractionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type CompanyInteractionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $CompanyInteractionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CompanyInteraction"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      userId: string
+      type: string
+      title: string
+      description: string | null
+      occurredAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["companyInteraction"]>
+    composites: {}
+  }
+
+  type CompanyInteractionGetPayload<S extends boolean | null | undefined | CompanyInteractionDefaultArgs> = $Result.GetResult<Prisma.$CompanyInteractionPayload, S>
+
+  type CompanyInteractionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CompanyInteractionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CompanyInteractionCountAggregateInputType | true
+    }
+
+  export interface CompanyInteractionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CompanyInteraction'], meta: { name: 'CompanyInteraction' } }
+    /**
+     * Find zero or one CompanyInteraction that matches the filter.
+     * @param {CompanyInteractionFindUniqueArgs} args - Arguments to find a CompanyInteraction
+     * @example
+     * // Get one CompanyInteraction
+     * const companyInteraction = await prisma.companyInteraction.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CompanyInteractionFindUniqueArgs>(args: SelectSubset<T, CompanyInteractionFindUniqueArgs<ExtArgs>>): Prisma__CompanyInteractionClient<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CompanyInteraction that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CompanyInteractionFindUniqueOrThrowArgs} args - Arguments to find a CompanyInteraction
+     * @example
+     * // Get one CompanyInteraction
+     * const companyInteraction = await prisma.companyInteraction.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CompanyInteractionFindUniqueOrThrowArgs>(args: SelectSubset<T, CompanyInteractionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CompanyInteractionClient<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CompanyInteraction that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInteractionFindFirstArgs} args - Arguments to find a CompanyInteraction
+     * @example
+     * // Get one CompanyInteraction
+     * const companyInteraction = await prisma.companyInteraction.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CompanyInteractionFindFirstArgs>(args?: SelectSubset<T, CompanyInteractionFindFirstArgs<ExtArgs>>): Prisma__CompanyInteractionClient<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CompanyInteraction that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInteractionFindFirstOrThrowArgs} args - Arguments to find a CompanyInteraction
+     * @example
+     * // Get one CompanyInteraction
+     * const companyInteraction = await prisma.companyInteraction.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CompanyInteractionFindFirstOrThrowArgs>(args?: SelectSubset<T, CompanyInteractionFindFirstOrThrowArgs<ExtArgs>>): Prisma__CompanyInteractionClient<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CompanyInteractions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInteractionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CompanyInteractions
+     * const companyInteractions = await prisma.companyInteraction.findMany()
+     * 
+     * // Get first 10 CompanyInteractions
+     * const companyInteractions = await prisma.companyInteraction.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const companyInteractionWithIdOnly = await prisma.companyInteraction.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CompanyInteractionFindManyArgs>(args?: SelectSubset<T, CompanyInteractionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CompanyInteraction.
+     * @param {CompanyInteractionCreateArgs} args - Arguments to create a CompanyInteraction.
+     * @example
+     * // Create one CompanyInteraction
+     * const CompanyInteraction = await prisma.companyInteraction.create({
+     *   data: {
+     *     // ... data to create a CompanyInteraction
+     *   }
+     * })
+     * 
+     */
+    create<T extends CompanyInteractionCreateArgs>(args: SelectSubset<T, CompanyInteractionCreateArgs<ExtArgs>>): Prisma__CompanyInteractionClient<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CompanyInteractions.
+     * @param {CompanyInteractionCreateManyArgs} args - Arguments to create many CompanyInteractions.
+     * @example
+     * // Create many CompanyInteractions
+     * const companyInteraction = await prisma.companyInteraction.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CompanyInteractionCreateManyArgs>(args?: SelectSubset<T, CompanyInteractionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CompanyInteractions and returns the data saved in the database.
+     * @param {CompanyInteractionCreateManyAndReturnArgs} args - Arguments to create many CompanyInteractions.
+     * @example
+     * // Create many CompanyInteractions
+     * const companyInteraction = await prisma.companyInteraction.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CompanyInteractions and only return the `id`
+     * const companyInteractionWithIdOnly = await prisma.companyInteraction.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CompanyInteractionCreateManyAndReturnArgs>(args?: SelectSubset<T, CompanyInteractionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CompanyInteraction.
+     * @param {CompanyInteractionDeleteArgs} args - Arguments to delete one CompanyInteraction.
+     * @example
+     * // Delete one CompanyInteraction
+     * const CompanyInteraction = await prisma.companyInteraction.delete({
+     *   where: {
+     *     // ... filter to delete one CompanyInteraction
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CompanyInteractionDeleteArgs>(args: SelectSubset<T, CompanyInteractionDeleteArgs<ExtArgs>>): Prisma__CompanyInteractionClient<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CompanyInteraction.
+     * @param {CompanyInteractionUpdateArgs} args - Arguments to update one CompanyInteraction.
+     * @example
+     * // Update one CompanyInteraction
+     * const companyInteraction = await prisma.companyInteraction.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CompanyInteractionUpdateArgs>(args: SelectSubset<T, CompanyInteractionUpdateArgs<ExtArgs>>): Prisma__CompanyInteractionClient<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CompanyInteractions.
+     * @param {CompanyInteractionDeleteManyArgs} args - Arguments to filter CompanyInteractions to delete.
+     * @example
+     * // Delete a few CompanyInteractions
+     * const { count } = await prisma.companyInteraction.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CompanyInteractionDeleteManyArgs>(args?: SelectSubset<T, CompanyInteractionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CompanyInteractions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInteractionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CompanyInteractions
+     * const companyInteraction = await prisma.companyInteraction.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CompanyInteractionUpdateManyArgs>(args: SelectSubset<T, CompanyInteractionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CompanyInteractions and returns the data updated in the database.
+     * @param {CompanyInteractionUpdateManyAndReturnArgs} args - Arguments to update many CompanyInteractions.
+     * @example
+     * // Update many CompanyInteractions
+     * const companyInteraction = await prisma.companyInteraction.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CompanyInteractions and only return the `id`
+     * const companyInteractionWithIdOnly = await prisma.companyInteraction.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CompanyInteractionUpdateManyAndReturnArgs>(args: SelectSubset<T, CompanyInteractionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CompanyInteraction.
+     * @param {CompanyInteractionUpsertArgs} args - Arguments to update or create a CompanyInteraction.
+     * @example
+     * // Update or create a CompanyInteraction
+     * const companyInteraction = await prisma.companyInteraction.upsert({
+     *   create: {
+     *     // ... data to create a CompanyInteraction
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CompanyInteraction we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CompanyInteractionUpsertArgs>(args: SelectSubset<T, CompanyInteractionUpsertArgs<ExtArgs>>): Prisma__CompanyInteractionClient<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CompanyInteractions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInteractionCountArgs} args - Arguments to filter CompanyInteractions to count.
+     * @example
+     * // Count the number of CompanyInteractions
+     * const count = await prisma.companyInteraction.count({
+     *   where: {
+     *     // ... the filter for the CompanyInteractions we want to count
+     *   }
+     * })
+    **/
+    count<T extends CompanyInteractionCountArgs>(
+      args?: Subset<T, CompanyInteractionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CompanyInteractionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CompanyInteraction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInteractionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CompanyInteractionAggregateArgs>(args: Subset<T, CompanyInteractionAggregateArgs>): Prisma.PrismaPromise<GetCompanyInteractionAggregateType<T>>
+
+    /**
+     * Group by CompanyInteraction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInteractionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CompanyInteractionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CompanyInteractionGroupByArgs['orderBy'] }
+        : { orderBy?: CompanyInteractionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CompanyInteractionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCompanyInteractionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CompanyInteraction model
+   */
+  readonly fields: CompanyInteractionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CompanyInteraction.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CompanyInteractionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CompanyInteraction model
+   */
+  interface CompanyInteractionFieldRefs {
+    readonly id: FieldRef<"CompanyInteraction", 'String'>
+    readonly companyId: FieldRef<"CompanyInteraction", 'String'>
+    readonly userId: FieldRef<"CompanyInteraction", 'String'>
+    readonly type: FieldRef<"CompanyInteraction", 'String'>
+    readonly title: FieldRef<"CompanyInteraction", 'String'>
+    readonly description: FieldRef<"CompanyInteraction", 'String'>
+    readonly occurredAt: FieldRef<"CompanyInteraction", 'DateTime'>
+    readonly createdAt: FieldRef<"CompanyInteraction", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CompanyInteraction findUnique
+   */
+  export type CompanyInteractionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyInteraction to fetch.
+     */
+    where: CompanyInteractionWhereUniqueInput
+  }
+
+  /**
+   * CompanyInteraction findUniqueOrThrow
+   */
+  export type CompanyInteractionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyInteraction to fetch.
+     */
+    where: CompanyInteractionWhereUniqueInput
+  }
+
+  /**
+   * CompanyInteraction findFirst
+   */
+  export type CompanyInteractionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyInteraction to fetch.
+     */
+    where?: CompanyInteractionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyInteractions to fetch.
+     */
+    orderBy?: CompanyInteractionOrderByWithRelationInput | CompanyInteractionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyInteractions.
+     */
+    cursor?: CompanyInteractionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyInteractions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyInteractions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyInteractions.
+     */
+    distinct?: CompanyInteractionScalarFieldEnum | CompanyInteractionScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyInteraction findFirstOrThrow
+   */
+  export type CompanyInteractionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyInteraction to fetch.
+     */
+    where?: CompanyInteractionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyInteractions to fetch.
+     */
+    orderBy?: CompanyInteractionOrderByWithRelationInput | CompanyInteractionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyInteractions.
+     */
+    cursor?: CompanyInteractionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyInteractions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyInteractions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyInteractions.
+     */
+    distinct?: CompanyInteractionScalarFieldEnum | CompanyInteractionScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyInteraction findMany
+   */
+  export type CompanyInteractionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyInteractions to fetch.
+     */
+    where?: CompanyInteractionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyInteractions to fetch.
+     */
+    orderBy?: CompanyInteractionOrderByWithRelationInput | CompanyInteractionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CompanyInteractions.
+     */
+    cursor?: CompanyInteractionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyInteractions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyInteractions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyInteractions.
+     */
+    distinct?: CompanyInteractionScalarFieldEnum | CompanyInteractionScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyInteraction create
+   */
+  export type CompanyInteractionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CompanyInteraction.
+     */
+    data: XOR<CompanyInteractionCreateInput, CompanyInteractionUncheckedCreateInput>
+  }
+
+  /**
+   * CompanyInteraction createMany
+   */
+  export type CompanyInteractionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CompanyInteractions.
+     */
+    data: CompanyInteractionCreateManyInput | CompanyInteractionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CompanyInteraction createManyAndReturn
+   */
+  export type CompanyInteractionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * The data used to create many CompanyInteractions.
+     */
+    data: CompanyInteractionCreateManyInput | CompanyInteractionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CompanyInteraction update
+   */
+  export type CompanyInteractionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CompanyInteraction.
+     */
+    data: XOR<CompanyInteractionUpdateInput, CompanyInteractionUncheckedUpdateInput>
+    /**
+     * Choose, which CompanyInteraction to update.
+     */
+    where: CompanyInteractionWhereUniqueInput
+  }
+
+  /**
+   * CompanyInteraction updateMany
+   */
+  export type CompanyInteractionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CompanyInteractions.
+     */
+    data: XOR<CompanyInteractionUpdateManyMutationInput, CompanyInteractionUncheckedUpdateManyInput>
+    /**
+     * Filter which CompanyInteractions to update
+     */
+    where?: CompanyInteractionWhereInput
+    /**
+     * Limit how many CompanyInteractions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CompanyInteraction updateManyAndReturn
+   */
+  export type CompanyInteractionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * The data used to update CompanyInteractions.
+     */
+    data: XOR<CompanyInteractionUpdateManyMutationInput, CompanyInteractionUncheckedUpdateManyInput>
+    /**
+     * Filter which CompanyInteractions to update
+     */
+    where?: CompanyInteractionWhereInput
+    /**
+     * Limit how many CompanyInteractions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CompanyInteraction upsert
+   */
+  export type CompanyInteractionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CompanyInteraction to update in case it exists.
+     */
+    where: CompanyInteractionWhereUniqueInput
+    /**
+     * In case the CompanyInteraction found by the `where` argument doesn't exist, create a new CompanyInteraction with this data.
+     */
+    create: XOR<CompanyInteractionCreateInput, CompanyInteractionUncheckedCreateInput>
+    /**
+     * In case the CompanyInteraction was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CompanyInteractionUpdateInput, CompanyInteractionUncheckedUpdateInput>
+  }
+
+  /**
+   * CompanyInteraction delete
+   */
+  export type CompanyInteractionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
+    /**
+     * Filter which CompanyInteraction to delete.
+     */
+    where: CompanyInteractionWhereUniqueInput
+  }
+
+  /**
+   * CompanyInteraction deleteMany
+   */
+  export type CompanyInteractionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyInteractions to delete
+     */
+    where?: CompanyInteractionWhereInput
+    /**
+     * Limit how many CompanyInteractions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CompanyInteraction without action
+   */
+  export type CompanyInteractionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInteraction
+     */
+    select?: CompanyInteractionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyInteraction
+     */
+    omit?: CompanyInteractionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInteractionInclude<ExtArgs> | null
   }
 
 
@@ -140119,10 +141429,27 @@ export namespace Prisma {
     shippingDistrict: 'shippingDistrict',
     shippingProvince: 'shippingProvince',
     shippingPostalCode: 'shippingPostalCode',
-    paymentMethod: 'paymentMethod'
+    paymentMethod: 'paymentMethod',
+    region: 'region',
+    segment: 'segment',
+    tags: 'tags'
   };
 
   export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
+
+
+  export const CompanyInteractionScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    userId: 'userId',
+    type: 'type',
+    title: 'title',
+    description: 'description',
+    occurredAt: 'occurredAt',
+    createdAt: 'createdAt'
+  };
+
+  export type CompanyInteractionScalarFieldEnum = (typeof CompanyInteractionScalarFieldEnum)[keyof typeof CompanyInteractionScalarFieldEnum]
 
 
   export const ContactScalarFieldEnum: {
@@ -142171,6 +143498,7 @@ export namespace Prisma {
     otpExpiresAt?: DateTimeNullableFilter<"User"> | Date | string | null
     isActive?: BoolFilter<"User"> | boolean
     assignedCompanies?: CompanyListRelationFilter
+    companyInteractions?: CompanyInteractionListRelationFilter
     estimatedRequirements?: CustomerRequirementListRelationFilter
     customerRequirements?: CustomerRequirementListRelationFilter
     installationOrders?: InstallationOrderListRelationFilter
@@ -142210,6 +143538,7 @@ export namespace Prisma {
     otpExpiresAt?: SortOrderInput | SortOrder
     isActive?: SortOrder
     assignedCompanies?: CompanyOrderByRelationAggregateInput
+    companyInteractions?: CompanyInteractionOrderByRelationAggregateInput
     estimatedRequirements?: CustomerRequirementOrderByRelationAggregateInput
     customerRequirements?: CustomerRequirementOrderByRelationAggregateInput
     installationOrders?: InstallationOrderOrderByRelationAggregateInput
@@ -142252,6 +143581,7 @@ export namespace Prisma {
     otpExpiresAt?: DateTimeNullableFilter<"User"> | Date | string | null
     isActive?: BoolFilter<"User"> | boolean
     assignedCompanies?: CompanyListRelationFilter
+    companyInteractions?: CompanyInteractionListRelationFilter
     estimatedRequirements?: CustomerRequirementListRelationFilter
     customerRequirements?: CustomerRequirementListRelationFilter
     installationOrders?: InstallationOrderListRelationFilter
@@ -142620,7 +143950,11 @@ export namespace Prisma {
     shippingProvince?: StringNullableFilter<"Company"> | string | null
     shippingPostalCode?: StringNullableFilter<"Company"> | string | null
     paymentMethod?: StringNullableFilter<"Company"> | string | null
+    region?: StringNullableFilter<"Company"> | string | null
+    segment?: StringNullableFilter<"Company"> | string | null
+    tags?: StringNullableListFilter<"Company">
     assignedUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    interactions?: CompanyInteractionListRelationFilter
     contacts?: ContactListRelationFilter
     orders?: OrderListRelationFilter
     quotations?: QuotationListRelationFilter
@@ -142658,7 +143992,11 @@ export namespace Prisma {
     shippingProvince?: SortOrderInput | SortOrder
     shippingPostalCode?: SortOrderInput | SortOrder
     paymentMethod?: SortOrderInput | SortOrder
+    region?: SortOrderInput | SortOrder
+    segment?: SortOrderInput | SortOrder
+    tags?: SortOrder
     assignedUser?: UserOrderByWithRelationInput
+    interactions?: CompanyInteractionOrderByRelationAggregateInput
     contacts?: ContactOrderByRelationAggregateInput
     orders?: OrderOrderByRelationAggregateInput
     quotations?: QuotationOrderByRelationAggregateInput
@@ -142699,7 +144037,11 @@ export namespace Prisma {
     shippingProvince?: StringNullableFilter<"Company"> | string | null
     shippingPostalCode?: StringNullableFilter<"Company"> | string | null
     paymentMethod?: StringNullableFilter<"Company"> | string | null
+    region?: StringNullableFilter<"Company"> | string | null
+    segment?: StringNullableFilter<"Company"> | string | null
+    tags?: StringNullableListFilter<"Company">
     assignedUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    interactions?: CompanyInteractionListRelationFilter
     contacts?: ContactListRelationFilter
     orders?: OrderListRelationFilter
     quotations?: QuotationListRelationFilter
@@ -142737,6 +144079,9 @@ export namespace Prisma {
     shippingProvince?: SortOrderInput | SortOrder
     shippingPostalCode?: SortOrderInput | SortOrder
     paymentMethod?: SortOrderInput | SortOrder
+    region?: SortOrderInput | SortOrder
+    segment?: SortOrderInput | SortOrder
+    tags?: SortOrder
     _count?: CompanyCountOrderByAggregateInput
     _max?: CompanyMaxOrderByAggregateInput
     _min?: CompanyMinOrderByAggregateInput
@@ -142774,6 +144119,82 @@ export namespace Prisma {
     shippingProvince?: StringNullableWithAggregatesFilter<"Company"> | string | null
     shippingPostalCode?: StringNullableWithAggregatesFilter<"Company"> | string | null
     paymentMethod?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    region?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    segment?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    tags?: StringNullableListFilter<"Company">
+  }
+
+  export type CompanyInteractionWhereInput = {
+    AND?: CompanyInteractionWhereInput | CompanyInteractionWhereInput[]
+    OR?: CompanyInteractionWhereInput[]
+    NOT?: CompanyInteractionWhereInput | CompanyInteractionWhereInput[]
+    id?: StringFilter<"CompanyInteraction"> | string
+    companyId?: StringFilter<"CompanyInteraction"> | string
+    userId?: StringFilter<"CompanyInteraction"> | string
+    type?: StringFilter<"CompanyInteraction"> | string
+    title?: StringFilter<"CompanyInteraction"> | string
+    description?: StringNullableFilter<"CompanyInteraction"> | string | null
+    occurredAt?: DateTimeFilter<"CompanyInteraction"> | Date | string
+    createdAt?: DateTimeFilter<"CompanyInteraction"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type CompanyInteractionOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    userId?: SortOrder
+    type?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type CompanyInteractionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CompanyInteractionWhereInput | CompanyInteractionWhereInput[]
+    OR?: CompanyInteractionWhereInput[]
+    NOT?: CompanyInteractionWhereInput | CompanyInteractionWhereInput[]
+    companyId?: StringFilter<"CompanyInteraction"> | string
+    userId?: StringFilter<"CompanyInteraction"> | string
+    type?: StringFilter<"CompanyInteraction"> | string
+    title?: StringFilter<"CompanyInteraction"> | string
+    description?: StringNullableFilter<"CompanyInteraction"> | string | null
+    occurredAt?: DateTimeFilter<"CompanyInteraction"> | Date | string
+    createdAt?: DateTimeFilter<"CompanyInteraction"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type CompanyInteractionOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    userId?: SortOrder
+    type?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: CompanyInteractionCountOrderByAggregateInput
+    _max?: CompanyInteractionMaxOrderByAggregateInput
+    _min?: CompanyInteractionMinOrderByAggregateInput
+  }
+
+  export type CompanyInteractionScalarWhereWithAggregatesInput = {
+    AND?: CompanyInteractionScalarWhereWithAggregatesInput | CompanyInteractionScalarWhereWithAggregatesInput[]
+    OR?: CompanyInteractionScalarWhereWithAggregatesInput[]
+    NOT?: CompanyInteractionScalarWhereWithAggregatesInput | CompanyInteractionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CompanyInteraction"> | string
+    companyId?: StringWithAggregatesFilter<"CompanyInteraction"> | string
+    userId?: StringWithAggregatesFilter<"CompanyInteraction"> | string
+    type?: StringWithAggregatesFilter<"CompanyInteraction"> | string
+    title?: StringWithAggregatesFilter<"CompanyInteraction"> | string
+    description?: StringNullableWithAggregatesFilter<"CompanyInteraction"> | string | null
+    occurredAt?: DateTimeWithAggregatesFilter<"CompanyInteraction"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"CompanyInteraction"> | Date | string
   }
 
   export type ContactWhereInput = {
@@ -152604,6 +154025,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -152643,6 +154065,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -152682,6 +154105,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -152721,6 +154145,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -153124,7 +154549,11 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+    interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
@@ -153162,6 +154591,10 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
@@ -153198,7 +154631,11 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+    interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
@@ -153236,6 +154673,10 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
@@ -153273,6 +154714,9 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
   }
 
   export type CompanyUpdateManyMutationInput = {
@@ -153303,6 +154747,9 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
   }
 
   export type CompanyUncheckedUpdateManyInput = {
@@ -153334,6 +154781,84 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+  }
+
+  export type CompanyInteractionCreateInput = {
+    id?: string
+    type: string
+    title: string
+    description?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutInteractionsInput
+    user: UserCreateNestedOneWithoutCompanyInteractionsInput
+  }
+
+  export type CompanyInteractionUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    userId: string
+    type: string
+    title: string
+    description?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type CompanyInteractionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutInteractionsNestedInput
+    user?: UserUpdateOneRequiredWithoutCompanyInteractionsNestedInput
+  }
+
+  export type CompanyInteractionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyInteractionCreateManyInput = {
+    id?: string
+    companyId: string
+    userId: string
+    type: string
+    title: string
+    description?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type CompanyInteractionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyInteractionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ContactCreateInput = {
@@ -164499,6 +166024,12 @@ export namespace Prisma {
     none?: CompanyWhereInput
   }
 
+  export type CompanyInteractionListRelationFilter = {
+    every?: CompanyInteractionWhereInput
+    some?: CompanyInteractionWhereInput
+    none?: CompanyInteractionWhereInput
+  }
+
   export type CustomerRequirementListRelationFilter = {
     every?: CustomerRequirementWhereInput
     some?: CustomerRequirementWhereInput
@@ -164618,6 +166149,10 @@ export namespace Prisma {
   }
 
   export type CompanyOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CompanyInteractionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -165037,6 +166572,14 @@ export namespace Prisma {
     startDate?: SortOrder
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
   export type ContactListRelationFilter = {
     every?: ContactWhereInput
     some?: ContactWhereInput
@@ -165076,6 +166619,9 @@ export namespace Prisma {
     shippingProvince?: SortOrder
     shippingPostalCode?: SortOrder
     paymentMethod?: SortOrder
+    region?: SortOrder
+    segment?: SortOrder
+    tags?: SortOrder
   }
 
   export type CompanyMaxOrderByAggregateInput = {
@@ -165107,6 +166653,8 @@ export namespace Prisma {
     shippingProvince?: SortOrder
     shippingPostalCode?: SortOrder
     paymentMethod?: SortOrder
+    region?: SortOrder
+    segment?: SortOrder
   }
 
   export type CompanyMinOrderByAggregateInput = {
@@ -165138,11 +166686,46 @@ export namespace Prisma {
     shippingProvince?: SortOrder
     shippingPostalCode?: SortOrder
     paymentMethod?: SortOrder
+    region?: SortOrder
+    segment?: SortOrder
   }
 
   export type CompanyScalarRelationFilter = {
     is?: CompanyWhereInput
     isNot?: CompanyWhereInput
+  }
+
+  export type CompanyInteractionCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    userId?: SortOrder
+    type?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyInteractionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    userId?: SortOrder
+    type?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyInteractionMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    userId?: SortOrder
+    type?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type ContactCountOrderByAggregateInput = {
@@ -167099,14 +168682,6 @@ export namespace Prisma {
     _sum?: NestedDecimalNullableFilter<$PrismaModel>
     _min?: NestedDecimalNullableFilter<$PrismaModel>
     _max?: NestedDecimalNullableFilter<$PrismaModel>
-  }
-
-  export type StringNullableListFilter<$PrismaModel = never> = {
-    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    has?: string | StringFieldRefInput<$PrismaModel> | null
-    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
-    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
-    isEmpty?: boolean
   }
 
   export type commission_claimsCountOrderByAggregateInput = {
@@ -171920,6 +173495,13 @@ export namespace Prisma {
     connect?: CompanyWhereUniqueInput | CompanyWhereUniqueInput[]
   }
 
+  export type CompanyInteractionCreateNestedManyWithoutUserInput = {
+    create?: XOR<CompanyInteractionCreateWithoutUserInput, CompanyInteractionUncheckedCreateWithoutUserInput> | CompanyInteractionCreateWithoutUserInput[] | CompanyInteractionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CompanyInteractionCreateOrConnectWithoutUserInput | CompanyInteractionCreateOrConnectWithoutUserInput[]
+    createMany?: CompanyInteractionCreateManyUserInputEnvelope
+    connect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+  }
+
   export type CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput = {
     create?: XOR<CustomerRequirementCreateWithoutEstimatedByUserInput, CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput> | CustomerRequirementCreateWithoutEstimatedByUserInput[] | CustomerRequirementUncheckedCreateWithoutEstimatedByUserInput[]
     connectOrCreate?: CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput | CustomerRequirementCreateOrConnectWithoutEstimatedByUserInput[]
@@ -172078,6 +173660,13 @@ export namespace Prisma {
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
     createMany?: CompanyCreateManyAssignedUserInputEnvelope
     connect?: CompanyWhereUniqueInput | CompanyWhereUniqueInput[]
+  }
+
+  export type CompanyInteractionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<CompanyInteractionCreateWithoutUserInput, CompanyInteractionUncheckedCreateWithoutUserInput> | CompanyInteractionCreateWithoutUserInput[] | CompanyInteractionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CompanyInteractionCreateOrConnectWithoutUserInput | CompanyInteractionCreateOrConnectWithoutUserInput[]
+    createMany?: CompanyInteractionCreateManyUserInputEnvelope
+    connect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
   }
 
   export type CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput = {
@@ -172265,6 +173854,20 @@ export namespace Prisma {
     update?: CompanyUpdateWithWhereUniqueWithoutAssignedUserInput | CompanyUpdateWithWhereUniqueWithoutAssignedUserInput[]
     updateMany?: CompanyUpdateManyWithWhereWithoutAssignedUserInput | CompanyUpdateManyWithWhereWithoutAssignedUserInput[]
     deleteMany?: CompanyScalarWhereInput | CompanyScalarWhereInput[]
+  }
+
+  export type CompanyInteractionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CompanyInteractionCreateWithoutUserInput, CompanyInteractionUncheckedCreateWithoutUserInput> | CompanyInteractionCreateWithoutUserInput[] | CompanyInteractionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CompanyInteractionCreateOrConnectWithoutUserInput | CompanyInteractionCreateOrConnectWithoutUserInput[]
+    upsert?: CompanyInteractionUpsertWithWhereUniqueWithoutUserInput | CompanyInteractionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CompanyInteractionCreateManyUserInputEnvelope
+    set?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    disconnect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    delete?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    connect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    update?: CompanyInteractionUpdateWithWhereUniqueWithoutUserInput | CompanyInteractionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CompanyInteractionUpdateManyWithWhereWithoutUserInput | CompanyInteractionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CompanyInteractionScalarWhereInput | CompanyInteractionScalarWhereInput[]
   }
 
   export type CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput = {
@@ -172583,6 +174186,20 @@ export namespace Prisma {
     update?: CompanyUpdateWithWhereUniqueWithoutAssignedUserInput | CompanyUpdateWithWhereUniqueWithoutAssignedUserInput[]
     updateMany?: CompanyUpdateManyWithWhereWithoutAssignedUserInput | CompanyUpdateManyWithWhereWithoutAssignedUserInput[]
     deleteMany?: CompanyScalarWhereInput | CompanyScalarWhereInput[]
+  }
+
+  export type CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CompanyInteractionCreateWithoutUserInput, CompanyInteractionUncheckedCreateWithoutUserInput> | CompanyInteractionCreateWithoutUserInput[] | CompanyInteractionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CompanyInteractionCreateOrConnectWithoutUserInput | CompanyInteractionCreateOrConnectWithoutUserInput[]
+    upsert?: CompanyInteractionUpsertWithWhereUniqueWithoutUserInput | CompanyInteractionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CompanyInteractionCreateManyUserInputEnvelope
+    set?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    disconnect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    delete?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    connect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    update?: CompanyInteractionUpdateWithWhereUniqueWithoutUserInput | CompanyInteractionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CompanyInteractionUpdateManyWithWhereWithoutUserInput | CompanyInteractionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CompanyInteractionScalarWhereInput | CompanyInteractionScalarWhereInput[]
   }
 
   export type CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput = {
@@ -172983,10 +174600,21 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutEmployeeSaleInput, UserUpdateWithoutEmployeeSaleInput>, UserUncheckedUpdateWithoutEmployeeSaleInput>
   }
 
+  export type CompanyCreatetagsInput = {
+    set: string[]
+  }
+
   export type UserCreateNestedOneWithoutAssignedCompaniesInput = {
     create?: XOR<UserCreateWithoutAssignedCompaniesInput, UserUncheckedCreateWithoutAssignedCompaniesInput>
     connectOrCreate?: UserCreateOrConnectWithoutAssignedCompaniesInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type CompanyInteractionCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<CompanyInteractionCreateWithoutCompanyInput, CompanyInteractionUncheckedCreateWithoutCompanyInput> | CompanyInteractionCreateWithoutCompanyInput[] | CompanyInteractionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CompanyInteractionCreateOrConnectWithoutCompanyInput | CompanyInteractionCreateOrConnectWithoutCompanyInput[]
+    createMany?: CompanyInteractionCreateManyCompanyInputEnvelope
+    connect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
   }
 
   export type ContactCreateNestedManyWithoutCompanyInput = {
@@ -173031,6 +174659,13 @@ export namespace Prisma {
     connect?: TelesaleWhereUniqueInput | TelesaleWhereUniqueInput[]
   }
 
+  export type CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<CompanyInteractionCreateWithoutCompanyInput, CompanyInteractionUncheckedCreateWithoutCompanyInput> | CompanyInteractionCreateWithoutCompanyInput[] | CompanyInteractionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CompanyInteractionCreateOrConnectWithoutCompanyInput | CompanyInteractionCreateOrConnectWithoutCompanyInput[]
+    createMany?: CompanyInteractionCreateManyCompanyInputEnvelope
+    connect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+  }
+
   export type ContactUncheckedCreateNestedManyWithoutCompanyInput = {
     create?: XOR<ContactCreateWithoutCompanyInput, ContactUncheckedCreateWithoutCompanyInput> | ContactCreateWithoutCompanyInput[] | ContactUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: ContactCreateOrConnectWithoutCompanyInput | ContactCreateOrConnectWithoutCompanyInput[]
@@ -173073,6 +174708,11 @@ export namespace Prisma {
     connect?: TelesaleWhereUniqueInput | TelesaleWhereUniqueInput[]
   }
 
+  export type CompanyUpdatetagsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
   export type UserUpdateOneWithoutAssignedCompaniesNestedInput = {
     create?: XOR<UserCreateWithoutAssignedCompaniesInput, UserUncheckedCreateWithoutAssignedCompaniesInput>
     connectOrCreate?: UserCreateOrConnectWithoutAssignedCompaniesInput
@@ -173081,6 +174721,20 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAssignedCompaniesInput, UserUpdateWithoutAssignedCompaniesInput>, UserUncheckedUpdateWithoutAssignedCompaniesInput>
+  }
+
+  export type CompanyInteractionUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<CompanyInteractionCreateWithoutCompanyInput, CompanyInteractionUncheckedCreateWithoutCompanyInput> | CompanyInteractionCreateWithoutCompanyInput[] | CompanyInteractionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CompanyInteractionCreateOrConnectWithoutCompanyInput | CompanyInteractionCreateOrConnectWithoutCompanyInput[]
+    upsert?: CompanyInteractionUpsertWithWhereUniqueWithoutCompanyInput | CompanyInteractionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: CompanyInteractionCreateManyCompanyInputEnvelope
+    set?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    disconnect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    delete?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    connect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    update?: CompanyInteractionUpdateWithWhereUniqueWithoutCompanyInput | CompanyInteractionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: CompanyInteractionUpdateManyWithWhereWithoutCompanyInput | CompanyInteractionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: CompanyInteractionScalarWhereInput | CompanyInteractionScalarWhereInput[]
   }
 
   export type ContactUpdateManyWithoutCompanyNestedInput = {
@@ -173167,6 +174821,20 @@ export namespace Prisma {
     deleteMany?: TelesaleScalarWhereInput | TelesaleScalarWhereInput[]
   }
 
+  export type CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<CompanyInteractionCreateWithoutCompanyInput, CompanyInteractionUncheckedCreateWithoutCompanyInput> | CompanyInteractionCreateWithoutCompanyInput[] | CompanyInteractionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CompanyInteractionCreateOrConnectWithoutCompanyInput | CompanyInteractionCreateOrConnectWithoutCompanyInput[]
+    upsert?: CompanyInteractionUpsertWithWhereUniqueWithoutCompanyInput | CompanyInteractionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: CompanyInteractionCreateManyCompanyInputEnvelope
+    set?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    disconnect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    delete?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    connect?: CompanyInteractionWhereUniqueInput | CompanyInteractionWhereUniqueInput[]
+    update?: CompanyInteractionUpdateWithWhereUniqueWithoutCompanyInput | CompanyInteractionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: CompanyInteractionUpdateManyWithWhereWithoutCompanyInput | CompanyInteractionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: CompanyInteractionScalarWhereInput | CompanyInteractionScalarWhereInput[]
+  }
+
   export type ContactUncheckedUpdateManyWithoutCompanyNestedInput = {
     create?: XOR<ContactCreateWithoutCompanyInput, ContactUncheckedCreateWithoutCompanyInput> | ContactCreateWithoutCompanyInput[] | ContactUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: ContactCreateOrConnectWithoutCompanyInput | ContactCreateOrConnectWithoutCompanyInput[]
@@ -173249,6 +174917,34 @@ export namespace Prisma {
     update?: TelesaleUpdateWithWhereUniqueWithoutCompanyInput | TelesaleUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: TelesaleUpdateManyWithWhereWithoutCompanyInput | TelesaleUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: TelesaleScalarWhereInput | TelesaleScalarWhereInput[]
+  }
+
+  export type CompanyCreateNestedOneWithoutInteractionsInput = {
+    create?: XOR<CompanyCreateWithoutInteractionsInput, CompanyUncheckedCreateWithoutInteractionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutInteractionsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutCompanyInteractionsInput = {
+    create?: XOR<UserCreateWithoutCompanyInteractionsInput, UserUncheckedCreateWithoutCompanyInteractionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCompanyInteractionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type CompanyUpdateOneRequiredWithoutInteractionsNestedInput = {
+    create?: XOR<CompanyCreateWithoutInteractionsInput, CompanyUncheckedCreateWithoutInteractionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutInteractionsInput
+    upsert?: CompanyUpsertWithoutInteractionsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutInteractionsInput, CompanyUpdateWithoutInteractionsInput>, CompanyUncheckedUpdateWithoutInteractionsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutCompanyInteractionsNestedInput = {
+    create?: XOR<UserCreateWithoutCompanyInteractionsInput, UserUncheckedCreateWithoutCompanyInteractionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCompanyInteractionsInput
+    upsert?: UserUpsertWithoutCompanyInteractionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCompanyInteractionsInput, UserUpdateWithoutCompanyInteractionsInput>, UserUncheckedUpdateWithoutCompanyInteractionsInput>
   }
 
   export type CompanyCreateNestedOneWithoutContactsInput = {
@@ -179006,6 +180702,10 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
@@ -179042,6 +180742,10 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
@@ -179057,6 +180761,36 @@ export namespace Prisma {
 
   export type CompanyCreateManyAssignedUserInputEnvelope = {
     data: CompanyCreateManyAssignedUserInput | CompanyCreateManyAssignedUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyInteractionCreateWithoutUserInput = {
+    id?: string
+    type: string
+    title: string
+    description?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutInteractionsInput
+  }
+
+  export type CompanyInteractionUncheckedCreateWithoutUserInput = {
+    id?: string
+    companyId: string
+    type: string
+    title: string
+    description?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type CompanyInteractionCreateOrConnectWithoutUserInput = {
+    where: CompanyInteractionWhereUniqueInput
+    create: XOR<CompanyInteractionCreateWithoutUserInput, CompanyInteractionUncheckedCreateWithoutUserInput>
+  }
+
+  export type CompanyInteractionCreateManyUserInputEnvelope = {
+    data: CompanyInteractionCreateManyUserInput | CompanyInteractionCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -180277,6 +182011,39 @@ export namespace Prisma {
     shippingProvince?: StringNullableFilter<"Company"> | string | null
     shippingPostalCode?: StringNullableFilter<"Company"> | string | null
     paymentMethod?: StringNullableFilter<"Company"> | string | null
+    region?: StringNullableFilter<"Company"> | string | null
+    segment?: StringNullableFilter<"Company"> | string | null
+    tags?: StringNullableListFilter<"Company">
+  }
+
+  export type CompanyInteractionUpsertWithWhereUniqueWithoutUserInput = {
+    where: CompanyInteractionWhereUniqueInput
+    update: XOR<CompanyInteractionUpdateWithoutUserInput, CompanyInteractionUncheckedUpdateWithoutUserInput>
+    create: XOR<CompanyInteractionCreateWithoutUserInput, CompanyInteractionUncheckedCreateWithoutUserInput>
+  }
+
+  export type CompanyInteractionUpdateWithWhereUniqueWithoutUserInput = {
+    where: CompanyInteractionWhereUniqueInput
+    data: XOR<CompanyInteractionUpdateWithoutUserInput, CompanyInteractionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CompanyInteractionUpdateManyWithWhereWithoutUserInput = {
+    where: CompanyInteractionScalarWhereInput
+    data: XOR<CompanyInteractionUpdateManyMutationInput, CompanyInteractionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type CompanyInteractionScalarWhereInput = {
+    AND?: CompanyInteractionScalarWhereInput | CompanyInteractionScalarWhereInput[]
+    OR?: CompanyInteractionScalarWhereInput[]
+    NOT?: CompanyInteractionScalarWhereInput | CompanyInteractionScalarWhereInput[]
+    id?: StringFilter<"CompanyInteraction"> | string
+    companyId?: StringFilter<"CompanyInteraction"> | string
+    userId?: StringFilter<"CompanyInteraction"> | string
+    type?: StringFilter<"CompanyInteraction"> | string
+    title?: StringFilter<"CompanyInteraction"> | string
+    description?: StringNullableFilter<"CompanyInteraction"> | string | null
+    occurredAt?: DateTimeFilter<"CompanyInteraction"> | Date | string
+    createdAt?: DateTimeFilter<"CompanyInteraction"> | Date | string
   }
 
   export type CustomerRequirementUpsertWithWhereUniqueWithoutEstimatedByUserInput = {
@@ -181104,6 +182871,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -181142,6 +182910,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -181196,6 +182965,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -181234,6 +183004,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -181285,7 +183056,11 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+    interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
@@ -181322,6 +183097,10 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
@@ -181398,6 +183177,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -181436,6 +183216,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -181503,7 +183284,11 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+    interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
@@ -181540,6 +183325,10 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
@@ -181628,6 +183417,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -181666,6 +183456,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -181704,6 +183495,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -181742,6 +183534,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -181796,6 +183589,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -181834,6 +183628,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -181871,6 +183666,7 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -181909,6 +183705,7 @@ export namespace Prisma {
     otpCode?: string | null
     otpExpiresAt?: Date | string | null
     isActive?: boolean
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -181936,6 +183733,36 @@ export namespace Prisma {
   export type UserCreateOrConnectWithoutAssignedCompaniesInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutAssignedCompaniesInput, UserUncheckedCreateWithoutAssignedCompaniesInput>
+  }
+
+  export type CompanyInteractionCreateWithoutCompanyInput = {
+    id?: string
+    type: string
+    title: string
+    description?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutCompanyInteractionsInput
+  }
+
+  export type CompanyInteractionUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    userId: string
+    type: string
+    title: string
+    description?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type CompanyInteractionCreateOrConnectWithoutCompanyInput = {
+    where: CompanyInteractionWhereUniqueInput
+    create: XOR<CompanyInteractionCreateWithoutCompanyInput, CompanyInteractionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type CompanyInteractionCreateManyCompanyInputEnvelope = {
+    data: CompanyInteractionCreateManyCompanyInput | CompanyInteractionCreateManyCompanyInput[]
+    skipDuplicates?: boolean
   }
 
   export type ContactCreateWithoutCompanyInput = {
@@ -182317,6 +184144,7 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -182355,6 +184183,7 @@ export namespace Prisma {
     otpCode?: NullableStringFieldUpdateOperationsInput | string | null
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -182377,6 +184206,22 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+  }
+
+  export type CompanyInteractionUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: CompanyInteractionWhereUniqueInput
+    update: XOR<CompanyInteractionUpdateWithoutCompanyInput, CompanyInteractionUncheckedUpdateWithoutCompanyInput>
+    create: XOR<CompanyInteractionCreateWithoutCompanyInput, CompanyInteractionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type CompanyInteractionUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: CompanyInteractionWhereUniqueInput
+    data: XOR<CompanyInteractionUpdateWithoutCompanyInput, CompanyInteractionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type CompanyInteractionUpdateManyWithWhereWithoutCompanyInput = {
+    where: CompanyInteractionScalarWhereInput
+    data: XOR<CompanyInteractionUpdateManyMutationInput, CompanyInteractionUncheckedUpdateManyWithoutCompanyInput>
   }
 
   export type ContactUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -182490,6 +184335,354 @@ export namespace Prisma {
     data: XOR<TelesaleUpdateManyMutationInput, TelesaleUncheckedUpdateManyWithoutCompanyInput>
   }
 
+  export type CompanyCreateWithoutInteractionsInput = {
+    id?: string
+    companyName: string
+    taxId?: string | null
+    address?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    area?: string | null
+    branchOrHeadOffice?: string | null
+    businessType?: string | null
+    customerAccessChannel?: string | null
+    customerStatus?: string | null
+    customerType?: string | null
+    district?: string | null
+    postalCode?: string | null
+    province?: string | null
+    subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+    contacts?: ContactCreateNestedManyWithoutCompanyInput
+    orders?: OrderCreateNestedManyWithoutCompanyInput
+    quotations?: QuotationCreateNestedManyWithoutCompanyInput
+    schedules?: ScheduleCreateNestedManyWithoutCompanyInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
+    telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutInteractionsInput = {
+    id?: string
+    companyName: string
+    taxId?: string | null
+    address?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    area?: string | null
+    branchOrHeadOffice?: string | null
+    businessType?: string | null
+    customerAccessChannel?: string | null
+    customerStatus?: string | null
+    customerType?: string | null
+    district?: string | null
+    postalCode?: string | null
+    province?: string | null
+    subDistrict?: string | null
+    assignedUserId?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutInteractionsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutInteractionsInput, CompanyUncheckedCreateWithoutInteractionsInput>
+  }
+
+  export type UserCreateWithoutCompanyInteractionsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserUncheckedCreateWithoutCompanyInteractionsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserCreateOrConnectWithoutCompanyInteractionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCompanyInteractionsInput, UserUncheckedCreateWithoutCompanyInteractionsInput>
+  }
+
+  export type CompanyUpsertWithoutInteractionsInput = {
+    update: XOR<CompanyUpdateWithoutInteractionsInput, CompanyUncheckedUpdateWithoutInteractionsInput>
+    create: XOR<CompanyCreateWithoutInteractionsInput, CompanyUncheckedCreateWithoutInteractionsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutInteractionsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutInteractionsInput, CompanyUncheckedUpdateWithoutInteractionsInput>
+  }
+
+  export type CompanyUpdateWithoutInteractionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    area?: NullableStringFieldUpdateOperationsInput | string | null
+    branchOrHeadOffice?: NullableStringFieldUpdateOperationsInput | string | null
+    businessType?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAccessChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    customerType?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+    contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUpdateManyWithoutCompanyNestedInput
+    quotations?: QuotationUpdateManyWithoutCompanyNestedInput
+    schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
+    telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutInteractionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    area?: NullableStringFieldUpdateOperationsInput | string | null
+    branchOrHeadOffice?: NullableStringFieldUpdateOperationsInput | string | null
+    businessType?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAccessChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    customerType?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type UserUpsertWithoutCompanyInteractionsInput = {
+    update: XOR<UserUpdateWithoutCompanyInteractionsInput, UserUncheckedUpdateWithoutCompanyInteractionsInput>
+    create: XOR<UserCreateWithoutCompanyInteractionsInput, UserUncheckedCreateWithoutCompanyInteractionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCompanyInteractionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCompanyInteractionsInput, UserUncheckedUpdateWithoutCompanyInteractionsInput>
+  }
+
+  export type UserUpdateWithoutCompanyInteractionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCompanyInteractionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+  }
+
   export type CompanyCreateWithoutContactsInput = {
     id?: string
     companyName: string
@@ -182518,7 +184711,11 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+    interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -182555,6 +184752,10 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -182694,7 +184895,11 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+    interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -182731,6 +184936,10 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -182857,7 +185066,11 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+    interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -182894,6 +185107,10 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -182950,6 +185167,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -182988,6 +185206,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -183293,7 +185512,11 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+    interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -183330,6 +185553,10 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -183398,6 +185625,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -183436,6 +185664,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -183676,7 +185905,11 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+    interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
@@ -183713,6 +185946,10 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
@@ -183740,6 +185977,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -183778,6 +186016,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -183892,7 +186131,11 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+    interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
@@ -183929,6 +186172,10 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
@@ -183962,6 +186209,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -184000,6 +186248,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -184038,6 +186287,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -184076,6 +186326,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -184130,6 +186381,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -184168,6 +186420,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -184219,7 +186472,11 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+    interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -184256,6 +186513,10 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -184366,6 +186627,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -184404,6 +186666,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -184497,7 +186760,11 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+    interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -184534,6 +186801,10 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -184656,6 +186927,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -184694,6 +186966,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -185988,6 +188261,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -186026,6 +188300,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -186165,6 +188440,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -186203,6 +188479,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -186769,6 +189046,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -186807,6 +189085,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -186952,6 +189231,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -186990,6 +189270,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -187204,6 +189485,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -187242,6 +189524,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -187285,6 +189568,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -187323,6 +189607,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -187377,6 +189662,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -187415,6 +189701,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -187464,6 +189751,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -187502,6 +189790,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -200550,6 +202839,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -200588,6 +202878,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -200907,6 +203198,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -200945,6 +203237,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -201406,6 +203699,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -201444,6 +203738,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -201617,6 +203912,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -201655,6 +203951,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -201693,6 +203990,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -201731,6 +204029,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -202001,6 +204300,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -202039,6 +204339,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -202540,6 +204841,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -202578,6 +204880,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -202780,6 +205083,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -202818,6 +205122,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -208047,6 +210352,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -208085,6 +210391,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -208128,6 +210435,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -208166,6 +210474,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -208303,6 +210612,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -208341,6 +210651,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -208390,6 +210701,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -208428,6 +210740,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -208555,6 +210868,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -208593,6 +210907,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -208647,6 +210962,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -208685,6 +211001,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -208824,7 +211141,11 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+    interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
@@ -208861,6 +211182,10 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
@@ -208888,6 +211213,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -208926,6 +211252,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -208969,6 +211296,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -209007,6 +211335,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -209346,7 +211675,11 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+    interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
@@ -209383,6 +211716,10 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
@@ -209416,6 +211753,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -209454,6 +211792,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -209503,6 +211842,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -209541,6 +211881,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -212195,6 +214536,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -212233,6 +214575,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -212287,6 +214630,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -212325,6 +214669,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -212363,6 +214708,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
@@ -212401,6 +214747,7 @@ export namespace Prisma {
     otpExpiresAt?: Date | string | null
     isActive?: boolean
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
@@ -212455,6 +214802,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
@@ -212493,6 +214841,7 @@ export namespace Prisma {
     otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
@@ -212544,6 +214893,19 @@ export namespace Prisma {
     shippingProvince?: string | null
     shippingPostalCode?: string | null
     paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+  }
+
+  export type CompanyInteractionCreateManyUserInput = {
+    id?: string
+    companyId: string
+    type: string
+    title: string
+    description?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
   }
 
   export type CustomerRequirementCreateManyEstimatedByUserInput = {
@@ -213008,6 +215370,10 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
@@ -213044,6 +215410,10 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
@@ -213080,6 +215450,39 @@ export namespace Prisma {
     shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
     shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
     paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+  }
+
+  export type CompanyInteractionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutInteractionsNestedInput
+  }
+
+  export type CompanyInteractionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyInteractionUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CustomerRequirementUpdateWithoutEstimatedByUserInput = {
@@ -214442,6 +216845,16 @@ export namespace Prisma {
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CompanyInteractionCreateManyCompanyInput = {
+    id?: string
+    userId: string
+    type: string
+    title: string
+    description?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
   export type ContactCreateManyCompanyInput = {
     id?: string
     contactName: string
@@ -214572,6 +216985,36 @@ export namespace Prisma {
     forwardTo?: string | null
     callbackAt?: Date | string | null
     visitDate?: Date | string | null
+  }
+
+  export type CompanyInteractionUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutCompanyInteractionsNestedInput
+  }
+
+  export type CompanyInteractionUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyInteractionUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ContactUpdateWithoutCompanyInput = {

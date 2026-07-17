@@ -399,6 +399,34 @@ export async function confirmJobStep(payload: {
     await createRepairDelivery(jobId)
   }
 
+  // Trigger: Notify Store when goods need to be received
+  if (nextStep?.key === 'store_receive') {
+    try {
+      const { customStockArrivedMessage, getLineUserIdByEmpId, pushLineMessage } = await import('@/app/lib/lineNotify');
+      const arrivedMsg = await customStockArrivedMessage(job);
+      
+      const storeEmployees = await prisma.employeeSale.findMany({
+        where: { department: { contains: 'Store', mode: 'insensitive' } },
+        select: { employeeId: true }
+      });
+      const storeUsers = await prisma.user.findMany({
+        where: { role: { contains: 'store', mode: 'insensitive' } },
+        select: { employeeId: true }
+      });
+      
+      const empIdsToNotify = new Set<string>();
+      storeEmployees.forEach(e => { if (e.employeeId) empIdsToNotify.add(e.employeeId) });
+      storeUsers.forEach(u => { if (u.employeeId) empIdsToNotify.add(u.employeeId) });
+
+      for (const empId of empIdsToNotify) {
+        const lineId = await getLineUserIdByEmpId(empId);
+        if (lineId) await pushLineMessage(lineId, [arrivedMsg]);
+      }
+    } catch (err) {
+      console.error("Failed to send store notification:", err);
+    }
+  }
+
   // Trigger LINE Notification
   const stepInfo = STEP_LABELS[stepKey] || { label: stepKey, dept: department };
   await notifyJobStepUpdate(jobId, stepKey, stepInfo.label, stepInfo.dept);
@@ -482,9 +510,6 @@ const STEP_LABELS: Record<string, { label: string; dept: string }> = {
   'service_return': { label: '📬 ฝ่ายบริการ - ส่งคืนสินค้า', dept: 'Service' },
   'sales_pr': { label: '📝 ฝ่ายขาย - เปิด PR เพื่อสั่งซื้อ', dept: 'Sales' },
   'purchase_find_supplier': { label: '🛒 จัดซื้อ - หาร้านและขอราคา', dept: 'Purchase' },
-  'purchase_po': { label: '🛒 จัดซื้อ - บันทึก PO', dept: 'Purchase' },
-  'sales_acknowledge_po': { label: '📝 ฝ่ายขาย - รับทราบและยืนยัน PO', dept: 'Sales' },
-  'purchase_waiting': { label: '⏳ จัดซื้อ - รอสินค้า', dept: 'Purchase' },
   'store_receive': { label: '📦 Store - รับและตรวจสอบสินค้า', dept: 'Store' },
 };
 
@@ -562,69 +587,6 @@ export async function notifyJobStepUpdate(jobId: string, stepKey: string, stepLa
   }
 
   // Handle special notifications for Purchase Flow
-  if (stepKey === 'purchase_po') {
-    // Transition from purchase_po -> sales_acknowledge_po (Purchasing saved PO)
-    // Notify Sales + Manager to acknowledge
-    const { customPurchasePOMessage } = await import('@/app/lib/lineNotify');
-    const poMsg = await customPurchasePOMessage(job);
-    if (salesLineId) await pushLineMessage(salesLineId, [poMsg]);
-    if (supervisorLineId) await pushLineMessage(supervisorLineId, [poMsg]);
-    return;
-  }
-
-  if (stepKey === 'sales_acknowledge_po') {
-    // Transition from sales_acknowledge_po -> purchase_waiting
-    // Notify Purchasing that Sales has acknowledged the PO
-    const { customSalesAcknowledgeMessage } = await import('@/app/lib/lineNotify');
-    const ackMsg = await customSalesAcknowledgeMessage(job);
-    
-    const purchaseEmployees = await prisma.employeeSale.findMany({
-      where: { department: { contains: 'Purchase', mode: 'insensitive' } },
-      select: { employeeId: true }
-    });
-    const purchaseUsers = await prisma.user.findMany({
-      where: { role: { contains: 'purchase', mode: 'insensitive' } },
-      select: { employeeId: true }
-    });
-
-    const empIdsToNotify = new Set<string>();
-    purchaseEmployees.forEach(e => { if (e.employeeId) empIdsToNotify.add(e.employeeId) });
-    purchaseUsers.forEach(u => { if (u.employeeId) empIdsToNotify.add(u.employeeId) });
-
-    for (const empId of empIdsToNotify) {
-      const lineId = await getLineUserIdByEmpId(empId);
-      if (lineId) await pushLineMessage(lineId, [ackMsg]);
-    }
-    return;
-  }
-
-  if (stepKey === 'purchase_waiting') {
-    // Transition from purchase_waiting -> store_receive (Stock arrived)
-    // Notify Store + Sales + Manager
-    const { customStockArrivedMessage } = await import('@/app/lib/lineNotify');
-    const arrivedMsg = await customStockArrivedMessage(job);
-    if (salesLineId) await pushLineMessage(salesLineId, [arrivedMsg]);
-    if (supervisorLineId) await pushLineMessage(supervisorLineId, [arrivedMsg]);
-
-    const storeEmployees = await prisma.employeeSale.findMany({
-      where: { department: { contains: 'Store', mode: 'insensitive' } },
-      select: { employeeId: true }
-    });
-    const storeUsers = await prisma.user.findMany({
-      where: { role: { contains: 'store', mode: 'insensitive' } },
-      select: { employeeId: true }
-    });
-    
-    const empIdsToNotify = new Set<string>();
-    storeEmployees.forEach(e => { if (e.employeeId) empIdsToNotify.add(e.employeeId) });
-    storeUsers.forEach(u => { if (u.employeeId) empIdsToNotify.add(u.employeeId) });
-
-    for (const empId of empIdsToNotify) {
-      const lineId = await getLineUserIdByEmpId(empId);
-      if (lineId) await pushLineMessage(lineId, [arrivedMsg]);
-    }
-    return;
-  }
 
   if (stepKey === 'store_receive') {
     // Transition from store_receive -> next (Confirm receive)
@@ -714,3 +676,34 @@ export async function getProcurementForJob(customerName: string, projectName?: s
   
   return prs;
 }
+
+// ================================================
+// getPOsByJobName — Fetches POs related to a job name
+// ================================================
+export async function getPOsByJobName(jobName: string) {
+  if (!jobName) return [];
+  const pos = await prisma.purchaseOrder.findMany({
+    where: {
+      OR: [
+        { jobName: { contains: jobName, mode: "insensitive" } },
+        { purchaseRequest: { projectName: { contains: jobName, mode: "insensitive" } } }
+      ]
+    },
+    include: {
+      purchaseRequest: {
+        select: { projectName: true }
+      }
+    },
+    orderBy: { createdAt: "desc" }
+  });
+  
+  return pos.map(po => ({
+    poNumber: po.poNumber,
+    vendorName: po.vendorName,
+    jobName: po.jobName,
+    projectName: po.purchaseRequest?.projectName,
+    itemList: po.itemList,
+    deliveryDate: po.deliveryDate,
+  }));
+}
+

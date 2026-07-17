@@ -108,6 +108,14 @@ export async function createProject(data: any) {
           }
         });
       }
+      
+      // Push Notification to Accounting
+      try {
+        const { sendPushToRole } = await import('@/app/lib/webpush');
+        await sendPushToRole('บัญชี', 'มีรายการเบิกจ่ายใหม่ (โครงการ)', `โครงการใหม่ถูกสร้างและมีรายการรอตรวจสอบแล้ว`, '/accounting');
+      } catch (err) {
+        console.error("Web push error (Accounting for projects):", err);
+      }
     }
 
     const project = await prisma.project.create({

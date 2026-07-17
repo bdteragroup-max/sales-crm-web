@@ -1,5 +1,6 @@
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
+import { getCompanyWhereClause } from '@/app/lib/visibility';
 import { teraDb } from '@/app/lib/teraDb';
 import ClientsClientPage from '@/app/clients/ClientsClientPage';
 import { unstable_cache } from 'next/cache';
@@ -41,7 +42,7 @@ export async function getProvinces() {
 }
 
 interface PageProps {
-  searchParams: Promise<{ page?: string; search?: string; tab?: string; handler?: string; province?: string; status?: string }>;
+  searchParams: Promise<{ page?: string; search?: string; tab?: string; handler?: string; province?: string; status?: string; segment?: string; tag?: string }>;
 }
 
 export default async function ClientsPage({ searchParams }: PageProps) {
@@ -53,14 +54,13 @@ export default async function ClientsPage({ searchParams }: PageProps) {
   const handler = (params.handler || '').trim();
   const province = (params.province || '').trim();
   const status = (params.status || '').trim();
+  const segment = (params.segment || '').trim();
+  const tag = (params.tag || '').trim();
   
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  let roleWhere: any = { OR: [{ assignedUserId: user?.id }, { assignedUserId: null }] };
-  if (user?.role === 'ผู้จัดการ' || (user?.role || '').toLowerCase() === 'sales manager' || (user?.role || '').toLowerCase() === 'marketing manager' || (user?.role || '').toLowerCase() === 'ผู้จัดการฝ่ายการตลาด' || (user?.role || '').toLowerCase() === 'ผู้จัดการการตลาด' || (user?.role || '').toLowerCase() === 'ผู้การจัดการตลาด') {
-    roleWhere = {}; // Managers can see all clients
-  }
+  let roleWhere = getCompanyWhereClause(user as any);
 
   // Build database search filters
   const companySearchFilter: any = {
@@ -76,6 +76,8 @@ export default async function ClientsPage({ searchParams }: PageProps) {
           { province: { contains: search, mode: 'insensitive' as const } },
         ],
       }] : []),
+      ...(segment ? [{ segment }] : []),
+      ...(tag ? [{ tags: { has: tag } }] : []),
       ...(handler === 'unassigned' 
         ? [{
             assignedUserId: null,

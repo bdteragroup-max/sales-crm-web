@@ -208,7 +208,21 @@ exports.Prisma.CompanyScalarFieldEnum = {
   shippingDistrict: 'shippingDistrict',
   shippingProvince: 'shippingProvince',
   shippingPostalCode: 'shippingPostalCode',
-  paymentMethod: 'paymentMethod'
+  paymentMethod: 'paymentMethod',
+  region: 'region',
+  segment: 'segment',
+  tags: 'tags'
+};
+
+exports.Prisma.CompanyInteractionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  description: 'description',
+  occurredAt: 'occurredAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.ContactScalarFieldEnum = {
@@ -1818,6 +1832,7 @@ exports.Prisma.ModelName = {
   Schedule: 'Schedule',
   EmployeeSale: 'EmployeeSale',
   Company: 'Company',
+  CompanyInteraction: 'CompanyInteraction',
   Contact: 'Contact',
   Quotation: 'Quotation',
   Telesale: 'Telesale',

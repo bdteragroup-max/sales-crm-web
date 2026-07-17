@@ -19,8 +19,8 @@ function getNormalizedProjectGroup(rawName: string | undefined | null): string {
   return n;
 }
 
-export default function POListClient({ initialPos }: { initialPos: any[] }) {
-  const [searchTerm, setSearchTerm] = useState('');
+export default function POListClient({ initialPos, initialSearch = '' }: { initialPos: any[], initialSearch?: string }) {
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState('ALL');
   
   const [dateFilter, setDateFilter] = useState('');

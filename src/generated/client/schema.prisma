@@ -22,6 +22,7 @@ model User {
   otpExpiresAt           DateTime?             @db.Timestamptz(6)
   isActive               Boolean               @default(true)
   assignedCompanies      Company[]             @relation("AssignedCompany")
+  companyInteractions    CompanyInteraction[]
   estimatedRequirements  CustomerRequirement[] @relation("Estimator")
   customerRequirements   CustomerRequirement[]
   installationOrders     InstallationOrder[]
@@ -105,12 +106,12 @@ model EmployeeSale {
 }
 
 model Company {
-  id                    String       @id @default(cuid())
+  id                    String               @id @default(cuid())
   companyName           String
   taxId                 String?
   address               String?
-  createdAt             DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt             DateTime     @updatedAt @db.Timestamptz(6)
+  createdAt             DateTime             @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime             @updatedAt @db.Timestamptz(6)
   area                  String?
   branchOrHeadOffice    String?
   businessType          String?
@@ -133,7 +134,11 @@ model Company {
   shippingProvince      String?
   shippingPostalCode    String?
   paymentMethod         String?
-  assignedUser          User?        @relation("AssignedCompany", fields: [assignedUserId], references: [id])
+  region                String?
+  segment               String?
+  tags                  String[]
+  assignedUser          User?                @relation("AssignedCompany", fields: [assignedUserId], references: [id])
+  interactions          CompanyInteraction[]
   contacts              Contact[]
   orders                Order[]
   quotations            Quotation[]
@@ -143,6 +148,19 @@ model Company {
 
   @@index([companyName])
   @@index([assignedUserId])
+}
+
+model CompanyInteraction {
+  id          String   @id @default(cuid())
+  companyId   String
+  userId      String
+  type        String
+  title       String
+  description String?
+  occurredAt  DateTime
+  createdAt   DateTime @default(now())
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Contact {

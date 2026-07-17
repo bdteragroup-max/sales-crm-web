@@ -1,7 +1,8 @@
 import { decrypt } from '@/app/lib/session'
 import { cookies } from 'next/headers'
 import prisma from '@/app/lib/db'
-import { teraDb } from '@/app/lib/teraDb'
+import { getCompanyWhereClause } from '@/app/lib/visibility';
+import { teraDb } from '@/app/lib/teraDb';
 import { redirect } from 'next/navigation'
 import PipelineClientPage from './PipelineClientPage'
 
@@ -89,6 +90,9 @@ export default async function PipelinePage({
   } else if (isSales && !isServiceManager) {
     whereClause = { OR: [{ salespersonId: user.id }, { salespersonId: null }] };
   }
+  
+  // Apply company-level visibility to all quotations
+  whereClause.company = getCompanyWhereClause(user as any);
 
   // Parse Date Filters
   const dateField = (resolvedParams.dateField as string) || 'updatedAt'

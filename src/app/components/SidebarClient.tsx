@@ -4,7 +4,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
-  LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall,
+  LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
   LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart
 } from 'lucide-react';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -39,7 +39,7 @@ const managerNav = [
   { icon: FileText, label: 'รายงานใช้น้ำมัน & GPS', href: '/department/fuel-report' },
   { icon: CalendarDays, label: 'จัดการตารางงาน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
-  { icon: Users, label: 'ลูกค้าและบริษัท', href: '/clients' },
+  { icon: Users, label: 'ลูกค้าและผู้ติดต่อ', href: '/clients' },
   { icon: Settings, label: 'ตั้งค่าระบบ', href: '/settings' },
 ];
 
@@ -54,7 +54,7 @@ const repNav = [
   { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
   { icon: CalendarDays, label: 'ตารางงานของฉัน', href: '/schedule' },
   { icon: PhoneCall, label: 'เทเลเซลล์', href: '/telesales' },
-  { icon: Users, label: 'ลูกค้าและบริษัท', href: '/clients' },
+  { icon: Users, label: 'ลูกค้าและผู้ติดต่อ', href: '/clients' },
   { icon: Settings, label: 'ตั้งค่าระบบ', href: '/settings' },
 ];
 

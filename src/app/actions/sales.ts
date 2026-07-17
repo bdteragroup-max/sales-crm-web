@@ -2,6 +2,7 @@
 
 import prisma from "@/app/lib/db";
 import { getUser } from "@/app/lib/dal";
+import { getCompanyWhereClause } from "@/app/lib/visibility";
 import { revalidatePath } from "next/cache";
 
 const VALID_WIN_LOSS_REASONS = [
@@ -56,13 +57,20 @@ export async function searchCompanies(query: string) {
   if (!query || query.length < 2) return [];
   
   try {
+    const user = await getUser();
+    const whereClause: any = {
+      companyName: {
+        contains: query,
+        mode: 'insensitive'
+      }
+    };
+    
+    if (user) {
+      whereClause.AND = [ getCompanyWhereClause(user as any) ];
+    }
+
     const companies = await prisma.company.findMany({
-      where: {
-        companyName: {
-          contains: query,
-          mode: 'insensitive'
-        }
-      },
+      where: whereClause,
       take: 5
     });
     return companies;
@@ -76,14 +84,21 @@ export async function searchContacts(query: string, companyId?: string) {
   if (!query || query.length < 1) return [];
   
   try {
-    const contacts = await prisma.contact.findMany({
-      where: {
-        contactName: {
-          contains: query,
-          mode: 'insensitive'
-        },
-        ...(companyId ? { companyId } : {})
+    const user = await getUser();
+    const whereClause: any = {
+      contactName: {
+        contains: query,
+        mode: 'insensitive'
       },
+      ...(companyId ? { companyId } : {})
+    };
+    
+    if (user) {
+      whereClause.company = getCompanyWhereClause(user as any);
+    }
+
+    const contacts = await prisma.contact.findMany({
+      where: whereClause,
       include: {
         company: true
       },
@@ -330,6 +345,21 @@ export async function saveSalesData(formData: FormData) {
         followUp4: parseDate(followUp4Raw),
       }
     });
+
+    try {
+      await prisma.companyInteraction.create({
+        data: {
+          companyId: company.id,
+          userId: user.id,
+          type: 'quotation',
+          title: `สร้างใบเสนอราคา ${quotationNumber || ''}`,
+          description: `สถานะ: ${status}\nหัวข้อ: ${productInterest || '-'}\nมูลค่า(ก่อน VAT): ${salesBeforeVat || 0}`,
+          occurredAt: new Date()
+        }
+      });
+    } catch (e) {
+      console.error('Failed to log quotation interaction', e);
+    }
 
     // Auto-create an Order if status is closed (เปิดบิลแล้ว / PO...)
     let awardedGold = 0;

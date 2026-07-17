@@ -55,9 +55,9 @@ export const WORKFLOWS: WorkflowDef[] = [
         { key: "store",      label: "สโตร์",    department: ["store"] },
         { key: "sales_pr",   label: "ฝ่ายขาย - เปิด PR", department: ["sales"] },
         { key: "purchase_find_supplier", label: "จัดซื้อ - หาร้านค้า/Supplier", department: ["purchase"] },
-        { key: "purchase_po", label: "จัดซื้อ - บันทึก PO", department: ["purchase"] },
-        { key: "sales_acknowledge_po", label: "ฝ่ายขาย - รับทราบ PO", department: ["sales"] },
-        { key: "purchase_waiting", label: "จัดซื้อ - รอสินค้า", department: ["purchase"] },
+
+
+
         { key: "store_receive", label: "สโตร์ - รับและตรวจสอบสินค้า", department: ["store"] },
         { key: "accounting", label: "บัญชี",    department: ["accounting"] },
         { key: "delivery",   label: "จัดส่ง",   department: ["delivery"] },
@@ -146,9 +146,9 @@ export const WORKFLOWS: WorkflowDef[] = [
         { key: "sales_pr",    label: "ฝ่ายขาย - เปิด PR", department: ["sales"] },
         { key: "production",  label: "ฝ่ายผลิต", department: ["production"] },
         { key: "purchase_find_supplier", label: "จัดซื้อ - หาร้านค้า/Supplier", department: ["purchase"] },
-        { key: "purchase_po", label: "จัดซื้อ - บันทึก PO", department: ["purchase"] },
-        { key: "sales_acknowledge_po", label: "ฝ่ายขาย - รับทราบ PO", department: ["sales"] },
-        { key: "purchase_waiting", label: "จัดซื้อ - รอสินค้า", department: ["purchase"] },
+
+
+
         { key: "store_receive", label: "สโตร์ - รับและตรวจสอบสินค้า", department: ["store"] },
         { key: "accounting",  label: "บัญชี",       department: ["accounting"] },
         { key: "delivery",    label: "จัดส่ง",      department: ["delivery"] },
@@ -180,9 +180,9 @@ export const WORKFLOWS: WorkflowDef[] = [
         { key: "sales_pr",   label: "ฝ่ายขาย - เปิด PR", department: ["sales"] },
         { key: "production", label: "ฝ่ายผลิต", department: ["production"] },
         { key: "purchase_find_supplier", label: "จัดซื้อ - หาร้านค้า/Supplier", department: ["purchase"] },
-        { key: "purchase_po", label: "จัดซื้อ - บันทึก PO", department: ["purchase"] },
-        { key: "sales_acknowledge_po", label: "ฝ่ายขาย - รับทราบ PO", department: ["sales"] },
-        { key: "purchase_waiting", label: "จัดซื้อ - รอสินค้า", department: ["purchase"] },
+
+
+
         { key: "store_receive", label: "สโตร์ - รับและตรวจสอบสินค้า", department: ["store"] },
         { key: "accounting", label: "บัญชี",       department: ["accounting"] },
         { key: "delivery",   label: "จัดส่ง",      department: ["delivery"] },
@@ -218,9 +218,9 @@ export const WORKFLOWS: WorkflowDef[] = [
         { key: "store",      label: "สโตร์", department: ["store"] },
         { key: "sales_pr",   label: "ฝ่ายขาย - เปิด PR", department: ["sales"] },
         { key: "purchase_find_supplier", label: "จัดซื้อ - หาร้านค้า/Supplier", department: ["purchase"] },
-        { key: "purchase_po", label: "จัดซื้อ - บันทึก PO", department: ["purchase"] },
-        { key: "sales_acknowledge_po", label: "ฝ่ายขาย - รับทราบ PO", department: ["sales"] },
-        { key: "purchase_waiting", label: "จัดซื้อ - รอสินค้า", department: ["purchase"] },
+
+
+
         { key: "store_receive", label: "สโตร์ - รับและตรวจสอบสินค้า", department: ["store"] },
         { key: "project",    label: "โปรเจค", department: ["project"] },
         { key: "accounting", label: "บัญชี",       department: ["accounting"] },

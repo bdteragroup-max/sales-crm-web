@@ -34,6 +34,9 @@ interface Company {
   businessType?: string | null;
   customerType?: string | null;
   customerStatus?: string | null;
+  segment?: string | null;
+  region?: string | null;
+  tags?: string[];
   branchOrHeadOffice?: string | null;
   assignedUser?: {
     id: string;
@@ -747,6 +750,26 @@ export default function ClientsClientPage({
 
   <select
     className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 sm:max-w-[200px] shadow-sm"
+    value={searchParams.get('segment') || ''}
+    onChange={(e) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (e.target.value) {
+        params.set('segment', e.target.value);
+      } else {
+        params.delete('segment');
+      }
+      params.set('page', '1');
+      router.push(`${pathname}?${params.toString()}`);
+    }}
+  >
+    <option value="">-- ทุกกลุ่มลูกค้า (Segment) --</option>
+    <option value="SME">SME</option>
+    <option value="Enterprise">Enterprise</option>
+    <option value="Government">Government</option>
+  </select>
+
+  <select
+    className="w-full sm:w-auto border border-gray-200 rounded-xl px-4 py-2.5 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 sm:max-w-[200px] shadow-sm"
     value={searchParams.get('status') || ''}
     onChange={(e) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -812,6 +835,11 @@ export default function ClientsClientPage({
                     {company.customerType !== 'บุคคลธรรมดา' && company.branchOrHeadOffice && (
                       <span className="text-[11px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full font-medium">
                         {company.branchOrHeadOffice}
+                      </span>
+                    )}
+                    {company.segment && (
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-brand-red text-white">
+                        {company.segment}
                       </span>
                     )}
                   </div>
@@ -1015,6 +1043,16 @@ export default function ClientsClientPage({
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-black text-xs rounded-xl shadow-sm transition-all border border-blue-100"
                       >
                         <Plus size={12} /> เพิ่มผู้ติดต่อ
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/clients/${company.id}`);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-red hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-sm transition-all"
+                      >
+                        <Building2 size={12} /> ประวัติโต้ตอบ (Timeline)
                       </button>
                       <button
                         type="button"

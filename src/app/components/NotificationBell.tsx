@@ -10,6 +10,7 @@ export default function NotificationBell({ userId }: { userId?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showPushBanner, setShowPushBanner] = useState(false);
   const [isIOSStandalone, setIsIOSStandalone] = useState(true);
+  const [permission, setPermission] = useState<string>('default');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -26,16 +27,18 @@ export default function NotificationBell({ userId }: { userId?: string }) {
       if (!alreadyAsked && Notification.permission === 'default') {
         setShowPushBanner(true);
       }
+      setPermission(Notification.permission);
     }
   }, []);
 
   const subscribeToPush = async () => {
     try {
-      const permission = await Notification.requestPermission();
+      const permissionResult = await Notification.requestPermission();
+      setPermission(permissionResult);
       localStorage.setItem('push-permission-asked', 'true');
       setShowPushBanner(false);
 
-      if (permission === 'granted' && navigator.serviceWorker) {
+      if (permissionResult === 'granted' && navigator.serviceWorker) {
         const registration = await navigator.serviceWorker.register('/sw.js');
         await navigator.serviceWorker.ready;
         const subscription = await registration.pushManager.subscribe({
@@ -181,6 +184,19 @@ export default function NotificationBell({ userId }: { userId?: string }) {
             )}
           </div>
           
+          {permission !== 'granted' && (
+            <div className="p-3 bg-red-50/50 border-b border-gray-50 flex items-center justify-between">
+              <span className="text-xs text-gray-600 font-medium">เปิดรับการแจ้งเตือนบนเบราว์เซอร์</span>
+              <button
+                onClick={subscribeToPush}
+                disabled={!isIOSStandalone}
+                className="px-3 py-1.5 bg-brand-red text-white text-[10px] font-bold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                เปิดใช้งาน
+              </button>
+            </div>
+          )}
+
           <div className="max-h-[350px] overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-8 text-center text-gray-400 flex flex-col items-center gap-2">

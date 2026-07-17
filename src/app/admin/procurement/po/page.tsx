@@ -5,7 +5,10 @@ import POListClient from './POListClient';
 
 export const dynamic = 'force-dynamic';
 
-export default async function POListPage() {
+export default async function POListPage(props: { searchParams?: Promise<any> | any }) {
+  const searchParams = props.searchParams ? await props.searchParams : {};
+  const initialSearch = searchParams.search || '';
+
   const user = await getUser();
   if (!user) redirect('/');
 
@@ -37,7 +40,7 @@ export default async function POListPage() {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">รายการสั่งซื้อ (Purchase Orders - PO)</h1>
-      <POListClient initialPos={serializedPos} />
+      <POListClient initialPos={serializedPos} initialSearch={initialSearch} />
     </div>
   );
 }
