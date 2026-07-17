@@ -2,11 +2,16 @@
 
 import React, { useState } from 'react';
 import { Save, Plus, FileText, CheckCircle2, Loader2, Upload, Trash2, Paperclip } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 import { saveCustomerRequirementHistory, updateCustomerRequirementHistory } from '@/app/actions/requirements';
 import { searchCompanies, searchContacts } from '@/app/actions/sales';
 import Card from '../components/Card';
 import { LoadingButton } from '@/app/components/LoadingButton';
 import { X, XCircle, MapPin, User } from 'lucide-react';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function CustomerRequirementForm({ currentUser, onSuccess, editingId, initialData }: { currentUser?: any, onSuccess?: () => void, editingId?: string, initialData?: any }) {
   const [loading, setLoading] = useState(false);
@@ -23,20 +28,30 @@ export default function CustomerRequirementForm({ currentUser, onSuccess, editin
       
       for (let i = 0; i < e.target.files.length; i++) {
         const file = e.target.files[i];
-        const formData = new FormData();
-        formData.append('file', file);
         
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        const result = await res.json();
-        if (result.success && result.url) {
-          newAttachments.push({ name: file.name, url: result.url });
-        } else {
-          alert(`Failed to upload ${file.name}: ${result.error || 'Unknown error'}`);
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+
+        const { data: uploadData, error: uploadError } = await supabase
+          .storage
+          .from('uploadsService')
+          .upload(filename, file, {
+            contentType: file.type,
+            upsert: false
+          });
+
+        if (uploadError) {
+          console.error('Supabase upload error:', uploadError);
+          alert(`Failed to upload ${file.name}: ${uploadError.message}`);
+          continue;
         }
+
+        const { data: { publicUrl } } = supabase
+          .storage
+          .from('uploadsService')
+          .getPublicUrl(uploadData.path);
+          
+        newAttachments.push({ name: file.name, url: publicUrl });
       }
       
       setData((prev: any) => ({ ...prev, attachments: newAttachments }));
