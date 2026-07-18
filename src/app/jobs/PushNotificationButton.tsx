@@ -47,6 +47,13 @@ export default function PushNotificationButton() {
     
     setIsLoading(true);
     try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        alert("คุณปฏิเสธการเข้าถึงการแจ้งเตือน โปรดเปิดสิทธิ์ในตั้งค่าเบราว์เซอร์");
+        setIsLoading(false);
+        return;
+      }
+
       const registration = await navigator.serviceWorker.ready;
       
       const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;

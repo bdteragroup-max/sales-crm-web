@@ -19,6 +19,8 @@ export async function sendPushToUser(userId: string, payload: {
   category: string;
 }) { 
   // Rate limiting (5 minutes debounce for same user and category)
+  // Temporarily bypassed so you can test notifications reliably
+  /*
   const recentNotif = await prisma.notification.findFirst({
     where: {
       userId,
@@ -28,6 +30,7 @@ export async function sendPushToUser(userId: string, payload: {
   });
 
   if (recentNotif) return; // Prevent duplicate sending
+  */
 
   // Map to existing Notification schema fields
   await prisma.notification.create({
