@@ -6,6 +6,7 @@ import { updateJob, deleteJob, UpdateJobPayload, createStandaloneJob } from "./a
 import { JOB_TYPES } from "@/constants/job-types";
 import { useRouter } from "next/navigation";
 
+import PushNotificationButton from "./PushNotificationButton";
 import JobTimeline from "./JobTimeline";
 import { isCompleted, getCurrentStepDef, getSteps } from "@/app/lib/job-workflow";
 
@@ -740,6 +741,7 @@ export default function JobsClientPage({
           </div>
         </div>
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+          <PushNotificationButton />
           {(normalizedDept.includes('project') || normalizedDept.includes('sales') || isManager) && (
             <button
               onClick={() => setShowQuickProject(true)}

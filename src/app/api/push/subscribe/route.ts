@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server';
 import prisma from "@/app/lib/db";
+import { cookies } from 'next/headers';
+import { decrypt } from '@/app/lib/session';
 
 export async function POST(req: Request) {
   try {
-    const { subscription, userId, userAgent } = await req.json();
+    const session = (await cookies()).get('session')?.value;
+    const payload = await decrypt(session);
 
-    if (!subscription || !subscription.endpoint || !userId) {
+    if (!payload?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userId = payload.userId as string;
+    const { subscription, userAgent } = await req.json();
+
+    if (!subscription || !subscription.endpoint) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
