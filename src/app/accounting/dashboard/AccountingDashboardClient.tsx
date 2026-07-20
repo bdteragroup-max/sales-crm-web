@@ -173,7 +173,7 @@ export default function AccountingDashboardClient({ data }: { data: any }) {
                 <RechartsTooltip 
                   cursor={{ fill: '#f9fafb' }}
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                  formatter={(value: any, name: any) => [formatCurrency(value), name === 'revenue' ? 'รายได้' : 'รายจ่าย']}
+                  formatter={(value: any, name: any) => [formatCurrency(value), name]}
                 />
                 <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '12px', fontWeight: 'bold' }} />
                 <Bar dataKey="revenue" name="รายได้" fill="#10b981" radius={[4, 4, 0, 0]} />
@@ -202,7 +202,7 @@ export default function AccountingDashboardClient({ data }: { data: any }) {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <RechartsTooltip formatter={(value: any) => [value, 'จำนวนงาน']} />
+                <RechartsTooltip formatter={(value: any, name: any) => [`${value} งาน`, name]} />
                 <Legend verticalAlign="bottom" height={36}/>
               </PieChart>
             </ResponsiveContainer>
@@ -219,7 +219,8 @@ export default function AccountingDashboardClient({ data }: { data: any }) {
               <thead className="text-xs text-gray-500 uppercase bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 rounded-tl-lg">งวดที่</th>
-                  <th className="px-4 py-3">จำนวนเงินที่ต้องชำระ</th>
+                  <th className="px-4 py-3 text-right">ยอดที่ชำระแล้ว</th>
+                  <th className="px-4 py-3 text-right">ยอดค้างชำระ</th>
                   <th className="px-4 py-3">วันครบกำหนด</th>
                   <th className="px-4 py-3">ชื่อโปรเจค/ลูกค้า</th>
                   <th className="px-4 py-3">เซลส์ผู้รับผิดชอบ</th>
@@ -229,17 +230,20 @@ export default function AccountingDashboardClient({ data }: { data: any }) {
               <tbody>
                 {data.topOverdue.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-6 text-gray-500">ไม่มีรายการค้างชำระ</td>
+                    <td colSpan={7} className="text-center py-6 text-gray-500">ไม่มีรายการค้างชำระ</td>
                   </tr>
                 ) : data.topOverdue.map((pt: any) => {
-                  const amount = (Number(pt.installmentAmount) || Number(pt.job?.project?.projectValue) || Number(pt.job?.quotation?.actualClosingAmount) || Number(pt.job?.quotation?.totalAmountBeforeVat) || 0) - (Number(pt.paidAmount) || 0);
+                  const totalAmount = Number(pt.installmentAmount) || Number(pt.job?.project?.projectValue) || Number(pt.job?.quotation?.actualClosingAmount) || Number(pt.job?.quotation?.totalAmountBeforeVat) || 0;
+                  const paidAmount = Number(pt.paidAmount) || 0;
+                  const outstandingAmount = totalAmount - paidAmount;
                   const isOverdue = pt.dueDate && new Date(pt.dueDate) < new Date();
                   return (
                     <tr key={pt.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
                       <td className="px-4 py-3 font-medium text-gray-900">
                         {pt.installmentNo ? `งวดที่ ${pt.installmentNo}/${pt.installmentTotal}` : 'ยอดรวม'}
                       </td>
-                      <td className="px-4 py-3 font-bold text-red-600">{formatCurrency(amount)}</td>
+                      <td className="px-4 py-3 font-medium text-emerald-600 text-right">{formatCurrency(paidAmount)}</td>
+                      <td className="px-4 py-3 font-bold text-red-600 text-right">{formatCurrency(outstandingAmount)}</td>
                       <td className={`px-4 py-3 ${isOverdue ? 'text-red-500 font-medium' : 'text-gray-500'}`}>
                         {pt.dueDate ? new Date(pt.dueDate).toLocaleDateString('th-TH') : '-'}
                       </td>
@@ -292,6 +296,7 @@ export default function AccountingDashboardClient({ data }: { data: any }) {
             <thead className="text-xs text-gray-500 uppercase bg-gray-50">
               <tr>
                 <th className="px-4 py-3 rounded-tl-lg">รหัสโปรเจค</th>
+                <th className="px-4 py-3">ชื่อลูกค้า</th>
                 <th className="px-4 py-3">ชื่อโปรเจค</th>
                 <th className="px-4 py-3 text-right">งบประมาณ</th>
                 <th className="px-4 py-3 text-right">รายได้ (รับแล้ว)</th>
@@ -303,13 +308,14 @@ export default function AccountingDashboardClient({ data }: { data: any }) {
               {(() => {
                 const filteredProjects = data.ongoingProjects?.filter((p: any) => 
                   p.projectNumber?.toLowerCase().includes(projectSearch.toLowerCase()) ||
-                  p.projectName?.toLowerCase().includes(projectSearch.toLowerCase())
+                  p.projectName?.toLowerCase().includes(projectSearch.toLowerCase()) ||
+                  p.clientName?.toLowerCase().includes(projectSearch.toLowerCase())
                 ) || [];
 
                 if (filteredProjects.length === 0) {
                   return (
                     <tr>
-                      <td colSpan={6} className="text-center py-6 text-gray-500">ไม่พบโปรเจค</td>
+                      <td colSpan={7} className="text-center py-6 text-gray-500">ไม่พบโปรเจค</td>
                     </tr>
                   );
                 }
@@ -321,6 +327,7 @@ export default function AccountingDashboardClient({ data }: { data: any }) {
                     <td className="px-4 py-3 font-mono text-xs text-blue-600">
                       <a href={`/projects/${proj.id}`} className="hover:underline">{proj.projectNumber}</a>
                     </td>
+                    <td className="px-4 py-3 text-gray-600">{proj.clientName}</td>
                     <td className="px-4 py-3 font-medium text-gray-900">{proj.projectName}</td>
                     <td className="px-4 py-3 text-right text-gray-600">{formatCurrency(proj.budget)}</td>
                     <td className="px-4 py-3 text-right font-medium text-emerald-600">{formatCurrency(proj.income)}</td>

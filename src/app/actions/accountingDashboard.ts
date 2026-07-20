@@ -197,6 +197,7 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
       id: project.id,
       projectName: project.name,
       projectNumber: project.projectNumber,
+      clientName: project.clientName || project.job?.customerName || '-',
       budget: Number(project.projectValue) || Number(project.amountIncludingVat) || 0,
       income,
       expense
