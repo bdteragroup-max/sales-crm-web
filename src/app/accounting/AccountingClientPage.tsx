@@ -3,7 +3,7 @@
 import React, { useState, useTransition, useEffect } from "react";
 import { DollarSign, Search, CheckCircle, Clock, AlertCircle, Eye, X, Loader2, ClipboardList, ChevronUp, ChevronDown, Filter, Download } from "lucide-react";
 import * as XLSX from "xlsx";
-import { updatePaymentTaskStatus } from "@/app/actions/accounting";
+import { updatePaymentTaskStatus, recordPaymentDeposit, updatePaymentTaskCreditType } from "@/app/actions/accounting";
 
 function formatDate(d: string | Date) {
   const date = new Date(d);
@@ -29,15 +29,24 @@ function JobDetailModal({
   jobId,
   onClose,
   onConfirmPayment,
+  onRecordDeposit,
+  onUpdateCreditType,
   isPending
 }: {
   jobId: string,
   onClose: () => void,
-  onConfirmPayment: (id: string, status: string) => void,
+  onConfirmPayment: (id: string, status: string, note: string) => void,
+  onRecordDeposit: (id: string, amount: number, note: string) => void,
+  onUpdateCreditType: (id: string, creditType: string) => void,
   isPending: boolean
 }) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showDepositModal, setShowDepositModal] = useState<string | null>(null);
+  const [depositAmount, setDepositAmount] = useState('');
+  const [depositNote, setDepositNote] = useState('');
+  const [confirmPaymentModal, setConfirmPaymentModal] = useState<{ id: string, status: string } | null>(null);
+  const [paymentNote, setPaymentNote] = useState('');
 
   useEffect(() => {
     fetch(`/api/accounting/job/${jobId}`, { cache: 'no-store' })
@@ -259,28 +268,83 @@ function JobDetailModal({
                         {pt.dueDate ? formatDate(pt.dueDate) : '-'}
                       </p>
                     </div>
-                    <div className="col-span-2 flex items-center justify-between">
+
+                    {((pt.job?.paymentMethod || pt.paymentMethod || job.paymentMethod) !== 'เงินสด' && (pt.job?.paymentMethod || pt.paymentMethod || job.paymentMethod) !== 'จ่ายแล้ว') && (
+                      <div className="col-span-2">
+                        <p className="text-xs text-emerald-600/70 mb-1">รูปแบบการให้เครดิต (ถ้ามี)</p>
+                        {ptIsCompleted ? (
+                          <p className="text-sm font-bold text-gray-800">{pt.creditType || '-'}</p>
+                        ) : (
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="ระบุรูปแบบเครดิต (เช่น เช็ค, LC, ฯลฯ)"
+                              defaultValue={pt.creditType || ''}
+                              onBlur={(e) => {
+                                if(e.target.value !== (pt.creditType || '')) {
+                                  onUpdateCreditType(pt.id, e.target.value);
+                                  setData((prev: any) => ({
+                                    ...prev,
+                                    paymentTasks: prev.paymentTasks.map((t: any) => t.id === pt.id ? { ...t, creditType: e.target.value } : t)
+                                  }));
+                                }
+                              }}
+                              className="w-full px-3 py-1.5 border border-emerald-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 bg-white"
+                            />
+                            <span className="text-[10px] text-gray-400 self-center whitespace-nowrap">บันทึกอัตโนมัติเมื่อคลิกออก</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="col-span-2 flex items-center justify-between mt-2">
                       <div>
                         <p className="text-xs text-emerald-600/70 mb-1">สถานะ</p>
                         <p className="text-sm font-bold flex items-center gap-1.5">
                           {ptIsCompleted ? (
                             <span className="text-emerald-600 flex items-center gap-1"><CheckCircle size={14} /> ตรวจสอบและบันทึกแล้ว</span>
+                          ) : pt.status === 'ชำระมัดจำแล้ว' ? (
+                            <span className="text-emerald-600 flex items-center gap-1"><CheckCircle size={14} /> ชำระมัดจำแล้ว</span>
                           ) : (
                             <span className="text-amber-600 flex items-center gap-1"><Clock size={14} /> {pt.status || 'รอดำเนินการ'}</span>
                           )}
                         </p>
                       </div>
                       {!ptIsCompleted && (
-                        <button
-                          disabled={isPending}
-                          onClick={() => onConfirmPayment(pt.id, 'ตรวจสอบและบันทึกแล้ว')}
-                          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50"
-                        >
-                          {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle size={14} />}
-                          ยืนยันรับเงินก้อนนี้
-                        </button>
+                        <div className="flex gap-2">
+                          {(!pt.paidAmount || pt.paidAmount === 0) && (
+                            <button
+                              disabled={isPending}
+                              onClick={() => setShowDepositModal(pt.id)}
+                              className="flex items-center gap-2 px-3 py-2 bg-white border border-emerald-600 hover:bg-emerald-50 text-emerald-600 text-xs font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                            >
+                              บันทึกเงินมัดจำ
+                            </button>
+                          )}
+                          <button
+                            disabled={isPending}
+                            onClick={() => setConfirmPaymentModal({ id: pt.id, status: 'ตรวจสอบและบันทึกแล้ว' })}
+                            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                          >
+                            {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle size={14} />}
+                            ยืนยันรับเงิน
+                          </button>
+                        </div>
                       )}
                     </div>
+                    {pt.paidAmount !== null && pt.paidAmount !== undefined && pt.paidAmount > 0 && !ptIsCompleted && (
+                      <div className="col-span-2 bg-white/50 p-3 rounded-lg border border-emerald-100/50 mt-1">
+                        <div className="flex justify-between items-center mb-1">
+                          <p className="text-xs font-bold text-emerald-700">มัดจำแล้ว: ฿{pt.paidAmount.toLocaleString()}</p>
+                          <p className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
+                            {(((pt.paidAmount) / (project?.projectValue || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || pt.installmentAmount || 1)) * 100).toFixed(2)}%
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          ยอดคงเหลือที่ต้องชำระ: ฿{((pt.installmentAmount || project?.projectValue || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || 0) - pt.paidAmount).toLocaleString()}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -295,6 +359,143 @@ function JobDetailModal({
             </div>
           </section>
         </div>
+
+        {/* Deposit Modal */}
+        {showDepositModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60] p-4">
+            <div className="bg-white rounded-xl w-full max-w-sm p-6 shadow-xl relative">
+              <button onClick={() => { setShowDepositModal(null); setDepositAmount(''); }} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
+                <X size={20} />
+              </button>
+              <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
+                <DollarSign size={20} className="text-emerald-600" />
+                บันทึกเงินมัดจำ
+              </h3>
+
+              <div className="mb-4">
+                <label className="block text-sm font-bold text-gray-700 mb-1">ยอดเงินมัดจำที่ได้รับ (บาท)</label>
+                <input
+                  type="number"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 mb-3"
+                  placeholder="0.00"
+                  autoFocus
+                />
+
+                <label className="block text-sm font-bold text-gray-700 mb-1">หมายเหตุสำหรับการมัดจำ (ถ้ามี)</label>
+                <input
+                  type="text"
+                  value={depositNote}
+                  onChange={(e) => setDepositNote(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  placeholder="พิมพ์หมายเหตุ..."
+                />
+              </div>
+
+              {depositAmount && !isNaN(Number(depositAmount)) && (
+                <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-100 mb-6">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-bold text-emerald-800">คิดเป็น:</span>
+                    <span className="text-lg font-black text-emerald-700">
+                      {((Number(depositAmount) / (project?.projectValue || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || 1)) * 100).toFixed(2)}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-emerald-600 mt-1">ของยอดรวมทั้งหมด ฿{(project?.projectValue || quotation?.actualClosingAmount || quotation?.totalAmountBeforeVat || 0).toLocaleString()}</p>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowDepositModal(null); setDepositAmount(''); setDepositNote(''); }}
+                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-lg transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={() => {
+                    const amt = Number(depositAmount);
+                    if (amt > 0 && showDepositModal) {
+                      onRecordDeposit(showDepositModal, amt, depositNote);
+                      setData((prev: any) => ({
+                        ...prev,
+                        paymentTasks: prev.paymentTasks?.map((pt: any) => pt.id === showDepositModal ? {
+                          ...pt,
+                          status: 'ชำระมัดจำแล้ว',
+                          paidAmount: amt,
+                          note: depositNote || pt.note
+                        } : pt)
+                      }));
+                      setShowDepositModal(null);
+                      setDepositAmount('');
+                      setDepositNote('');
+                    }
+                  }}
+                  disabled={!depositAmount || isNaN(Number(depositAmount)) || Number(depositAmount) <= 0 || isPending}
+                  className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+                >
+                  บันทึก
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confirm Payment Modal */}
+        {confirmPaymentModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60] p-4">
+            <div className="bg-white rounded-xl w-full max-w-sm p-6 shadow-xl relative">
+              <button onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); }} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
+                <X size={20} />
+              </button>
+              <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
+                <CheckCircle size={20} className="text-emerald-600" />
+                ยืนยันการรับเงิน
+              </h3>
+
+              <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-700 mb-1">หมายเหตุ (ถ้ามี)</label>
+                <input
+                  type="text"
+                  value={paymentNote}
+                  onChange={(e) => setPaymentNote(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  placeholder="พิมพ์หมายเหตุ..."
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); }}
+                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-lg transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={() => {
+                    onConfirmPayment(confirmPaymentModal.id, confirmPaymentModal.status, paymentNote);
+                    setData((prev: any) => ({
+                      ...prev,
+                      paymentTasks: prev.paymentTasks?.map((pt: any) => pt.id === confirmPaymentModal.id ? {
+                        ...pt,
+                        status: confirmPaymentModal.status,
+                        note: paymentNote || pt.note,
+                        paidDate: confirmPaymentModal.status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : pt.paidDate
+                      } : pt)
+                    }));
+                    setConfirmPaymentModal(null);
+                    setPaymentNote('');
+                  }}
+                  disabled={isPending}
+                  className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+                >
+                  ยืนยัน
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="sticky bottom-0 bg-white border-t border-gray-100 p-6 flex justify-end gap-3 z-10 rounded-b-2xl">
           <button
@@ -331,10 +532,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const uniquePaymentMethods = Array.from(new Set(tasks.map(t => t.job?.paymentMethod).filter(Boolean)));
   const uniqueYears = Array.from(new Set(tasks.map(t => t.job?.yearBe).filter(Boolean))).sort((a, b) => Number(b) - Number(a));
 
-  const handleUpdate = (id: string, status: string) => {
-    const note = window.prompt("หมายเหตุ (ถ้ามี):");
-    if (note === null) return; // cancelled
-
+  const handleUpdate = (id: string, status: string, note: string = "") => {
     startTransition(async () => {
       await updatePaymentTaskStatus(id, status, note);
       setTasks(prev => prev.map(t => t.id === id ? {
@@ -342,6 +540,28 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         status,
         note: note || t.note,
         paidDate: status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : t.paidDate
+      } : t));
+    });
+  };
+
+  const handleRecordDeposit = (id: string, amount: number, note: string = "") => {
+    startTransition(async () => {
+      await recordPaymentDeposit(id, amount, note);
+      setTasks(prev => prev.map(t => t.id === id ? {
+        ...t,
+        status: 'ชำระมัดจำแล้ว',
+        paidAmount: amount,
+        note: note || t.note
+      } : t));
+    });
+  };
+
+  const handleUpdateCreditType = (id: string, creditType: string) => {
+    startTransition(async () => {
+      await updatePaymentTaskCreditType(id, creditType);
+      setTasks(prev => prev.map(t => t.id === id ? {
+        ...t,
+        creditType
       } : t));
     });
   };
@@ -487,6 +707,8 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           jobId={selectedJobId}
           onClose={() => setSelectedJobId(null)}
           onConfirmPayment={handleUpdate}
+          onRecordDeposit={handleRecordDeposit}
+          onUpdateCreditType={handleUpdateCreditType}
           isPending={isPending}
         />
       )}
@@ -586,6 +808,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
             <option value="">ทั้งหมด</option>
             <option value="รอดำเนินการ">รอดำเนินการ</option>
+            <option value="ชำระมัดจำแล้ว">ชำระมัดจำแล้ว</option>
             <option value="ตรวจสอบและบันทึกแล้ว">ตรวจสอบและบันทึกแล้ว</option>
           </select>
         </div>
@@ -733,6 +956,13 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                             {formatDate(group.tasks[group.tasks.length - 1].paidDate)}
                           </p>
                         )}
+                      </div>
+                    ) : group.tasks.some((t: any) => t.status === 'ชำระมัดจำแล้ว') ? (
+                      <div>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 border border-emerald-200 text-emerald-700">
+                          ชำระมัดจำแล้ว {hasInstallments ? `(${completedCount}/${group.tasks.length})` : ''}
+                        </span>
+                        {isOverdue && <p className="text-[10px] text-red-500 font-bold mt-1">เลยกำหนดชำระ!</p>}
                       </div>
                     ) : (
                       <div>

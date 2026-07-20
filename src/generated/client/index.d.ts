@@ -32529,6 +32529,7 @@ export namespace Prisma {
     installmentAmount: number | null
     installmentNo: number | null
     installmentTotal: number | null
+    creditType: string | null
   }
 
   export type PaymentTaskMaxAggregateOutputType = {
@@ -32545,6 +32546,7 @@ export namespace Prisma {
     installmentAmount: number | null
     installmentNo: number | null
     installmentTotal: number | null
+    creditType: string | null
   }
 
   export type PaymentTaskCountAggregateOutputType = {
@@ -32561,6 +32563,7 @@ export namespace Prisma {
     installmentAmount: number
     installmentNo: number
     installmentTotal: number
+    creditType: number
     _all: number
   }
 
@@ -32593,6 +32596,7 @@ export namespace Prisma {
     installmentAmount?: true
     installmentNo?: true
     installmentTotal?: true
+    creditType?: true
   }
 
   export type PaymentTaskMaxAggregateInputType = {
@@ -32609,6 +32613,7 @@ export namespace Prisma {
     installmentAmount?: true
     installmentNo?: true
     installmentTotal?: true
+    creditType?: true
   }
 
   export type PaymentTaskCountAggregateInputType = {
@@ -32625,6 +32630,7 @@ export namespace Prisma {
     installmentAmount?: true
     installmentNo?: true
     installmentTotal?: true
+    creditType?: true
     _all?: true
   }
 
@@ -32728,6 +32734,7 @@ export namespace Prisma {
     installmentAmount: number | null
     installmentNo: number | null
     installmentTotal: number | null
+    creditType: string | null
     _count: PaymentTaskCountAggregateOutputType | null
     _avg: PaymentTaskAvgAggregateOutputType | null
     _sum: PaymentTaskSumAggregateOutputType | null
@@ -32763,6 +32770,7 @@ export namespace Prisma {
     installmentAmount?: boolean
     installmentNo?: boolean
     installmentTotal?: boolean
+    creditType?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentTask"]>
 
@@ -32780,6 +32788,7 @@ export namespace Prisma {
     installmentAmount?: boolean
     installmentNo?: boolean
     installmentTotal?: boolean
+    creditType?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentTask"]>
 
@@ -32797,6 +32806,7 @@ export namespace Prisma {
     installmentAmount?: boolean
     installmentNo?: boolean
     installmentTotal?: boolean
+    creditType?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentTask"]>
 
@@ -32814,9 +32824,10 @@ export namespace Prisma {
     installmentAmount?: boolean
     installmentNo?: boolean
     installmentTotal?: boolean
+    creditType?: boolean
   }
 
-  export type PaymentTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "status" | "assignedTo" | "dueDate" | "paidAmount" | "paidDate" | "note" | "createdAt" | "updatedAt" | "installmentAmount" | "installmentNo" | "installmentTotal", ExtArgs["result"]["paymentTask"]>
+  export type PaymentTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "status" | "assignedTo" | "dueDate" | "paidAmount" | "paidDate" | "note" | "createdAt" | "updatedAt" | "installmentAmount" | "installmentNo" | "installmentTotal" | "creditType", ExtArgs["result"]["paymentTask"]>
   export type PaymentTaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | JobDefaultArgs<ExtArgs>
   }
@@ -32846,6 +32857,7 @@ export namespace Prisma {
       installmentAmount: number | null
       installmentNo: number | null
       installmentTotal: number | null
+      creditType: string | null
     }, ExtArgs["result"]["paymentTask"]>
     composites: {}
   }
@@ -33283,6 +33295,7 @@ export namespace Prisma {
     readonly installmentAmount: FieldRef<"PaymentTask", 'Float'>
     readonly installmentNo: FieldRef<"PaymentTask", 'Int'>
     readonly installmentTotal: FieldRef<"PaymentTask", 'Int'>
+    readonly creditType: FieldRef<"PaymentTask", 'String'>
   }
     
 
@@ -57006,6 +57019,8 @@ export namespace Prisma {
     provident_fund_amt: Decimal | null
     provident_fund_rate: Decimal | null
     tax_deduction_override: Decimal | null
+    company_accommodation: boolean | null
+    company_car: boolean | null
   }
 
   export type EmployeesMaxAggregateOutputType = {
@@ -57060,6 +57075,8 @@ export namespace Prisma {
     provident_fund_amt: Decimal | null
     provident_fund_rate: Decimal | null
     tax_deduction_override: Decimal | null
+    company_accommodation: boolean | null
+    company_car: boolean | null
   }
 
   export type EmployeesCountAggregateOutputType = {
@@ -57114,6 +57131,8 @@ export namespace Prisma {
     provident_fund_amt: number
     provident_fund_rate: number
     tax_deduction_override: number
+    company_accommodation: number
+    company_car: number
     _all: number
   }
 
@@ -57206,6 +57225,8 @@ export namespace Prisma {
     provident_fund_amt?: true
     provident_fund_rate?: true
     tax_deduction_override?: true
+    company_accommodation?: true
+    company_car?: true
   }
 
   export type EmployeesMaxAggregateInputType = {
@@ -57260,6 +57281,8 @@ export namespace Prisma {
     provident_fund_amt?: true
     provident_fund_rate?: true
     tax_deduction_override?: true
+    company_accommodation?: true
+    company_car?: true
   }
 
   export type EmployeesCountAggregateInputType = {
@@ -57314,6 +57337,8 @@ export namespace Prisma {
     provident_fund_amt?: true
     provident_fund_rate?: true
     tax_deduction_override?: true
+    company_accommodation?: true
+    company_car?: true
     _all?: true
   }
 
@@ -57455,6 +57480,8 @@ export namespace Prisma {
     provident_fund_amt: Decimal | null
     provident_fund_rate: Decimal | null
     tax_deduction_override: Decimal | null
+    company_accommodation: boolean
+    company_car: boolean
     _count: EmployeesCountAggregateOutputType | null
     _avg: EmployeesAvgAggregateOutputType | null
     _sum: EmployeesSumAggregateOutputType | null
@@ -57528,6 +57555,8 @@ export namespace Prisma {
     provident_fund_amt?: boolean
     provident_fund_rate?: boolean
     tax_deduction_override?: boolean
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: boolean | employees$asset_borrowingsArgs<ExtArgs>
     birthday_claims?: boolean | employees$birthday_claimsArgs<ExtArgs>
     clothing_requests?: boolean | employees$clothing_requestsArgs<ExtArgs>
@@ -57622,6 +57651,8 @@ export namespace Prisma {
     provident_fund_amt?: boolean
     provident_fund_rate?: boolean
     tax_deduction_override?: boolean
+    company_accommodation?: boolean
+    company_car?: boolean
     departments?: boolean | employees$departmentsArgs<ExtArgs>
     job_positions?: boolean | employees$job_positionsArgs<ExtArgs>
     employees_employees_secondary_supervisor_idToemployees?: boolean | employees$employees_employees_secondary_supervisor_idToemployeesArgs<ExtArgs>
@@ -57681,6 +57712,8 @@ export namespace Prisma {
     provident_fund_amt?: boolean
     provident_fund_rate?: boolean
     tax_deduction_override?: boolean
+    company_accommodation?: boolean
+    company_car?: boolean
     departments?: boolean | employees$departmentsArgs<ExtArgs>
     job_positions?: boolean | employees$job_positionsArgs<ExtArgs>
     employees_employees_secondary_supervisor_idToemployees?: boolean | employees$employees_employees_secondary_supervisor_idToemployeesArgs<ExtArgs>
@@ -57740,9 +57773,11 @@ export namespace Prisma {
     provident_fund_amt?: boolean
     provident_fund_rate?: boolean
     tax_deduction_override?: boolean
+    company_accommodation?: boolean
+    company_car?: boolean
   }
 
-  export type employeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"emp_id" | "name" | "branch_id" | "is_active" | "created_at" | "updated_at" | "pin_hash" | "gender" | "hire_date" | "birth_date" | "phone_number" | "base_salary" | "department_id" | "job_position_id" | "otp_code" | "otp_expires_at" | "supervisor_id" | "bank_account_no" | "bank_name" | "is_on_trial" | "has_telephone_allowance" | "position_allowance" | "address" | "national_id_card" | "salary_type" | "line_user_id" | "is_checkin_exempt" | "probation_end_date" | "resignation_date" | "secondary_supervisor_id" | "nickname" | "email" | "general_allowance" | "probation_accommodation_allowance" | "probation_meal_allowance" | "probation_travel_allowance" | "fixed_accommodation_allowance" | "fixed_meal_allowance" | "fixed_travel_allowance" | "fixed_tax_deduction" | "current_streak" | "sso_include_fixed_accommodation" | "sso_include_fixed_meal" | "sso_include_fixed_travel" | "sso_include_general_allowance" | "sso_include_position_allowance" | "car_benefit" | "housing_benefit" | "provident_fund_amt" | "provident_fund_rate" | "tax_deduction_override", ExtArgs["result"]["employees"]>
+  export type employeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"emp_id" | "name" | "branch_id" | "is_active" | "created_at" | "updated_at" | "pin_hash" | "gender" | "hire_date" | "birth_date" | "phone_number" | "base_salary" | "department_id" | "job_position_id" | "otp_code" | "otp_expires_at" | "supervisor_id" | "bank_account_no" | "bank_name" | "is_on_trial" | "has_telephone_allowance" | "position_allowance" | "address" | "national_id_card" | "salary_type" | "line_user_id" | "is_checkin_exempt" | "probation_end_date" | "resignation_date" | "secondary_supervisor_id" | "nickname" | "email" | "general_allowance" | "probation_accommodation_allowance" | "probation_meal_allowance" | "probation_travel_allowance" | "fixed_accommodation_allowance" | "fixed_meal_allowance" | "fixed_travel_allowance" | "fixed_tax_deduction" | "current_streak" | "sso_include_fixed_accommodation" | "sso_include_fixed_meal" | "sso_include_fixed_travel" | "sso_include_general_allowance" | "sso_include_position_allowance" | "car_benefit" | "housing_benefit" | "provident_fund_amt" | "provident_fund_rate" | "tax_deduction_override" | "company_accommodation" | "company_car", ExtArgs["result"]["employees"]>
   export type employeesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     asset_borrowings?: boolean | employees$asset_borrowingsArgs<ExtArgs>
     birthday_claims?: boolean | employees$birthday_claimsArgs<ExtArgs>
@@ -57895,6 +57930,8 @@ export namespace Prisma {
       provident_fund_amt: Prisma.Decimal | null
       provident_fund_rate: Prisma.Decimal | null
       tax_deduction_override: Prisma.Decimal | null
+      company_accommodation: boolean
+      company_car: boolean
     }, ExtArgs["result"]["employees"]>
     composites: {}
   }
@@ -58408,6 +58445,8 @@ export namespace Prisma {
     readonly provident_fund_amt: FieldRef<"employees", 'Decimal'>
     readonly provident_fund_rate: FieldRef<"employees", 'Decimal'>
     readonly tax_deduction_override: FieldRef<"employees", 'Decimal'>
+    readonly company_accommodation: FieldRef<"employees", 'Boolean'>
+    readonly company_car: FieldRef<"employees", 'Boolean'>
   }
     
 
@@ -141662,7 +141701,8 @@ export namespace Prisma {
     updatedAt: 'updatedAt',
     installmentAmount: 'installmentAmount',
     installmentNo: 'installmentNo',
-    installmentTotal: 'installmentTotal'
+    installmentTotal: 'installmentTotal',
+    creditType: 'creditType'
   };
 
   export type PaymentTaskScalarFieldEnum = (typeof PaymentTaskScalarFieldEnum)[keyof typeof PaymentTaskScalarFieldEnum]
@@ -142110,7 +142150,9 @@ export namespace Prisma {
     housing_benefit: 'housing_benefit',
     provident_fund_amt: 'provident_fund_amt',
     provident_fund_rate: 'provident_fund_rate',
-    tax_deduction_override: 'tax_deduction_override'
+    tax_deduction_override: 'tax_deduction_override',
+    company_accommodation: 'company_accommodation',
+    company_car: 'company_car'
   };
 
   export type EmployeesScalarFieldEnum = (typeof EmployeesScalarFieldEnum)[keyof typeof EmployeesScalarFieldEnum]
@@ -145260,6 +145302,7 @@ export namespace Prisma {
     installmentAmount?: FloatNullableFilter<"PaymentTask"> | number | null
     installmentNo?: IntNullableFilter<"PaymentTask"> | number | null
     installmentTotal?: IntNullableFilter<"PaymentTask"> | number | null
+    creditType?: StringNullableFilter<"PaymentTask"> | string | null
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
   }
 
@@ -145277,6 +145320,7 @@ export namespace Prisma {
     installmentAmount?: SortOrderInput | SortOrder
     installmentNo?: SortOrderInput | SortOrder
     installmentTotal?: SortOrderInput | SortOrder
+    creditType?: SortOrderInput | SortOrder
     job?: JobOrderByWithRelationInput
   }
 
@@ -145297,6 +145341,7 @@ export namespace Prisma {
     installmentAmount?: FloatNullableFilter<"PaymentTask"> | number | null
     installmentNo?: IntNullableFilter<"PaymentTask"> | number | null
     installmentTotal?: IntNullableFilter<"PaymentTask"> | number | null
+    creditType?: StringNullableFilter<"PaymentTask"> | string | null
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
   }, "id">
 
@@ -145314,6 +145359,7 @@ export namespace Prisma {
     installmentAmount?: SortOrderInput | SortOrder
     installmentNo?: SortOrderInput | SortOrder
     installmentTotal?: SortOrderInput | SortOrder
+    creditType?: SortOrderInput | SortOrder
     _count?: PaymentTaskCountOrderByAggregateInput
     _avg?: PaymentTaskAvgOrderByAggregateInput
     _max?: PaymentTaskMaxOrderByAggregateInput
@@ -145338,6 +145384,7 @@ export namespace Prisma {
     installmentAmount?: FloatNullableWithAggregatesFilter<"PaymentTask"> | number | null
     installmentNo?: IntNullableWithAggregatesFilter<"PaymentTask"> | number | null
     installmentTotal?: IntNullableWithAggregatesFilter<"PaymentTask"> | number | null
+    creditType?: StringNullableWithAggregatesFilter<"PaymentTask"> | string | null
   }
 
   export type JobRunningNumberWhereInput = {
@@ -147392,6 +147439,8 @@ export namespace Prisma {
     provident_fund_amt?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFilter<"employees"> | boolean
+    company_car?: BoolFilter<"employees"> | boolean
     asset_borrowings?: Asset_borrowingsListRelationFilter
     birthday_claims?: Birthday_claimsListRelationFilter
     clothing_requests?: Clothing_requestsListRelationFilter
@@ -147485,6 +147534,8 @@ export namespace Prisma {
     provident_fund_amt?: SortOrderInput | SortOrder
     provident_fund_rate?: SortOrderInput | SortOrder
     tax_deduction_override?: SortOrderInput | SortOrder
+    company_accommodation?: SortOrder
+    company_car?: SortOrder
     asset_borrowings?: asset_borrowingsOrderByRelationAggregateInput
     birthday_claims?: birthday_claimsOrderByRelationAggregateInput
     clothing_requests?: clothing_requestsOrderByRelationAggregateInput
@@ -147581,6 +147632,8 @@ export namespace Prisma {
     provident_fund_amt?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFilter<"employees"> | boolean
+    company_car?: BoolFilter<"employees"> | boolean
     asset_borrowings?: Asset_borrowingsListRelationFilter
     birthday_claims?: Birthday_claimsListRelationFilter
     clothing_requests?: Clothing_requestsListRelationFilter
@@ -147674,6 +147727,8 @@ export namespace Prisma {
     provident_fund_amt?: SortOrderInput | SortOrder
     provident_fund_rate?: SortOrderInput | SortOrder
     tax_deduction_override?: SortOrderInput | SortOrder
+    company_accommodation?: SortOrder
+    company_car?: SortOrder
     _count?: employeesCountOrderByAggregateInput
     _avg?: employeesAvgOrderByAggregateInput
     _max?: employeesMaxOrderByAggregateInput
@@ -147736,6 +147791,8 @@ export namespace Prisma {
     provident_fund_amt?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: DecimalNullableWithAggregatesFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolWithAggregatesFilter<"employees"> | boolean
+    company_car?: BoolWithAggregatesFilter<"employees"> | boolean
   }
 
   export type general_welfare_claimsWhereInput = {
@@ -156082,6 +156139,7 @@ export namespace Prisma {
     installmentAmount?: number | null
     installmentNo?: number | null
     installmentTotal?: number | null
+    creditType?: string | null
     job: JobCreateNestedOneWithoutPaymentTasksInput
   }
 
@@ -156099,6 +156157,7 @@ export namespace Prisma {
     installmentAmount?: number | null
     installmentNo?: number | null
     installmentTotal?: number | null
+    creditType?: string | null
   }
 
   export type PaymentTaskUpdateInput = {
@@ -156114,6 +156173,7 @@ export namespace Prisma {
     installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    creditType?: NullableStringFieldUpdateOperationsInput | string | null
     job?: JobUpdateOneRequiredWithoutPaymentTasksNestedInput
   }
 
@@ -156131,6 +156191,7 @@ export namespace Prisma {
     installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    creditType?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTaskCreateManyInput = {
@@ -156147,6 +156208,7 @@ export namespace Prisma {
     installmentAmount?: number | null
     installmentNo?: number | null
     installmentTotal?: number | null
+    creditType?: string | null
   }
 
   export type PaymentTaskUpdateManyMutationInput = {
@@ -156162,6 +156224,7 @@ export namespace Prisma {
     installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    creditType?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTaskUncheckedUpdateManyInput = {
@@ -156178,6 +156241,7 @@ export namespace Prisma {
     installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    creditType?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type JobRunningNumberCreateInput = {
@@ -158556,6 +158620,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -158649,6 +158715,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -158732,6 +158800,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -158825,6 +158895,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -158913,6 +158985,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
   }
 
   export type employeesUpdateManyMutationInput = {
@@ -158962,6 +159036,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type employeesUncheckedUpdateManyInput = {
@@ -159016,6 +159092,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type general_welfare_claimsCreateInput = {
@@ -167450,6 +167528,7 @@ export namespace Prisma {
     installmentAmount?: SortOrder
     installmentNo?: SortOrder
     installmentTotal?: SortOrder
+    creditType?: SortOrder
   }
 
   export type PaymentTaskAvgOrderByAggregateInput = {
@@ -167473,6 +167552,7 @@ export namespace Prisma {
     installmentAmount?: SortOrder
     installmentNo?: SortOrder
     installmentTotal?: SortOrder
+    creditType?: SortOrder
   }
 
   export type PaymentTaskMinOrderByAggregateInput = {
@@ -167489,6 +167569,7 @@ export namespace Prisma {
     installmentAmount?: SortOrder
     installmentNo?: SortOrder
     installmentTotal?: SortOrder
+    creditType?: SortOrder
   }
 
   export type PaymentTaskSumOrderByAggregateInput = {
@@ -169250,6 +169331,8 @@ export namespace Prisma {
     provident_fund_amt?: SortOrder
     provident_fund_rate?: SortOrder
     tax_deduction_override?: SortOrder
+    company_accommodation?: SortOrder
+    company_car?: SortOrder
   }
 
   export type employeesAvgOrderByAggregateInput = {
@@ -169322,6 +169405,8 @@ export namespace Prisma {
     provident_fund_amt?: SortOrder
     provident_fund_rate?: SortOrder
     tax_deduction_override?: SortOrder
+    company_accommodation?: SortOrder
+    company_car?: SortOrder
   }
 
   export type employeesMinOrderByAggregateInput = {
@@ -169376,6 +169461,8 @@ export namespace Prisma {
     provident_fund_amt?: SortOrder
     provident_fund_rate?: SortOrder
     tax_deduction_override?: SortOrder
+    company_accommodation?: SortOrder
+    company_car?: SortOrder
   }
 
   export type employeesSumOrderByAggregateInput = {
@@ -187606,6 +187693,7 @@ export namespace Prisma {
     installmentAmount?: number | null
     installmentNo?: number | null
     installmentTotal?: number | null
+    creditType?: string | null
   }
 
   export type PaymentTaskUncheckedCreateWithoutJobInput = {
@@ -187621,6 +187709,7 @@ export namespace Prisma {
     installmentAmount?: number | null
     installmentNo?: number | null
     installmentTotal?: number | null
+    creditType?: string | null
   }
 
   export type PaymentTaskCreateOrConnectWithoutJobInput = {
@@ -188068,6 +188157,7 @@ export namespace Prisma {
     installmentAmount?: FloatNullableFilter<"PaymentTask"> | number | null
     installmentNo?: IntNullableFilter<"PaymentTask"> | number | null
     installmentTotal?: IntNullableFilter<"PaymentTask"> | number | null
+    creditType?: StringNullableFilter<"PaymentTask"> | string | null
   }
 
   export type JobCreateWithoutPaymentTasksInput = {
@@ -190009,6 +190099,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesCreateNestedManyWithoutEmployeesInput
@@ -190101,6 +190193,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesUncheckedCreateNestedManyWithoutEmployeesInput
@@ -190247,6 +190341,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUpdateManyWithoutEmployeesNestedInput
@@ -190339,6 +190435,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -190525,6 +190623,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesCreateNestedManyWithoutEmployeesInput
@@ -190617,6 +190717,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesUncheckedCreateNestedManyWithoutEmployeesInput
@@ -190715,6 +190817,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUpdateManyWithoutEmployeesNestedInput
@@ -190807,6 +190911,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -190889,6 +190995,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -190980,6 +191088,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -191097,6 +191207,8 @@ export namespace Prisma {
     provident_fund_amt?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: DecimalNullableFilter<"employees"> | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFilter<"employees"> | boolean
+    company_car?: BoolFilter<"employees"> | boolean
   }
 
   export type employeesCreateWithoutCommission_claimsInput = {
@@ -191146,6 +191258,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -191238,6 +191352,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -191336,6 +191452,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -191428,6 +191546,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -191510,6 +191630,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -191602,6 +191724,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -191700,6 +191824,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -191792,6 +191918,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -191892,6 +192020,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -191983,6 +192113,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -192236,6 +192368,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -192328,6 +192462,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -192426,6 +192562,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -192518,6 +192656,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -193095,6 +193235,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -193187,6 +193329,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -193274,6 +193418,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -193365,6 +193511,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -193458,6 +193606,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -193550,6 +193700,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -193637,6 +193789,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -193728,6 +193882,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -195187,6 +195343,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -195279,6 +195437,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -195388,6 +195548,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -195480,6 +195642,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -196258,6 +196422,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -196350,6 +196516,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -196448,6 +196616,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -196540,6 +196710,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -196622,6 +196794,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -196713,6 +196887,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -196989,6 +197165,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -197081,6 +197259,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -197168,6 +197348,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -197260,6 +197442,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -197399,6 +197583,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -197491,6 +197677,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -197584,6 +197772,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -197676,6 +197866,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -197960,6 +198152,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -198052,6 +198246,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -198150,6 +198346,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -198242,6 +198440,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -198422,6 +198622,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -198514,6 +198716,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -198612,6 +198816,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -198704,6 +198910,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -198786,6 +198994,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -198878,6 +199088,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -198976,6 +199188,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -199068,6 +199282,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -199150,6 +199366,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -199242,6 +199460,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -199329,6 +199549,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -199421,6 +199643,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -199519,6 +199743,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -199611,6 +199837,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -199704,6 +199932,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -199796,6 +200026,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -199878,6 +200110,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -199970,6 +200204,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -200100,6 +200336,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -200192,6 +200430,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -200403,6 +200643,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -200495,6 +200737,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -200629,6 +200873,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -200721,6 +200967,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -200822,6 +201070,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -200914,6 +201164,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -201052,6 +201304,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -201144,6 +201398,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -201314,6 +201570,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -201406,6 +201664,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -201504,6 +201764,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -201596,6 +201858,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -201678,6 +201942,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -201770,6 +202036,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -201857,6 +202125,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -201949,6 +202219,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -202047,6 +202319,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -202139,6 +202413,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -202232,6 +202508,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -202324,6 +202602,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -205242,6 +205522,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesCreateNestedManyWithoutEmployeesInput
@@ -205334,6 +205616,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     coin_exchanges?: coin_exchangesUncheckedCreateNestedManyWithoutEmployeesInput
@@ -205450,6 +205734,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUpdateManyWithoutEmployeesNestedInput
@@ -205542,6 +205828,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     coin_exchanges?: coin_exchangesUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -205873,6 +206161,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -205965,6 +206255,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -206063,6 +206355,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -206155,6 +206449,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -206264,6 +206560,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -206356,6 +206654,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -206487,6 +206787,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -206579,6 +206881,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -206661,6 +206965,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -206753,6 +207059,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -206840,6 +207148,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -206932,6 +207242,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -207030,6 +207342,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -207122,6 +207436,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -207215,6 +207531,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -207307,6 +207625,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -207589,6 +207909,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -207681,6 +208003,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -207812,6 +208136,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -207904,6 +208230,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -207986,6 +208314,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -208078,6 +208408,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -208165,6 +208497,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -208257,6 +208591,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -208387,6 +208723,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -208479,6 +208817,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -208572,6 +208912,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -208664,6 +209006,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -208837,6 +209181,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -208929,6 +209275,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -209049,6 +209397,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -209141,6 +209491,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -209251,6 +209603,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -209343,6 +209697,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -209441,6 +209797,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -209533,6 +209891,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -209640,6 +210000,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -209732,6 +210094,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -209846,6 +210210,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -209938,6 +210304,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -210020,6 +210388,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -210112,6 +210482,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -210210,6 +210582,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -210302,6 +210676,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -214026,6 +214402,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
@@ -214118,6 +214496,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
     asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
     birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
     clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
@@ -214243,6 +214623,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -214335,6 +214717,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -217942,6 +218326,7 @@ export namespace Prisma {
     installmentAmount?: number | null
     installmentNo?: number | null
     installmentTotal?: number | null
+    creditType?: string | null
   }
 
   export type InstallationOrderUpdateWithoutJobInput = {
@@ -218269,6 +218654,7 @@ export namespace Prisma {
     installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    creditType?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTaskUncheckedUpdateWithoutJobInput = {
@@ -218284,6 +218670,7 @@ export namespace Prisma {
     installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    creditType?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTaskUncheckedUpdateManyWithoutJobInput = {
@@ -218299,6 +218686,7 @@ export namespace Prisma {
     installmentAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
+    creditType?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type announcementsCreateManyAdminsInput = {
@@ -218513,6 +218901,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
   }
 
   export type employeesUpdateWithoutBranchesInput = {
@@ -218562,6 +218952,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -218653,6 +219045,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -218740,6 +219134,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type employeesCreateManyDepartmentsInput = {
@@ -218793,6 +219189,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
   }
 
   export type job_positionsCreateManyDepartmentsInput = {
@@ -218853,6 +219251,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -218944,6 +219344,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -219031,6 +219433,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type job_positionsUpdateWithoutDepartmentsInput = {
@@ -219313,6 +219717,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
   }
 
   export type employeesCreateManyEmployees_employees_supervisor_idToemployeesInput = {
@@ -219366,6 +219772,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
   }
 
   export type general_welfare_claimsCreateManyEmployeesInput = {
@@ -220240,6 +220648,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -220331,6 +220741,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -220418,6 +220830,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type employeesUpdateWithoutEmployees_employees_supervisor_idToemployeesInput = {
@@ -220467,6 +220881,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -220558,6 +220974,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -220645,6 +221063,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type general_welfare_claimsUpdateWithoutEmployeesInput = {
@@ -221744,6 +222164,8 @@ export namespace Prisma {
     provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
   }
 
   export type job_positionsCreateManyJob_positionsInput = {
@@ -221804,6 +222226,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
@@ -221895,6 +222319,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
     asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
     birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
     clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
@@ -221982,6 +222408,8 @@ export namespace Prisma {
     provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type job_positionsUpdateWithoutJob_positionsInput = {

@@ -5,8 +5,8 @@ import { revalidatePath } from "next/cache";
 export async function updatePaymentTaskStatus(taskId: string, status: string, note?: string) {
   const task = await prisma.paymentTask.update({
     where: { id: taskId },
-    data: { 
-      status, 
+    data: {
+      status,
       note,
       ...(status === 'ตรวจสอบและบันทึกแล้ว' ? { paidDate: new Date() } : {})
     },
@@ -37,6 +37,31 @@ export async function updatePaymentTaskStatus(taskId: string, status: string, no
 
   revalidatePath('/accounting');
   revalidatePath('/jobs');
+  return task;
+}
+
+export async function recordPaymentDeposit(taskId: string, depositAmount: number, note?: string) {
+  const task = await prisma.paymentTask.update({
+    where: { id: taskId },
+    data: {
+      status: 'ชำระมัดจำแล้ว',
+      paidAmount: depositAmount,
+      note,
+    },
+    include: { job: true }
+  });
+
+  revalidatePath('/accounting');
+  revalidatePath('/jobs');
+  return task;
+}
+
+export async function updatePaymentTaskCreditType(taskId: string, creditType: string) {
+  const task = await prisma.paymentTask.update({
+    where: { id: taskId },
+    data: { creditType }
+  });
+  revalidatePath('/accounting');
   return task;
 }
 

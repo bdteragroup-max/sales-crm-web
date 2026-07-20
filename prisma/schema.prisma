@@ -401,6 +401,7 @@ model PaymentTask {
   installmentAmount Float?
   installmentNo     Int?
   installmentTotal  Int?
+  creditType        String?
   job               Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@map("payment_tasks")
@@ -853,6 +854,8 @@ model employees {
   provident_fund_amt                                                   Decimal?                    @db.Decimal(10, 2)
   provident_fund_rate                                                  Decimal?                    @db.Decimal(5, 2)
   tax_deduction_override                                               Decimal?                    @db.Decimal(10, 2)
+  company_accommodation                                                Boolean                     @default(false)
+  company_car                                                          Boolean                     @default(false)
   asset_borrowings                                                     asset_borrowings[]
   birthday_claims                                                      birthday_claims[]
   clothing_requests                                                    clothing_requests[]

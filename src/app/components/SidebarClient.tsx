@@ -126,6 +126,7 @@ export default function SidebarClient(props: SidebarProps) {
     nav = serviceNav; // Service / non-sales departments see repair orders
   } else if (['accounting', 'บัญชี', 'finance', 'การเงิน'].some(r => roleStr.includes(r))) {
     nav = [
+      { icon: LayoutDashboard, label: 'แดชบอร์ดบัญชี/การเงิน', href: '/accounting/dashboard' },
       { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
       { icon: DollarSign, label: 'งานการเงิน/บัญชี', href: '/accounting' },
       { icon: FileText, label: 'รายงานใช้น้ำมัน & GPS', href: '/department/fuel-report' },

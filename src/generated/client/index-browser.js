@@ -405,7 +405,8 @@ exports.Prisma.PaymentTaskScalarFieldEnum = {
   updatedAt: 'updatedAt',
   installmentAmount: 'installmentAmount',
   installmentNo: 'installmentNo',
-  installmentTotal: 'installmentTotal'
+  installmentTotal: 'installmentTotal',
+  creditType: 'creditType'
 };
 
 exports.Prisma.JobRunningNumberScalarFieldEnum = {
@@ -793,7 +794,9 @@ exports.Prisma.EmployeesScalarFieldEnum = {
   housing_benefit: 'housing_benefit',
   provident_fund_amt: 'provident_fund_amt',
   provident_fund_rate: 'provident_fund_rate',
-  tax_deduction_override: 'tax_deduction_override'
+  tax_deduction_override: 'tax_deduction_override',
+  company_accommodation: 'company_accommodation',
+  company_car: 'company_car'
 };
 
 exports.Prisma.General_welfare_claimsScalarFieldEnum = {
