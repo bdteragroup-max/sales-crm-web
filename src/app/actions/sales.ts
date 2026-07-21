@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/app/lib/db";
+import { generateOrderNumber } from "./orderHelper";
 import { getUser } from "@/app/lib/dal";
 import { getCompanyWhereClause } from "@/app/lib/visibility";
 import { revalidatePath } from "next/cache";
@@ -379,13 +380,7 @@ export async function saveSalesData(formData: FormData) {
         where: { quotationId: newQuotation.id }
       });
       if (!existingOrder && company.id) {
-        const baseOrderNumber = poNumber || quotationNumber || `ORD-${newQuotation.id.slice(0, 8)}`;
-        let finalOrderNumber = baseOrderNumber;
-        let c = 0;
-        while (await prisma.order.findUnique({ where: { orderNumber: finalOrderNumber } })) {
-          c++;
-          finalOrderNumber = `${baseOrderNumber}-${c}`;
-        }
+        const finalOrderNumber = await generateOrderNumber();
         const newOrder = await prisma.order.create({
           data: {
             orderNumber: finalOrderNumber,
@@ -657,13 +652,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
         where: { quotationId: updatedQuotation.id }
       });
       if (!existingOrder && company.id) {
-        const baseOrderNumber = poNumber || quotationNumber || `ORD-${updatedQuotation.id.slice(0, 8)}`;
-        let finalOrderNumber = baseOrderNumber;
-        let c = 0;
-        while (await prisma.order.findUnique({ where: { orderNumber: finalOrderNumber } })) {
-          c++;
-          finalOrderNumber = `${baseOrderNumber}-${c}`;
-        }
+        const finalOrderNumber = await generateOrderNumber();
         const newOrder = await prisma.order.create({
           data: {
             orderNumber: finalOrderNumber,

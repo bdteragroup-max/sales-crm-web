@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package
 } from 'lucide-react';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
@@ -114,6 +114,11 @@ const projectAdminNav = [
   { icon: MapPin, label: 'แบบสำรวจไซต์งาน', href: '/sales/surveys' },
 ];
 
+const productionNav = [
+  { icon: Package, label: 'สถานะคำสั่งผลิต', href: '/orders' },
+  { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+];
+
 export default function SidebarClient(props: SidebarProps) {
   let nav = repNav;
   const roleStr = (props.userRole || '').toLowerCase();
@@ -137,6 +142,8 @@ export default function SidebarClient(props: SidebarProps) {
     nav = marketingNav; // Marketing role sees marketing dashboard
   } else if (roleStr === 'ผู้จัดการคลังสินค้าและจัดซื้อ' || (roleStr.includes('คลังสินค้า') && roleStr.includes('จัดซื้อ'))) {
     nav = storeAndPurchasingNav;
+  } else if (roleStr.includes('production') || roleStr.includes('ผลิต')) {
+    nav = productionNav;
   } else if (['purchasing', 'จัดซื้อ'].some(r => roleStr.includes(r))) {
     nav = purchasingNav;
   } else if (['warehouse', 'คลังสินค้า', 'store', 'สโตร์'].some(r => roleStr.includes(r))) {

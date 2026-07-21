@@ -104,6 +104,11 @@ export type PaymentTask = $Result.DefaultSelection<Prisma.$PaymentTaskPayload>
  */
 export type JobRunningNumber = $Result.DefaultSelection<Prisma.$JobRunningNumberPayload>
 /**
+ * Model OrderRunningNumber
+ * 
+ */
+export type OrderRunningNumber = $Result.DefaultSelection<Prisma.$OrderRunningNumberPayload>
+/**
  * Model JobStepLog
  * 
  */
@@ -839,6 +844,16 @@ export class PrismaClient<
     * ```
     */
   get jobRunningNumber(): Prisma.JobRunningNumberDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.orderRunningNumber`: Exposes CRUD operations for the **OrderRunningNumber** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OrderRunningNumbers
+    * const orderRunningNumbers = await prisma.orderRunningNumber.findMany()
+    * ```
+    */
+  get orderRunningNumber(): Prisma.OrderRunningNumberDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.jobStepLog`: Exposes CRUD operations for the **JobStepLog** model.
@@ -2161,6 +2176,7 @@ export namespace Prisma {
     Job: 'Job',
     PaymentTask: 'PaymentTask',
     JobRunningNumber: 'JobRunningNumber',
+    OrderRunningNumber: 'OrderRunningNumber',
     JobStepLog: 'JobStepLog',
     RepairOrder: 'RepairOrder',
     RepairDelivery: 'RepairDelivery',
@@ -2263,7 +2279,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3596,6 +3612,80 @@ export namespace Prisma {
           count: {
             args: Prisma.JobRunningNumberCountArgs<ExtArgs>
             result: $Utils.Optional<JobRunningNumberCountAggregateOutputType> | number
+          }
+        }
+      }
+      OrderRunningNumber: {
+        payload: Prisma.$OrderRunningNumberPayload<ExtArgs>
+        fields: Prisma.OrderRunningNumberFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OrderRunningNumberFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OrderRunningNumberFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload>
+          }
+          findFirst: {
+            args: Prisma.OrderRunningNumberFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OrderRunningNumberFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload>
+          }
+          findMany: {
+            args: Prisma.OrderRunningNumberFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload>[]
+          }
+          create: {
+            args: Prisma.OrderRunningNumberCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload>
+          }
+          createMany: {
+            args: Prisma.OrderRunningNumberCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OrderRunningNumberCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload>[]
+          }
+          delete: {
+            args: Prisma.OrderRunningNumberDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload>
+          }
+          update: {
+            args: Prisma.OrderRunningNumberUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload>
+          }
+          deleteMany: {
+            args: Prisma.OrderRunningNumberDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OrderRunningNumberUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OrderRunningNumberUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload>[]
+          }
+          upsert: {
+            args: Prisma.OrderRunningNumberUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderRunningNumberPayload>
+          }
+          aggregate: {
+            args: Prisma.OrderRunningNumberAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrderRunningNumber>
+          }
+          groupBy: {
+            args: Prisma.OrderRunningNumberGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrderRunningNumberGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OrderRunningNumberCountArgs<ExtArgs>
+            result: $Utils.Optional<OrderRunningNumberCountAggregateOutputType> | number
           }
         }
       }
@@ -10163,6 +10253,7 @@ export namespace Prisma {
     job?: JobOmit
     paymentTask?: PaymentTaskOmit
     jobRunningNumber?: JobRunningNumberOmit
+    orderRunningNumber?: OrderRunningNumberOmit
     jobStepLog?: JobStepLogOmit
     repairOrder?: RepairOrderOmit
     repairDelivery?: RepairDeliveryOmit
@@ -28712,7 +28803,7 @@ export namespace Prisma {
   export type OrderGroupByOutputType = {
     id: string
     orderNumber: string
-    companyId: string
+    companyId: string | null
     quotationId: string | null
     salespersonId: string | null
     status: string
@@ -28754,7 +28845,7 @@ export namespace Prisma {
     targetDeliveryDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
     statusLogs?: boolean | Order$statusLogsArgs<ExtArgs>
@@ -28773,7 +28864,7 @@ export namespace Prisma {
     targetDeliveryDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
   }, ExtArgs["result"]["order"]>
@@ -28790,7 +28881,7 @@ export namespace Prisma {
     targetDeliveryDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
   }, ExtArgs["result"]["order"]>
@@ -28811,19 +28902,19 @@ export namespace Prisma {
 
   export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderNumber" | "companyId" | "quotationId" | "salespersonId" | "status" | "value" | "priority" | "targetDeliveryDate" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
     statusLogs?: boolean | Order$statusLogsArgs<ExtArgs>
     _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
   }
   export type OrderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
   }
@@ -28831,7 +28922,7 @@ export namespace Prisma {
   export type $OrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Order"
     objects: {
-      company: Prisma.$CompanyPayload<ExtArgs>
+      company: Prisma.$CompanyPayload<ExtArgs> | null
       quotation: Prisma.$QuotationPayload<ExtArgs> | null
       salesperson: Prisma.$UserPayload<ExtArgs> | null
       statusLogs: Prisma.$OrderStatusLogPayload<ExtArgs>[]
@@ -28839,7 +28930,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       orderNumber: string
-      companyId: string
+      companyId: string | null
       quotationId: string | null
       salespersonId: string | null
       status: string
@@ -29242,7 +29333,7 @@ export namespace Prisma {
    */
   export interface Prisma__OrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    company<T extends Order$companyArgs<ExtArgs> = {}>(args?: Subset<T, Order$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     quotation<T extends Order$quotationArgs<ExtArgs> = {}>(args?: Subset<T, Order$quotationArgs<ExtArgs>>): Prisma__QuotationClient<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     salesperson<T extends Order$salespersonArgs<ExtArgs> = {}>(args?: Subset<T, Order$salespersonArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     statusLogs<T extends Order$statusLogsArgs<ExtArgs> = {}>(args?: Subset<T, Order$statusLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderStatusLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -29684,6 +29775,25 @@ export namespace Prisma {
      * Limit how many Orders to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Order.company
+   */
+  export type Order$companyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Company
+     */
+    select?: CompanySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Company
+     */
+    omit?: CompanyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInclude<ExtArgs> | null
+    where?: CompanyWhereInput
   }
 
   /**
@@ -34741,6 +34851,1035 @@ export namespace Prisma {
      * Omit specific fields from the JobRunningNumber
      */
     omit?: JobRunningNumberOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OrderRunningNumber
+   */
+
+  export type AggregateOrderRunningNumber = {
+    _count: OrderRunningNumberCountAggregateOutputType | null
+    _avg: OrderRunningNumberAvgAggregateOutputType | null
+    _sum: OrderRunningNumberSumAggregateOutputType | null
+    _min: OrderRunningNumberMinAggregateOutputType | null
+    _max: OrderRunningNumberMaxAggregateOutputType | null
+  }
+
+  export type OrderRunningNumberAvgAggregateOutputType = {
+    yearBe: number | null
+    month: number | null
+    lastNumber: number | null
+  }
+
+  export type OrderRunningNumberSumAggregateOutputType = {
+    yearBe: number | null
+    month: number | null
+    lastNumber: number | null
+  }
+
+  export type OrderRunningNumberMinAggregateOutputType = {
+    id: string | null
+    yearBe: number | null
+    month: number | null
+    lastNumber: number | null
+  }
+
+  export type OrderRunningNumberMaxAggregateOutputType = {
+    id: string | null
+    yearBe: number | null
+    month: number | null
+    lastNumber: number | null
+  }
+
+  export type OrderRunningNumberCountAggregateOutputType = {
+    id: number
+    yearBe: number
+    month: number
+    lastNumber: number
+    _all: number
+  }
+
+
+  export type OrderRunningNumberAvgAggregateInputType = {
+    yearBe?: true
+    month?: true
+    lastNumber?: true
+  }
+
+  export type OrderRunningNumberSumAggregateInputType = {
+    yearBe?: true
+    month?: true
+    lastNumber?: true
+  }
+
+  export type OrderRunningNumberMinAggregateInputType = {
+    id?: true
+    yearBe?: true
+    month?: true
+    lastNumber?: true
+  }
+
+  export type OrderRunningNumberMaxAggregateInputType = {
+    id?: true
+    yearBe?: true
+    month?: true
+    lastNumber?: true
+  }
+
+  export type OrderRunningNumberCountAggregateInputType = {
+    id?: true
+    yearBe?: true
+    month?: true
+    lastNumber?: true
+    _all?: true
+  }
+
+  export type OrderRunningNumberAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OrderRunningNumber to aggregate.
+     */
+    where?: OrderRunningNumberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrderRunningNumbers to fetch.
+     */
+    orderBy?: OrderRunningNumberOrderByWithRelationInput | OrderRunningNumberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OrderRunningNumberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrderRunningNumbers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrderRunningNumbers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OrderRunningNumbers
+    **/
+    _count?: true | OrderRunningNumberCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OrderRunningNumberAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OrderRunningNumberSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OrderRunningNumberMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OrderRunningNumberMaxAggregateInputType
+  }
+
+  export type GetOrderRunningNumberAggregateType<T extends OrderRunningNumberAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrderRunningNumber]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOrderRunningNumber[P]>
+      : GetScalarType<T[P], AggregateOrderRunningNumber[P]>
+  }
+
+
+
+
+  export type OrderRunningNumberGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderRunningNumberWhereInput
+    orderBy?: OrderRunningNumberOrderByWithAggregationInput | OrderRunningNumberOrderByWithAggregationInput[]
+    by: OrderRunningNumberScalarFieldEnum[] | OrderRunningNumberScalarFieldEnum
+    having?: OrderRunningNumberScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OrderRunningNumberCountAggregateInputType | true
+    _avg?: OrderRunningNumberAvgAggregateInputType
+    _sum?: OrderRunningNumberSumAggregateInputType
+    _min?: OrderRunningNumberMinAggregateInputType
+    _max?: OrderRunningNumberMaxAggregateInputType
+  }
+
+  export type OrderRunningNumberGroupByOutputType = {
+    id: string
+    yearBe: number
+    month: number
+    lastNumber: number
+    _count: OrderRunningNumberCountAggregateOutputType | null
+    _avg: OrderRunningNumberAvgAggregateOutputType | null
+    _sum: OrderRunningNumberSumAggregateOutputType | null
+    _min: OrderRunningNumberMinAggregateOutputType | null
+    _max: OrderRunningNumberMaxAggregateOutputType | null
+  }
+
+  type GetOrderRunningNumberGroupByPayload<T extends OrderRunningNumberGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OrderRunningNumberGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OrderRunningNumberGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OrderRunningNumberGroupByOutputType[P]>
+            : GetScalarType<T[P], OrderRunningNumberGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OrderRunningNumberSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    yearBe?: boolean
+    month?: boolean
+    lastNumber?: boolean
+  }, ExtArgs["result"]["orderRunningNumber"]>
+
+  export type OrderRunningNumberSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    yearBe?: boolean
+    month?: boolean
+    lastNumber?: boolean
+  }, ExtArgs["result"]["orderRunningNumber"]>
+
+  export type OrderRunningNumberSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    yearBe?: boolean
+    month?: boolean
+    lastNumber?: boolean
+  }, ExtArgs["result"]["orderRunningNumber"]>
+
+  export type OrderRunningNumberSelectScalar = {
+    id?: boolean
+    yearBe?: boolean
+    month?: boolean
+    lastNumber?: boolean
+  }
+
+  export type OrderRunningNumberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "yearBe" | "month" | "lastNumber", ExtArgs["result"]["orderRunningNumber"]>
+
+  export type $OrderRunningNumberPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OrderRunningNumber"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      yearBe: number
+      month: number
+      lastNumber: number
+    }, ExtArgs["result"]["orderRunningNumber"]>
+    composites: {}
+  }
+
+  type OrderRunningNumberGetPayload<S extends boolean | null | undefined | OrderRunningNumberDefaultArgs> = $Result.GetResult<Prisma.$OrderRunningNumberPayload, S>
+
+  type OrderRunningNumberCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OrderRunningNumberFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OrderRunningNumberCountAggregateInputType | true
+    }
+
+  export interface OrderRunningNumberDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OrderRunningNumber'], meta: { name: 'OrderRunningNumber' } }
+    /**
+     * Find zero or one OrderRunningNumber that matches the filter.
+     * @param {OrderRunningNumberFindUniqueArgs} args - Arguments to find a OrderRunningNumber
+     * @example
+     * // Get one OrderRunningNumber
+     * const orderRunningNumber = await prisma.orderRunningNumber.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OrderRunningNumberFindUniqueArgs>(args: SelectSubset<T, OrderRunningNumberFindUniqueArgs<ExtArgs>>): Prisma__OrderRunningNumberClient<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OrderRunningNumber that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OrderRunningNumberFindUniqueOrThrowArgs} args - Arguments to find a OrderRunningNumber
+     * @example
+     * // Get one OrderRunningNumber
+     * const orderRunningNumber = await prisma.orderRunningNumber.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OrderRunningNumberFindUniqueOrThrowArgs>(args: SelectSubset<T, OrderRunningNumberFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrderRunningNumberClient<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OrderRunningNumber that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderRunningNumberFindFirstArgs} args - Arguments to find a OrderRunningNumber
+     * @example
+     * // Get one OrderRunningNumber
+     * const orderRunningNumber = await prisma.orderRunningNumber.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OrderRunningNumberFindFirstArgs>(args?: SelectSubset<T, OrderRunningNumberFindFirstArgs<ExtArgs>>): Prisma__OrderRunningNumberClient<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OrderRunningNumber that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderRunningNumberFindFirstOrThrowArgs} args - Arguments to find a OrderRunningNumber
+     * @example
+     * // Get one OrderRunningNumber
+     * const orderRunningNumber = await prisma.orderRunningNumber.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OrderRunningNumberFindFirstOrThrowArgs>(args?: SelectSubset<T, OrderRunningNumberFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrderRunningNumberClient<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OrderRunningNumbers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderRunningNumberFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OrderRunningNumbers
+     * const orderRunningNumbers = await prisma.orderRunningNumber.findMany()
+     * 
+     * // Get first 10 OrderRunningNumbers
+     * const orderRunningNumbers = await prisma.orderRunningNumber.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const orderRunningNumberWithIdOnly = await prisma.orderRunningNumber.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OrderRunningNumberFindManyArgs>(args?: SelectSubset<T, OrderRunningNumberFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OrderRunningNumber.
+     * @param {OrderRunningNumberCreateArgs} args - Arguments to create a OrderRunningNumber.
+     * @example
+     * // Create one OrderRunningNumber
+     * const OrderRunningNumber = await prisma.orderRunningNumber.create({
+     *   data: {
+     *     // ... data to create a OrderRunningNumber
+     *   }
+     * })
+     * 
+     */
+    create<T extends OrderRunningNumberCreateArgs>(args: SelectSubset<T, OrderRunningNumberCreateArgs<ExtArgs>>): Prisma__OrderRunningNumberClient<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OrderRunningNumbers.
+     * @param {OrderRunningNumberCreateManyArgs} args - Arguments to create many OrderRunningNumbers.
+     * @example
+     * // Create many OrderRunningNumbers
+     * const orderRunningNumber = await prisma.orderRunningNumber.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OrderRunningNumberCreateManyArgs>(args?: SelectSubset<T, OrderRunningNumberCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OrderRunningNumbers and returns the data saved in the database.
+     * @param {OrderRunningNumberCreateManyAndReturnArgs} args - Arguments to create many OrderRunningNumbers.
+     * @example
+     * // Create many OrderRunningNumbers
+     * const orderRunningNumber = await prisma.orderRunningNumber.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OrderRunningNumbers and only return the `id`
+     * const orderRunningNumberWithIdOnly = await prisma.orderRunningNumber.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OrderRunningNumberCreateManyAndReturnArgs>(args?: SelectSubset<T, OrderRunningNumberCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OrderRunningNumber.
+     * @param {OrderRunningNumberDeleteArgs} args - Arguments to delete one OrderRunningNumber.
+     * @example
+     * // Delete one OrderRunningNumber
+     * const OrderRunningNumber = await prisma.orderRunningNumber.delete({
+     *   where: {
+     *     // ... filter to delete one OrderRunningNumber
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OrderRunningNumberDeleteArgs>(args: SelectSubset<T, OrderRunningNumberDeleteArgs<ExtArgs>>): Prisma__OrderRunningNumberClient<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OrderRunningNumber.
+     * @param {OrderRunningNumberUpdateArgs} args - Arguments to update one OrderRunningNumber.
+     * @example
+     * // Update one OrderRunningNumber
+     * const orderRunningNumber = await prisma.orderRunningNumber.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OrderRunningNumberUpdateArgs>(args: SelectSubset<T, OrderRunningNumberUpdateArgs<ExtArgs>>): Prisma__OrderRunningNumberClient<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OrderRunningNumbers.
+     * @param {OrderRunningNumberDeleteManyArgs} args - Arguments to filter OrderRunningNumbers to delete.
+     * @example
+     * // Delete a few OrderRunningNumbers
+     * const { count } = await prisma.orderRunningNumber.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OrderRunningNumberDeleteManyArgs>(args?: SelectSubset<T, OrderRunningNumberDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OrderRunningNumbers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderRunningNumberUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OrderRunningNumbers
+     * const orderRunningNumber = await prisma.orderRunningNumber.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OrderRunningNumberUpdateManyArgs>(args: SelectSubset<T, OrderRunningNumberUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OrderRunningNumbers and returns the data updated in the database.
+     * @param {OrderRunningNumberUpdateManyAndReturnArgs} args - Arguments to update many OrderRunningNumbers.
+     * @example
+     * // Update many OrderRunningNumbers
+     * const orderRunningNumber = await prisma.orderRunningNumber.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OrderRunningNumbers and only return the `id`
+     * const orderRunningNumberWithIdOnly = await prisma.orderRunningNumber.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OrderRunningNumberUpdateManyAndReturnArgs>(args: SelectSubset<T, OrderRunningNumberUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OrderRunningNumber.
+     * @param {OrderRunningNumberUpsertArgs} args - Arguments to update or create a OrderRunningNumber.
+     * @example
+     * // Update or create a OrderRunningNumber
+     * const orderRunningNumber = await prisma.orderRunningNumber.upsert({
+     *   create: {
+     *     // ... data to create a OrderRunningNumber
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OrderRunningNumber we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OrderRunningNumberUpsertArgs>(args: SelectSubset<T, OrderRunningNumberUpsertArgs<ExtArgs>>): Prisma__OrderRunningNumberClient<$Result.GetResult<Prisma.$OrderRunningNumberPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OrderRunningNumbers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderRunningNumberCountArgs} args - Arguments to filter OrderRunningNumbers to count.
+     * @example
+     * // Count the number of OrderRunningNumbers
+     * const count = await prisma.orderRunningNumber.count({
+     *   where: {
+     *     // ... the filter for the OrderRunningNumbers we want to count
+     *   }
+     * })
+    **/
+    count<T extends OrderRunningNumberCountArgs>(
+      args?: Subset<T, OrderRunningNumberCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OrderRunningNumberCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OrderRunningNumber.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderRunningNumberAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OrderRunningNumberAggregateArgs>(args: Subset<T, OrderRunningNumberAggregateArgs>): Prisma.PrismaPromise<GetOrderRunningNumberAggregateType<T>>
+
+    /**
+     * Group by OrderRunningNumber.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderRunningNumberGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OrderRunningNumberGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OrderRunningNumberGroupByArgs['orderBy'] }
+        : { orderBy?: OrderRunningNumberGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OrderRunningNumberGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrderRunningNumberGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OrderRunningNumber model
+   */
+  readonly fields: OrderRunningNumberFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OrderRunningNumber.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OrderRunningNumberClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OrderRunningNumber model
+   */
+  interface OrderRunningNumberFieldRefs {
+    readonly id: FieldRef<"OrderRunningNumber", 'String'>
+    readonly yearBe: FieldRef<"OrderRunningNumber", 'Int'>
+    readonly month: FieldRef<"OrderRunningNumber", 'Int'>
+    readonly lastNumber: FieldRef<"OrderRunningNumber", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OrderRunningNumber findUnique
+   */
+  export type OrderRunningNumberFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter, which OrderRunningNumber to fetch.
+     */
+    where: OrderRunningNumberWhereUniqueInput
+  }
+
+  /**
+   * OrderRunningNumber findUniqueOrThrow
+   */
+  export type OrderRunningNumberFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter, which OrderRunningNumber to fetch.
+     */
+    where: OrderRunningNumberWhereUniqueInput
+  }
+
+  /**
+   * OrderRunningNumber findFirst
+   */
+  export type OrderRunningNumberFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter, which OrderRunningNumber to fetch.
+     */
+    where?: OrderRunningNumberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrderRunningNumbers to fetch.
+     */
+    orderBy?: OrderRunningNumberOrderByWithRelationInput | OrderRunningNumberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OrderRunningNumbers.
+     */
+    cursor?: OrderRunningNumberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrderRunningNumbers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrderRunningNumbers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrderRunningNumbers.
+     */
+    distinct?: OrderRunningNumberScalarFieldEnum | OrderRunningNumberScalarFieldEnum[]
+  }
+
+  /**
+   * OrderRunningNumber findFirstOrThrow
+   */
+  export type OrderRunningNumberFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter, which OrderRunningNumber to fetch.
+     */
+    where?: OrderRunningNumberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrderRunningNumbers to fetch.
+     */
+    orderBy?: OrderRunningNumberOrderByWithRelationInput | OrderRunningNumberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OrderRunningNumbers.
+     */
+    cursor?: OrderRunningNumberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrderRunningNumbers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrderRunningNumbers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrderRunningNumbers.
+     */
+    distinct?: OrderRunningNumberScalarFieldEnum | OrderRunningNumberScalarFieldEnum[]
+  }
+
+  /**
+   * OrderRunningNumber findMany
+   */
+  export type OrderRunningNumberFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter, which OrderRunningNumbers to fetch.
+     */
+    where?: OrderRunningNumberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrderRunningNumbers to fetch.
+     */
+    orderBy?: OrderRunningNumberOrderByWithRelationInput | OrderRunningNumberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OrderRunningNumbers.
+     */
+    cursor?: OrderRunningNumberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrderRunningNumbers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrderRunningNumbers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrderRunningNumbers.
+     */
+    distinct?: OrderRunningNumberScalarFieldEnum | OrderRunningNumberScalarFieldEnum[]
+  }
+
+  /**
+   * OrderRunningNumber create
+   */
+  export type OrderRunningNumberCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * The data needed to create a OrderRunningNumber.
+     */
+    data: XOR<OrderRunningNumberCreateInput, OrderRunningNumberUncheckedCreateInput>
+  }
+
+  /**
+   * OrderRunningNumber createMany
+   */
+  export type OrderRunningNumberCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OrderRunningNumbers.
+     */
+    data: OrderRunningNumberCreateManyInput | OrderRunningNumberCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OrderRunningNumber createManyAndReturn
+   */
+  export type OrderRunningNumberCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * The data used to create many OrderRunningNumbers.
+     */
+    data: OrderRunningNumberCreateManyInput | OrderRunningNumberCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OrderRunningNumber update
+   */
+  export type OrderRunningNumberUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * The data needed to update a OrderRunningNumber.
+     */
+    data: XOR<OrderRunningNumberUpdateInput, OrderRunningNumberUncheckedUpdateInput>
+    /**
+     * Choose, which OrderRunningNumber to update.
+     */
+    where: OrderRunningNumberWhereUniqueInput
+  }
+
+  /**
+   * OrderRunningNumber updateMany
+   */
+  export type OrderRunningNumberUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OrderRunningNumbers.
+     */
+    data: XOR<OrderRunningNumberUpdateManyMutationInput, OrderRunningNumberUncheckedUpdateManyInput>
+    /**
+     * Filter which OrderRunningNumbers to update
+     */
+    where?: OrderRunningNumberWhereInput
+    /**
+     * Limit how many OrderRunningNumbers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrderRunningNumber updateManyAndReturn
+   */
+  export type OrderRunningNumberUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * The data used to update OrderRunningNumbers.
+     */
+    data: XOR<OrderRunningNumberUpdateManyMutationInput, OrderRunningNumberUncheckedUpdateManyInput>
+    /**
+     * Filter which OrderRunningNumbers to update
+     */
+    where?: OrderRunningNumberWhereInput
+    /**
+     * Limit how many OrderRunningNumbers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrderRunningNumber upsert
+   */
+  export type OrderRunningNumberUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * The filter to search for the OrderRunningNumber to update in case it exists.
+     */
+    where: OrderRunningNumberWhereUniqueInput
+    /**
+     * In case the OrderRunningNumber found by the `where` argument doesn't exist, create a new OrderRunningNumber with this data.
+     */
+    create: XOR<OrderRunningNumberCreateInput, OrderRunningNumberUncheckedCreateInput>
+    /**
+     * In case the OrderRunningNumber was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OrderRunningNumberUpdateInput, OrderRunningNumberUncheckedUpdateInput>
+  }
+
+  /**
+   * OrderRunningNumber delete
+   */
+  export type OrderRunningNumberDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
+    /**
+     * Filter which OrderRunningNumber to delete.
+     */
+    where: OrderRunningNumberWhereUniqueInput
+  }
+
+  /**
+   * OrderRunningNumber deleteMany
+   */
+  export type OrderRunningNumberDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OrderRunningNumbers to delete
+     */
+    where?: OrderRunningNumberWhereInput
+    /**
+     * Limit how many OrderRunningNumbers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrderRunningNumber without action
+   */
+  export type OrderRunningNumberDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderRunningNumber
+     */
+    select?: OrderRunningNumberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderRunningNumber
+     */
+    omit?: OrderRunningNumberOmit<ExtArgs> | null
   }
 
 
@@ -44956,6 +46095,11 @@ export namespace Prisma {
     borrow_is_tires_ok: boolean | null
     borrow_vehicle_status: string | null
     quantity: number | null
+    key_photo_url: string | null
+    key_received_by: string | null
+    key_returned_at: Date | null
+    key_signature_url: string | null
+    return_status: string | null
   }
 
   export type Asset_borrowingsMaxAggregateOutputType = {
@@ -44982,6 +46126,11 @@ export namespace Prisma {
     borrow_is_tires_ok: boolean | null
     borrow_vehicle_status: string | null
     quantity: number | null
+    key_photo_url: string | null
+    key_received_by: string | null
+    key_returned_at: Date | null
+    key_signature_url: string | null
+    return_status: string | null
   }
 
   export type Asset_borrowingsCountAggregateOutputType = {
@@ -45008,6 +46157,11 @@ export namespace Prisma {
     borrow_is_tires_ok: number
     borrow_vehicle_status: number
     quantity: number
+    key_photo_url: number
+    key_received_by: number
+    key_returned_at: number
+    key_signature_url: number
+    return_status: number
     _all: number
   }
 
@@ -45048,6 +46202,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: true
     borrow_vehicle_status?: true
     quantity?: true
+    key_photo_url?: true
+    key_received_by?: true
+    key_returned_at?: true
+    key_signature_url?: true
+    return_status?: true
   }
 
   export type Asset_borrowingsMaxAggregateInputType = {
@@ -45074,6 +46233,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: true
     borrow_vehicle_status?: true
     quantity?: true
+    key_photo_url?: true
+    key_received_by?: true
+    key_returned_at?: true
+    key_signature_url?: true
+    return_status?: true
   }
 
   export type Asset_borrowingsCountAggregateInputType = {
@@ -45100,6 +46264,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: true
     borrow_vehicle_status?: true
     quantity?: true
+    key_photo_url?: true
+    key_received_by?: true
+    key_returned_at?: true
+    key_signature_url?: true
+    return_status?: true
     _all?: true
   }
 
@@ -45213,6 +46382,11 @@ export namespace Prisma {
     borrow_is_tires_ok: boolean | null
     borrow_vehicle_status: string | null
     quantity: number
+    key_photo_url: string | null
+    key_received_by: string | null
+    key_returned_at: Date | null
+    key_signature_url: string | null
+    return_status: string | null
     _count: Asset_borrowingsCountAggregateOutputType | null
     _avg: Asset_borrowingsAvgAggregateOutputType | null
     _sum: Asset_borrowingsSumAggregateOutputType | null
@@ -45258,6 +46432,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean
     borrow_vehicle_status?: boolean
     quantity?: boolean
+    key_photo_url?: boolean
+    key_received_by?: boolean
+    key_returned_at?: boolean
+    key_signature_url?: boolean
+    return_status?: boolean
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["asset_borrowings"]>
@@ -45286,6 +46465,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean
     borrow_vehicle_status?: boolean
     quantity?: boolean
+    key_photo_url?: boolean
+    key_received_by?: boolean
+    key_returned_at?: boolean
+    key_signature_url?: boolean
+    return_status?: boolean
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["asset_borrowings"]>
@@ -45314,6 +46498,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean
     borrow_vehicle_status?: boolean
     quantity?: boolean
+    key_photo_url?: boolean
+    key_received_by?: boolean
+    key_returned_at?: boolean
+    key_signature_url?: boolean
+    return_status?: boolean
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["asset_borrowings"]>
@@ -45342,9 +46531,14 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean
     borrow_vehicle_status?: boolean
     quantity?: boolean
+    key_photo_url?: boolean
+    key_received_by?: boolean
+    key_returned_at?: boolean
+    key_signature_url?: boolean
+    return_status?: boolean
   }
 
-  export type asset_borrowingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "asset_id" | "emp_id" | "borrow_date" | "expected_return_date" | "actual_return_date" | "location" | "condition_at_borrow" | "condition_at_return" | "is_damaged" | "photo_url_borrow" | "photo_url_return" | "status" | "created_at" | "updated_at" | "borrow_inspection_remark" | "borrow_is_body_ok" | "borrow_is_clean" | "borrow_is_insurance_ok" | "borrow_is_lights_ok" | "borrow_is_tires_ok" | "borrow_vehicle_status" | "quantity", ExtArgs["result"]["asset_borrowings"]>
+  export type asset_borrowingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "asset_id" | "emp_id" | "borrow_date" | "expected_return_date" | "actual_return_date" | "location" | "condition_at_borrow" | "condition_at_return" | "is_damaged" | "photo_url_borrow" | "photo_url_return" | "status" | "created_at" | "updated_at" | "borrow_inspection_remark" | "borrow_is_body_ok" | "borrow_is_clean" | "borrow_is_insurance_ok" | "borrow_is_lights_ok" | "borrow_is_tires_ok" | "borrow_vehicle_status" | "quantity" | "key_photo_url" | "key_received_by" | "key_returned_at" | "key_signature_url" | "return_status", ExtArgs["result"]["asset_borrowings"]>
   export type asset_borrowingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
@@ -45388,6 +46582,11 @@ export namespace Prisma {
       borrow_is_tires_ok: boolean | null
       borrow_vehicle_status: string | null
       quantity: number
+      key_photo_url: string | null
+      key_received_by: string | null
+      key_returned_at: Date | null
+      key_signature_url: string | null
+      return_status: string | null
     }, ExtArgs["result"]["asset_borrowings"]>
     composites: {}
   }
@@ -45836,6 +47035,11 @@ export namespace Prisma {
     readonly borrow_is_tires_ok: FieldRef<"asset_borrowings", 'Boolean'>
     readonly borrow_vehicle_status: FieldRef<"asset_borrowings", 'String'>
     readonly quantity: FieldRef<"asset_borrowings", 'Int'>
+    readonly key_photo_url: FieldRef<"asset_borrowings", 'String'>
+    readonly key_received_by: FieldRef<"asset_borrowings", 'String'>
+    readonly key_returned_at: FieldRef<"asset_borrowings", 'DateTime'>
+    readonly key_signature_url: FieldRef<"asset_borrowings", 'String'>
+    readonly return_status: FieldRef<"asset_borrowings", 'String'>
   }
     
 
@@ -141718,6 +142922,16 @@ export namespace Prisma {
   export type JobRunningNumberScalarFieldEnum = (typeof JobRunningNumberScalarFieldEnum)[keyof typeof JobRunningNumberScalarFieldEnum]
 
 
+  export const OrderRunningNumberScalarFieldEnum: {
+    id: 'id',
+    yearBe: 'yearBe',
+    month: 'month',
+    lastNumber: 'lastNumber'
+  };
+
+  export type OrderRunningNumberScalarFieldEnum = (typeof OrderRunningNumberScalarFieldEnum)[keyof typeof OrderRunningNumberScalarFieldEnum]
+
+
   export const JobStepLogScalarFieldEnum: {
     id: 'id',
     jobId: 'jobId',
@@ -141941,7 +143155,12 @@ export namespace Prisma {
     borrow_is_lights_ok: 'borrow_is_lights_ok',
     borrow_is_tires_ok: 'borrow_is_tires_ok',
     borrow_vehicle_status: 'borrow_vehicle_status',
-    quantity: 'quantity'
+    quantity: 'quantity',
+    key_photo_url: 'key_photo_url',
+    key_received_by: 'key_received_by',
+    key_returned_at: 'key_returned_at',
+    key_signature_url: 'key_signature_url',
+    return_status: 'return_status'
   };
 
   export type Asset_borrowingsScalarFieldEnum = (typeof Asset_borrowingsScalarFieldEnum)[keyof typeof Asset_borrowingsScalarFieldEnum]
@@ -144927,7 +146146,7 @@ export namespace Prisma {
     NOT?: OrderWhereInput | OrderWhereInput[]
     id?: StringFilter<"Order"> | string
     orderNumber?: StringFilter<"Order"> | string
-    companyId?: StringFilter<"Order"> | string
+    companyId?: StringNullableFilter<"Order"> | string | null
     quotationId?: StringNullableFilter<"Order"> | string | null
     salespersonId?: StringNullableFilter<"Order"> | string | null
     status?: StringFilter<"Order"> | string
@@ -144936,7 +146155,7 @@ export namespace Prisma {
     targetDeliveryDate?: DateTimeNullableFilter<"Order"> | Date | string | null
     createdAt?: DateTimeFilter<"Order"> | Date | string
     updatedAt?: DateTimeFilter<"Order"> | Date | string
-    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     statusLogs?: OrderStatusLogListRelationFilter
@@ -144945,7 +146164,7 @@ export namespace Prisma {
   export type OrderOrderByWithRelationInput = {
     id?: SortOrder
     orderNumber?: SortOrder
-    companyId?: SortOrder
+    companyId?: SortOrderInput | SortOrder
     quotationId?: SortOrderInput | SortOrder
     salespersonId?: SortOrderInput | SortOrder
     status?: SortOrder
@@ -144966,7 +146185,7 @@ export namespace Prisma {
     AND?: OrderWhereInput | OrderWhereInput[]
     OR?: OrderWhereInput[]
     NOT?: OrderWhereInput | OrderWhereInput[]
-    companyId?: StringFilter<"Order"> | string
+    companyId?: StringNullableFilter<"Order"> | string | null
     quotationId?: StringNullableFilter<"Order"> | string | null
     salespersonId?: StringNullableFilter<"Order"> | string | null
     status?: StringFilter<"Order"> | string
@@ -144975,7 +146194,7 @@ export namespace Prisma {
     targetDeliveryDate?: DateTimeNullableFilter<"Order"> | Date | string | null
     createdAt?: DateTimeFilter<"Order"> | Date | string
     updatedAt?: DateTimeFilter<"Order"> | Date | string
-    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     statusLogs?: OrderStatusLogListRelationFilter
@@ -144984,7 +146203,7 @@ export namespace Prisma {
   export type OrderOrderByWithAggregationInput = {
     id?: SortOrder
     orderNumber?: SortOrder
-    companyId?: SortOrder
+    companyId?: SortOrderInput | SortOrder
     quotationId?: SortOrderInput | SortOrder
     salespersonId?: SortOrderInput | SortOrder
     status?: SortOrder
@@ -145006,7 +146225,7 @@ export namespace Prisma {
     NOT?: OrderScalarWhereWithAggregatesInput | OrderScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Order"> | string
     orderNumber?: StringWithAggregatesFilter<"Order"> | string
-    companyId?: StringWithAggregatesFilter<"Order"> | string
+    companyId?: StringNullableWithAggregatesFilter<"Order"> | string | null
     quotationId?: StringNullableWithAggregatesFilter<"Order"> | string | null
     salespersonId?: StringNullableWithAggregatesFilter<"Order"> | string | null
     status?: StringWithAggregatesFilter<"Order"> | string
@@ -145435,6 +146654,56 @@ export namespace Prisma {
     yearBe?: IntWithAggregatesFilter<"JobRunningNumber"> | number
     month?: IntWithAggregatesFilter<"JobRunningNumber"> | number
     lastNumber?: IntWithAggregatesFilter<"JobRunningNumber"> | number
+  }
+
+  export type OrderRunningNumberWhereInput = {
+    AND?: OrderRunningNumberWhereInput | OrderRunningNumberWhereInput[]
+    OR?: OrderRunningNumberWhereInput[]
+    NOT?: OrderRunningNumberWhereInput | OrderRunningNumberWhereInput[]
+    id?: StringFilter<"OrderRunningNumber"> | string
+    yearBe?: IntFilter<"OrderRunningNumber"> | number
+    month?: IntFilter<"OrderRunningNumber"> | number
+    lastNumber?: IntFilter<"OrderRunningNumber"> | number
+  }
+
+  export type OrderRunningNumberOrderByWithRelationInput = {
+    id?: SortOrder
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type OrderRunningNumberWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    yearBe_month?: OrderRunningNumberYearBeMonthCompoundUniqueInput
+    AND?: OrderRunningNumberWhereInput | OrderRunningNumberWhereInput[]
+    OR?: OrderRunningNumberWhereInput[]
+    NOT?: OrderRunningNumberWhereInput | OrderRunningNumberWhereInput[]
+    yearBe?: IntFilter<"OrderRunningNumber"> | number
+    month?: IntFilter<"OrderRunningNumber"> | number
+    lastNumber?: IntFilter<"OrderRunningNumber"> | number
+  }, "id" | "yearBe_month">
+
+  export type OrderRunningNumberOrderByWithAggregationInput = {
+    id?: SortOrder
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+    _count?: OrderRunningNumberCountOrderByAggregateInput
+    _avg?: OrderRunningNumberAvgOrderByAggregateInput
+    _max?: OrderRunningNumberMaxOrderByAggregateInput
+    _min?: OrderRunningNumberMinOrderByAggregateInput
+    _sum?: OrderRunningNumberSumOrderByAggregateInput
+  }
+
+  export type OrderRunningNumberScalarWhereWithAggregatesInput = {
+    AND?: OrderRunningNumberScalarWhereWithAggregatesInput | OrderRunningNumberScalarWhereWithAggregatesInput[]
+    OR?: OrderRunningNumberScalarWhereWithAggregatesInput[]
+    NOT?: OrderRunningNumberScalarWhereWithAggregatesInput | OrderRunningNumberScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OrderRunningNumber"> | string
+    yearBe?: IntWithAggregatesFilter<"OrderRunningNumber"> | number
+    month?: IntWithAggregatesFilter<"OrderRunningNumber"> | number
+    lastNumber?: IntWithAggregatesFilter<"OrderRunningNumber"> | number
   }
 
   export type JobStepLogWhereInput = {
@@ -146479,6 +147748,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: BoolNullableFilter<"asset_borrowings"> | boolean | null
     borrow_vehicle_status?: StringNullableFilter<"asset_borrowings"> | string | null
     quantity?: IntFilter<"asset_borrowings"> | number
+    key_photo_url?: StringNullableFilter<"asset_borrowings"> | string | null
+    key_received_by?: StringNullableFilter<"asset_borrowings"> | string | null
+    key_returned_at?: DateTimeNullableFilter<"asset_borrowings"> | Date | string | null
+    key_signature_url?: StringNullableFilter<"asset_borrowings"> | string | null
+    return_status?: StringNullableFilter<"asset_borrowings"> | string | null
     assets?: XOR<AssetsScalarRelationFilter, assetsWhereInput>
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }
@@ -146507,6 +147781,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: SortOrderInput | SortOrder
     borrow_vehicle_status?: SortOrderInput | SortOrder
     quantity?: SortOrder
+    key_photo_url?: SortOrderInput | SortOrder
+    key_received_by?: SortOrderInput | SortOrder
+    key_returned_at?: SortOrderInput | SortOrder
+    key_signature_url?: SortOrderInput | SortOrder
+    return_status?: SortOrderInput | SortOrder
     assets?: assetsOrderByWithRelationInput
     employees?: employeesOrderByWithRelationInput
   }
@@ -146538,6 +147817,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: BoolNullableFilter<"asset_borrowings"> | boolean | null
     borrow_vehicle_status?: StringNullableFilter<"asset_borrowings"> | string | null
     quantity?: IntFilter<"asset_borrowings"> | number
+    key_photo_url?: StringNullableFilter<"asset_borrowings"> | string | null
+    key_received_by?: StringNullableFilter<"asset_borrowings"> | string | null
+    key_returned_at?: DateTimeNullableFilter<"asset_borrowings"> | Date | string | null
+    key_signature_url?: StringNullableFilter<"asset_borrowings"> | string | null
+    return_status?: StringNullableFilter<"asset_borrowings"> | string | null
     assets?: XOR<AssetsScalarRelationFilter, assetsWhereInput>
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }, "id">
@@ -146566,6 +147850,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: SortOrderInput | SortOrder
     borrow_vehicle_status?: SortOrderInput | SortOrder
     quantity?: SortOrder
+    key_photo_url?: SortOrderInput | SortOrder
+    key_received_by?: SortOrderInput | SortOrder
+    key_returned_at?: SortOrderInput | SortOrder
+    key_signature_url?: SortOrderInput | SortOrder
+    return_status?: SortOrderInput | SortOrder
     _count?: asset_borrowingsCountOrderByAggregateInput
     _avg?: asset_borrowingsAvgOrderByAggregateInput
     _max?: asset_borrowingsMaxOrderByAggregateInput
@@ -146600,6 +147889,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: BoolNullableWithAggregatesFilter<"asset_borrowings"> | boolean | null
     borrow_vehicle_status?: StringNullableWithAggregatesFilter<"asset_borrowings"> | string | null
     quantity?: IntWithAggregatesFilter<"asset_borrowings"> | number
+    key_photo_url?: StringNullableWithAggregatesFilter<"asset_borrowings"> | string | null
+    key_received_by?: StringNullableWithAggregatesFilter<"asset_borrowings"> | string | null
+    key_returned_at?: DateTimeNullableWithAggregatesFilter<"asset_borrowings"> | Date | string | null
+    key_signature_url?: StringNullableWithAggregatesFilter<"asset_borrowings"> | string | null
+    return_status?: StringNullableWithAggregatesFilter<"asset_borrowings"> | string | null
   }
 
   export type assetsWhereInput = {
@@ -155709,7 +157003,7 @@ export namespace Prisma {
     targetDeliveryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    company: CompanyCreateNestedOneWithoutOrdersInput
+    company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
     statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
@@ -155718,7 +157012,7 @@ export namespace Prisma {
   export type OrderUncheckedCreateInput = {
     id?: string
     orderNumber: string
-    companyId: string
+    companyId?: string | null
     quotationId?: string | null
     salespersonId?: string | null
     status?: string
@@ -155739,7 +157033,7 @@ export namespace Prisma {
     targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    company?: CompanyUpdateOneRequiredWithoutOrdersNestedInput
+    company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
     statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
@@ -155748,7 +157042,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
-    companyId?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -155763,7 +157057,7 @@ export namespace Prisma {
   export type OrderCreateManyInput = {
     id?: string
     orderNumber: string
-    companyId: string
+    companyId?: string | null
     quotationId?: string | null
     salespersonId?: string | null
     status?: string
@@ -155788,7 +157082,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
-    companyId?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -156287,6 +157581,55 @@ export namespace Prisma {
   }
 
   export type JobRunningNumberUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    yearBe?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    lastNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type OrderRunningNumberCreateInput = {
+    id?: string
+    yearBe: number
+    month: number
+    lastNumber?: number
+  }
+
+  export type OrderRunningNumberUncheckedCreateInput = {
+    id?: string
+    yearBe: number
+    month: number
+    lastNumber?: number
+  }
+
+  export type OrderRunningNumberUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    yearBe?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    lastNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type OrderRunningNumberUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    yearBe?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    lastNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type OrderRunningNumberCreateManyInput = {
+    id?: string
+    yearBe: number
+    month: number
+    lastNumber?: number
+  }
+
+  export type OrderRunningNumberUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    yearBe?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    lastNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type OrderRunningNumberUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     yearBe?: IntFieldUpdateOperationsInput | number
     month?: IntFieldUpdateOperationsInput | number
@@ -157542,6 +158885,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean | null
     borrow_vehicle_status?: string | null
     quantity?: number
+    key_photo_url?: string | null
+    key_received_by?: string | null
+    key_returned_at?: Date | string | null
+    key_signature_url?: string | null
+    return_status?: string | null
     assets: assetsCreateNestedOneWithoutAsset_borrowingsInput
     employees: employeesCreateNestedOneWithoutAsset_borrowingsInput
   }
@@ -157570,6 +158918,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean | null
     borrow_vehicle_status?: string | null
     quantity?: number
+    key_photo_url?: string | null
+    key_received_by?: string | null
+    key_returned_at?: Date | string | null
+    key_signature_url?: string | null
+    return_status?: string | null
   }
 
   export type asset_borrowingsUpdateInput = {
@@ -157593,6 +158946,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: NullableBoolFieldUpdateOperationsInput | boolean | null
     borrow_vehicle_status?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
+    key_photo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    key_received_by?: NullableStringFieldUpdateOperationsInput | string | null
+    key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
+    return_status?: NullableStringFieldUpdateOperationsInput | string | null
     assets?: assetsUpdateOneRequiredWithoutAsset_borrowingsNestedInput
     employees?: employeesUpdateOneRequiredWithoutAsset_borrowingsNestedInput
   }
@@ -157621,6 +158979,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: NullableBoolFieldUpdateOperationsInput | boolean | null
     borrow_vehicle_status?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
+    key_photo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    key_received_by?: NullableStringFieldUpdateOperationsInput | string | null
+    key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
+    return_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type asset_borrowingsCreateManyInput = {
@@ -157647,6 +159010,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean | null
     borrow_vehicle_status?: string | null
     quantity?: number
+    key_photo_url?: string | null
+    key_received_by?: string | null
+    key_returned_at?: Date | string | null
+    key_signature_url?: string | null
+    return_status?: string | null
   }
 
   export type asset_borrowingsUpdateManyMutationInput = {
@@ -157670,6 +159038,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: NullableBoolFieldUpdateOperationsInput | boolean | null
     borrow_vehicle_status?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
+    key_photo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    key_received_by?: NullableStringFieldUpdateOperationsInput | string | null
+    key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
+    return_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type asset_borrowingsUncheckedUpdateManyInput = {
@@ -157696,6 +159069,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: NullableBoolFieldUpdateOperationsInput | boolean | null
     borrow_vehicle_status?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
+    key_photo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    key_received_by?: NullableStringFieldUpdateOperationsInput | string | null
+    key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
+    return_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type assetsCreateInput = {
@@ -167633,6 +169011,44 @@ export namespace Prisma {
     lastNumber?: SortOrder
   }
 
+  export type OrderRunningNumberYearBeMonthCompoundUniqueInput = {
+    yearBe: number
+    month: number
+  }
+
+  export type OrderRunningNumberCountOrderByAggregateInput = {
+    id?: SortOrder
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type OrderRunningNumberAvgOrderByAggregateInput = {
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type OrderRunningNumberMaxOrderByAggregateInput = {
+    id?: SortOrder
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type OrderRunningNumberMinOrderByAggregateInput = {
+    id?: SortOrder
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type OrderRunningNumberSumOrderByAggregateInput = {
+    yearBe?: SortOrder
+    month?: SortOrder
+    lastNumber?: SortOrder
+  }
+
   export type JobStepLogCountOrderByAggregateInput = {
     id?: SortOrder
     jobId?: SortOrder
@@ -168358,6 +169774,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: SortOrder
     borrow_vehicle_status?: SortOrder
     quantity?: SortOrder
+    key_photo_url?: SortOrder
+    key_received_by?: SortOrder
+    key_returned_at?: SortOrder
+    key_signature_url?: SortOrder
+    return_status?: SortOrder
   }
 
   export type asset_borrowingsAvgOrderByAggregateInput = {
@@ -168390,6 +169811,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: SortOrder
     borrow_vehicle_status?: SortOrder
     quantity?: SortOrder
+    key_photo_url?: SortOrder
+    key_received_by?: SortOrder
+    key_returned_at?: SortOrder
+    key_signature_url?: SortOrder
+    return_status?: SortOrder
   }
 
   export type asset_borrowingsMinOrderByAggregateInput = {
@@ -168416,6 +169842,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: SortOrder
     borrow_vehicle_status?: SortOrder
     quantity?: SortOrder
+    key_photo_url?: SortOrder
+    key_received_by?: SortOrder
+    key_returned_at?: SortOrder
+    key_signature_url?: SortOrder
+    return_status?: SortOrder
   }
 
   export type asset_borrowingsSumOrderByAggregateInput = {
@@ -175386,10 +176817,12 @@ export namespace Prisma {
     connect?: OrderStatusLogWhereUniqueInput | OrderStatusLogWhereUniqueInput[]
   }
 
-  export type CompanyUpdateOneRequiredWithoutOrdersNestedInput = {
+  export type CompanyUpdateOneWithoutOrdersNestedInput = {
     create?: XOR<CompanyCreateWithoutOrdersInput, CompanyUncheckedCreateWithoutOrdersInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutOrdersInput
     upsert?: CompanyUpsertWithoutOrdersInput
+    disconnect?: CompanyWhereInput | boolean
+    delete?: CompanyWhereInput | boolean
     connect?: CompanyWhereUniqueInput
     update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutOrdersInput, CompanyUpdateWithoutOrdersInput>, CompanyUncheckedUpdateWithoutOrdersInput>
   }
@@ -181224,7 +182657,7 @@ export namespace Prisma {
     targetDeliveryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    company: CompanyCreateNestedOneWithoutOrdersInput
+    company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
   }
@@ -181232,7 +182665,7 @@ export namespace Prisma {
   export type OrderUncheckedCreateWithoutSalespersonInput = {
     id?: string
     orderNumber: string
-    companyId: string
+    companyId?: string | null
     quotationId?: string | null
     status?: string
     value?: number
@@ -182381,7 +183814,7 @@ export namespace Prisma {
     NOT?: OrderScalarWhereInput | OrderScalarWhereInput[]
     id?: StringFilter<"Order"> | string
     orderNumber?: StringFilter<"Order"> | string
-    companyId?: StringFilter<"Order"> | string
+    companyId?: StringNullableFilter<"Order"> | string | null
     quotationId?: StringNullableFilter<"Order"> | string | null
     salespersonId?: StringNullableFilter<"Order"> | string | null
     status?: StringFilter<"Order"> | string
@@ -185096,7 +186529,7 @@ export namespace Prisma {
     targetDeliveryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    company: CompanyCreateNestedOneWithoutOrdersInput
+    company?: CompanyCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
     statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
   }
@@ -185104,7 +186537,7 @@ export namespace Prisma {
   export type OrderUncheckedCreateWithoutQuotationInput = {
     id?: string
     orderNumber: string
-    companyId: string
+    companyId?: string | null
     salespersonId?: string | null
     status?: string
     value?: number
@@ -187114,7 +188547,7 @@ export namespace Prisma {
     targetDeliveryDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    company: CompanyCreateNestedOneWithoutOrdersInput
+    company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
   }
@@ -187122,7 +188555,7 @@ export namespace Prisma {
   export type OrderUncheckedCreateWithoutStatusLogsInput = {
     id?: string
     orderNumber: string
-    companyId: string
+    companyId?: string | null
     quotationId?: string | null
     salespersonId?: string | null
     status?: string
@@ -187158,7 +188591,7 @@ export namespace Prisma {
     targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    company?: CompanyUpdateOneRequiredWithoutOrdersNestedInput
+    company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
   }
@@ -187166,7 +188599,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateWithoutStatusLogsInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
-    companyId?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -190493,6 +191926,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean | null
     borrow_vehicle_status?: string | null
     quantity?: number
+    key_photo_url?: string | null
+    key_received_by?: string | null
+    key_returned_at?: Date | string | null
+    key_signature_url?: string | null
+    return_status?: string | null
     employees: employeesCreateNestedOneWithoutAsset_borrowingsInput
   }
 
@@ -190519,6 +191957,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean | null
     borrow_vehicle_status?: string | null
     quantity?: number
+    key_photo_url?: string | null
+    key_received_by?: string | null
+    key_returned_at?: Date | string | null
+    key_signature_url?: string | null
+    return_status?: string | null
   }
 
   export type asset_borrowingsCreateOrConnectWithoutAssetsInput = {
@@ -190574,6 +192017,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: BoolNullableFilter<"asset_borrowings"> | boolean | null
     borrow_vehicle_status?: StringNullableFilter<"asset_borrowings"> | string | null
     quantity?: IntFilter<"asset_borrowings"> | number
+    key_photo_url?: StringNullableFilter<"asset_borrowings"> | string | null
+    key_received_by?: StringNullableFilter<"asset_borrowings"> | string | null
+    key_returned_at?: DateTimeNullableFilter<"asset_borrowings"> | Date | string | null
+    key_signature_url?: StringNullableFilter<"asset_borrowings"> | string | null
+    return_status?: StringNullableFilter<"asset_borrowings"> | string | null
   }
 
   export type employeesCreateWithoutBirthday_claimsInput = {
@@ -192714,6 +194162,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean | null
     borrow_vehicle_status?: string | null
     quantity?: number
+    key_photo_url?: string | null
+    key_received_by?: string | null
+    key_returned_at?: Date | string | null
+    key_signature_url?: string | null
+    return_status?: string | null
     assets: assetsCreateNestedOneWithoutAsset_borrowingsInput
   }
 
@@ -192740,6 +194193,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean | null
     borrow_vehicle_status?: string | null
     quantity?: number
+    key_photo_url?: string | null
+    key_received_by?: string | null
+    key_returned_at?: Date | string | null
+    key_signature_url?: string | null
+    return_status?: string | null
   }
 
   export type asset_borrowingsCreateOrConnectWithoutEmployeesInput = {
@@ -215427,7 +216885,7 @@ export namespace Prisma {
   export type OrderCreateManySalespersonInput = {
     id?: string
     orderNumber: string
-    companyId: string
+    companyId?: string | null
     quotationId?: string | null
     status?: string
     value?: number
@@ -216274,7 +217732,7 @@ export namespace Prisma {
     targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    company?: CompanyUpdateOneRequiredWithoutOrdersNestedInput
+    company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
   }
@@ -216282,7 +217740,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateWithoutSalespersonInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
-    companyId?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     value?: FloatFieldUpdateOperationsInput | number
@@ -216296,7 +217754,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateManyWithoutSalespersonInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
-    companyId?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     quotationId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     value?: FloatFieldUpdateOperationsInput | number
@@ -217980,7 +219438,7 @@ export namespace Prisma {
   export type OrderCreateManyQuotationInput = {
     id?: string
     orderNumber: string
-    companyId: string
+    companyId?: string | null
     salespersonId?: string | null
     status?: string
     value?: number
@@ -218032,7 +219490,7 @@ export namespace Prisma {
     targetDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    company?: CompanyUpdateOneRequiredWithoutOrdersNestedInput
+    company?: CompanyUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
     statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
   }
@@ -218040,7 +219498,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateWithoutQuotationInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
-    companyId?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     value?: FloatFieldUpdateOperationsInput | number
@@ -218054,7 +219512,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateManyWithoutQuotationInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
-    companyId?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     value?: FloatFieldUpdateOperationsInput | number
@@ -218774,6 +220232,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean | null
     borrow_vehicle_status?: string | null
     quantity?: number
+    key_photo_url?: string | null
+    key_received_by?: string | null
+    key_returned_at?: Date | string | null
+    key_signature_url?: string | null
+    return_status?: string | null
   }
 
   export type asset_borrowingsUpdateWithoutAssetsInput = {
@@ -218797,6 +220260,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: NullableBoolFieldUpdateOperationsInput | boolean | null
     borrow_vehicle_status?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
+    key_photo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    key_received_by?: NullableStringFieldUpdateOperationsInput | string | null
+    key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
+    return_status?: NullableStringFieldUpdateOperationsInput | string | null
     employees?: employeesUpdateOneRequiredWithoutAsset_borrowingsNestedInput
   }
 
@@ -218823,6 +220291,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: NullableBoolFieldUpdateOperationsInput | boolean | null
     borrow_vehicle_status?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
+    key_photo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    key_received_by?: NullableStringFieldUpdateOperationsInput | string | null
+    key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
+    return_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type asset_borrowingsUncheckedUpdateManyWithoutAssetsInput = {
@@ -218848,6 +220321,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: NullableBoolFieldUpdateOperationsInput | boolean | null
     borrow_vehicle_status?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
+    key_photo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    key_received_by?: NullableStringFieldUpdateOperationsInput | string | null
+    key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
+    return_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type employeesCreateManyBranchesInput = {
@@ -219527,6 +221005,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: boolean | null
     borrow_vehicle_status?: string | null
     quantity?: number
+    key_photo_url?: string | null
+    key_received_by?: string | null
+    key_returned_at?: Date | string | null
+    key_signature_url?: string | null
+    return_status?: string | null
   }
 
   export type birthday_claimsCreateManyEmployeesInput = {
@@ -220147,6 +221630,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: NullableBoolFieldUpdateOperationsInput | boolean | null
     borrow_vehicle_status?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
+    key_photo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    key_received_by?: NullableStringFieldUpdateOperationsInput | string | null
+    key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
+    return_status?: NullableStringFieldUpdateOperationsInput | string | null
     assets?: assetsUpdateOneRequiredWithoutAsset_borrowingsNestedInput
   }
 
@@ -220173,6 +221661,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: NullableBoolFieldUpdateOperationsInput | boolean | null
     borrow_vehicle_status?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
+    key_photo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    key_received_by?: NullableStringFieldUpdateOperationsInput | string | null
+    key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
+    return_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type asset_borrowingsUncheckedUpdateManyWithoutEmployeesInput = {
@@ -220198,6 +221691,11 @@ export namespace Prisma {
     borrow_is_tires_ok?: NullableBoolFieldUpdateOperationsInput | boolean | null
     borrow_vehicle_status?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
+    key_photo_url?: NullableStringFieldUpdateOperationsInput | string | null
+    key_received_by?: NullableStringFieldUpdateOperationsInput | string | null
+    key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
+    return_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type birthday_claimsUpdateWithoutEmployeesInput = {

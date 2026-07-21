@@ -32,12 +32,14 @@ export default function OrdersClientPage({
   // Drag state
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [draggedOverColumn, setDraggedOverColumn] = useState<string | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<any>(null)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   // Filters
   const [search, setSearch] = useState('')
   const [memberFilter, setMemberFilter] = useState('')
   
-  const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes((userRole || '').toLowerCase())
+  const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => (userRole || '').toLowerCase().includes(r))
 
   const COLUMNS = [
     { id: 'รอยืนยัน', label: 'รอการยืนยัน', subLabel: 'Pending', accent: '#f59e0b', icon: Clock },
@@ -121,6 +123,9 @@ export default function OrdersClientPage({
       if (!res.success) {
         alert(res.error)
         setOrders(previousOrders) // Rollback
+      } else {
+        setToastMessage("บันทึกสำเร็จ (Save Successful)")
+        setTimeout(() => setToastMessage(null), 3000)
       }
     } catch (err) {
       console.error(err)
@@ -231,8 +236,9 @@ export default function OrdersClientPage({
                         draggable
                         onDragStart={(e) => handleDragStart(e, order.id)}
                         onDragEnd={handleDragEnd}
-                        className={`bg-white rounded-xl border border-gray-200 shadow-sm cursor-grab active:cursor-grabbing transition-all p-3.5 relative group ${
-                          isDragging ? 'opacity-40 scale-95 border-dashed shadow-none' : 'hover:shadow-md hover:border-gray-300 hover:-translate-y-0.5'
+                        onClick={() => setSelectedOrder(order)}
+                        className={`bg-white rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-blue-300 transition-all p-3.5 relative group ${
+                          isDragging ? 'opacity-40 scale-95 border-dashed shadow-none' : 'hover:shadow-md hover:-translate-y-0.5'
                         }`}
                       >
                         {/* Accent Bar */}
@@ -249,6 +255,11 @@ export default function OrdersClientPage({
                             <span className="text-[10px] font-mono font-black px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
                               {order.orderNumber}
                             </span>
+                            {order.quotation?.quotationNumber && order.quotation.quotationNumber !== order.orderNumber && (
+                              <span className="text-[10px] font-mono font-black px-1.5 py-0.5 bg-gray-50 border border-gray-200 text-gray-500 rounded">
+                                {order.quotation.quotationNumber}
+                              </span>
+                            )}
                             {order.priority && (
                               <span className={`text-[10px] font-black px-1.5 py-0.5 rounded uppercase ${
                                 order.priority === 'Urgent' ? 'bg-red-100 text-red-700' :
@@ -297,6 +308,95 @@ export default function OrdersClientPage({
           })}
         </div>
       </div>
+
+      {/* Cabinet Assembly Details Modal */}
+      {selectedOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedOrder(null)}>
+          <div 
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm">
+                  <Package size={20} />
+                </div>
+                <div>
+                  <h3 className="text-[15px] font-black text-gray-900 tracking-tight">รายละเอียดประกอบตู้ (Assembly Details)</h3>
+                  <p className="text-xs font-bold text-gray-500">{selectedOrder.orderNumber}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedOrder(null)}
+                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-5 max-h-[65vh] overflow-y-auto custom-scrollbar bg-gray-50/50">
+              <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">บริษัท / ลูกค้า</p>
+                <p className="text-sm font-black text-gray-800">{selectedOrder.company?.companyName || 'ไม่ระบุ'}</p>
+              </div>
+
+              {selectedOrder.quotation?.jobs && selectedOrder.quotation.jobs.length > 0 ? (
+                <div className="space-y-4">
+                  {selectedOrder.quotation.jobs.map((job: any, index: number) => (
+                    <div key={job.jobNumber} className="bg-white border border-blue-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                      <div className="bg-blue-50/80 px-4 py-3 flex items-center justify-between border-b border-blue-100/50">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-black">{index + 1}</span>
+                          <span className="text-sm font-black text-blue-900">{job.jobNumber}</span>
+                        </div>
+                        <span className="text-[10px] font-black px-2.5 py-1 bg-white text-blue-700 rounded-full shadow-sm border border-blue-100/50 uppercase tracking-wide">
+                          {job.jobType || 'NO TYPE'}
+                        </span>
+                      </div>
+                      <div className="p-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                          <CheckCircle2 size={12} className="text-blue-500" />
+                          รายละเอียดสินค้าและงานประกอบ
+                        </p>
+                        <div className="text-[13px] font-medium text-gray-700 whitespace-pre-wrap leading-relaxed pl-1">
+                          {job.item || <span className="text-gray-400 italic">ไม่ได้ระบุรายละเอียด</span>}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl border border-dashed border-gray-200 p-8 text-center">
+                  <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-400">
+                    <Package size={24} />
+                  </div>
+                  <p className="text-sm font-black text-gray-600 mb-1">ไม่พบข้อมูลประกอบตู้</p>
+                  <p className="text-xs font-medium text-gray-400">ออเดอร์นี้ไม่มีข้อมูล Job หรืองานประกอบตู้ที่เชื่อมโยงอยู่</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="px-6 py-4 border-t border-gray-100 bg-white flex justify-end">
+              <button 
+                onClick={() => setSelectedOrder(null)}
+                className="px-5 py-2.5 bg-gray-900 text-white text-[13px] font-black rounded-xl hover:bg-gray-800 transition-colors shadow-sm"
+              >
+                ปิดหน้าต่าง (Close)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Toast */}
+      {toastMessage && (
+        <div className="fixed bottom-8 right-8 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="bg-gray-900 text-white px-6 py-3.5 rounded-xl shadow-2xl border border-gray-700 flex items-center gap-3">
+            <CheckCircle2 size={18} className="text-green-400" />
+            <span className="text-sm font-bold tracking-wide">{toastMessage}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

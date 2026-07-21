@@ -131,6 +131,23 @@ export async function createStandaloneJob(data: { customerName: string; item: st
     }
   }
 
+  // Auto-create Order for Container Jobs (so they show on Orders board immediately)
+  if (["งานตู้", "งานตู้ + ติดตั้ง", "Cabinet Work", "Cabinet Work + Installation"].includes(data.jobType)) {
+    try {
+      const { generateOrderNumber } = await import("@/app/actions/orderHelper");
+      const orderNumber = await generateOrderNumber();
+      await prisma.order.create({
+        data: {
+          orderNumber,
+          status: 'รอยืนยัน',
+          value: 0,
+        }
+      });
+    } catch (err) {
+      console.error("Failed to auto-create order", err);
+    }
+  }
+
   revalidatePath("/jobs");
   revalidatePath("/projects");
   return job;

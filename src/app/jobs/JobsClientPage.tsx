@@ -94,6 +94,7 @@ function JobTypeBadge({ type }: { type: string }) {
     "งานเคลม": "bg-red-50 text-red-800 border-red-200",
     "สินค้าฝากขาย": "bg-teal-50 text-teal-800 border-teal-200",
     "งานตู้": "bg-purple-50 text-purple-800 border-purple-200",
+    "งานตู้ + ติดตั้ง": "bg-purple-50 text-purple-800 border-purple-200",
   };
   return (
     <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${colorMap[type] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}>

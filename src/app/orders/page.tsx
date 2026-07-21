@@ -27,11 +27,24 @@ export default async function OrdersPage({
     redirect('/')
   }
 
-  const isManager = user.role === 'ผู้จัดการ'
+  const roleStr = (user.role || '').toLowerCase()
+  const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => roleStr.includes(r))
 
-  const whereClause = isManager
-    ? {}
-    : { OR: [{ salespersonId: user.id }, { salespersonId: null }] }
+  const whereClause: any = {
+    quotation: {
+      jobs: {
+        some: {
+          jobType: {
+            in: ['งานตู้', 'งานตู้ + ติดตั้ง']
+          }
+        }
+      }
+    }
+  }
+
+  if (!isManager) {
+    whereClause.OR = [{ salespersonId: user.id }, { salespersonId: null }]
+  }
 
   let teamMembers: { id: string; fullName: string }[] = []
   if (isManager) {
@@ -66,7 +79,14 @@ export default async function OrdersPage({
       company: true,
       quotation: {
         select: {
-          quotationNumber: true
+          quotationNumber: true,
+          jobs: {
+            select: {
+              jobNumber: true,
+              jobType: true,
+              item: true
+            }
+          }
         }
       },
       salesperson: {
@@ -80,7 +100,7 @@ export default async function OrdersPage({
   })
 
   return (
-    <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 md:p-6 bg-white pb-24 md:pb-6">
+    <main className="flex-1 md:overflow-hidden overflow-y-auto p-4 md:px-10 lg:px-14 md:py-8 bg-gray-50/30 pb-24 md:pb-8">
       <OrdersClientPage
         initialOrders={JSON.parse(JSON.stringify(orders))}
         teamMembers={JSON.parse(JSON.stringify(teamMembers))}

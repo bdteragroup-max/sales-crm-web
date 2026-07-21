@@ -1,6 +1,7 @@
 'use server'
 
 import prisma from "@/app/lib/db";
+import { generateOrderNumber } from './orderHelper';
 import { getUser } from "@/app/lib/dal";
 import { revalidatePath } from "next/cache";
 
@@ -25,8 +26,11 @@ export async function updateOrderStatus(
       return { success: false, error: "ไม่พบข้อมูล Order (Order not found)" };
     }
 
+    const roleStr = (user.role || '').toLowerCase();
+    const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => roleStr.includes(r));
+
     // Only manager or the assigned salesperson can update
-    if (user.role !== "ผู้จัดการ" && (user.role || '').toLowerCase() !== "sales manager" && order.salespersonId !== user.id) {
+    if (!isManager && order.salespersonId !== user.id) {
       return { success: false, error: "ปฏิเสธการเข้าถึง: คุณสามารถแก้ไขเฉพาะออเดอร์ของคุณเองเท่านั้น" };
     }
 
@@ -77,14 +81,27 @@ export async function fetchOrders(filters?: {
   if (!user) return { success: false, error: "Unauthorized" };
 
   try {
-    const where: any = {};
+    const where: any = {
+      quotation: {
+        jobs: {
+          some: {
+            jobType: {
+              in: ['งานตู้', 'งานตู้ + ติดตั้ง']
+            }
+          }
+        }
+      }
+    };
     if (filters?.status) where.status = filters.status;
     if (filters?.salespersonId) where.salespersonId = filters.salespersonId;
     if (filters?.companyId) where.companyId = filters.companyId;
 
+    const roleStr = (user.role || '').toLowerCase();
+    const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => roleStr.includes(r));
+
     // Reps only see their own orders unless they are a manager
-    if (user.role !== "ผู้จัดการ") {
-      where.salespersonId = user.id;
+    if (!isManager) {
+      where.OR = [{ salespersonId: user.id }, { salespersonId: null }];
     }
 
     const orders = await prisma.order.findMany({
@@ -120,7 +137,7 @@ export async function fetchOrders(filters?: {
  * Create a new order (e.g. converted from a Quotation)
  */
 export async function createOrder(data: {
-  orderNumber: string;
+  orderNumber?: string;
   companyId: string;
   quotationId?: string;
   value: number;
@@ -131,9 +148,11 @@ export async function createOrder(data: {
   if (!user) return { success: false, error: "Unauthorized" };
 
   try {
+    const finalOrderNumber = data.orderNumber || await generateOrderNumber();
+    
     const newOrder = await prisma.order.create({
       data: {
-        orderNumber: data.orderNumber,
+        orderNumber: finalOrderNumber,
         companyId: data.companyId,
         quotationId: data.quotationId,
         salespersonId: user.id, // Assigned to the creator

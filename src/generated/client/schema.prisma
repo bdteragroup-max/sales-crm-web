@@ -311,16 +311,16 @@ model TelesalesKPI {
 model Order {
   id                 String           @id @default(cuid())
   orderNumber        String           @unique
-  companyId          String
+  companyId          String?
   quotationId        String?
   salespersonId      String?
-  status             String           @default("เน€เธเธเน€เธเธเน€เธเธเน€เธเธ—เน€เธยเน€เธเธเน€เธเธ‘เน€เธย")
+  status             String           @default("รอยืนยัน")
   value              Float            @default(0)
   priority           String           @default("Normal")
   targetDeliveryDate DateTime?        @db.Timestamptz(6)
   createdAt          DateTime         @default(now()) @db.Timestamptz(6)
   updatedAt          DateTime         @updatedAt @db.Timestamptz(6)
-  company            Company          @relation(fields: [companyId], references: [id])
+  company            Company?         @relation(fields: [companyId], references: [id])
   quotation          Quotation?       @relation(fields: [quotationId], references: [id])
   salesperson        User?            @relation(fields: [salespersonId], references: [id])
   statusLogs         OrderStatusLog[]
@@ -415,6 +415,16 @@ model JobRunningNumber {
 
   @@unique([yearBe, month])
   @@map("job_running_numbers")
+}
+
+model OrderRunningNumber {
+  id         String @id @default(cuid())
+  yearBe     Int
+  month      Int
+  lastNumber Int    @default(0)
+
+  @@unique([yearBe, month])
+  @@map("order_running_numbers")
 }
 
 model JobStepLog {
@@ -639,6 +649,11 @@ model asset_borrowings {
   borrow_is_tires_ok       Boolean?
   borrow_vehicle_status    String?   @db.VarChar(50)
   quantity                 Int       @default(1)
+  key_photo_url            String?
+  key_received_by          String?   @db.VarChar(20)
+  key_returned_at          DateTime? @db.Timestamptz(6)
+  key_signature_url        String?
+  return_status            String?   @default("PENDING") @db.VarChar(20)
   assets                   assets    @relation(fields: [asset_id], references: [id], onDelete: Cascade)
   employees                employees @relation(fields: [emp_id], references: [emp_id], onDelete: Cascade)
 

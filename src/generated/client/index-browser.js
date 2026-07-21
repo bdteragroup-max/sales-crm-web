@@ -416,6 +416,13 @@ exports.Prisma.JobRunningNumberScalarFieldEnum = {
   lastNumber: 'lastNumber'
 };
 
+exports.Prisma.OrderRunningNumberScalarFieldEnum = {
+  id: 'id',
+  yearBe: 'yearBe',
+  month: 'month',
+  lastNumber: 'lastNumber'
+};
+
 exports.Prisma.JobStepLogScalarFieldEnum = {
   id: 'id',
   jobId: 'jobId',
@@ -615,7 +622,12 @@ exports.Prisma.Asset_borrowingsScalarFieldEnum = {
   borrow_is_lights_ok: 'borrow_is_lights_ok',
   borrow_is_tires_ok: 'borrow_is_tires_ok',
   borrow_vehicle_status: 'borrow_vehicle_status',
-  quantity: 'quantity'
+  quantity: 'quantity',
+  key_photo_url: 'key_photo_url',
+  key_received_by: 'key_received_by',
+  key_returned_at: 'key_returned_at',
+  key_signature_url: 'key_signature_url',
+  return_status: 'return_status'
 };
 
 exports.Prisma.AssetsScalarFieldEnum = {
@@ -1848,6 +1860,7 @@ exports.Prisma.ModelName = {
   Job: 'Job',
   PaymentTask: 'PaymentTask',
   JobRunningNumber: 'JobRunningNumber',
+  OrderRunningNumber: 'OrderRunningNumber',
   JobStepLog: 'JobStepLog',
   RepairOrder: 'RepairOrder',
   RepairDelivery: 'RepairDelivery',
