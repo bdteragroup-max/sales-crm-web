@@ -139,11 +139,33 @@ export default function PipelineClientPage({
   const [pendingCardIds, setPendingCardIds] = useState<Set<string>>(new Set())
 
   const [selectedSalespersonId, setSelectedSalespersonId] = useState<string>('')
+  const [selectedBranch, setSelectedBranch] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm)
   const [showLostDeals, setShowLostDeals] = useState<boolean>(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [showCoinModal, setShowCoinModal] = useState(false)
   const [coinModalData, setCoinModalData] = useState({ gold: 0, message: '' })
+
+  const getThaiBranchName = (branch?: string | null) => {
+    if (!branch) return ''
+    const map: Record<string, string> = {
+      'SN01': 'สกลนคร',
+      'SNO1': 'สกลนคร',
+      'BKK-HQ': 'สำนักงานใหญ่',
+      'KK01': 'ขอนแก่น',
+      'PSNL01': 'พิษณุโลก',
+      'CMI01': 'เชียงใหม่',
+      'KRI01': 'กาญจนบุรี',
+      'UB01': 'อุบลราชธานี',
+      'SRT01': 'สุราษฎร์ธานี',
+      'UDN01': 'อุดรธานี',
+      'SRN01': 'สุรินทร์',
+      'ROI01': 'ร้อยเอ็ด',
+      'BKK-WH': 'Tera Warehouse 62',
+      'SMK': 'สมุทรสาคร'
+    }
+    return map[branch] || branch
+  }
 
   const [inputQuotationNumber, setInputQuotationNumber] = useState('')
   const [inputPoNumber, setInputPoNumber] = useState('')
@@ -350,10 +372,13 @@ export default function PipelineClientPage({
       q.contact?.contactName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       q.subject?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesSalesperson = !selectedSalespersonId || q.salespersonId === selectedSalespersonId
+    const matchesBranch = !selectedBranch || getThaiBranchName(q.salesBranch) === selectedBranch
     const isLost = q.status?.startsWith('ปฏิเสธ') || (q.status?.startsWith('ยกเลิก') && q.status !== 'ยกเลิก-Revise')
     const matchesLostStatus = showLostDeals ? true : !isLost
-    return matchesSearch && matchesSalesperson && matchesLostStatus
+    return matchesSearch && matchesSalesperson && matchesBranch && matchesLostStatus
   })
+
+  const uniqueBranches = Array.from(new Set(quotations.map(q => getThaiBranchName(q.salesBranch)).filter(Boolean))).sort() as string[]
 
   const getColumnData = (columnId: string) => {
     const list = filteredQuotations.filter(q => mapStatusToColumn(q.status) === columnId)
@@ -422,6 +447,20 @@ export default function PipelineClientPage({
               className="w-full md:w-52 pl-8 pr-3 py-2 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
             />
           </div>
+
+          {/* Branch filter */}
+          {uniqueBranches.length > 0 && (
+            <select
+              value={selectedBranch}
+              onChange={(e) => setSelectedBranch(e.target.value)}
+              className="text-xs font-bold border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+            >
+              <option value="">ทุกสาขา</option>
+              {uniqueBranches.map(branch => (
+                <option key={branch} value={branch}>{branch}</option>
+              ))}
+            </select>
+          )}
 
           {/* Salesperson filter */}
           {isManager && (
