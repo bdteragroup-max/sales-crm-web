@@ -421,6 +421,7 @@ export async function saveSalesData(formData: FormData) {
         billingDocsUrl: billingDocsUrl || undefined,
         percentageTerms: percentageTerms || undefined,
         paymentDate: parseDate(paymentDateRaw) || undefined,
+        workName: workName || undefined,
       });
     }
 
@@ -430,7 +431,7 @@ export async function saveSalesData(formData: FormData) {
 
   } catch (error) {
     console.error("Error saving sales data:", error);
-    return { success: false, error: "เกิดข้อผิดพลาดในการบันทึกข้อมูล (Failed to save data)" };
+    return { success: false, error: "เกิดข้อผิดพลาดในการบันทึกข้อมูล (Failed to save data): " + ((error as Error)?.message || String(error)) };
   }
 }
 export async function updateSalesData(quotationId: string, formData: FormData) {
@@ -693,6 +694,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
         billingDocsUrl: billingDocsUrl || undefined,
         percentageTerms: percentageTerms || undefined,
         paymentDate: parseDate(paymentDateRaw) || undefined,
+        workName: workName || undefined,
       });
     }
 
@@ -702,7 +704,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
 
   } catch (error) {
     console.error("Error updating sales data:", error);
-    return { success: false, error: "เกิดข้อผิดพลาดในการแก้ไขข้อมูล (Failed to update data)" };
+    return { success: false, error: "เกิดข้อผิดพลาดในการแก้ไขข้อมูล (Failed to update data): " + ((error as Error)?.message || String(error)) };
   }
 }
 

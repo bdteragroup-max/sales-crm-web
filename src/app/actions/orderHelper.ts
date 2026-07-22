@@ -7,23 +7,40 @@ export async function generateOrderNumber(): Promise<string> {
   const month = now.getMonth() + 1;
   const strMonth = month.toString().padStart(2, '0'); // e.g. 04
 
-  const sequenceRecord = await prisma.orderRunningNumber.upsert({
-    where: {
-      yearBe_month: {
-        yearBe,
-        month
-      }
-    },
-    update: {
-      lastNumber: { increment: 1 }
-    },
-    create: {
-      yearBe,
-      month,
-      lastNumber: 1
-    }
-  });
+  let orderNumber = "";
+  let exists = true;
 
-  const sequence = sequenceRecord.lastNumber.toString().padStart(3, '0');
-  return `ORD${shortYearBe}${strMonth}${sequence}`;
+  while (exists) {
+    const sequenceRecord = await prisma.orderRunningNumber.upsert({
+      where: {
+        yearBe_month: {
+          yearBe,
+          month
+        }
+      },
+      update: {
+        lastNumber: { increment: 1 }
+      },
+      create: {
+        yearBe,
+        month,
+        lastNumber: 1
+      }
+    });
+
+    const sequence = sequenceRecord.lastNumber.toString().padStart(3, '0');
+    orderNumber = `ORD${shortYearBe}${strMonth}${sequence}`;
+
+    const existingOrder = await prisma.order.findUnique({
+      where: { orderNumber }
+    });
+
+    console.log(`[generateOrderNumber] Checking ${orderNumber} -> existing: ${!!existingOrder}`);
+
+    if (!existingOrder) {
+      exists = false;
+    }
+  }
+
+  return orderNumber;
 }
