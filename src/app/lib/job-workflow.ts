@@ -171,6 +171,7 @@ export const WORKFLOWS: WorkflowDef[] = [
       has_stock: [
         { key: "sales",      label: "ฝ่ายขาย",   department: ["sales"] },
         { key: "store",      label: "สโตร์",   department: ["store"] },
+        { key: "production", label: "ฝ่ายผลิต", department: ["production"] },
         { key: "accounting", label: "บัญชี",   department: ["accounting"] },
         { key: "delivery",   label: "จัดส่ง",  department: ["delivery"] },
       ],
@@ -178,12 +179,43 @@ export const WORKFLOWS: WorkflowDef[] = [
         { key: "sales",      label: "ฝ่ายขาย",      department: ["sales"] },
         { key: "store",      label: "สโตร์",      department: ["store"] },
         { key: "sales_pr",   label: "ฝ่ายขาย - เปิด PR", department: ["sales"] },
-        { key: "production", label: "ฝ่ายผลิต", department: ["production"] },
         { key: "purchase_find_supplier", label: "จัดซื้อ - หาร้านค้า/Supplier", department: ["purchase"] },
-
-
-
         { key: "store_receive", label: "สโตร์ - รับและตรวจสอบสินค้า", department: ["store"] },
+        { key: "production", label: "ฝ่ายผลิต", department: ["production"] },
+        { key: "accounting", label: "บัญชี",       department: ["accounting"] },
+        { key: "delivery",   label: "จัดส่ง",      department: ["delivery"] },
+      ],
+    },
+  },
+
+  // 5.5 งานตู้ + ติดตั้ง
+  {
+    jobType: "งานตู้ + ติดตั้ง",
+    variantQuestion: {
+      question: "มีอุปกรณ์พร้อมหรือไม่?",
+      askedAtStep: "store",
+      options: [
+        { label: "มีอุปกรณ์พร้อม",     value: "has_stock", icon: "CheckCircle2" },
+        { label: "ไม่มี ต้องผลิต/สั่ง", value: "no_stock", icon: "XCircle" },
+      ],
+    },
+    flows: {
+      has_stock: [
+        { key: "sales",      label: "ฝ่ายขาย",   department: ["sales"] },
+        { key: "store",      label: "สโตร์",   department: ["store"] },
+        { key: "production", label: "ฝ่ายผลิต", department: ["production"] },
+        { key: "service",    label: "ฝ่ายบริการ (ใบส่งมอบ)", department: ["service"], note: "ใบส่งมอบงาน" },
+        { key: "accounting", label: "บัญชี",   department: ["accounting"] },
+        { key: "delivery",   label: "จัดส่ง",  department: ["delivery"] },
+      ],
+      no_stock: [
+        { key: "sales",      label: "ฝ่ายขาย",      department: ["sales"] },
+        { key: "store",      label: "สโตร์",      department: ["store"] },
+        { key: "sales_pr",   label: "ฝ่ายขาย - เปิด PR", department: ["sales"] },
+        { key: "purchase_find_supplier", label: "จัดซื้อ - หาร้านค้า/Supplier", department: ["purchase"] },
+        { key: "store_receive", label: "สโตร์ - รับและตรวจสอบสินค้า", department: ["store"] },
+        { key: "production", label: "ฝ่ายผลิต", department: ["production"] },
+        { key: "service",    label: "ฝ่ายบริการ (ใบส่งมอบ)", department: ["service"], note: "ใบส่งมอบงาน" },
         { key: "accounting", label: "บัญชี",       department: ["accounting"] },
         { key: "delivery",   label: "จัดส่ง",      department: ["delivery"] },
       ],

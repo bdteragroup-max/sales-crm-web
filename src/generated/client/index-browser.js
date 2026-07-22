@@ -346,7 +346,17 @@ exports.Prisma.OrderScalarFieldEnum = {
   priority: 'priority',
   targetDeliveryDate: 'targetDeliveryDate',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  estimatedDays: 'estimatedDays',
+  materialReady: 'materialReady',
+  prFulfilledAt: 'prFulfilledAt',
+  prNote: 'prNote',
+  prRequired: 'prRequired',
+  productionDeadline: 'productionDeadline',
+  qcAt: 'qcAt',
+  qcBy: 'qcBy',
+  qcNote: 'qcNote',
+  qcStatus: 'qcStatus'
 };
 
 exports.Prisma.OrderStatusLogScalarFieldEnum = {
@@ -1165,7 +1175,8 @@ exports.Prisma.PurchaseRequestScalarFieldEnum = {
   note: 'note',
   reportedBy: 'reportedBy',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  orderId: 'orderId'
 };
 
 exports.Prisma.PurchaseOrderScalarFieldEnum = {

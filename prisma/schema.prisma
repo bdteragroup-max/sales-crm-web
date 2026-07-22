@@ -309,21 +309,32 @@ model TelesalesKPI {
 }
 
 model Order {
-  id                 String           @id @default(cuid())
-  orderNumber        String           @unique
+  id                 String            @id @default(cuid())
+  orderNumber        String            @unique
   companyId          String?
   quotationId        String?
   salespersonId      String?
-  status             String           @default("รอยืนยัน")
-  value              Float            @default(0)
-  priority           String           @default("Normal")
-  targetDeliveryDate DateTime?        @db.Timestamptz(6)
-  createdAt          DateTime         @default(now()) @db.Timestamptz(6)
-  updatedAt          DateTime         @updatedAt @db.Timestamptz(6)
-  company            Company?         @relation(fields: [companyId], references: [id])
-  quotation          Quotation?       @relation(fields: [quotationId], references: [id])
-  salesperson        User?            @relation(fields: [salespersonId], references: [id])
+  status             String            @default("รอยืนยัน")
+  value              Float             @default(0)
+  priority           String            @default("Normal")
+  targetDeliveryDate DateTime?         @db.Timestamptz(6)
+  createdAt          DateTime          @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime          @updatedAt @db.Timestamptz(6)
+  estimatedDays      Int?
+  materialReady      Boolean           @default(false)
+  prFulfilledAt      DateTime?         @db.Timestamptz(6)
+  prNote             String?
+  prRequired         Boolean           @default(false)
+  productionDeadline DateTime?         @db.Timestamptz(6)
+  qcAt               DateTime?         @db.Timestamptz(6)
+  qcBy               String?
+  qcNote             String?
+  qcStatus           String?           @default("PENDING")
+  company            Company?          @relation(fields: [companyId], references: [id])
+  quotation          Quotation?        @relation(fields: [quotationId], references: [id])
+  salesperson        User?             @relation(fields: [salespersonId], references: [id])
   statusLogs         OrderStatusLog[]
+  purchaseRequests   PurchaseRequest[]
 
   @@index([companyId])
   @@index([quotationId])
@@ -1350,7 +1361,9 @@ model PurchaseRequest {
   reportedBy     String?
   createdAt      DateTime        @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime        @updatedAt @db.Timestamptz(6)
+  orderId        String?
   purchaseOrders PurchaseOrder[]
+  order          Order?          @relation(fields: [orderId], references: [id])
 
   @@map("purchase_requests")
 }

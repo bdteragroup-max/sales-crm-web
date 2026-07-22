@@ -606,7 +606,7 @@ export default function DashboardUI({
                     สถานะการจัดส่งออเดอร์ (การปฏิบัติตามคำสั่งซื้อหลังการขาย)
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {['รอยืนยัน', 'กำลังผลิต', 'กำลังจัดส่ง', 'เสร็จสิ้น'].map(status => {
+                    {['รอยืนยัน', 'กำลังผลิต', 'ตรวจสอบคุณภาพ', 'เสร็จสิ้น'].map(status => {
                       const data = metrics.orderMetrics?.find((m: any) => m.status === status);
                       const count = data?._count?.id || 0;
                       const value = data?._sum?.value || 0;

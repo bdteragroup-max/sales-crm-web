@@ -379,7 +379,8 @@ export async function saveSalesData(formData: FormData) {
       const existingOrder = await prisma.order.findFirst({
         where: { quotationId: newQuotation.id }
       });
-      if (!existingOrder && company.id) {
+      const isCabinetJob = ['งานตู้', 'งานตู้ + ติดตั้ง', 'Cabinet Work', 'Cabinet Work + Installation'].includes(jobType || '');
+      if (!existingOrder && company.id && isCabinetJob) {
         const finalOrderNumber = await generateOrderNumber();
         const newOrder = await prisma.order.create({
           data: {
@@ -652,7 +653,8 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       const existingOrder = await prisma.order.findFirst({
         where: { quotationId: updatedQuotation.id }
       });
-      if (!existingOrder && company.id) {
+      const isCabinetJob = ['งานตู้', 'งานตู้ + ติดตั้ง', 'Cabinet Work', 'Cabinet Work + Installation'].includes(jobType || '');
+      if (!existingOrder && company.id && isCabinetJob) {
         const finalOrderNumber = await generateOrderNumber();
         const newOrder = await prisma.order.create({
           data: {

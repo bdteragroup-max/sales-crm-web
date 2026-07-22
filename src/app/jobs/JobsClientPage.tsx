@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useTransition, useEffect, useRef } from "react";
-import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight, X, Wrench, CheckCircle2, FolderOpen, Plus, Sparkles, User2 } from "lucide-react";
+import { ClipboardList, Trash2, Edit2, ChevronDown, ChevronRight, X, Wrench, CheckCircle2, FolderOpen, Plus, Sparkles, User2, Clock, XCircle } from "lucide-react";
 import { updateJob, deleteJob, UpdateJobPayload, createStandaloneJob } from "./actions";
 import { JOB_TYPES } from "@/constants/job-types";
 import { useRouter } from "next/navigation";
@@ -53,6 +53,7 @@ type Job = {
     company?: {
       businessType: string | null;
     } | null;
+    orders?: any[];
   } | null;
 };
 
@@ -215,6 +216,74 @@ function JobProcurementStatus({ customerName, projectName }: { customerName: str
   );
 }
 
+// ── Job Production Status ──────────────────────
+function JobProductionStatus({ job, userRole }: { job: Job, userRole?: string }) {
+  const productionOrder = job.quotation?.orders?.find((o: any) => o.productionDeadline || o.estimatedDays);
+  if (!productionOrder) return null;
+
+  const qcStatus = productionOrder.qcStatus || 'PENDING';
+
+  return (
+    <div className="mt-5 pt-5 border-t border-gray-100">
+      <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">สถานะการผลิต & QC</p>
+      <div className="flex flex-wrap items-stretch gap-4">
+        {/* Production Schedule */}
+        <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-100 shadow-sm flex items-center gap-4 min-w-[280px]">
+          <div className="p-2 bg-amber-100 text-amber-600 rounded-full">
+            <Clock size={16} />
+          </div>
+          <div>
+            <p className="text-xs text-amber-800 font-bold mb-0.5">กำหนดผลิตเสร็จ:</p>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-black text-gray-900">
+                {productionOrder.productionDeadline ? new Date(productionOrder.productionDeadline).toLocaleDateString('th-TH') : 'ยังไม่กำหนด'}
+              </span>
+              {productionOrder.estimatedDays && (
+                <span className="text-xs font-bold text-amber-600">
+                  ({productionOrder.estimatedDays} วันทำการ)
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* QC Status */}
+        <div className={`p-4 rounded-xl border shadow-sm flex items-center gap-4 w-fit pr-8 ${qcStatus === 'PASS' ? 'bg-green-50 border-green-100' :
+          qcStatus === 'FAIL' ? 'bg-red-50 border-red-100' :
+            'bg-slate-50 border-slate-100'
+          }`}>
+          <div className={`p-2 rounded-full ${qcStatus === 'PASS' ? 'bg-green-100 text-green-600' :
+            qcStatus === 'FAIL' ? 'bg-red-100 text-red-600' :
+              'bg-slate-200 text-slate-500'
+            }`}>
+            {qcStatus === 'PASS' ? <CheckCircle2 size={16} /> :
+              qcStatus === 'FAIL' ? <XCircle size={16} /> :
+                <Sparkles size={16} />}
+          </div>
+          <div className="flex-1">
+            <p className={`text-xs font-bold mb-0.5 ${qcStatus === 'PASS' ? 'text-green-800' :
+              qcStatus === 'FAIL' ? 'text-red-800' :
+                'text-slate-600'
+              }`}>
+              ผล QC (ตู้คอนเทนเนอร์): {qcStatus === 'PENDING' ? 'รอการตรวจสอบ' : qcStatus}
+            </p>
+            {qcStatus !== 'PENDING' && productionOrder.qcBy && (
+              <p className="text-[10px] text-gray-500">
+                โดย: {productionOrder.qcBy} {productionOrder.qcAt && `เมื่อ ${new Date(productionOrder.qcAt).toLocaleDateString('th-TH')}`}
+              </p>
+            )}
+            {qcStatus === 'FAIL' && productionOrder.qcNote && (
+              <p className="text-[10px] text-red-600 mt-1 line-clamp-2" title={productionOrder.qcNote}>
+                หมายเหตุ: {productionOrder.qcNote}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Expanded row ────────────────────── ──────────────────────
 function ExpandedRow({
   job,
@@ -305,6 +374,8 @@ function ExpandedRow({
         )}
 
         <JobProcurementStatus customerName={job.customerName} projectName={job.project?.name} />
+        {/* Production Status & QC */}
+        <JobProductionStatus job={job} userRole={userRole} />
 
         {isManager && (
           <div className="mt-5 pt-5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -410,7 +481,7 @@ function ExpandedRow({
 
   return (
     <tr className="animate-in slide-in-from-top-1 fade-in duration-200">
-      <td colSpan={13} className="p-0 border-b border-gray-100">
+      <td colSpan={14} className="p-0 border-b border-gray-100">
         {content}
       </td>
     </tr>
@@ -481,7 +552,8 @@ export default function JobsClientPage({
 
     if (isDeliveryRole) {
       depts.push("delivery")
-    } else if (isStoreRole || d.includes('store') || d.includes('สโตร์') || d.includes('คลัง')) {
+    }
+    if (isStoreRole || d.includes('store') || d.includes('สโตร์') || d.includes('คลัง')) {
       depts.push("store")
     }
 
@@ -536,6 +608,13 @@ export default function JobsClientPage({
       }
       if (filterStatus === "pending") {
         if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)) return false;
+
+        if (normalizedDept.includes("production")) {
+          if (j.jobType === "งานตู้" || j.jobType === "งานตู้ + ติดตั้ง") {
+            return true;
+          }
+        }
+
         const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant, j.stepLogs);
         if (!stepDef?.department?.some(dept => normalizedDept.includes(dept))) return false;
       }
@@ -724,7 +803,7 @@ export default function JobsClientPage({
   }
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm md:overflow-hidden overflow-visible">
+    <div className="h-full w-full flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm md:overflow-hidden overflow-visible">
       {showQuickRepair && <QuickRepairModal />}
       {showQuickProject && <QuickProjectModal />}
 
@@ -923,13 +1002,13 @@ export default function JobsClientPage({
                   </div>
 
                   <div className="border-t border-gray-100 my-3" />
-                  
+
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">ยอดประเมิน</p>
                       <p className="text-xs font-black text-gray-800 font-mono">
-                        {(job.quotation?.actualClosingAmount || job.quotation?.totalAmountBeforeVat) ? 
-                          `฿${(Number(job.quotation.actualClosingAmount) || Number(job.quotation.totalAmountBeforeVat) || 0).toLocaleString('th-TH', { maximumFractionDigits: 0 })}` 
+                        {(job.quotation?.actualClosingAmount || job.quotation?.totalAmountBeforeVat) ?
+                          `฿${(Number(job.quotation.actualClosingAmount) || Number(job.quotation.totalAmountBeforeVat) || 0).toLocaleString('th-TH', { maximumFractionDigits: 0 })}`
                           : "—"}
                       </p>
                     </div>
@@ -1005,7 +1084,7 @@ export default function JobsClientPage({
             <tbody className="divide-y divide-gray-50">
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={13} className="text-center py-16 text-gray-400 font-medium">
+                  <td colSpan={14} className="text-center py-16 text-gray-400 font-medium">
                     ไม่พบงานที่ตรงกับเงื่อนไข
                   </td>
                 </tr>
@@ -1086,8 +1165,8 @@ export default function JobsClientPage({
                       </td>
                       <td className="px-5 py-4">
                         <span className="text-xs font-mono font-bold text-gray-700">
-                          {(job.quotation?.actualClosingAmount || job.quotation?.totalAmountBeforeVat) ? 
-                            `฿${(Number(job.quotation.actualClosingAmount) || Number(job.quotation.totalAmountBeforeVat) || 0).toLocaleString('th-TH', { maximumFractionDigits: 0 })}` 
+                          {(job.quotation?.actualClosingAmount || job.quotation?.totalAmountBeforeVat) ?
+                            `฿${(Number(job.quotation.actualClosingAmount) || Number(job.quotation.totalAmountBeforeVat) || 0).toLocaleString('th-TH', { maximumFractionDigits: 0 })}`
                             : "—"}
                         </span>
                       </td>
@@ -1136,6 +1215,22 @@ export default function JobsClientPage({
                           )}
                           {!derivedDeliveryDate && !(job.installationOrders && job.installationOrders.length > 0 && job.installationOrders[0]?.plannedStartDate) && (
                             <span className="text-gray-300 text-[11px]">—</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex flex-col gap-1">
+                          {job.deliveryMethod ? (
+                            <span className="text-[10px] font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md w-fit whitespace-nowrap">
+                              {job.deliveryMethod === 'in-house' ? 'จัดส่งเอง' : 'ขนส่งเอกชน'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300 text-[11px]">—</span>
+                          )}
+                          {job.deliveryMethod === 'courier' && job.courierCompany && (
+                            <span className="text-[9px] font-bold text-brand-red truncate max-w-[100px]" title={job.courierCompany}>
+                              {job.courierCompany}
+                            </span>
                           )}
                         </div>
                       </td>

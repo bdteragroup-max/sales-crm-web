@@ -43,7 +43,31 @@ export async function updateOrderStatus(
           updatedAt: new Date()
         },
         include: {
-          company: true
+          company: true,
+          quotation: {
+            select: {
+              quotationNumber: true,
+              jobs: {
+                select: {
+                  jobNumber: true,
+                  jobType: true,
+                  item: true
+                }
+              }
+            }
+          },
+          salesperson: {
+            select: {
+              id: true,
+              fullName: true,
+              role: true
+            }
+          },
+          purchaseRequests: {
+            include: {
+              purchaseOrders: true
+            }
+          }
         }
       });
 
@@ -57,7 +81,7 @@ export async function updateOrderStatus(
       });
 
       return updatedOrder;
-    });
+    }, { maxWait: 15000, timeout: 30000 });
 
     revalidatePath("/orders");
     revalidatePath("/dashboard");
@@ -185,5 +209,168 @@ export async function createOrder(data: {
       return { success: false, error: "เลขที่ออเดอร์นี้มีอยู่ในระบบแล้ว" };
     }
     return { success: false, error: "เกิดข้อผิดพลาดในการสร้างออเดอร์" };
+  }
+}
+
+export async function startProductionWorkflow(id: string, payload: {
+  materialReady: boolean;
+  estimatedDays?: number;
+  prNote?: string;
+}) {
+  const user = await getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  try {
+    const order = await prisma.order.findUnique({ where: { id }, include: { quotation: true } });
+    if (!order) return { success: false, error: "ไม่พบข้อมูล Order" };
+
+    const { addWorkingDays } = await import('@/app/utils/date');
+    let productionDeadline = null;
+    
+    if (payload.estimatedDays) {
+      const today = new Date();
+      const maxDate = new Date();
+      maxDate.setMonth(today.getMonth() + 3);
+      
+      const holidays = await prisma.holidays.findMany({
+        where: { date: { gte: today, lte: maxDate } }
+      });
+      
+      const holidayDates = holidays.map(h => h.date);
+      productionDeadline = addWorkingDays(new Date(), payload.estimatedDays, holidayDates);
+    }
+
+    const prRequired = !payload.materialReady;
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const updatedOrder = await tx.order.update({
+        where: { id },
+        data: {
+          status: 'กำลังผลิต',
+          materialReady: payload.materialReady,
+          estimatedDays: payload.estimatedDays,
+          productionDeadline,
+          prRequired,
+          prNote: payload.prNote,
+          updatedAt: new Date()
+        },
+        include: {
+          company: true
+        }
+      });
+
+      await tx.orderStatusLog.create({
+        data: {
+          orderId: id,
+          userId: user.id,
+          fromStatus: order.status,
+          toStatus: 'กำลังผลิต'
+        }
+      });
+
+      return updatedOrder;
+    }, { maxWait: 15000, timeout: 30000 });
+
+    if (prRequired) {
+      const { sendPushToUser } = await import('@/app/lib/pushNotification');
+      // Adding common procurement roles
+      const procurementRoles = ['PROCUREMENT', 'ADMIN', 'จัดซื้อ', 'admin', 'ผู้จัดการจัดซื้อ', 'ผู้อำนวยการ', 'purchasing'];
+      const procurementUsers = await prisma.user.findMany({
+        where: { 
+          isActive: true
+        }
+      });
+      
+      const targetUsers = procurementUsers.filter(u => 
+        procurementRoles.some(r => (u.role || '').toLowerCase().includes(r.toLowerCase()))
+      );
+      
+      for (const pUser of targetUsers) {
+        await sendPushToUser(pUser.id, {
+          title: "🛒 แจ้งเตือน: กรุณาเปิด PR สำหรับงานผลิต",
+          body: `Order ${order.orderNumber} ต้องการจัดซื้อวัสดุ${payload.prNote ? ` — ${payload.prNote}` : ""}`,
+          url: `/admin/procurement/pr`, 
+          category: "PRODUCTION_PR"
+        }).catch(console.error);
+      }
+    }
+
+    revalidatePath("/orders");
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error starting production workflow:", error);
+    return { success: false, error: "เกิดข้อผิดพลาดในการบันทึกข้อมูลการผลิต" };
+  }
+}
+
+export async function submitQCReport(
+  orderId: string, 
+  payload: { status: 'PASS' | 'FAIL'; note?: string }
+) {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) return { success: false, error: "Order not found" };
+
+    const updated = await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        qcStatus: payload.status,
+        qcBy: user.fullName,
+        qcAt: new Date(),
+        qcNote: payload.note || null,
+        status: payload.status === 'PASS' ? 'เสร็จสิ้น' : 'กำลังผลิต',
+        updatedAt: new Date()
+      },
+      include: {
+        company: true,
+        quotation: {
+          select: {
+            quotationNumber: true,
+            jobs: {
+              select: {
+                jobNumber: true,
+                jobType: true,
+                item: true
+              }
+            }
+          }
+        },
+        salesperson: {
+          select: {
+            id: true,
+            fullName: true,
+            role: true
+          }
+        },
+        purchaseRequests: {
+          include: {
+            purchaseOrders: true
+          }
+        }
+      }
+    });
+
+    if (order.status !== updated.status) {
+      await prisma.orderStatusLog.create({
+        data: {
+          orderId,
+          fromStatus: order.status,
+          toStatus: updated.status,
+          userId: user.id
+        }
+      });
+    }
+
+    revalidatePath("/orders");
+    revalidatePath("/jobs");
+    return { success: true, data: updated };
+  } catch (error: any) {
+    console.error("Error submitting QC:", error);
+    return { success: false, error: error.message };
   }
 }

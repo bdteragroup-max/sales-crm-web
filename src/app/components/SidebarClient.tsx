@@ -115,6 +115,7 @@ const projectAdminNav = [
 ];
 
 const productionNav = [
+  { icon: LayoutDashboard, label: 'Production Dashboard', href: '/production/dashboard' },
   { icon: Package, label: 'สถานะคำสั่งผลิต', href: '/orders' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
 ];

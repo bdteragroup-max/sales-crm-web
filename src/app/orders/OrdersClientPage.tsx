@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateOrderStatus } from '@/app/actions/orders'
+import { updateOrderStatus, startProductionWorkflow, submitQCReport } from '@/app/actions/orders'
+import ProductionStartModal from './ProductionStartModal'
+import ProductionQCModal from '../jobs/ProductionQCModal'
 import {
   Package,
   Truck,
@@ -11,6 +13,13 @@ import {
   Search,
   Filter,
   User2,
+  ShieldCheck,
+  Sparkles,
+  XCircle,
+  FileText,
+  Receipt,
+  Bell,
+  X,
 } from 'lucide-react'
 
 interface OrdersClientPageProps {
@@ -28,32 +37,77 @@ export default function OrdersClientPage({
 }: OrdersClientPageProps) {
   const router = useRouter()
   const [orders, setOrders] = useState(initialOrders)
-  
+  const [productionModalOrder, setProductionModalOrder] = useState<any>(null)
+
   // Drag state
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [draggedOverColumn, setDraggedOverColumn] = useState<string | null>(null)
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
+  const [showQCModalOrder, setShowQCModalOrder] = useState<any>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  const handleSubmitQC = async (data: { status: 'PASS' | 'FAIL'; note?: string }) => {
+    if (!showQCModalOrder) return;
+    try {
+      const res = await submitQCReport(showQCModalOrder.id, data);
+      if (res.success) {
+        // Also update to completed
+        const res2 = await updateOrderStatus(showQCModalOrder.id, 'เสร็จสิ้น');
+        if (!res2.success) {
+          alert(res2.error);
+          return;
+        }
+
+        const orderId = showQCModalOrder.id;
+        setShowQCModalOrder(null);
+        setOrders(orders.map((o: any) =>
+          o.id === orderId ? {
+            ...o,
+            status: 'เสร็จสิ้น',
+            qcStatus: data.status,
+            qcNote: data.note,
+            qcBy: 'คุณ',
+            qcAt: new Date().toISOString()
+          } : o
+        ));
+        if (selectedOrder && selectedOrder.id === orderId) {
+          setSelectedOrder({
+            ...selectedOrder,
+            status: 'เสร็จสิ้น',
+            qcStatus: data.status,
+            qcNote: data.note,
+            qcBy: 'คุณ',
+            qcAt: new Date().toISOString()
+          });
+        }
+        router.refresh();
+      } else {
+        alert(res.error || "เกิดข้อผิดพลาดในการบันทึก QC");
+      }
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
 
   // Filters
   const [search, setSearch] = useState('')
   const [memberFilter, setMemberFilter] = useState('')
-  
+
   const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด', 'ฝ่ายผลิต', 'production', 'คลังสินค้า', 'store', 'บัญชี', 'accounting'].some(r => (userRole || '').toLowerCase().includes(r))
 
   const COLUMNS = [
     { id: 'รอยืนยัน', label: 'รอการยืนยัน', subLabel: 'Pending', accent: '#f59e0b', icon: Clock },
     { id: 'กำลังผลิต', label: 'กำลังผลิต', subLabel: 'In Production', accent: '#3b82f6', icon: Package },
-    { id: 'กำลังจัดส่ง', label: 'กำลังจัดส่ง', subLabel: 'Shipping', accent: '#8b5cf6', icon: Truck },
+    { id: 'ตรวจสอบคุณภาพ', label: 'ตรวจสอบคุณภาพ', subLabel: 'QC', accent: '#8b5cf6', icon: ShieldCheck },
     { id: 'เสร็จสิ้น', label: 'เสร็จสิ้น', subLabel: 'Completed', accent: '#10b981', icon: CheckCircle2 }
   ]
 
   // Filter orders
   const filteredOrders = orders.filter((o: any) => {
-    const matchesSearch = 
+    const matchesSearch =
       o.company?.companyName?.toLowerCase().includes(search.toLowerCase()) ||
       o.orderNumber?.toLowerCase().includes(search.toLowerCase())
-    
+
     const matchesMember = memberFilter ? o.salespersonId === memberFilter : true
 
     return matchesSearch && matchesMember
@@ -74,7 +128,7 @@ export default function OrdersClientPage({
     setDraggingId(id)
     e.dataTransfer.setData('text/plain', id)
     e.dataTransfer.effectAllowed = 'move'
-    
+
     // Create a drag image
     const element = e.currentTarget as HTMLElement
     const dragImage = element.cloneNode(true) as HTMLElement
@@ -112,9 +166,19 @@ export default function OrdersClientPage({
     const order = orders.find((o: any) => o.id === orderId)
     if (!order || order.status === newStatus) return
 
+    if (newStatus === 'กำลังผลิต' && order.status !== 'กำลังผลิต') {
+      setProductionModalOrder(order);
+      return;
+    }
+
+    if (order.status === 'ตรวจสอบคุณภาพ' && newStatus === 'เสร็จสิ้น') {
+      setShowQCModalOrder(order);
+      return;
+    }
+
     // Optmistic Update
     const previousOrders = [...orders]
-    setOrders(orders.map((o: any) => 
+    setOrders(orders.map((o: any) =>
       o.id === orderId ? { ...o, status: newStatus } : o
     ))
 
@@ -124,6 +188,37 @@ export default function OrdersClientPage({
         alert(res.error)
         setOrders(previousOrders) // Rollback
       } else {
+        setToastMessage("บันทึกสำเร็จ (Save Successful)")
+        setTimeout(() => setToastMessage(null), 3000)
+      }
+    } catch (err) {
+      console.error(err)
+      alert("Failed to move order")
+      setOrders(previousOrders) // Rollback
+    }
+  }
+
+  const handleProductionStart = async (data: { materialReady: boolean, estimatedDays: number, prNote?: string }) => {
+    if (!productionModalOrder) return;
+    const orderId = productionModalOrder.id;
+    setProductionModalOrder(null);
+
+    const previousOrders = [...orders]
+
+    // Optimistic Update
+    setOrders(orders.map((o: any) =>
+      o.id === orderId ? { ...o, status: 'กำลังผลิต', ...data } : o
+    ))
+
+    try {
+      const res = await startProductionWorkflow(orderId, data)
+      if (!res.success) {
+        alert(res.error)
+        setOrders(previousOrders) // Rollback
+      } else {
+        setOrders(orders.map((o: any) =>
+          o.id === orderId ? res.data : o
+        ))
         setToastMessage("บันทึกสำเร็จ (Save Successful)")
         setTimeout(() => setToastMessage(null), 3000)
       }
@@ -151,9 +246,9 @@ export default function OrdersClientPage({
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-            <input 
-              type="text" 
-              placeholder="ค้นหาชื่อบริษัท หรือเลขออเดอร์..." 
+            <input
+              type="text"
+              placeholder="ค้นหาชื่อบริษัท หรือเลขออเดอร์..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 pr-4 py-2 w-full sm:w-64 bg-gray-50 border-none rounded-xl text-sm font-black focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
@@ -190,16 +285,15 @@ export default function OrdersClientPage({
             return (
               <div
                 key={col.id}
-                className={`flex-1 flex flex-col rounded-2xl overflow-hidden transition-all duration-200 bg-white ${
-                  isHovered ? 'ring-2 shadow-xl scale-[1.02]' : 'shadow-sm border border-gray-100'
-                }`}
+                className={`flex-1 flex flex-col rounded-2xl overflow-hidden transition-all duration-200 bg-white ${isHovered ? 'ring-2 shadow-xl scale-[1.02]' : 'shadow-sm border border-gray-100'
+                  }`}
                 style={isHovered ? { '--tw-ring-color': col.accent, boxShadow: `0 0 0 2px ${col.accent}40, 0 10px 30px -10px ${col.accent}30` } as any : {}}
                 onDragOver={(e) => handleDragOver(e, col.id)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, col.id)}
               >
                 {/* Column Header */}
-                <div 
+                <div
                   className="shrink-0 px-4 py-3 flex items-center justify-between border-b"
                   style={{ backgroundColor: col.accent + '15', borderColor: col.accent + '30' }}
                 >
@@ -237,9 +331,8 @@ export default function OrdersClientPage({
                         onDragStart={(e) => handleDragStart(e, order.id)}
                         onDragEnd={handleDragEnd}
                         onClick={() => setSelectedOrder(order)}
-                        className={`bg-white rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-blue-300 transition-all p-3.5 relative group ${
-                          isDragging ? 'opacity-40 scale-95 border-dashed shadow-none' : 'hover:shadow-md hover:-translate-y-0.5'
-                        }`}
+                        className={`bg-white rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-blue-300 transition-all p-3.5 relative group ${isDragging ? 'opacity-40 scale-95 border-dashed shadow-none' : 'hover:shadow-md hover:-translate-y-0.5'
+                          }`}
                       >
                         {/* Accent Bar */}
                         <div className="absolute left-0 top-3 bottom-3 w-1 rounded-r-md" style={{ backgroundColor: col.accent }} />
@@ -261,11 +354,10 @@ export default function OrdersClientPage({
                               </span>
                             )}
                             {order.priority && (
-                              <span className={`text-[10px] font-black px-1.5 py-0.5 rounded uppercase ${
-                                order.priority === 'Urgent' ? 'bg-red-100 text-red-700' :
+                              <span className={`text-[10px] font-black px-1.5 py-0.5 rounded uppercase ${order.priority === 'Urgent' ? 'bg-red-100 text-red-700' :
                                 order.priority === 'High' ? 'bg-orange-100 text-orange-700' :
-                                'bg-slate-100 text-slate-700'
-                              }`}>
+                                  'bg-slate-100 text-slate-700'
+                                }`}>
                                 {order.priority}
                               </span>
                             )}
@@ -278,13 +370,30 @@ export default function OrdersClientPage({
                             </div>
                           )}
 
+                          {order.productionDeadline && (
+                            <div className="flex flex-col gap-1 mt-2 mb-3">
+                              <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-600 bg-amber-50 border border-amber-100 w-fit px-2 py-1 rounded-lg">
+                                <Clock size={12} className="text-amber-500" />
+                                กำหนดเสร็จ: {new Date(order.productionDeadline).toLocaleDateString('th-TH')}
+                                <span className="text-amber-600 ml-1">
+                                  ({order.estimatedDays ? `${order.estimatedDays} วันทำการ` : ''})
+                                </span>
+                              </div>
+                              {order.prRequired && !order.prFulfilledAt && (
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 w-fit px-2 py-1 rounded-lg">
+                                  <Bell size={12} className="text-red-500" /> รอฝ่ายจัดซื้อเปิด PR
+                                </div>
+                              )}
+                            </div>
+                          )}
+
                           <div className="border-t border-gray-100 my-2" />
 
                           <div className="flex items-center justify-between gap-2 mt-1">
                             <p className="text-sm font-black font-mono text-gray-900 shrink-0">
                               {fmtMoney(order.value)}
                             </p>
-                            
+
                             <div className="flex items-center gap-1.5 notranslate min-w-0" translate="no" title={salespersonName}>
                               <div className="text-[10px] font-bold text-gray-500 truncate text-right">
                                 {salespersonName || 'ไม่ระบุเซลส์'}
@@ -315,7 +424,7 @@ export default function OrdersClientPage({
       {/* Cabinet Assembly Details Modal */}
       {selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedOrder(null)}>
-          <div 
+          <div
             className="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
@@ -329,18 +438,51 @@ export default function OrdersClientPage({
                   <p className="text-xs font-bold text-gray-500">{selectedOrder.orderNumber}</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedOrder(null)}
                 className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
               >
-                ✕
+                <X size={18} />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-5 max-h-[65vh] overflow-y-auto custom-scrollbar bg-gray-50/50">
               <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">บริษัท / ลูกค้า</p>
                 <p className="text-sm font-black text-gray-800">{selectedOrder.company?.companyName || 'ไม่ระบุ'}</p>
+              </div>
+
+              {/* QC Status */}
+              <div className={`p-4 rounded-xl border shadow-sm flex items-center gap-4 ${selectedOrder.qcStatus === 'PASS' ? 'bg-green-50 border-green-100' :
+                selectedOrder.qcStatus === 'FAIL' ? 'bg-red-50 border-red-100' :
+                  'bg-slate-50 border-slate-100'
+                }`}>
+                <div className={`p-2 rounded-full ${selectedOrder.qcStatus === 'PASS' ? 'bg-green-100 text-green-600' :
+                  selectedOrder.qcStatus === 'FAIL' ? 'bg-red-100 text-red-600' :
+                    'bg-slate-200 text-slate-500'
+                  }`}>
+                  {selectedOrder.qcStatus === 'PASS' ? <CheckCircle2 size={16} /> :
+                    selectedOrder.qcStatus === 'FAIL' ? <XCircle size={16} /> :
+                      <Sparkles size={16} />}
+                </div>
+                <div className="flex-1">
+                  <p className={`text-xs font-bold mb-0.5 ${selectedOrder.qcStatus === 'PASS' ? 'text-green-800' :
+                    selectedOrder.qcStatus === 'FAIL' ? 'text-red-800' :
+                      'text-slate-600'
+                    }`}>
+                    ผล QC (ตู้คอนเทนเนอร์): {(!selectedOrder.qcStatus || selectedOrder.qcStatus === 'PENDING') ? 'รอการตรวจสอบ' : selectedOrder.qcStatus}
+                  </p>
+                  {selectedOrder.qcStatus && selectedOrder.qcStatus !== 'PENDING' && selectedOrder.qcBy && (
+                    <p className="text-[10px] text-gray-500">
+                      โดย: {selectedOrder.qcBy} {selectedOrder.qcAt && `เมื่อ ${new Date(selectedOrder.qcAt).toLocaleDateString('th-TH')}`}
+                    </p>
+                  )}
+                  {selectedOrder.qcStatus === 'FAIL' && selectedOrder.qcNote && (
+                    <p className="text-[10px] text-red-600 mt-1 line-clamp-2" title={selectedOrder.qcNote}>
+                      หมายเหตุ: {selectedOrder.qcNote}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {selectedOrder.quotation?.jobs && selectedOrder.quotation.jobs.length > 0 ? (
@@ -377,10 +519,67 @@ export default function OrdersClientPage({
                   <p className="text-xs font-medium text-gray-400">ออเดอร์นี้ไม่มีข้อมูล Job หรืองานประกอบตู้ที่เชื่อมโยงอยู่</p>
                 </div>
               )}
+
+              {/* Purchase Requests & Orders */}
+              {selectedOrder.purchaseRequests && selectedOrder.purchaseRequests.length > 0 && (
+                <div className="mt-4 space-y-4">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                    <FileText size={14} className="text-blue-500" />
+                    ข้อมูลการจัดซื้อ (PR & PO)
+                  </h4>
+                  {selectedOrder.purchaseRequests.map((pr: any) => (
+                    <div key={pr.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                      <div className="bg-gray-50/80 px-4 py-3 flex items-center justify-between border-b border-gray-100">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-black text-gray-900">{pr.prNumber}</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-gray-500">
+                          {new Date(pr.createdAt).toLocaleDateString('th-TH')}
+                        </span>
+                      </div>
+                      <div className="p-4 space-y-3">
+                        <div>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">รายการที่ขอซื้อ / จำนวน</p>
+                          <p className="text-[13px] font-medium text-gray-800 whitespace-pre-wrap">{pr.itemList || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">ผู้ขอซื้อ</p>
+                          <p className="text-xs text-gray-700">{pr.requestedBy || '-'}</p>
+                        </div>
+
+                        {/* Linked POs */}
+                        {pr.purchaseOrders && pr.purchaseOrders.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                              <Receipt size={12} className="text-emerald-500" />
+                              Purchase Orders ที่เกี่ยวข้อง
+                            </p>
+                            <div className="space-y-2">
+                              {pr.purchaseOrders.map((po: any) => (
+                                <div key={po.id} className="bg-emerald-50/50 p-3 rounded-lg border border-emerald-100/50">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="text-xs font-black text-emerald-900">{po.poNumber}</span>
+                                    <span className="text-xs font-bold text-emerald-700">฿{Number(po.totalAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                  </div>
+                                  <p className="text-[11px] text-gray-600">Vendor: <span className="font-bold">{po.vendorName || '-'}</span></p>
+                                  <div className="mt-1">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase">รายการสั่งซื้อ</p>
+                                    <p className="text-[11px] text-gray-700 whitespace-pre-wrap">{po.itemList || '-'}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            
+
             <div className="px-6 py-4 border-t border-gray-100 bg-white flex justify-end">
-              <button 
+              <button
                 onClick={() => setSelectedOrder(null)}
                 className="px-5 py-2.5 bg-gray-900 text-white text-[13px] font-black rounded-xl hover:bg-gray-800 transition-colors shadow-sm"
               >
@@ -399,6 +598,23 @@ export default function OrdersClientPage({
             <span className="text-sm font-bold tracking-wide">{toastMessage}</span>
           </div>
         </div>
+      )}
+
+      {productionModalOrder && (
+        <ProductionStartModal
+          order={productionModalOrder}
+          onClose={() => setProductionModalOrder(null)}
+          onSubmit={handleProductionStart}
+        />
+      )}
+
+      {showQCModalOrder && (
+        <ProductionQCModal
+          job={{ jobNumber: showQCModalOrder.orderNumber }}
+          productionOrder={showQCModalOrder}
+          onClose={() => setShowQCModalOrder(null)}
+          onSubmit={handleSubmitQC}
+        />
       )}
     </div>
   )

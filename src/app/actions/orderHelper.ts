@@ -1,7 +1,7 @@
 import prisma from "@/app/lib/db";
 
-export async function generateOrderNumber(): Promise<string> {
-  const now = new Date();
+export async function generateOrderNumber(date?: Date): Promise<string> {
+  const now = date || new Date();
   const yearBe = now.getFullYear() + 543;
   const shortYearBe = yearBe.toString().slice(-2); // e.g. 69
   const month = now.getMonth() + 1;
@@ -29,7 +29,7 @@ export async function generateOrderNumber(): Promise<string> {
     });
 
     const sequence = sequenceRecord.lastNumber.toString().padStart(3, '0');
-    orderNumber = `ORD${shortYearBe}${strMonth}${sequence}`;
+    orderNumber = `ORD${shortYearBe}-${strMonth}${sequence}`;
 
     const existingOrder = await prisma.order.findUnique({
       where: { orderNumber }

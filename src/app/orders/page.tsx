@@ -35,7 +35,7 @@ export default async function OrdersPage({
       jobs: {
         some: {
           jobType: {
-            in: ['งานตู้', 'งานตู้ + ติดตั้ง']
+            in: ['งานตู้', 'งานตู้ + ติดตั้ง', 'Cabinet Work', 'Cabinet Work + Installation']
           }
         }
       }
@@ -94,6 +94,11 @@ export default async function OrdersPage({
           id: true,
           fullName: true,
           role: true
+        }
+      },
+      purchaseRequests: {
+        include: {
+          purchaseOrders: true
         }
       }
     }

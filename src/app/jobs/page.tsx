@@ -76,7 +76,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
   const jobs = await prisma.job.findMany({ 
     where: whereClause, 
     include: {
-      quotation: true,
+      quotation: { include: { orders: true } },
       stepLogs: { orderBy: { completedAt: "asc" } },
       paymentTasks: true,
       installationOrders: { orderBy: { createdAt: "desc" } },

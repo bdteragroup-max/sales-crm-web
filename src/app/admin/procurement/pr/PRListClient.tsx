@@ -1,7 +1,9 @@
 'use client';
 import React, { useState, useMemo } from 'react';
+import { AlertCircle, Plus } from 'lucide-react';
+import Link from 'next/link';
 
-export default function PRListClient({ initialPrs }: { initialPrs: any[] }) {
+export default function PRListClient({ initialPrs, pendingPrOrders = [] }: { initialPrs: any[], pendingPrOrders?: any[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [projectFilter, setProjectFilter] = useState('');
   const [poFilter, setPoFilter] = useState('all'); // all, with-po, without-po
@@ -122,7 +124,54 @@ export default function PRListClient({ initialPrs }: { initialPrs: any[] }) {
   });
 
   return (
-    <div className="bg-white rounded-xl shadow overflow-hidden p-6">
+    <>
+      {pendingPrOrders.length > 0 && (
+        <div className="bg-white rounded-xl shadow border border-red-200 overflow-hidden mb-6">
+          <div className="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center justify-between">
+            <h2 className="text-red-800 font-bold flex items-center gap-2">
+              <AlertCircle size={20} className="text-brand-red" />
+              รอฝ่ายจัดซื้อเปิด PR จากกระบวนการผลิต ({pendingPrOrders.length} รายการ)
+            </h2>
+          </div>
+          <div className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-gray-600 bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-6 py-3 font-bold">ออเดอร์ (Order)</th>
+                    <th className="px-6 py-3 font-bold">ลูกค้า (Customer)</th>
+                    <th className="px-6 py-3 font-bold">กำหนดส่ง (Delivery)</th>
+                    <th className="px-6 py-3 font-bold">หมายเหตุถึงจัดซื้อ (Note)</th>
+                    <th className="px-6 py-3 font-bold text-right">จัดการ (Action)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingPrOrders.map((order: any) => (
+                    <tr key={order.id} className="border-b last:border-0 hover:bg-gray-50/50">
+                      <td className="px-6 py-3 font-bold text-brand-red">{order.orderNumber}</td>
+                      <td className="px-6 py-3">{order.company?.name || '-'}</td>
+                      <td className="px-6 py-3">
+                        {order.targetDeliveryDate ? new Date(order.targetDeliveryDate).toLocaleDateString('th-TH') : '-'}
+                      </td>
+                      <td className="px-6 py-3 text-red-600">{order.prNote || '-'}</td>
+                      <td className="px-6 py-3 text-right">
+                        <Link 
+                          href={`/admin/procurement/pr/create?orderId=${order.id}&note=${encodeURIComponent(order.prNote || '')}&project=${encodeURIComponent(order.orderNumber)}`}
+                          className="inline-flex items-center gap-1 bg-brand-red text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors"
+                        >
+                          <Plus size={14} /> สร้าง PR
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="bg-white rounded-xl shadow overflow-hidden p-6">
       <div className="mb-4 flex flex-col gap-4">
         {/* Search Bar - Full Width */}
         <input 
@@ -270,6 +319,7 @@ export default function PRListClient({ initialPrs }: { initialPrs: any[] }) {
           </tbody>
         </table>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
