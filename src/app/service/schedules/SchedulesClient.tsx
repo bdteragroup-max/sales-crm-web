@@ -146,7 +146,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
     const days = [];
     const current = new Date(leave.start_date);
     while (current <= new Date(leave.end_date)) {
-      days.push(current.toISOString().split('T')[0]);
+      days.push(format(current, 'yyyy-MM-dd'));
       current.setDate(current.getDate() + 1);
     }
     return days;
@@ -474,10 +474,10 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                         </div>
                       </td>
                       {daysInView.map(day => {
-                        const dayIso = day.toISOString().split('T')[0];
-                        const holiday = holidays.find(h => h.date.startsWith(dayIso));
-                        const leave = userLeavesMap[user.employeeId]?.[dayIso];
-                        const schedules = user.serviceSchedules.filter(s => s.date.startsWith(dayIso));
+                        const dayIsoLocal = format(day, 'yyyy-MM-dd');
+                        const holiday = holidays.find(h => format(new Date(h.date), 'yyyy-MM-dd') === dayIsoLocal);
+                        const leave = userLeavesMap[user.employeeId]?.[dayIsoLocal];
+                        const schedules = user.serviceSchedules.filter(s => format(new Date(s.date), 'yyyy-MM-dd') === dayIsoLocal);
 
                         const isHoliday = !!holiday;
                         const editable = canEdit(user.id) && !isHoliday;
