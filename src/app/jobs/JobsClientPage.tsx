@@ -955,6 +955,10 @@ export default function JobsClientPage({
                       <span className="text-gray-400 font-medium">การชำระเงิน:</span>
                       <p className="font-bold text-green-700">{derivedPaymentMethod}</p>
                     </div>
+                    <div>
+                      <span className="text-gray-400 font-medium">การจัดส่ง:</span>
+                      <p className="font-bold text-gray-700">{job.deliveryMethod === 'in-house' ? 'จัดส่งเอง' : job.deliveryMethod === 'courier' ? 'ขนส่งนอก' : '—'}</p>
+                    </div>
                   </div>
                 </div>
 
@@ -992,6 +996,7 @@ export default function JobsClientPage({
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันปิดการขาย</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">การชำระเงิน</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">นัดหมาย</th>
+                <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">การจัดส่ง</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ใบเสนอราคา</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">หมายเลข PO</th>
                 <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">พนักงานขาย</th>

@@ -280,13 +280,16 @@ export default function OrdersClientPage({
 
                           <div className="border-t border-gray-100 my-2" />
 
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-black font-mono text-gray-900">
+                          <div className="flex items-center justify-between gap-2 mt-1">
+                            <p className="text-sm font-black font-mono text-gray-900 shrink-0">
                               {fmtMoney(order.value)}
                             </p>
                             
-                            <div className="flex items-center gap-1.5 notranslate" translate="no">
-                              <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-black">
+                            <div className="flex items-center gap-1.5 notranslate min-w-0" translate="no" title={salespersonName}>
+                              <div className="text-[10px] font-bold text-gray-500 truncate text-right">
+                                {salespersonName || 'ไม่ระบุเซลส์'}
+                              </div>
+                              <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-black shrink-0">
                                 {initials.toUpperCase()}
                               </div>
                             </div>

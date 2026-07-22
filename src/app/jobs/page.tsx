@@ -32,7 +32,8 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
   const isMarketingManager = roleStr.includes('marketing manager') || roleStr.includes('ผู้จัดการฝ่ายการตลาด') || roleStr.includes('ผู้จัดการการตลาด');
   const isSalesManager = user.role === 'ผู้จัดการ' || roleStr.includes('sales manager');
   const isServiceManager = roleStr.includes('service engineer mgr');
-  const isManager = isSalesManager || isServiceManager || isMarketingManager; 
+  const isOpsManager = roleStr.includes('warehouse, transport & purchasing manager') || roleStr.includes('ผู้จัดการฝ่ายคลังสินค้า') || roleStr.includes('คลังสินค้า') || roleStr.includes('จัดส่ง') || roleStr.includes('จัดซื้อ') || roleStr.includes('warehouse') || roleStr.includes('transport') || roleStr.includes('purchasing');
+  const isManager = isSalesManager || isServiceManager || isMarketingManager || isOpsManager; 
   
   const teraEmployee = await teraDb.employees.findUnique({
     where: { emp_id: user.employeeId },
