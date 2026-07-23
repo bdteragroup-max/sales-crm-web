@@ -406,6 +406,16 @@ export async function saveSalesData(formData: FormData) {
       // Auto-create Job
       const { createJobFromQuotation } = await import('@/app/actions/jobs');
       const companyCode = formData.get("companyCode") as string;
+      const jobDocumentsRaw = formData.get("jobDocuments") as string;
+      let jobDocuments;
+      if (jobDocumentsRaw) {
+        try {
+          jobDocuments = JSON.parse(jobDocumentsRaw);
+        } catch (e) {
+          console.error("Error parsing jobDocuments", e);
+        }
+      }
+
       await createJobFromQuotation({
         quotationId: newQuotation.id,
         poNumber: poNumber,
@@ -423,6 +433,7 @@ export async function saveSalesData(formData: FormData) {
         percentageTerms: percentageTerms || undefined,
         paymentDate: parseDate(paymentDateRaw) || undefined,
         workName: workName || undefined,
+        jobDocuments: jobDocuments,
       });
     }
 
@@ -680,6 +691,16 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
       // Auto-create Job
       const { createJobFromQuotation } = await import('@/app/actions/jobs');
       const companyCode = formData.get("companyCode") as string;
+      const jobDocumentsRaw = formData.get("jobDocuments") as string;
+      let jobDocuments;
+      if (jobDocumentsRaw) {
+        try {
+          jobDocuments = JSON.parse(jobDocumentsRaw);
+        } catch (e) {
+          console.error("Error parsing jobDocuments", e);
+        }
+      }
+
       await createJobFromQuotation({
         quotationId: updatedQuotation.id,
         poNumber: poNumber,
@@ -697,6 +718,7 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
         percentageTerms: percentageTerms || undefined,
         paymentDate: parseDate(paymentDateRaw) || undefined,
         workName: workName || undefined,
+        jobDocuments: jobDocuments,
       });
     }
 
