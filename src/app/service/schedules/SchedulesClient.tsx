@@ -24,6 +24,7 @@ import * as XLSX from 'xlsx';
 interface UserData {
   id: string;
   fullName: string;
+  nickname?: string | null;
   role: string;
   employeeId?: string | null;
 }
@@ -470,7 +471,10 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                           <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold flex-shrink-0">
                             {user.fullName.charAt(0)}
                           </div>
-                          <span className="truncate">{user.fullName}</span>
+                          <span className="truncate">
+                            {user.fullName}
+                            {user.nickname ? ` (${user.nickname})` : ''}
+                          </span>
                         </div>
                       </td>
                       {daysInView.map(day => {

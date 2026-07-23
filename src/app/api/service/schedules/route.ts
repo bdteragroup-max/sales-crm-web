@@ -56,6 +56,27 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Fetch nicknames from employees table
+    const employeeIds = serviceUsers.map(u => u.employeeId).filter(Boolean) as string[];
+    const employeesData = await prisma.employees.findMany({
+      where: {
+        emp_id: {
+          in: employeeIds
+        }
+      },
+      select: {
+        emp_id: true,
+        nickname: true
+      }
+    });
+
+    const nicknameMap = new Map(employeesData.map(e => [e.emp_id, e.nickname]));
+    
+    const usersWithNicknames = serviceUsers.map(u => ({
+      ...u,
+      nickname: u.employeeId ? nicknameMap.get(u.employeeId) || null : null
+    }));
+
     const holidays = await prisma.holidays.findMany({
       where: {
         date: {
@@ -73,7 +94,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ users: serviceUsers, holidays, leaveRequests });
+    return NextResponse.json({ users: usersWithNicknames, holidays, leaveRequests });
   } catch (error) {
     console.error("Error fetching service schedules:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
