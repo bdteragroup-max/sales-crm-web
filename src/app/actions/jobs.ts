@@ -35,6 +35,13 @@ export type CreateJobInput = {
   paymentDate?: Date;
   workName?: string;
   companyCode?: string; // TP, TG, or TE
+  additionalInformation?: string;
+  jobDocuments?: {
+    type: string;
+    fileUrl: string;
+    fileName: string;
+    fileSize: number;
+  }[];
 };
 
 // ================================================
@@ -81,8 +88,24 @@ export async function createJobFromQuotation(input: CreateJobInput) {
         deliveryDate: input.deliveryDate ?? existingJob.deliveryDate,
         paymentDate: input.paymentDate ?? existingJob.paymentDate,
         paymentStatus: input.paymentMethod === 'จ่ายแล้ว' ? 'paid' : existingJob.paymentStatus,
+        additionalInformation: input.additionalInformation ?? existingJob.additionalInformation,
       }
     });
+
+    if (input.jobDocuments && input.jobDocuments.length > 0) {
+      const user = await import("@/app/lib/dal").then(m => m.getUser());
+      await prisma.jobDocument.createMany({
+        data: input.jobDocuments.map((doc) => ({
+          jobId: updatedJob.id,
+          type: doc.type,
+          fileUrl: doc.fileUrl,
+          fileName: doc.fileName,
+          fileSize: doc.fileSize,
+          uploadedBy: user?.id || "System",
+        })),
+      });
+    }
+
     revalidatePath("/jobs"); 
     return updatedJob;
   }
@@ -122,8 +145,23 @@ export async function createJobFromQuotation(input: CreateJobInput) {
       percentageTerms: input.percentageTerms,
       deliveryDate: input.deliveryDate,
       paymentDate: input.paymentDate,
+      additionalInformation: input.additionalInformation,
     }, 
   }); 
+
+  if (input.jobDocuments && input.jobDocuments.length > 0) {
+    const user = await import("@/app/lib/dal").then(m => m.getUser());
+    await prisma.jobDocument.createMany({
+      data: input.jobDocuments.map((doc) => ({
+        jobId: job.id,
+        type: doc.type,
+        fileUrl: doc.fileUrl,
+        fileName: doc.fileName,
+        fileSize: doc.fileSize,
+        uploadedBy: user?.id || "System",
+      })),
+    });
+  }
 
   // Auto-approve the first step if it is a 'sales' step
   const { getSteps, getNextStep } = await import("@/app/lib/job-workflow");

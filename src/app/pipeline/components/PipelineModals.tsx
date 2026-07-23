@@ -4,7 +4,7 @@ import { searchCompanies } from "@/app/actions/sales";
 import { extractCompanyCode } from "@/utils/company-utils";
 import { JOB_TYPES } from "@/constants/job-types";
 import { createClient } from "@/utils/supabase/client";
-import { FileText, AlertCircle, Sparkles, ClipboardCheck, Loader2, Calendar, CalendarDays } from "lucide-react";
+import { FileText, AlertCircle, Sparkles, ClipboardCheck, Loader2, Calendar, CalendarDays, Trash2 } from "lucide-react";
 
 export function QuotationTransitionModal({ quotation, onConfirm, onCancel }: { quotation: any, onConfirm: (qt: string) => void, onCancel: () => void }) {
   const [qtNumber, setQtNumber] = useState(quotation.quotationNumber || '')
@@ -84,7 +84,9 @@ export function POTransitionModal({ quotation, isClosedStatus = false, onConfirm
     paymentDate?: string,
     workName?: string,
     companyId?: string,
-    companyCode?: string
+    companyCode?: string,
+    additionalInformation?: string,
+    jobDocuments?: any[]
   }) => void, 
   onCancel: () => void 
 }) {
@@ -114,6 +116,13 @@ export function POTransitionModal({ quotation, isClosedStatus = false, onConfirm
   const [paymentDate, setPaymentDate] = useState(job?.paymentDate ? new Date(job.paymentDate).toISOString().slice(0, 10) : '')
   const [isUploading, setIsUploading] = useState(false)
   const [isUploadingBilling, setIsUploadingBilling] = useState(false)
+  const [additionalInformation, setAdditionalInformation] = useState(job?.additionalInformation || '')
+
+  const [boqFiles, setBoqFiles] = useState<{ url: string; name: string; size: number }[]>([])
+  const [quotationFiles, setQuotationFiles] = useState<{ url: string; name: string; size: number }[]>([])
+  const [paymentFiles, setPaymentFiles] = useState<{ url: string; name: string; size: number }[]>([])
+  const [customerDocFiles, setCustomerDocFiles] = useState<{ url: string; name: string; size: number }[]>([])
+  const [isUploadingDocs, setIsUploadingDocs] = useState<{ [key: string]: boolean }>({})
 
   const [companySearchTerm, setCompanySearchTerm] = useState(quotation.company?.companyName || '')
   const [selectedCompanyId, setSelectedCompanyId] = useState(quotation.companyId || null)
@@ -194,6 +203,52 @@ export function POTransitionModal({ quotation, isClosedStatus = false, onConfirm
     } finally {
       setIsUploadingBilling(false)
     }
+  }
+
+  const handleJobDocUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    setIsUploadingDocs(prev => ({ ...prev, [type]: true }))
+    const supabase = createClient()
+    try {
+      const uploadedDocs: { url: string; name: string; size: number }[] = []
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+        const filePath = `job-documents-temp/${type}/${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('uploadsService')
+          .upload(filePath, file)
+
+        if (uploadError) throw uploadError
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('uploadsService')
+          .getPublicUrl(filePath)
+
+        uploadedDocs.push({ url: publicUrl, name: file.name, size: file.size })
+      }
+
+      if (type === 'BOQ') setBoqFiles(prev => [...prev, ...uploadedDocs])
+      if (type === 'QUOTATION') setQuotationFiles(prev => [...prev, ...uploadedDocs])
+      if (type === 'PAYMENT') setPaymentFiles(prev => [...prev, ...uploadedDocs])
+      if (type === 'CUSTOMER_DOC') setCustomerDocFiles(prev => [...prev, ...uploadedDocs])
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์')
+    } finally {
+      setIsUploadingDocs(prev => ({ ...prev, [type]: false }))
+    }
+  }
+
+  const handleDeleteJobDoc = (type: string, urlToRemove: string) => {
+    if (type === 'BOQ') setBoqFiles(prev => prev.filter(f => f.url !== urlToRemove))
+    if (type === 'QUOTATION') setQuotationFiles(prev => prev.filter(f => f.url !== urlToRemove))
+    if (type === 'PAYMENT') setPaymentFiles(prev => prev.filter(f => f.url !== urlToRemove))
+    if (type === 'CUSTOMER_DOC') setCustomerDocFiles(prev => prev.filter(f => f.url !== urlToRemove))
   }
 
   const totalAmount = Number(quotation.actualClosingAmount) || Number(quotation.totalAmountBeforeVat) || 0;
@@ -589,6 +644,71 @@ export function POTransitionModal({ quotation, isClosedStatus = false, onConfirm
                   className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
                 />
               </div>
+
+              {(jobType === 'งานตู้' || jobType === 'งานตู้ + ติดตั้ง') && (
+                <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100">
+                  <h3 className="text-xs font-bold text-orange-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    เอกสารงานประกอบตู้ที่ต้องแนบ (Mandatory)
+                  </h3>
+                  <div className="space-y-4">
+                    {[
+                      { key: 'BOQ', label: 'BOQ', state: boqFiles },
+                      { key: 'QUOTATION', label: 'ใบเสนอราคา (จากลูกค้า)', state: quotationFiles },
+                      { key: 'PAYMENT', label: 'เอกสารการชำระเงิน', state: paymentFiles },
+                      { key: 'CUSTOMER_DOC', label: 'เอกสารลูกค้า (ภ.พ.20, หนังสือรับรอง)', state: customerDocFiles },
+                    ].map((doc) => (
+                      <div key={doc.key} className="bg-white p-3 rounded-lg border border-orange-100">
+                        <label className="block text-xs font-bold text-gray-700 mb-2">
+                          {doc.label} <span className="text-red-500">*</span>
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="file"
+                            multiple
+                            onChange={(e) => handleJobDocUpload(e, doc.key)}
+                            className="block w-full text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200 transition-colors"
+                          />
+                          {isUploadingDocs[doc.key] && <div className="text-xs text-orange-600 flex items-center gap-1 font-bold animate-pulse"><Loader2 size={12} className="animate-spin" /></div>}
+                        </div>
+                        {doc.state.length > 0 && (
+                          <div className="mt-2 space-y-2">
+                            {doc.state.map((f, idx) => (
+                              <div key={idx} className="flex items-center justify-between bg-orange-50 p-2 rounded border border-orange-100">
+                                <a href={f.url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 font-bold hover:underline flex items-center gap-1 truncate">
+                                  <FileText size={12} className="shrink-0" /> <span className="truncate">{f.name}</span>
+                                </a>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteJobDoc(doc.key, f.url)}
+                                  className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                                  title="ลบไฟล์"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {isClosedStatus && (jobType === 'งานตู้' || jobType === 'งานตู้ + ติดตั้ง') && (
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-1.5">
+                    ข้อมูลเพิ่มเติม (Additional Information)
+                  </label>
+                  <textarea
+                    value={additionalInformation}
+                    onChange={(e) => setAdditionalInformation(e.target.value)}
+                    rows={3}
+                    placeholder="ระบุข้อมูลเพิ่มเติมสำหรับการติดตั้งหรืออื่นๆ..."
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -606,16 +726,32 @@ export function POTransitionModal({ quotation, isClosedStatus = false, onConfirm
               const formattedInstallments = paymentMethod === 'ผ่อนชำระ' 
                 ? installments.map(i => ({ ...i, amount: Number(i.amount) || 0, dueDate: i.dueDate ? new Date(i.dueDate) : new Date() }))
                 : undefined;
+                
+              const requiresCabinetDocs = jobType === 'งานตู้' || jobType === 'งานตู้ + ติดตั้ง';
+              const allDocsPresent = boqFiles.length > 0 && quotationFiles.length > 0 && paymentFiles.length > 0 && customerDocFiles.length > 0;
+
+              let jobDocuments: any[] = [];
+              if (requiresCabinetDocs && allDocsPresent) {
+                jobDocuments = [
+                  ...boqFiles.map(f => ({ type: 'BOQ', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
+                  ...quotationFiles.map(f => ({ type: 'QUOTATION', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
+                  ...paymentFiles.map(f => ({ type: 'PAYMENT', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
+                  ...customerDocFiles.map(f => ({ type: 'CUSTOMER_DOC', fileUrl: f.url, fileName: f.name, fileSize: f.size }))
+                ];
+              }
+
               onConfirm({ 
                 poNumber, poDate, subStatus, jobType, paymentMethod, installments: formattedInstallments,
-                salesOrderDate, deliveryDate, creditTerms, creditDocsUrl, billingRegulations, billingDocsUrl, percentageTerms, paymentDate, workName, companyId: selectedCompanyId, companyCode
+                salesOrderDate, deliveryDate, creditTerms, creditDocsUrl, billingRegulations, billingDocsUrl, percentageTerms, paymentDate, workName, companyId: selectedCompanyId, companyCode, additionalInformation,
+                jobDocuments: jobDocuments.length > 0 ? jobDocuments : undefined
               })
             }}
             disabled={
               ((jobType !== 'สินค้าฝากขาย' && jobType !== 'งานขาย') && !workName?.trim()) ||
               !salesOrderDate ||
               !deliveryDate ||
-              ((paymentMethod === 'เงินสด' || paymentMethod === 'จ่ายแล้ว') && !paymentDate)
+              ((paymentMethod === 'เงินสด' || paymentMethod === 'จ่ายแล้ว') && !paymentDate) ||
+              ((jobType === 'งานตู้' || jobType === 'งานตู้ + ติดตั้ง') && (!boqFiles.length || !quotationFiles.length || !paymentFiles.length || !customerDocFiles.length))
             }
             className={`px-6 py-2.5 text-sm font-black text-white ${isClosedStatus ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/25' : 'bg-violet-600 hover:bg-violet-700 shadow-violet-500/25'} rounded-xl transition-all tracking-wide shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed`}
           >

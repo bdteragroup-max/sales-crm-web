@@ -8,6 +8,7 @@ import { LoadingButton } from '@/app/components/LoadingButton';
 import { extractCompanyCode } from '@/utils/company-utils';
 import { JOB_TYPES } from '@/constants/job-types';
 import { createClient } from '@/utils/supabase/client';
+import CabinetDocumentSection from './CabinetDocumentSection';
 
 interface NewQuotationFormProps {
   businessTypes?: string[];
@@ -1031,6 +1032,34 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
           </Card>
         </div>
       </div>
+
+      {isEditing && (status?.startsWith("PO") || status === "Invoice Opened" || status === "เปิดบิลแล้ว") && (
+        (() => {
+          const cabinetJob = initialData?.jobs?.find((j: any) => j.jobType === "งานตู้" || j.jobType === "งานตู้ + ติดตั้ง" || j.jobType === "Cabinet Job" || j.jobType === "Cabinet Job + Installation");
+          const isCabinetSelected = formData.jobType === "งานตู้" || formData.jobType === "งานตู้ + ติดตั้ง" || formData.jobType === "Cabinet Job" || formData.jobType === "Cabinet Job + Installation";
+          
+          if (cabinetJob) {
+            return (
+              <div className="w-full">
+                <CabinetDocumentSection 
+                  jobId={cabinetJob.id}
+                  initialRequiredDeliveryDate={cabinetJob.requiredDeliveryDate}
+                />
+              </div>
+            );
+          } else if (isCabinetSelected) {
+            return (
+              <div className="w-full mt-6">
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
+                  <p className="text-amber-800 font-bold">กรุณากดบันทึก (Save) ก่อน เพื่อสร้าง Job สำหรับอัปโหลดเอกสารงานตู้</p>
+                  <p className="text-amber-600 text-sm mt-1">Please save the quotation first to create a job for uploading cabinet documents.</p>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })()
+      )}
     </form>
     </>
   );

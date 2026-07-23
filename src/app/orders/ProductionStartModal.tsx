@@ -13,7 +13,26 @@ export default function ProductionStartModal({
   onSubmit: (data: { materialReady: boolean, estimatedDays: number, prNote?: string }) => void
 }) {
   const [materialReady, setMaterialReady] = useState(true);
-  const [estimatedDays, setEstimatedDays] = useState<number | ''>(3);
+  const [estimatedDays, setEstimatedDays] = useState<number | ''>(() => {
+    const requiredDateStr = order?.quotation?.jobs?.[0]?.requiredDeliveryDate;
+    if (requiredDateStr) {
+      const requiredDate = new Date(requiredDateStr);
+      const today = new Date();
+      const diffTime = requiredDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 0) {
+        let workingDays = 0;
+        let d = new Date(today);
+        for (let i = 0; i < diffDays; i++) {
+          d.setDate(d.getDate() + 1);
+          if (d.getDay() !== 0) workingDays++;
+        }
+        return workingDays > 0 ? workingDays : 4;
+      }
+    }
+    return 4;
+  });
   const [prNote, setPrNote] = useState('');
   const [estimatedDate, setEstimatedDate] = useState<Date | null>(null);
 

@@ -7,6 +7,7 @@ import { searchCompanies } from '@/app/actions/sales'
 import { extractCompanyCode } from '@/utils/company-utils'
 import { JOB_TYPES } from '@/constants/job-types'
 import { createClient } from '@/utils/supabase/client'
+import BulkUploadModal from '@/app/sales/components/BulkUploadModal'
 import { POTransitionModal, QuotationTransitionModal, AppointmentTransitionModal } from './components/PipelineModals'
 import {
   Layers,
@@ -33,6 +34,7 @@ import {
   Calendar,
   CalendarDays,
   Loader2,
+  Upload,
 } from 'lucide-react'
 
 interface PipelineClientPageProps {
@@ -143,6 +145,7 @@ export default function PipelineClientPage({
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm)
   const [showLostDeals, setShowLostDeals] = useState<boolean>(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
   const [showCoinModal, setShowCoinModal] = useState(false)
   const [coinModalData, setCoinModalData] = useState({ gold: 0, message: '' })
 
@@ -302,7 +305,7 @@ export default function PipelineClientPage({
     await executeMove(id, nextDbStatus)
   }
 
-  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string, paymentMethod?: string, installments?: any[], salesOrderDate?: string, deliveryDate?: string, creditTerms?: string, creditDocsUrl?: string, billingRegulations?: string, percentageTerms?: string, paymentDate?: string, companyId?: string, companyCode?: string, workName?: string, billingDocsUrl?: string }) => {
+  const executeMove = async (id: string, nextDbStatus: string, extra?: { quotationNumber?: string, poNumber?: string, poDate?: string, jobType?: string, appointmentDate?: string, appointmentNote?: string, paymentMethod?: string, installments?: any[], salesOrderDate?: string, deliveryDate?: string, creditTerms?: string, creditDocsUrl?: string, billingRegulations?: string, percentageTerms?: string, paymentDate?: string, companyId?: string, companyCode?: string, workName?: string, billingDocsUrl?: string, jobDocuments?: any[] }) => {
     const oldQuotations = [...quotations]
     setQuotations(prev => {
       const updated = prev.map(q => q.id === id ? { 
@@ -488,13 +491,22 @@ export default function PipelineClientPage({
           </button>
 
           {/* Create */}
-          <button
-            onClick={() => router.push('/sales')}
-            className="flex items-center gap-1.5 px-4 py-2 bg-brand-red text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-md shadow-red-200 active:scale-95"
-          >
-            <PlusCircle size={13} />
-            <span>สร้างใบเสนอราคา</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsUploadModalOpen(true)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm active:scale-95"
+            >
+              <Upload size={13} />
+              <span>นำเข้าข้อมูล</span>
+            </button>
+            <button
+              onClick={() => router.push('/sales')}
+              className="flex items-center gap-1.5 px-4 py-2 bg-brand-red text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-md shadow-red-200 active:scale-95"
+            >
+              <PlusCircle size={13} />
+              <span>สร้างใบเสนอราคา</span>
+            </button>
+          </div>
         </div>
         </div>
 
@@ -974,6 +986,17 @@ export default function PipelineClientPage({
           </div>
         </div>
       )}
+      
+      {/* ── Bulk Upload Modal ── */}
+      <BulkUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSuccess={() => {
+          setIsUploadModalOpen(false)
+          triggerToast('นำเข้าข้อมูลสำเร็จ', 'success')
+          router.refresh()
+        }}
+      />
     </div>
   )
 }

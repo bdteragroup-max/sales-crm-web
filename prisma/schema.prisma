@@ -45,6 +45,7 @@ model User {
   telesalesKPIs          TelesalesKPI[]
   employeeSale           EmployeeSale?
   jobStepLogs            JobStepLog[]
+  uploadedDocuments      JobDocument[]
 }
 
 model MonthlyTarget {
@@ -386,6 +387,7 @@ model Job {
   salesOrderDate     DateTime?           @db.Timestamptz(6)
   paymentDate        DateTime?           @db.Timestamptz(6)
   billingDocsUrl     String?
+  additionalInformation String?
   installationOrders InstallationOrder[]
   outsourceRepairs   OutsourceRepair[]
   project            Project?
@@ -394,8 +396,24 @@ model Job {
   stepLogs           JobStepLog[]
   quotation          Quotation?          @relation(fields: [quotationId], references: [id])
   paymentTasks       PaymentTask[]
+  documents          JobDocument[]
+  requiredDeliveryDate DateTime?
 
   @@map("jobs")
+}
+
+model JobDocument {
+  id          String   @id @default(cuid())
+  jobId       String
+  type        String   // "BOQ" | "QUOTATION" | "DRAWING" | "PAYMENT" | "CUSTOMER_DOC"
+  fileUrl     String
+  fileName    String
+  fileSize    Int?     // bytes
+  uploadedBy  String   // userId
+  createdAt   DateTime @default(now())
+
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  uploader    User     @relation(fields: [uploadedBy], references: [id])
 }
 
 model PaymentTask {

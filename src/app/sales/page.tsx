@@ -206,6 +206,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
         company: true,
         contact: true,
         salesperson: { include: { employeeSale: true } },
+        jobs: true,
       },
     }),
     prisma.user.findUnique({

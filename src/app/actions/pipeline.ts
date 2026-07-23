@@ -33,7 +33,14 @@ export async function updateQuotationStatus(
     deliveryDate?: string,
     paymentDate?: string,
     companyId?: string,
-    companyCode?: string
+    companyCode?: string,
+    additionalInformation?: string,
+    jobDocuments?: {
+      type: string;
+      fileUrl: string;
+      fileName: string;
+      fileSize: number;
+    }[];
   }
 ) {
   const user = await getUser();
@@ -150,6 +157,8 @@ export async function updateQuotationStatus(
         workName: extra?.workName,
         deliveryDate: extra?.deliveryDate ? new Date(extra.deliveryDate) : undefined,
         paymentDate: extra?.paymentDate ? new Date(extra.paymentDate) : undefined,
+        additionalInformation: extra?.additionalInformation,
+        jobDocuments: extra?.jobDocuments,
       });
     }
 

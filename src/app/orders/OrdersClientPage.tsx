@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { updateOrderStatus, startProductionWorkflow, submitQCReport } from '@/app/actions/orders'
 import ProductionStartModal from './ProductionStartModal'
 import ProductionQCModal from '../jobs/ProductionQCModal'
+import CabinetDocumentsViewer from './CabinetDocumentsViewer'
 import {
   Package,
   Truck,
@@ -505,6 +506,14 @@ export default function OrdersClientPage({
                         </p>
                         <div className="text-[13px] font-medium text-gray-700 whitespace-pre-wrap leading-relaxed pl-1">
                           {job.item || <span className="text-gray-400 italic">ไม่ได้ระบุรายละเอียด</span>}
+                        </div>
+                        
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                            <FileText size={12} className="text-blue-500" />
+                            เอกสารอ้างอิง (Reference Documents)
+                          </p>
+                          <CabinetDocumentsViewer jobId={job.id} />
                         </div>
                       </div>
                     </div>

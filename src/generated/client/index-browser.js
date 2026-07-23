@@ -399,7 +399,20 @@ exports.Prisma.JobScalarFieldEnum = {
   percentageTerms: 'percentageTerms',
   salesOrderDate: 'salesOrderDate',
   paymentDate: 'paymentDate',
-  billingDocsUrl: 'billingDocsUrl'
+  billingDocsUrl: 'billingDocsUrl',
+  additionalInformation: 'additionalInformation',
+  requiredDeliveryDate: 'requiredDeliveryDate'
+};
+
+exports.Prisma.JobDocumentScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  type: 'type',
+  fileUrl: 'fileUrl',
+  fileName: 'fileName',
+  fileSize: 'fileSize',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.PaymentTaskScalarFieldEnum = {
@@ -1869,6 +1882,7 @@ exports.Prisma.ModelName = {
   Order: 'Order',
   OrderStatusLog: 'OrderStatusLog',
   Job: 'Job',
+  JobDocument: 'JobDocument',
   PaymentTask: 'PaymentTask',
   JobRunningNumber: 'JobRunningNumber',
   OrderRunningNumber: 'OrderRunningNumber',

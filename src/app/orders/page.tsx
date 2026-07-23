@@ -82,6 +82,7 @@ export default async function OrdersPage({
           quotationNumber: true,
           jobs: {
             select: {
+              id: true,
               jobNumber: true,
               jobType: true,
               item: true

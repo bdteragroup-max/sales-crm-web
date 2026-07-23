@@ -94,6 +94,11 @@ export type OrderStatusLog = $Result.DefaultSelection<Prisma.$OrderStatusLogPayl
  */
 export type Job = $Result.DefaultSelection<Prisma.$JobPayload>
 /**
+ * Model JobDocument
+ * 
+ */
+export type JobDocument = $Result.DefaultSelection<Prisma.$JobDocumentPayload>
+/**
  * Model PaymentTask
  * 
  */
@@ -824,6 +829,16 @@ export class PrismaClient<
     * ```
     */
   get job(): Prisma.JobDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.jobDocument`: Exposes CRUD operations for the **JobDocument** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more JobDocuments
+    * const jobDocuments = await prisma.jobDocument.findMany()
+    * ```
+    */
+  get jobDocument(): Prisma.JobDocumentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.paymentTask`: Exposes CRUD operations for the **PaymentTask** model.
@@ -2174,6 +2189,7 @@ export namespace Prisma {
     Order: 'Order',
     OrderStatusLog: 'OrderStatusLog',
     Job: 'Job',
+    JobDocument: 'JobDocument',
     PaymentTask: 'PaymentTask',
     JobRunningNumber: 'JobRunningNumber',
     OrderRunningNumber: 'OrderRunningNumber',
@@ -2279,7 +2295,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3464,6 +3480,80 @@ export namespace Prisma {
           count: {
             args: Prisma.JobCountArgs<ExtArgs>
             result: $Utils.Optional<JobCountAggregateOutputType> | number
+          }
+        }
+      }
+      JobDocument: {
+        payload: Prisma.$JobDocumentPayload<ExtArgs>
+        fields: Prisma.JobDocumentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.JobDocumentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.JobDocumentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload>
+          }
+          findFirst: {
+            args: Prisma.JobDocumentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.JobDocumentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload>
+          }
+          findMany: {
+            args: Prisma.JobDocumentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload>[]
+          }
+          create: {
+            args: Prisma.JobDocumentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload>
+          }
+          createMany: {
+            args: Prisma.JobDocumentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.JobDocumentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload>[]
+          }
+          delete: {
+            args: Prisma.JobDocumentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload>
+          }
+          update: {
+            args: Prisma.JobDocumentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload>
+          }
+          deleteMany: {
+            args: Prisma.JobDocumentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.JobDocumentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.JobDocumentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload>[]
+          }
+          upsert: {
+            args: Prisma.JobDocumentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobDocumentPayload>
+          }
+          aggregate: {
+            args: Prisma.JobDocumentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateJobDocument>
+          }
+          groupBy: {
+            args: Prisma.JobDocumentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<JobDocumentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.JobDocumentCountArgs<ExtArgs>
+            result: $Utils.Optional<JobDocumentCountAggregateOutputType> | number
           }
         }
       }
@@ -10251,6 +10341,7 @@ export namespace Prisma {
     order?: OrderOmit
     orderStatusLog?: OrderStatusLogOmit
     job?: JobOmit
+    jobDocument?: JobDocumentOmit
     paymentTask?: PaymentTaskOmit
     jobRunningNumber?: JobRunningNumberOmit
     orderRunningNumber?: OrderRunningNumberOmit
@@ -10444,6 +10535,7 @@ export namespace Prisma {
     telesales: number
     telesalesKPIs: number
     jobStepLogs: number
+    uploadedDocuments: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10470,6 +10562,7 @@ export namespace Prisma {
     telesales?: boolean | UserCountOutputTypeCountTelesalesArgs
     telesalesKPIs?: boolean | UserCountOutputTypeCountTelesalesKPIsArgs
     jobStepLogs?: boolean | UserCountOutputTypeCountJobStepLogsArgs
+    uploadedDocuments?: boolean | UserCountOutputTypeCountUploadedDocumentsArgs
   }
 
   // Custom InputTypes
@@ -10642,6 +10735,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountJobStepLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: JobStepLogWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUploadedDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobDocumentWhereInput
   }
 
 
@@ -10851,6 +10951,7 @@ export namespace Prisma {
     repairDeliveries: number
     stepLogs: number
     paymentTasks: number
+    documents: number
   }
 
   export type JobCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10859,6 +10960,7 @@ export namespace Prisma {
     repairDeliveries?: boolean | JobCountOutputTypeCountRepairDeliveriesArgs
     stepLogs?: boolean | JobCountOutputTypeCountStepLogsArgs
     paymentTasks?: boolean | JobCountOutputTypeCountPaymentTasksArgs
+    documents?: boolean | JobCountOutputTypeCountDocumentsArgs
   }
 
   // Custom InputTypes
@@ -10905,6 +11007,13 @@ export namespace Prisma {
    */
   export type JobCountOutputTypeCountPaymentTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaymentTaskWhereInput
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobDocumentWhereInput
   }
 
 
@@ -12348,6 +12457,7 @@ export namespace Prisma {
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
     jobStepLogs?: boolean | User$jobStepLogsArgs<ExtArgs>
+    uploadedDocuments?: boolean | User$uploadedDocumentsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -12425,6 +12535,7 @@ export namespace Prisma {
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
     jobStepLogs?: boolean | User$jobStepLogsArgs<ExtArgs>
+    uploadedDocuments?: boolean | User$uploadedDocumentsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -12457,6 +12568,7 @@ export namespace Prisma {
       telesalesKPIs: Prisma.$TelesalesKPIPayload<ExtArgs>[]
       employeeSale: Prisma.$EmployeeSalePayload<ExtArgs> | null
       jobStepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
+      uploadedDocuments: Prisma.$JobDocumentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12890,6 +13002,7 @@ export namespace Prisma {
     telesalesKPIs<T extends User$telesalesKPIsArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesKPIsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     employeeSale<T extends User$employeeSaleArgs<ExtArgs> = {}>(args?: Subset<T, User$employeeSaleArgs<ExtArgs>>): Prisma__EmployeeSaleClient<$Result.GetResult<Prisma.$EmployeeSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     jobStepLogs<T extends User$jobStepLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$jobStepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    uploadedDocuments<T extends User$uploadedDocumentsArgs<ExtArgs> = {}>(args?: Subset<T, User$uploadedDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13893,6 +14006,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: JobStepLogScalarFieldEnum | JobStepLogScalarFieldEnum[]
+  }
+
+  /**
+   * User.uploadedDocuments
+   */
+  export type User$uploadedDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    where?: JobDocumentWhereInput
+    orderBy?: JobDocumentOrderByWithRelationInput | JobDocumentOrderByWithRelationInput[]
+    cursor?: JobDocumentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JobDocumentScalarFieldEnum | JobDocumentScalarFieldEnum[]
   }
 
   /**
@@ -31178,6 +31315,8 @@ export namespace Prisma {
     salesOrderDate: Date | null
     paymentDate: Date | null
     billingDocsUrl: string | null
+    additionalInformation: string | null
+    requiredDeliveryDate: Date | null
   }
 
   export type JobMaxAggregateOutputType = {
@@ -31212,6 +31351,8 @@ export namespace Prisma {
     salesOrderDate: Date | null
     paymentDate: Date | null
     billingDocsUrl: string | null
+    additionalInformation: string | null
+    requiredDeliveryDate: Date | null
   }
 
   export type JobCountAggregateOutputType = {
@@ -31246,6 +31387,8 @@ export namespace Prisma {
     salesOrderDate: number
     paymentDate: number
     billingDocsUrl: number
+    additionalInformation: number
+    requiredDeliveryDate: number
     _all: number
   }
 
@@ -31292,6 +31435,8 @@ export namespace Prisma {
     salesOrderDate?: true
     paymentDate?: true
     billingDocsUrl?: true
+    additionalInformation?: true
+    requiredDeliveryDate?: true
   }
 
   export type JobMaxAggregateInputType = {
@@ -31326,6 +31471,8 @@ export namespace Prisma {
     salesOrderDate?: true
     paymentDate?: true
     billingDocsUrl?: true
+    additionalInformation?: true
+    requiredDeliveryDate?: true
   }
 
   export type JobCountAggregateInputType = {
@@ -31360,6 +31507,8 @@ export namespace Prisma {
     salesOrderDate?: true
     paymentDate?: true
     billingDocsUrl?: true
+    additionalInformation?: true
+    requiredDeliveryDate?: true
     _all?: true
   }
 
@@ -31481,6 +31630,8 @@ export namespace Prisma {
     salesOrderDate: Date | null
     paymentDate: Date | null
     billingDocsUrl: string | null
+    additionalInformation: string | null
+    requiredDeliveryDate: Date | null
     _count: JobCountAggregateOutputType | null
     _avg: JobAvgAggregateOutputType | null
     _sum: JobSumAggregateOutputType | null
@@ -31534,6 +31685,8 @@ export namespace Prisma {
     salesOrderDate?: boolean
     paymentDate?: boolean
     billingDocsUrl?: boolean
+    additionalInformation?: boolean
+    requiredDeliveryDate?: boolean
     installationOrders?: boolean | Job$installationOrdersArgs<ExtArgs>
     outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
     project?: boolean | Job$projectArgs<ExtArgs>
@@ -31542,6 +31695,7 @@ export namespace Prisma {
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
     quotation?: boolean | Job$quotationArgs<ExtArgs>
     paymentTasks?: boolean | Job$paymentTasksArgs<ExtArgs>
+    documents?: boolean | Job$documentsArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["job"]>
 
@@ -31577,6 +31731,8 @@ export namespace Prisma {
     salesOrderDate?: boolean
     paymentDate?: boolean
     billingDocsUrl?: boolean
+    additionalInformation?: boolean
+    requiredDeliveryDate?: boolean
     quotation?: boolean | Job$quotationArgs<ExtArgs>
   }, ExtArgs["result"]["job"]>
 
@@ -31612,6 +31768,8 @@ export namespace Prisma {
     salesOrderDate?: boolean
     paymentDate?: boolean
     billingDocsUrl?: boolean
+    additionalInformation?: boolean
+    requiredDeliveryDate?: boolean
     quotation?: boolean | Job$quotationArgs<ExtArgs>
   }, ExtArgs["result"]["job"]>
 
@@ -31647,9 +31805,11 @@ export namespace Prisma {
     salesOrderDate?: boolean
     paymentDate?: boolean
     billingDocsUrl?: boolean
+    additionalInformation?: boolean
+    requiredDeliveryDate?: boolean
   }
 
-  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobNumber" | "companyCode" | "jobType" | "month" | "yearBe" | "dateClosed" | "customerName" | "item" | "quotationNumber" | "poNumber" | "sellerName" | "quotationId" | "currentStep" | "flowVariant" | "createdAt" | "updatedAt" | "courierCompany" | "deliveryDate" | "deliveryMethod" | "trackingNumber" | "trackingPhotoUrl" | "paymentMethod" | "paymentStatus" | "billingRegulations" | "creditDocsUrl" | "creditTerms" | "percentageTerms" | "salesOrderDate" | "paymentDate" | "billingDocsUrl", ExtArgs["result"]["job"]>
+  export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobNumber" | "companyCode" | "jobType" | "month" | "yearBe" | "dateClosed" | "customerName" | "item" | "quotationNumber" | "poNumber" | "sellerName" | "quotationId" | "currentStep" | "flowVariant" | "createdAt" | "updatedAt" | "courierCompany" | "deliveryDate" | "deliveryMethod" | "trackingNumber" | "trackingPhotoUrl" | "paymentMethod" | "paymentStatus" | "billingRegulations" | "creditDocsUrl" | "creditTerms" | "percentageTerms" | "salesOrderDate" | "paymentDate" | "billingDocsUrl" | "additionalInformation" | "requiredDeliveryDate", ExtArgs["result"]["job"]>
   export type JobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     installationOrders?: boolean | Job$installationOrdersArgs<ExtArgs>
     outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
@@ -31659,6 +31819,7 @@ export namespace Prisma {
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
     quotation?: boolean | Job$quotationArgs<ExtArgs>
     paymentTasks?: boolean | Job$paymentTasksArgs<ExtArgs>
+    documents?: boolean | Job$documentsArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type JobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -31679,6 +31840,7 @@ export namespace Prisma {
       stepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
       quotation: Prisma.$QuotationPayload<ExtArgs> | null
       paymentTasks: Prisma.$PaymentTaskPayload<ExtArgs>[]
+      documents: Prisma.$JobDocumentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -31712,6 +31874,8 @@ export namespace Prisma {
       salesOrderDate: Date | null
       paymentDate: Date | null
       billingDocsUrl: string | null
+      additionalInformation: string | null
+      requiredDeliveryDate: Date | null
     }, ExtArgs["result"]["job"]>
     composites: {}
   }
@@ -32114,6 +32278,7 @@ export namespace Prisma {
     stepLogs<T extends Job$stepLogsArgs<ExtArgs> = {}>(args?: Subset<T, Job$stepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotation<T extends Job$quotationArgs<ExtArgs> = {}>(args?: Subset<T, Job$quotationArgs<ExtArgs>>): Prisma__QuotationClient<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     paymentTasks<T extends Job$paymentTasksArgs<ExtArgs> = {}>(args?: Subset<T, Job$paymentTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    documents<T extends Job$documentsArgs<ExtArgs> = {}>(args?: Subset<T, Job$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -32174,6 +32339,8 @@ export namespace Prisma {
     readonly salesOrderDate: FieldRef<"Job", 'DateTime'>
     readonly paymentDate: FieldRef<"Job", 'DateTime'>
     readonly billingDocsUrl: FieldRef<"Job", 'String'>
+    readonly additionalInformation: FieldRef<"Job", 'String'>
+    readonly requiredDeliveryDate: FieldRef<"Job", 'DateTime'>
   }
     
 
@@ -32752,6 +32919,30 @@ export namespace Prisma {
   }
 
   /**
+   * Job.documents
+   */
+  export type Job$documentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    where?: JobDocumentWhereInput
+    orderBy?: JobDocumentOrderByWithRelationInput | JobDocumentOrderByWithRelationInput[]
+    cursor?: JobDocumentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JobDocumentScalarFieldEnum | JobDocumentScalarFieldEnum[]
+  }
+
+  /**
    * Job without action
    */
   export type JobDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -32767,6 +32958,1150 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: JobInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model JobDocument
+   */
+
+  export type AggregateJobDocument = {
+    _count: JobDocumentCountAggregateOutputType | null
+    _avg: JobDocumentAvgAggregateOutputType | null
+    _sum: JobDocumentSumAggregateOutputType | null
+    _min: JobDocumentMinAggregateOutputType | null
+    _max: JobDocumentMaxAggregateOutputType | null
+  }
+
+  export type JobDocumentAvgAggregateOutputType = {
+    fileSize: number | null
+  }
+
+  export type JobDocumentSumAggregateOutputType = {
+    fileSize: number | null
+  }
+
+  export type JobDocumentMinAggregateOutputType = {
+    id: string | null
+    jobId: string | null
+    type: string | null
+    fileUrl: string | null
+    fileName: string | null
+    fileSize: number | null
+    uploadedBy: string | null
+    createdAt: Date | null
+  }
+
+  export type JobDocumentMaxAggregateOutputType = {
+    id: string | null
+    jobId: string | null
+    type: string | null
+    fileUrl: string | null
+    fileName: string | null
+    fileSize: number | null
+    uploadedBy: string | null
+    createdAt: Date | null
+  }
+
+  export type JobDocumentCountAggregateOutputType = {
+    id: number
+    jobId: number
+    type: number
+    fileUrl: number
+    fileName: number
+    fileSize: number
+    uploadedBy: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type JobDocumentAvgAggregateInputType = {
+    fileSize?: true
+  }
+
+  export type JobDocumentSumAggregateInputType = {
+    fileSize?: true
+  }
+
+  export type JobDocumentMinAggregateInputType = {
+    id?: true
+    jobId?: true
+    type?: true
+    fileUrl?: true
+    fileName?: true
+    fileSize?: true
+    uploadedBy?: true
+    createdAt?: true
+  }
+
+  export type JobDocumentMaxAggregateInputType = {
+    id?: true
+    jobId?: true
+    type?: true
+    fileUrl?: true
+    fileName?: true
+    fileSize?: true
+    uploadedBy?: true
+    createdAt?: true
+  }
+
+  export type JobDocumentCountAggregateInputType = {
+    id?: true
+    jobId?: true
+    type?: true
+    fileUrl?: true
+    fileName?: true
+    fileSize?: true
+    uploadedBy?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type JobDocumentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JobDocument to aggregate.
+     */
+    where?: JobDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobDocuments to fetch.
+     */
+    orderBy?: JobDocumentOrderByWithRelationInput | JobDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: JobDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned JobDocuments
+    **/
+    _count?: true | JobDocumentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: JobDocumentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: JobDocumentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: JobDocumentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: JobDocumentMaxAggregateInputType
+  }
+
+  export type GetJobDocumentAggregateType<T extends JobDocumentAggregateArgs> = {
+        [P in keyof T & keyof AggregateJobDocument]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateJobDocument[P]>
+      : GetScalarType<T[P], AggregateJobDocument[P]>
+  }
+
+
+
+
+  export type JobDocumentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobDocumentWhereInput
+    orderBy?: JobDocumentOrderByWithAggregationInput | JobDocumentOrderByWithAggregationInput[]
+    by: JobDocumentScalarFieldEnum[] | JobDocumentScalarFieldEnum
+    having?: JobDocumentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: JobDocumentCountAggregateInputType | true
+    _avg?: JobDocumentAvgAggregateInputType
+    _sum?: JobDocumentSumAggregateInputType
+    _min?: JobDocumentMinAggregateInputType
+    _max?: JobDocumentMaxAggregateInputType
+  }
+
+  export type JobDocumentGroupByOutputType = {
+    id: string
+    jobId: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize: number | null
+    uploadedBy: string
+    createdAt: Date
+    _count: JobDocumentCountAggregateOutputType | null
+    _avg: JobDocumentAvgAggregateOutputType | null
+    _sum: JobDocumentSumAggregateOutputType | null
+    _min: JobDocumentMinAggregateOutputType | null
+    _max: JobDocumentMaxAggregateOutputType | null
+  }
+
+  type GetJobDocumentGroupByPayload<T extends JobDocumentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<JobDocumentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof JobDocumentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], JobDocumentGroupByOutputType[P]>
+            : GetScalarType<T[P], JobDocumentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type JobDocumentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobId?: boolean
+    type?: boolean
+    fileUrl?: boolean
+    fileName?: boolean
+    fileSize?: boolean
+    uploadedBy?: boolean
+    createdAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+    uploader?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["jobDocument"]>
+
+  export type JobDocumentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobId?: boolean
+    type?: boolean
+    fileUrl?: boolean
+    fileName?: boolean
+    fileSize?: boolean
+    uploadedBy?: boolean
+    createdAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+    uploader?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["jobDocument"]>
+
+  export type JobDocumentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    jobId?: boolean
+    type?: boolean
+    fileUrl?: boolean
+    fileName?: boolean
+    fileSize?: boolean
+    uploadedBy?: boolean
+    createdAt?: boolean
+    job?: boolean | JobDefaultArgs<ExtArgs>
+    uploader?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["jobDocument"]>
+
+  export type JobDocumentSelectScalar = {
+    id?: boolean
+    jobId?: boolean
+    type?: boolean
+    fileUrl?: boolean
+    fileName?: boolean
+    fileSize?: boolean
+    uploadedBy?: boolean
+    createdAt?: boolean
+  }
+
+  export type JobDocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "type" | "fileUrl" | "fileName" | "fileSize" | "uploadedBy" | "createdAt", ExtArgs["result"]["jobDocument"]>
+  export type JobDocumentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+    uploader?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type JobDocumentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+    uploader?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type JobDocumentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | JobDefaultArgs<ExtArgs>
+    uploader?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $JobDocumentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "JobDocument"
+    objects: {
+      job: Prisma.$JobPayload<ExtArgs>
+      uploader: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      jobId: string
+      type: string
+      fileUrl: string
+      fileName: string
+      fileSize: number | null
+      uploadedBy: string
+      createdAt: Date
+    }, ExtArgs["result"]["jobDocument"]>
+    composites: {}
+  }
+
+  type JobDocumentGetPayload<S extends boolean | null | undefined | JobDocumentDefaultArgs> = $Result.GetResult<Prisma.$JobDocumentPayload, S>
+
+  type JobDocumentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<JobDocumentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: JobDocumentCountAggregateInputType | true
+    }
+
+  export interface JobDocumentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['JobDocument'], meta: { name: 'JobDocument' } }
+    /**
+     * Find zero or one JobDocument that matches the filter.
+     * @param {JobDocumentFindUniqueArgs} args - Arguments to find a JobDocument
+     * @example
+     * // Get one JobDocument
+     * const jobDocument = await prisma.jobDocument.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends JobDocumentFindUniqueArgs>(args: SelectSubset<T, JobDocumentFindUniqueArgs<ExtArgs>>): Prisma__JobDocumentClient<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one JobDocument that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {JobDocumentFindUniqueOrThrowArgs} args - Arguments to find a JobDocument
+     * @example
+     * // Get one JobDocument
+     * const jobDocument = await prisma.jobDocument.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends JobDocumentFindUniqueOrThrowArgs>(args: SelectSubset<T, JobDocumentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JobDocumentClient<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JobDocument that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobDocumentFindFirstArgs} args - Arguments to find a JobDocument
+     * @example
+     * // Get one JobDocument
+     * const jobDocument = await prisma.jobDocument.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends JobDocumentFindFirstArgs>(args?: SelectSubset<T, JobDocumentFindFirstArgs<ExtArgs>>): Prisma__JobDocumentClient<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JobDocument that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobDocumentFindFirstOrThrowArgs} args - Arguments to find a JobDocument
+     * @example
+     * // Get one JobDocument
+     * const jobDocument = await prisma.jobDocument.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends JobDocumentFindFirstOrThrowArgs>(args?: SelectSubset<T, JobDocumentFindFirstOrThrowArgs<ExtArgs>>): Prisma__JobDocumentClient<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more JobDocuments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobDocumentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all JobDocuments
+     * const jobDocuments = await prisma.jobDocument.findMany()
+     * 
+     * // Get first 10 JobDocuments
+     * const jobDocuments = await prisma.jobDocument.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const jobDocumentWithIdOnly = await prisma.jobDocument.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends JobDocumentFindManyArgs>(args?: SelectSubset<T, JobDocumentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a JobDocument.
+     * @param {JobDocumentCreateArgs} args - Arguments to create a JobDocument.
+     * @example
+     * // Create one JobDocument
+     * const JobDocument = await prisma.jobDocument.create({
+     *   data: {
+     *     // ... data to create a JobDocument
+     *   }
+     * })
+     * 
+     */
+    create<T extends JobDocumentCreateArgs>(args: SelectSubset<T, JobDocumentCreateArgs<ExtArgs>>): Prisma__JobDocumentClient<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many JobDocuments.
+     * @param {JobDocumentCreateManyArgs} args - Arguments to create many JobDocuments.
+     * @example
+     * // Create many JobDocuments
+     * const jobDocument = await prisma.jobDocument.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends JobDocumentCreateManyArgs>(args?: SelectSubset<T, JobDocumentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many JobDocuments and returns the data saved in the database.
+     * @param {JobDocumentCreateManyAndReturnArgs} args - Arguments to create many JobDocuments.
+     * @example
+     * // Create many JobDocuments
+     * const jobDocument = await prisma.jobDocument.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many JobDocuments and only return the `id`
+     * const jobDocumentWithIdOnly = await prisma.jobDocument.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends JobDocumentCreateManyAndReturnArgs>(args?: SelectSubset<T, JobDocumentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a JobDocument.
+     * @param {JobDocumentDeleteArgs} args - Arguments to delete one JobDocument.
+     * @example
+     * // Delete one JobDocument
+     * const JobDocument = await prisma.jobDocument.delete({
+     *   where: {
+     *     // ... filter to delete one JobDocument
+     *   }
+     * })
+     * 
+     */
+    delete<T extends JobDocumentDeleteArgs>(args: SelectSubset<T, JobDocumentDeleteArgs<ExtArgs>>): Prisma__JobDocumentClient<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one JobDocument.
+     * @param {JobDocumentUpdateArgs} args - Arguments to update one JobDocument.
+     * @example
+     * // Update one JobDocument
+     * const jobDocument = await prisma.jobDocument.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends JobDocumentUpdateArgs>(args: SelectSubset<T, JobDocumentUpdateArgs<ExtArgs>>): Prisma__JobDocumentClient<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more JobDocuments.
+     * @param {JobDocumentDeleteManyArgs} args - Arguments to filter JobDocuments to delete.
+     * @example
+     * // Delete a few JobDocuments
+     * const { count } = await prisma.jobDocument.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends JobDocumentDeleteManyArgs>(args?: SelectSubset<T, JobDocumentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JobDocuments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobDocumentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many JobDocuments
+     * const jobDocument = await prisma.jobDocument.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends JobDocumentUpdateManyArgs>(args: SelectSubset<T, JobDocumentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JobDocuments and returns the data updated in the database.
+     * @param {JobDocumentUpdateManyAndReturnArgs} args - Arguments to update many JobDocuments.
+     * @example
+     * // Update many JobDocuments
+     * const jobDocument = await prisma.jobDocument.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more JobDocuments and only return the `id`
+     * const jobDocumentWithIdOnly = await prisma.jobDocument.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends JobDocumentUpdateManyAndReturnArgs>(args: SelectSubset<T, JobDocumentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one JobDocument.
+     * @param {JobDocumentUpsertArgs} args - Arguments to update or create a JobDocument.
+     * @example
+     * // Update or create a JobDocument
+     * const jobDocument = await prisma.jobDocument.upsert({
+     *   create: {
+     *     // ... data to create a JobDocument
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the JobDocument we want to update
+     *   }
+     * })
+     */
+    upsert<T extends JobDocumentUpsertArgs>(args: SelectSubset<T, JobDocumentUpsertArgs<ExtArgs>>): Prisma__JobDocumentClient<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of JobDocuments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobDocumentCountArgs} args - Arguments to filter JobDocuments to count.
+     * @example
+     * // Count the number of JobDocuments
+     * const count = await prisma.jobDocument.count({
+     *   where: {
+     *     // ... the filter for the JobDocuments we want to count
+     *   }
+     * })
+    **/
+    count<T extends JobDocumentCountArgs>(
+      args?: Subset<T, JobDocumentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], JobDocumentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a JobDocument.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobDocumentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends JobDocumentAggregateArgs>(args: Subset<T, JobDocumentAggregateArgs>): Prisma.PrismaPromise<GetJobDocumentAggregateType<T>>
+
+    /**
+     * Group by JobDocument.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobDocumentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends JobDocumentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: JobDocumentGroupByArgs['orderBy'] }
+        : { orderBy?: JobDocumentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, JobDocumentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJobDocumentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the JobDocument model
+   */
+  readonly fields: JobDocumentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for JobDocument.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__JobDocumentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    job<T extends JobDefaultArgs<ExtArgs> = {}>(args?: Subset<T, JobDefaultArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    uploader<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the JobDocument model
+   */
+  interface JobDocumentFieldRefs {
+    readonly id: FieldRef<"JobDocument", 'String'>
+    readonly jobId: FieldRef<"JobDocument", 'String'>
+    readonly type: FieldRef<"JobDocument", 'String'>
+    readonly fileUrl: FieldRef<"JobDocument", 'String'>
+    readonly fileName: FieldRef<"JobDocument", 'String'>
+    readonly fileSize: FieldRef<"JobDocument", 'Int'>
+    readonly uploadedBy: FieldRef<"JobDocument", 'String'>
+    readonly createdAt: FieldRef<"JobDocument", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * JobDocument findUnique
+   */
+  export type JobDocumentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which JobDocument to fetch.
+     */
+    where: JobDocumentWhereUniqueInput
+  }
+
+  /**
+   * JobDocument findUniqueOrThrow
+   */
+  export type JobDocumentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which JobDocument to fetch.
+     */
+    where: JobDocumentWhereUniqueInput
+  }
+
+  /**
+   * JobDocument findFirst
+   */
+  export type JobDocumentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which JobDocument to fetch.
+     */
+    where?: JobDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobDocuments to fetch.
+     */
+    orderBy?: JobDocumentOrderByWithRelationInput | JobDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JobDocuments.
+     */
+    cursor?: JobDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobDocuments.
+     */
+    distinct?: JobDocumentScalarFieldEnum | JobDocumentScalarFieldEnum[]
+  }
+
+  /**
+   * JobDocument findFirstOrThrow
+   */
+  export type JobDocumentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which JobDocument to fetch.
+     */
+    where?: JobDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobDocuments to fetch.
+     */
+    orderBy?: JobDocumentOrderByWithRelationInput | JobDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JobDocuments.
+     */
+    cursor?: JobDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobDocuments.
+     */
+    distinct?: JobDocumentScalarFieldEnum | JobDocumentScalarFieldEnum[]
+  }
+
+  /**
+   * JobDocument findMany
+   */
+  export type JobDocumentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which JobDocuments to fetch.
+     */
+    where?: JobDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobDocuments to fetch.
+     */
+    orderBy?: JobDocumentOrderByWithRelationInput | JobDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing JobDocuments.
+     */
+    cursor?: JobDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobDocuments.
+     */
+    distinct?: JobDocumentScalarFieldEnum | JobDocumentScalarFieldEnum[]
+  }
+
+  /**
+   * JobDocument create
+   */
+  export type JobDocumentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a JobDocument.
+     */
+    data: XOR<JobDocumentCreateInput, JobDocumentUncheckedCreateInput>
+  }
+
+  /**
+   * JobDocument createMany
+   */
+  export type JobDocumentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many JobDocuments.
+     */
+    data: JobDocumentCreateManyInput | JobDocumentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * JobDocument createManyAndReturn
+   */
+  export type JobDocumentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * The data used to create many JobDocuments.
+     */
+    data: JobDocumentCreateManyInput | JobDocumentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * JobDocument update
+   */
+  export type JobDocumentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a JobDocument.
+     */
+    data: XOR<JobDocumentUpdateInput, JobDocumentUncheckedUpdateInput>
+    /**
+     * Choose, which JobDocument to update.
+     */
+    where: JobDocumentWhereUniqueInput
+  }
+
+  /**
+   * JobDocument updateMany
+   */
+  export type JobDocumentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update JobDocuments.
+     */
+    data: XOR<JobDocumentUpdateManyMutationInput, JobDocumentUncheckedUpdateManyInput>
+    /**
+     * Filter which JobDocuments to update
+     */
+    where?: JobDocumentWhereInput
+    /**
+     * Limit how many JobDocuments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * JobDocument updateManyAndReturn
+   */
+  export type JobDocumentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * The data used to update JobDocuments.
+     */
+    data: XOR<JobDocumentUpdateManyMutationInput, JobDocumentUncheckedUpdateManyInput>
+    /**
+     * Filter which JobDocuments to update
+     */
+    where?: JobDocumentWhereInput
+    /**
+     * Limit how many JobDocuments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * JobDocument upsert
+   */
+  export type JobDocumentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the JobDocument to update in case it exists.
+     */
+    where: JobDocumentWhereUniqueInput
+    /**
+     * In case the JobDocument found by the `where` argument doesn't exist, create a new JobDocument with this data.
+     */
+    create: XOR<JobDocumentCreateInput, JobDocumentUncheckedCreateInput>
+    /**
+     * In case the JobDocument was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<JobDocumentUpdateInput, JobDocumentUncheckedUpdateInput>
+  }
+
+  /**
+   * JobDocument delete
+   */
+  export type JobDocumentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    /**
+     * Filter which JobDocument to delete.
+     */
+    where: JobDocumentWhereUniqueInput
+  }
+
+  /**
+   * JobDocument deleteMany
+   */
+  export type JobDocumentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JobDocuments to delete
+     */
+    where?: JobDocumentWhereInput
+    /**
+     * Limit how many JobDocuments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * JobDocument without action
+   */
+  export type JobDocumentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
   }
 
 
@@ -143117,10 +144452,26 @@ export namespace Prisma {
     percentageTerms: 'percentageTerms',
     salesOrderDate: 'salesOrderDate',
     paymentDate: 'paymentDate',
-    billingDocsUrl: 'billingDocsUrl'
+    billingDocsUrl: 'billingDocsUrl',
+    additionalInformation: 'additionalInformation',
+    requiredDeliveryDate: 'requiredDeliveryDate'
   };
 
   export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
+
+
+  export const JobDocumentScalarFieldEnum: {
+    id: 'id',
+    jobId: 'jobId',
+    type: 'type',
+    fileUrl: 'fileUrl',
+    fileName: 'fileName',
+    fileSize: 'fileSize',
+    uploadedBy: 'uploadedBy',
+    createdAt: 'createdAt'
+  };
+
+  export type JobDocumentScalarFieldEnum = (typeof JobDocumentScalarFieldEnum)[keyof typeof JobDocumentScalarFieldEnum]
 
 
   export const PaymentTaskScalarFieldEnum: {
@@ -145014,6 +146365,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
     jobStepLogs?: JobStepLogListRelationFilter
+    uploadedDocuments?: JobDocumentListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -145054,6 +146406,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIOrderByRelationAggregateInput
     employeeSale?: EmployeeSaleOrderByWithRelationInput
     jobStepLogs?: JobStepLogOrderByRelationAggregateInput
+    uploadedDocuments?: JobDocumentOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -145097,6 +146450,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
     jobStepLogs?: JobStepLogListRelationFilter
+    uploadedDocuments?: JobDocumentListRelationFilter
   }, "id" | "employeeId" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -146616,6 +147970,8 @@ export namespace Prisma {
     salesOrderDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     paymentDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     billingDocsUrl?: StringNullableFilter<"Job"> | string | null
+    additionalInformation?: StringNullableFilter<"Job"> | string | null
+    requiredDeliveryDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     installationOrders?: InstallationOrderListRelationFilter
     outsourceRepairs?: OutsourceRepairListRelationFilter
     project?: XOR<ProjectNullableScalarRelationFilter, ProjectWhereInput> | null
@@ -146624,6 +147980,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogListRelationFilter
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     paymentTasks?: PaymentTaskListRelationFilter
+    documents?: JobDocumentListRelationFilter
   }
 
   export type JobOrderByWithRelationInput = {
@@ -146658,6 +148015,8 @@ export namespace Prisma {
     salesOrderDate?: SortOrderInput | SortOrder
     paymentDate?: SortOrderInput | SortOrder
     billingDocsUrl?: SortOrderInput | SortOrder
+    additionalInformation?: SortOrderInput | SortOrder
+    requiredDeliveryDate?: SortOrderInput | SortOrder
     installationOrders?: InstallationOrderOrderByRelationAggregateInput
     outsourceRepairs?: OutsourceRepairOrderByRelationAggregateInput
     project?: ProjectOrderByWithRelationInput
@@ -146666,6 +148025,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogOrderByRelationAggregateInput
     quotation?: QuotationOrderByWithRelationInput
     paymentTasks?: PaymentTaskOrderByRelationAggregateInput
+    documents?: JobDocumentOrderByRelationAggregateInput
   }
 
   export type JobWhereUniqueInput = Prisma.AtLeast<{
@@ -146703,6 +148063,8 @@ export namespace Prisma {
     salesOrderDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     paymentDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     billingDocsUrl?: StringNullableFilter<"Job"> | string | null
+    additionalInformation?: StringNullableFilter<"Job"> | string | null
+    requiredDeliveryDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     installationOrders?: InstallationOrderListRelationFilter
     outsourceRepairs?: OutsourceRepairListRelationFilter
     project?: XOR<ProjectNullableScalarRelationFilter, ProjectWhereInput> | null
@@ -146711,6 +148073,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogListRelationFilter
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     paymentTasks?: PaymentTaskListRelationFilter
+    documents?: JobDocumentListRelationFilter
   }, "id" | "jobNumber">
 
   export type JobOrderByWithAggregationInput = {
@@ -146745,6 +148108,8 @@ export namespace Prisma {
     salesOrderDate?: SortOrderInput | SortOrder
     paymentDate?: SortOrderInput | SortOrder
     billingDocsUrl?: SortOrderInput | SortOrder
+    additionalInformation?: SortOrderInput | SortOrder
+    requiredDeliveryDate?: SortOrderInput | SortOrder
     _count?: JobCountOrderByAggregateInput
     _avg?: JobAvgOrderByAggregateInput
     _max?: JobMaxOrderByAggregateInput
@@ -146787,6 +148152,83 @@ export namespace Prisma {
     salesOrderDate?: DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
     paymentDate?: DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
     billingDocsUrl?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    additionalInformation?: StringNullableWithAggregatesFilter<"Job"> | string | null
+    requiredDeliveryDate?: DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+  }
+
+  export type JobDocumentWhereInput = {
+    AND?: JobDocumentWhereInput | JobDocumentWhereInput[]
+    OR?: JobDocumentWhereInput[]
+    NOT?: JobDocumentWhereInput | JobDocumentWhereInput[]
+    id?: StringFilter<"JobDocument"> | string
+    jobId?: StringFilter<"JobDocument"> | string
+    type?: StringFilter<"JobDocument"> | string
+    fileUrl?: StringFilter<"JobDocument"> | string
+    fileName?: StringFilter<"JobDocument"> | string
+    fileSize?: IntNullableFilter<"JobDocument"> | number | null
+    uploadedBy?: StringFilter<"JobDocument"> | string
+    createdAt?: DateTimeFilter<"JobDocument"> | Date | string
+    job?: XOR<JobScalarRelationFilter, JobWhereInput>
+    uploader?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type JobDocumentOrderByWithRelationInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    type?: SortOrder
+    fileUrl?: SortOrder
+    fileName?: SortOrder
+    fileSize?: SortOrderInput | SortOrder
+    uploadedBy?: SortOrder
+    createdAt?: SortOrder
+    job?: JobOrderByWithRelationInput
+    uploader?: UserOrderByWithRelationInput
+  }
+
+  export type JobDocumentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: JobDocumentWhereInput | JobDocumentWhereInput[]
+    OR?: JobDocumentWhereInput[]
+    NOT?: JobDocumentWhereInput | JobDocumentWhereInput[]
+    jobId?: StringFilter<"JobDocument"> | string
+    type?: StringFilter<"JobDocument"> | string
+    fileUrl?: StringFilter<"JobDocument"> | string
+    fileName?: StringFilter<"JobDocument"> | string
+    fileSize?: IntNullableFilter<"JobDocument"> | number | null
+    uploadedBy?: StringFilter<"JobDocument"> | string
+    createdAt?: DateTimeFilter<"JobDocument"> | Date | string
+    job?: XOR<JobScalarRelationFilter, JobWhereInput>
+    uploader?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type JobDocumentOrderByWithAggregationInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    type?: SortOrder
+    fileUrl?: SortOrder
+    fileName?: SortOrder
+    fileSize?: SortOrderInput | SortOrder
+    uploadedBy?: SortOrder
+    createdAt?: SortOrder
+    _count?: JobDocumentCountOrderByAggregateInput
+    _avg?: JobDocumentAvgOrderByAggregateInput
+    _max?: JobDocumentMaxOrderByAggregateInput
+    _min?: JobDocumentMinOrderByAggregateInput
+    _sum?: JobDocumentSumOrderByAggregateInput
+  }
+
+  export type JobDocumentScalarWhereWithAggregatesInput = {
+    AND?: JobDocumentScalarWhereWithAggregatesInput | JobDocumentScalarWhereWithAggregatesInput[]
+    OR?: JobDocumentScalarWhereWithAggregatesInput[]
+    NOT?: JobDocumentScalarWhereWithAggregatesInput | JobDocumentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"JobDocument"> | string
+    jobId?: StringWithAggregatesFilter<"JobDocument"> | string
+    type?: StringWithAggregatesFilter<"JobDocument"> | string
+    fileUrl?: StringWithAggregatesFilter<"JobDocument"> | string
+    fileName?: StringWithAggregatesFilter<"JobDocument"> | string
+    fileSize?: IntNullableWithAggregatesFilter<"JobDocument"> | number | null
+    uploadedBy?: StringWithAggregatesFilter<"JobDocument"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"JobDocument"> | Date | string
   }
 
   export type PaymentTaskWhereInput = {
@@ -155692,6 +157134,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -155732,6 +157175,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUpdateInput = {
@@ -155772,6 +157216,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -155812,6 +157257,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -157553,6 +158999,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
@@ -157561,6 +159009,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateInput = {
@@ -157595,6 +159044,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
@@ -157602,6 +159053,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobUpdateInput = {
@@ -157635,6 +159087,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
@@ -157643,6 +159097,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateInput = {
@@ -157677,6 +159132,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
@@ -157684,6 +159141,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateManyInput = {
@@ -157718,6 +159176,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
   }
 
   export type JobUpdateManyMutationInput = {
@@ -157751,6 +159211,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type JobUncheckedUpdateManyInput = {
@@ -157785,6 +159247,83 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type JobDocumentCreateInput = {
+    id?: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    createdAt?: Date | string
+    job: JobCreateNestedOneWithoutDocumentsInput
+    uploader: UserCreateNestedOneWithoutUploadedDocumentsInput
+  }
+
+  export type JobDocumentUncheckedCreateInput = {
+    id?: string
+    jobId: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    uploadedBy: string
+    createdAt?: Date | string
+  }
+
+  export type JobDocumentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneRequiredWithoutDocumentsNestedInput
+    uploader?: UserUpdateOneRequiredWithoutUploadedDocumentsNestedInput
+  }
+
+  export type JobDocumentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobDocumentCreateManyInput = {
+    id?: string
+    jobId: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    uploadedBy: string
+    createdAt?: Date | string
+  }
+
+  export type JobDocumentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobDocumentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PaymentTaskCreateInput = {
@@ -167972,6 +169511,12 @@ export namespace Prisma {
     none?: JobStepLogWhereInput
   }
 
+  export type JobDocumentListRelationFilter = {
+    every?: JobDocumentWhereInput
+    some?: JobDocumentWhereInput
+    none?: JobDocumentWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -168054,6 +169599,10 @@ export namespace Prisma {
   }
 
   export type JobStepLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type JobDocumentOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -169238,6 +170787,8 @@ export namespace Prisma {
     salesOrderDate?: SortOrder
     paymentDate?: SortOrder
     billingDocsUrl?: SortOrder
+    additionalInformation?: SortOrder
+    requiredDeliveryDate?: SortOrder
   }
 
   export type JobAvgOrderByAggregateInput = {
@@ -169277,6 +170828,8 @@ export namespace Prisma {
     salesOrderDate?: SortOrder
     paymentDate?: SortOrder
     billingDocsUrl?: SortOrder
+    additionalInformation?: SortOrder
+    requiredDeliveryDate?: SortOrder
   }
 
   export type JobMinOrderByAggregateInput = {
@@ -169311,6 +170864,8 @@ export namespace Prisma {
     salesOrderDate?: SortOrder
     paymentDate?: SortOrder
     billingDocsUrl?: SortOrder
+    additionalInformation?: SortOrder
+    requiredDeliveryDate?: SortOrder
   }
 
   export type JobSumOrderByAggregateInput = {
@@ -169321,6 +170876,47 @@ export namespace Prisma {
   export type JobScalarRelationFilter = {
     is?: JobWhereInput
     isNot?: JobWhereInput
+  }
+
+  export type JobDocumentCountOrderByAggregateInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    type?: SortOrder
+    fileUrl?: SortOrder
+    fileName?: SortOrder
+    fileSize?: SortOrder
+    uploadedBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JobDocumentAvgOrderByAggregateInput = {
+    fileSize?: SortOrder
+  }
+
+  export type JobDocumentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    type?: SortOrder
+    fileUrl?: SortOrder
+    fileName?: SortOrder
+    fileSize?: SortOrder
+    uploadedBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JobDocumentMinOrderByAggregateInput = {
+    id?: SortOrder
+    jobId?: SortOrder
+    type?: SortOrder
+    fileUrl?: SortOrder
+    fileName?: SortOrder
+    fileSize?: SortOrder
+    uploadedBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JobDocumentSumOrderByAggregateInput = {
+    fileSize?: SortOrder
   }
 
   export type PaymentTaskCountOrderByAggregateInput = {
@@ -175596,6 +177192,13 @@ export namespace Prisma {
     connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
   }
 
+  export type JobDocumentCreateNestedManyWithoutUploaderInput = {
+    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
+    createMany?: JobDocumentCreateManyUploaderInputEnvelope
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+  }
+
   export type CompanyUncheckedCreateNestedManyWithoutAssignedUserInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -175761,6 +177364,13 @@ export namespace Prisma {
     connectOrCreate?: JobStepLogCreateOrConnectWithoutCompletedByUserInput | JobStepLogCreateOrConnectWithoutCompletedByUserInput[]
     createMany?: JobStepLogCreateManyCompletedByUserInputEnvelope
     connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
+  }
+
+  export type JobDocumentUncheckedCreateNestedManyWithoutUploaderInput = {
+    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
+    createMany?: JobDocumentCreateManyUploaderInputEnvelope
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -176115,6 +177725,20 @@ export namespace Prisma {
     deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
   }
 
+  export type JobDocumentUpdateManyWithoutUploaderNestedInput = {
+    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
+    upsert?: JobDocumentUpsertWithWhereUniqueWithoutUploaderInput | JobDocumentUpsertWithWhereUniqueWithoutUploaderInput[]
+    createMany?: JobDocumentCreateManyUploaderInputEnvelope
+    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    update?: JobDocumentUpdateWithWhereUniqueWithoutUploaderInput | JobDocumentUpdateWithWhereUniqueWithoutUploaderInput[]
+    updateMany?: JobDocumentUpdateManyWithWhereWithoutUploaderInput | JobDocumentUpdateManyWithWhereWithoutUploaderInput[]
+    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
+  }
+
   export type CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -176445,6 +178069,20 @@ export namespace Prisma {
     update?: JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput | JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput[]
     updateMany?: JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput | JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput[]
     deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
+  }
+
+  export type JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput = {
+    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
+    upsert?: JobDocumentUpsertWithWhereUniqueWithoutUploaderInput | JobDocumentUpsertWithWhereUniqueWithoutUploaderInput[]
+    createMany?: JobDocumentCreateManyUploaderInputEnvelope
+    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    update?: JobDocumentUpdateWithWhereUniqueWithoutUploaderInput | JobDocumentUpdateWithWhereUniqueWithoutUploaderInput[]
+    updateMany?: JobDocumentUpdateManyWithWhereWithoutUploaderInput | JobDocumentUpdateManyWithWhereWithoutUploaderInput[]
+    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutMonthlyTargetsInput = {
@@ -177415,6 +179053,13 @@ export namespace Prisma {
     connect?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
   }
 
+  export type JobDocumentCreateNestedManyWithoutJobInput = {
+    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
+    createMany?: JobDocumentCreateManyJobInputEnvelope
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+  }
+
   export type InstallationOrderUncheckedCreateNestedManyWithoutJobInput = {
     create?: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput> | InstallationOrderCreateWithoutJobInput[] | InstallationOrderUncheckedCreateWithoutJobInput[]
     connectOrCreate?: InstallationOrderCreateOrConnectWithoutJobInput | InstallationOrderCreateOrConnectWithoutJobInput[]
@@ -177460,6 +179105,13 @@ export namespace Prisma {
     connectOrCreate?: PaymentTaskCreateOrConnectWithoutJobInput | PaymentTaskCreateOrConnectWithoutJobInput[]
     createMany?: PaymentTaskCreateManyJobInputEnvelope
     connect?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
+  }
+
+  export type JobDocumentUncheckedCreateNestedManyWithoutJobInput = {
+    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
+    createMany?: JobDocumentCreateManyJobInputEnvelope
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
   }
 
   export type InstallationOrderUpdateManyWithoutJobNestedInput = {
@@ -177562,6 +179214,20 @@ export namespace Prisma {
     deleteMany?: PaymentTaskScalarWhereInput | PaymentTaskScalarWhereInput[]
   }
 
+  export type JobDocumentUpdateManyWithoutJobNestedInput = {
+    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
+    upsert?: JobDocumentUpsertWithWhereUniqueWithoutJobInput | JobDocumentUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: JobDocumentCreateManyJobInputEnvelope
+    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    update?: JobDocumentUpdateWithWhereUniqueWithoutJobInput | JobDocumentUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: JobDocumentUpdateManyWithWhereWithoutJobInput | JobDocumentUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
+  }
+
   export type InstallationOrderUncheckedUpdateManyWithoutJobNestedInput = {
     create?: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput> | InstallationOrderCreateWithoutJobInput[] | InstallationOrderUncheckedCreateWithoutJobInput[]
     connectOrCreate?: InstallationOrderCreateOrConnectWithoutJobInput | InstallationOrderCreateOrConnectWithoutJobInput[]
@@ -177650,6 +179316,48 @@ export namespace Prisma {
     update?: PaymentTaskUpdateWithWhereUniqueWithoutJobInput | PaymentTaskUpdateWithWhereUniqueWithoutJobInput[]
     updateMany?: PaymentTaskUpdateManyWithWhereWithoutJobInput | PaymentTaskUpdateManyWithWhereWithoutJobInput[]
     deleteMany?: PaymentTaskScalarWhereInput | PaymentTaskScalarWhereInput[]
+  }
+
+  export type JobDocumentUncheckedUpdateManyWithoutJobNestedInput = {
+    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
+    upsert?: JobDocumentUpsertWithWhereUniqueWithoutJobInput | JobDocumentUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: JobDocumentCreateManyJobInputEnvelope
+    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    update?: JobDocumentUpdateWithWhereUniqueWithoutJobInput | JobDocumentUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: JobDocumentUpdateManyWithWhereWithoutJobInput | JobDocumentUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
+  }
+
+  export type JobCreateNestedOneWithoutDocumentsInput = {
+    create?: XOR<JobCreateWithoutDocumentsInput, JobUncheckedCreateWithoutDocumentsInput>
+    connectOrCreate?: JobCreateOrConnectWithoutDocumentsInput
+    connect?: JobWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutUploadedDocumentsInput = {
+    create?: XOR<UserCreateWithoutUploadedDocumentsInput, UserUncheckedCreateWithoutUploadedDocumentsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUploadedDocumentsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type JobUpdateOneRequiredWithoutDocumentsNestedInput = {
+    create?: XOR<JobCreateWithoutDocumentsInput, JobUncheckedCreateWithoutDocumentsInput>
+    connectOrCreate?: JobCreateOrConnectWithoutDocumentsInput
+    upsert?: JobUpsertWithoutDocumentsInput
+    connect?: JobWhereUniqueInput
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutDocumentsInput, JobUpdateWithoutDocumentsInput>, JobUncheckedUpdateWithoutDocumentsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutUploadedDocumentsNestedInput = {
+    create?: XOR<UserCreateWithoutUploadedDocumentsInput, UserUncheckedCreateWithoutUploadedDocumentsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUploadedDocumentsInput
+    upsert?: UserUpsertWithoutUploadedDocumentsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUploadedDocumentsInput, UserUpdateWithoutUploadedDocumentsInput>, UserUncheckedUpdateWithoutUploadedDocumentsInput>
   }
 
   export type JobCreateNestedOneWithoutPaymentTasksInput = {
@@ -183986,6 +185694,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type JobDocumentCreateWithoutUploaderInput = {
+    id?: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    createdAt?: Date | string
+    job: JobCreateNestedOneWithoutDocumentsInput
+  }
+
+  export type JobDocumentUncheckedCreateWithoutUploaderInput = {
+    id?: string
+    jobId: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    createdAt?: Date | string
+  }
+
+  export type JobDocumentCreateOrConnectWithoutUploaderInput = {
+    where: JobDocumentWhereUniqueInput
+    create: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput>
+  }
+
+  export type JobDocumentCreateManyUploaderInputEnvelope = {
+    data: JobDocumentCreateManyUploaderInput | JobDocumentCreateManyUploaderInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CompanyUpsertWithWhereUniqueWithoutAssignedUserInput = {
     where: CompanyWhereUniqueInput
     update: XOR<CompanyUpdateWithoutAssignedUserInput, CompanyUncheckedUpdateWithoutAssignedUserInput>
@@ -184889,6 +186627,36 @@ export namespace Prisma {
     completedByUserId?: StringNullableFilter<"JobStepLog"> | string | null
   }
 
+  export type JobDocumentUpsertWithWhereUniqueWithoutUploaderInput = {
+    where: JobDocumentWhereUniqueInput
+    update: XOR<JobDocumentUpdateWithoutUploaderInput, JobDocumentUncheckedUpdateWithoutUploaderInput>
+    create: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput>
+  }
+
+  export type JobDocumentUpdateWithWhereUniqueWithoutUploaderInput = {
+    where: JobDocumentWhereUniqueInput
+    data: XOR<JobDocumentUpdateWithoutUploaderInput, JobDocumentUncheckedUpdateWithoutUploaderInput>
+  }
+
+  export type JobDocumentUpdateManyWithWhereWithoutUploaderInput = {
+    where: JobDocumentScalarWhereInput
+    data: XOR<JobDocumentUpdateManyMutationInput, JobDocumentUncheckedUpdateManyWithoutUploaderInput>
+  }
+
+  export type JobDocumentScalarWhereInput = {
+    AND?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
+    OR?: JobDocumentScalarWhereInput[]
+    NOT?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
+    id?: StringFilter<"JobDocument"> | string
+    jobId?: StringFilter<"JobDocument"> | string
+    type?: StringFilter<"JobDocument"> | string
+    fileUrl?: StringFilter<"JobDocument"> | string
+    fileName?: StringFilter<"JobDocument"> | string
+    fileSize?: IntNullableFilter<"JobDocument"> | number | null
+    uploadedBy?: StringFilter<"JobDocument"> | string
+    createdAt?: DateTimeFilter<"JobDocument"> | Date | string
+  }
+
   export type UserCreateWithoutMonthlyTargetsInput = {
     id?: string
     employeeId: string
@@ -184926,6 +186694,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutMonthlyTargetsInput = {
@@ -184965,6 +186734,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutMonthlyTargetsInput = {
@@ -185020,6 +186790,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonthlyTargetsInput = {
@@ -185059,6 +186830,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type CompanyCreateWithoutSchedulesInput = {
@@ -185232,6 +187004,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutSchedulesInput = {
@@ -185271,6 +187044,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutSchedulesInput = {
@@ -185472,6 +187246,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSchedulesInput = {
@@ -185511,6 +187286,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateWithoutEmployeeSaleInput = {
@@ -185550,6 +187326,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutEmployeeSaleInput = {
@@ -185589,6 +187366,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutEmployeeSaleInput = {
@@ -185644,6 +187422,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEmployeeSaleInput = {
@@ -185683,6 +187462,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateWithoutAssignedCompaniesInput = {
@@ -185722,6 +187502,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutAssignedCompaniesInput = {
@@ -185761,6 +187542,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutAssignedCompaniesInput = {
@@ -186222,6 +188004,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedCompaniesInput = {
@@ -186261,6 +188044,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type CompanyInteractionUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -186512,6 +188296,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutCompanyInteractionsInput = {
@@ -186551,6 +188336,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutCompanyInteractionsInput = {
@@ -186697,6 +188483,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCompanyInteractionsInput = {
@@ -186736,6 +188523,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type CompanyCreateWithoutContactsInput = {
@@ -187266,6 +189054,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutQuotationsInput = {
@@ -187305,6 +189094,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutQuotationsInput = {
@@ -187432,6 +189222,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
@@ -187439,6 +189231,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutQuotationInput = {
@@ -187472,6 +189265,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
@@ -187479,6 +189274,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutQuotationInput = {
@@ -187724,6 +189520,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuotationsInput = {
@@ -187763,6 +189560,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type SiteSurveyUpsertWithoutQuotationsInput = {
@@ -187911,6 +189709,8 @@ export namespace Prisma {
     salesOrderDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     paymentDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     billingDocsUrl?: StringNullableFilter<"Job"> | string | null
+    additionalInformation?: StringNullableFilter<"Job"> | string | null
+    requiredDeliveryDate?: DateTimeNullableFilter<"Job"> | Date | string | null
   }
 
   export type ScheduleCreateWithoutTelesaleInput = {
@@ -188076,6 +189876,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutTelesalesInput = {
@@ -188115,6 +189916,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutTelesalesInput = {
@@ -188308,6 +190110,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTelesalesInput = {
@@ -188347,6 +190150,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateWithoutTelesalesKPIsInput = {
@@ -188386,6 +190190,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutTelesalesKPIsInput = {
@@ -188425,6 +190230,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutTelesalesKPIsInput = {
@@ -188480,6 +190286,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTelesalesKPIsInput = {
@@ -188519,6 +190326,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type CompanyCreateWithoutOrdersInput = {
@@ -188726,6 +190534,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutOrdersInput = {
@@ -188765,6 +190574,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutOrdersInput = {
@@ -189065,6 +190875,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -189104,6 +190915,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type OrderStatusLogUpsertWithWhereUniqueWithoutOrderInput = {
@@ -189829,6 +191641,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type JobDocumentCreateWithoutJobInput = {
+    id?: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    createdAt?: Date | string
+    uploader: UserCreateNestedOneWithoutUploadedDocumentsInput
+  }
+
+  export type JobDocumentUncheckedCreateWithoutJobInput = {
+    id?: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    uploadedBy: string
+    createdAt?: Date | string
+  }
+
+  export type JobDocumentCreateOrConnectWithoutJobInput = {
+    where: JobDocumentWhereUniqueInput
+    create: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput>
+  }
+
+  export type JobDocumentCreateManyJobInputEnvelope = {
+    data: JobDocumentCreateManyJobInput | JobDocumentCreateManyJobInput[]
+    skipDuplicates?: boolean
+  }
+
   export type InstallationOrderUpsertWithWhereUniqueWithoutJobInput = {
     where: InstallationOrderWhereUniqueInput
     update: XOR<InstallationOrderUpdateWithoutJobInput, InstallationOrderUncheckedUpdateWithoutJobInput>
@@ -190267,6 +192109,386 @@ export namespace Prisma {
     creditType?: StringNullableFilter<"PaymentTask"> | string | null
   }
 
+  export type JobDocumentUpsertWithWhereUniqueWithoutJobInput = {
+    where: JobDocumentWhereUniqueInput
+    update: XOR<JobDocumentUpdateWithoutJobInput, JobDocumentUncheckedUpdateWithoutJobInput>
+    create: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput>
+  }
+
+  export type JobDocumentUpdateWithWhereUniqueWithoutJobInput = {
+    where: JobDocumentWhereUniqueInput
+    data: XOR<JobDocumentUpdateWithoutJobInput, JobDocumentUncheckedUpdateWithoutJobInput>
+  }
+
+  export type JobDocumentUpdateManyWithWhereWithoutJobInput = {
+    where: JobDocumentScalarWhereInput
+    data: XOR<JobDocumentUpdateManyMutationInput, JobDocumentUncheckedUpdateManyWithoutJobInput>
+  }
+
+  export type JobCreateWithoutDocumentsInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    courierCompany?: string | null
+    deliveryDate?: Date | string | null
+    deliveryMethod?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    billingRegulations?: string | null
+    creditDocsUrl?: string | null
+    creditTerms?: string | null
+    percentageTerms?: string | null
+    salesOrderDate?: Date | string | null
+    paymentDate?: Date | string | null
+    billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
+    installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+    project?: ProjectCreateNestedOneWithoutJobInput
+    repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+    quotation?: QuotationCreateNestedOneWithoutJobsInput
+    paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateWithoutDocumentsInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    quotationId?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    courierCompany?: string | null
+    deliveryDate?: Date | string | null
+    deliveryMethod?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    billingRegulations?: string | null
+    creditDocsUrl?: string | null
+    creditTerms?: string | null
+    percentageTerms?: string | null
+    salesOrderDate?: Date | string | null
+    paymentDate?: Date | string | null
+    billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+    project?: ProjectUncheckedCreateNestedOneWithoutJobInput
+    repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobCreateOrConnectWithoutDocumentsInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutDocumentsInput, JobUncheckedCreateWithoutDocumentsInput>
+  }
+
+  export type UserCreateWithoutUploadedDocumentsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUploadedDocumentsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUploadedDocumentsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUploadedDocumentsInput, UserUncheckedCreateWithoutUploadedDocumentsInput>
+  }
+
+  export type JobUpsertWithoutDocumentsInput = {
+    update: XOR<JobUpdateWithoutDocumentsInput, JobUncheckedUpdateWithoutDocumentsInput>
+    create: XOR<JobCreateWithoutDocumentsInput, JobUncheckedCreateWithoutDocumentsInput>
+    where?: JobWhereInput
+  }
+
+  export type JobUpdateToOneWithWhereWithoutDocumentsInput = {
+    where?: JobWhereInput
+    data: XOR<JobUpdateWithoutDocumentsInput, JobUncheckedUpdateWithoutDocumentsInput>
+  }
+
+  export type JobUpdateWithoutDocumentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+    project?: ProjectUpdateOneWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+    quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutDocumentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+    project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type UserUpsertWithoutUploadedDocumentsInput = {
+    update: XOR<UserUpdateWithoutUploadedDocumentsInput, UserUncheckedUpdateWithoutUploadedDocumentsInput>
+    create: XOR<UserCreateWithoutUploadedDocumentsInput, UserUncheckedCreateWithoutUploadedDocumentsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUploadedDocumentsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUploadedDocumentsInput, UserUncheckedUpdateWithoutUploadedDocumentsInput>
+  }
+
+  export type UserUpdateWithoutUploadedDocumentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUploadedDocumentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+  }
+
   export type JobCreateWithoutPaymentTasksInput = {
     id?: string
     jobNumber: string
@@ -190298,6 +192520,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
@@ -190305,6 +192529,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutPaymentTasksInput = {
@@ -190339,12 +192564,15 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutPaymentTasksInput = {
@@ -190394,6 +192622,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
@@ -190401,6 +192631,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutPaymentTasksInput = {
@@ -190435,12 +192666,15 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type UserCreateWithoutJobStepLogsInput = {
@@ -190480,6 +192714,7 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutJobStepLogsInput = {
@@ -190519,6 +192754,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutJobStepLogsInput = {
@@ -190557,6 +192793,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
@@ -190564,6 +192802,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutStepLogsInput = {
@@ -190598,12 +192837,15 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutStepLogsInput = {
@@ -190659,6 +192901,7 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutJobStepLogsInput = {
@@ -190698,6 +192941,7 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type JobUpsertWithoutStepLogsInput = {
@@ -190742,6 +192986,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
@@ -190749,6 +192995,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutStepLogsInput = {
@@ -190783,12 +193030,15 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutRepairOrderInput = {
@@ -190822,6 +193072,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
@@ -190829,6 +193081,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutRepairOrderInput = {
@@ -190863,12 +193116,15 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutRepairOrderInput = {
@@ -190918,6 +193174,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
@@ -190925,6 +193183,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutRepairOrderInput = {
@@ -190959,12 +193218,15 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutRepairDeliveriesInput = {
@@ -190998,6 +193260,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
@@ -191005,6 +193269,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutRepairDeliveriesInput = {
@@ -191039,12 +193304,15 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutRepairDeliveriesInput = {
@@ -191094,6 +193362,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
@@ -191101,6 +193371,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutRepairDeliveriesInput = {
@@ -191135,12 +193406,15 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutInstallationOrdersInput = {
@@ -191174,6 +193448,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
@@ -191181,6 +193457,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutInstallationOrdersInput = {
@@ -191215,12 +193492,15 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutInstallationOrdersInput = {
@@ -191265,6 +193545,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutInstallationOrdersInput = {
@@ -191304,6 +193585,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutInstallationOrdersInput = {
@@ -191353,6 +193635,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
@@ -191360,6 +193644,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutInstallationOrdersInput = {
@@ -191394,12 +193679,15 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type UserUpsertWithoutInstallationOrdersInput = {
@@ -191450,6 +193738,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInstallationOrdersInput = {
@@ -191489,6 +193778,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type JobCreateWithoutOutsourceRepairsInput = {
@@ -191522,6 +193812,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
@@ -191529,6 +193821,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutOutsourceRepairsInput = {
@@ -191563,12 +193856,15 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutOutsourceRepairsInput = {
@@ -191618,6 +193914,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
@@ -191625,6 +193923,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutOutsourceRepairsInput = {
@@ -191659,12 +193958,15 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type UserCreateWithoutEstimatedRequirementsInput = {
@@ -191704,6 +194006,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutEstimatedRequirementsInput = {
@@ -191743,6 +194046,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutEstimatedRequirementsInput = {
@@ -191787,6 +194091,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutCustomerRequirementsInput = {
@@ -191826,6 +194131,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutCustomerRequirementsInput = {
@@ -191881,6 +194187,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEstimatedRequirementsInput = {
@@ -191920,6 +194227,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUpsertWithoutCustomerRequirementsInput = {
@@ -191970,6 +194278,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCustomerRequirementsInput = {
@@ -192009,6 +194318,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type announcementsCreateWithoutAdminsInput = {
@@ -205302,6 +207612,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
@@ -205309,6 +207621,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutProjectInput = {
@@ -205343,12 +207656,15 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutProjectInput = {
@@ -205393,6 +207709,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutManagedProjectsInput = {
@@ -205432,6 +207749,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutManagedProjectsInput = {
@@ -205655,6 +207973,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
@@ -205662,6 +207982,7 @@ export namespace Prisma {
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutProjectInput = {
@@ -205696,12 +208017,15 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type UserUpsertWithoutManagedProjectsInput = {
@@ -205752,6 +208076,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutManagedProjectsInput = {
@@ -205791,6 +208116,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type ProjectDailyLogUpsertWithWhereUniqueWithoutProjectInput = {
@@ -206253,6 +208579,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutProjectMembersInput = {
@@ -206292,6 +208619,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutProjectMembersInput = {
@@ -206466,6 +208794,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectMembersInput = {
@@ -206505,6 +208834,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateWithoutAssignedTasksInput = {
@@ -206544,6 +208874,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutAssignedTasksInput = {
@@ -206583,6 +208914,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutAssignedTasksInput = {
@@ -206854,6 +209186,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedTasksInput = {
@@ -206893,6 +209226,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type ProjectTaskUpsertWithoutSubtasksInput = {
@@ -207395,6 +209729,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutReportedDailyLogsInput = {
@@ -207434,6 +209769,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutReportedDailyLogsInput = {
@@ -207637,6 +209973,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReportedDailyLogsInput = {
@@ -207676,6 +210013,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type clothing_variantsCreateWithoutClothing_itemsInput = {
@@ -213002,6 +215340,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutAssignedMarketingLeadsInput = {
@@ -213041,6 +215380,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutAssignedMarketingLeadsInput = {
@@ -213085,6 +215425,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutMarketingLeadsInput = {
@@ -213124,6 +215465,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutMarketingLeadsInput = {
@@ -213262,6 +215604,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedMarketingLeadsInput = {
@@ -213301,6 +215644,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUpsertWithoutMarketingLeadsInput = {
@@ -213351,6 +215695,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMarketingLeadsInput = {
@@ -213390,6 +215735,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type QuotationUpsertWithoutMarketingLeadInput = {
@@ -213518,6 +215864,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -213557,6 +215904,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -213612,6 +215960,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -213651,6 +216000,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type QuotationCreateWithoutSiteSurveyInput = {
@@ -213863,6 +216213,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutEstimatedSurveysInput = {
@@ -213902,6 +216253,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutEstimatedSurveysInput = {
@@ -213946,6 +216298,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutSiteSurveysInput = {
@@ -213985,6 +216338,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutSiteSurveysInput = {
@@ -214403,6 +216757,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEstimatedSurveysInput = {
@@ -214442,6 +216797,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUpsertWithoutSiteSurveysInput = {
@@ -214492,6 +216848,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSiteSurveysInput = {
@@ -214531,6 +216888,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type SurveyBillUpsertWithoutSurveyInput = {
@@ -217194,6 +219552,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutServiceSchedulesInput = {
@@ -217233,6 +219592,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutServiceSchedulesInput = {
@@ -217288,6 +219648,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutServiceSchedulesInput = {
@@ -217327,6 +219688,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateWithoutPushSubscriptionsInput = {
@@ -217366,6 +219728,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutPushSubscriptionsInput = {
@@ -217405,6 +219768,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutPushSubscriptionsInput = {
@@ -217460,6 +219824,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPushSubscriptionsInput = {
@@ -217499,6 +219864,7 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type CompanyCreateManyAssignedUserInput = {
@@ -217986,6 +220352,16 @@ export namespace Prisma {
     department: string
     note?: string | null
     completedAt?: Date | string
+  }
+
+  export type JobDocumentCreateManyUploaderInput = {
+    id?: string
+    jobId: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    createdAt?: Date | string
   }
 
   export type CompanyUpdateWithoutAssignedUserInput = {
@@ -219523,6 +221899,36 @@ export namespace Prisma {
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type JobDocumentUpdateWithoutUploaderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneRequiredWithoutDocumentsNestedInput
+  }
+
+  export type JobDocumentUncheckedUpdateWithoutUploaderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobDocumentUncheckedUpdateManyWithoutUploaderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CompanyInteractionCreateManyCompanyInput = {
     id?: string
     userId: string
@@ -220367,6 +222773,8 @@ export namespace Prisma {
     salesOrderDate?: Date | string | null
     paymentDate?: Date | string | null
     billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
   }
 
   export type OrderUpdateWithoutQuotationInput = {
@@ -220473,6 +222881,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
@@ -220480,6 +222890,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutQuotationInput = {
@@ -220513,6 +222924,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
@@ -220520,6 +222933,7 @@ export namespace Prisma {
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateManyWithoutQuotationInput = {
@@ -220553,6 +222967,8 @@ export namespace Prisma {
     salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderStatusLogCreateManyOrderInput = {
@@ -220762,6 +223178,16 @@ export namespace Prisma {
     installmentNo?: number | null
     installmentTotal?: number | null
     creditType?: string | null
+  }
+
+  export type JobDocumentCreateManyJobInput = {
+    id?: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    uploadedBy: string
+    createdAt?: Date | string
   }
 
   export type InstallationOrderUpdateWithoutJobInput = {
@@ -221122,6 +223548,36 @@ export namespace Prisma {
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
     creditType?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type JobDocumentUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    uploader?: UserUpdateOneRequiredWithoutUploadedDocumentsNestedInput
+  }
+
+  export type JobDocumentUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobDocumentUncheckedUpdateManyWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type announcementsCreateManyAdminsInput = {
