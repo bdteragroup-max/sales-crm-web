@@ -49,8 +49,10 @@ export async function updateOrderStatus(
               quotationNumber: true,
               jobs: {
                 select: {
+                  id: true,
                   jobNumber: true,
                   jobType: true,
+                  currentStep: true,
                   item: true
                 }
               }
@@ -83,8 +85,24 @@ export async function updateOrderStatus(
       return updatedOrder;
     }, { maxWait: 15000, timeout: 30000 });
 
+    if (newStatus === 'เสร็จสิ้น' && updated.quotation?.jobs) {
+      const { confirmJobStep } = await import('@/app/actions/jobs');
+      for (const job of updated.quotation.jobs) {
+        if (job.currentStep === 'production') {
+          await confirmJobStep({
+            jobId: job.id,
+            stepKey: 'production',
+            completedBy: user.fullName || "Production Dept",
+            department: 'production',
+            note: 'ดำเนินการอัตโนมัติเมื่อสถานะออเดอร์ผลิตเสร็จสิ้น'
+          }).catch(err => console.error("Auto advance job step error:", err));
+        }
+      }
+    }
+
     revalidatePath("/orders");
     revalidatePath("/dashboard");
+    revalidatePath("/jobs");
     
     return { success: true, data: updated };
   } catch (error: any) {
@@ -305,7 +323,7 @@ export async function startProductionWorkflow(id: string, payload: {
 
 export async function submitQCReport(
   orderId: string, 
-  payload: { status: 'PASS' | 'FAIL'; note?: string }
+  payload: { status: 'PASS' | 'FAIL'; note?: string; qcImages?: string[] }
 ) {
   try {
     const user = await getUser();
@@ -323,6 +341,7 @@ export async function submitQCReport(
         qcBy: user.fullName,
         qcAt: new Date(),
         qcNote: payload.note || null,
+        qcImages: payload.qcImages || [],
         status: payload.status === 'PASS' ? 'เสร็จสิ้น' : 'กำลังผลิต',
         updatedAt: new Date()
       },
@@ -333,8 +352,10 @@ export async function submitQCReport(
             quotationNumber: true,
             jobs: {
               select: {
+                id: true,
                 jobNumber: true,
                 jobType: true,
+                currentStep: true,
                 item: true
               }
             }
@@ -364,6 +385,21 @@ export async function submitQCReport(
           userId: user.id
         }
       });
+    }
+
+    if (payload.status === 'PASS' && updated.quotation?.jobs) {
+      const { confirmJobStep } = await import('@/app/actions/jobs');
+      for (const job of updated.quotation.jobs) {
+        if (job.currentStep === 'production') {
+          await confirmJobStep({
+            jobId: job.id,
+            stepKey: 'production',
+            completedBy: user.fullName || "Production Dept",
+            department: 'production',
+            note: 'ดำเนินการอัตโนมัติเมื่อ QC ผ่าน'
+          }).catch(err => console.error("Auto advance job step error:", err));
+        }
+      }
     }
 
     revalidatePath("/orders");

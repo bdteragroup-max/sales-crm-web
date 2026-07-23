@@ -356,7 +356,8 @@ exports.Prisma.OrderScalarFieldEnum = {
   qcAt: 'qcAt',
   qcBy: 'qcBy',
   qcNote: 'qcNote',
-  qcStatus: 'qcStatus'
+  qcStatus: 'qcStatus',
+  qcImages: 'qcImages'
 };
 
 exports.Prisma.OrderStatusLogScalarFieldEnum = {

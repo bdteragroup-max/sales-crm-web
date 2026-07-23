@@ -26,6 +26,7 @@ model User {
   estimatedRequirements  CustomerRequirement[] @relation("Estimator")
   customerRequirements   CustomerRequirement[]
   installationOrders     InstallationOrder[]
+  uploadedDocuments      JobDocument[]
   assignedMarketingLeads MarketingLead[]       @relation("AssignedLeads")
   marketingLeads         MarketingLead[]
   monthlyTargets         MonthlyTarget[]
@@ -45,7 +46,6 @@ model User {
   telesalesKPIs          TelesalesKPI[]
   employeeSale           EmployeeSale?
   jobStepLogs            JobStepLog[]
-  uploadedDocuments      JobDocument[]
 }
 
 model MonthlyTarget {
@@ -331,6 +331,7 @@ model Order {
   qcBy               String?
   qcNote             String?
   qcStatus           String?           @default("PENDING")
+  qcImages           String[]          @default([])
   company            Company?          @relation(fields: [companyId], references: [id])
   quotation          Quotation?        @relation(fields: [quotationId], references: [id])
   salesperson        User?             @relation(fields: [salespersonId], references: [id])
@@ -388,7 +389,9 @@ model Job {
   paymentDate           DateTime?           @db.Timestamptz(6)
   billingDocsUrl        String?
   additionalInformation String?
+  requiredDeliveryDate  DateTime?
   installationOrders    InstallationOrder[]
+  documents             JobDocument[]
   outsourceRepairs      OutsourceRepair[]
   project               Project?
   repairDeliveries      RepairDelivery[]
@@ -396,8 +399,6 @@ model Job {
   stepLogs              JobStepLog[]
   quotation             Quotation?          @relation(fields: [quotationId], references: [id])
   paymentTasks          PaymentTask[]
-  documents             JobDocument[]
-  requiredDeliveryDate  DateTime?
 
   @@map("jobs")
 }
@@ -405,15 +406,14 @@ model Job {
 model JobDocument {
   id         String   @id @default(cuid())
   jobId      String
-  type       String // "BOQ" | "QUOTATION" | "DRAWING" | "PAYMENT" | "CUSTOMER_DOC"
+  type       String
   fileUrl    String
   fileName   String
-  fileSize   Int? // bytes
-  uploadedBy String // userId
+  fileSize   Int?
+  uploadedBy String
   createdAt  DateTime @default(now())
-
-  job      Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  uploader User @relation(fields: [uploadedBy], references: [id])
+  job        Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  uploader   User     @relation(fields: [uploadedBy], references: [id])
 }
 
 model PaymentTask {

@@ -163,8 +163,10 @@ export default function FuelReportClient() {
       if (emp.dailyList && emp.dailyList.length > 0) {
         emp.dailyList.forEach((day: any) => {
           let routeDetails = "";
+          let gpsCoordinates = "";
           if (day.checkinsList && day.checkinsList.length > 0) {
             routeDetails = "จุดเริ่มต้น: สาขาหลัก";
+            gpsCoordinates = (emp.branch_lat && emp.branch_lon) ? `${emp.branch_lat.toFixed(4)}, ${emp.branch_lon.toFixed(4)}` : "-";
             day.checkinsList.forEach((chk: any, idx: number) => {
               let distanceToPrev = 0;
               if (idx > 0) {
@@ -177,10 +179,13 @@ export default function FuelReportClient() {
                   distanceToPrev = getDistanceFromLatLonInKm(emp.branch_lat, emp.branch_lon, chk.lat, chk.lon);
                 }
               }
+              const coordStr = (chk.lat && chk.lon) ? `${chk.lat.toFixed(4)}, ${chk.lon.toFixed(4)}` : "-";
               if (distanceToPrev > 0) {
                 routeDetails += `\n↓ ${distanceToPrev.toFixed(2)} km\n${idx + 1}. ${chk.type}`;
+                gpsCoordinates += `\n\n${coordStr}`;
               } else {
                 routeDetails += `\n${idx + 1}. ${chk.type}`;
+                gpsCoordinates += `\n${coordStr}`;
               }
             });
             const lastChk = day.checkinsList[day.checkinsList.length - 1];
@@ -188,10 +193,13 @@ export default function FuelReportClient() {
             if (lastChk.lat && lastChk.lon && emp.branch_lat && emp.branch_lon) {
               distanceToBranch = getDistanceFromLatLonInKm(lastChk.lat, lastChk.lon, emp.branch_lat, emp.branch_lon);
             }
+            const branchCoordStr = (emp.branch_lat && emp.branch_lon) ? `${emp.branch_lat.toFixed(4)}, ${emp.branch_lon.toFixed(4)}` : "-";
             if (distanceToBranch > 0) {
               routeDetails += `\n↓ ${distanceToBranch.toFixed(2)} km\nจุดสิ้นสุด: สาขาหลัก`;
+              gpsCoordinates += `\n\n${branchCoordStr}`;
             } else {
               routeDetails += `\nจุดสิ้นสุด: สาขาหลัก`;
+              gpsCoordinates += `\n${branchCoordStr}`;
             }
           }
 
@@ -201,6 +209,7 @@ export default function FuelReportClient() {
             'สาขา': emp.branch_name || 'ไม่ระบุสาขา',
             'วันที่': day.date,
             'รายละเอียดเส้นทาง': routeDetails,
+            'พิกัด GPS': gpsCoordinates,
             'ระยะทาง GPS (กม.)': day.distance,
             'ระยะทางไมล์ (กม.)': day.odometerDistance != null ? day.odometerDistance : '-',
             'ค่าเสื่อม (3บ/กม)': day.depreciation,
@@ -359,7 +368,8 @@ export default function FuelReportClient() {
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">วันที่</th>
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap text-right">ระยะทาง GPS</th>
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap text-right">ระยะทางไมล์รถ</th>
-                            <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap text-right">ค่าเสื่อม (3บ/กม)</th>
+                            <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">ค่าเสื่อม (3บ/กม)</th>
+                            <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">รายละเอียดเส้นทาง</th>
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">พิกัด GPS</th>
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap text-right">เติมน้ำมัน (ลิตร)</th>
                             <th className="px-4 md:px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap text-right">ยอดเงิน (Fleetcard)</th>
@@ -378,12 +388,78 @@ export default function FuelReportClient() {
                                 {day.checkinsList && day.checkinsList.length > 0 ? (
                                   <div className="flex flex-col gap-1.5">
                                     {emp.branch_lat && emp.branch_lon && (
-                                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 text-[10px] mb-1">
+                                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 text-[10px] mb-1 min-h-[24px]">
                                         <span className="font-bold text-indigo-700 w-4 h-4 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 border border-indigo-200">0</span>
                                         <span className="px-1.5 py-0.5 rounded font-medium bg-indigo-50 text-indigo-600 border border-indigo-100 whitespace-nowrap">
                                           จุดเริ่มต้น (สาขาหลัก)
                                         </span>
-                                        <a href={`https://maps.google.com/?q=${emp.branch_lat},${emp.branch_lon}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-0.5 sm:ml-1 whitespace-nowrap">
+                                      </div>
+                                    )}
+                                    {day.checkinsList.map((chk: any, idx: number) => {
+                                      let distanceToPrev = 0;
+                                      if (idx > 0) {
+                                        const prevChk = day.checkinsList[idx - 1];
+                                        if (chk.lat && chk.lon && prevChk.lat && prevChk.lon) {
+                                          distanceToPrev = getDistanceFromLatLonInKm(prevChk.lat, prevChk.lon, chk.lat, chk.lon);
+                                        }
+                                      } else {
+                                        if (chk.lat && chk.lon && emp.branch_lat && emp.branch_lon) {
+                                          distanceToPrev = getDistanceFromLatLonInKm(emp.branch_lat, emp.branch_lon, chk.lat, chk.lon);
+                                        }
+                                      }
+
+                                      return (
+                                        <React.Fragment key={idx}>
+                                          {distanceToPrev > 0 && (
+                                            <div className="text-[10px] text-blue-500 font-medium pl-6 py-0.5 border-l-2 border-dashed border-blue-200 ml-2 my-0.5 flex items-center gap-1 min-h-[20px]">
+                                              ↓ {distanceToPrev.toFixed(2)} km
+                                            </div>
+                                          )}
+                                          <div className="flex items-center gap-1.5 text-[10px] flex-wrap sm:flex-nowrap min-h-[24px]">
+                                            <span className="font-bold text-gray-500 w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">{idx + 1}</span>
+                                            <span className={`px-1.5 py-0.5 rounded font-medium whitespace-nowrap ${chk.isOffsite || chk.isProject || chk.isTrip ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+                                              {chk.type}
+                                            </span>
+                                            {chk.distance > 0 && <span className="text-xs text-gray-500 font-semibold text-right flex-1 sm:ml-auto whitespace-nowrap">{chk.distance} km</span>}
+                                          </div>
+                                        </React.Fragment>
+                                      );
+                                    })}
+                                    {emp.branch_lat && emp.branch_lon && day.checkinsList.length > 0 && (() => {
+                                      const lastChk = day.checkinsList[day.checkinsList.length - 1];
+                                      let distanceToBranch = 0;
+                                      if (lastChk.lat && lastChk.lon) {
+                                        distanceToBranch = getDistanceFromLatLonInKm(lastChk.lat, lastChk.lon, emp.branch_lat, emp.branch_lon);
+                                      }
+                                      return (
+                                        <React.Fragment>
+                                          {distanceToBranch > 0 && (
+                                            <div className="text-[10px] text-blue-500 font-medium pl-6 py-0.5 border-l-2 border-dashed border-blue-200 ml-2 my-0.5 flex items-center gap-1 min-h-[20px]">
+                                              ↓ {distanceToBranch.toFixed(2)} km
+                                            </div>
+                                          )}
+                                          <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 text-[10px] mt-1 min-h-[24px]">
+                                            <span className="font-bold text-indigo-700 w-4 h-4 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 border border-indigo-200">
+                                              {day.checkinsList.length + 1}
+                                            </span>
+                                            <span className="px-1.5 py-0.5 rounded font-medium bg-indigo-50 text-indigo-600 border border-indigo-100 whitespace-nowrap">
+                                              จุดสิ้นสุด (สาขาหลัก)
+                                            </span>
+                                          </div>
+                                        </React.Fragment>
+                                      );
+                                    })()}
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-400 text-xs">-</span>
+                                )}
+                              </td>
+                              <td className="px-4 md:px-6 py-4 text-sm text-gray-600">
+                                {day.checkinsList && day.checkinsList.length > 0 ? (
+                                  <div className="flex flex-col gap-1.5">
+                                    {emp.branch_lat && emp.branch_lon && (
+                                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 text-[10px] mb-1 min-h-[24px]">
+                                        <a href={`https://maps.google.com/?q=${emp.branch_lat},${emp.branch_lon}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-0.5 whitespace-nowrap">
                                           <MapPin size={10} className="shrink-0" />
                                           <span className="whitespace-nowrap">{emp.branch_lat.toFixed(4)}, {emp.branch_lon.toFixed(4)}</span>
                                         </a>
@@ -403,26 +479,21 @@ export default function FuelReportClient() {
                                       }
 
                                       return (
-                                        <React.Fragment key={idx}>
+                                        <React.Fragment key={`gps-${idx}`}>
                                           {distanceToPrev > 0 && (
-                                            <div className="text-[10px] text-blue-500 font-medium pl-6 py-0.5 border-l-2 border-dashed border-blue-200 ml-2 my-0.5 flex items-center gap-1">
-                                              ↓ {distanceToPrev.toFixed(2)} km
+                                            <div className="text-[10px] text-transparent select-none font-medium pl-6 py-0.5 border-l-2 border-transparent ml-2 my-0.5 flex items-center gap-1 min-h-[20px]">
+                                              |
                                             </div>
                                           )}
-                                          <div className="flex items-center gap-1.5 text-[10px] flex-wrap sm:flex-nowrap">
-                                            <span className="font-bold text-gray-500 w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">{idx + 1}</span>
-                                            <span className={`px-1.5 py-0.5 rounded font-medium whitespace-nowrap ${chk.isOffsite || chk.isProject || chk.isTrip ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
-                                              {chk.type}
-                                            </span>
+                                          <div className="flex items-center gap-1.5 text-[10px] flex-wrap sm:flex-nowrap min-h-[24px]">
                                             {chk.lat && chk.lon ? (
                                               <a href={`https://maps.google.com/?q=${chk.lat},${chk.lon}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-0.5 whitespace-nowrap">
                                                 <MapPin size={10} className="shrink-0" />
                                                 <span className="whitespace-nowrap">{chk.lat.toFixed(4)}, {chk.lon.toFixed(4)}</span>
                                               </a>
                                             ) : (
-                                               <span className="text-gray-400">-</span>
+                                              <span className="text-gray-400">-</span>
                                             )}
-                                            {chk.distance > 0 && <span className="text-xs text-gray-500 font-semibold text-right flex-1 sm:ml-auto whitespace-nowrap">{chk.distance} km</span>}
                                           </div>
                                         </React.Fragment>
                                       );
@@ -436,18 +507,12 @@ export default function FuelReportClient() {
                                       return (
                                         <React.Fragment>
                                           {distanceToBranch > 0 && (
-                                            <div className="text-[10px] text-blue-500 font-medium pl-6 py-0.5 border-l-2 border-dashed border-blue-200 ml-2 my-0.5 flex items-center gap-1">
-                                              ↓ {distanceToBranch.toFixed(2)} km
+                                            <div className="text-[10px] text-transparent select-none font-medium pl-6 py-0.5 border-l-2 border-transparent ml-2 my-0.5 flex items-center gap-1 min-h-[20px]">
+                                              |
                                             </div>
                                           )}
-                                          <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 text-[10px] mt-1">
-                                            <span className="font-bold text-indigo-700 w-4 h-4 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 border border-indigo-200">
-                                              {day.checkinsList.length + 1}
-                                            </span>
-                                            <span className="px-1.5 py-0.5 rounded font-medium bg-indigo-50 text-indigo-600 border border-indigo-100 whitespace-nowrap">
-                                              จุดสิ้นสุด (สาขาหลัก)
-                                            </span>
-                                            <a href={`https://maps.google.com/?q=${emp.branch_lat},${emp.branch_lon}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-0.5 sm:ml-1 whitespace-nowrap">
+                                          <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 text-[10px] mt-1 min-h-[24px]">
+                                            <a href={`https://maps.google.com/?q=${emp.branch_lat},${emp.branch_lon}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-0.5 whitespace-nowrap">
                                               <MapPin size={10} className="shrink-0" />
                                               <span className="whitespace-nowrap">{emp.branch_lat.toFixed(4)}, {emp.branch_lon.toFixed(4)}</span>
                                             </a>

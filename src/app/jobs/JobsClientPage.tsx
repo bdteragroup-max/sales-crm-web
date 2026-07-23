@@ -218,15 +218,27 @@ function JobProcurementStatus({ customerName, projectName }: { customerName: str
 
 // ── Job Production Status ──────────────────────
 function JobProductionStatus({ job, userRole }: { job: Job, userRole?: string }) {
-  const productionOrder = job.quotation?.orders?.find((o: any) => o.productionDeadline || o.estimatedDays);
+  const productionOrder = job.quotation?.orders?.[0];
   if (!productionOrder) return null;
 
   const qcStatus = productionOrder.qcStatus || 'PENDING';
+  const orderStatus = productionOrder.status || 'รอดำเนินการ';
 
   return (
     <div className="mt-5 pt-5 border-t border-gray-100">
       <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">สถานะการผลิต & QC</p>
       <div className="flex flex-wrap items-stretch gap-4">
+        {/* Overall Status */}
+        <div className={`p-4 rounded-xl border shadow-sm flex items-center gap-4 w-fit pr-8 ${orderStatus === 'เสร็จสิ้น' ? 'bg-green-50 border-green-100' : 'bg-blue-50 border-blue-100'}`}>
+          <div className={`p-2 rounded-full ${orderStatus === 'เสร็จสิ้น' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
+            {orderStatus === 'เสร็จสิ้น' ? <CheckCircle2 size={16} /> : <Wrench size={16} />}
+          </div>
+          <div>
+            <p className="text-xs font-bold mb-0.5 text-gray-800">สถานะใบสั่งผลิต:</p>
+            <p className={`text-sm font-black ${orderStatus === 'เสร็จสิ้น' ? 'text-green-700' : 'text-blue-700'}`}>{orderStatus}</p>
+          </div>
+        </div>
+
         {/* Production Schedule */}
         <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-100 shadow-sm flex items-center gap-4 min-w-[280px]">
           <div className="p-2 bg-amber-100 text-amber-600 rounded-full">
@@ -987,6 +999,11 @@ export default function JobsClientPage({
 
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                       <JobTypeBadge type={job.jobType} />
+                      {job.quotation?.orders?.[0] && (
+                        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-[9px] font-black tracking-widest uppercase ${job.quotation.orders[0].status === 'เสร็จสิ้น' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`} title={`QC: ${job.quotation.orders[0].qcStatus || 'PENDING'}`}>
+                          <Wrench size={10} /> ผลิต: {job.quotation.orders[0].status || 'รอดำเนินการ'}
+                        </div>
+                      )}
                       <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border
                         ${isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs)
                           ? "bg-emerald-50 text-emerald-600 border-emerald-200"
@@ -1150,6 +1167,11 @@ export default function JobsClientPage({
                       <td className="px-5 py-4 whitespace-nowrap">
                         <div className="flex flex-col gap-1 w-32">
                           <JobTypeBadge type={job.jobType} />
+                          {job.quotation?.orders?.[0] && (
+                            <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded border text-[9px] font-bold w-fit ${job.quotation.orders[0].status === 'เสร็จสิ้น' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`} title={`QC: ${job.quotation.orders[0].qcStatus || 'PENDING'}`}>
+                              <Wrench size={10} /> ผลิต: {job.quotation.orders[0].status || 'รอดำเนินการ'}
+                            </div>
+                          )}
                           {(job.jobType === 'Project' || job.jobType === 'งานโปรเจค') && (
                             job.project ? (
                               <a href={`/projects/${job.project.id}`} className="text-[10px] font-bold text-brand-red hover:underline flex items-center gap-1 w-fit">

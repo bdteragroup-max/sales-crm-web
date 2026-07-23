@@ -26,6 +26,7 @@ model User {
   estimatedRequirements  CustomerRequirement[] @relation("Estimator")
   customerRequirements   CustomerRequirement[]
   installationOrders     InstallationOrder[]
+  uploadedDocuments      JobDocument[]
   assignedMarketingLeads MarketingLead[]       @relation("AssignedLeads")
   marketingLeads         MarketingLead[]
   monthlyTargets         MonthlyTarget[]
@@ -45,7 +46,6 @@ model User {
   telesalesKPIs          TelesalesKPI[]
   employeeSale           EmployeeSale?
   jobStepLogs            JobStepLog[]
-  uploadedDocuments      JobDocument[]
 }
 
 model MonthlyTarget {
@@ -331,6 +331,7 @@ model Order {
   qcBy               String?
   qcNote             String?
   qcStatus           String?           @default("PENDING")
+  qcImages           String[]          @default([])
   company            Company?          @relation(fields: [companyId], references: [id])
   quotation          Quotation?        @relation(fields: [quotationId], references: [id])
   salesperson        User?             @relation(fields: [salespersonId], references: [id])
@@ -356,64 +357,63 @@ model OrderStatusLog {
 }
 
 model Job {
-  id                 String              @id @default(cuid())
-  jobNumber          String              @unique
-  companyCode        String
-  jobType            String              @default("")
-  month              Int
-  yearBe             Int
-  dateClosed         DateTime            @db.Timestamptz(6)
-  customerName       String
-  item               String?
-  quotationNumber    String?
-  poNumber           String?
-  sellerName         String?
-  quotationId        String?
-  currentStep        String              @default("sales") @map("current_step")
-  flowVariant        String?             @map("flow_variant")
-  createdAt          DateTime            @default(now()) @db.Timestamptz(6)
-  updatedAt          DateTime            @updatedAt @db.Timestamptz(6)
-  courierCompany     String?
-  deliveryDate       DateTime?           @db.Timestamptz(6)
-  deliveryMethod     String?
-  trackingNumber     String?
-  trackingPhotoUrl   String?
-  paymentMethod      String?
-  paymentStatus      String?             @default("pending")
-  billingRegulations String?
-  creditDocsUrl      String?
-  creditTerms        String?
-  percentageTerms    String?
-  salesOrderDate     DateTime?           @db.Timestamptz(6)
-  paymentDate        DateTime?           @db.Timestamptz(6)
-  billingDocsUrl     String?
+  id                    String              @id @default(cuid())
+  jobNumber             String              @unique
+  companyCode           String
+  jobType               String              @default("")
+  month                 Int
+  yearBe                Int
+  dateClosed            DateTime            @db.Timestamptz(6)
+  customerName          String
+  item                  String?
+  quotationNumber       String?
+  poNumber              String?
+  sellerName            String?
+  quotationId           String?
+  currentStep           String              @default("sales") @map("current_step")
+  flowVariant           String?             @map("flow_variant")
+  createdAt             DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime            @updatedAt @db.Timestamptz(6)
+  courierCompany        String?
+  deliveryDate          DateTime?           @db.Timestamptz(6)
+  deliveryMethod        String?
+  trackingNumber        String?
+  trackingPhotoUrl      String?
+  paymentMethod         String?
+  paymentStatus         String?             @default("pending")
+  billingRegulations    String?
+  creditDocsUrl         String?
+  creditTerms           String?
+  percentageTerms       String?
+  salesOrderDate        DateTime?           @db.Timestamptz(6)
+  paymentDate           DateTime?           @db.Timestamptz(6)
+  billingDocsUrl        String?
   additionalInformation String?
-  installationOrders InstallationOrder[]
-  outsourceRepairs   OutsourceRepair[]
-  project            Project?
-  repairDeliveries   RepairDelivery[]
-  repairOrder        RepairOrder?
-  stepLogs           JobStepLog[]
-  quotation          Quotation?          @relation(fields: [quotationId], references: [id])
-  paymentTasks       PaymentTask[]
-  documents          JobDocument[]
-  requiredDeliveryDate DateTime?
+  requiredDeliveryDate  DateTime?
+  installationOrders    InstallationOrder[]
+  documents             JobDocument[]
+  outsourceRepairs      OutsourceRepair[]
+  project               Project?
+  repairDeliveries      RepairDelivery[]
+  repairOrder           RepairOrder?
+  stepLogs              JobStepLog[]
+  quotation             Quotation?          @relation(fields: [quotationId], references: [id])
+  paymentTasks          PaymentTask[]
 
   @@map("jobs")
 }
 
 model JobDocument {
-  id          String   @id @default(cuid())
-  jobId       String
-  type        String   // "BOQ" | "QUOTATION" | "DRAWING" | "PAYMENT" | "CUSTOMER_DOC"
-  fileUrl     String
-  fileName    String
-  fileSize    Int?     // bytes
-  uploadedBy  String   // userId
-  createdAt   DateTime @default(now())
-
-  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  uploader    User     @relation(fields: [uploadedBy], references: [id])
+  id         String   @id @default(cuid())
+  jobId      String
+  type       String
+  fileUrl    String
+  fileName   String
+  fileSize   Int?
+  uploadedBy String
+  createdAt  DateTime @default(now())
+  job        Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  uploader   User     @relation(fields: [uploadedBy], references: [id])
 }
 
 model PaymentTask {

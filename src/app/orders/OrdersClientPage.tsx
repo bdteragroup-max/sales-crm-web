@@ -47,7 +47,7 @@ export default function OrdersClientPage({
   const [showQCModalOrder, setShowQCModalOrder] = useState<any>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
-  const handleSubmitQC = async (data: { status: 'PASS' | 'FAIL'; note?: string }) => {
+  const handleSubmitQC = async (data: { status: 'PASS' | 'FAIL'; note?: string; qcImages?: string[] }) => {
     if (!showQCModalOrder) return;
     try {
       const res = await submitQCReport(showQCModalOrder.id, data);
@@ -67,6 +67,7 @@ export default function OrdersClientPage({
             status: 'เสร็จสิ้น',
             qcStatus: data.status,
             qcNote: data.note,
+            qcImages: data.qcImages || [],
             qcBy: 'คุณ',
             qcAt: new Date().toISOString()
           } : o
@@ -77,6 +78,7 @@ export default function OrdersClientPage({
             status: 'เสร็จสิ้น',
             qcStatus: data.status,
             qcNote: data.note,
+            qcImages: data.qcImages || [],
             qcBy: 'คุณ',
             qcAt: new Date().toISOString()
           });
@@ -482,6 +484,15 @@ export default function OrdersClientPage({
                     <p className="text-[10px] text-red-600 mt-1 line-clamp-2" title={selectedOrder.qcNote}>
                       หมายเหตุ: {selectedOrder.qcNote}
                     </p>
+                  )}
+                  {selectedOrder.qcImages && selectedOrder.qcImages.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {selectedOrder.qcImages.map((url: string, idx: number) => (
+                        <a key={idx} href={url} target="_blank" rel="noreferrer" className="block w-12 h-12 rounded-lg border border-gray-200 overflow-hidden hover:opacity-80 transition-opacity shadow-sm bg-white">
+                          <img src={url} alt={`QC Image ${idx + 1}`} className="w-full h-full object-cover" />
+                        </a>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>

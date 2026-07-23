@@ -10517,6 +10517,7 @@ export namespace Prisma {
     estimatedRequirements: number
     customerRequirements: number
     installationOrders: number
+    uploadedDocuments: number
     assignedMarketingLeads: number
     marketingLeads: number
     monthlyTargets: number
@@ -10535,7 +10536,6 @@ export namespace Prisma {
     telesales: number
     telesalesKPIs: number
     jobStepLogs: number
-    uploadedDocuments: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10544,6 +10544,7 @@ export namespace Prisma {
     estimatedRequirements?: boolean | UserCountOutputTypeCountEstimatedRequirementsArgs
     customerRequirements?: boolean | UserCountOutputTypeCountCustomerRequirementsArgs
     installationOrders?: boolean | UserCountOutputTypeCountInstallationOrdersArgs
+    uploadedDocuments?: boolean | UserCountOutputTypeCountUploadedDocumentsArgs
     assignedMarketingLeads?: boolean | UserCountOutputTypeCountAssignedMarketingLeadsArgs
     marketingLeads?: boolean | UserCountOutputTypeCountMarketingLeadsArgs
     monthlyTargets?: boolean | UserCountOutputTypeCountMonthlyTargetsArgs
@@ -10562,7 +10563,6 @@ export namespace Prisma {
     telesales?: boolean | UserCountOutputTypeCountTelesalesArgs
     telesalesKPIs?: boolean | UserCountOutputTypeCountTelesalesKPIsArgs
     jobStepLogs?: boolean | UserCountOutputTypeCountJobStepLogsArgs
-    uploadedDocuments?: boolean | UserCountOutputTypeCountUploadedDocumentsArgs
   }
 
   // Custom InputTypes
@@ -10609,6 +10609,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountInstallationOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InstallationOrderWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUploadedDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobDocumentWhereInput
   }
 
   /**
@@ -10735,13 +10742,6 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountJobStepLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: JobStepLogWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountUploadedDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: JobDocumentWhereInput
   }
 
 
@@ -10947,20 +10947,20 @@ export namespace Prisma {
 
   export type JobCountOutputType = {
     installationOrders: number
+    documents: number
     outsourceRepairs: number
     repairDeliveries: number
     stepLogs: number
     paymentTasks: number
-    documents: number
   }
 
   export type JobCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     installationOrders?: boolean | JobCountOutputTypeCountInstallationOrdersArgs
+    documents?: boolean | JobCountOutputTypeCountDocumentsArgs
     outsourceRepairs?: boolean | JobCountOutputTypeCountOutsourceRepairsArgs
     repairDeliveries?: boolean | JobCountOutputTypeCountRepairDeliveriesArgs
     stepLogs?: boolean | JobCountOutputTypeCountStepLogsArgs
     paymentTasks?: boolean | JobCountOutputTypeCountPaymentTasksArgs
-    documents?: boolean | JobCountOutputTypeCountDocumentsArgs
   }
 
   // Custom InputTypes
@@ -10979,6 +10979,13 @@ export namespace Prisma {
    */
   export type JobCountOutputTypeCountInstallationOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InstallationOrderWhereInput
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobDocumentWhereInput
   }
 
   /**
@@ -11007,13 +11014,6 @@ export namespace Prisma {
    */
   export type JobCountOutputTypeCountPaymentTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaymentTaskWhereInput
-  }
-
-  /**
-   * JobCountOutputType without action
-   */
-  export type JobCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: JobDocumentWhereInput
   }
 
 
@@ -12438,6 +12438,7 @@ export namespace Prisma {
     estimatedRequirements?: boolean | User$estimatedRequirementsArgs<ExtArgs>
     customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
     installationOrders?: boolean | User$installationOrdersArgs<ExtArgs>
+    uploadedDocuments?: boolean | User$uploadedDocumentsArgs<ExtArgs>
     assignedMarketingLeads?: boolean | User$assignedMarketingLeadsArgs<ExtArgs>
     marketingLeads?: boolean | User$marketingLeadsArgs<ExtArgs>
     monthlyTargets?: boolean | User$monthlyTargetsArgs<ExtArgs>
@@ -12457,7 +12458,6 @@ export namespace Prisma {
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
     jobStepLogs?: boolean | User$jobStepLogsArgs<ExtArgs>
-    uploadedDocuments?: boolean | User$uploadedDocumentsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -12516,6 +12516,7 @@ export namespace Prisma {
     estimatedRequirements?: boolean | User$estimatedRequirementsArgs<ExtArgs>
     customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
     installationOrders?: boolean | User$installationOrdersArgs<ExtArgs>
+    uploadedDocuments?: boolean | User$uploadedDocumentsArgs<ExtArgs>
     assignedMarketingLeads?: boolean | User$assignedMarketingLeadsArgs<ExtArgs>
     marketingLeads?: boolean | User$marketingLeadsArgs<ExtArgs>
     monthlyTargets?: boolean | User$monthlyTargetsArgs<ExtArgs>
@@ -12535,7 +12536,6 @@ export namespace Prisma {
     telesalesKPIs?: boolean | User$telesalesKPIsArgs<ExtArgs>
     employeeSale?: boolean | User$employeeSaleArgs<ExtArgs>
     jobStepLogs?: boolean | User$jobStepLogsArgs<ExtArgs>
-    uploadedDocuments?: boolean | User$uploadedDocumentsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -12549,6 +12549,7 @@ export namespace Prisma {
       estimatedRequirements: Prisma.$CustomerRequirementPayload<ExtArgs>[]
       customerRequirements: Prisma.$CustomerRequirementPayload<ExtArgs>[]
       installationOrders: Prisma.$InstallationOrderPayload<ExtArgs>[]
+      uploadedDocuments: Prisma.$JobDocumentPayload<ExtArgs>[]
       assignedMarketingLeads: Prisma.$MarketingLeadPayload<ExtArgs>[]
       marketingLeads: Prisma.$MarketingLeadPayload<ExtArgs>[]
       monthlyTargets: Prisma.$MonthlyTargetPayload<ExtArgs>[]
@@ -12568,7 +12569,6 @@ export namespace Prisma {
       telesalesKPIs: Prisma.$TelesalesKPIPayload<ExtArgs>[]
       employeeSale: Prisma.$EmployeeSalePayload<ExtArgs> | null
       jobStepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
-      uploadedDocuments: Prisma.$JobDocumentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12983,6 +12983,7 @@ export namespace Prisma {
     estimatedRequirements<T extends User$estimatedRequirementsArgs<ExtArgs> = {}>(args?: Subset<T, User$estimatedRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerRequirements<T extends User$customerRequirementsArgs<ExtArgs> = {}>(args?: Subset<T, User$customerRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     installationOrders<T extends User$installationOrdersArgs<ExtArgs> = {}>(args?: Subset<T, User$installationOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    uploadedDocuments<T extends User$uploadedDocumentsArgs<ExtArgs> = {}>(args?: Subset<T, User$uploadedDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedMarketingLeads<T extends User$assignedMarketingLeadsArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedMarketingLeadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     marketingLeads<T extends User$marketingLeadsArgs<ExtArgs> = {}>(args?: Subset<T, User$marketingLeadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     monthlyTargets<T extends User$monthlyTargetsArgs<ExtArgs> = {}>(args?: Subset<T, User$monthlyTargetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyTargetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -13002,7 +13003,6 @@ export namespace Prisma {
     telesalesKPIs<T extends User$telesalesKPIsArgs<ExtArgs> = {}>(args?: Subset<T, User$telesalesKPIsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalesKPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     employeeSale<T extends User$employeeSaleArgs<ExtArgs> = {}>(args?: Subset<T, User$employeeSaleArgs<ExtArgs>>): Prisma__EmployeeSaleClient<$Result.GetResult<Prisma.$EmployeeSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     jobStepLogs<T extends User$jobStepLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$jobStepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    uploadedDocuments<T extends User$uploadedDocumentsArgs<ExtArgs> = {}>(args?: Subset<T, User$uploadedDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13558,6 +13558,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.uploadedDocuments
+   */
+  export type User$uploadedDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    where?: JobDocumentWhereInput
+    orderBy?: JobDocumentOrderByWithRelationInput | JobDocumentOrderByWithRelationInput[]
+    cursor?: JobDocumentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JobDocumentScalarFieldEnum | JobDocumentScalarFieldEnum[]
+  }
+
+  /**
    * User.assignedMarketingLeads
    */
   export type User$assignedMarketingLeadsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -14006,30 +14030,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: JobStepLogScalarFieldEnum | JobStepLogScalarFieldEnum[]
-  }
-
-  /**
-   * User.uploadedDocuments
-   */
-  export type User$uploadedDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JobDocument
-     */
-    select?: JobDocumentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JobDocument
-     */
-    omit?: JobDocumentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JobDocumentInclude<ExtArgs> | null
-    where?: JobDocumentWhereInput
-    orderBy?: JobDocumentOrderByWithRelationInput | JobDocumentOrderByWithRelationInput[]
-    cursor?: JobDocumentWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: JobDocumentScalarFieldEnum | JobDocumentScalarFieldEnum[]
   }
 
   /**
@@ -28837,6 +28837,7 @@ export namespace Prisma {
     qcBy: number
     qcNote: number
     qcStatus: number
+    qcImages: number
     _all: number
   }
 
@@ -28921,6 +28922,7 @@ export namespace Prisma {
     qcBy?: true
     qcNote?: true
     qcStatus?: true
+    qcImages?: true
     _all?: true
   }
 
@@ -29032,6 +29034,7 @@ export namespace Prisma {
     qcBy: string | null
     qcNote: string | null
     qcStatus: string | null
+    qcImages: string[]
     _count: OrderCountAggregateOutputType | null
     _avg: OrderAvgAggregateOutputType | null
     _sum: OrderSumAggregateOutputType | null
@@ -29075,6 +29078,7 @@ export namespace Prisma {
     qcBy?: boolean
     qcNote?: boolean
     qcStatus?: boolean
+    qcImages?: boolean
     company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
@@ -29105,6 +29109,7 @@ export namespace Prisma {
     qcBy?: boolean
     qcNote?: boolean
     qcStatus?: boolean
+    qcImages?: boolean
     company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
@@ -29132,6 +29137,7 @@ export namespace Prisma {
     qcBy?: boolean
     qcNote?: boolean
     qcStatus?: boolean
+    qcImages?: boolean
     company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
@@ -29159,9 +29165,10 @@ export namespace Prisma {
     qcBy?: boolean
     qcNote?: boolean
     qcStatus?: boolean
+    qcImages?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderNumber" | "companyId" | "quotationId" | "salespersonId" | "status" | "value" | "priority" | "targetDeliveryDate" | "createdAt" | "updatedAt" | "estimatedDays" | "materialReady" | "prFulfilledAt" | "prNote" | "prRequired" | "productionDeadline" | "qcAt" | "qcBy" | "qcNote" | "qcStatus", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderNumber" | "companyId" | "quotationId" | "salespersonId" | "status" | "value" | "priority" | "targetDeliveryDate" | "createdAt" | "updatedAt" | "estimatedDays" | "materialReady" | "prFulfilledAt" | "prNote" | "prRequired" | "productionDeadline" | "qcAt" | "qcBy" | "qcNote" | "qcStatus" | "qcImages", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
@@ -29212,6 +29219,7 @@ export namespace Prisma {
       qcBy: string | null
       qcNote: string | null
       qcStatus: string | null
+      qcImages: string[]
     }, ExtArgs["result"]["order"]>
     composites: {}
   }
@@ -29661,6 +29669,7 @@ export namespace Prisma {
     readonly qcBy: FieldRef<"Order", 'String'>
     readonly qcNote: FieldRef<"Order", 'String'>
     readonly qcStatus: FieldRef<"Order", 'String'>
+    readonly qcImages: FieldRef<"Order", 'String[]'>
   }
     
 
@@ -31688,6 +31697,7 @@ export namespace Prisma {
     additionalInformation?: boolean
     requiredDeliveryDate?: boolean
     installationOrders?: boolean | Job$installationOrdersArgs<ExtArgs>
+    documents?: boolean | Job$documentsArgs<ExtArgs>
     outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
     project?: boolean | Job$projectArgs<ExtArgs>
     repairDeliveries?: boolean | Job$repairDeliveriesArgs<ExtArgs>
@@ -31695,7 +31705,6 @@ export namespace Prisma {
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
     quotation?: boolean | Job$quotationArgs<ExtArgs>
     paymentTasks?: boolean | Job$paymentTasksArgs<ExtArgs>
-    documents?: boolean | Job$documentsArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["job"]>
 
@@ -31812,6 +31821,7 @@ export namespace Prisma {
   export type JobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobNumber" | "companyCode" | "jobType" | "month" | "yearBe" | "dateClosed" | "customerName" | "item" | "quotationNumber" | "poNumber" | "sellerName" | "quotationId" | "currentStep" | "flowVariant" | "createdAt" | "updatedAt" | "courierCompany" | "deliveryDate" | "deliveryMethod" | "trackingNumber" | "trackingPhotoUrl" | "paymentMethod" | "paymentStatus" | "billingRegulations" | "creditDocsUrl" | "creditTerms" | "percentageTerms" | "salesOrderDate" | "paymentDate" | "billingDocsUrl" | "additionalInformation" | "requiredDeliveryDate", ExtArgs["result"]["job"]>
   export type JobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     installationOrders?: boolean | Job$installationOrdersArgs<ExtArgs>
+    documents?: boolean | Job$documentsArgs<ExtArgs>
     outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
     project?: boolean | Job$projectArgs<ExtArgs>
     repairDeliveries?: boolean | Job$repairDeliveriesArgs<ExtArgs>
@@ -31819,7 +31829,6 @@ export namespace Prisma {
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
     quotation?: boolean | Job$quotationArgs<ExtArgs>
     paymentTasks?: boolean | Job$paymentTasksArgs<ExtArgs>
-    documents?: boolean | Job$documentsArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type JobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -31833,6 +31842,7 @@ export namespace Prisma {
     name: "Job"
     objects: {
       installationOrders: Prisma.$InstallationOrderPayload<ExtArgs>[]
+      documents: Prisma.$JobDocumentPayload<ExtArgs>[]
       outsourceRepairs: Prisma.$OutsourceRepairPayload<ExtArgs>[]
       project: Prisma.$ProjectPayload<ExtArgs> | null
       repairDeliveries: Prisma.$RepairDeliveryPayload<ExtArgs>[]
@@ -31840,7 +31850,6 @@ export namespace Prisma {
       stepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
       quotation: Prisma.$QuotationPayload<ExtArgs> | null
       paymentTasks: Prisma.$PaymentTaskPayload<ExtArgs>[]
-      documents: Prisma.$JobDocumentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -32271,6 +32280,7 @@ export namespace Prisma {
   export interface Prisma__JobClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     installationOrders<T extends Job$installationOrdersArgs<ExtArgs> = {}>(args?: Subset<T, Job$installationOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    documents<T extends Job$documentsArgs<ExtArgs> = {}>(args?: Subset<T, Job$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     outsourceRepairs<T extends Job$outsourceRepairsArgs<ExtArgs> = {}>(args?: Subset<T, Job$outsourceRepairsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     project<T extends Job$projectArgs<ExtArgs> = {}>(args?: Subset<T, Job$projectArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     repairDeliveries<T extends Job$repairDeliveriesArgs<ExtArgs> = {}>(args?: Subset<T, Job$repairDeliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -32278,7 +32288,6 @@ export namespace Prisma {
     stepLogs<T extends Job$stepLogsArgs<ExtArgs> = {}>(args?: Subset<T, Job$stepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotation<T extends Job$quotationArgs<ExtArgs> = {}>(args?: Subset<T, Job$quotationArgs<ExtArgs>>): Prisma__QuotationClient<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     paymentTasks<T extends Job$paymentTasksArgs<ExtArgs> = {}>(args?: Subset<T, Job$paymentTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    documents<T extends Job$documentsArgs<ExtArgs> = {}>(args?: Subset<T, Job$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -32766,6 +32775,30 @@ export namespace Prisma {
   }
 
   /**
+   * Job.documents
+   */
+  export type Job$documentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobDocument
+     */
+    select?: JobDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobDocument
+     */
+    omit?: JobDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobDocumentInclude<ExtArgs> | null
+    where?: JobDocumentWhereInput
+    orderBy?: JobDocumentOrderByWithRelationInput | JobDocumentOrderByWithRelationInput[]
+    cursor?: JobDocumentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JobDocumentScalarFieldEnum | JobDocumentScalarFieldEnum[]
+  }
+
+  /**
    * Job.outsourceRepairs
    */
   export type Job$outsourceRepairsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -32916,30 +32949,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PaymentTaskScalarFieldEnum | PaymentTaskScalarFieldEnum[]
-  }
-
-  /**
-   * Job.documents
-   */
-  export type Job$documentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the JobDocument
-     */
-    select?: JobDocumentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the JobDocument
-     */
-    omit?: JobDocumentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: JobDocumentInclude<ExtArgs> | null
-    where?: JobDocumentWhereInput
-    orderBy?: JobDocumentOrderByWithRelationInput | JobDocumentOrderByWithRelationInput[]
-    cursor?: JobDocumentWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: JobDocumentScalarFieldEnum | JobDocumentScalarFieldEnum[]
   }
 
   /**
@@ -144403,7 +144412,8 @@ export namespace Prisma {
     qcAt: 'qcAt',
     qcBy: 'qcBy',
     qcNote: 'qcNote',
-    qcStatus: 'qcStatus'
+    qcStatus: 'qcStatus',
+    qcImages: 'qcImages'
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
@@ -146346,6 +146356,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementListRelationFilter
     customerRequirements?: CustomerRequirementListRelationFilter
     installationOrders?: InstallationOrderListRelationFilter
+    uploadedDocuments?: JobDocumentListRelationFilter
     assignedMarketingLeads?: MarketingLeadListRelationFilter
     marketingLeads?: MarketingLeadListRelationFilter
     monthlyTargets?: MonthlyTargetListRelationFilter
@@ -146365,7 +146376,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
     jobStepLogs?: JobStepLogListRelationFilter
-    uploadedDocuments?: JobDocumentListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -146387,6 +146397,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementOrderByRelationAggregateInput
     customerRequirements?: CustomerRequirementOrderByRelationAggregateInput
     installationOrders?: InstallationOrderOrderByRelationAggregateInput
+    uploadedDocuments?: JobDocumentOrderByRelationAggregateInput
     assignedMarketingLeads?: MarketingLeadOrderByRelationAggregateInput
     marketingLeads?: MarketingLeadOrderByRelationAggregateInput
     monthlyTargets?: MonthlyTargetOrderByRelationAggregateInput
@@ -146406,7 +146417,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIOrderByRelationAggregateInput
     employeeSale?: EmployeeSaleOrderByWithRelationInput
     jobStepLogs?: JobStepLogOrderByRelationAggregateInput
-    uploadedDocuments?: JobDocumentOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -146431,6 +146441,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementListRelationFilter
     customerRequirements?: CustomerRequirementListRelationFilter
     installationOrders?: InstallationOrderListRelationFilter
+    uploadedDocuments?: JobDocumentListRelationFilter
     assignedMarketingLeads?: MarketingLeadListRelationFilter
     marketingLeads?: MarketingLeadListRelationFilter
     monthlyTargets?: MonthlyTargetListRelationFilter
@@ -146450,7 +146461,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIListRelationFilter
     employeeSale?: XOR<EmployeeSaleNullableScalarRelationFilter, EmployeeSaleWhereInput> | null
     jobStepLogs?: JobStepLogListRelationFilter
-    uploadedDocuments?: JobDocumentListRelationFilter
   }, "id" | "employeeId" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -147751,6 +147761,7 @@ export namespace Prisma {
     qcBy?: StringNullableFilter<"Order"> | string | null
     qcNote?: StringNullableFilter<"Order"> | string | null
     qcStatus?: StringNullableFilter<"Order"> | string | null
+    qcImages?: StringNullableListFilter<"Order">
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -147780,6 +147791,7 @@ export namespace Prisma {
     qcBy?: SortOrderInput | SortOrder
     qcNote?: SortOrderInput | SortOrder
     qcStatus?: SortOrderInput | SortOrder
+    qcImages?: SortOrder
     company?: CompanyOrderByWithRelationInput
     quotation?: QuotationOrderByWithRelationInput
     salesperson?: UserOrderByWithRelationInput
@@ -147812,6 +147824,7 @@ export namespace Prisma {
     qcBy?: StringNullableFilter<"Order"> | string | null
     qcNote?: StringNullableFilter<"Order"> | string | null
     qcStatus?: StringNullableFilter<"Order"> | string | null
+    qcImages?: StringNullableListFilter<"Order">
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -147841,6 +147854,7 @@ export namespace Prisma {
     qcBy?: SortOrderInput | SortOrder
     qcNote?: SortOrderInput | SortOrder
     qcStatus?: SortOrderInput | SortOrder
+    qcImages?: SortOrder
     _count?: OrderCountOrderByAggregateInput
     _avg?: OrderAvgOrderByAggregateInput
     _max?: OrderMaxOrderByAggregateInput
@@ -147873,6 +147887,7 @@ export namespace Prisma {
     qcBy?: StringNullableWithAggregatesFilter<"Order"> | string | null
     qcNote?: StringNullableWithAggregatesFilter<"Order"> | string | null
     qcStatus?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    qcImages?: StringNullableListFilter<"Order">
   }
 
   export type OrderStatusLogWhereInput = {
@@ -147973,6 +147988,7 @@ export namespace Prisma {
     additionalInformation?: StringNullableFilter<"Job"> | string | null
     requiredDeliveryDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     installationOrders?: InstallationOrderListRelationFilter
+    documents?: JobDocumentListRelationFilter
     outsourceRepairs?: OutsourceRepairListRelationFilter
     project?: XOR<ProjectNullableScalarRelationFilter, ProjectWhereInput> | null
     repairDeliveries?: RepairDeliveryListRelationFilter
@@ -147980,7 +147996,6 @@ export namespace Prisma {
     stepLogs?: JobStepLogListRelationFilter
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     paymentTasks?: PaymentTaskListRelationFilter
-    documents?: JobDocumentListRelationFilter
   }
 
   export type JobOrderByWithRelationInput = {
@@ -148018,6 +148033,7 @@ export namespace Prisma {
     additionalInformation?: SortOrderInput | SortOrder
     requiredDeliveryDate?: SortOrderInput | SortOrder
     installationOrders?: InstallationOrderOrderByRelationAggregateInput
+    documents?: JobDocumentOrderByRelationAggregateInput
     outsourceRepairs?: OutsourceRepairOrderByRelationAggregateInput
     project?: ProjectOrderByWithRelationInput
     repairDeliveries?: RepairDeliveryOrderByRelationAggregateInput
@@ -148025,7 +148041,6 @@ export namespace Prisma {
     stepLogs?: JobStepLogOrderByRelationAggregateInput
     quotation?: QuotationOrderByWithRelationInput
     paymentTasks?: PaymentTaskOrderByRelationAggregateInput
-    documents?: JobDocumentOrderByRelationAggregateInput
   }
 
   export type JobWhereUniqueInput = Prisma.AtLeast<{
@@ -148066,6 +148081,7 @@ export namespace Prisma {
     additionalInformation?: StringNullableFilter<"Job"> | string | null
     requiredDeliveryDate?: DateTimeNullableFilter<"Job"> | Date | string | null
     installationOrders?: InstallationOrderListRelationFilter
+    documents?: JobDocumentListRelationFilter
     outsourceRepairs?: OutsourceRepairListRelationFilter
     project?: XOR<ProjectNullableScalarRelationFilter, ProjectWhereInput> | null
     repairDeliveries?: RepairDeliveryListRelationFilter
@@ -148073,7 +148089,6 @@ export namespace Prisma {
     stepLogs?: JobStepLogListRelationFilter
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     paymentTasks?: PaymentTaskListRelationFilter
-    documents?: JobDocumentListRelationFilter
   }, "id" | "jobNumber">
 
   export type JobOrderByWithAggregationInput = {
@@ -157115,6 +157130,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -157134,7 +157150,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -157156,6 +157171,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -157175,7 +157191,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUpdateInput = {
@@ -157197,6 +157212,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -157216,7 +157232,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -157238,6 +157253,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -157257,7 +157273,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -158752,6 +158767,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
@@ -158781,6 +158797,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
     purchaseRequests?: PurchaseRequestUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -158804,6 +158821,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
@@ -158833,6 +158851,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -158859,6 +158878,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
   }
 
   export type OrderUpdateManyMutationInput = {
@@ -158880,6 +158900,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
   }
 
   export type OrderUncheckedUpdateManyInput = {
@@ -158904,6 +158925,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
   }
 
   export type OrderStatusLogCreateInput = {
@@ -159002,6 +159024,7 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
@@ -159009,7 +159032,6 @@ export namespace Prisma {
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
-    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateInput = {
@@ -159047,13 +159069,13 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
-    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobUpdateInput = {
@@ -159090,6 +159112,7 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
@@ -159097,7 +159120,6 @@ export namespace Prisma {
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateInput = {
@@ -159135,13 +159157,13 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateManyInput = {
@@ -169410,6 +169432,12 @@ export namespace Prisma {
     none?: InstallationOrderWhereInput
   }
 
+  export type JobDocumentListRelationFilter = {
+    every?: JobDocumentWhereInput
+    some?: JobDocumentWhereInput
+    none?: JobDocumentWhereInput
+  }
+
   export type MarketingLeadListRelationFilter = {
     every?: MarketingLeadWhereInput
     some?: MarketingLeadWhereInput
@@ -169511,12 +169539,6 @@ export namespace Prisma {
     none?: JobStepLogWhereInput
   }
 
-  export type JobDocumentListRelationFilter = {
-    every?: JobDocumentWhereInput
-    some?: JobDocumentWhereInput
-    none?: JobDocumentWhereInput
-  }
-
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -169535,6 +169557,10 @@ export namespace Prisma {
   }
 
   export type InstallationOrderOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type JobDocumentOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -169599,10 +169625,6 @@ export namespace Prisma {
   }
 
   export type JobStepLogOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type JobDocumentOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -170607,6 +170629,7 @@ export namespace Prisma {
     qcBy?: SortOrder
     qcNote?: SortOrder
     qcStatus?: SortOrder
+    qcImages?: SortOrder
   }
 
   export type OrderAvgOrderByAggregateInput = {
@@ -177060,6 +177083,13 @@ export namespace Prisma {
     connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
   }
 
+  export type JobDocumentCreateNestedManyWithoutUploaderInput = {
+    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
+    createMany?: JobDocumentCreateManyUploaderInputEnvelope
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+  }
+
   export type MarketingLeadCreateNestedManyWithoutAssignedToInput = {
     create?: XOR<MarketingLeadCreateWithoutAssignedToInput, MarketingLeadUncheckedCreateWithoutAssignedToInput> | MarketingLeadCreateWithoutAssignedToInput[] | MarketingLeadUncheckedCreateWithoutAssignedToInput[]
     connectOrCreate?: MarketingLeadCreateOrConnectWithoutAssignedToInput | MarketingLeadCreateOrConnectWithoutAssignedToInput[]
@@ -177192,13 +177222,6 @@ export namespace Prisma {
     connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
   }
 
-  export type JobDocumentCreateNestedManyWithoutUploaderInput = {
-    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
-    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
-    createMany?: JobDocumentCreateManyUploaderInputEnvelope
-    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-  }
-
   export type CompanyUncheckedCreateNestedManyWithoutAssignedUserInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -177232,6 +177255,13 @@ export namespace Prisma {
     connectOrCreate?: InstallationOrderCreateOrConnectWithoutTechnicianUserInput | InstallationOrderCreateOrConnectWithoutTechnicianUserInput[]
     createMany?: InstallationOrderCreateManyTechnicianUserInputEnvelope
     connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+  }
+
+  export type JobDocumentUncheckedCreateNestedManyWithoutUploaderInput = {
+    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
+    createMany?: JobDocumentCreateManyUploaderInputEnvelope
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
   }
 
   export type MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput = {
@@ -177366,13 +177396,6 @@ export namespace Prisma {
     connect?: JobStepLogWhereUniqueInput | JobStepLogWhereUniqueInput[]
   }
 
-  export type JobDocumentUncheckedCreateNestedManyWithoutUploaderInput = {
-    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
-    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
-    createMany?: JobDocumentCreateManyUploaderInputEnvelope
-    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-  }
-
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -177461,6 +177484,20 @@ export namespace Prisma {
     update?: InstallationOrderUpdateWithWhereUniqueWithoutTechnicianUserInput | InstallationOrderUpdateWithWhereUniqueWithoutTechnicianUserInput[]
     updateMany?: InstallationOrderUpdateManyWithWhereWithoutTechnicianUserInput | InstallationOrderUpdateManyWithWhereWithoutTechnicianUserInput[]
     deleteMany?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
+  }
+
+  export type JobDocumentUpdateManyWithoutUploaderNestedInput = {
+    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
+    upsert?: JobDocumentUpsertWithWhereUniqueWithoutUploaderInput | JobDocumentUpsertWithWhereUniqueWithoutUploaderInput[]
+    createMany?: JobDocumentCreateManyUploaderInputEnvelope
+    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    update?: JobDocumentUpdateWithWhereUniqueWithoutUploaderInput | JobDocumentUpdateWithWhereUniqueWithoutUploaderInput[]
+    updateMany?: JobDocumentUpdateManyWithWhereWithoutUploaderInput | JobDocumentUpdateManyWithWhereWithoutUploaderInput[]
+    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
   }
 
   export type MarketingLeadUpdateManyWithoutAssignedToNestedInput = {
@@ -177725,20 +177762,6 @@ export namespace Prisma {
     deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
   }
 
-  export type JobDocumentUpdateManyWithoutUploaderNestedInput = {
-    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
-    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
-    upsert?: JobDocumentUpsertWithWhereUniqueWithoutUploaderInput | JobDocumentUpsertWithWhereUniqueWithoutUploaderInput[]
-    createMany?: JobDocumentCreateManyUploaderInputEnvelope
-    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    update?: JobDocumentUpdateWithWhereUniqueWithoutUploaderInput | JobDocumentUpdateWithWhereUniqueWithoutUploaderInput[]
-    updateMany?: JobDocumentUpdateManyWithWhereWithoutUploaderInput | JobDocumentUpdateManyWithWhereWithoutUploaderInput[]
-    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
-  }
-
   export type CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -177807,6 +177830,20 @@ export namespace Prisma {
     update?: InstallationOrderUpdateWithWhereUniqueWithoutTechnicianUserInput | InstallationOrderUpdateWithWhereUniqueWithoutTechnicianUserInput[]
     updateMany?: InstallationOrderUpdateManyWithWhereWithoutTechnicianUserInput | InstallationOrderUpdateManyWithWhereWithoutTechnicianUserInput[]
     deleteMany?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
+  }
+
+  export type JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput = {
+    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
+    upsert?: JobDocumentUpsertWithWhereUniqueWithoutUploaderInput | JobDocumentUpsertWithWhereUniqueWithoutUploaderInput[]
+    createMany?: JobDocumentCreateManyUploaderInputEnvelope
+    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    update?: JobDocumentUpdateWithWhereUniqueWithoutUploaderInput | JobDocumentUpdateWithWhereUniqueWithoutUploaderInput[]
+    updateMany?: JobDocumentUpdateManyWithWhereWithoutUploaderInput | JobDocumentUpdateManyWithWhereWithoutUploaderInput[]
+    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
   }
 
   export type MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput = {
@@ -178069,20 +178106,6 @@ export namespace Prisma {
     update?: JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput | JobStepLogUpdateWithWhereUniqueWithoutCompletedByUserInput[]
     updateMany?: JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput | JobStepLogUpdateManyWithWhereWithoutCompletedByUserInput[]
     deleteMany?: JobStepLogScalarWhereInput | JobStepLogScalarWhereInput[]
-  }
-
-  export type JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput = {
-    create?: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput> | JobDocumentCreateWithoutUploaderInput[] | JobDocumentUncheckedCreateWithoutUploaderInput[]
-    connectOrCreate?: JobDocumentCreateOrConnectWithoutUploaderInput | JobDocumentCreateOrConnectWithoutUploaderInput[]
-    upsert?: JobDocumentUpsertWithWhereUniqueWithoutUploaderInput | JobDocumentUpsertWithWhereUniqueWithoutUploaderInput[]
-    createMany?: JobDocumentCreateManyUploaderInputEnvelope
-    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    update?: JobDocumentUpdateWithWhereUniqueWithoutUploaderInput | JobDocumentUpdateWithWhereUniqueWithoutUploaderInput[]
-    updateMany?: JobDocumentUpdateManyWithWhereWithoutUploaderInput | JobDocumentUpdateManyWithWhereWithoutUploaderInput[]
-    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutMonthlyTargetsInput = {
@@ -178846,6 +178869,10 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTelesalesKPIsInput, UserUpdateWithoutTelesalesKPIsInput>, UserUncheckedUpdateWithoutTelesalesKPIsInput>
   }
 
+  export type OrderCreateqcImagesInput = {
+    set: string[]
+  }
+
   export type CompanyCreateNestedOneWithoutOrdersInput = {
     create?: XOR<CompanyCreateWithoutOrdersInput, CompanyUncheckedCreateWithoutOrdersInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutOrdersInput
@@ -178898,6 +178925,11 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type OrderUpdateqcImagesInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type CompanyUpdateOneWithoutOrdersNestedInput = {
@@ -179007,6 +179039,13 @@ export namespace Prisma {
     connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
   }
 
+  export type JobDocumentCreateNestedManyWithoutJobInput = {
+    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
+    createMany?: JobDocumentCreateManyJobInputEnvelope
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+  }
+
   export type OutsourceRepairCreateNestedManyWithoutJobInput = {
     create?: XOR<OutsourceRepairCreateWithoutJobInput, OutsourceRepairUncheckedCreateWithoutJobInput> | OutsourceRepairCreateWithoutJobInput[] | OutsourceRepairUncheckedCreateWithoutJobInput[]
     connectOrCreate?: OutsourceRepairCreateOrConnectWithoutJobInput | OutsourceRepairCreateOrConnectWithoutJobInput[]
@@ -179053,18 +179092,18 @@ export namespace Prisma {
     connect?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
   }
 
-  export type JobDocumentCreateNestedManyWithoutJobInput = {
-    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
-    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
-    createMany?: JobDocumentCreateManyJobInputEnvelope
-    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-  }
-
   export type InstallationOrderUncheckedCreateNestedManyWithoutJobInput = {
     create?: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput> | InstallationOrderCreateWithoutJobInput[] | InstallationOrderUncheckedCreateWithoutJobInput[]
     connectOrCreate?: InstallationOrderCreateOrConnectWithoutJobInput | InstallationOrderCreateOrConnectWithoutJobInput[]
     createMany?: InstallationOrderCreateManyJobInputEnvelope
     connect?: InstallationOrderWhereUniqueInput | InstallationOrderWhereUniqueInput[]
+  }
+
+  export type JobDocumentUncheckedCreateNestedManyWithoutJobInput = {
+    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
+    createMany?: JobDocumentCreateManyJobInputEnvelope
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
   }
 
   export type OutsourceRepairUncheckedCreateNestedManyWithoutJobInput = {
@@ -179107,13 +179146,6 @@ export namespace Prisma {
     connect?: PaymentTaskWhereUniqueInput | PaymentTaskWhereUniqueInput[]
   }
 
-  export type JobDocumentUncheckedCreateNestedManyWithoutJobInput = {
-    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
-    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
-    createMany?: JobDocumentCreateManyJobInputEnvelope
-    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-  }
-
   export type InstallationOrderUpdateManyWithoutJobNestedInput = {
     create?: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput> | InstallationOrderCreateWithoutJobInput[] | InstallationOrderUncheckedCreateWithoutJobInput[]
     connectOrCreate?: InstallationOrderCreateOrConnectWithoutJobInput | InstallationOrderCreateOrConnectWithoutJobInput[]
@@ -179126,6 +179158,20 @@ export namespace Prisma {
     update?: InstallationOrderUpdateWithWhereUniqueWithoutJobInput | InstallationOrderUpdateWithWhereUniqueWithoutJobInput[]
     updateMany?: InstallationOrderUpdateManyWithWhereWithoutJobInput | InstallationOrderUpdateManyWithWhereWithoutJobInput[]
     deleteMany?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
+  }
+
+  export type JobDocumentUpdateManyWithoutJobNestedInput = {
+    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
+    upsert?: JobDocumentUpsertWithWhereUniqueWithoutJobInput | JobDocumentUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: JobDocumentCreateManyJobInputEnvelope
+    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    update?: JobDocumentUpdateWithWhereUniqueWithoutJobInput | JobDocumentUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: JobDocumentUpdateManyWithWhereWithoutJobInput | JobDocumentUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
   }
 
   export type OutsourceRepairUpdateManyWithoutJobNestedInput = {
@@ -179214,20 +179260,6 @@ export namespace Prisma {
     deleteMany?: PaymentTaskScalarWhereInput | PaymentTaskScalarWhereInput[]
   }
 
-  export type JobDocumentUpdateManyWithoutJobNestedInput = {
-    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
-    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
-    upsert?: JobDocumentUpsertWithWhereUniqueWithoutJobInput | JobDocumentUpsertWithWhereUniqueWithoutJobInput[]
-    createMany?: JobDocumentCreateManyJobInputEnvelope
-    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    update?: JobDocumentUpdateWithWhereUniqueWithoutJobInput | JobDocumentUpdateWithWhereUniqueWithoutJobInput[]
-    updateMany?: JobDocumentUpdateManyWithWhereWithoutJobInput | JobDocumentUpdateManyWithWhereWithoutJobInput[]
-    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
-  }
-
   export type InstallationOrderUncheckedUpdateManyWithoutJobNestedInput = {
     create?: XOR<InstallationOrderCreateWithoutJobInput, InstallationOrderUncheckedCreateWithoutJobInput> | InstallationOrderCreateWithoutJobInput[] | InstallationOrderUncheckedCreateWithoutJobInput[]
     connectOrCreate?: InstallationOrderCreateOrConnectWithoutJobInput | InstallationOrderCreateOrConnectWithoutJobInput[]
@@ -179240,6 +179272,20 @@ export namespace Prisma {
     update?: InstallationOrderUpdateWithWhereUniqueWithoutJobInput | InstallationOrderUpdateWithWhereUniqueWithoutJobInput[]
     updateMany?: InstallationOrderUpdateManyWithWhereWithoutJobInput | InstallationOrderUpdateManyWithWhereWithoutJobInput[]
     deleteMany?: InstallationOrderScalarWhereInput | InstallationOrderScalarWhereInput[]
+  }
+
+  export type JobDocumentUncheckedUpdateManyWithoutJobNestedInput = {
+    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
+    upsert?: JobDocumentUpsertWithWhereUniqueWithoutJobInput | JobDocumentUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: JobDocumentCreateManyJobInputEnvelope
+    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
+    update?: JobDocumentUpdateWithWhereUniqueWithoutJobInput | JobDocumentUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: JobDocumentUpdateManyWithWhereWithoutJobInput | JobDocumentUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
   }
 
   export type OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput = {
@@ -179316,20 +179362,6 @@ export namespace Prisma {
     update?: PaymentTaskUpdateWithWhereUniqueWithoutJobInput | PaymentTaskUpdateWithWhereUniqueWithoutJobInput[]
     updateMany?: PaymentTaskUpdateManyWithWhereWithoutJobInput | PaymentTaskUpdateManyWithWhereWithoutJobInput[]
     deleteMany?: PaymentTaskScalarWhereInput | PaymentTaskScalarWhereInput[]
-  }
-
-  export type JobDocumentUncheckedUpdateManyWithoutJobNestedInput = {
-    create?: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput> | JobDocumentCreateWithoutJobInput[] | JobDocumentUncheckedCreateWithoutJobInput[]
-    connectOrCreate?: JobDocumentCreateOrConnectWithoutJobInput | JobDocumentCreateOrConnectWithoutJobInput[]
-    upsert?: JobDocumentUpsertWithWhereUniqueWithoutJobInput | JobDocumentUpsertWithWhereUniqueWithoutJobInput[]
-    createMany?: JobDocumentCreateManyJobInputEnvelope
-    set?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    disconnect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    delete?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    connect?: JobDocumentWhereUniqueInput | JobDocumentWhereUniqueInput[]
-    update?: JobDocumentUpdateWithWhereUniqueWithoutJobInput | JobDocumentUpdateWithWhereUniqueWithoutJobInput[]
-    updateMany?: JobDocumentUpdateManyWithWhereWithoutJobInput | JobDocumentUpdateManyWithWhereWithoutJobInput[]
-    deleteMany?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
   }
 
   export type JobCreateNestedOneWithoutDocumentsInput = {
@@ -184695,6 +184727,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type JobDocumentCreateWithoutUploaderInput = {
+    id?: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    createdAt?: Date | string
+    job: JobCreateNestedOneWithoutDocumentsInput
+  }
+
+  export type JobDocumentUncheckedCreateWithoutUploaderInput = {
+    id?: string
+    jobId: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    createdAt?: Date | string
+  }
+
+  export type JobDocumentCreateOrConnectWithoutUploaderInput = {
+    where: JobDocumentWhereUniqueInput
+    create: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput>
+  }
+
+  export type JobDocumentCreateManyUploaderInputEnvelope = {
+    data: JobDocumentCreateManyUploaderInput | JobDocumentCreateManyUploaderInput[]
+    skipDuplicates?: boolean
+  }
+
   export type MarketingLeadCreateWithoutAssignedToInput = {
     id?: string
     customerName: string
@@ -184856,6 +184918,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
@@ -184883,6 +184946,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
     purchaseRequests?: PurchaseRequestUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -185694,36 +185758,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type JobDocumentCreateWithoutUploaderInput = {
-    id?: string
-    type: string
-    fileUrl: string
-    fileName: string
-    fileSize?: number | null
-    createdAt?: Date | string
-    job: JobCreateNestedOneWithoutDocumentsInput
-  }
-
-  export type JobDocumentUncheckedCreateWithoutUploaderInput = {
-    id?: string
-    jobId: string
-    type: string
-    fileUrl: string
-    fileName: string
-    fileSize?: number | null
-    createdAt?: Date | string
-  }
-
-  export type JobDocumentCreateOrConnectWithoutUploaderInput = {
-    where: JobDocumentWhereUniqueInput
-    create: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput>
-  }
-
-  export type JobDocumentCreateManyUploaderInputEnvelope = {
-    data: JobDocumentCreateManyUploaderInput | JobDocumentCreateManyUploaderInput[]
-    skipDuplicates?: boolean
-  }
-
   export type CompanyUpsertWithWhereUniqueWithoutAssignedUserInput = {
     where: CompanyWhereUniqueInput
     update: XOR<CompanyUpdateWithoutAssignedUserInput, CompanyUncheckedUpdateWithoutAssignedUserInput>
@@ -185922,6 +185956,36 @@ export namespace Prisma {
     technicianUserId?: StringNullableFilter<"InstallationOrder"> | string | null
   }
 
+  export type JobDocumentUpsertWithWhereUniqueWithoutUploaderInput = {
+    where: JobDocumentWhereUniqueInput
+    update: XOR<JobDocumentUpdateWithoutUploaderInput, JobDocumentUncheckedUpdateWithoutUploaderInput>
+    create: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput>
+  }
+
+  export type JobDocumentUpdateWithWhereUniqueWithoutUploaderInput = {
+    where: JobDocumentWhereUniqueInput
+    data: XOR<JobDocumentUpdateWithoutUploaderInput, JobDocumentUncheckedUpdateWithoutUploaderInput>
+  }
+
+  export type JobDocumentUpdateManyWithWhereWithoutUploaderInput = {
+    where: JobDocumentScalarWhereInput
+    data: XOR<JobDocumentUpdateManyMutationInput, JobDocumentUncheckedUpdateManyWithoutUploaderInput>
+  }
+
+  export type JobDocumentScalarWhereInput = {
+    AND?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
+    OR?: JobDocumentScalarWhereInput[]
+    NOT?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
+    id?: StringFilter<"JobDocument"> | string
+    jobId?: StringFilter<"JobDocument"> | string
+    type?: StringFilter<"JobDocument"> | string
+    fileUrl?: StringFilter<"JobDocument"> | string
+    fileName?: StringFilter<"JobDocument"> | string
+    fileSize?: IntNullableFilter<"JobDocument"> | number | null
+    uploadedBy?: StringFilter<"JobDocument"> | string
+    createdAt?: DateTimeFilter<"JobDocument"> | Date | string
+  }
+
   export type MarketingLeadUpsertWithWhereUniqueWithoutAssignedToInput = {
     where: MarketingLeadWhereUniqueInput
     update: XOR<MarketingLeadUpdateWithoutAssignedToInput, MarketingLeadUncheckedUpdateWithoutAssignedToInput>
@@ -186074,6 +186138,7 @@ export namespace Prisma {
     qcBy?: StringNullableFilter<"Order"> | string | null
     qcNote?: StringNullableFilter<"Order"> | string | null
     qcStatus?: StringNullableFilter<"Order"> | string | null
+    qcImages?: StringNullableListFilter<"Order">
   }
 
   export type ProjectUpsertWithWhereUniqueWithoutManagerInput = {
@@ -186627,36 +186692,6 @@ export namespace Prisma {
     completedByUserId?: StringNullableFilter<"JobStepLog"> | string | null
   }
 
-  export type JobDocumentUpsertWithWhereUniqueWithoutUploaderInput = {
-    where: JobDocumentWhereUniqueInput
-    update: XOR<JobDocumentUpdateWithoutUploaderInput, JobDocumentUncheckedUpdateWithoutUploaderInput>
-    create: XOR<JobDocumentCreateWithoutUploaderInput, JobDocumentUncheckedCreateWithoutUploaderInput>
-  }
-
-  export type JobDocumentUpdateWithWhereUniqueWithoutUploaderInput = {
-    where: JobDocumentWhereUniqueInput
-    data: XOR<JobDocumentUpdateWithoutUploaderInput, JobDocumentUncheckedUpdateWithoutUploaderInput>
-  }
-
-  export type JobDocumentUpdateManyWithWhereWithoutUploaderInput = {
-    where: JobDocumentScalarWhereInput
-    data: XOR<JobDocumentUpdateManyMutationInput, JobDocumentUncheckedUpdateManyWithoutUploaderInput>
-  }
-
-  export type JobDocumentScalarWhereInput = {
-    AND?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
-    OR?: JobDocumentScalarWhereInput[]
-    NOT?: JobDocumentScalarWhereInput | JobDocumentScalarWhereInput[]
-    id?: StringFilter<"JobDocument"> | string
-    jobId?: StringFilter<"JobDocument"> | string
-    type?: StringFilter<"JobDocument"> | string
-    fileUrl?: StringFilter<"JobDocument"> | string
-    fileName?: StringFilter<"JobDocument"> | string
-    fileSize?: IntNullableFilter<"JobDocument"> | number | null
-    uploadedBy?: StringFilter<"JobDocument"> | string
-    createdAt?: DateTimeFilter<"JobDocument"> | Date | string
-  }
-
   export type UserCreateWithoutMonthlyTargetsInput = {
     id?: string
     employeeId: string
@@ -186676,6 +186711,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -186694,7 +186730,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutMonthlyTargetsInput = {
@@ -186716,6 +186751,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -186734,7 +186770,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutMonthlyTargetsInput = {
@@ -186772,6 +186807,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -186790,7 +186826,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonthlyTargetsInput = {
@@ -186812,6 +186847,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -186830,7 +186866,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type CompanyCreateWithoutSchedulesInput = {
@@ -186986,6 +187021,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -187004,7 +187040,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutSchedulesInput = {
@@ -187026,6 +187061,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -187044,7 +187080,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutSchedulesInput = {
@@ -187228,6 +187263,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -187246,7 +187282,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSchedulesInput = {
@@ -187268,6 +187303,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -187286,7 +187322,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateWithoutEmployeeSaleInput = {
@@ -187308,6 +187343,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -187326,7 +187362,6 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutEmployeeSaleInput = {
@@ -187348,6 +187383,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -187366,7 +187402,6 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutEmployeeSaleInput = {
@@ -187404,6 +187439,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -187422,7 +187458,6 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEmployeeSaleInput = {
@@ -187444,6 +187479,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -187462,7 +187498,6 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateWithoutAssignedCompaniesInput = {
@@ -187483,6 +187518,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -187502,7 +187538,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutAssignedCompaniesInput = {
@@ -187523,6 +187558,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -187542,7 +187578,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutAssignedCompaniesInput = {
@@ -187633,6 +187668,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
     statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
@@ -187660,6 +187696,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
     purchaseRequests?: PurchaseRequestUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -187985,6 +188022,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -188004,7 +188042,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedCompaniesInput = {
@@ -188025,6 +188062,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -188044,7 +188082,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type CompanyInteractionUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -188277,6 +188314,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -188296,7 +188334,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutCompanyInteractionsInput = {
@@ -188317,6 +188354,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -188336,7 +188374,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutCompanyInteractionsInput = {
@@ -188464,6 +188501,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -188483,7 +188521,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCompanyInteractionsInput = {
@@ -188504,6 +188541,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -188523,7 +188561,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type CompanyCreateWithoutContactsInput = {
@@ -188862,6 +188899,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     company?: CompanyCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
     statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
@@ -188889,6 +188927,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
     purchaseRequests?: PurchaseRequestUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -189036,6 +189075,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -189054,7 +189094,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutQuotationsInput = {
@@ -189076,6 +189115,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -189094,7 +189134,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutQuotationsInput = {
@@ -189225,13 +189264,13 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
-    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutQuotationInput = {
@@ -189268,13 +189307,13 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
-    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutQuotationInput = {
@@ -189502,6 +189541,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -189520,7 +189560,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuotationsInput = {
@@ -189542,6 +189581,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -189560,7 +189600,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type SiteSurveyUpsertWithoutQuotationsInput = {
@@ -189858,6 +189897,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -189876,7 +189916,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutTelesalesInput = {
@@ -189898,6 +189937,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -189916,7 +189956,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutTelesalesInput = {
@@ -190092,6 +190131,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -190110,7 +190150,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTelesalesInput = {
@@ -190132,6 +190171,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -190150,7 +190190,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateWithoutTelesalesKPIsInput = {
@@ -190172,6 +190211,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -190190,7 +190230,6 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutTelesalesKPIsInput = {
@@ -190212,6 +190251,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -190230,7 +190270,6 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutTelesalesKPIsInput = {
@@ -190268,6 +190307,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -190286,7 +190326,6 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTelesalesKPIsInput = {
@@ -190308,6 +190347,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -190326,7 +190366,6 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type CompanyCreateWithoutOrdersInput = {
@@ -190516,6 +190555,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -190534,7 +190574,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutOrdersInput = {
@@ -190556,6 +190595,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -190574,7 +190614,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutOrdersInput = {
@@ -190857,6 +190896,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -190875,7 +190915,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -190897,6 +190936,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -190915,7 +190955,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type OrderStatusLogUpsertWithWhereUniqueWithoutOrderInput = {
@@ -190999,6 +191038,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
@@ -191027,6 +191067,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     purchaseRequests?: PurchaseRequestUncheckedCreateNestedManyWithoutOrderInput
   }
 
@@ -191065,6 +191106,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
@@ -191093,6 +191135,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
   }
 
@@ -191177,6 +191220,36 @@ export namespace Prisma {
 
   export type InstallationOrderCreateManyJobInputEnvelope = {
     data: InstallationOrderCreateManyJobInput | InstallationOrderCreateManyJobInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type JobDocumentCreateWithoutJobInput = {
+    id?: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    createdAt?: Date | string
+    uploader: UserCreateNestedOneWithoutUploadedDocumentsInput
+  }
+
+  export type JobDocumentUncheckedCreateWithoutJobInput = {
+    id?: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    uploadedBy: string
+    createdAt?: Date | string
+  }
+
+  export type JobDocumentCreateOrConnectWithoutJobInput = {
+    where: JobDocumentWhereUniqueInput
+    create: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput>
+  }
+
+  export type JobDocumentCreateManyJobInputEnvelope = {
+    data: JobDocumentCreateManyJobInput | JobDocumentCreateManyJobInput[]
     skipDuplicates?: boolean
   }
 
@@ -191641,36 +191714,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type JobDocumentCreateWithoutJobInput = {
-    id?: string
-    type: string
-    fileUrl: string
-    fileName: string
-    fileSize?: number | null
-    createdAt?: Date | string
-    uploader: UserCreateNestedOneWithoutUploadedDocumentsInput
-  }
-
-  export type JobDocumentUncheckedCreateWithoutJobInput = {
-    id?: string
-    type: string
-    fileUrl: string
-    fileName: string
-    fileSize?: number | null
-    uploadedBy: string
-    createdAt?: Date | string
-  }
-
-  export type JobDocumentCreateOrConnectWithoutJobInput = {
-    where: JobDocumentWhereUniqueInput
-    create: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput>
-  }
-
-  export type JobDocumentCreateManyJobInputEnvelope = {
-    data: JobDocumentCreateManyJobInput | JobDocumentCreateManyJobInput[]
-    skipDuplicates?: boolean
-  }
-
   export type InstallationOrderUpsertWithWhereUniqueWithoutJobInput = {
     where: InstallationOrderWhereUniqueInput
     update: XOR<InstallationOrderUpdateWithoutJobInput, InstallationOrderUncheckedUpdateWithoutJobInput>
@@ -191685,6 +191728,22 @@ export namespace Prisma {
   export type InstallationOrderUpdateManyWithWhereWithoutJobInput = {
     where: InstallationOrderScalarWhereInput
     data: XOR<InstallationOrderUpdateManyMutationInput, InstallationOrderUncheckedUpdateManyWithoutJobInput>
+  }
+
+  export type JobDocumentUpsertWithWhereUniqueWithoutJobInput = {
+    where: JobDocumentWhereUniqueInput
+    update: XOR<JobDocumentUpdateWithoutJobInput, JobDocumentUncheckedUpdateWithoutJobInput>
+    create: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput>
+  }
+
+  export type JobDocumentUpdateWithWhereUniqueWithoutJobInput = {
+    where: JobDocumentWhereUniqueInput
+    data: XOR<JobDocumentUpdateWithoutJobInput, JobDocumentUncheckedUpdateWithoutJobInput>
+  }
+
+  export type JobDocumentUpdateManyWithWhereWithoutJobInput = {
+    where: JobDocumentScalarWhereInput
+    data: XOR<JobDocumentUpdateManyMutationInput, JobDocumentUncheckedUpdateManyWithoutJobInput>
   }
 
   export type OutsourceRepairUpsertWithWhereUniqueWithoutJobInput = {
@@ -192109,22 +192168,6 @@ export namespace Prisma {
     creditType?: StringNullableFilter<"PaymentTask"> | string | null
   }
 
-  export type JobDocumentUpsertWithWhereUniqueWithoutJobInput = {
-    where: JobDocumentWhereUniqueInput
-    update: XOR<JobDocumentUpdateWithoutJobInput, JobDocumentUncheckedUpdateWithoutJobInput>
-    create: XOR<JobDocumentCreateWithoutJobInput, JobDocumentUncheckedCreateWithoutJobInput>
-  }
-
-  export type JobDocumentUpdateWithWhereUniqueWithoutJobInput = {
-    where: JobDocumentWhereUniqueInput
-    data: XOR<JobDocumentUpdateWithoutJobInput, JobDocumentUncheckedUpdateWithoutJobInput>
-  }
-
-  export type JobDocumentUpdateManyWithWhereWithoutJobInput = {
-    where: JobDocumentScalarWhereInput
-    data: XOR<JobDocumentUpdateManyMutationInput, JobDocumentUncheckedUpdateManyWithoutJobInput>
-  }
-
   export type JobCreateWithoutDocumentsInput = {
     id?: string
     jobNumber: string
@@ -192523,13 +192566,13 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
-    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutPaymentTasksInput = {
@@ -192567,12 +192610,12 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
-    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutPaymentTasksInput = {
@@ -192625,13 +192668,13 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
-    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutPaymentTasksInput = {
@@ -192669,12 +192712,12 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type UserCreateWithoutJobStepLogsInput = {
@@ -192696,6 +192739,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -192714,7 +192758,6 @@ export namespace Prisma {
     telesales?: TelesaleCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutJobStepLogsInput = {
@@ -192736,6 +192779,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -192754,7 +192798,6 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutJobStepLogsInput = {
@@ -192796,13 +192839,13 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
-    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutStepLogsInput = {
@@ -192840,12 +192883,12 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
-    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutStepLogsInput = {
@@ -192883,6 +192926,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -192901,7 +192945,6 @@ export namespace Prisma {
     telesales?: TelesaleUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutJobStepLogsInput = {
@@ -192923,6 +192966,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -192941,7 +192985,6 @@ export namespace Prisma {
     telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type JobUpsertWithoutStepLogsInput = {
@@ -192989,13 +193032,13 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutStepLogsInput = {
@@ -193033,12 +193076,12 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutRepairOrderInput = {
@@ -193075,13 +193118,13 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
-    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutRepairOrderInput = {
@@ -193119,12 +193162,12 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
-    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutRepairOrderInput = {
@@ -193177,13 +193220,13 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutRepairOrderInput = {
@@ -193221,12 +193264,12 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutRepairDeliveriesInput = {
@@ -193263,13 +193306,13 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
-    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutRepairDeliveriesInput = {
@@ -193307,12 +193350,12 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
-    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutRepairDeliveriesInput = {
@@ -193365,13 +193408,13 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutRepairDeliveriesInput = {
@@ -193409,12 +193452,12 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobCreateWithoutInstallationOrdersInput = {
@@ -193450,6 +193493,7 @@ export namespace Prisma {
     billingDocsUrl?: string | null
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
@@ -193457,7 +193501,6 @@ export namespace Prisma {
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
-    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutInstallationOrdersInput = {
@@ -193494,13 +193537,13 @@ export namespace Prisma {
     billingDocsUrl?: string | null
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
-    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutInstallationOrdersInput = {
@@ -193526,6 +193569,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -193545,7 +193589,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutInstallationOrdersInput = {
@@ -193566,6 +193609,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -193585,7 +193629,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutInstallationOrdersInput = {
@@ -193637,6 +193680,7 @@ export namespace Prisma {
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
@@ -193644,7 +193688,6 @@ export namespace Prisma {
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutInstallationOrdersInput = {
@@ -193681,13 +193724,13 @@ export namespace Prisma {
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type UserUpsertWithoutInstallationOrdersInput = {
@@ -193719,6 +193762,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -193738,7 +193782,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInstallationOrdersInput = {
@@ -193759,6 +193802,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -193778,7 +193822,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type JobCreateWithoutOutsourceRepairsInput = {
@@ -193815,13 +193858,13 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
-    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutOutsourceRepairsInput = {
@@ -193859,12 +193902,12 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
-    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutOutsourceRepairsInput = {
@@ -193917,13 +193960,13 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutOutsourceRepairsInput = {
@@ -193961,12 +194004,12 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type UserCreateWithoutEstimatedRequirementsInput = {
@@ -193987,6 +194030,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -194006,7 +194050,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutEstimatedRequirementsInput = {
@@ -194027,6 +194070,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -194046,7 +194090,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutEstimatedRequirementsInput = {
@@ -194072,6 +194115,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -194091,7 +194135,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutCustomerRequirementsInput = {
@@ -194112,6 +194155,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -194131,7 +194175,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutCustomerRequirementsInput = {
@@ -194168,6 +194211,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -194187,7 +194231,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEstimatedRequirementsInput = {
@@ -194208,6 +194251,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -194227,7 +194271,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUpsertWithoutCustomerRequirementsInput = {
@@ -194259,6 +194302,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -194278,7 +194322,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCustomerRequirementsInput = {
@@ -194299,6 +194342,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -194318,7 +194362,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type announcementsCreateWithoutAdminsInput = {
@@ -207159,6 +207202,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
@@ -207187,6 +207231,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
   }
 
@@ -207269,6 +207314,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
@@ -207297,6 +207343,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
   }
 
@@ -207615,13 +207662,13 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
-    documents?: JobDocumentCreateNestedManyWithoutJobInput
   }
 
   export type JobUncheckedCreateWithoutProjectInput = {
@@ -207659,12 +207706,12 @@ export namespace Prisma {
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
-    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
   }
 
   export type JobCreateOrConnectWithoutProjectInput = {
@@ -207691,6 +207738,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -207709,7 +207757,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutManagedProjectsInput = {
@@ -207731,6 +207778,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -207749,7 +207797,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutManagedProjectsInput = {
@@ -207976,13 +208023,13 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutProjectInput = {
@@ -208020,12 +208067,12 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type UserUpsertWithoutManagedProjectsInput = {
@@ -208058,6 +208105,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -208076,7 +208124,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutManagedProjectsInput = {
@@ -208098,6 +208145,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -208116,7 +208164,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type ProjectDailyLogUpsertWithWhereUniqueWithoutProjectInput = {
@@ -208561,6 +208608,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -208579,7 +208627,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutProjectMembersInput = {
@@ -208601,6 +208648,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -208619,7 +208667,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutProjectMembersInput = {
@@ -208776,6 +208823,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -208794,7 +208842,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectMembersInput = {
@@ -208816,6 +208863,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -208834,7 +208882,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateWithoutAssignedTasksInput = {
@@ -208856,6 +208903,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -208874,7 +208922,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutAssignedTasksInput = {
@@ -208896,6 +208943,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -208914,7 +208962,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutAssignedTasksInput = {
@@ -209168,6 +209215,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -209186,7 +209234,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedTasksInput = {
@@ -209208,6 +209255,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -209226,7 +209274,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type ProjectTaskUpsertWithoutSubtasksInput = {
@@ -209711,6 +209758,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -209729,7 +209777,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutReportedDailyLogsInput = {
@@ -209751,6 +209798,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -209769,7 +209817,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutReportedDailyLogsInput = {
@@ -209955,6 +210002,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -209973,7 +210021,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReportedDailyLogsInput = {
@@ -209995,6 +210042,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -210013,7 +210061,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type clothing_variantsCreateWithoutClothing_itemsInput = {
@@ -215322,6 +215369,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -215340,7 +215388,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutAssignedMarketingLeadsInput = {
@@ -215362,6 +215409,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -215380,7 +215428,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutAssignedMarketingLeadsInput = {
@@ -215407,6 +215454,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -215425,7 +215473,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutMarketingLeadsInput = {
@@ -215447,6 +215494,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -215465,7 +215513,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutMarketingLeadsInput = {
@@ -215586,6 +215633,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -215604,7 +215652,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedMarketingLeadsInput = {
@@ -215626,6 +215673,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -215644,7 +215692,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUpsertWithoutMarketingLeadsInput = {
@@ -215677,6 +215724,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -215695,7 +215743,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMarketingLeadsInput = {
@@ -215717,6 +215764,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -215735,7 +215783,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type QuotationUpsertWithoutMarketingLeadInput = {
@@ -215846,6 +215893,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -215864,7 +215912,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -215886,6 +215933,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -215904,7 +215952,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -215942,6 +215989,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -215960,7 +216008,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -215982,6 +216029,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -216000,7 +216048,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type QuotationCreateWithoutSiteSurveyInput = {
@@ -216195,6 +216242,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -216213,7 +216261,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutEstimatedSurveysInput = {
@@ -216235,6 +216282,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -216253,7 +216301,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutEstimatedSurveysInput = {
@@ -216280,6 +216327,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -216298,7 +216346,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutSiteSurveysInput = {
@@ -216320,6 +216367,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -216338,7 +216386,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutSiteSurveysInput = {
@@ -216739,6 +216786,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -216757,7 +216805,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEstimatedSurveysInput = {
@@ -216779,6 +216826,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -216797,7 +216845,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUpsertWithoutSiteSurveysInput = {
@@ -216830,6 +216877,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -216848,7 +216896,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSiteSurveysInput = {
@@ -216870,6 +216917,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -216888,7 +216936,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type SurveyBillUpsertWithoutSurveyInput = {
@@ -219534,6 +219581,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -219552,7 +219600,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutServiceSchedulesInput = {
@@ -219574,6 +219621,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -219592,7 +219640,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutServiceSchedulesInput = {
@@ -219630,6 +219677,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -219648,7 +219696,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutServiceSchedulesInput = {
@@ -219670,6 +219717,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -219688,7 +219736,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserCreateWithoutPushSubscriptionsInput = {
@@ -219710,6 +219757,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
@@ -219728,7 +219776,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
   }
 
   export type UserUncheckedCreateWithoutPushSubscriptionsInput = {
@@ -219750,6 +219797,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
     monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
@@ -219768,7 +219816,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
     employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
     jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
-    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
   }
 
   export type UserCreateOrConnectWithoutPushSubscriptionsInput = {
@@ -219806,6 +219853,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
@@ -219824,7 +219872,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPushSubscriptionsInput = {
@@ -219846,6 +219893,7 @@ export namespace Prisma {
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
     monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
@@ -219864,7 +219912,6 @@ export namespace Prisma {
     telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
     employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
-    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
   }
 
   export type CompanyCreateManyAssignedUserInput = {
@@ -219991,6 +220038,16 @@ export namespace Prisma {
     workPlan?: string | null
   }
 
+  export type JobDocumentCreateManyUploaderInput = {
+    id?: string
+    jobId: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    createdAt?: Date | string
+  }
+
   export type MarketingLeadCreateManyAssignedToInput = {
     id?: string
     customerName: string
@@ -220063,6 +220120,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
   }
 
   export type ProjectCreateManyManagerInput = {
@@ -220352,16 +220410,6 @@ export namespace Prisma {
     department: string
     note?: string | null
     completedAt?: Date | string
-  }
-
-  export type JobDocumentCreateManyUploaderInput = {
-    id?: string
-    jobId: string
-    type: string
-    fileUrl: string
-    fileName: string
-    fileSize?: number | null
-    createdAt?: Date | string
   }
 
   export type CompanyUpdateWithoutAssignedUserInput = {
@@ -220750,6 +220798,36 @@ export namespace Prisma {
     workPlan?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type JobDocumentUpdateWithoutUploaderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneRequiredWithoutDocumentsNestedInput
+  }
+
+  export type JobDocumentUncheckedUpdateWithoutUploaderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobDocumentUncheckedUpdateManyWithoutUploaderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MarketingLeadUpdateWithoutAssignedToInput = {
     id?: StringFieldUpdateOperationsInput | string
     customerName?: StringFieldUpdateOperationsInput | string
@@ -220922,6 +221000,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
@@ -220949,6 +221028,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -220974,6 +221054,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
   }
 
   export type ProjectUpdateWithoutManagerInput = {
@@ -221899,36 +221980,6 @@ export namespace Prisma {
     completedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type JobDocumentUpdateWithoutUploaderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    fileUrl?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    job?: JobUpdateOneRequiredWithoutDocumentsNestedInput
-  }
-
-  export type JobDocumentUncheckedUpdateWithoutUploaderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    jobId?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    fileUrl?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type JobDocumentUncheckedUpdateManyWithoutUploaderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    jobId?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    fileUrl?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type CompanyInteractionCreateManyCompanyInput = {
     id?: string
     userId: string
@@ -221971,6 +222022,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
   }
 
   export type QuotationCreateManyCompanyInput = {
@@ -222165,6 +222217,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
     statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
@@ -222192,6 +222245,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -222217,6 +222271,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
   }
 
   export type QuotationUpdateWithoutCompanyInput = {
@@ -222740,6 +222795,7 @@ export namespace Prisma {
     qcBy?: string | null
     qcNote?: string | null
     qcStatus?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
   }
 
   export type JobCreateManyQuotationInput = {
@@ -222796,6 +222852,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     company?: CompanyUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
     statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
@@ -222823,6 +222880,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -222848,6 +222906,7 @@ export namespace Prisma {
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
   }
 
   export type JobUpdateWithoutQuotationInput = {
@@ -222884,13 +222943,13 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutQuotationInput = {
@@ -222927,13 +222986,13 @@ export namespace Prisma {
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
-    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
   }
 
   export type JobUncheckedUpdateManyWithoutQuotationInput = {
@@ -223097,6 +223156,16 @@ export namespace Prisma {
     technicianUserId?: string | null
   }
 
+  export type JobDocumentCreateManyJobInput = {
+    id?: string
+    type: string
+    fileUrl: string
+    fileName: string
+    fileSize?: number | null
+    uploadedBy: string
+    createdAt?: Date | string
+  }
+
   export type OutsourceRepairCreateManyJobInput = {
     id?: string
     outsourceNumber?: string | null
@@ -223178,16 +223247,6 @@ export namespace Prisma {
     installmentNo?: number | null
     installmentTotal?: number | null
     creditType?: string | null
-  }
-
-  export type JobDocumentCreateManyJobInput = {
-    id?: string
-    type: string
-    fileUrl: string
-    fileName: string
-    fileSize?: number | null
-    uploadedBy: string
-    createdAt?: Date | string
   }
 
   export type InstallationOrderUpdateWithoutJobInput = {
@@ -223299,6 +223358,36 @@ export namespace Prisma {
     workLocation?: NullableStringFieldUpdateOperationsInput | string | null
     workPlan?: NullableStringFieldUpdateOperationsInput | string | null
     technicianUserId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type JobDocumentUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    uploader?: UserUpdateOneRequiredWithoutUploadedDocumentsNestedInput
+  }
+
+  export type JobDocumentUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobDocumentUncheckedUpdateManyWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OutsourceRepairUpdateWithoutJobInput = {
@@ -223548,36 +223637,6 @@ export namespace Prisma {
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
     creditType?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type JobDocumentUpdateWithoutJobInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    fileUrl?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    uploader?: UserUpdateOneRequiredWithoutUploadedDocumentsNestedInput
-  }
-
-  export type JobDocumentUncheckedUpdateWithoutJobInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    fileUrl?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
-    uploadedBy?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type JobDocumentUncheckedUpdateManyWithoutJobInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    fileUrl?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
-    uploadedBy?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type announcementsCreateManyAdminsInput = {
