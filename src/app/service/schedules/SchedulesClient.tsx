@@ -122,8 +122,8 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
   const fetchSchedules = async () => {
     setLoading(true);
     try {
-      const startStr = dateRange.start.toISOString();
-      const endStr = dateRange.end.toISOString();
+      const startStr = format(dateRange.start, 'yyyy-MM-dd');
+      const endStr = format(dateRange.end, 'yyyy-MM-dd');
       const res = await fetch(`/api/service/schedules?startDate=${startStr}&endDate=${endStr}`);
       if (!res.ok) throw new Error('Failed to fetch schedules');
       const data = await res.json();
@@ -145,10 +145,15 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
 
   const expandLeaveToDays = (leave: LeaveRequest): string[] => {
     const days = [];
-    const current = new Date(leave.start_date);
-    while (current <= new Date(leave.end_date)) {
-      days.push(format(current, 'yyyy-MM-dd'));
-      current.setDate(current.getDate() + 1);
+    const startDateStr = leave.start_date.substring(0, 10);
+    const endDateStr = leave.end_date.substring(0, 10);
+
+    const current = new Date(`${startDateStr}T00:00:00Z`);
+    const end = new Date(`${endDateStr}T00:00:00Z`);
+
+    while (current <= end) {
+      days.push(current.toISOString().substring(0, 10));
+      current.setUTCDate(current.getUTCDate() + 1);
     }
     return days;
   };
@@ -207,13 +212,13 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
       showToast('คุณไม่มีสิทธิ์แก้ไขตารางงานของบุคคลนี้', 'error');
       return;
     }
-    
+
     let isStandardType = false;
     let initialJobType = existingSchedule?.jobType || '';
     if (['installation', 'repair', 'survey', 'meeting', 'training', 'other'].includes(initialJobType)) {
       isStandardType = true;
     }
-    
+
     if (initialJobType && !isStandardType) {
       setCustomJobType(initialJobType);
       initialJobType = 'other_custom';
@@ -251,7 +256,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
         body: JSON.stringify({
           id: formData.id,
           userId: selectedUser.id,
-          date: selectedDate.toISOString(),
+          date: format(selectedDate, 'yyyy-MM-dd'),
           status: formData.status,
           jobType: formData.jobType === 'other_custom' ? customJobType : formData.jobType,
           jobDescription: formData.jobDescription,
@@ -277,7 +282,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
 
   const deleteSchedule = async () => {
     if (!formData.id) return;
-    
+
     setSaving(true);
     try {
       const res = await fetch(`/api/service/schedules?id=${formData.id}`, { method: 'DELETE' });
@@ -312,9 +317,9 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
         if (day.getDay() === 0) return; // Skip Sunday
 
         const dateKey = format(day, 'yyyy-MM-dd');
-        const schedule = user.serviceSchedules.find(s => isSameDay(parseISO(s.date), day));
+        const schedule = user.serviceSchedules.find(s => s.date.substring(0, 10) === dateKey);
         const leave = userLeavesMap[user.employeeId]?.[dateKey];
-        const holiday = holidays.find(h => isSameDay(parseISO(h.date), day));
+        const holiday = holidays.find(h => h.date.substring(0, 10) === dateKey);
 
         let statusStr = '';
         let provinceStr = '';
@@ -479,9 +484,9 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                       </td>
                       {daysInView.map(day => {
                         const dayIsoLocal = format(day, 'yyyy-MM-dd');
-                        const holiday = holidays.find(h => format(new Date(h.date), 'yyyy-MM-dd') === dayIsoLocal);
+                        const holiday = holidays.find(h => h.date.substring(0, 10) === dayIsoLocal);
                         const leave = userLeavesMap[user.employeeId]?.[dayIsoLocal];
-                        const schedules = user.serviceSchedules.filter(s => format(new Date(s.date), 'yyyy-MM-dd') === dayIsoLocal);
+                        const schedules = user.serviceSchedules.filter(s => s.date.substring(0, 10) === dayIsoLocal);
 
                         const isHoliday = !!holiday;
                         const editable = canEdit(user.id) && !isHoliday;
@@ -515,7 +520,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
 
                                 {schedules.length > 0 ? (
                                   schedules.map(schedule => (
-                                    <div 
+                                    <div
                                       key={schedule.id}
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -524,8 +529,8 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                                       className={`flex-1 flex flex-col gap-1 items-center justify-center rounded-md border p-1 text-sm transition-transform pointer-events-auto ${editable ? 'cursor-pointer hover:scale-[1.02]' : ''} ${getStatusColor(schedule.status)}`}
                                     >
                                       <span className="font-bold flex items-center gap-1">
-                                          {schedule.status}
-                                          {schedule.duration && schedule.duration !== 'เต็มวัน' && <span className="text-[10px] bg-white/50 px-1 rounded">{schedule.duration}</span>}
+                                        {schedule.status}
+                                        {schedule.duration && schedule.duration !== 'เต็มวัน' && <span className="text-[10px] bg-white/50 px-1 rounded">{schedule.duration}</span>}
                                       </span>
                                       {schedule.province && (
                                         <span className="text-xs opacity-90 flex items-center gap-1 justify-center">
@@ -539,7 +544,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                                             schedule.jobType === 'repair' ? 'ซ่อม/PM' :
                                               schedule.jobType === 'survey' ? 'ดูหน้างาน' :
                                                 schedule.jobType === 'meeting' ? 'ประชุม' :
-                                                  schedule.jobType === 'training' ? 'อบรม' : 
+                                                  schedule.jobType === 'training' ? 'อบรม' :
                                                     schedule.jobType === 'other' ? 'อื่นๆ' : schedule.jobType}
                                         </span>
                                       )}
@@ -549,7 +554,7 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                                   !leave && (
                                     <div className="flex-1 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                                       {editable && (
-                                        <button 
+                                        <button
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             openModal(user, day);
@@ -665,14 +670,14 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
                     </div>
                     {formData.jobType === 'other_custom' && (
                       <div className="mt-2 animate-in fade-in slide-in-from-top-2">
-                         <input
-                           type="text"
-                           value={customJobType}
-                           onChange={(e) => setCustomJobType(e.target.value)}
-                           className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
-                           placeholder="พิมพ์ระบุประเภทงาน..."
-                           required
-                         />
+                        <input
+                          type="text"
+                          value={customJobType}
+                          onChange={(e) => setCustomJobType(e.target.value)}
+                          className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                          placeholder="พิมพ์ระบุประเภทงาน..."
+                          required
+                        />
                       </div>
                     )}
                   </div>
@@ -776,11 +781,10 @@ export default function SchedulesClient({ currentUser, provinces }: SchedulesCli
 
       {/* Toast Notification */}
       {toast && (
-        <div className={`fixed bottom-4 right-4 p-4 rounded-xl shadow-xl flex items-center gap-3 z-[300] animate-fade-in ${
-          toast.type === 'success' 
-            ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' 
-            : 'bg-red-50 border border-red-200 text-red-800'
-        }`}>
+        <div className={`fixed bottom-4 right-4 p-4 rounded-xl shadow-xl flex items-center gap-3 z-[300] animate-fade-in ${toast.type === 'success'
+          ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+          : 'bg-red-50 border border-red-200 text-red-800'
+          }`}>
           {toast.type === 'success' ? <CheckCircle2 size={20} className="text-emerald-500" /> : <AlertCircle size={20} className="text-red-500" />}
           <span className="font-bold text-sm">{toast.message}</span>
         </div>

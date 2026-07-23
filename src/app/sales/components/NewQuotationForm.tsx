@@ -457,12 +457,6 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
     const isPOStatus = status?.startsWith("PO") || status === "Invoice Opened" || status === "เปิดบิลแล้ว";
 
     if (isCabinetSelected && isPOStatus && !cabinetJob) {
-      const allDocsPresent = boqFiles.length > 0 && quotationFiles.length > 0 && paymentFiles.length > 0 && customerDocFiles.length > 0;
-      if (!allDocsPresent) {
-        alert('กรุณาอัปโหลดเอกสารงานประกอบตู้ให้ครบถ้วน');
-        setIsSubmitting(false);
-        return;
-      }
       const jobDocuments = [
         ...boqFiles.map(f => ({ type: 'BOQ', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
         ...quotationFiles.map(f => ({ type: 'QUOTATION', fileUrl: f.url, fileName: f.name, fileSize: f.size })),
@@ -1124,7 +1118,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                 <div className="w-full mt-6">
                   <div className="bg-orange-50/50 p-6 rounded-2xl border border-orange-100 shadow-sm">
                     <h3 className="text-sm font-black text-orange-800 uppercase tracking-widest mb-4 flex items-center gap-2">
-                      เอกสารงานประกอบตู้ที่ต้องแนบ (Mandatory)
+                      เอกสารงานประกอบตู้
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {[
@@ -1135,7 +1129,7 @@ export default function NewQuotationForm({ businessTypes = [], initialData, curr
                       ].map((doc) => (
                         <div key={doc.key} className="bg-white p-4 rounded-xl border border-orange-100">
                           <label className="block text-xs font-bold text-gray-700 mb-3">
-                            {doc.label} <span className="text-red-500">*</span>
+                            {doc.label}
                           </label>
                           <div className="flex items-center gap-3">
                             <input
