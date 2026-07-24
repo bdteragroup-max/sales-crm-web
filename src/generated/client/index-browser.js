@@ -651,7 +651,8 @@ exports.Prisma.Asset_borrowingsScalarFieldEnum = {
   key_received_by: 'key_received_by',
   key_returned_at: 'key_returned_at',
   key_signature_url: 'key_signature_url',
-  return_status: 'return_status'
+  return_status: 'return_status',
+  overnight_required: 'overnight_required'
 };
 
 exports.Prisma.AssetsScalarFieldEnum = {

@@ -47615,6 +47615,7 @@ export namespace Prisma {
     key_returned_at: Date | null
     key_signature_url: string | null
     return_status: string | null
+    overnight_required: boolean | null
   }
 
   export type Asset_borrowingsMaxAggregateOutputType = {
@@ -47646,6 +47647,7 @@ export namespace Prisma {
     key_returned_at: Date | null
     key_signature_url: string | null
     return_status: string | null
+    overnight_required: boolean | null
   }
 
   export type Asset_borrowingsCountAggregateOutputType = {
@@ -47677,6 +47679,7 @@ export namespace Prisma {
     key_returned_at: number
     key_signature_url: number
     return_status: number
+    overnight_required: number
     _all: number
   }
 
@@ -47722,6 +47725,7 @@ export namespace Prisma {
     key_returned_at?: true
     key_signature_url?: true
     return_status?: true
+    overnight_required?: true
   }
 
   export type Asset_borrowingsMaxAggregateInputType = {
@@ -47753,6 +47757,7 @@ export namespace Prisma {
     key_returned_at?: true
     key_signature_url?: true
     return_status?: true
+    overnight_required?: true
   }
 
   export type Asset_borrowingsCountAggregateInputType = {
@@ -47784,6 +47789,7 @@ export namespace Prisma {
     key_returned_at?: true
     key_signature_url?: true
     return_status?: true
+    overnight_required?: true
     _all?: true
   }
 
@@ -47902,6 +47908,7 @@ export namespace Prisma {
     key_returned_at: Date | null
     key_signature_url: string | null
     return_status: string | null
+    overnight_required: boolean | null
     _count: Asset_borrowingsCountAggregateOutputType | null
     _avg: Asset_borrowingsAvgAggregateOutputType | null
     _sum: Asset_borrowingsSumAggregateOutputType | null
@@ -47952,6 +47959,7 @@ export namespace Prisma {
     key_returned_at?: boolean
     key_signature_url?: boolean
     return_status?: boolean
+    overnight_required?: boolean
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["asset_borrowings"]>
@@ -47985,6 +47993,7 @@ export namespace Prisma {
     key_returned_at?: boolean
     key_signature_url?: boolean
     return_status?: boolean
+    overnight_required?: boolean
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["asset_borrowings"]>
@@ -48018,6 +48027,7 @@ export namespace Prisma {
     key_returned_at?: boolean
     key_signature_url?: boolean
     return_status?: boolean
+    overnight_required?: boolean
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["asset_borrowings"]>
@@ -48051,9 +48061,10 @@ export namespace Prisma {
     key_returned_at?: boolean
     key_signature_url?: boolean
     return_status?: boolean
+    overnight_required?: boolean
   }
 
-  export type asset_borrowingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "asset_id" | "emp_id" | "borrow_date" | "expected_return_date" | "actual_return_date" | "location" | "condition_at_borrow" | "condition_at_return" | "is_damaged" | "photo_url_borrow" | "photo_url_return" | "status" | "created_at" | "updated_at" | "borrow_inspection_remark" | "borrow_is_body_ok" | "borrow_is_clean" | "borrow_is_insurance_ok" | "borrow_is_lights_ok" | "borrow_is_tires_ok" | "borrow_vehicle_status" | "quantity" | "key_photo_url" | "key_received_by" | "key_returned_at" | "key_signature_url" | "return_status", ExtArgs["result"]["asset_borrowings"]>
+  export type asset_borrowingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "asset_id" | "emp_id" | "borrow_date" | "expected_return_date" | "actual_return_date" | "location" | "condition_at_borrow" | "condition_at_return" | "is_damaged" | "photo_url_borrow" | "photo_url_return" | "status" | "created_at" | "updated_at" | "borrow_inspection_remark" | "borrow_is_body_ok" | "borrow_is_clean" | "borrow_is_insurance_ok" | "borrow_is_lights_ok" | "borrow_is_tires_ok" | "borrow_vehicle_status" | "quantity" | "key_photo_url" | "key_received_by" | "key_returned_at" | "key_signature_url" | "return_status" | "overnight_required", ExtArgs["result"]["asset_borrowings"]>
   export type asset_borrowingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
@@ -48102,6 +48113,7 @@ export namespace Prisma {
       key_returned_at: Date | null
       key_signature_url: string | null
       return_status: string | null
+      overnight_required: boolean | null
     }, ExtArgs["result"]["asset_borrowings"]>
     composites: {}
   }
@@ -48555,6 +48567,7 @@ export namespace Prisma {
     readonly key_returned_at: FieldRef<"asset_borrowings", 'DateTime'>
     readonly key_signature_url: FieldRef<"asset_borrowings", 'String'>
     readonly return_status: FieldRef<"asset_borrowings", 'String'>
+    readonly overnight_required: FieldRef<"asset_borrowings", 'Boolean'>
   }
     
 
@@ -144752,7 +144765,8 @@ export namespace Prisma {
     key_received_by: 'key_received_by',
     key_returned_at: 'key_returned_at',
     key_signature_url: 'key_signature_url',
-    return_status: 'return_status'
+    return_status: 'return_status',
+    overnight_required: 'overnight_required'
   };
 
   export type Asset_borrowingsScalarFieldEnum = (typeof Asset_borrowingsScalarFieldEnum)[keyof typeof Asset_borrowingsScalarFieldEnum]
@@ -149495,6 +149509,7 @@ export namespace Prisma {
     key_returned_at?: DateTimeNullableFilter<"asset_borrowings"> | Date | string | null
     key_signature_url?: StringNullableFilter<"asset_borrowings"> | string | null
     return_status?: StringNullableFilter<"asset_borrowings"> | string | null
+    overnight_required?: BoolNullableFilter<"asset_borrowings"> | boolean | null
     assets?: XOR<AssetsScalarRelationFilter, assetsWhereInput>
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }
@@ -149528,6 +149543,7 @@ export namespace Prisma {
     key_returned_at?: SortOrderInput | SortOrder
     key_signature_url?: SortOrderInput | SortOrder
     return_status?: SortOrderInput | SortOrder
+    overnight_required?: SortOrderInput | SortOrder
     assets?: assetsOrderByWithRelationInput
     employees?: employeesOrderByWithRelationInput
   }
@@ -149564,6 +149580,7 @@ export namespace Prisma {
     key_returned_at?: DateTimeNullableFilter<"asset_borrowings"> | Date | string | null
     key_signature_url?: StringNullableFilter<"asset_borrowings"> | string | null
     return_status?: StringNullableFilter<"asset_borrowings"> | string | null
+    overnight_required?: BoolNullableFilter<"asset_borrowings"> | boolean | null
     assets?: XOR<AssetsScalarRelationFilter, assetsWhereInput>
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }, "id">
@@ -149597,6 +149614,7 @@ export namespace Prisma {
     key_returned_at?: SortOrderInput | SortOrder
     key_signature_url?: SortOrderInput | SortOrder
     return_status?: SortOrderInput | SortOrder
+    overnight_required?: SortOrderInput | SortOrder
     _count?: asset_borrowingsCountOrderByAggregateInput
     _avg?: asset_borrowingsAvgOrderByAggregateInput
     _max?: asset_borrowingsMaxOrderByAggregateInput
@@ -149636,6 +149654,7 @@ export namespace Prisma {
     key_returned_at?: DateTimeNullableWithAggregatesFilter<"asset_borrowings"> | Date | string | null
     key_signature_url?: StringNullableWithAggregatesFilter<"asset_borrowings"> | string | null
     return_status?: StringNullableWithAggregatesFilter<"asset_borrowings"> | string | null
+    overnight_required?: BoolNullableWithAggregatesFilter<"asset_borrowings"> | boolean | null
   }
 
   export type assetsWhereInput = {
@@ -160818,6 +160837,7 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
+    overnight_required?: boolean | null
     assets: assetsCreateNestedOneWithoutAsset_borrowingsInput
     employees: employeesCreateNestedOneWithoutAsset_borrowingsInput
   }
@@ -160851,6 +160871,7 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
+    overnight_required?: boolean | null
   }
 
   export type asset_borrowingsUpdateInput = {
@@ -160879,6 +160900,7 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
+    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
     assets?: assetsUpdateOneRequiredWithoutAsset_borrowingsNestedInput
     employees?: employeesUpdateOneRequiredWithoutAsset_borrowingsNestedInput
   }
@@ -160912,6 +160934,7 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
+    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type asset_borrowingsCreateManyInput = {
@@ -160943,6 +160966,7 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
+    overnight_required?: boolean | null
   }
 
   export type asset_borrowingsUpdateManyMutationInput = {
@@ -160971,6 +160995,7 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
+    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type asset_borrowingsUncheckedUpdateManyInput = {
@@ -161002,6 +161027,7 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
+    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type assetsCreateInput = {
@@ -171813,6 +171839,7 @@ export namespace Prisma {
     key_returned_at?: SortOrder
     key_signature_url?: SortOrder
     return_status?: SortOrder
+    overnight_required?: SortOrder
   }
 
   export type asset_borrowingsAvgOrderByAggregateInput = {
@@ -171850,6 +171877,7 @@ export namespace Prisma {
     key_returned_at?: SortOrder
     key_signature_url?: SortOrder
     return_status?: SortOrder
+    overnight_required?: SortOrder
   }
 
   export type asset_borrowingsMinOrderByAggregateInput = {
@@ -171881,6 +171909,7 @@ export namespace Prisma {
     key_returned_at?: SortOrder
     key_signature_url?: SortOrder
     return_status?: SortOrder
+    overnight_required?: SortOrder
   }
 
   export type asset_borrowingsSumOrderByAggregateInput = {
@@ -194958,6 +194987,7 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
+    overnight_required?: boolean | null
     employees: employeesCreateNestedOneWithoutAsset_borrowingsInput
   }
 
@@ -194989,6 +195019,7 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
+    overnight_required?: boolean | null
   }
 
   export type asset_borrowingsCreateOrConnectWithoutAssetsInput = {
@@ -195049,6 +195080,7 @@ export namespace Prisma {
     key_returned_at?: DateTimeNullableFilter<"asset_borrowings"> | Date | string | null
     key_signature_url?: StringNullableFilter<"asset_borrowings"> | string | null
     return_status?: StringNullableFilter<"asset_borrowings"> | string | null
+    overnight_required?: BoolNullableFilter<"asset_borrowings"> | boolean | null
   }
 
   export type employeesCreateWithoutBirthday_claimsInput = {
@@ -197194,6 +197226,7 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
+    overnight_required?: boolean | null
     assets: assetsCreateNestedOneWithoutAsset_borrowingsInput
   }
 
@@ -197225,6 +197258,7 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
+    overnight_required?: boolean | null
   }
 
   export type asset_borrowingsCreateOrConnectWithoutEmployeesInput = {
@@ -223729,6 +223763,7 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
+    overnight_required?: boolean | null
   }
 
   export type asset_borrowingsUpdateWithoutAssetsInput = {
@@ -223757,6 +223792,7 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
+    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
     employees?: employeesUpdateOneRequiredWithoutAsset_borrowingsNestedInput
   }
 
@@ -223788,6 +223824,7 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
+    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type asset_borrowingsUncheckedUpdateManyWithoutAssetsInput = {
@@ -223818,6 +223855,7 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
+    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type employeesCreateManyBranchesInput = {
@@ -224502,6 +224540,7 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
+    overnight_required?: boolean | null
   }
 
   export type birthday_claimsCreateManyEmployeesInput = {
@@ -225127,6 +225166,7 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
+    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
     assets?: assetsUpdateOneRequiredWithoutAsset_borrowingsNestedInput
   }
 
@@ -225158,6 +225198,7 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
+    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type asset_borrowingsUncheckedUpdateManyWithoutEmployeesInput = {
@@ -225188,6 +225229,7 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
+    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type birthday_claimsUpdateWithoutEmployeesInput = {
