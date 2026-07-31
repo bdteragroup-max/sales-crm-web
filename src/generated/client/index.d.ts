@@ -548,6 +548,26 @@ export type ServiceSchedule = $Result.DefaultSelection<Prisma.$ServiceSchedulePa
  * 
  */
 export type PushSubscription = $Result.DefaultSelection<Prisma.$PushSubscriptionPayload>
+/**
+ * Model wheel_events
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type wheel_events = $Result.DefaultSelection<Prisma.$wheel_eventsPayload>
+/**
+ * Model wheel_prizes
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type wheel_prizes = $Result.DefaultSelection<Prisma.$wheel_prizesPayload>
+/**
+ * Model wheel_tickets
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type wheel_tickets = $Result.DefaultSelection<Prisma.$wheel_ticketsPayload>
+/**
+ * Model wheel_winners
+ * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+ */
+export type wheel_winners = $Result.DefaultSelection<Prisma.$wheel_winnersPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1739,6 +1759,46 @@ export class PrismaClient<
     * ```
     */
   get pushSubscription(): Prisma.PushSubscriptionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.wheel_events`: Exposes CRUD operations for the **wheel_events** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Wheel_events
+    * const wheel_events = await prisma.wheel_events.findMany()
+    * ```
+    */
+  get wheel_events(): Prisma.wheel_eventsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.wheel_prizes`: Exposes CRUD operations for the **wheel_prizes** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Wheel_prizes
+    * const wheel_prizes = await prisma.wheel_prizes.findMany()
+    * ```
+    */
+  get wheel_prizes(): Prisma.wheel_prizesDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.wheel_tickets`: Exposes CRUD operations for the **wheel_tickets** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Wheel_tickets
+    * const wheel_tickets = await prisma.wheel_tickets.findMany()
+    * ```
+    */
+  get wheel_tickets(): Prisma.wheel_ticketsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.wheel_winners`: Exposes CRUD operations for the **wheel_winners** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Wheel_winners
+    * const wheel_winners = await prisma.wheel_winners.findMany()
+    * ```
+    */
+  get wheel_winners(): Prisma.wheel_winnersDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2279,7 +2339,11 @@ export namespace Prisma {
     withholding_tax_documents: 'withholding_tax_documents',
     withholding_tax_income_items: 'withholding_tax_income_items',
     ServiceSchedule: 'ServiceSchedule',
-    PushSubscription: 'PushSubscription'
+    PushSubscription: 'PushSubscription',
+    wheel_events: 'wheel_events',
+    wheel_prizes: 'wheel_prizes',
+    wheel_tickets: 'wheel_tickets',
+    wheel_winners: 'wheel_winners'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2295,7 +2359,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription"
+      modelProps: "user" | "monthlyTarget" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -10217,6 +10281,302 @@ export namespace Prisma {
           }
         }
       }
+      wheel_events: {
+        payload: Prisma.$wheel_eventsPayload<ExtArgs>
+        fields: Prisma.wheel_eventsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.wheel_eventsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.wheel_eventsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload>
+          }
+          findFirst: {
+            args: Prisma.wheel_eventsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.wheel_eventsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload>
+          }
+          findMany: {
+            args: Prisma.wheel_eventsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload>[]
+          }
+          create: {
+            args: Prisma.wheel_eventsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload>
+          }
+          createMany: {
+            args: Prisma.wheel_eventsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.wheel_eventsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload>[]
+          }
+          delete: {
+            args: Prisma.wheel_eventsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload>
+          }
+          update: {
+            args: Prisma.wheel_eventsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload>
+          }
+          deleteMany: {
+            args: Prisma.wheel_eventsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.wheel_eventsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.wheel_eventsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload>[]
+          }
+          upsert: {
+            args: Prisma.wheel_eventsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_eventsPayload>
+          }
+          aggregate: {
+            args: Prisma.Wheel_eventsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWheel_events>
+          }
+          groupBy: {
+            args: Prisma.wheel_eventsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Wheel_eventsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.wheel_eventsCountArgs<ExtArgs>
+            result: $Utils.Optional<Wheel_eventsCountAggregateOutputType> | number
+          }
+        }
+      }
+      wheel_prizes: {
+        payload: Prisma.$wheel_prizesPayload<ExtArgs>
+        fields: Prisma.wheel_prizesFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.wheel_prizesFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.wheel_prizesFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload>
+          }
+          findFirst: {
+            args: Prisma.wheel_prizesFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.wheel_prizesFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload>
+          }
+          findMany: {
+            args: Prisma.wheel_prizesFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload>[]
+          }
+          create: {
+            args: Prisma.wheel_prizesCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload>
+          }
+          createMany: {
+            args: Prisma.wheel_prizesCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.wheel_prizesCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload>[]
+          }
+          delete: {
+            args: Prisma.wheel_prizesDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload>
+          }
+          update: {
+            args: Prisma.wheel_prizesUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload>
+          }
+          deleteMany: {
+            args: Prisma.wheel_prizesDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.wheel_prizesUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.wheel_prizesUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload>[]
+          }
+          upsert: {
+            args: Prisma.wheel_prizesUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_prizesPayload>
+          }
+          aggregate: {
+            args: Prisma.Wheel_prizesAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWheel_prizes>
+          }
+          groupBy: {
+            args: Prisma.wheel_prizesGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Wheel_prizesGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.wheel_prizesCountArgs<ExtArgs>
+            result: $Utils.Optional<Wheel_prizesCountAggregateOutputType> | number
+          }
+        }
+      }
+      wheel_tickets: {
+        payload: Prisma.$wheel_ticketsPayload<ExtArgs>
+        fields: Prisma.wheel_ticketsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.wheel_ticketsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.wheel_ticketsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload>
+          }
+          findFirst: {
+            args: Prisma.wheel_ticketsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.wheel_ticketsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload>
+          }
+          findMany: {
+            args: Prisma.wheel_ticketsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload>[]
+          }
+          create: {
+            args: Prisma.wheel_ticketsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload>
+          }
+          createMany: {
+            args: Prisma.wheel_ticketsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.wheel_ticketsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload>[]
+          }
+          delete: {
+            args: Prisma.wheel_ticketsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload>
+          }
+          update: {
+            args: Prisma.wheel_ticketsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload>
+          }
+          deleteMany: {
+            args: Prisma.wheel_ticketsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.wheel_ticketsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.wheel_ticketsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload>[]
+          }
+          upsert: {
+            args: Prisma.wheel_ticketsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_ticketsPayload>
+          }
+          aggregate: {
+            args: Prisma.Wheel_ticketsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWheel_tickets>
+          }
+          groupBy: {
+            args: Prisma.wheel_ticketsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Wheel_ticketsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.wheel_ticketsCountArgs<ExtArgs>
+            result: $Utils.Optional<Wheel_ticketsCountAggregateOutputType> | number
+          }
+        }
+      }
+      wheel_winners: {
+        payload: Prisma.$wheel_winnersPayload<ExtArgs>
+        fields: Prisma.wheel_winnersFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.wheel_winnersFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.wheel_winnersFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload>
+          }
+          findFirst: {
+            args: Prisma.wheel_winnersFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.wheel_winnersFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload>
+          }
+          findMany: {
+            args: Prisma.wheel_winnersFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload>[]
+          }
+          create: {
+            args: Prisma.wheel_winnersCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload>
+          }
+          createMany: {
+            args: Prisma.wheel_winnersCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.wheel_winnersCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload>[]
+          }
+          delete: {
+            args: Prisma.wheel_winnersDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload>
+          }
+          update: {
+            args: Prisma.wheel_winnersUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload>
+          }
+          deleteMany: {
+            args: Prisma.wheel_winnersDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.wheel_winnersUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.wheel_winnersUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload>[]
+          }
+          upsert: {
+            args: Prisma.wheel_winnersUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$wheel_winnersPayload>
+          }
+          aggregate: {
+            args: Prisma.Wheel_winnersAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWheel_winners>
+          }
+          groupBy: {
+            args: Prisma.wheel_winnersGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Wheel_winnersGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.wheel_winnersCountArgs<ExtArgs>
+            result: $Utils.Optional<Wheel_winnersCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -10432,6 +10792,10 @@ export namespace Prisma {
     withholding_tax_income_items?: withholding_tax_income_itemsOmit
     serviceSchedule?: ServiceScheduleOmit
     pushSubscription?: PushSubscriptionOmit
+    wheel_events?: wheel_eventsOmit
+    wheel_prizes?: wheel_prizesOmit
+    wheel_tickets?: wheel_ticketsOmit
+    wheel_winners?: wheel_winnersOmit
   }
 
   /* Types for Logging */
@@ -11226,6 +11590,8 @@ export namespace Prisma {
     task_assignments: number
     tasks: number
     travel_claims: number
+    wheel_tickets: number
+    wheel_winners: number
     withholding_tax_documents: number
   }
 
@@ -11261,6 +11627,8 @@ export namespace Prisma {
     task_assignments?: boolean | EmployeesCountOutputTypeCountTask_assignmentsArgs
     tasks?: boolean | EmployeesCountOutputTypeCountTasksArgs
     travel_claims?: boolean | EmployeesCountOutputTypeCountTravel_claimsArgs
+    wheel_tickets?: boolean | EmployeesCountOutputTypeCountWheel_ticketsArgs
+    wheel_winners?: boolean | EmployeesCountOutputTypeCountWheel_winnersArgs
     withholding_tax_documents?: boolean | EmployeesCountOutputTypeCountWithholding_tax_documentsArgs
   }
 
@@ -11490,6 +11858,20 @@ export namespace Prisma {
    */
   export type EmployeesCountOutputTypeCountTravel_claimsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: travel_claimsWhereInput
+  }
+
+  /**
+   * EmployeesCountOutputType without action
+   */
+  export type EmployeesCountOutputTypeCountWheel_ticketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: wheel_ticketsWhereInput
+  }
+
+  /**
+   * EmployeesCountOutputType without action
+   */
+  export type EmployeesCountOutputTypeCountWheel_winnersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: wheel_winnersWhereInput
   }
 
   /**
@@ -12198,6 +12580,77 @@ export namespace Prisma {
    */
   export type Withholding_tax_documentsCountOutputTypeCountWithholding_tax_income_itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: withholding_tax_income_itemsWhereInput
+  }
+
+
+  /**
+   * Count Type Wheel_eventsCountOutputType
+   */
+
+  export type Wheel_eventsCountOutputType = {
+    wheel_prizes: number
+  }
+
+  export type Wheel_eventsCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wheel_prizes?: boolean | Wheel_eventsCountOutputTypeCountWheel_prizesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * Wheel_eventsCountOutputType without action
+   */
+  export type Wheel_eventsCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Wheel_eventsCountOutputType
+     */
+    select?: Wheel_eventsCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * Wheel_eventsCountOutputType without action
+   */
+  export type Wheel_eventsCountOutputTypeCountWheel_prizesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: wheel_prizesWhereInput
+  }
+
+
+  /**
+   * Count Type Wheel_prizesCountOutputType
+   */
+
+  export type Wheel_prizesCountOutputType = {
+    wheel_tickets: number
+    wheel_winners: number
+  }
+
+  export type Wheel_prizesCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wheel_tickets?: boolean | Wheel_prizesCountOutputTypeCountWheel_ticketsArgs
+    wheel_winners?: boolean | Wheel_prizesCountOutputTypeCountWheel_winnersArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * Wheel_prizesCountOutputType without action
+   */
+  export type Wheel_prizesCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Wheel_prizesCountOutputType
+     */
+    select?: Wheel_prizesCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * Wheel_prizesCountOutputType without action
+   */
+  export type Wheel_prizesCountOutputTypeCountWheel_ticketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: wheel_ticketsWhereInput
+  }
+
+  /**
+   * Wheel_prizesCountOutputType without action
+   */
+  export type Wheel_prizesCountOutputTypeCountWheel_winnersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: wheel_winnersWhereInput
   }
 
 
@@ -28835,9 +29288,9 @@ export namespace Prisma {
     productionDeadline: number
     qcAt: number
     qcBy: number
+    qcImages: number
     qcNote: number
     qcStatus: number
-    qcImages: number
     _all: number
   }
 
@@ -28920,9 +29373,9 @@ export namespace Prisma {
     productionDeadline?: true
     qcAt?: true
     qcBy?: true
+    qcImages?: true
     qcNote?: true
     qcStatus?: true
-    qcImages?: true
     _all?: true
   }
 
@@ -29032,9 +29485,9 @@ export namespace Prisma {
     productionDeadline: Date | null
     qcAt: Date | null
     qcBy: string | null
+    qcImages: string[]
     qcNote: string | null
     qcStatus: string | null
-    qcImages: string[]
     _count: OrderCountAggregateOutputType | null
     _avg: OrderAvgAggregateOutputType | null
     _sum: OrderSumAggregateOutputType | null
@@ -29076,9 +29529,9 @@ export namespace Prisma {
     productionDeadline?: boolean
     qcAt?: boolean
     qcBy?: boolean
+    qcImages?: boolean
     qcNote?: boolean
     qcStatus?: boolean
-    qcImages?: boolean
     company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
@@ -29107,9 +29560,9 @@ export namespace Prisma {
     productionDeadline?: boolean
     qcAt?: boolean
     qcBy?: boolean
+    qcImages?: boolean
     qcNote?: boolean
     qcStatus?: boolean
-    qcImages?: boolean
     company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
@@ -29135,9 +29588,9 @@ export namespace Prisma {
     productionDeadline?: boolean
     qcAt?: boolean
     qcBy?: boolean
+    qcImages?: boolean
     qcNote?: boolean
     qcStatus?: boolean
-    qcImages?: boolean
     company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
     salesperson?: boolean | Order$salespersonArgs<ExtArgs>
@@ -29163,12 +29616,12 @@ export namespace Prisma {
     productionDeadline?: boolean
     qcAt?: boolean
     qcBy?: boolean
+    qcImages?: boolean
     qcNote?: boolean
     qcStatus?: boolean
-    qcImages?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderNumber" | "companyId" | "quotationId" | "salespersonId" | "status" | "value" | "priority" | "targetDeliveryDate" | "createdAt" | "updatedAt" | "estimatedDays" | "materialReady" | "prFulfilledAt" | "prNote" | "prRequired" | "productionDeadline" | "qcAt" | "qcBy" | "qcNote" | "qcStatus" | "qcImages", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderNumber" | "companyId" | "quotationId" | "salespersonId" | "status" | "value" | "priority" | "targetDeliveryDate" | "createdAt" | "updatedAt" | "estimatedDays" | "materialReady" | "prFulfilledAt" | "prNote" | "prRequired" | "productionDeadline" | "qcAt" | "qcBy" | "qcImages" | "qcNote" | "qcStatus", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | Order$companyArgs<ExtArgs>
     quotation?: boolean | Order$quotationArgs<ExtArgs>
@@ -29217,9 +29670,9 @@ export namespace Prisma {
       productionDeadline: Date | null
       qcAt: Date | null
       qcBy: string | null
+      qcImages: string[]
       qcNote: string | null
       qcStatus: string | null
-      qcImages: string[]
     }, ExtArgs["result"]["order"]>
     composites: {}
   }
@@ -29667,9 +30120,9 @@ export namespace Prisma {
     readonly productionDeadline: FieldRef<"Order", 'DateTime'>
     readonly qcAt: FieldRef<"Order", 'DateTime'>
     readonly qcBy: FieldRef<"Order", 'String'>
+    readonly qcImages: FieldRef<"Order", 'String[]'>
     readonly qcNote: FieldRef<"Order", 'String'>
     readonly qcStatus: FieldRef<"Order", 'String'>
-    readonly qcImages: FieldRef<"Order", 'String[]'>
   }
     
 
@@ -34155,6 +34608,8 @@ export namespace Prisma {
     installmentNo: number | null
     installmentTotal: number | null
     creditType: string | null
+    invoiceDate: Date | null
+    invoiceNumber: string | null
   }
 
   export type PaymentTaskMaxAggregateOutputType = {
@@ -34172,6 +34627,8 @@ export namespace Prisma {
     installmentNo: number | null
     installmentTotal: number | null
     creditType: string | null
+    invoiceDate: Date | null
+    invoiceNumber: string | null
   }
 
   export type PaymentTaskCountAggregateOutputType = {
@@ -34189,6 +34646,8 @@ export namespace Prisma {
     installmentNo: number
     installmentTotal: number
     creditType: number
+    invoiceDate: number
+    invoiceNumber: number
     _all: number
   }
 
@@ -34222,6 +34681,8 @@ export namespace Prisma {
     installmentNo?: true
     installmentTotal?: true
     creditType?: true
+    invoiceDate?: true
+    invoiceNumber?: true
   }
 
   export type PaymentTaskMaxAggregateInputType = {
@@ -34239,6 +34700,8 @@ export namespace Prisma {
     installmentNo?: true
     installmentTotal?: true
     creditType?: true
+    invoiceDate?: true
+    invoiceNumber?: true
   }
 
   export type PaymentTaskCountAggregateInputType = {
@@ -34256,6 +34719,8 @@ export namespace Prisma {
     installmentNo?: true
     installmentTotal?: true
     creditType?: true
+    invoiceDate?: true
+    invoiceNumber?: true
     _all?: true
   }
 
@@ -34360,6 +34825,8 @@ export namespace Prisma {
     installmentNo: number | null
     installmentTotal: number | null
     creditType: string | null
+    invoiceDate: Date | null
+    invoiceNumber: string | null
     _count: PaymentTaskCountAggregateOutputType | null
     _avg: PaymentTaskAvgAggregateOutputType | null
     _sum: PaymentTaskSumAggregateOutputType | null
@@ -34396,6 +34863,8 @@ export namespace Prisma {
     installmentNo?: boolean
     installmentTotal?: boolean
     creditType?: boolean
+    invoiceDate?: boolean
+    invoiceNumber?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentTask"]>
 
@@ -34414,6 +34883,8 @@ export namespace Prisma {
     installmentNo?: boolean
     installmentTotal?: boolean
     creditType?: boolean
+    invoiceDate?: boolean
+    invoiceNumber?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentTask"]>
 
@@ -34432,6 +34903,8 @@ export namespace Prisma {
     installmentNo?: boolean
     installmentTotal?: boolean
     creditType?: boolean
+    invoiceDate?: boolean
+    invoiceNumber?: boolean
     job?: boolean | JobDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentTask"]>
 
@@ -34450,9 +34923,11 @@ export namespace Prisma {
     installmentNo?: boolean
     installmentTotal?: boolean
     creditType?: boolean
+    invoiceDate?: boolean
+    invoiceNumber?: boolean
   }
 
-  export type PaymentTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "status" | "assignedTo" | "dueDate" | "paidAmount" | "paidDate" | "note" | "createdAt" | "updatedAt" | "installmentAmount" | "installmentNo" | "installmentTotal" | "creditType", ExtArgs["result"]["paymentTask"]>
+  export type PaymentTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "jobId" | "status" | "assignedTo" | "dueDate" | "paidAmount" | "paidDate" | "note" | "createdAt" | "updatedAt" | "installmentAmount" | "installmentNo" | "installmentTotal" | "creditType" | "invoiceDate" | "invoiceNumber", ExtArgs["result"]["paymentTask"]>
   export type PaymentTaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | JobDefaultArgs<ExtArgs>
   }
@@ -34483,6 +34958,8 @@ export namespace Prisma {
       installmentNo: number | null
       installmentTotal: number | null
       creditType: string | null
+      invoiceDate: Date | null
+      invoiceNumber: string | null
     }, ExtArgs["result"]["paymentTask"]>
     composites: {}
   }
@@ -34921,6 +35398,8 @@ export namespace Prisma {
     readonly installmentNo: FieldRef<"PaymentTask", 'Int'>
     readonly installmentTotal: FieldRef<"PaymentTask", 'Int'>
     readonly creditType: FieldRef<"PaymentTask", 'String'>
+    readonly invoiceDate: FieldRef<"PaymentTask", 'DateTime'>
+    readonly invoiceNumber: FieldRef<"PaymentTask", 'String'>
   }
     
 
@@ -47578,12 +48057,14 @@ export namespace Prisma {
     id: number | null
     asset_id: number | null
     quantity: number | null
+    nights_count: number | null
   }
 
   export type Asset_borrowingsSumAggregateOutputType = {
     id: number | null
     asset_id: number | null
     quantity: number | null
+    nights_count: number | null
   }
 
   export type Asset_borrowingsMinAggregateOutputType = {
@@ -47616,6 +48097,8 @@ export namespace Prisma {
     key_signature_url: string | null
     return_status: string | null
     overnight_required: boolean | null
+    nights_count: number | null
+    trip_fee_status: string | null
   }
 
   export type Asset_borrowingsMaxAggregateOutputType = {
@@ -47648,6 +48131,8 @@ export namespace Prisma {
     key_signature_url: string | null
     return_status: string | null
     overnight_required: boolean | null
+    nights_count: number | null
+    trip_fee_status: string | null
   }
 
   export type Asset_borrowingsCountAggregateOutputType = {
@@ -47680,6 +48165,8 @@ export namespace Prisma {
     key_signature_url: number
     return_status: number
     overnight_required: number
+    nights_count: number
+    trip_fee_status: number
     _all: number
   }
 
@@ -47688,12 +48175,14 @@ export namespace Prisma {
     id?: true
     asset_id?: true
     quantity?: true
+    nights_count?: true
   }
 
   export type Asset_borrowingsSumAggregateInputType = {
     id?: true
     asset_id?: true
     quantity?: true
+    nights_count?: true
   }
 
   export type Asset_borrowingsMinAggregateInputType = {
@@ -47726,6 +48215,8 @@ export namespace Prisma {
     key_signature_url?: true
     return_status?: true
     overnight_required?: true
+    nights_count?: true
+    trip_fee_status?: true
   }
 
   export type Asset_borrowingsMaxAggregateInputType = {
@@ -47758,6 +48249,8 @@ export namespace Prisma {
     key_signature_url?: true
     return_status?: true
     overnight_required?: true
+    nights_count?: true
+    trip_fee_status?: true
   }
 
   export type Asset_borrowingsCountAggregateInputType = {
@@ -47790,6 +48283,8 @@ export namespace Prisma {
     key_signature_url?: true
     return_status?: true
     overnight_required?: true
+    nights_count?: true
+    trip_fee_status?: true
     _all?: true
   }
 
@@ -47908,7 +48403,9 @@ export namespace Prisma {
     key_returned_at: Date | null
     key_signature_url: string | null
     return_status: string | null
-    overnight_required: boolean | null
+    overnight_required: boolean
+    nights_count: number | null
+    trip_fee_status: string | null
     _count: Asset_borrowingsCountAggregateOutputType | null
     _avg: Asset_borrowingsAvgAggregateOutputType | null
     _sum: Asset_borrowingsSumAggregateOutputType | null
@@ -47960,6 +48457,8 @@ export namespace Prisma {
     key_signature_url?: boolean
     return_status?: boolean
     overnight_required?: boolean
+    nights_count?: boolean
+    trip_fee_status?: boolean
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["asset_borrowings"]>
@@ -47994,6 +48493,8 @@ export namespace Prisma {
     key_signature_url?: boolean
     return_status?: boolean
     overnight_required?: boolean
+    nights_count?: boolean
+    trip_fee_status?: boolean
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["asset_borrowings"]>
@@ -48028,6 +48529,8 @@ export namespace Prisma {
     key_signature_url?: boolean
     return_status?: boolean
     overnight_required?: boolean
+    nights_count?: boolean
+    trip_fee_status?: boolean
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["asset_borrowings"]>
@@ -48062,9 +48565,11 @@ export namespace Prisma {
     key_signature_url?: boolean
     return_status?: boolean
     overnight_required?: boolean
+    nights_count?: boolean
+    trip_fee_status?: boolean
   }
 
-  export type asset_borrowingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "asset_id" | "emp_id" | "borrow_date" | "expected_return_date" | "actual_return_date" | "location" | "condition_at_borrow" | "condition_at_return" | "is_damaged" | "photo_url_borrow" | "photo_url_return" | "status" | "created_at" | "updated_at" | "borrow_inspection_remark" | "borrow_is_body_ok" | "borrow_is_clean" | "borrow_is_insurance_ok" | "borrow_is_lights_ok" | "borrow_is_tires_ok" | "borrow_vehicle_status" | "quantity" | "key_photo_url" | "key_received_by" | "key_returned_at" | "key_signature_url" | "return_status" | "overnight_required", ExtArgs["result"]["asset_borrowings"]>
+  export type asset_borrowingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "asset_id" | "emp_id" | "borrow_date" | "expected_return_date" | "actual_return_date" | "location" | "condition_at_borrow" | "condition_at_return" | "is_damaged" | "photo_url_borrow" | "photo_url_return" | "status" | "created_at" | "updated_at" | "borrow_inspection_remark" | "borrow_is_body_ok" | "borrow_is_clean" | "borrow_is_insurance_ok" | "borrow_is_lights_ok" | "borrow_is_tires_ok" | "borrow_vehicle_status" | "quantity" | "key_photo_url" | "key_received_by" | "key_returned_at" | "key_signature_url" | "return_status" | "overnight_required" | "nights_count" | "trip_fee_status", ExtArgs["result"]["asset_borrowings"]>
   export type asset_borrowingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assets?: boolean | assetsDefaultArgs<ExtArgs>
     employees?: boolean | employeesDefaultArgs<ExtArgs>
@@ -48113,7 +48618,9 @@ export namespace Prisma {
       key_returned_at: Date | null
       key_signature_url: string | null
       return_status: string | null
-      overnight_required: boolean | null
+      overnight_required: boolean
+      nights_count: number | null
+      trip_fee_status: string | null
     }, ExtArgs["result"]["asset_borrowings"]>
     composites: {}
   }
@@ -48568,6 +49075,8 @@ export namespace Prisma {
     readonly key_signature_url: FieldRef<"asset_borrowings", 'String'>
     readonly return_status: FieldRef<"asset_borrowings", 'String'>
     readonly overnight_required: FieldRef<"asset_borrowings", 'Boolean'>
+    readonly nights_count: FieldRef<"asset_borrowings", 'Int'>
+    readonly trip_fee_status: FieldRef<"asset_borrowings", 'String'>
   }
     
 
@@ -60327,6 +60836,8 @@ export namespace Prisma {
     tasks?: boolean | employees$tasksArgs<ExtArgs>
     transfer_budgets?: boolean | employees$transfer_budgetsArgs<ExtArgs>
     travel_claims?: boolean | employees$travel_claimsArgs<ExtArgs>
+    wheel_tickets?: boolean | employees$wheel_ticketsArgs<ExtArgs>
+    wheel_winners?: boolean | employees$wheel_winnersArgs<ExtArgs>
     withholding_tax_documents?: boolean | employees$withholding_tax_documentsArgs<ExtArgs>
     _count?: boolean | EmployeesCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["employees"]>
@@ -60549,6 +61060,8 @@ export namespace Prisma {
     tasks?: boolean | employees$tasksArgs<ExtArgs>
     transfer_budgets?: boolean | employees$transfer_budgetsArgs<ExtArgs>
     travel_claims?: boolean | employees$travel_claimsArgs<ExtArgs>
+    wheel_tickets?: boolean | employees$wheel_ticketsArgs<ExtArgs>
+    wheel_winners?: boolean | employees$wheel_winnersArgs<ExtArgs>
     withholding_tax_documents?: boolean | employees$withholding_tax_documentsArgs<ExtArgs>
     _count?: boolean | EmployeesCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -60608,6 +61121,8 @@ export namespace Prisma {
       tasks: Prisma.$tasksPayload<ExtArgs>[]
       transfer_budgets: Prisma.$transfer_budgetsPayload<ExtArgs> | null
       travel_claims: Prisma.$travel_claimsPayload<ExtArgs>[]
+      wheel_tickets: Prisma.$wheel_ticketsPayload<ExtArgs>[]
+      wheel_winners: Prisma.$wheel_winnersPayload<ExtArgs>[]
       withholding_tax_documents: Prisma.$withholding_tax_documentsPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -61096,6 +61611,8 @@ export namespace Prisma {
     tasks<T extends employees$tasksArgs<ExtArgs> = {}>(args?: Subset<T, employees$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$tasksPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     transfer_budgets<T extends employees$transfer_budgetsArgs<ExtArgs> = {}>(args?: Subset<T, employees$transfer_budgetsArgs<ExtArgs>>): Prisma__transfer_budgetsClient<$Result.GetResult<Prisma.$transfer_budgetsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     travel_claims<T extends employees$travel_claimsArgs<ExtArgs> = {}>(args?: Subset<T, employees$travel_claimsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$travel_claimsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    wheel_tickets<T extends employees$wheel_ticketsArgs<ExtArgs> = {}>(args?: Subset<T, employees$wheel_ticketsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    wheel_winners<T extends employees$wheel_winnersArgs<ExtArgs> = {}>(args?: Subset<T, employees$wheel_winnersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     withholding_tax_documents<T extends employees$withholding_tax_documentsArgs<ExtArgs> = {}>(args?: Subset<T, employees$withholding_tax_documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$withholding_tax_documentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -62454,6 +62971,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Travel_claimsScalarFieldEnum | Travel_claimsScalarFieldEnum[]
+  }
+
+  /**
+   * employees.wheel_tickets
+   */
+  export type employees$wheel_ticketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    where?: wheel_ticketsWhereInput
+    orderBy?: wheel_ticketsOrderByWithRelationInput | wheel_ticketsOrderByWithRelationInput[]
+    cursor?: wheel_ticketsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Wheel_ticketsScalarFieldEnum | Wheel_ticketsScalarFieldEnum[]
+  }
+
+  /**
+   * employees.wheel_winners
+   */
+  export type employees$wheel_winnersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    where?: wheel_winnersWhereInput
+    orderBy?: wheel_winnersOrderByWithRelationInput | wheel_winnersOrderByWithRelationInput[]
+    cursor?: wheel_winnersWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Wheel_winnersScalarFieldEnum | Wheel_winnersScalarFieldEnum[]
   }
 
   /**
@@ -144137,6 +144702,4573 @@ export namespace Prisma {
 
 
   /**
+   * Model wheel_events
+   */
+
+  export type AggregateWheel_events = {
+    _count: Wheel_eventsCountAggregateOutputType | null
+    _avg: Wheel_eventsAvgAggregateOutputType | null
+    _sum: Wheel_eventsSumAggregateOutputType | null
+    _min: Wheel_eventsMinAggregateOutputType | null
+    _max: Wheel_eventsMaxAggregateOutputType | null
+  }
+
+  export type Wheel_eventsAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type Wheel_eventsSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type Wheel_eventsMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    description: string | null
+    start_date: Date | null
+    end_date: Date | null
+    is_active: boolean | null
+    created_at: Date | null
+  }
+
+  export type Wheel_eventsMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    description: string | null
+    start_date: Date | null
+    end_date: Date | null
+    is_active: boolean | null
+    created_at: Date | null
+  }
+
+  export type Wheel_eventsCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    start_date: number
+    end_date: number
+    is_active: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type Wheel_eventsAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type Wheel_eventsSumAggregateInputType = {
+    id?: true
+  }
+
+  export type Wheel_eventsMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    start_date?: true
+    end_date?: true
+    is_active?: true
+    created_at?: true
+  }
+
+  export type Wheel_eventsMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    start_date?: true
+    end_date?: true
+    is_active?: true
+    created_at?: true
+  }
+
+  export type Wheel_eventsCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    start_date?: true
+    end_date?: true
+    is_active?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type Wheel_eventsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which wheel_events to aggregate.
+     */
+    where?: wheel_eventsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_events to fetch.
+     */
+    orderBy?: wheel_eventsOrderByWithRelationInput | wheel_eventsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: wheel_eventsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_events from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_events.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned wheel_events
+    **/
+    _count?: true | Wheel_eventsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Wheel_eventsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Wheel_eventsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Wheel_eventsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Wheel_eventsMaxAggregateInputType
+  }
+
+  export type GetWheel_eventsAggregateType<T extends Wheel_eventsAggregateArgs> = {
+        [P in keyof T & keyof AggregateWheel_events]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWheel_events[P]>
+      : GetScalarType<T[P], AggregateWheel_events[P]>
+  }
+
+
+
+
+  export type wheel_eventsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: wheel_eventsWhereInput
+    orderBy?: wheel_eventsOrderByWithAggregationInput | wheel_eventsOrderByWithAggregationInput[]
+    by: Wheel_eventsScalarFieldEnum[] | Wheel_eventsScalarFieldEnum
+    having?: wheel_eventsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Wheel_eventsCountAggregateInputType | true
+    _avg?: Wheel_eventsAvgAggregateInputType
+    _sum?: Wheel_eventsSumAggregateInputType
+    _min?: Wheel_eventsMinAggregateInputType
+    _max?: Wheel_eventsMaxAggregateInputType
+  }
+
+  export type Wheel_eventsGroupByOutputType = {
+    id: number
+    name: string
+    description: string | null
+    start_date: Date | null
+    end_date: Date | null
+    is_active: boolean
+    created_at: Date
+    _count: Wheel_eventsCountAggregateOutputType | null
+    _avg: Wheel_eventsAvgAggregateOutputType | null
+    _sum: Wheel_eventsSumAggregateOutputType | null
+    _min: Wheel_eventsMinAggregateOutputType | null
+    _max: Wheel_eventsMaxAggregateOutputType | null
+  }
+
+  type GetWheel_eventsGroupByPayload<T extends wheel_eventsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Wheel_eventsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Wheel_eventsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Wheel_eventsGroupByOutputType[P]>
+            : GetScalarType<T[P], Wheel_eventsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type wheel_eventsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    start_date?: boolean
+    end_date?: boolean
+    is_active?: boolean
+    created_at?: boolean
+    wheel_prizes?: boolean | wheel_events$wheel_prizesArgs<ExtArgs>
+    _count?: boolean | Wheel_eventsCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["wheel_events"]>
+
+  export type wheel_eventsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    start_date?: boolean
+    end_date?: boolean
+    is_active?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["wheel_events"]>
+
+  export type wheel_eventsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    start_date?: boolean
+    end_date?: boolean
+    is_active?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["wheel_events"]>
+
+  export type wheel_eventsSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    start_date?: boolean
+    end_date?: boolean
+    is_active?: boolean
+    created_at?: boolean
+  }
+
+  export type wheel_eventsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "start_date" | "end_date" | "is_active" | "created_at", ExtArgs["result"]["wheel_events"]>
+  export type wheel_eventsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wheel_prizes?: boolean | wheel_events$wheel_prizesArgs<ExtArgs>
+    _count?: boolean | Wheel_eventsCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type wheel_eventsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type wheel_eventsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $wheel_eventsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "wheel_events"
+    objects: {
+      wheel_prizes: Prisma.$wheel_prizesPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      description: string | null
+      start_date: Date | null
+      end_date: Date | null
+      is_active: boolean
+      created_at: Date
+    }, ExtArgs["result"]["wheel_events"]>
+    composites: {}
+  }
+
+  type wheel_eventsGetPayload<S extends boolean | null | undefined | wheel_eventsDefaultArgs> = $Result.GetResult<Prisma.$wheel_eventsPayload, S>
+
+  type wheel_eventsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<wheel_eventsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Wheel_eventsCountAggregateInputType | true
+    }
+
+  export interface wheel_eventsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['wheel_events'], meta: { name: 'wheel_events' } }
+    /**
+     * Find zero or one Wheel_events that matches the filter.
+     * @param {wheel_eventsFindUniqueArgs} args - Arguments to find a Wheel_events
+     * @example
+     * // Get one Wheel_events
+     * const wheel_events = await prisma.wheel_events.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends wheel_eventsFindUniqueArgs>(args: SelectSubset<T, wheel_eventsFindUniqueArgs<ExtArgs>>): Prisma__wheel_eventsClient<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Wheel_events that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {wheel_eventsFindUniqueOrThrowArgs} args - Arguments to find a Wheel_events
+     * @example
+     * // Get one Wheel_events
+     * const wheel_events = await prisma.wheel_events.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends wheel_eventsFindUniqueOrThrowArgs>(args: SelectSubset<T, wheel_eventsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__wheel_eventsClient<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Wheel_events that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_eventsFindFirstArgs} args - Arguments to find a Wheel_events
+     * @example
+     * // Get one Wheel_events
+     * const wheel_events = await prisma.wheel_events.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends wheel_eventsFindFirstArgs>(args?: SelectSubset<T, wheel_eventsFindFirstArgs<ExtArgs>>): Prisma__wheel_eventsClient<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Wheel_events that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_eventsFindFirstOrThrowArgs} args - Arguments to find a Wheel_events
+     * @example
+     * // Get one Wheel_events
+     * const wheel_events = await prisma.wheel_events.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends wheel_eventsFindFirstOrThrowArgs>(args?: SelectSubset<T, wheel_eventsFindFirstOrThrowArgs<ExtArgs>>): Prisma__wheel_eventsClient<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Wheel_events that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_eventsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Wheel_events
+     * const wheel_events = await prisma.wheel_events.findMany()
+     * 
+     * // Get first 10 Wheel_events
+     * const wheel_events = await prisma.wheel_events.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const wheel_eventsWithIdOnly = await prisma.wheel_events.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends wheel_eventsFindManyArgs>(args?: SelectSubset<T, wheel_eventsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Wheel_events.
+     * @param {wheel_eventsCreateArgs} args - Arguments to create a Wheel_events.
+     * @example
+     * // Create one Wheel_events
+     * const Wheel_events = await prisma.wheel_events.create({
+     *   data: {
+     *     // ... data to create a Wheel_events
+     *   }
+     * })
+     * 
+     */
+    create<T extends wheel_eventsCreateArgs>(args: SelectSubset<T, wheel_eventsCreateArgs<ExtArgs>>): Prisma__wheel_eventsClient<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Wheel_events.
+     * @param {wheel_eventsCreateManyArgs} args - Arguments to create many Wheel_events.
+     * @example
+     * // Create many Wheel_events
+     * const wheel_events = await prisma.wheel_events.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends wheel_eventsCreateManyArgs>(args?: SelectSubset<T, wheel_eventsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Wheel_events and returns the data saved in the database.
+     * @param {wheel_eventsCreateManyAndReturnArgs} args - Arguments to create many Wheel_events.
+     * @example
+     * // Create many Wheel_events
+     * const wheel_events = await prisma.wheel_events.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Wheel_events and only return the `id`
+     * const wheel_eventsWithIdOnly = await prisma.wheel_events.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends wheel_eventsCreateManyAndReturnArgs>(args?: SelectSubset<T, wheel_eventsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Wheel_events.
+     * @param {wheel_eventsDeleteArgs} args - Arguments to delete one Wheel_events.
+     * @example
+     * // Delete one Wheel_events
+     * const Wheel_events = await prisma.wheel_events.delete({
+     *   where: {
+     *     // ... filter to delete one Wheel_events
+     *   }
+     * })
+     * 
+     */
+    delete<T extends wheel_eventsDeleteArgs>(args: SelectSubset<T, wheel_eventsDeleteArgs<ExtArgs>>): Prisma__wheel_eventsClient<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Wheel_events.
+     * @param {wheel_eventsUpdateArgs} args - Arguments to update one Wheel_events.
+     * @example
+     * // Update one Wheel_events
+     * const wheel_events = await prisma.wheel_events.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends wheel_eventsUpdateArgs>(args: SelectSubset<T, wheel_eventsUpdateArgs<ExtArgs>>): Prisma__wheel_eventsClient<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Wheel_events.
+     * @param {wheel_eventsDeleteManyArgs} args - Arguments to filter Wheel_events to delete.
+     * @example
+     * // Delete a few Wheel_events
+     * const { count } = await prisma.wheel_events.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends wheel_eventsDeleteManyArgs>(args?: SelectSubset<T, wheel_eventsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Wheel_events.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_eventsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Wheel_events
+     * const wheel_events = await prisma.wheel_events.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends wheel_eventsUpdateManyArgs>(args: SelectSubset<T, wheel_eventsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Wheel_events and returns the data updated in the database.
+     * @param {wheel_eventsUpdateManyAndReturnArgs} args - Arguments to update many Wheel_events.
+     * @example
+     * // Update many Wheel_events
+     * const wheel_events = await prisma.wheel_events.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Wheel_events and only return the `id`
+     * const wheel_eventsWithIdOnly = await prisma.wheel_events.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends wheel_eventsUpdateManyAndReturnArgs>(args: SelectSubset<T, wheel_eventsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Wheel_events.
+     * @param {wheel_eventsUpsertArgs} args - Arguments to update or create a Wheel_events.
+     * @example
+     * // Update or create a Wheel_events
+     * const wheel_events = await prisma.wheel_events.upsert({
+     *   create: {
+     *     // ... data to create a Wheel_events
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Wheel_events we want to update
+     *   }
+     * })
+     */
+    upsert<T extends wheel_eventsUpsertArgs>(args: SelectSubset<T, wheel_eventsUpsertArgs<ExtArgs>>): Prisma__wheel_eventsClient<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Wheel_events.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_eventsCountArgs} args - Arguments to filter Wheel_events to count.
+     * @example
+     * // Count the number of Wheel_events
+     * const count = await prisma.wheel_events.count({
+     *   where: {
+     *     // ... the filter for the Wheel_events we want to count
+     *   }
+     * })
+    **/
+    count<T extends wheel_eventsCountArgs>(
+      args?: Subset<T, wheel_eventsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Wheel_eventsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Wheel_events.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Wheel_eventsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Wheel_eventsAggregateArgs>(args: Subset<T, Wheel_eventsAggregateArgs>): Prisma.PrismaPromise<GetWheel_eventsAggregateType<T>>
+
+    /**
+     * Group by Wheel_events.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_eventsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends wheel_eventsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: wheel_eventsGroupByArgs['orderBy'] }
+        : { orderBy?: wheel_eventsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, wheel_eventsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWheel_eventsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the wheel_events model
+   */
+  readonly fields: wheel_eventsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for wheel_events.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__wheel_eventsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    wheel_prizes<T extends wheel_events$wheel_prizesArgs<ExtArgs> = {}>(args?: Subset<T, wheel_events$wheel_prizesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the wheel_events model
+   */
+  interface wheel_eventsFieldRefs {
+    readonly id: FieldRef<"wheel_events", 'Int'>
+    readonly name: FieldRef<"wheel_events", 'String'>
+    readonly description: FieldRef<"wheel_events", 'String'>
+    readonly start_date: FieldRef<"wheel_events", 'DateTime'>
+    readonly end_date: FieldRef<"wheel_events", 'DateTime'>
+    readonly is_active: FieldRef<"wheel_events", 'Boolean'>
+    readonly created_at: FieldRef<"wheel_events", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * wheel_events findUnique
+   */
+  export type wheel_eventsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_eventsInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_events to fetch.
+     */
+    where: wheel_eventsWhereUniqueInput
+  }
+
+  /**
+   * wheel_events findUniqueOrThrow
+   */
+  export type wheel_eventsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_eventsInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_events to fetch.
+     */
+    where: wheel_eventsWhereUniqueInput
+  }
+
+  /**
+   * wheel_events findFirst
+   */
+  export type wheel_eventsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_eventsInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_events to fetch.
+     */
+    where?: wheel_eventsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_events to fetch.
+     */
+    orderBy?: wheel_eventsOrderByWithRelationInput | wheel_eventsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for wheel_events.
+     */
+    cursor?: wheel_eventsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_events from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_events.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_events.
+     */
+    distinct?: Wheel_eventsScalarFieldEnum | Wheel_eventsScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_events findFirstOrThrow
+   */
+  export type wheel_eventsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_eventsInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_events to fetch.
+     */
+    where?: wheel_eventsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_events to fetch.
+     */
+    orderBy?: wheel_eventsOrderByWithRelationInput | wheel_eventsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for wheel_events.
+     */
+    cursor?: wheel_eventsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_events from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_events.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_events.
+     */
+    distinct?: Wheel_eventsScalarFieldEnum | Wheel_eventsScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_events findMany
+   */
+  export type wheel_eventsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_eventsInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_events to fetch.
+     */
+    where?: wheel_eventsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_events to fetch.
+     */
+    orderBy?: wheel_eventsOrderByWithRelationInput | wheel_eventsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing wheel_events.
+     */
+    cursor?: wheel_eventsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_events from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_events.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_events.
+     */
+    distinct?: Wheel_eventsScalarFieldEnum | Wheel_eventsScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_events create
+   */
+  export type wheel_eventsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_eventsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a wheel_events.
+     */
+    data: XOR<wheel_eventsCreateInput, wheel_eventsUncheckedCreateInput>
+  }
+
+  /**
+   * wheel_events createMany
+   */
+  export type wheel_eventsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many wheel_events.
+     */
+    data: wheel_eventsCreateManyInput | wheel_eventsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * wheel_events createManyAndReturn
+   */
+  export type wheel_eventsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * The data used to create many wheel_events.
+     */
+    data: wheel_eventsCreateManyInput | wheel_eventsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * wheel_events update
+   */
+  export type wheel_eventsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_eventsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a wheel_events.
+     */
+    data: XOR<wheel_eventsUpdateInput, wheel_eventsUncheckedUpdateInput>
+    /**
+     * Choose, which wheel_events to update.
+     */
+    where: wheel_eventsWhereUniqueInput
+  }
+
+  /**
+   * wheel_events updateMany
+   */
+  export type wheel_eventsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update wheel_events.
+     */
+    data: XOR<wheel_eventsUpdateManyMutationInput, wheel_eventsUncheckedUpdateManyInput>
+    /**
+     * Filter which wheel_events to update
+     */
+    where?: wheel_eventsWhereInput
+    /**
+     * Limit how many wheel_events to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * wheel_events updateManyAndReturn
+   */
+  export type wheel_eventsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * The data used to update wheel_events.
+     */
+    data: XOR<wheel_eventsUpdateManyMutationInput, wheel_eventsUncheckedUpdateManyInput>
+    /**
+     * Filter which wheel_events to update
+     */
+    where?: wheel_eventsWhereInput
+    /**
+     * Limit how many wheel_events to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * wheel_events upsert
+   */
+  export type wheel_eventsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_eventsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the wheel_events to update in case it exists.
+     */
+    where: wheel_eventsWhereUniqueInput
+    /**
+     * In case the wheel_events found by the `where` argument doesn't exist, create a new wheel_events with this data.
+     */
+    create: XOR<wheel_eventsCreateInput, wheel_eventsUncheckedCreateInput>
+    /**
+     * In case the wheel_events was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<wheel_eventsUpdateInput, wheel_eventsUncheckedUpdateInput>
+  }
+
+  /**
+   * wheel_events delete
+   */
+  export type wheel_eventsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_eventsInclude<ExtArgs> | null
+    /**
+     * Filter which wheel_events to delete.
+     */
+    where: wheel_eventsWhereUniqueInput
+  }
+
+  /**
+   * wheel_events deleteMany
+   */
+  export type wheel_eventsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which wheel_events to delete
+     */
+    where?: wheel_eventsWhereInput
+    /**
+     * Limit how many wheel_events to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * wheel_events.wheel_prizes
+   */
+  export type wheel_events$wheel_prizesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+    where?: wheel_prizesWhereInput
+    orderBy?: wheel_prizesOrderByWithRelationInput | wheel_prizesOrderByWithRelationInput[]
+    cursor?: wheel_prizesWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Wheel_prizesScalarFieldEnum | Wheel_prizesScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_events without action
+   */
+  export type wheel_eventsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_events
+     */
+    select?: wheel_eventsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_events
+     */
+    omit?: wheel_eventsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_eventsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model wheel_prizes
+   */
+
+  export type AggregateWheel_prizes = {
+    _count: Wheel_prizesCountAggregateOutputType | null
+    _avg: Wheel_prizesAvgAggregateOutputType | null
+    _sum: Wheel_prizesSumAggregateOutputType | null
+    _min: Wheel_prizesMinAggregateOutputType | null
+    _max: Wheel_prizesMaxAggregateOutputType | null
+  }
+
+  export type Wheel_prizesAvgAggregateOutputType = {
+    id: number | null
+    event_id: number | null
+    bonus_amount: number | null
+    quantity: number | null
+  }
+
+  export type Wheel_prizesSumAggregateOutputType = {
+    id: number | null
+    event_id: number | null
+    bonus_amount: number | null
+    quantity: number | null
+  }
+
+  export type Wheel_prizesMinAggregateOutputType = {
+    id: number | null
+    event_id: number | null
+    name: string | null
+    bonus_amount: number | null
+    quantity: number | null
+    is_active: boolean | null
+  }
+
+  export type Wheel_prizesMaxAggregateOutputType = {
+    id: number | null
+    event_id: number | null
+    name: string | null
+    bonus_amount: number | null
+    quantity: number | null
+    is_active: boolean | null
+  }
+
+  export type Wheel_prizesCountAggregateOutputType = {
+    id: number
+    event_id: number
+    name: number
+    bonus_amount: number
+    quantity: number
+    is_active: number
+    _all: number
+  }
+
+
+  export type Wheel_prizesAvgAggregateInputType = {
+    id?: true
+    event_id?: true
+    bonus_amount?: true
+    quantity?: true
+  }
+
+  export type Wheel_prizesSumAggregateInputType = {
+    id?: true
+    event_id?: true
+    bonus_amount?: true
+    quantity?: true
+  }
+
+  export type Wheel_prizesMinAggregateInputType = {
+    id?: true
+    event_id?: true
+    name?: true
+    bonus_amount?: true
+    quantity?: true
+    is_active?: true
+  }
+
+  export type Wheel_prizesMaxAggregateInputType = {
+    id?: true
+    event_id?: true
+    name?: true
+    bonus_amount?: true
+    quantity?: true
+    is_active?: true
+  }
+
+  export type Wheel_prizesCountAggregateInputType = {
+    id?: true
+    event_id?: true
+    name?: true
+    bonus_amount?: true
+    quantity?: true
+    is_active?: true
+    _all?: true
+  }
+
+  export type Wheel_prizesAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which wheel_prizes to aggregate.
+     */
+    where?: wheel_prizesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_prizes to fetch.
+     */
+    orderBy?: wheel_prizesOrderByWithRelationInput | wheel_prizesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: wheel_prizesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_prizes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_prizes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned wheel_prizes
+    **/
+    _count?: true | Wheel_prizesCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Wheel_prizesAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Wheel_prizesSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Wheel_prizesMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Wheel_prizesMaxAggregateInputType
+  }
+
+  export type GetWheel_prizesAggregateType<T extends Wheel_prizesAggregateArgs> = {
+        [P in keyof T & keyof AggregateWheel_prizes]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWheel_prizes[P]>
+      : GetScalarType<T[P], AggregateWheel_prizes[P]>
+  }
+
+
+
+
+  export type wheel_prizesGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: wheel_prizesWhereInput
+    orderBy?: wheel_prizesOrderByWithAggregationInput | wheel_prizesOrderByWithAggregationInput[]
+    by: Wheel_prizesScalarFieldEnum[] | Wheel_prizesScalarFieldEnum
+    having?: wheel_prizesScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Wheel_prizesCountAggregateInputType | true
+    _avg?: Wheel_prizesAvgAggregateInputType
+    _sum?: Wheel_prizesSumAggregateInputType
+    _min?: Wheel_prizesMinAggregateInputType
+    _max?: Wheel_prizesMaxAggregateInputType
+  }
+
+  export type Wheel_prizesGroupByOutputType = {
+    id: number
+    event_id: number
+    name: string
+    bonus_amount: number
+    quantity: number
+    is_active: boolean
+    _count: Wheel_prizesCountAggregateOutputType | null
+    _avg: Wheel_prizesAvgAggregateOutputType | null
+    _sum: Wheel_prizesSumAggregateOutputType | null
+    _min: Wheel_prizesMinAggregateOutputType | null
+    _max: Wheel_prizesMaxAggregateOutputType | null
+  }
+
+  type GetWheel_prizesGroupByPayload<T extends wheel_prizesGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Wheel_prizesGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Wheel_prizesGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Wheel_prizesGroupByOutputType[P]>
+            : GetScalarType<T[P], Wheel_prizesGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type wheel_prizesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event_id?: boolean
+    name?: boolean
+    bonus_amount?: boolean
+    quantity?: boolean
+    is_active?: boolean
+    wheel_events?: boolean | wheel_eventsDefaultArgs<ExtArgs>
+    wheel_tickets?: boolean | wheel_prizes$wheel_ticketsArgs<ExtArgs>
+    wheel_winners?: boolean | wheel_prizes$wheel_winnersArgs<ExtArgs>
+    _count?: boolean | Wheel_prizesCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["wheel_prizes"]>
+
+  export type wheel_prizesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event_id?: boolean
+    name?: boolean
+    bonus_amount?: boolean
+    quantity?: boolean
+    is_active?: boolean
+    wheel_events?: boolean | wheel_eventsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["wheel_prizes"]>
+
+  export type wheel_prizesSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event_id?: boolean
+    name?: boolean
+    bonus_amount?: boolean
+    quantity?: boolean
+    is_active?: boolean
+    wheel_events?: boolean | wheel_eventsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["wheel_prizes"]>
+
+  export type wheel_prizesSelectScalar = {
+    id?: boolean
+    event_id?: boolean
+    name?: boolean
+    bonus_amount?: boolean
+    quantity?: boolean
+    is_active?: boolean
+  }
+
+  export type wheel_prizesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "event_id" | "name" | "bonus_amount" | "quantity" | "is_active", ExtArgs["result"]["wheel_prizes"]>
+  export type wheel_prizesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wheel_events?: boolean | wheel_eventsDefaultArgs<ExtArgs>
+    wheel_tickets?: boolean | wheel_prizes$wheel_ticketsArgs<ExtArgs>
+    wheel_winners?: boolean | wheel_prizes$wheel_winnersArgs<ExtArgs>
+    _count?: boolean | Wheel_prizesCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type wheel_prizesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wheel_events?: boolean | wheel_eventsDefaultArgs<ExtArgs>
+  }
+  export type wheel_prizesIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    wheel_events?: boolean | wheel_eventsDefaultArgs<ExtArgs>
+  }
+
+  export type $wheel_prizesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "wheel_prizes"
+    objects: {
+      wheel_events: Prisma.$wheel_eventsPayload<ExtArgs>
+      wheel_tickets: Prisma.$wheel_ticketsPayload<ExtArgs>[]
+      wheel_winners: Prisma.$wheel_winnersPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      event_id: number
+      name: string
+      bonus_amount: number
+      quantity: number
+      is_active: boolean
+    }, ExtArgs["result"]["wheel_prizes"]>
+    composites: {}
+  }
+
+  type wheel_prizesGetPayload<S extends boolean | null | undefined | wheel_prizesDefaultArgs> = $Result.GetResult<Prisma.$wheel_prizesPayload, S>
+
+  type wheel_prizesCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<wheel_prizesFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Wheel_prizesCountAggregateInputType | true
+    }
+
+  export interface wheel_prizesDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['wheel_prizes'], meta: { name: 'wheel_prizes' } }
+    /**
+     * Find zero or one Wheel_prizes that matches the filter.
+     * @param {wheel_prizesFindUniqueArgs} args - Arguments to find a Wheel_prizes
+     * @example
+     * // Get one Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends wheel_prizesFindUniqueArgs>(args: SelectSubset<T, wheel_prizesFindUniqueArgs<ExtArgs>>): Prisma__wheel_prizesClient<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Wheel_prizes that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {wheel_prizesFindUniqueOrThrowArgs} args - Arguments to find a Wheel_prizes
+     * @example
+     * // Get one Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends wheel_prizesFindUniqueOrThrowArgs>(args: SelectSubset<T, wheel_prizesFindUniqueOrThrowArgs<ExtArgs>>): Prisma__wheel_prizesClient<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Wheel_prizes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_prizesFindFirstArgs} args - Arguments to find a Wheel_prizes
+     * @example
+     * // Get one Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends wheel_prizesFindFirstArgs>(args?: SelectSubset<T, wheel_prizesFindFirstArgs<ExtArgs>>): Prisma__wheel_prizesClient<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Wheel_prizes that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_prizesFindFirstOrThrowArgs} args - Arguments to find a Wheel_prizes
+     * @example
+     * // Get one Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends wheel_prizesFindFirstOrThrowArgs>(args?: SelectSubset<T, wheel_prizesFindFirstOrThrowArgs<ExtArgs>>): Prisma__wheel_prizesClient<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Wheel_prizes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_prizesFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.findMany()
+     * 
+     * // Get first 10 Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const wheel_prizesWithIdOnly = await prisma.wheel_prizes.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends wheel_prizesFindManyArgs>(args?: SelectSubset<T, wheel_prizesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Wheel_prizes.
+     * @param {wheel_prizesCreateArgs} args - Arguments to create a Wheel_prizes.
+     * @example
+     * // Create one Wheel_prizes
+     * const Wheel_prizes = await prisma.wheel_prizes.create({
+     *   data: {
+     *     // ... data to create a Wheel_prizes
+     *   }
+     * })
+     * 
+     */
+    create<T extends wheel_prizesCreateArgs>(args: SelectSubset<T, wheel_prizesCreateArgs<ExtArgs>>): Prisma__wheel_prizesClient<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Wheel_prizes.
+     * @param {wheel_prizesCreateManyArgs} args - Arguments to create many Wheel_prizes.
+     * @example
+     * // Create many Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends wheel_prizesCreateManyArgs>(args?: SelectSubset<T, wheel_prizesCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Wheel_prizes and returns the data saved in the database.
+     * @param {wheel_prizesCreateManyAndReturnArgs} args - Arguments to create many Wheel_prizes.
+     * @example
+     * // Create many Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Wheel_prizes and only return the `id`
+     * const wheel_prizesWithIdOnly = await prisma.wheel_prizes.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends wheel_prizesCreateManyAndReturnArgs>(args?: SelectSubset<T, wheel_prizesCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Wheel_prizes.
+     * @param {wheel_prizesDeleteArgs} args - Arguments to delete one Wheel_prizes.
+     * @example
+     * // Delete one Wheel_prizes
+     * const Wheel_prizes = await prisma.wheel_prizes.delete({
+     *   where: {
+     *     // ... filter to delete one Wheel_prizes
+     *   }
+     * })
+     * 
+     */
+    delete<T extends wheel_prizesDeleteArgs>(args: SelectSubset<T, wheel_prizesDeleteArgs<ExtArgs>>): Prisma__wheel_prizesClient<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Wheel_prizes.
+     * @param {wheel_prizesUpdateArgs} args - Arguments to update one Wheel_prizes.
+     * @example
+     * // Update one Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends wheel_prizesUpdateArgs>(args: SelectSubset<T, wheel_prizesUpdateArgs<ExtArgs>>): Prisma__wheel_prizesClient<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Wheel_prizes.
+     * @param {wheel_prizesDeleteManyArgs} args - Arguments to filter Wheel_prizes to delete.
+     * @example
+     * // Delete a few Wheel_prizes
+     * const { count } = await prisma.wheel_prizes.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends wheel_prizesDeleteManyArgs>(args?: SelectSubset<T, wheel_prizesDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Wheel_prizes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_prizesUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends wheel_prizesUpdateManyArgs>(args: SelectSubset<T, wheel_prizesUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Wheel_prizes and returns the data updated in the database.
+     * @param {wheel_prizesUpdateManyAndReturnArgs} args - Arguments to update many Wheel_prizes.
+     * @example
+     * // Update many Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Wheel_prizes and only return the `id`
+     * const wheel_prizesWithIdOnly = await prisma.wheel_prizes.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends wheel_prizesUpdateManyAndReturnArgs>(args: SelectSubset<T, wheel_prizesUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Wheel_prizes.
+     * @param {wheel_prizesUpsertArgs} args - Arguments to update or create a Wheel_prizes.
+     * @example
+     * // Update or create a Wheel_prizes
+     * const wheel_prizes = await prisma.wheel_prizes.upsert({
+     *   create: {
+     *     // ... data to create a Wheel_prizes
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Wheel_prizes we want to update
+     *   }
+     * })
+     */
+    upsert<T extends wheel_prizesUpsertArgs>(args: SelectSubset<T, wheel_prizesUpsertArgs<ExtArgs>>): Prisma__wheel_prizesClient<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Wheel_prizes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_prizesCountArgs} args - Arguments to filter Wheel_prizes to count.
+     * @example
+     * // Count the number of Wheel_prizes
+     * const count = await prisma.wheel_prizes.count({
+     *   where: {
+     *     // ... the filter for the Wheel_prizes we want to count
+     *   }
+     * })
+    **/
+    count<T extends wheel_prizesCountArgs>(
+      args?: Subset<T, wheel_prizesCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Wheel_prizesCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Wheel_prizes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Wheel_prizesAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Wheel_prizesAggregateArgs>(args: Subset<T, Wheel_prizesAggregateArgs>): Prisma.PrismaPromise<GetWheel_prizesAggregateType<T>>
+
+    /**
+     * Group by Wheel_prizes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_prizesGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends wheel_prizesGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: wheel_prizesGroupByArgs['orderBy'] }
+        : { orderBy?: wheel_prizesGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, wheel_prizesGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWheel_prizesGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the wheel_prizes model
+   */
+  readonly fields: wheel_prizesFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for wheel_prizes.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__wheel_prizesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    wheel_events<T extends wheel_eventsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, wheel_eventsDefaultArgs<ExtArgs>>): Prisma__wheel_eventsClient<$Result.GetResult<Prisma.$wheel_eventsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    wheel_tickets<T extends wheel_prizes$wheel_ticketsArgs<ExtArgs> = {}>(args?: Subset<T, wheel_prizes$wheel_ticketsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    wheel_winners<T extends wheel_prizes$wheel_winnersArgs<ExtArgs> = {}>(args?: Subset<T, wheel_prizes$wheel_winnersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the wheel_prizes model
+   */
+  interface wheel_prizesFieldRefs {
+    readonly id: FieldRef<"wheel_prizes", 'Int'>
+    readonly event_id: FieldRef<"wheel_prizes", 'Int'>
+    readonly name: FieldRef<"wheel_prizes", 'String'>
+    readonly bonus_amount: FieldRef<"wheel_prizes", 'Int'>
+    readonly quantity: FieldRef<"wheel_prizes", 'Int'>
+    readonly is_active: FieldRef<"wheel_prizes", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * wheel_prizes findUnique
+   */
+  export type wheel_prizesFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_prizes to fetch.
+     */
+    where: wheel_prizesWhereUniqueInput
+  }
+
+  /**
+   * wheel_prizes findUniqueOrThrow
+   */
+  export type wheel_prizesFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_prizes to fetch.
+     */
+    where: wheel_prizesWhereUniqueInput
+  }
+
+  /**
+   * wheel_prizes findFirst
+   */
+  export type wheel_prizesFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_prizes to fetch.
+     */
+    where?: wheel_prizesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_prizes to fetch.
+     */
+    orderBy?: wheel_prizesOrderByWithRelationInput | wheel_prizesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for wheel_prizes.
+     */
+    cursor?: wheel_prizesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_prizes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_prizes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_prizes.
+     */
+    distinct?: Wheel_prizesScalarFieldEnum | Wheel_prizesScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_prizes findFirstOrThrow
+   */
+  export type wheel_prizesFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_prizes to fetch.
+     */
+    where?: wheel_prizesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_prizes to fetch.
+     */
+    orderBy?: wheel_prizesOrderByWithRelationInput | wheel_prizesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for wheel_prizes.
+     */
+    cursor?: wheel_prizesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_prizes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_prizes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_prizes.
+     */
+    distinct?: Wheel_prizesScalarFieldEnum | Wheel_prizesScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_prizes findMany
+   */
+  export type wheel_prizesFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_prizes to fetch.
+     */
+    where?: wheel_prizesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_prizes to fetch.
+     */
+    orderBy?: wheel_prizesOrderByWithRelationInput | wheel_prizesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing wheel_prizes.
+     */
+    cursor?: wheel_prizesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_prizes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_prizes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_prizes.
+     */
+    distinct?: Wheel_prizesScalarFieldEnum | Wheel_prizesScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_prizes create
+   */
+  export type wheel_prizesCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+    /**
+     * The data needed to create a wheel_prizes.
+     */
+    data: XOR<wheel_prizesCreateInput, wheel_prizesUncheckedCreateInput>
+  }
+
+  /**
+   * wheel_prizes createMany
+   */
+  export type wheel_prizesCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many wheel_prizes.
+     */
+    data: wheel_prizesCreateManyInput | wheel_prizesCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * wheel_prizes createManyAndReturn
+   */
+  export type wheel_prizesCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * The data used to create many wheel_prizes.
+     */
+    data: wheel_prizesCreateManyInput | wheel_prizesCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * wheel_prizes update
+   */
+  export type wheel_prizesUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+    /**
+     * The data needed to update a wheel_prizes.
+     */
+    data: XOR<wheel_prizesUpdateInput, wheel_prizesUncheckedUpdateInput>
+    /**
+     * Choose, which wheel_prizes to update.
+     */
+    where: wheel_prizesWhereUniqueInput
+  }
+
+  /**
+   * wheel_prizes updateMany
+   */
+  export type wheel_prizesUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update wheel_prizes.
+     */
+    data: XOR<wheel_prizesUpdateManyMutationInput, wheel_prizesUncheckedUpdateManyInput>
+    /**
+     * Filter which wheel_prizes to update
+     */
+    where?: wheel_prizesWhereInput
+    /**
+     * Limit how many wheel_prizes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * wheel_prizes updateManyAndReturn
+   */
+  export type wheel_prizesUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * The data used to update wheel_prizes.
+     */
+    data: XOR<wheel_prizesUpdateManyMutationInput, wheel_prizesUncheckedUpdateManyInput>
+    /**
+     * Filter which wheel_prizes to update
+     */
+    where?: wheel_prizesWhereInput
+    /**
+     * Limit how many wheel_prizes to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * wheel_prizes upsert
+   */
+  export type wheel_prizesUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+    /**
+     * The filter to search for the wheel_prizes to update in case it exists.
+     */
+    where: wheel_prizesWhereUniqueInput
+    /**
+     * In case the wheel_prizes found by the `where` argument doesn't exist, create a new wheel_prizes with this data.
+     */
+    create: XOR<wheel_prizesCreateInput, wheel_prizesUncheckedCreateInput>
+    /**
+     * In case the wheel_prizes was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<wheel_prizesUpdateInput, wheel_prizesUncheckedUpdateInput>
+  }
+
+  /**
+   * wheel_prizes delete
+   */
+  export type wheel_prizesDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+    /**
+     * Filter which wheel_prizes to delete.
+     */
+    where: wheel_prizesWhereUniqueInput
+  }
+
+  /**
+   * wheel_prizes deleteMany
+   */
+  export type wheel_prizesDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which wheel_prizes to delete
+     */
+    where?: wheel_prizesWhereInput
+    /**
+     * Limit how many wheel_prizes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * wheel_prizes.wheel_tickets
+   */
+  export type wheel_prizes$wheel_ticketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    where?: wheel_ticketsWhereInput
+    orderBy?: wheel_ticketsOrderByWithRelationInput | wheel_ticketsOrderByWithRelationInput[]
+    cursor?: wheel_ticketsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Wheel_ticketsScalarFieldEnum | Wheel_ticketsScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_prizes.wheel_winners
+   */
+  export type wheel_prizes$wheel_winnersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    where?: wheel_winnersWhereInput
+    orderBy?: wheel_winnersOrderByWithRelationInput | wheel_winnersOrderByWithRelationInput[]
+    cursor?: wheel_winnersWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Wheel_winnersScalarFieldEnum | Wheel_winnersScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_prizes without action
+   */
+  export type wheel_prizesDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_prizes
+     */
+    select?: wheel_prizesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_prizes
+     */
+    omit?: wheel_prizesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_prizesInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model wheel_tickets
+   */
+
+  export type AggregateWheel_tickets = {
+    _count: Wheel_ticketsCountAggregateOutputType | null
+    _avg: Wheel_ticketsAvgAggregateOutputType | null
+    _sum: Wheel_ticketsSumAggregateOutputType | null
+    _min: Wheel_ticketsMinAggregateOutputType | null
+    _max: Wheel_ticketsMaxAggregateOutputType | null
+  }
+
+  export type Wheel_ticketsAvgAggregateOutputType = {
+    id: number | null
+    prize_id: number | null
+    coins_spent: number | null
+    ticket_count: number | null
+  }
+
+  export type Wheel_ticketsSumAggregateOutputType = {
+    id: number | null
+    prize_id: number | null
+    coins_spent: number | null
+    ticket_count: number | null
+  }
+
+  export type Wheel_ticketsMinAggregateOutputType = {
+    id: number | null
+    emp_id: string | null
+    prize_id: number | null
+    coin_type_used: string | null
+    coins_spent: number | null
+    ticket_count: number | null
+    created_at: Date | null
+  }
+
+  export type Wheel_ticketsMaxAggregateOutputType = {
+    id: number | null
+    emp_id: string | null
+    prize_id: number | null
+    coin_type_used: string | null
+    coins_spent: number | null
+    ticket_count: number | null
+    created_at: Date | null
+  }
+
+  export type Wheel_ticketsCountAggregateOutputType = {
+    id: number
+    emp_id: number
+    prize_id: number
+    coin_type_used: number
+    coins_spent: number
+    ticket_count: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type Wheel_ticketsAvgAggregateInputType = {
+    id?: true
+    prize_id?: true
+    coins_spent?: true
+    ticket_count?: true
+  }
+
+  export type Wheel_ticketsSumAggregateInputType = {
+    id?: true
+    prize_id?: true
+    coins_spent?: true
+    ticket_count?: true
+  }
+
+  export type Wheel_ticketsMinAggregateInputType = {
+    id?: true
+    emp_id?: true
+    prize_id?: true
+    coin_type_used?: true
+    coins_spent?: true
+    ticket_count?: true
+    created_at?: true
+  }
+
+  export type Wheel_ticketsMaxAggregateInputType = {
+    id?: true
+    emp_id?: true
+    prize_id?: true
+    coin_type_used?: true
+    coins_spent?: true
+    ticket_count?: true
+    created_at?: true
+  }
+
+  export type Wheel_ticketsCountAggregateInputType = {
+    id?: true
+    emp_id?: true
+    prize_id?: true
+    coin_type_used?: true
+    coins_spent?: true
+    ticket_count?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type Wheel_ticketsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which wheel_tickets to aggregate.
+     */
+    where?: wheel_ticketsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_tickets to fetch.
+     */
+    orderBy?: wheel_ticketsOrderByWithRelationInput | wheel_ticketsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: wheel_ticketsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_tickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_tickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned wheel_tickets
+    **/
+    _count?: true | Wheel_ticketsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Wheel_ticketsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Wheel_ticketsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Wheel_ticketsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Wheel_ticketsMaxAggregateInputType
+  }
+
+  export type GetWheel_ticketsAggregateType<T extends Wheel_ticketsAggregateArgs> = {
+        [P in keyof T & keyof AggregateWheel_tickets]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWheel_tickets[P]>
+      : GetScalarType<T[P], AggregateWheel_tickets[P]>
+  }
+
+
+
+
+  export type wheel_ticketsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: wheel_ticketsWhereInput
+    orderBy?: wheel_ticketsOrderByWithAggregationInput | wheel_ticketsOrderByWithAggregationInput[]
+    by: Wheel_ticketsScalarFieldEnum[] | Wheel_ticketsScalarFieldEnum
+    having?: wheel_ticketsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Wheel_ticketsCountAggregateInputType | true
+    _avg?: Wheel_ticketsAvgAggregateInputType
+    _sum?: Wheel_ticketsSumAggregateInputType
+    _min?: Wheel_ticketsMinAggregateInputType
+    _max?: Wheel_ticketsMaxAggregateInputType
+  }
+
+  export type Wheel_ticketsGroupByOutputType = {
+    id: number
+    emp_id: string
+    prize_id: number
+    coin_type_used: string
+    coins_spent: number
+    ticket_count: number
+    created_at: Date
+    _count: Wheel_ticketsCountAggregateOutputType | null
+    _avg: Wheel_ticketsAvgAggregateOutputType | null
+    _sum: Wheel_ticketsSumAggregateOutputType | null
+    _min: Wheel_ticketsMinAggregateOutputType | null
+    _max: Wheel_ticketsMaxAggregateOutputType | null
+  }
+
+  type GetWheel_ticketsGroupByPayload<T extends wheel_ticketsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Wheel_ticketsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Wheel_ticketsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Wheel_ticketsGroupByOutputType[P]>
+            : GetScalarType<T[P], Wheel_ticketsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type wheel_ticketsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    prize_id?: boolean
+    coin_type_used?: boolean
+    coins_spent?: boolean
+    ticket_count?: boolean
+    created_at?: boolean
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["wheel_tickets"]>
+
+  export type wheel_ticketsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    prize_id?: boolean
+    coin_type_used?: boolean
+    coins_spent?: boolean
+    ticket_count?: boolean
+    created_at?: boolean
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["wheel_tickets"]>
+
+  export type wheel_ticketsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    prize_id?: boolean
+    coin_type_used?: boolean
+    coins_spent?: boolean
+    ticket_count?: boolean
+    created_at?: boolean
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["wheel_tickets"]>
+
+  export type wheel_ticketsSelectScalar = {
+    id?: boolean
+    emp_id?: boolean
+    prize_id?: boolean
+    coin_type_used?: boolean
+    coins_spent?: boolean
+    ticket_count?: boolean
+    created_at?: boolean
+  }
+
+  export type wheel_ticketsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emp_id" | "prize_id" | "coin_type_used" | "coins_spent" | "ticket_count" | "created_at", ExtArgs["result"]["wheel_tickets"]>
+  export type wheel_ticketsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }
+  export type wheel_ticketsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }
+  export type wheel_ticketsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }
+
+  export type $wheel_ticketsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "wheel_tickets"
+    objects: {
+      employees: Prisma.$employeesPayload<ExtArgs>
+      wheel_prizes: Prisma.$wheel_prizesPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      emp_id: string
+      prize_id: number
+      coin_type_used: string
+      coins_spent: number
+      ticket_count: number
+      created_at: Date
+    }, ExtArgs["result"]["wheel_tickets"]>
+    composites: {}
+  }
+
+  type wheel_ticketsGetPayload<S extends boolean | null | undefined | wheel_ticketsDefaultArgs> = $Result.GetResult<Prisma.$wheel_ticketsPayload, S>
+
+  type wheel_ticketsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<wheel_ticketsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Wheel_ticketsCountAggregateInputType | true
+    }
+
+  export interface wheel_ticketsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['wheel_tickets'], meta: { name: 'wheel_tickets' } }
+    /**
+     * Find zero or one Wheel_tickets that matches the filter.
+     * @param {wheel_ticketsFindUniqueArgs} args - Arguments to find a Wheel_tickets
+     * @example
+     * // Get one Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends wheel_ticketsFindUniqueArgs>(args: SelectSubset<T, wheel_ticketsFindUniqueArgs<ExtArgs>>): Prisma__wheel_ticketsClient<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Wheel_tickets that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {wheel_ticketsFindUniqueOrThrowArgs} args - Arguments to find a Wheel_tickets
+     * @example
+     * // Get one Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends wheel_ticketsFindUniqueOrThrowArgs>(args: SelectSubset<T, wheel_ticketsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__wheel_ticketsClient<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Wheel_tickets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_ticketsFindFirstArgs} args - Arguments to find a Wheel_tickets
+     * @example
+     * // Get one Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends wheel_ticketsFindFirstArgs>(args?: SelectSubset<T, wheel_ticketsFindFirstArgs<ExtArgs>>): Prisma__wheel_ticketsClient<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Wheel_tickets that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_ticketsFindFirstOrThrowArgs} args - Arguments to find a Wheel_tickets
+     * @example
+     * // Get one Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends wheel_ticketsFindFirstOrThrowArgs>(args?: SelectSubset<T, wheel_ticketsFindFirstOrThrowArgs<ExtArgs>>): Prisma__wheel_ticketsClient<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Wheel_tickets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_ticketsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.findMany()
+     * 
+     * // Get first 10 Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const wheel_ticketsWithIdOnly = await prisma.wheel_tickets.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends wheel_ticketsFindManyArgs>(args?: SelectSubset<T, wheel_ticketsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Wheel_tickets.
+     * @param {wheel_ticketsCreateArgs} args - Arguments to create a Wheel_tickets.
+     * @example
+     * // Create one Wheel_tickets
+     * const Wheel_tickets = await prisma.wheel_tickets.create({
+     *   data: {
+     *     // ... data to create a Wheel_tickets
+     *   }
+     * })
+     * 
+     */
+    create<T extends wheel_ticketsCreateArgs>(args: SelectSubset<T, wheel_ticketsCreateArgs<ExtArgs>>): Prisma__wheel_ticketsClient<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Wheel_tickets.
+     * @param {wheel_ticketsCreateManyArgs} args - Arguments to create many Wheel_tickets.
+     * @example
+     * // Create many Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends wheel_ticketsCreateManyArgs>(args?: SelectSubset<T, wheel_ticketsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Wheel_tickets and returns the data saved in the database.
+     * @param {wheel_ticketsCreateManyAndReturnArgs} args - Arguments to create many Wheel_tickets.
+     * @example
+     * // Create many Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Wheel_tickets and only return the `id`
+     * const wheel_ticketsWithIdOnly = await prisma.wheel_tickets.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends wheel_ticketsCreateManyAndReturnArgs>(args?: SelectSubset<T, wheel_ticketsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Wheel_tickets.
+     * @param {wheel_ticketsDeleteArgs} args - Arguments to delete one Wheel_tickets.
+     * @example
+     * // Delete one Wheel_tickets
+     * const Wheel_tickets = await prisma.wheel_tickets.delete({
+     *   where: {
+     *     // ... filter to delete one Wheel_tickets
+     *   }
+     * })
+     * 
+     */
+    delete<T extends wheel_ticketsDeleteArgs>(args: SelectSubset<T, wheel_ticketsDeleteArgs<ExtArgs>>): Prisma__wheel_ticketsClient<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Wheel_tickets.
+     * @param {wheel_ticketsUpdateArgs} args - Arguments to update one Wheel_tickets.
+     * @example
+     * // Update one Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends wheel_ticketsUpdateArgs>(args: SelectSubset<T, wheel_ticketsUpdateArgs<ExtArgs>>): Prisma__wheel_ticketsClient<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Wheel_tickets.
+     * @param {wheel_ticketsDeleteManyArgs} args - Arguments to filter Wheel_tickets to delete.
+     * @example
+     * // Delete a few Wheel_tickets
+     * const { count } = await prisma.wheel_tickets.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends wheel_ticketsDeleteManyArgs>(args?: SelectSubset<T, wheel_ticketsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Wheel_tickets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_ticketsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends wheel_ticketsUpdateManyArgs>(args: SelectSubset<T, wheel_ticketsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Wheel_tickets and returns the data updated in the database.
+     * @param {wheel_ticketsUpdateManyAndReturnArgs} args - Arguments to update many Wheel_tickets.
+     * @example
+     * // Update many Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Wheel_tickets and only return the `id`
+     * const wheel_ticketsWithIdOnly = await prisma.wheel_tickets.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends wheel_ticketsUpdateManyAndReturnArgs>(args: SelectSubset<T, wheel_ticketsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Wheel_tickets.
+     * @param {wheel_ticketsUpsertArgs} args - Arguments to update or create a Wheel_tickets.
+     * @example
+     * // Update or create a Wheel_tickets
+     * const wheel_tickets = await prisma.wheel_tickets.upsert({
+     *   create: {
+     *     // ... data to create a Wheel_tickets
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Wheel_tickets we want to update
+     *   }
+     * })
+     */
+    upsert<T extends wheel_ticketsUpsertArgs>(args: SelectSubset<T, wheel_ticketsUpsertArgs<ExtArgs>>): Prisma__wheel_ticketsClient<$Result.GetResult<Prisma.$wheel_ticketsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Wheel_tickets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_ticketsCountArgs} args - Arguments to filter Wheel_tickets to count.
+     * @example
+     * // Count the number of Wheel_tickets
+     * const count = await prisma.wheel_tickets.count({
+     *   where: {
+     *     // ... the filter for the Wheel_tickets we want to count
+     *   }
+     * })
+    **/
+    count<T extends wheel_ticketsCountArgs>(
+      args?: Subset<T, wheel_ticketsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Wheel_ticketsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Wheel_tickets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Wheel_ticketsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Wheel_ticketsAggregateArgs>(args: Subset<T, Wheel_ticketsAggregateArgs>): Prisma.PrismaPromise<GetWheel_ticketsAggregateType<T>>
+
+    /**
+     * Group by Wheel_tickets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_ticketsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends wheel_ticketsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: wheel_ticketsGroupByArgs['orderBy'] }
+        : { orderBy?: wheel_ticketsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, wheel_ticketsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWheel_ticketsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the wheel_tickets model
+   */
+  readonly fields: wheel_ticketsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for wheel_tickets.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__wheel_ticketsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employees<T extends employeesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, employeesDefaultArgs<ExtArgs>>): Prisma__employeesClient<$Result.GetResult<Prisma.$employeesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    wheel_prizes<T extends wheel_prizesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, wheel_prizesDefaultArgs<ExtArgs>>): Prisma__wheel_prizesClient<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the wheel_tickets model
+   */
+  interface wheel_ticketsFieldRefs {
+    readonly id: FieldRef<"wheel_tickets", 'Int'>
+    readonly emp_id: FieldRef<"wheel_tickets", 'String'>
+    readonly prize_id: FieldRef<"wheel_tickets", 'Int'>
+    readonly coin_type_used: FieldRef<"wheel_tickets", 'String'>
+    readonly coins_spent: FieldRef<"wheel_tickets", 'Int'>
+    readonly ticket_count: FieldRef<"wheel_tickets", 'Int'>
+    readonly created_at: FieldRef<"wheel_tickets", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * wheel_tickets findUnique
+   */
+  export type wheel_ticketsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_tickets to fetch.
+     */
+    where: wheel_ticketsWhereUniqueInput
+  }
+
+  /**
+   * wheel_tickets findUniqueOrThrow
+   */
+  export type wheel_ticketsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_tickets to fetch.
+     */
+    where: wheel_ticketsWhereUniqueInput
+  }
+
+  /**
+   * wheel_tickets findFirst
+   */
+  export type wheel_ticketsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_tickets to fetch.
+     */
+    where?: wheel_ticketsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_tickets to fetch.
+     */
+    orderBy?: wheel_ticketsOrderByWithRelationInput | wheel_ticketsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for wheel_tickets.
+     */
+    cursor?: wheel_ticketsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_tickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_tickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_tickets.
+     */
+    distinct?: Wheel_ticketsScalarFieldEnum | Wheel_ticketsScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_tickets findFirstOrThrow
+   */
+  export type wheel_ticketsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_tickets to fetch.
+     */
+    where?: wheel_ticketsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_tickets to fetch.
+     */
+    orderBy?: wheel_ticketsOrderByWithRelationInput | wheel_ticketsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for wheel_tickets.
+     */
+    cursor?: wheel_ticketsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_tickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_tickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_tickets.
+     */
+    distinct?: Wheel_ticketsScalarFieldEnum | Wheel_ticketsScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_tickets findMany
+   */
+  export type wheel_ticketsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_tickets to fetch.
+     */
+    where?: wheel_ticketsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_tickets to fetch.
+     */
+    orderBy?: wheel_ticketsOrderByWithRelationInput | wheel_ticketsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing wheel_tickets.
+     */
+    cursor?: wheel_ticketsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_tickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_tickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_tickets.
+     */
+    distinct?: Wheel_ticketsScalarFieldEnum | Wheel_ticketsScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_tickets create
+   */
+  export type wheel_ticketsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a wheel_tickets.
+     */
+    data: XOR<wheel_ticketsCreateInput, wheel_ticketsUncheckedCreateInput>
+  }
+
+  /**
+   * wheel_tickets createMany
+   */
+  export type wheel_ticketsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many wheel_tickets.
+     */
+    data: wheel_ticketsCreateManyInput | wheel_ticketsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * wheel_tickets createManyAndReturn
+   */
+  export type wheel_ticketsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * The data used to create many wheel_tickets.
+     */
+    data: wheel_ticketsCreateManyInput | wheel_ticketsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * wheel_tickets update
+   */
+  export type wheel_ticketsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a wheel_tickets.
+     */
+    data: XOR<wheel_ticketsUpdateInput, wheel_ticketsUncheckedUpdateInput>
+    /**
+     * Choose, which wheel_tickets to update.
+     */
+    where: wheel_ticketsWhereUniqueInput
+  }
+
+  /**
+   * wheel_tickets updateMany
+   */
+  export type wheel_ticketsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update wheel_tickets.
+     */
+    data: XOR<wheel_ticketsUpdateManyMutationInput, wheel_ticketsUncheckedUpdateManyInput>
+    /**
+     * Filter which wheel_tickets to update
+     */
+    where?: wheel_ticketsWhereInput
+    /**
+     * Limit how many wheel_tickets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * wheel_tickets updateManyAndReturn
+   */
+  export type wheel_ticketsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * The data used to update wheel_tickets.
+     */
+    data: XOR<wheel_ticketsUpdateManyMutationInput, wheel_ticketsUncheckedUpdateManyInput>
+    /**
+     * Filter which wheel_tickets to update
+     */
+    where?: wheel_ticketsWhereInput
+    /**
+     * Limit how many wheel_tickets to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * wheel_tickets upsert
+   */
+  export type wheel_ticketsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the wheel_tickets to update in case it exists.
+     */
+    where: wheel_ticketsWhereUniqueInput
+    /**
+     * In case the wheel_tickets found by the `where` argument doesn't exist, create a new wheel_tickets with this data.
+     */
+    create: XOR<wheel_ticketsCreateInput, wheel_ticketsUncheckedCreateInput>
+    /**
+     * In case the wheel_tickets was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<wheel_ticketsUpdateInput, wheel_ticketsUncheckedUpdateInput>
+  }
+
+  /**
+   * wheel_tickets delete
+   */
+  export type wheel_ticketsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+    /**
+     * Filter which wheel_tickets to delete.
+     */
+    where: wheel_ticketsWhereUniqueInput
+  }
+
+  /**
+   * wheel_tickets deleteMany
+   */
+  export type wheel_ticketsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which wheel_tickets to delete
+     */
+    where?: wheel_ticketsWhereInput
+    /**
+     * Limit how many wheel_tickets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * wheel_tickets without action
+   */
+  export type wheel_ticketsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_tickets
+     */
+    select?: wheel_ticketsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_tickets
+     */
+    omit?: wheel_ticketsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_ticketsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model wheel_winners
+   */
+
+  export type AggregateWheel_winners = {
+    _count: Wheel_winnersCountAggregateOutputType | null
+    _avg: Wheel_winnersAvgAggregateOutputType | null
+    _sum: Wheel_winnersSumAggregateOutputType | null
+    _min: Wheel_winnersMinAggregateOutputType | null
+    _max: Wheel_winnersMaxAggregateOutputType | null
+  }
+
+  export type Wheel_winnersAvgAggregateOutputType = {
+    id: number | null
+    prize_id: number | null
+  }
+
+  export type Wheel_winnersSumAggregateOutputType = {
+    id: number | null
+    prize_id: number | null
+  }
+
+  export type Wheel_winnersMinAggregateOutputType = {
+    id: number | null
+    emp_id: string | null
+    prize_id: number | null
+    drawn_at: Date | null
+    status: string | null
+  }
+
+  export type Wheel_winnersMaxAggregateOutputType = {
+    id: number | null
+    emp_id: string | null
+    prize_id: number | null
+    drawn_at: Date | null
+    status: string | null
+  }
+
+  export type Wheel_winnersCountAggregateOutputType = {
+    id: number
+    emp_id: number
+    prize_id: number
+    drawn_at: number
+    status: number
+    _all: number
+  }
+
+
+  export type Wheel_winnersAvgAggregateInputType = {
+    id?: true
+    prize_id?: true
+  }
+
+  export type Wheel_winnersSumAggregateInputType = {
+    id?: true
+    prize_id?: true
+  }
+
+  export type Wheel_winnersMinAggregateInputType = {
+    id?: true
+    emp_id?: true
+    prize_id?: true
+    drawn_at?: true
+    status?: true
+  }
+
+  export type Wheel_winnersMaxAggregateInputType = {
+    id?: true
+    emp_id?: true
+    prize_id?: true
+    drawn_at?: true
+    status?: true
+  }
+
+  export type Wheel_winnersCountAggregateInputType = {
+    id?: true
+    emp_id?: true
+    prize_id?: true
+    drawn_at?: true
+    status?: true
+    _all?: true
+  }
+
+  export type Wheel_winnersAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which wheel_winners to aggregate.
+     */
+    where?: wheel_winnersWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_winners to fetch.
+     */
+    orderBy?: wheel_winnersOrderByWithRelationInput | wheel_winnersOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: wheel_winnersWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_winners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_winners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned wheel_winners
+    **/
+    _count?: true | Wheel_winnersCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Wheel_winnersAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Wheel_winnersSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Wheel_winnersMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Wheel_winnersMaxAggregateInputType
+  }
+
+  export type GetWheel_winnersAggregateType<T extends Wheel_winnersAggregateArgs> = {
+        [P in keyof T & keyof AggregateWheel_winners]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWheel_winners[P]>
+      : GetScalarType<T[P], AggregateWheel_winners[P]>
+  }
+
+
+
+
+  export type wheel_winnersGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: wheel_winnersWhereInput
+    orderBy?: wheel_winnersOrderByWithAggregationInput | wheel_winnersOrderByWithAggregationInput[]
+    by: Wheel_winnersScalarFieldEnum[] | Wheel_winnersScalarFieldEnum
+    having?: wheel_winnersScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Wheel_winnersCountAggregateInputType | true
+    _avg?: Wheel_winnersAvgAggregateInputType
+    _sum?: Wheel_winnersSumAggregateInputType
+    _min?: Wheel_winnersMinAggregateInputType
+    _max?: Wheel_winnersMaxAggregateInputType
+  }
+
+  export type Wheel_winnersGroupByOutputType = {
+    id: number
+    emp_id: string
+    prize_id: number
+    drawn_at: Date
+    status: string
+    _count: Wheel_winnersCountAggregateOutputType | null
+    _avg: Wheel_winnersAvgAggregateOutputType | null
+    _sum: Wheel_winnersSumAggregateOutputType | null
+    _min: Wheel_winnersMinAggregateOutputType | null
+    _max: Wheel_winnersMaxAggregateOutputType | null
+  }
+
+  type GetWheel_winnersGroupByPayload<T extends wheel_winnersGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Wheel_winnersGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Wheel_winnersGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Wheel_winnersGroupByOutputType[P]>
+            : GetScalarType<T[P], Wheel_winnersGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type wheel_winnersSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    prize_id?: boolean
+    drawn_at?: boolean
+    status?: boolean
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["wheel_winners"]>
+
+  export type wheel_winnersSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    prize_id?: boolean
+    drawn_at?: boolean
+    status?: boolean
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["wheel_winners"]>
+
+  export type wheel_winnersSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    emp_id?: boolean
+    prize_id?: boolean
+    drawn_at?: boolean
+    status?: boolean
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["wheel_winners"]>
+
+  export type wheel_winnersSelectScalar = {
+    id?: boolean
+    emp_id?: boolean
+    prize_id?: boolean
+    drawn_at?: boolean
+    status?: boolean
+  }
+
+  export type wheel_winnersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emp_id" | "prize_id" | "drawn_at" | "status", ExtArgs["result"]["wheel_winners"]>
+  export type wheel_winnersInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }
+  export type wheel_winnersIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }
+  export type wheel_winnersIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employees?: boolean | employeesDefaultArgs<ExtArgs>
+    wheel_prizes?: boolean | wheel_prizesDefaultArgs<ExtArgs>
+  }
+
+  export type $wheel_winnersPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "wheel_winners"
+    objects: {
+      employees: Prisma.$employeesPayload<ExtArgs>
+      wheel_prizes: Prisma.$wheel_prizesPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      emp_id: string
+      prize_id: number
+      drawn_at: Date
+      status: string
+    }, ExtArgs["result"]["wheel_winners"]>
+    composites: {}
+  }
+
+  type wheel_winnersGetPayload<S extends boolean | null | undefined | wheel_winnersDefaultArgs> = $Result.GetResult<Prisma.$wheel_winnersPayload, S>
+
+  type wheel_winnersCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<wheel_winnersFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Wheel_winnersCountAggregateInputType | true
+    }
+
+  export interface wheel_winnersDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['wheel_winners'], meta: { name: 'wheel_winners' } }
+    /**
+     * Find zero or one Wheel_winners that matches the filter.
+     * @param {wheel_winnersFindUniqueArgs} args - Arguments to find a Wheel_winners
+     * @example
+     * // Get one Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends wheel_winnersFindUniqueArgs>(args: SelectSubset<T, wheel_winnersFindUniqueArgs<ExtArgs>>): Prisma__wheel_winnersClient<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Wheel_winners that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {wheel_winnersFindUniqueOrThrowArgs} args - Arguments to find a Wheel_winners
+     * @example
+     * // Get one Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends wheel_winnersFindUniqueOrThrowArgs>(args: SelectSubset<T, wheel_winnersFindUniqueOrThrowArgs<ExtArgs>>): Prisma__wheel_winnersClient<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Wheel_winners that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_winnersFindFirstArgs} args - Arguments to find a Wheel_winners
+     * @example
+     * // Get one Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends wheel_winnersFindFirstArgs>(args?: SelectSubset<T, wheel_winnersFindFirstArgs<ExtArgs>>): Prisma__wheel_winnersClient<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Wheel_winners that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_winnersFindFirstOrThrowArgs} args - Arguments to find a Wheel_winners
+     * @example
+     * // Get one Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends wheel_winnersFindFirstOrThrowArgs>(args?: SelectSubset<T, wheel_winnersFindFirstOrThrowArgs<ExtArgs>>): Prisma__wheel_winnersClient<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Wheel_winners that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_winnersFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.findMany()
+     * 
+     * // Get first 10 Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const wheel_winnersWithIdOnly = await prisma.wheel_winners.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends wheel_winnersFindManyArgs>(args?: SelectSubset<T, wheel_winnersFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Wheel_winners.
+     * @param {wheel_winnersCreateArgs} args - Arguments to create a Wheel_winners.
+     * @example
+     * // Create one Wheel_winners
+     * const Wheel_winners = await prisma.wheel_winners.create({
+     *   data: {
+     *     // ... data to create a Wheel_winners
+     *   }
+     * })
+     * 
+     */
+    create<T extends wheel_winnersCreateArgs>(args: SelectSubset<T, wheel_winnersCreateArgs<ExtArgs>>): Prisma__wheel_winnersClient<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Wheel_winners.
+     * @param {wheel_winnersCreateManyArgs} args - Arguments to create many Wheel_winners.
+     * @example
+     * // Create many Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends wheel_winnersCreateManyArgs>(args?: SelectSubset<T, wheel_winnersCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Wheel_winners and returns the data saved in the database.
+     * @param {wheel_winnersCreateManyAndReturnArgs} args - Arguments to create many Wheel_winners.
+     * @example
+     * // Create many Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Wheel_winners and only return the `id`
+     * const wheel_winnersWithIdOnly = await prisma.wheel_winners.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends wheel_winnersCreateManyAndReturnArgs>(args?: SelectSubset<T, wheel_winnersCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Wheel_winners.
+     * @param {wheel_winnersDeleteArgs} args - Arguments to delete one Wheel_winners.
+     * @example
+     * // Delete one Wheel_winners
+     * const Wheel_winners = await prisma.wheel_winners.delete({
+     *   where: {
+     *     // ... filter to delete one Wheel_winners
+     *   }
+     * })
+     * 
+     */
+    delete<T extends wheel_winnersDeleteArgs>(args: SelectSubset<T, wheel_winnersDeleteArgs<ExtArgs>>): Prisma__wheel_winnersClient<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Wheel_winners.
+     * @param {wheel_winnersUpdateArgs} args - Arguments to update one Wheel_winners.
+     * @example
+     * // Update one Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends wheel_winnersUpdateArgs>(args: SelectSubset<T, wheel_winnersUpdateArgs<ExtArgs>>): Prisma__wheel_winnersClient<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Wheel_winners.
+     * @param {wheel_winnersDeleteManyArgs} args - Arguments to filter Wheel_winners to delete.
+     * @example
+     * // Delete a few Wheel_winners
+     * const { count } = await prisma.wheel_winners.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends wheel_winnersDeleteManyArgs>(args?: SelectSubset<T, wheel_winnersDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Wheel_winners.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_winnersUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends wheel_winnersUpdateManyArgs>(args: SelectSubset<T, wheel_winnersUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Wheel_winners and returns the data updated in the database.
+     * @param {wheel_winnersUpdateManyAndReturnArgs} args - Arguments to update many Wheel_winners.
+     * @example
+     * // Update many Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Wheel_winners and only return the `id`
+     * const wheel_winnersWithIdOnly = await prisma.wheel_winners.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends wheel_winnersUpdateManyAndReturnArgs>(args: SelectSubset<T, wheel_winnersUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Wheel_winners.
+     * @param {wheel_winnersUpsertArgs} args - Arguments to update or create a Wheel_winners.
+     * @example
+     * // Update or create a Wheel_winners
+     * const wheel_winners = await prisma.wheel_winners.upsert({
+     *   create: {
+     *     // ... data to create a Wheel_winners
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Wheel_winners we want to update
+     *   }
+     * })
+     */
+    upsert<T extends wheel_winnersUpsertArgs>(args: SelectSubset<T, wheel_winnersUpsertArgs<ExtArgs>>): Prisma__wheel_winnersClient<$Result.GetResult<Prisma.$wheel_winnersPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Wheel_winners.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_winnersCountArgs} args - Arguments to filter Wheel_winners to count.
+     * @example
+     * // Count the number of Wheel_winners
+     * const count = await prisma.wheel_winners.count({
+     *   where: {
+     *     // ... the filter for the Wheel_winners we want to count
+     *   }
+     * })
+    **/
+    count<T extends wheel_winnersCountArgs>(
+      args?: Subset<T, wheel_winnersCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Wheel_winnersCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Wheel_winners.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Wheel_winnersAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Wheel_winnersAggregateArgs>(args: Subset<T, Wheel_winnersAggregateArgs>): Prisma.PrismaPromise<GetWheel_winnersAggregateType<T>>
+
+    /**
+     * Group by Wheel_winners.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {wheel_winnersGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends wheel_winnersGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: wheel_winnersGroupByArgs['orderBy'] }
+        : { orderBy?: wheel_winnersGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, wheel_winnersGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWheel_winnersGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the wheel_winners model
+   */
+  readonly fields: wheel_winnersFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for wheel_winners.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__wheel_winnersClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employees<T extends employeesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, employeesDefaultArgs<ExtArgs>>): Prisma__employeesClient<$Result.GetResult<Prisma.$employeesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    wheel_prizes<T extends wheel_prizesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, wheel_prizesDefaultArgs<ExtArgs>>): Prisma__wheel_prizesClient<$Result.GetResult<Prisma.$wheel_prizesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the wheel_winners model
+   */
+  interface wheel_winnersFieldRefs {
+    readonly id: FieldRef<"wheel_winners", 'Int'>
+    readonly emp_id: FieldRef<"wheel_winners", 'String'>
+    readonly prize_id: FieldRef<"wheel_winners", 'Int'>
+    readonly drawn_at: FieldRef<"wheel_winners", 'DateTime'>
+    readonly status: FieldRef<"wheel_winners", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * wheel_winners findUnique
+   */
+  export type wheel_winnersFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_winners to fetch.
+     */
+    where: wheel_winnersWhereUniqueInput
+  }
+
+  /**
+   * wheel_winners findUniqueOrThrow
+   */
+  export type wheel_winnersFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_winners to fetch.
+     */
+    where: wheel_winnersWhereUniqueInput
+  }
+
+  /**
+   * wheel_winners findFirst
+   */
+  export type wheel_winnersFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_winners to fetch.
+     */
+    where?: wheel_winnersWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_winners to fetch.
+     */
+    orderBy?: wheel_winnersOrderByWithRelationInput | wheel_winnersOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for wheel_winners.
+     */
+    cursor?: wheel_winnersWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_winners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_winners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_winners.
+     */
+    distinct?: Wheel_winnersScalarFieldEnum | Wheel_winnersScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_winners findFirstOrThrow
+   */
+  export type wheel_winnersFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_winners to fetch.
+     */
+    where?: wheel_winnersWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_winners to fetch.
+     */
+    orderBy?: wheel_winnersOrderByWithRelationInput | wheel_winnersOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for wheel_winners.
+     */
+    cursor?: wheel_winnersWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_winners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_winners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_winners.
+     */
+    distinct?: Wheel_winnersScalarFieldEnum | Wheel_winnersScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_winners findMany
+   */
+  export type wheel_winnersFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    /**
+     * Filter, which wheel_winners to fetch.
+     */
+    where?: wheel_winnersWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of wheel_winners to fetch.
+     */
+    orderBy?: wheel_winnersOrderByWithRelationInput | wheel_winnersOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing wheel_winners.
+     */
+    cursor?: wheel_winnersWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` wheel_winners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` wheel_winners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of wheel_winners.
+     */
+    distinct?: Wheel_winnersScalarFieldEnum | Wheel_winnersScalarFieldEnum[]
+  }
+
+  /**
+   * wheel_winners create
+   */
+  export type wheel_winnersCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    /**
+     * The data needed to create a wheel_winners.
+     */
+    data: XOR<wheel_winnersCreateInput, wheel_winnersUncheckedCreateInput>
+  }
+
+  /**
+   * wheel_winners createMany
+   */
+  export type wheel_winnersCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many wheel_winners.
+     */
+    data: wheel_winnersCreateManyInput | wheel_winnersCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * wheel_winners createManyAndReturn
+   */
+  export type wheel_winnersCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * The data used to create many wheel_winners.
+     */
+    data: wheel_winnersCreateManyInput | wheel_winnersCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * wheel_winners update
+   */
+  export type wheel_winnersUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    /**
+     * The data needed to update a wheel_winners.
+     */
+    data: XOR<wheel_winnersUpdateInput, wheel_winnersUncheckedUpdateInput>
+    /**
+     * Choose, which wheel_winners to update.
+     */
+    where: wheel_winnersWhereUniqueInput
+  }
+
+  /**
+   * wheel_winners updateMany
+   */
+  export type wheel_winnersUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update wheel_winners.
+     */
+    data: XOR<wheel_winnersUpdateManyMutationInput, wheel_winnersUncheckedUpdateManyInput>
+    /**
+     * Filter which wheel_winners to update
+     */
+    where?: wheel_winnersWhereInput
+    /**
+     * Limit how many wheel_winners to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * wheel_winners updateManyAndReturn
+   */
+  export type wheel_winnersUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * The data used to update wheel_winners.
+     */
+    data: XOR<wheel_winnersUpdateManyMutationInput, wheel_winnersUncheckedUpdateManyInput>
+    /**
+     * Filter which wheel_winners to update
+     */
+    where?: wheel_winnersWhereInput
+    /**
+     * Limit how many wheel_winners to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * wheel_winners upsert
+   */
+  export type wheel_winnersUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    /**
+     * The filter to search for the wheel_winners to update in case it exists.
+     */
+    where: wheel_winnersWhereUniqueInput
+    /**
+     * In case the wheel_winners found by the `where` argument doesn't exist, create a new wheel_winners with this data.
+     */
+    create: XOR<wheel_winnersCreateInput, wheel_winnersUncheckedCreateInput>
+    /**
+     * In case the wheel_winners was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<wheel_winnersUpdateInput, wheel_winnersUncheckedUpdateInput>
+  }
+
+  /**
+   * wheel_winners delete
+   */
+  export type wheel_winnersDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+    /**
+     * Filter which wheel_winners to delete.
+     */
+    where: wheel_winnersWhereUniqueInput
+  }
+
+  /**
+   * wheel_winners deleteMany
+   */
+  export type wheel_winnersDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which wheel_winners to delete
+     */
+    where?: wheel_winnersWhereInput
+    /**
+     * Limit how many wheel_winners to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * wheel_winners without action
+   */
+  export type wheel_winnersDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the wheel_winners
+     */
+    select?: wheel_winnersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the wheel_winners
+     */
+    omit?: wheel_winnersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: wheel_winnersInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -144424,9 +149556,9 @@ export namespace Prisma {
     productionDeadline: 'productionDeadline',
     qcAt: 'qcAt',
     qcBy: 'qcBy',
+    qcImages: 'qcImages',
     qcNote: 'qcNote',
-    qcStatus: 'qcStatus',
-    qcImages: 'qcImages'
+    qcStatus: 'qcStatus'
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
@@ -144511,7 +149643,9 @@ export namespace Prisma {
     installmentAmount: 'installmentAmount',
     installmentNo: 'installmentNo',
     installmentTotal: 'installmentTotal',
-    creditType: 'creditType'
+    creditType: 'creditType',
+    invoiceDate: 'invoiceDate',
+    invoiceNumber: 'invoiceNumber'
   };
 
   export type PaymentTaskScalarFieldEnum = (typeof PaymentTaskScalarFieldEnum)[keyof typeof PaymentTaskScalarFieldEnum]
@@ -144766,7 +149900,9 @@ export namespace Prisma {
     key_returned_at: 'key_returned_at',
     key_signature_url: 'key_signature_url',
     return_status: 'return_status',
-    overnight_required: 'overnight_required'
+    overnight_required: 'overnight_required',
+    nights_count: 'nights_count',
+    trip_fee_status: 'trip_fee_status'
   };
 
   export type Asset_borrowingsScalarFieldEnum = (typeof Asset_borrowingsScalarFieldEnum)[keyof typeof Asset_borrowingsScalarFieldEnum]
@@ -146185,6 +151321,55 @@ export namespace Prisma {
   };
 
   export type PushSubscriptionScalarFieldEnum = (typeof PushSubscriptionScalarFieldEnum)[keyof typeof PushSubscriptionScalarFieldEnum]
+
+
+  export const Wheel_eventsScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    start_date: 'start_date',
+    end_date: 'end_date',
+    is_active: 'is_active',
+    created_at: 'created_at'
+  };
+
+  export type Wheel_eventsScalarFieldEnum = (typeof Wheel_eventsScalarFieldEnum)[keyof typeof Wheel_eventsScalarFieldEnum]
+
+
+  export const Wheel_prizesScalarFieldEnum: {
+    id: 'id',
+    event_id: 'event_id',
+    name: 'name',
+    bonus_amount: 'bonus_amount',
+    quantity: 'quantity',
+    is_active: 'is_active'
+  };
+
+  export type Wheel_prizesScalarFieldEnum = (typeof Wheel_prizesScalarFieldEnum)[keyof typeof Wheel_prizesScalarFieldEnum]
+
+
+  export const Wheel_ticketsScalarFieldEnum: {
+    id: 'id',
+    emp_id: 'emp_id',
+    prize_id: 'prize_id',
+    coin_type_used: 'coin_type_used',
+    coins_spent: 'coins_spent',
+    ticket_count: 'ticket_count',
+    created_at: 'created_at'
+  };
+
+  export type Wheel_ticketsScalarFieldEnum = (typeof Wheel_ticketsScalarFieldEnum)[keyof typeof Wheel_ticketsScalarFieldEnum]
+
+
+  export const Wheel_winnersScalarFieldEnum: {
+    id: 'id',
+    emp_id: 'emp_id',
+    prize_id: 'prize_id',
+    drawn_at: 'drawn_at',
+    status: 'status'
+  };
+
+  export type Wheel_winnersScalarFieldEnum = (typeof Wheel_winnersScalarFieldEnum)[keyof typeof Wheel_winnersScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -147773,9 +152958,9 @@ export namespace Prisma {
     productionDeadline?: DateTimeNullableFilter<"Order"> | Date | string | null
     qcAt?: DateTimeNullableFilter<"Order"> | Date | string | null
     qcBy?: StringNullableFilter<"Order"> | string | null
+    qcImages?: StringNullableListFilter<"Order">
     qcNote?: StringNullableFilter<"Order"> | string | null
     qcStatus?: StringNullableFilter<"Order"> | string | null
-    qcImages?: StringNullableListFilter<"Order">
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -147803,9 +152988,9 @@ export namespace Prisma {
     productionDeadline?: SortOrderInput | SortOrder
     qcAt?: SortOrderInput | SortOrder
     qcBy?: SortOrderInput | SortOrder
+    qcImages?: SortOrder
     qcNote?: SortOrderInput | SortOrder
     qcStatus?: SortOrderInput | SortOrder
-    qcImages?: SortOrder
     company?: CompanyOrderByWithRelationInput
     quotation?: QuotationOrderByWithRelationInput
     salesperson?: UserOrderByWithRelationInput
@@ -147836,9 +153021,9 @@ export namespace Prisma {
     productionDeadline?: DateTimeNullableFilter<"Order"> | Date | string | null
     qcAt?: DateTimeNullableFilter<"Order"> | Date | string | null
     qcBy?: StringNullableFilter<"Order"> | string | null
+    qcImages?: StringNullableListFilter<"Order">
     qcNote?: StringNullableFilter<"Order"> | string | null
     qcStatus?: StringNullableFilter<"Order"> | string | null
-    qcImages?: StringNullableListFilter<"Order">
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
     salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -147866,9 +153051,9 @@ export namespace Prisma {
     productionDeadline?: SortOrderInput | SortOrder
     qcAt?: SortOrderInput | SortOrder
     qcBy?: SortOrderInput | SortOrder
+    qcImages?: SortOrder
     qcNote?: SortOrderInput | SortOrder
     qcStatus?: SortOrderInput | SortOrder
-    qcImages?: SortOrder
     _count?: OrderCountOrderByAggregateInput
     _avg?: OrderAvgOrderByAggregateInput
     _max?: OrderMaxOrderByAggregateInput
@@ -147899,9 +153084,9 @@ export namespace Prisma {
     productionDeadline?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
     qcAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
     qcBy?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    qcImages?: StringNullableListFilter<"Order">
     qcNote?: StringNullableWithAggregatesFilter<"Order"> | string | null
     qcStatus?: StringNullableWithAggregatesFilter<"Order"> | string | null
-    qcImages?: StringNullableListFilter<"Order">
   }
 
   export type OrderStatusLogWhereInput = {
@@ -148278,6 +153463,8 @@ export namespace Prisma {
     installmentNo?: IntNullableFilter<"PaymentTask"> | number | null
     installmentTotal?: IntNullableFilter<"PaymentTask"> | number | null
     creditType?: StringNullableFilter<"PaymentTask"> | string | null
+    invoiceDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
+    invoiceNumber?: StringNullableFilter<"PaymentTask"> | string | null
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
   }
 
@@ -148296,6 +153483,8 @@ export namespace Prisma {
     installmentNo?: SortOrderInput | SortOrder
     installmentTotal?: SortOrderInput | SortOrder
     creditType?: SortOrderInput | SortOrder
+    invoiceDate?: SortOrderInput | SortOrder
+    invoiceNumber?: SortOrderInput | SortOrder
     job?: JobOrderByWithRelationInput
   }
 
@@ -148317,6 +153506,8 @@ export namespace Prisma {
     installmentNo?: IntNullableFilter<"PaymentTask"> | number | null
     installmentTotal?: IntNullableFilter<"PaymentTask"> | number | null
     creditType?: StringNullableFilter<"PaymentTask"> | string | null
+    invoiceDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
+    invoiceNumber?: StringNullableFilter<"PaymentTask"> | string | null
     job?: XOR<JobScalarRelationFilter, JobWhereInput>
   }, "id">
 
@@ -148335,6 +153526,8 @@ export namespace Prisma {
     installmentNo?: SortOrderInput | SortOrder
     installmentTotal?: SortOrderInput | SortOrder
     creditType?: SortOrderInput | SortOrder
+    invoiceDate?: SortOrderInput | SortOrder
+    invoiceNumber?: SortOrderInput | SortOrder
     _count?: PaymentTaskCountOrderByAggregateInput
     _avg?: PaymentTaskAvgOrderByAggregateInput
     _max?: PaymentTaskMaxOrderByAggregateInput
@@ -148360,6 +153553,8 @@ export namespace Prisma {
     installmentNo?: IntNullableWithAggregatesFilter<"PaymentTask"> | number | null
     installmentTotal?: IntNullableWithAggregatesFilter<"PaymentTask"> | number | null
     creditType?: StringNullableWithAggregatesFilter<"PaymentTask"> | string | null
+    invoiceDate?: DateTimeNullableWithAggregatesFilter<"PaymentTask"> | Date | string | null
+    invoiceNumber?: StringNullableWithAggregatesFilter<"PaymentTask"> | string | null
   }
 
   export type JobRunningNumberWhereInput = {
@@ -149509,7 +154704,9 @@ export namespace Prisma {
     key_returned_at?: DateTimeNullableFilter<"asset_borrowings"> | Date | string | null
     key_signature_url?: StringNullableFilter<"asset_borrowings"> | string | null
     return_status?: StringNullableFilter<"asset_borrowings"> | string | null
-    overnight_required?: BoolNullableFilter<"asset_borrowings"> | boolean | null
+    overnight_required?: BoolFilter<"asset_borrowings"> | boolean
+    nights_count?: IntNullableFilter<"asset_borrowings"> | number | null
+    trip_fee_status?: StringNullableFilter<"asset_borrowings"> | string | null
     assets?: XOR<AssetsScalarRelationFilter, assetsWhereInput>
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }
@@ -149543,7 +154740,9 @@ export namespace Prisma {
     key_returned_at?: SortOrderInput | SortOrder
     key_signature_url?: SortOrderInput | SortOrder
     return_status?: SortOrderInput | SortOrder
-    overnight_required?: SortOrderInput | SortOrder
+    overnight_required?: SortOrder
+    nights_count?: SortOrderInput | SortOrder
+    trip_fee_status?: SortOrderInput | SortOrder
     assets?: assetsOrderByWithRelationInput
     employees?: employeesOrderByWithRelationInput
   }
@@ -149580,7 +154779,9 @@ export namespace Prisma {
     key_returned_at?: DateTimeNullableFilter<"asset_borrowings"> | Date | string | null
     key_signature_url?: StringNullableFilter<"asset_borrowings"> | string | null
     return_status?: StringNullableFilter<"asset_borrowings"> | string | null
-    overnight_required?: BoolNullableFilter<"asset_borrowings"> | boolean | null
+    overnight_required?: BoolFilter<"asset_borrowings"> | boolean
+    nights_count?: IntNullableFilter<"asset_borrowings"> | number | null
+    trip_fee_status?: StringNullableFilter<"asset_borrowings"> | string | null
     assets?: XOR<AssetsScalarRelationFilter, assetsWhereInput>
     employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
   }, "id">
@@ -149614,7 +154815,9 @@ export namespace Prisma {
     key_returned_at?: SortOrderInput | SortOrder
     key_signature_url?: SortOrderInput | SortOrder
     return_status?: SortOrderInput | SortOrder
-    overnight_required?: SortOrderInput | SortOrder
+    overnight_required?: SortOrder
+    nights_count?: SortOrderInput | SortOrder
+    trip_fee_status?: SortOrderInput | SortOrder
     _count?: asset_borrowingsCountOrderByAggregateInput
     _avg?: asset_borrowingsAvgOrderByAggregateInput
     _max?: asset_borrowingsMaxOrderByAggregateInput
@@ -149654,7 +154857,9 @@ export namespace Prisma {
     key_returned_at?: DateTimeNullableWithAggregatesFilter<"asset_borrowings"> | Date | string | null
     key_signature_url?: StringNullableWithAggregatesFilter<"asset_borrowings"> | string | null
     return_status?: StringNullableWithAggregatesFilter<"asset_borrowings"> | string | null
-    overnight_required?: BoolNullableWithAggregatesFilter<"asset_borrowings"> | boolean | null
+    overnight_required?: BoolWithAggregatesFilter<"asset_borrowings"> | boolean
+    nights_count?: IntNullableWithAggregatesFilter<"asset_borrowings"> | number | null
+    trip_fee_status?: StringNullableWithAggregatesFilter<"asset_borrowings"> | string | null
   }
 
   export type assetsWhereInput = {
@@ -150534,6 +155739,8 @@ export namespace Prisma {
     tasks?: TasksListRelationFilter
     transfer_budgets?: XOR<Transfer_budgetsNullableScalarRelationFilter, transfer_budgetsWhereInput> | null
     travel_claims?: Travel_claimsListRelationFilter
+    wheel_tickets?: Wheel_ticketsListRelationFilter
+    wheel_winners?: Wheel_winnersListRelationFilter
     withholding_tax_documents?: Withholding_tax_documentsListRelationFilter
   }
 
@@ -150629,6 +155836,8 @@ export namespace Prisma {
     tasks?: tasksOrderByRelationAggregateInput
     transfer_budgets?: transfer_budgetsOrderByWithRelationInput
     travel_claims?: travel_claimsOrderByRelationAggregateInput
+    wheel_tickets?: wheel_ticketsOrderByRelationAggregateInput
+    wheel_winners?: wheel_winnersOrderByRelationAggregateInput
     withholding_tax_documents?: withholding_tax_documentsOrderByRelationAggregateInput
   }
 
@@ -150727,6 +155936,8 @@ export namespace Prisma {
     tasks?: TasksListRelationFilter
     transfer_budgets?: XOR<Transfer_budgetsNullableScalarRelationFilter, transfer_budgetsWhereInput> | null
     travel_claims?: Travel_claimsListRelationFilter
+    wheel_tickets?: Wheel_ticketsListRelationFilter
+    wheel_winners?: Wheel_winnersListRelationFilter
     withholding_tax_documents?: Withholding_tax_documentsListRelationFilter
   }, "emp_id" | "line_user_id">
 
@@ -157130,6 +162341,271 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"PushSubscription"> | Date | string
   }
 
+  export type wheel_eventsWhereInput = {
+    AND?: wheel_eventsWhereInput | wheel_eventsWhereInput[]
+    OR?: wheel_eventsWhereInput[]
+    NOT?: wheel_eventsWhereInput | wheel_eventsWhereInput[]
+    id?: IntFilter<"wheel_events"> | number
+    name?: StringFilter<"wheel_events"> | string
+    description?: StringNullableFilter<"wheel_events"> | string | null
+    start_date?: DateTimeNullableFilter<"wheel_events"> | Date | string | null
+    end_date?: DateTimeNullableFilter<"wheel_events"> | Date | string | null
+    is_active?: BoolFilter<"wheel_events"> | boolean
+    created_at?: DateTimeFilter<"wheel_events"> | Date | string
+    wheel_prizes?: Wheel_prizesListRelationFilter
+  }
+
+  export type wheel_eventsOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    start_date?: SortOrderInput | SortOrder
+    end_date?: SortOrderInput | SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    wheel_prizes?: wheel_prizesOrderByRelationAggregateInput
+  }
+
+  export type wheel_eventsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: wheel_eventsWhereInput | wheel_eventsWhereInput[]
+    OR?: wheel_eventsWhereInput[]
+    NOT?: wheel_eventsWhereInput | wheel_eventsWhereInput[]
+    name?: StringFilter<"wheel_events"> | string
+    description?: StringNullableFilter<"wheel_events"> | string | null
+    start_date?: DateTimeNullableFilter<"wheel_events"> | Date | string | null
+    end_date?: DateTimeNullableFilter<"wheel_events"> | Date | string | null
+    is_active?: BoolFilter<"wheel_events"> | boolean
+    created_at?: DateTimeFilter<"wheel_events"> | Date | string
+    wheel_prizes?: Wheel_prizesListRelationFilter
+  }, "id">
+
+  export type wheel_eventsOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    start_date?: SortOrderInput | SortOrder
+    end_date?: SortOrderInput | SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    _count?: wheel_eventsCountOrderByAggregateInput
+    _avg?: wheel_eventsAvgOrderByAggregateInput
+    _max?: wheel_eventsMaxOrderByAggregateInput
+    _min?: wheel_eventsMinOrderByAggregateInput
+    _sum?: wheel_eventsSumOrderByAggregateInput
+  }
+
+  export type wheel_eventsScalarWhereWithAggregatesInput = {
+    AND?: wheel_eventsScalarWhereWithAggregatesInput | wheel_eventsScalarWhereWithAggregatesInput[]
+    OR?: wheel_eventsScalarWhereWithAggregatesInput[]
+    NOT?: wheel_eventsScalarWhereWithAggregatesInput | wheel_eventsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"wheel_events"> | number
+    name?: StringWithAggregatesFilter<"wheel_events"> | string
+    description?: StringNullableWithAggregatesFilter<"wheel_events"> | string | null
+    start_date?: DateTimeNullableWithAggregatesFilter<"wheel_events"> | Date | string | null
+    end_date?: DateTimeNullableWithAggregatesFilter<"wheel_events"> | Date | string | null
+    is_active?: BoolWithAggregatesFilter<"wheel_events"> | boolean
+    created_at?: DateTimeWithAggregatesFilter<"wheel_events"> | Date | string
+  }
+
+  export type wheel_prizesWhereInput = {
+    AND?: wheel_prizesWhereInput | wheel_prizesWhereInput[]
+    OR?: wheel_prizesWhereInput[]
+    NOT?: wheel_prizesWhereInput | wheel_prizesWhereInput[]
+    id?: IntFilter<"wheel_prizes"> | number
+    event_id?: IntFilter<"wheel_prizes"> | number
+    name?: StringFilter<"wheel_prizes"> | string
+    bonus_amount?: IntFilter<"wheel_prizes"> | number
+    quantity?: IntFilter<"wheel_prizes"> | number
+    is_active?: BoolFilter<"wheel_prizes"> | boolean
+    wheel_events?: XOR<Wheel_eventsScalarRelationFilter, wheel_eventsWhereInput>
+    wheel_tickets?: Wheel_ticketsListRelationFilter
+    wheel_winners?: Wheel_winnersListRelationFilter
+  }
+
+  export type wheel_prizesOrderByWithRelationInput = {
+    id?: SortOrder
+    event_id?: SortOrder
+    name?: SortOrder
+    bonus_amount?: SortOrder
+    quantity?: SortOrder
+    is_active?: SortOrder
+    wheel_events?: wheel_eventsOrderByWithRelationInput
+    wheel_tickets?: wheel_ticketsOrderByRelationAggregateInput
+    wheel_winners?: wheel_winnersOrderByRelationAggregateInput
+  }
+
+  export type wheel_prizesWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: wheel_prizesWhereInput | wheel_prizesWhereInput[]
+    OR?: wheel_prizesWhereInput[]
+    NOT?: wheel_prizesWhereInput | wheel_prizesWhereInput[]
+    event_id?: IntFilter<"wheel_prizes"> | number
+    name?: StringFilter<"wheel_prizes"> | string
+    bonus_amount?: IntFilter<"wheel_prizes"> | number
+    quantity?: IntFilter<"wheel_prizes"> | number
+    is_active?: BoolFilter<"wheel_prizes"> | boolean
+    wheel_events?: XOR<Wheel_eventsScalarRelationFilter, wheel_eventsWhereInput>
+    wheel_tickets?: Wheel_ticketsListRelationFilter
+    wheel_winners?: Wheel_winnersListRelationFilter
+  }, "id">
+
+  export type wheel_prizesOrderByWithAggregationInput = {
+    id?: SortOrder
+    event_id?: SortOrder
+    name?: SortOrder
+    bonus_amount?: SortOrder
+    quantity?: SortOrder
+    is_active?: SortOrder
+    _count?: wheel_prizesCountOrderByAggregateInput
+    _avg?: wheel_prizesAvgOrderByAggregateInput
+    _max?: wheel_prizesMaxOrderByAggregateInput
+    _min?: wheel_prizesMinOrderByAggregateInput
+    _sum?: wheel_prizesSumOrderByAggregateInput
+  }
+
+  export type wheel_prizesScalarWhereWithAggregatesInput = {
+    AND?: wheel_prizesScalarWhereWithAggregatesInput | wheel_prizesScalarWhereWithAggregatesInput[]
+    OR?: wheel_prizesScalarWhereWithAggregatesInput[]
+    NOT?: wheel_prizesScalarWhereWithAggregatesInput | wheel_prizesScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"wheel_prizes"> | number
+    event_id?: IntWithAggregatesFilter<"wheel_prizes"> | number
+    name?: StringWithAggregatesFilter<"wheel_prizes"> | string
+    bonus_amount?: IntWithAggregatesFilter<"wheel_prizes"> | number
+    quantity?: IntWithAggregatesFilter<"wheel_prizes"> | number
+    is_active?: BoolWithAggregatesFilter<"wheel_prizes"> | boolean
+  }
+
+  export type wheel_ticketsWhereInput = {
+    AND?: wheel_ticketsWhereInput | wheel_ticketsWhereInput[]
+    OR?: wheel_ticketsWhereInput[]
+    NOT?: wheel_ticketsWhereInput | wheel_ticketsWhereInput[]
+    id?: IntFilter<"wheel_tickets"> | number
+    emp_id?: StringFilter<"wheel_tickets"> | string
+    prize_id?: IntFilter<"wheel_tickets"> | number
+    coin_type_used?: StringFilter<"wheel_tickets"> | string
+    coins_spent?: IntFilter<"wheel_tickets"> | number
+    ticket_count?: IntFilter<"wheel_tickets"> | number
+    created_at?: DateTimeFilter<"wheel_tickets"> | Date | string
+    employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
+    wheel_prizes?: XOR<Wheel_prizesScalarRelationFilter, wheel_prizesWhereInput>
+  }
+
+  export type wheel_ticketsOrderByWithRelationInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    prize_id?: SortOrder
+    coin_type_used?: SortOrder
+    coins_spent?: SortOrder
+    ticket_count?: SortOrder
+    created_at?: SortOrder
+    employees?: employeesOrderByWithRelationInput
+    wheel_prizes?: wheel_prizesOrderByWithRelationInput
+  }
+
+  export type wheel_ticketsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: wheel_ticketsWhereInput | wheel_ticketsWhereInput[]
+    OR?: wheel_ticketsWhereInput[]
+    NOT?: wheel_ticketsWhereInput | wheel_ticketsWhereInput[]
+    emp_id?: StringFilter<"wheel_tickets"> | string
+    prize_id?: IntFilter<"wheel_tickets"> | number
+    coin_type_used?: StringFilter<"wheel_tickets"> | string
+    coins_spent?: IntFilter<"wheel_tickets"> | number
+    ticket_count?: IntFilter<"wheel_tickets"> | number
+    created_at?: DateTimeFilter<"wheel_tickets"> | Date | string
+    employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
+    wheel_prizes?: XOR<Wheel_prizesScalarRelationFilter, wheel_prizesWhereInput>
+  }, "id">
+
+  export type wheel_ticketsOrderByWithAggregationInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    prize_id?: SortOrder
+    coin_type_used?: SortOrder
+    coins_spent?: SortOrder
+    ticket_count?: SortOrder
+    created_at?: SortOrder
+    _count?: wheel_ticketsCountOrderByAggregateInput
+    _avg?: wheel_ticketsAvgOrderByAggregateInput
+    _max?: wheel_ticketsMaxOrderByAggregateInput
+    _min?: wheel_ticketsMinOrderByAggregateInput
+    _sum?: wheel_ticketsSumOrderByAggregateInput
+  }
+
+  export type wheel_ticketsScalarWhereWithAggregatesInput = {
+    AND?: wheel_ticketsScalarWhereWithAggregatesInput | wheel_ticketsScalarWhereWithAggregatesInput[]
+    OR?: wheel_ticketsScalarWhereWithAggregatesInput[]
+    NOT?: wheel_ticketsScalarWhereWithAggregatesInput | wheel_ticketsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"wheel_tickets"> | number
+    emp_id?: StringWithAggregatesFilter<"wheel_tickets"> | string
+    prize_id?: IntWithAggregatesFilter<"wheel_tickets"> | number
+    coin_type_used?: StringWithAggregatesFilter<"wheel_tickets"> | string
+    coins_spent?: IntWithAggregatesFilter<"wheel_tickets"> | number
+    ticket_count?: IntWithAggregatesFilter<"wheel_tickets"> | number
+    created_at?: DateTimeWithAggregatesFilter<"wheel_tickets"> | Date | string
+  }
+
+  export type wheel_winnersWhereInput = {
+    AND?: wheel_winnersWhereInput | wheel_winnersWhereInput[]
+    OR?: wheel_winnersWhereInput[]
+    NOT?: wheel_winnersWhereInput | wheel_winnersWhereInput[]
+    id?: IntFilter<"wheel_winners"> | number
+    emp_id?: StringFilter<"wheel_winners"> | string
+    prize_id?: IntFilter<"wheel_winners"> | number
+    drawn_at?: DateTimeFilter<"wheel_winners"> | Date | string
+    status?: StringFilter<"wheel_winners"> | string
+    employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
+    wheel_prizes?: XOR<Wheel_prizesScalarRelationFilter, wheel_prizesWhereInput>
+  }
+
+  export type wheel_winnersOrderByWithRelationInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    prize_id?: SortOrder
+    drawn_at?: SortOrder
+    status?: SortOrder
+    employees?: employeesOrderByWithRelationInput
+    wheel_prizes?: wheel_prizesOrderByWithRelationInput
+  }
+
+  export type wheel_winnersWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: wheel_winnersWhereInput | wheel_winnersWhereInput[]
+    OR?: wheel_winnersWhereInput[]
+    NOT?: wheel_winnersWhereInput | wheel_winnersWhereInput[]
+    emp_id?: StringFilter<"wheel_winners"> | string
+    prize_id?: IntFilter<"wheel_winners"> | number
+    drawn_at?: DateTimeFilter<"wheel_winners"> | Date | string
+    status?: StringFilter<"wheel_winners"> | string
+    employees?: XOR<EmployeesScalarRelationFilter, employeesWhereInput>
+    wheel_prizes?: XOR<Wheel_prizesScalarRelationFilter, wheel_prizesWhereInput>
+  }, "id">
+
+  export type wheel_winnersOrderByWithAggregationInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    prize_id?: SortOrder
+    drawn_at?: SortOrder
+    status?: SortOrder
+    _count?: wheel_winnersCountOrderByAggregateInput
+    _avg?: wheel_winnersAvgOrderByAggregateInput
+    _max?: wheel_winnersMaxOrderByAggregateInput
+    _min?: wheel_winnersMinOrderByAggregateInput
+    _sum?: wheel_winnersSumOrderByAggregateInput
+  }
+
+  export type wheel_winnersScalarWhereWithAggregatesInput = {
+    AND?: wheel_winnersScalarWhereWithAggregatesInput | wheel_winnersScalarWhereWithAggregatesInput[]
+    OR?: wheel_winnersScalarWhereWithAggregatesInput[]
+    NOT?: wheel_winnersScalarWhereWithAggregatesInput | wheel_winnersScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"wheel_winners"> | number
+    emp_id?: StringWithAggregatesFilter<"wheel_winners"> | string
+    prize_id?: IntWithAggregatesFilter<"wheel_winners"> | number
+    drawn_at?: DateTimeWithAggregatesFilter<"wheel_winners"> | Date | string
+    status?: StringWithAggregatesFilter<"wheel_winners"> | string
+  }
+
   export type UserCreateInput = {
     id?: string
     employeeId: string
@@ -158784,9 +164260,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
@@ -158814,9 +164290,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
     purchaseRequests?: PurchaseRequestUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -158838,9 +164314,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
@@ -158868,9 +164344,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -158895,9 +164371,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
   }
 
   export type OrderUpdateManyMutationInput = {
@@ -158917,9 +164393,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
   }
 
   export type OrderUncheckedUpdateManyInput = {
@@ -158942,9 +164418,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
   }
 
   export type OrderStatusLogCreateInput = {
@@ -159381,6 +164857,8 @@ export namespace Prisma {
     installmentNo?: number | null
     installmentTotal?: number | null
     creditType?: string | null
+    invoiceDate?: Date | string | null
+    invoiceNumber?: string | null
     job: JobCreateNestedOneWithoutPaymentTasksInput
   }
 
@@ -159399,6 +164877,8 @@ export namespace Prisma {
     installmentNo?: number | null
     installmentTotal?: number | null
     creditType?: string | null
+    invoiceDate?: Date | string | null
+    invoiceNumber?: string | null
   }
 
   export type PaymentTaskUpdateInput = {
@@ -159415,6 +164895,8 @@ export namespace Prisma {
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
     creditType?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
     job?: JobUpdateOneRequiredWithoutPaymentTasksNestedInput
   }
 
@@ -159433,6 +164915,8 @@ export namespace Prisma {
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
     creditType?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTaskCreateManyInput = {
@@ -159450,6 +164934,8 @@ export namespace Prisma {
     installmentNo?: number | null
     installmentTotal?: number | null
     creditType?: string | null
+    invoiceDate?: Date | string | null
+    invoiceNumber?: string | null
   }
 
   export type PaymentTaskUpdateManyMutationInput = {
@@ -159466,6 +164952,8 @@ export namespace Prisma {
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
     creditType?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTaskUncheckedUpdateManyInput = {
@@ -159483,6 +164971,8 @@ export namespace Prisma {
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
     creditType?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type JobRunningNumberCreateInput = {
@@ -160837,7 +166327,9 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
-    overnight_required?: boolean | null
+    overnight_required?: boolean
+    nights_count?: number | null
+    trip_fee_status?: string | null
     assets: assetsCreateNestedOneWithoutAsset_borrowingsInput
     employees: employeesCreateNestedOneWithoutAsset_borrowingsInput
   }
@@ -160871,7 +166363,9 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
-    overnight_required?: boolean | null
+    overnight_required?: boolean
+    nights_count?: number | null
+    trip_fee_status?: string | null
   }
 
   export type asset_borrowingsUpdateInput = {
@@ -160900,7 +166394,9 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
-    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    overnight_required?: BoolFieldUpdateOperationsInput | boolean
+    nights_count?: NullableIntFieldUpdateOperationsInput | number | null
+    trip_fee_status?: NullableStringFieldUpdateOperationsInput | string | null
     assets?: assetsUpdateOneRequiredWithoutAsset_borrowingsNestedInput
     employees?: employeesUpdateOneRequiredWithoutAsset_borrowingsNestedInput
   }
@@ -160934,7 +166430,9 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
-    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    overnight_required?: BoolFieldUpdateOperationsInput | boolean
+    nights_count?: NullableIntFieldUpdateOperationsInput | number | null
+    trip_fee_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type asset_borrowingsCreateManyInput = {
@@ -160966,7 +166464,9 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
-    overnight_required?: boolean | null
+    overnight_required?: boolean
+    nights_count?: number | null
+    trip_fee_status?: string | null
   }
 
   export type asset_borrowingsUpdateManyMutationInput = {
@@ -160995,7 +166495,9 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
-    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    overnight_required?: BoolFieldUpdateOperationsInput | boolean
+    nights_count?: NullableIntFieldUpdateOperationsInput | number | null
+    trip_fee_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type asset_borrowingsUncheckedUpdateManyInput = {
@@ -161027,7 +166529,9 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
-    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    overnight_required?: BoolFieldUpdateOperationsInput | boolean
+    nights_count?: NullableIntFieldUpdateOperationsInput | number | null
+    trip_fee_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type assetsCreateInput = {
@@ -161992,6 +167496,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -162082,6 +167588,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -162172,6 +167680,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -162262,6 +167772,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -169377,6 +174889,260 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type wheel_eventsCreateInput = {
+    name: string
+    description?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
+    is_active?: boolean
+    created_at?: Date | string
+    wheel_prizes?: wheel_prizesCreateNestedManyWithoutWheel_eventsInput
+  }
+
+  export type wheel_eventsUncheckedCreateInput = {
+    id?: number
+    name: string
+    description?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
+    is_active?: boolean
+    created_at?: Date | string
+    wheel_prizes?: wheel_prizesUncheckedCreateNestedManyWithoutWheel_eventsInput
+  }
+
+  export type wheel_eventsUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    wheel_prizes?: wheel_prizesUpdateManyWithoutWheel_eventsNestedInput
+  }
+
+  export type wheel_eventsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    wheel_prizes?: wheel_prizesUncheckedUpdateManyWithoutWheel_eventsNestedInput
+  }
+
+  export type wheel_eventsCreateManyInput = {
+    id?: number
+    name: string
+    description?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
+    is_active?: boolean
+    created_at?: Date | string
+  }
+
+  export type wheel_eventsUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_eventsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_prizesCreateInput = {
+    name: string
+    bonus_amount?: number
+    quantity?: number
+    is_active?: boolean
+    wheel_events: wheel_eventsCreateNestedOneWithoutWheel_prizesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutWheel_prizesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutWheel_prizesInput
+  }
+
+  export type wheel_prizesUncheckedCreateInput = {
+    id?: number
+    event_id: number
+    name: string
+    bonus_amount?: number
+    quantity?: number
+    is_active?: boolean
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutWheel_prizesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutWheel_prizesInput
+  }
+
+  export type wheel_prizesUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    wheel_events?: wheel_eventsUpdateOneRequiredWithoutWheel_prizesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutWheel_prizesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutWheel_prizesNestedInput
+  }
+
+  export type wheel_prizesUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    event_id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutWheel_prizesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutWheel_prizesNestedInput
+  }
+
+  export type wheel_prizesCreateManyInput = {
+    id?: number
+    event_id: number
+    name: string
+    bonus_amount?: number
+    quantity?: number
+    is_active?: boolean
+  }
+
+  export type wheel_prizesUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type wheel_prizesUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    event_id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type wheel_ticketsCreateInput = {
+    coin_type_used: string
+    coins_spent: number
+    ticket_count?: number
+    created_at?: Date | string
+    employees: employeesCreateNestedOneWithoutWheel_ticketsInput
+    wheel_prizes: wheel_prizesCreateNestedOneWithoutWheel_ticketsInput
+  }
+
+  export type wheel_ticketsUncheckedCreateInput = {
+    id?: number
+    emp_id: string
+    prize_id: number
+    coin_type_used: string
+    coins_spent: number
+    ticket_count?: number
+    created_at?: Date | string
+  }
+
+  export type wheel_ticketsUpdateInput = {
+    coin_type_used?: StringFieldUpdateOperationsInput | string
+    coins_spent?: IntFieldUpdateOperationsInput | number
+    ticket_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    employees?: employeesUpdateOneRequiredWithoutWheel_ticketsNestedInput
+    wheel_prizes?: wheel_prizesUpdateOneRequiredWithoutWheel_ticketsNestedInput
+  }
+
+  export type wheel_ticketsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    prize_id?: IntFieldUpdateOperationsInput | number
+    coin_type_used?: StringFieldUpdateOperationsInput | string
+    coins_spent?: IntFieldUpdateOperationsInput | number
+    ticket_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_ticketsCreateManyInput = {
+    id?: number
+    emp_id: string
+    prize_id: number
+    coin_type_used: string
+    coins_spent: number
+    ticket_count?: number
+    created_at?: Date | string
+  }
+
+  export type wheel_ticketsUpdateManyMutationInput = {
+    coin_type_used?: StringFieldUpdateOperationsInput | string
+    coins_spent?: IntFieldUpdateOperationsInput | number
+    ticket_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_ticketsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    prize_id?: IntFieldUpdateOperationsInput | number
+    coin_type_used?: StringFieldUpdateOperationsInput | string
+    coins_spent?: IntFieldUpdateOperationsInput | number
+    ticket_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_winnersCreateInput = {
+    drawn_at?: Date | string
+    status?: string
+    employees: employeesCreateNestedOneWithoutWheel_winnersInput
+    wheel_prizes: wheel_prizesCreateNestedOneWithoutWheel_winnersInput
+  }
+
+  export type wheel_winnersUncheckedCreateInput = {
+    id?: number
+    emp_id: string
+    prize_id: number
+    drawn_at?: Date | string
+    status?: string
+  }
+
+  export type wheel_winnersUpdateInput = {
+    drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    employees?: employeesUpdateOneRequiredWithoutWheel_winnersNestedInput
+    wheel_prizes?: wheel_prizesUpdateOneRequiredWithoutWheel_winnersNestedInput
+  }
+
+  export type wheel_winnersUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    prize_id?: IntFieldUpdateOperationsInput | number
+    drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type wheel_winnersCreateManyInput = {
+    id?: number
+    emp_id: string
+    prize_id: number
+    drawn_at?: Date | string
+    status?: string
+  }
+
+  export type wheel_winnersUpdateManyMutationInput = {
+    drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type wheel_winnersUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    prize_id?: IntFieldUpdateOperationsInput | number
+    drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -170653,9 +176419,9 @@ export namespace Prisma {
     productionDeadline?: SortOrder
     qcAt?: SortOrder
     qcBy?: SortOrder
+    qcImages?: SortOrder
     qcNote?: SortOrder
     qcStatus?: SortOrder
-    qcImages?: SortOrder
   }
 
   export type OrderAvgOrderByAggregateInput = {
@@ -170983,6 +176749,8 @@ export namespace Prisma {
     installmentNo?: SortOrder
     installmentTotal?: SortOrder
     creditType?: SortOrder
+    invoiceDate?: SortOrder
+    invoiceNumber?: SortOrder
   }
 
   export type PaymentTaskAvgOrderByAggregateInput = {
@@ -171007,6 +176775,8 @@ export namespace Prisma {
     installmentNo?: SortOrder
     installmentTotal?: SortOrder
     creditType?: SortOrder
+    invoiceDate?: SortOrder
+    invoiceNumber?: SortOrder
   }
 
   export type PaymentTaskMinOrderByAggregateInput = {
@@ -171024,6 +176794,8 @@ export namespace Prisma {
     installmentNo?: SortOrder
     installmentTotal?: SortOrder
     creditType?: SortOrder
+    invoiceDate?: SortOrder
+    invoiceNumber?: SortOrder
   }
 
   export type PaymentTaskSumOrderByAggregateInput = {
@@ -171840,12 +177612,15 @@ export namespace Prisma {
     key_signature_url?: SortOrder
     return_status?: SortOrder
     overnight_required?: SortOrder
+    nights_count?: SortOrder
+    trip_fee_status?: SortOrder
   }
 
   export type asset_borrowingsAvgOrderByAggregateInput = {
     id?: SortOrder
     asset_id?: SortOrder
     quantity?: SortOrder
+    nights_count?: SortOrder
   }
 
   export type asset_borrowingsMaxOrderByAggregateInput = {
@@ -171878,6 +177653,8 @@ export namespace Prisma {
     key_signature_url?: SortOrder
     return_status?: SortOrder
     overnight_required?: SortOrder
+    nights_count?: SortOrder
+    trip_fee_status?: SortOrder
   }
 
   export type asset_borrowingsMinOrderByAggregateInput = {
@@ -171910,12 +177687,15 @@ export namespace Prisma {
     key_signature_url?: SortOrder
     return_status?: SortOrder
     overnight_required?: SortOrder
+    nights_count?: SortOrder
+    trip_fee_status?: SortOrder
   }
 
   export type asset_borrowingsSumOrderByAggregateInput = {
     id?: SortOrder
     asset_id?: SortOrder
     quantity?: SortOrder
+    nights_count?: SortOrder
   }
 
   export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -172671,6 +178451,18 @@ export namespace Prisma {
     none?: travel_claimsWhereInput
   }
 
+  export type Wheel_ticketsListRelationFilter = {
+    every?: wheel_ticketsWhereInput
+    some?: wheel_ticketsWhereInput
+    none?: wheel_ticketsWhereInput
+  }
+
+  export type Wheel_winnersListRelationFilter = {
+    every?: wheel_winnersWhereInput
+    some?: wheel_winnersWhereInput
+    none?: wheel_winnersWhereInput
+  }
+
   export type Withholding_tax_documentsListRelationFilter = {
     every?: withholding_tax_documentsWhereInput
     some?: withholding_tax_documentsWhereInput
@@ -172766,6 +178558,14 @@ export namespace Prisma {
   }
 
   export type travel_claimsOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type wheel_ticketsOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type wheel_winnersOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -177077,6 +182877,183 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type Wheel_prizesListRelationFilter = {
+    every?: wheel_prizesWhereInput
+    some?: wheel_prizesWhereInput
+    none?: wheel_prizesWhereInput
+  }
+
+  export type wheel_prizesOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type wheel_eventsCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type wheel_eventsAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type wheel_eventsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type wheel_eventsMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type wheel_eventsSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type Wheel_eventsScalarRelationFilter = {
+    is?: wheel_eventsWhereInput
+    isNot?: wheel_eventsWhereInput
+  }
+
+  export type wheel_prizesCountOrderByAggregateInput = {
+    id?: SortOrder
+    event_id?: SortOrder
+    name?: SortOrder
+    bonus_amount?: SortOrder
+    quantity?: SortOrder
+    is_active?: SortOrder
+  }
+
+  export type wheel_prizesAvgOrderByAggregateInput = {
+    id?: SortOrder
+    event_id?: SortOrder
+    bonus_amount?: SortOrder
+    quantity?: SortOrder
+  }
+
+  export type wheel_prizesMaxOrderByAggregateInput = {
+    id?: SortOrder
+    event_id?: SortOrder
+    name?: SortOrder
+    bonus_amount?: SortOrder
+    quantity?: SortOrder
+    is_active?: SortOrder
+  }
+
+  export type wheel_prizesMinOrderByAggregateInput = {
+    id?: SortOrder
+    event_id?: SortOrder
+    name?: SortOrder
+    bonus_amount?: SortOrder
+    quantity?: SortOrder
+    is_active?: SortOrder
+  }
+
+  export type wheel_prizesSumOrderByAggregateInput = {
+    id?: SortOrder
+    event_id?: SortOrder
+    bonus_amount?: SortOrder
+    quantity?: SortOrder
+  }
+
+  export type Wheel_prizesScalarRelationFilter = {
+    is?: wheel_prizesWhereInput
+    isNot?: wheel_prizesWhereInput
+  }
+
+  export type wheel_ticketsCountOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    prize_id?: SortOrder
+    coin_type_used?: SortOrder
+    coins_spent?: SortOrder
+    ticket_count?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type wheel_ticketsAvgOrderByAggregateInput = {
+    id?: SortOrder
+    prize_id?: SortOrder
+    coins_spent?: SortOrder
+    ticket_count?: SortOrder
+  }
+
+  export type wheel_ticketsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    prize_id?: SortOrder
+    coin_type_used?: SortOrder
+    coins_spent?: SortOrder
+    ticket_count?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type wheel_ticketsMinOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    prize_id?: SortOrder
+    coin_type_used?: SortOrder
+    coins_spent?: SortOrder
+    ticket_count?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type wheel_ticketsSumOrderByAggregateInput = {
+    id?: SortOrder
+    prize_id?: SortOrder
+    coins_spent?: SortOrder
+    ticket_count?: SortOrder
+  }
+
+  export type wheel_winnersCountOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    prize_id?: SortOrder
+    drawn_at?: SortOrder
+    status?: SortOrder
+  }
+
+  export type wheel_winnersAvgOrderByAggregateInput = {
+    id?: SortOrder
+    prize_id?: SortOrder
+  }
+
+  export type wheel_winnersMaxOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    prize_id?: SortOrder
+    drawn_at?: SortOrder
+    status?: SortOrder
+  }
+
+  export type wheel_winnersMinOrderByAggregateInput = {
+    id?: SortOrder
+    emp_id?: SortOrder
+    prize_id?: SortOrder
+    drawn_at?: SortOrder
+    status?: SortOrder
+  }
+
+  export type wheel_winnersSumOrderByAggregateInput = {
+    id?: SortOrder
+    prize_id?: SortOrder
+  }
+
   export type CompanyCreateNestedManyWithoutAssignedUserInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -180265,6 +186242,20 @@ export namespace Prisma {
     connect?: travel_claimsWhereUniqueInput | travel_claimsWhereUniqueInput[]
   }
 
+  export type wheel_ticketsCreateNestedManyWithoutEmployeesInput = {
+    create?: XOR<wheel_ticketsCreateWithoutEmployeesInput, wheel_ticketsUncheckedCreateWithoutEmployeesInput> | wheel_ticketsCreateWithoutEmployeesInput[] | wheel_ticketsUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: wheel_ticketsCreateOrConnectWithoutEmployeesInput | wheel_ticketsCreateOrConnectWithoutEmployeesInput[]
+    createMany?: wheel_ticketsCreateManyEmployeesInputEnvelope
+    connect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+  }
+
+  export type wheel_winnersCreateNestedManyWithoutEmployeesInput = {
+    create?: XOR<wheel_winnersCreateWithoutEmployeesInput, wheel_winnersUncheckedCreateWithoutEmployeesInput> | wheel_winnersCreateWithoutEmployeesInput[] | wheel_winnersUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: wheel_winnersCreateOrConnectWithoutEmployeesInput | wheel_winnersCreateOrConnectWithoutEmployeesInput[]
+    createMany?: wheel_winnersCreateManyEmployeesInputEnvelope
+    connect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+  }
+
   export type withholding_tax_documentsCreateNestedManyWithoutEmployeesInput = {
     create?: XOR<withholding_tax_documentsCreateWithoutEmployeesInput, withholding_tax_documentsUncheckedCreateWithoutEmployeesInput> | withholding_tax_documentsCreateWithoutEmployeesInput[] | withholding_tax_documentsUncheckedCreateWithoutEmployeesInput[]
     connectOrCreate?: withholding_tax_documentsCreateOrConnectWithoutEmployeesInput | withholding_tax_documentsCreateOrConnectWithoutEmployeesInput[]
@@ -180499,6 +186490,20 @@ export namespace Prisma {
     connectOrCreate?: travel_claimsCreateOrConnectWithoutEmployeesInput | travel_claimsCreateOrConnectWithoutEmployeesInput[]
     createMany?: travel_claimsCreateManyEmployeesInputEnvelope
     connect?: travel_claimsWhereUniqueInput | travel_claimsWhereUniqueInput[]
+  }
+
+  export type wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput = {
+    create?: XOR<wheel_ticketsCreateWithoutEmployeesInput, wheel_ticketsUncheckedCreateWithoutEmployeesInput> | wheel_ticketsCreateWithoutEmployeesInput[] | wheel_ticketsUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: wheel_ticketsCreateOrConnectWithoutEmployeesInput | wheel_ticketsCreateOrConnectWithoutEmployeesInput[]
+    createMany?: wheel_ticketsCreateManyEmployeesInputEnvelope
+    connect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+  }
+
+  export type wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput = {
+    create?: XOR<wheel_winnersCreateWithoutEmployeesInput, wheel_winnersUncheckedCreateWithoutEmployeesInput> | wheel_winnersCreateWithoutEmployeesInput[] | wheel_winnersUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: wheel_winnersCreateOrConnectWithoutEmployeesInput | wheel_winnersCreateOrConnectWithoutEmployeesInput[]
+    createMany?: wheel_winnersCreateManyEmployeesInputEnvelope
+    connect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
   }
 
   export type withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput = {
@@ -181012,6 +187017,34 @@ export namespace Prisma {
     deleteMany?: travel_claimsScalarWhereInput | travel_claimsScalarWhereInput[]
   }
 
+  export type wheel_ticketsUpdateManyWithoutEmployeesNestedInput = {
+    create?: XOR<wheel_ticketsCreateWithoutEmployeesInput, wheel_ticketsUncheckedCreateWithoutEmployeesInput> | wheel_ticketsCreateWithoutEmployeesInput[] | wheel_ticketsUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: wheel_ticketsCreateOrConnectWithoutEmployeesInput | wheel_ticketsCreateOrConnectWithoutEmployeesInput[]
+    upsert?: wheel_ticketsUpsertWithWhereUniqueWithoutEmployeesInput | wheel_ticketsUpsertWithWhereUniqueWithoutEmployeesInput[]
+    createMany?: wheel_ticketsCreateManyEmployeesInputEnvelope
+    set?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    disconnect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    delete?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    connect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    update?: wheel_ticketsUpdateWithWhereUniqueWithoutEmployeesInput | wheel_ticketsUpdateWithWhereUniqueWithoutEmployeesInput[]
+    updateMany?: wheel_ticketsUpdateManyWithWhereWithoutEmployeesInput | wheel_ticketsUpdateManyWithWhereWithoutEmployeesInput[]
+    deleteMany?: wheel_ticketsScalarWhereInput | wheel_ticketsScalarWhereInput[]
+  }
+
+  export type wheel_winnersUpdateManyWithoutEmployeesNestedInput = {
+    create?: XOR<wheel_winnersCreateWithoutEmployeesInput, wheel_winnersUncheckedCreateWithoutEmployeesInput> | wheel_winnersCreateWithoutEmployeesInput[] | wheel_winnersUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: wheel_winnersCreateOrConnectWithoutEmployeesInput | wheel_winnersCreateOrConnectWithoutEmployeesInput[]
+    upsert?: wheel_winnersUpsertWithWhereUniqueWithoutEmployeesInput | wheel_winnersUpsertWithWhereUniqueWithoutEmployeesInput[]
+    createMany?: wheel_winnersCreateManyEmployeesInputEnvelope
+    set?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    disconnect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    delete?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    connect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    update?: wheel_winnersUpdateWithWhereUniqueWithoutEmployeesInput | wheel_winnersUpdateWithWhereUniqueWithoutEmployeesInput[]
+    updateMany?: wheel_winnersUpdateManyWithWhereWithoutEmployeesInput | wheel_winnersUpdateManyWithWhereWithoutEmployeesInput[]
+    deleteMany?: wheel_winnersScalarWhereInput | wheel_winnersScalarWhereInput[]
+  }
+
   export type withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput = {
     create?: XOR<withholding_tax_documentsCreateWithoutEmployeesInput, withholding_tax_documentsUncheckedCreateWithoutEmployeesInput> | withholding_tax_documentsCreateWithoutEmployeesInput[] | withholding_tax_documentsUncheckedCreateWithoutEmployeesInput[]
     connectOrCreate?: withholding_tax_documentsCreateOrConnectWithoutEmployeesInput | withholding_tax_documentsCreateOrConnectWithoutEmployeesInput[]
@@ -181478,6 +187511,34 @@ export namespace Prisma {
     update?: travel_claimsUpdateWithWhereUniqueWithoutEmployeesInput | travel_claimsUpdateWithWhereUniqueWithoutEmployeesInput[]
     updateMany?: travel_claimsUpdateManyWithWhereWithoutEmployeesInput | travel_claimsUpdateManyWithWhereWithoutEmployeesInput[]
     deleteMany?: travel_claimsScalarWhereInput | travel_claimsScalarWhereInput[]
+  }
+
+  export type wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput = {
+    create?: XOR<wheel_ticketsCreateWithoutEmployeesInput, wheel_ticketsUncheckedCreateWithoutEmployeesInput> | wheel_ticketsCreateWithoutEmployeesInput[] | wheel_ticketsUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: wheel_ticketsCreateOrConnectWithoutEmployeesInput | wheel_ticketsCreateOrConnectWithoutEmployeesInput[]
+    upsert?: wheel_ticketsUpsertWithWhereUniqueWithoutEmployeesInput | wheel_ticketsUpsertWithWhereUniqueWithoutEmployeesInput[]
+    createMany?: wheel_ticketsCreateManyEmployeesInputEnvelope
+    set?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    disconnect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    delete?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    connect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    update?: wheel_ticketsUpdateWithWhereUniqueWithoutEmployeesInput | wheel_ticketsUpdateWithWhereUniqueWithoutEmployeesInput[]
+    updateMany?: wheel_ticketsUpdateManyWithWhereWithoutEmployeesInput | wheel_ticketsUpdateManyWithWhereWithoutEmployeesInput[]
+    deleteMany?: wheel_ticketsScalarWhereInput | wheel_ticketsScalarWhereInput[]
+  }
+
+  export type wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput = {
+    create?: XOR<wheel_winnersCreateWithoutEmployeesInput, wheel_winnersUncheckedCreateWithoutEmployeesInput> | wheel_winnersCreateWithoutEmployeesInput[] | wheel_winnersUncheckedCreateWithoutEmployeesInput[]
+    connectOrCreate?: wheel_winnersCreateOrConnectWithoutEmployeesInput | wheel_winnersCreateOrConnectWithoutEmployeesInput[]
+    upsert?: wheel_winnersUpsertWithWhereUniqueWithoutEmployeesInput | wheel_winnersUpsertWithWhereUniqueWithoutEmployeesInput[]
+    createMany?: wheel_winnersCreateManyEmployeesInputEnvelope
+    set?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    disconnect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    delete?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    connect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    update?: wheel_winnersUpdateWithWhereUniqueWithoutEmployeesInput | wheel_winnersUpdateWithWhereUniqueWithoutEmployeesInput[]
+    updateMany?: wheel_winnersUpdateManyWithWhereWithoutEmployeesInput | wheel_winnersUpdateManyWithWhereWithoutEmployeesInput[]
+    deleteMany?: wheel_winnersScalarWhereInput | wheel_winnersScalarWhereInput[]
   }
 
   export type withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput = {
@@ -184071,6 +190132,202 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPushSubscriptionsInput, UserUpdateWithoutPushSubscriptionsInput>, UserUncheckedUpdateWithoutPushSubscriptionsInput>
   }
 
+  export type wheel_prizesCreateNestedManyWithoutWheel_eventsInput = {
+    create?: XOR<wheel_prizesCreateWithoutWheel_eventsInput, wheel_prizesUncheckedCreateWithoutWheel_eventsInput> | wheel_prizesCreateWithoutWheel_eventsInput[] | wheel_prizesUncheckedCreateWithoutWheel_eventsInput[]
+    connectOrCreate?: wheel_prizesCreateOrConnectWithoutWheel_eventsInput | wheel_prizesCreateOrConnectWithoutWheel_eventsInput[]
+    createMany?: wheel_prizesCreateManyWheel_eventsInputEnvelope
+    connect?: wheel_prizesWhereUniqueInput | wheel_prizesWhereUniqueInput[]
+  }
+
+  export type wheel_prizesUncheckedCreateNestedManyWithoutWheel_eventsInput = {
+    create?: XOR<wheel_prizesCreateWithoutWheel_eventsInput, wheel_prizesUncheckedCreateWithoutWheel_eventsInput> | wheel_prizesCreateWithoutWheel_eventsInput[] | wheel_prizesUncheckedCreateWithoutWheel_eventsInput[]
+    connectOrCreate?: wheel_prizesCreateOrConnectWithoutWheel_eventsInput | wheel_prizesCreateOrConnectWithoutWheel_eventsInput[]
+    createMany?: wheel_prizesCreateManyWheel_eventsInputEnvelope
+    connect?: wheel_prizesWhereUniqueInput | wheel_prizesWhereUniqueInput[]
+  }
+
+  export type wheel_prizesUpdateManyWithoutWheel_eventsNestedInput = {
+    create?: XOR<wheel_prizesCreateWithoutWheel_eventsInput, wheel_prizesUncheckedCreateWithoutWheel_eventsInput> | wheel_prizesCreateWithoutWheel_eventsInput[] | wheel_prizesUncheckedCreateWithoutWheel_eventsInput[]
+    connectOrCreate?: wheel_prizesCreateOrConnectWithoutWheel_eventsInput | wheel_prizesCreateOrConnectWithoutWheel_eventsInput[]
+    upsert?: wheel_prizesUpsertWithWhereUniqueWithoutWheel_eventsInput | wheel_prizesUpsertWithWhereUniqueWithoutWheel_eventsInput[]
+    createMany?: wheel_prizesCreateManyWheel_eventsInputEnvelope
+    set?: wheel_prizesWhereUniqueInput | wheel_prizesWhereUniqueInput[]
+    disconnect?: wheel_prizesWhereUniqueInput | wheel_prizesWhereUniqueInput[]
+    delete?: wheel_prizesWhereUniqueInput | wheel_prizesWhereUniqueInput[]
+    connect?: wheel_prizesWhereUniqueInput | wheel_prizesWhereUniqueInput[]
+    update?: wheel_prizesUpdateWithWhereUniqueWithoutWheel_eventsInput | wheel_prizesUpdateWithWhereUniqueWithoutWheel_eventsInput[]
+    updateMany?: wheel_prizesUpdateManyWithWhereWithoutWheel_eventsInput | wheel_prizesUpdateManyWithWhereWithoutWheel_eventsInput[]
+    deleteMany?: wheel_prizesScalarWhereInput | wheel_prizesScalarWhereInput[]
+  }
+
+  export type wheel_prizesUncheckedUpdateManyWithoutWheel_eventsNestedInput = {
+    create?: XOR<wheel_prizesCreateWithoutWheel_eventsInput, wheel_prizesUncheckedCreateWithoutWheel_eventsInput> | wheel_prizesCreateWithoutWheel_eventsInput[] | wheel_prizesUncheckedCreateWithoutWheel_eventsInput[]
+    connectOrCreate?: wheel_prizesCreateOrConnectWithoutWheel_eventsInput | wheel_prizesCreateOrConnectWithoutWheel_eventsInput[]
+    upsert?: wheel_prizesUpsertWithWhereUniqueWithoutWheel_eventsInput | wheel_prizesUpsertWithWhereUniqueWithoutWheel_eventsInput[]
+    createMany?: wheel_prizesCreateManyWheel_eventsInputEnvelope
+    set?: wheel_prizesWhereUniqueInput | wheel_prizesWhereUniqueInput[]
+    disconnect?: wheel_prizesWhereUniqueInput | wheel_prizesWhereUniqueInput[]
+    delete?: wheel_prizesWhereUniqueInput | wheel_prizesWhereUniqueInput[]
+    connect?: wheel_prizesWhereUniqueInput | wheel_prizesWhereUniqueInput[]
+    update?: wheel_prizesUpdateWithWhereUniqueWithoutWheel_eventsInput | wheel_prizesUpdateWithWhereUniqueWithoutWheel_eventsInput[]
+    updateMany?: wheel_prizesUpdateManyWithWhereWithoutWheel_eventsInput | wheel_prizesUpdateManyWithWhereWithoutWheel_eventsInput[]
+    deleteMany?: wheel_prizesScalarWhereInput | wheel_prizesScalarWhereInput[]
+  }
+
+  export type wheel_eventsCreateNestedOneWithoutWheel_prizesInput = {
+    create?: XOR<wheel_eventsCreateWithoutWheel_prizesInput, wheel_eventsUncheckedCreateWithoutWheel_prizesInput>
+    connectOrCreate?: wheel_eventsCreateOrConnectWithoutWheel_prizesInput
+    connect?: wheel_eventsWhereUniqueInput
+  }
+
+  export type wheel_ticketsCreateNestedManyWithoutWheel_prizesInput = {
+    create?: XOR<wheel_ticketsCreateWithoutWheel_prizesInput, wheel_ticketsUncheckedCreateWithoutWheel_prizesInput> | wheel_ticketsCreateWithoutWheel_prizesInput[] | wheel_ticketsUncheckedCreateWithoutWheel_prizesInput[]
+    connectOrCreate?: wheel_ticketsCreateOrConnectWithoutWheel_prizesInput | wheel_ticketsCreateOrConnectWithoutWheel_prizesInput[]
+    createMany?: wheel_ticketsCreateManyWheel_prizesInputEnvelope
+    connect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+  }
+
+  export type wheel_winnersCreateNestedManyWithoutWheel_prizesInput = {
+    create?: XOR<wheel_winnersCreateWithoutWheel_prizesInput, wheel_winnersUncheckedCreateWithoutWheel_prizesInput> | wheel_winnersCreateWithoutWheel_prizesInput[] | wheel_winnersUncheckedCreateWithoutWheel_prizesInput[]
+    connectOrCreate?: wheel_winnersCreateOrConnectWithoutWheel_prizesInput | wheel_winnersCreateOrConnectWithoutWheel_prizesInput[]
+    createMany?: wheel_winnersCreateManyWheel_prizesInputEnvelope
+    connect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+  }
+
+  export type wheel_ticketsUncheckedCreateNestedManyWithoutWheel_prizesInput = {
+    create?: XOR<wheel_ticketsCreateWithoutWheel_prizesInput, wheel_ticketsUncheckedCreateWithoutWheel_prizesInput> | wheel_ticketsCreateWithoutWheel_prizesInput[] | wheel_ticketsUncheckedCreateWithoutWheel_prizesInput[]
+    connectOrCreate?: wheel_ticketsCreateOrConnectWithoutWheel_prizesInput | wheel_ticketsCreateOrConnectWithoutWheel_prizesInput[]
+    createMany?: wheel_ticketsCreateManyWheel_prizesInputEnvelope
+    connect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+  }
+
+  export type wheel_winnersUncheckedCreateNestedManyWithoutWheel_prizesInput = {
+    create?: XOR<wheel_winnersCreateWithoutWheel_prizesInput, wheel_winnersUncheckedCreateWithoutWheel_prizesInput> | wheel_winnersCreateWithoutWheel_prizesInput[] | wheel_winnersUncheckedCreateWithoutWheel_prizesInput[]
+    connectOrCreate?: wheel_winnersCreateOrConnectWithoutWheel_prizesInput | wheel_winnersCreateOrConnectWithoutWheel_prizesInput[]
+    createMany?: wheel_winnersCreateManyWheel_prizesInputEnvelope
+    connect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+  }
+
+  export type wheel_eventsUpdateOneRequiredWithoutWheel_prizesNestedInput = {
+    create?: XOR<wheel_eventsCreateWithoutWheel_prizesInput, wheel_eventsUncheckedCreateWithoutWheel_prizesInput>
+    connectOrCreate?: wheel_eventsCreateOrConnectWithoutWheel_prizesInput
+    upsert?: wheel_eventsUpsertWithoutWheel_prizesInput
+    connect?: wheel_eventsWhereUniqueInput
+    update?: XOR<XOR<wheel_eventsUpdateToOneWithWhereWithoutWheel_prizesInput, wheel_eventsUpdateWithoutWheel_prizesInput>, wheel_eventsUncheckedUpdateWithoutWheel_prizesInput>
+  }
+
+  export type wheel_ticketsUpdateManyWithoutWheel_prizesNestedInput = {
+    create?: XOR<wheel_ticketsCreateWithoutWheel_prizesInput, wheel_ticketsUncheckedCreateWithoutWheel_prizesInput> | wheel_ticketsCreateWithoutWheel_prizesInput[] | wheel_ticketsUncheckedCreateWithoutWheel_prizesInput[]
+    connectOrCreate?: wheel_ticketsCreateOrConnectWithoutWheel_prizesInput | wheel_ticketsCreateOrConnectWithoutWheel_prizesInput[]
+    upsert?: wheel_ticketsUpsertWithWhereUniqueWithoutWheel_prizesInput | wheel_ticketsUpsertWithWhereUniqueWithoutWheel_prizesInput[]
+    createMany?: wheel_ticketsCreateManyWheel_prizesInputEnvelope
+    set?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    disconnect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    delete?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    connect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    update?: wheel_ticketsUpdateWithWhereUniqueWithoutWheel_prizesInput | wheel_ticketsUpdateWithWhereUniqueWithoutWheel_prizesInput[]
+    updateMany?: wheel_ticketsUpdateManyWithWhereWithoutWheel_prizesInput | wheel_ticketsUpdateManyWithWhereWithoutWheel_prizesInput[]
+    deleteMany?: wheel_ticketsScalarWhereInput | wheel_ticketsScalarWhereInput[]
+  }
+
+  export type wheel_winnersUpdateManyWithoutWheel_prizesNestedInput = {
+    create?: XOR<wheel_winnersCreateWithoutWheel_prizesInput, wheel_winnersUncheckedCreateWithoutWheel_prizesInput> | wheel_winnersCreateWithoutWheel_prizesInput[] | wheel_winnersUncheckedCreateWithoutWheel_prizesInput[]
+    connectOrCreate?: wheel_winnersCreateOrConnectWithoutWheel_prizesInput | wheel_winnersCreateOrConnectWithoutWheel_prizesInput[]
+    upsert?: wheel_winnersUpsertWithWhereUniqueWithoutWheel_prizesInput | wheel_winnersUpsertWithWhereUniqueWithoutWheel_prizesInput[]
+    createMany?: wheel_winnersCreateManyWheel_prizesInputEnvelope
+    set?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    disconnect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    delete?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    connect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    update?: wheel_winnersUpdateWithWhereUniqueWithoutWheel_prizesInput | wheel_winnersUpdateWithWhereUniqueWithoutWheel_prizesInput[]
+    updateMany?: wheel_winnersUpdateManyWithWhereWithoutWheel_prizesInput | wheel_winnersUpdateManyWithWhereWithoutWheel_prizesInput[]
+    deleteMany?: wheel_winnersScalarWhereInput | wheel_winnersScalarWhereInput[]
+  }
+
+  export type wheel_ticketsUncheckedUpdateManyWithoutWheel_prizesNestedInput = {
+    create?: XOR<wheel_ticketsCreateWithoutWheel_prizesInput, wheel_ticketsUncheckedCreateWithoutWheel_prizesInput> | wheel_ticketsCreateWithoutWheel_prizesInput[] | wheel_ticketsUncheckedCreateWithoutWheel_prizesInput[]
+    connectOrCreate?: wheel_ticketsCreateOrConnectWithoutWheel_prizesInput | wheel_ticketsCreateOrConnectWithoutWheel_prizesInput[]
+    upsert?: wheel_ticketsUpsertWithWhereUniqueWithoutWheel_prizesInput | wheel_ticketsUpsertWithWhereUniqueWithoutWheel_prizesInput[]
+    createMany?: wheel_ticketsCreateManyWheel_prizesInputEnvelope
+    set?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    disconnect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    delete?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    connect?: wheel_ticketsWhereUniqueInput | wheel_ticketsWhereUniqueInput[]
+    update?: wheel_ticketsUpdateWithWhereUniqueWithoutWheel_prizesInput | wheel_ticketsUpdateWithWhereUniqueWithoutWheel_prizesInput[]
+    updateMany?: wheel_ticketsUpdateManyWithWhereWithoutWheel_prizesInput | wheel_ticketsUpdateManyWithWhereWithoutWheel_prizesInput[]
+    deleteMany?: wheel_ticketsScalarWhereInput | wheel_ticketsScalarWhereInput[]
+  }
+
+  export type wheel_winnersUncheckedUpdateManyWithoutWheel_prizesNestedInput = {
+    create?: XOR<wheel_winnersCreateWithoutWheel_prizesInput, wheel_winnersUncheckedCreateWithoutWheel_prizesInput> | wheel_winnersCreateWithoutWheel_prizesInput[] | wheel_winnersUncheckedCreateWithoutWheel_prizesInput[]
+    connectOrCreate?: wheel_winnersCreateOrConnectWithoutWheel_prizesInput | wheel_winnersCreateOrConnectWithoutWheel_prizesInput[]
+    upsert?: wheel_winnersUpsertWithWhereUniqueWithoutWheel_prizesInput | wheel_winnersUpsertWithWhereUniqueWithoutWheel_prizesInput[]
+    createMany?: wheel_winnersCreateManyWheel_prizesInputEnvelope
+    set?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    disconnect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    delete?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    connect?: wheel_winnersWhereUniqueInput | wheel_winnersWhereUniqueInput[]
+    update?: wheel_winnersUpdateWithWhereUniqueWithoutWheel_prizesInput | wheel_winnersUpdateWithWhereUniqueWithoutWheel_prizesInput[]
+    updateMany?: wheel_winnersUpdateManyWithWhereWithoutWheel_prizesInput | wheel_winnersUpdateManyWithWhereWithoutWheel_prizesInput[]
+    deleteMany?: wheel_winnersScalarWhereInput | wheel_winnersScalarWhereInput[]
+  }
+
+  export type employeesCreateNestedOneWithoutWheel_ticketsInput = {
+    create?: XOR<employeesCreateWithoutWheel_ticketsInput, employeesUncheckedCreateWithoutWheel_ticketsInput>
+    connectOrCreate?: employeesCreateOrConnectWithoutWheel_ticketsInput
+    connect?: employeesWhereUniqueInput
+  }
+
+  export type wheel_prizesCreateNestedOneWithoutWheel_ticketsInput = {
+    create?: XOR<wheel_prizesCreateWithoutWheel_ticketsInput, wheel_prizesUncheckedCreateWithoutWheel_ticketsInput>
+    connectOrCreate?: wheel_prizesCreateOrConnectWithoutWheel_ticketsInput
+    connect?: wheel_prizesWhereUniqueInput
+  }
+
+  export type employeesUpdateOneRequiredWithoutWheel_ticketsNestedInput = {
+    create?: XOR<employeesCreateWithoutWheel_ticketsInput, employeesUncheckedCreateWithoutWheel_ticketsInput>
+    connectOrCreate?: employeesCreateOrConnectWithoutWheel_ticketsInput
+    upsert?: employeesUpsertWithoutWheel_ticketsInput
+    connect?: employeesWhereUniqueInput
+    update?: XOR<XOR<employeesUpdateToOneWithWhereWithoutWheel_ticketsInput, employeesUpdateWithoutWheel_ticketsInput>, employeesUncheckedUpdateWithoutWheel_ticketsInput>
+  }
+
+  export type wheel_prizesUpdateOneRequiredWithoutWheel_ticketsNestedInput = {
+    create?: XOR<wheel_prizesCreateWithoutWheel_ticketsInput, wheel_prizesUncheckedCreateWithoutWheel_ticketsInput>
+    connectOrCreate?: wheel_prizesCreateOrConnectWithoutWheel_ticketsInput
+    upsert?: wheel_prizesUpsertWithoutWheel_ticketsInput
+    connect?: wheel_prizesWhereUniqueInput
+    update?: XOR<XOR<wheel_prizesUpdateToOneWithWhereWithoutWheel_ticketsInput, wheel_prizesUpdateWithoutWheel_ticketsInput>, wheel_prizesUncheckedUpdateWithoutWheel_ticketsInput>
+  }
+
+  export type employeesCreateNestedOneWithoutWheel_winnersInput = {
+    create?: XOR<employeesCreateWithoutWheel_winnersInput, employeesUncheckedCreateWithoutWheel_winnersInput>
+    connectOrCreate?: employeesCreateOrConnectWithoutWheel_winnersInput
+    connect?: employeesWhereUniqueInput
+  }
+
+  export type wheel_prizesCreateNestedOneWithoutWheel_winnersInput = {
+    create?: XOR<wheel_prizesCreateWithoutWheel_winnersInput, wheel_prizesUncheckedCreateWithoutWheel_winnersInput>
+    connectOrCreate?: wheel_prizesCreateOrConnectWithoutWheel_winnersInput
+    connect?: wheel_prizesWhereUniqueInput
+  }
+
+  export type employeesUpdateOneRequiredWithoutWheel_winnersNestedInput = {
+    create?: XOR<employeesCreateWithoutWheel_winnersInput, employeesUncheckedCreateWithoutWheel_winnersInput>
+    connectOrCreate?: employeesCreateOrConnectWithoutWheel_winnersInput
+    upsert?: employeesUpsertWithoutWheel_winnersInput
+    connect?: employeesWhereUniqueInput
+    update?: XOR<XOR<employeesUpdateToOneWithWhereWithoutWheel_winnersInput, employeesUpdateWithoutWheel_winnersInput>, employeesUncheckedUpdateWithoutWheel_winnersInput>
+  }
+
+  export type wheel_prizesUpdateOneRequiredWithoutWheel_winnersNestedInput = {
+    create?: XOR<wheel_prizesCreateWithoutWheel_winnersInput, wheel_prizesUncheckedCreateWithoutWheel_winnersInput>
+    connectOrCreate?: wheel_prizesCreateOrConnectWithoutWheel_winnersInput
+    upsert?: wheel_prizesUpsertWithoutWheel_winnersInput
+    connect?: wheel_prizesWhereUniqueInput
+    update?: XOR<XOR<wheel_prizesUpdateToOneWithWhereWithoutWheel_winnersInput, wheel_prizesUpdateWithoutWheel_winnersInput>, wheel_prizesUncheckedUpdateWithoutWheel_winnersInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -184945,9 +191202,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
@@ -184973,9 +191230,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
     purchaseRequests?: PurchaseRequestUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -186165,9 +192422,9 @@ export namespace Prisma {
     productionDeadline?: DateTimeNullableFilter<"Order"> | Date | string | null
     qcAt?: DateTimeNullableFilter<"Order"> | Date | string | null
     qcBy?: StringNullableFilter<"Order"> | string | null
+    qcImages?: StringNullableListFilter<"Order">
     qcNote?: StringNullableFilter<"Order"> | string | null
     qcStatus?: StringNullableFilter<"Order"> | string | null
-    qcImages?: StringNullableListFilter<"Order">
   }
 
   export type ProjectUpsertWithWhereUniqueWithoutManagerInput = {
@@ -187695,9 +193952,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
     statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
@@ -187723,9 +193980,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
     purchaseRequests?: PurchaseRequestUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -188926,9 +195183,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     company?: CompanyCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
     statusLogs?: OrderStatusLogCreateNestedManyWithoutOrderInput
@@ -188954,9 +195211,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
     purchaseRequests?: PurchaseRequestUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -191065,9 +197322,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
@@ -191094,9 +197351,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     purchaseRequests?: PurchaseRequestUncheckedCreateNestedManyWithoutOrderInput
   }
 
@@ -191133,9 +197390,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
@@ -191162,9 +197419,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
   }
 
@@ -191715,6 +197972,8 @@ export namespace Prisma {
     installmentNo?: number | null
     installmentTotal?: number | null
     creditType?: string | null
+    invoiceDate?: Date | string | null
+    invoiceNumber?: string | null
   }
 
   export type PaymentTaskUncheckedCreateWithoutJobInput = {
@@ -191731,6 +197990,8 @@ export namespace Prisma {
     installmentNo?: number | null
     installmentTotal?: number | null
     creditType?: string | null
+    invoiceDate?: Date | string | null
+    invoiceNumber?: string | null
   }
 
   export type PaymentTaskCreateOrConnectWithoutJobInput = {
@@ -192195,6 +198456,8 @@ export namespace Prisma {
     installmentNo?: IntNullableFilter<"PaymentTask"> | number | null
     installmentTotal?: IntNullableFilter<"PaymentTask"> | number | null
     creditType?: StringNullableFilter<"PaymentTask"> | string | null
+    invoiceDate?: DateTimeNullableFilter<"PaymentTask"> | Date | string | null
+    invoiceNumber?: StringNullableFilter<"PaymentTask"> | string | null
   }
 
   export type JobCreateWithoutDocumentsInput = {
@@ -194627,6 +200890,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -194716,6 +200981,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -194869,6 +201136,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -194958,6 +201227,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -194987,7 +201258,9 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
-    overnight_required?: boolean | null
+    overnight_required?: boolean
+    nights_count?: number | null
+    trip_fee_status?: string | null
     employees: employeesCreateNestedOneWithoutAsset_borrowingsInput
   }
 
@@ -195019,7 +201292,9 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
-    overnight_required?: boolean | null
+    overnight_required?: boolean
+    nights_count?: number | null
+    trip_fee_status?: string | null
   }
 
   export type asset_borrowingsCreateOrConnectWithoutAssetsInput = {
@@ -195080,7 +201355,9 @@ export namespace Prisma {
     key_returned_at?: DateTimeNullableFilter<"asset_borrowings"> | Date | string | null
     key_signature_url?: StringNullableFilter<"asset_borrowings"> | string | null
     return_status?: StringNullableFilter<"asset_borrowings"> | string | null
-    overnight_required?: BoolNullableFilter<"asset_borrowings"> | boolean | null
+    overnight_required?: BoolFilter<"asset_borrowings"> | boolean
+    nights_count?: IntNullableFilter<"asset_borrowings"> | number | null
+    trip_fee_status?: StringNullableFilter<"asset_borrowings"> | string | null
   }
 
   export type employeesCreateWithoutBirthday_claimsInput = {
@@ -195169,6 +201446,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -195258,6 +201537,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -195363,6 +201644,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -195452,6 +201735,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -195541,6 +201826,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -195630,6 +201917,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -195804,6 +202093,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -195893,6 +202184,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -195998,6 +202291,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -196087,6 +202382,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -196176,6 +202473,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -196265,6 +202564,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -196370,6 +202671,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -196459,6 +202762,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -196566,6 +202871,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -196655,6 +202962,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -196914,6 +203223,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -197003,6 +203314,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -197108,6 +203421,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -197197,6 +203512,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -197226,7 +203543,9 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
-    overnight_required?: boolean | null
+    overnight_required?: boolean
+    nights_count?: number | null
+    trip_fee_status?: string | null
     assets: assetsCreateNestedOneWithoutAsset_borrowingsInput
   }
 
@@ -197258,7 +203577,9 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
-    overnight_required?: boolean | null
+    overnight_required?: boolean
+    nights_count?: number | null
+    trip_fee_status?: string | null
   }
 
   export type asset_borrowingsCreateOrConnectWithoutEmployeesInput = {
@@ -197793,6 +204114,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -197882,6 +204205,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -197976,6 +204301,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -198065,6 +204392,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -198164,6 +204493,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -198253,6 +204584,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -198347,6 +204680,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -198436,6 +204771,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -199314,6 +205651,56 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type wheel_ticketsCreateWithoutEmployeesInput = {
+    coin_type_used: string
+    coins_spent: number
+    ticket_count?: number
+    created_at?: Date | string
+    wheel_prizes: wheel_prizesCreateNestedOneWithoutWheel_ticketsInput
+  }
+
+  export type wheel_ticketsUncheckedCreateWithoutEmployeesInput = {
+    id?: number
+    prize_id: number
+    coin_type_used: string
+    coins_spent: number
+    ticket_count?: number
+    created_at?: Date | string
+  }
+
+  export type wheel_ticketsCreateOrConnectWithoutEmployeesInput = {
+    where: wheel_ticketsWhereUniqueInput
+    create: XOR<wheel_ticketsCreateWithoutEmployeesInput, wheel_ticketsUncheckedCreateWithoutEmployeesInput>
+  }
+
+  export type wheel_ticketsCreateManyEmployeesInputEnvelope = {
+    data: wheel_ticketsCreateManyEmployeesInput | wheel_ticketsCreateManyEmployeesInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type wheel_winnersCreateWithoutEmployeesInput = {
+    drawn_at?: Date | string
+    status?: string
+    wheel_prizes: wheel_prizesCreateNestedOneWithoutWheel_winnersInput
+  }
+
+  export type wheel_winnersUncheckedCreateWithoutEmployeesInput = {
+    id?: number
+    prize_id: number
+    drawn_at?: Date | string
+    status?: string
+  }
+
+  export type wheel_winnersCreateOrConnectWithoutEmployeesInput = {
+    where: wheel_winnersWhereUniqueInput
+    create: XOR<wheel_winnersCreateWithoutEmployeesInput, wheel_winnersUncheckedCreateWithoutEmployeesInput>
+  }
+
+  export type wheel_winnersCreateManyEmployeesInputEnvelope = {
+    data: wheel_winnersCreateManyEmployeesInput | wheel_winnersCreateManyEmployeesInput[]
+    skipDuplicates?: boolean
+  }
+
   export type withholding_tax_documentsCreateWithoutEmployeesInput = {
     book_number?: string | null
     document_number: string
@@ -199901,6 +206288,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -199990,6 +206379,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -200106,6 +206497,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -200195,6 +206588,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -200848,6 +207243,62 @@ export namespace Prisma {
     end_date?: DateTimeNullableFilter<"travel_claims"> | Date | string | null
   }
 
+  export type wheel_ticketsUpsertWithWhereUniqueWithoutEmployeesInput = {
+    where: wheel_ticketsWhereUniqueInput
+    update: XOR<wheel_ticketsUpdateWithoutEmployeesInput, wheel_ticketsUncheckedUpdateWithoutEmployeesInput>
+    create: XOR<wheel_ticketsCreateWithoutEmployeesInput, wheel_ticketsUncheckedCreateWithoutEmployeesInput>
+  }
+
+  export type wheel_ticketsUpdateWithWhereUniqueWithoutEmployeesInput = {
+    where: wheel_ticketsWhereUniqueInput
+    data: XOR<wheel_ticketsUpdateWithoutEmployeesInput, wheel_ticketsUncheckedUpdateWithoutEmployeesInput>
+  }
+
+  export type wheel_ticketsUpdateManyWithWhereWithoutEmployeesInput = {
+    where: wheel_ticketsScalarWhereInput
+    data: XOR<wheel_ticketsUpdateManyMutationInput, wheel_ticketsUncheckedUpdateManyWithoutEmployeesInput>
+  }
+
+  export type wheel_ticketsScalarWhereInput = {
+    AND?: wheel_ticketsScalarWhereInput | wheel_ticketsScalarWhereInput[]
+    OR?: wheel_ticketsScalarWhereInput[]
+    NOT?: wheel_ticketsScalarWhereInput | wheel_ticketsScalarWhereInput[]
+    id?: IntFilter<"wheel_tickets"> | number
+    emp_id?: StringFilter<"wheel_tickets"> | string
+    prize_id?: IntFilter<"wheel_tickets"> | number
+    coin_type_used?: StringFilter<"wheel_tickets"> | string
+    coins_spent?: IntFilter<"wheel_tickets"> | number
+    ticket_count?: IntFilter<"wheel_tickets"> | number
+    created_at?: DateTimeFilter<"wheel_tickets"> | Date | string
+  }
+
+  export type wheel_winnersUpsertWithWhereUniqueWithoutEmployeesInput = {
+    where: wheel_winnersWhereUniqueInput
+    update: XOR<wheel_winnersUpdateWithoutEmployeesInput, wheel_winnersUncheckedUpdateWithoutEmployeesInput>
+    create: XOR<wheel_winnersCreateWithoutEmployeesInput, wheel_winnersUncheckedCreateWithoutEmployeesInput>
+  }
+
+  export type wheel_winnersUpdateWithWhereUniqueWithoutEmployeesInput = {
+    where: wheel_winnersWhereUniqueInput
+    data: XOR<wheel_winnersUpdateWithoutEmployeesInput, wheel_winnersUncheckedUpdateWithoutEmployeesInput>
+  }
+
+  export type wheel_winnersUpdateManyWithWhereWithoutEmployeesInput = {
+    where: wheel_winnersScalarWhereInput
+    data: XOR<wheel_winnersUpdateManyMutationInput, wheel_winnersUncheckedUpdateManyWithoutEmployeesInput>
+  }
+
+  export type wheel_winnersScalarWhereInput = {
+    AND?: wheel_winnersScalarWhereInput | wheel_winnersScalarWhereInput[]
+    OR?: wheel_winnersScalarWhereInput[]
+    NOT?: wheel_winnersScalarWhereInput | wheel_winnersScalarWhereInput[]
+    id?: IntFilter<"wheel_winners"> | number
+    emp_id?: StringFilter<"wheel_winners"> | string
+    prize_id?: IntFilter<"wheel_winners"> | number
+    drawn_at?: DateTimeFilter<"wheel_winners"> | Date | string
+    status?: StringFilter<"wheel_winners"> | string
+  }
+
   export type withholding_tax_documentsUpsertWithWhereUniqueWithoutEmployeesInput = {
     where: withholding_tax_documentsWhereUniqueInput
     update: XOR<withholding_tax_documentsUpdateWithoutEmployeesInput, withholding_tax_documentsUncheckedUpdateWithoutEmployeesInput>
@@ -200980,6 +207431,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -201069,6 +207522,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -201174,6 +207629,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -201263,6 +207720,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -201352,6 +207811,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -201441,6 +207902,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -201723,6 +208186,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -201812,6 +208277,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -201906,6 +208373,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -201995,6 +208464,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -202141,6 +208612,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -202230,6 +208703,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -202330,6 +208805,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -202419,6 +208896,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -202710,6 +209189,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -202799,6 +209280,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -202904,6 +209387,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -202993,6 +209478,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -203180,6 +209667,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -203269,6 +209758,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -203374,6 +209865,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -203463,6 +209956,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -203552,6 +210047,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -203641,6 +210138,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -203746,6 +210245,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -203835,6 +210336,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -203924,6 +210427,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -204013,6 +210518,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -204107,6 +210614,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -204196,6 +210705,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -204301,6 +210812,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -204390,6 +210903,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -204490,6 +211005,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -204579,6 +211096,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -204668,6 +211187,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -204757,6 +211278,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -204894,6 +211417,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -204983,6 +211508,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -205201,6 +211728,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -205290,6 +211819,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -205431,6 +211962,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -205520,6 +212053,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -205628,6 +212163,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -205717,6 +212254,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -205862,6 +212401,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -205951,6 +212492,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -206128,6 +212671,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsCreateNestedOneWithoutEmployeesInput
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -206217,6 +212762,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -206322,6 +212869,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUpdateOneWithoutEmployeesNestedInput
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -206411,6 +212960,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -206500,6 +213051,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -206589,6 +213142,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -206683,6 +213238,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -206772,6 +213329,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -206877,6 +213436,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -206966,6 +213527,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -207066,6 +213629,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -207155,6 +213720,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -207234,9 +213801,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     company?: CompanyCreateNestedOneWithoutOrdersInput
     quotation?: QuotationCreateNestedOneWithoutOrdersInput
     salesperson?: UserCreateNestedOneWithoutOrdersInput
@@ -207263,9 +213830,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedCreateNestedManyWithoutOrderInput
   }
 
@@ -207346,9 +213913,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
@@ -207375,9 +213942,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
   }
 
@@ -210232,6 +216799,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -210321,6 +216890,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -210444,6 +217015,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -210533,6 +217106,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -210871,6 +217446,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -210960,6 +217537,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -211065,6 +217644,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -211154,6 +217735,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -211270,6 +217853,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -211359,6 +217944,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -211497,6 +218084,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -211586,6 +218175,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -211675,6 +218266,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -211764,6 +218357,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -211858,6 +218453,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -211947,6 +218544,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -212052,6 +218651,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -212141,6 +218742,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -212241,6 +218844,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -212330,6 +218935,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -212619,6 +219226,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -212708,6 +219317,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -212846,6 +219457,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -212935,6 +219548,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -213024,6 +219639,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -213113,6 +219730,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -213207,6 +219826,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -213296,6 +219917,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -213433,6 +220056,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -213522,6 +220147,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -213622,6 +220249,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -213711,6 +220340,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -213891,6 +220522,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -213980,6 +220613,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -214107,6 +220742,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -214196,6 +220833,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -214313,6 +220952,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -214402,6 +221043,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -214507,6 +221150,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -214596,6 +221241,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -214710,6 +221357,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsCreateNestedOneWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -214799,6 +221448,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -214920,6 +221571,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUpdateOneWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -215009,6 +221662,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -215098,6 +221753,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsCreateNestedOneWithoutEmployeesInput
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
   }
 
@@ -215187,6 +221844,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
@@ -215292,6 +221951,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUpdateOneWithoutEmployeesNestedInput
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -215381,6 +222042,8 @@ export namespace Prisma {
     task_coin_budgets?: task_coin_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -219133,6 +225796,8 @@ export namespace Prisma {
     tasks?: tasksCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesUncheckedCreateWithoutWithholding_tax_documentsInput = {
@@ -219222,6 +225887,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
     transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
     travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
   }
 
   export type employeesCreateOrConnectWithoutWithholding_tax_documentsInput = {
@@ -219354,6 +226021,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
   }
 
   export type employeesUncheckedUpdateWithoutWithholding_tax_documentsInput = {
@@ -219443,6 +226112,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
   export type withholding_tax_income_itemsUpsertWithWhereUniqueWithoutWithholding_tax_documentsInput = {
@@ -219948,6 +226619,1067 @@ export namespace Prisma {
     jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
   }
 
+  export type wheel_prizesCreateWithoutWheel_eventsInput = {
+    name: string
+    bonus_amount?: number
+    quantity?: number
+    is_active?: boolean
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutWheel_prizesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutWheel_prizesInput
+  }
+
+  export type wheel_prizesUncheckedCreateWithoutWheel_eventsInput = {
+    id?: number
+    name: string
+    bonus_amount?: number
+    quantity?: number
+    is_active?: boolean
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutWheel_prizesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutWheel_prizesInput
+  }
+
+  export type wheel_prizesCreateOrConnectWithoutWheel_eventsInput = {
+    where: wheel_prizesWhereUniqueInput
+    create: XOR<wheel_prizesCreateWithoutWheel_eventsInput, wheel_prizesUncheckedCreateWithoutWheel_eventsInput>
+  }
+
+  export type wheel_prizesCreateManyWheel_eventsInputEnvelope = {
+    data: wheel_prizesCreateManyWheel_eventsInput | wheel_prizesCreateManyWheel_eventsInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type wheel_prizesUpsertWithWhereUniqueWithoutWheel_eventsInput = {
+    where: wheel_prizesWhereUniqueInput
+    update: XOR<wheel_prizesUpdateWithoutWheel_eventsInput, wheel_prizesUncheckedUpdateWithoutWheel_eventsInput>
+    create: XOR<wheel_prizesCreateWithoutWheel_eventsInput, wheel_prizesUncheckedCreateWithoutWheel_eventsInput>
+  }
+
+  export type wheel_prizesUpdateWithWhereUniqueWithoutWheel_eventsInput = {
+    where: wheel_prizesWhereUniqueInput
+    data: XOR<wheel_prizesUpdateWithoutWheel_eventsInput, wheel_prizesUncheckedUpdateWithoutWheel_eventsInput>
+  }
+
+  export type wheel_prizesUpdateManyWithWhereWithoutWheel_eventsInput = {
+    where: wheel_prizesScalarWhereInput
+    data: XOR<wheel_prizesUpdateManyMutationInput, wheel_prizesUncheckedUpdateManyWithoutWheel_eventsInput>
+  }
+
+  export type wheel_prizesScalarWhereInput = {
+    AND?: wheel_prizesScalarWhereInput | wheel_prizesScalarWhereInput[]
+    OR?: wheel_prizesScalarWhereInput[]
+    NOT?: wheel_prizesScalarWhereInput | wheel_prizesScalarWhereInput[]
+    id?: IntFilter<"wheel_prizes"> | number
+    event_id?: IntFilter<"wheel_prizes"> | number
+    name?: StringFilter<"wheel_prizes"> | string
+    bonus_amount?: IntFilter<"wheel_prizes"> | number
+    quantity?: IntFilter<"wheel_prizes"> | number
+    is_active?: BoolFilter<"wheel_prizes"> | boolean
+  }
+
+  export type wheel_eventsCreateWithoutWheel_prizesInput = {
+    name: string
+    description?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
+    is_active?: boolean
+    created_at?: Date | string
+  }
+
+  export type wheel_eventsUncheckedCreateWithoutWheel_prizesInput = {
+    id?: number
+    name: string
+    description?: string | null
+    start_date?: Date | string | null
+    end_date?: Date | string | null
+    is_active?: boolean
+    created_at?: Date | string
+  }
+
+  export type wheel_eventsCreateOrConnectWithoutWheel_prizesInput = {
+    where: wheel_eventsWhereUniqueInput
+    create: XOR<wheel_eventsCreateWithoutWheel_prizesInput, wheel_eventsUncheckedCreateWithoutWheel_prizesInput>
+  }
+
+  export type wheel_ticketsCreateWithoutWheel_prizesInput = {
+    coin_type_used: string
+    coins_spent: number
+    ticket_count?: number
+    created_at?: Date | string
+    employees: employeesCreateNestedOneWithoutWheel_ticketsInput
+  }
+
+  export type wheel_ticketsUncheckedCreateWithoutWheel_prizesInput = {
+    id?: number
+    emp_id: string
+    coin_type_used: string
+    coins_spent: number
+    ticket_count?: number
+    created_at?: Date | string
+  }
+
+  export type wheel_ticketsCreateOrConnectWithoutWheel_prizesInput = {
+    where: wheel_ticketsWhereUniqueInput
+    create: XOR<wheel_ticketsCreateWithoutWheel_prizesInput, wheel_ticketsUncheckedCreateWithoutWheel_prizesInput>
+  }
+
+  export type wheel_ticketsCreateManyWheel_prizesInputEnvelope = {
+    data: wheel_ticketsCreateManyWheel_prizesInput | wheel_ticketsCreateManyWheel_prizesInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type wheel_winnersCreateWithoutWheel_prizesInput = {
+    drawn_at?: Date | string
+    status?: string
+    employees: employeesCreateNestedOneWithoutWheel_winnersInput
+  }
+
+  export type wheel_winnersUncheckedCreateWithoutWheel_prizesInput = {
+    id?: number
+    emp_id: string
+    drawn_at?: Date | string
+    status?: string
+  }
+
+  export type wheel_winnersCreateOrConnectWithoutWheel_prizesInput = {
+    where: wheel_winnersWhereUniqueInput
+    create: XOR<wheel_winnersCreateWithoutWheel_prizesInput, wheel_winnersUncheckedCreateWithoutWheel_prizesInput>
+  }
+
+  export type wheel_winnersCreateManyWheel_prizesInputEnvelope = {
+    data: wheel_winnersCreateManyWheel_prizesInput | wheel_winnersCreateManyWheel_prizesInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type wheel_eventsUpsertWithoutWheel_prizesInput = {
+    update: XOR<wheel_eventsUpdateWithoutWheel_prizesInput, wheel_eventsUncheckedUpdateWithoutWheel_prizesInput>
+    create: XOR<wheel_eventsCreateWithoutWheel_prizesInput, wheel_eventsUncheckedCreateWithoutWheel_prizesInput>
+    where?: wheel_eventsWhereInput
+  }
+
+  export type wheel_eventsUpdateToOneWithWhereWithoutWheel_prizesInput = {
+    where?: wheel_eventsWhereInput
+    data: XOR<wheel_eventsUpdateWithoutWheel_prizesInput, wheel_eventsUncheckedUpdateWithoutWheel_prizesInput>
+  }
+
+  export type wheel_eventsUpdateWithoutWheel_prizesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_eventsUncheckedUpdateWithoutWheel_prizesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_ticketsUpsertWithWhereUniqueWithoutWheel_prizesInput = {
+    where: wheel_ticketsWhereUniqueInput
+    update: XOR<wheel_ticketsUpdateWithoutWheel_prizesInput, wheel_ticketsUncheckedUpdateWithoutWheel_prizesInput>
+    create: XOR<wheel_ticketsCreateWithoutWheel_prizesInput, wheel_ticketsUncheckedCreateWithoutWheel_prizesInput>
+  }
+
+  export type wheel_ticketsUpdateWithWhereUniqueWithoutWheel_prizesInput = {
+    where: wheel_ticketsWhereUniqueInput
+    data: XOR<wheel_ticketsUpdateWithoutWheel_prizesInput, wheel_ticketsUncheckedUpdateWithoutWheel_prizesInput>
+  }
+
+  export type wheel_ticketsUpdateManyWithWhereWithoutWheel_prizesInput = {
+    where: wheel_ticketsScalarWhereInput
+    data: XOR<wheel_ticketsUpdateManyMutationInput, wheel_ticketsUncheckedUpdateManyWithoutWheel_prizesInput>
+  }
+
+  export type wheel_winnersUpsertWithWhereUniqueWithoutWheel_prizesInput = {
+    where: wheel_winnersWhereUniqueInput
+    update: XOR<wheel_winnersUpdateWithoutWheel_prizesInput, wheel_winnersUncheckedUpdateWithoutWheel_prizesInput>
+    create: XOR<wheel_winnersCreateWithoutWheel_prizesInput, wheel_winnersUncheckedCreateWithoutWheel_prizesInput>
+  }
+
+  export type wheel_winnersUpdateWithWhereUniqueWithoutWheel_prizesInput = {
+    where: wheel_winnersWhereUniqueInput
+    data: XOR<wheel_winnersUpdateWithoutWheel_prizesInput, wheel_winnersUncheckedUpdateWithoutWheel_prizesInput>
+  }
+
+  export type wheel_winnersUpdateManyWithWhereWithoutWheel_prizesInput = {
+    where: wheel_winnersScalarWhereInput
+    data: XOR<wheel_winnersUpdateManyMutationInput, wheel_winnersUncheckedUpdateManyWithoutWheel_prizesInput>
+  }
+
+  export type employeesCreateWithoutWheel_ticketsInput = {
+    emp_id: string
+    name: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    pin_hash?: string | null
+    gender?: string | null
+    hire_date?: Date | string | null
+    birth_date?: Date | string | null
+    phone_number?: string | null
+    base_salary?: Decimal | DecimalJsLike | number | string | null
+    otp_code?: string | null
+    otp_expires_at?: Date | string | null
+    bank_account_no?: string | null
+    bank_name?: string | null
+    is_on_trial?: boolean
+    has_telephone_allowance?: boolean
+    position_allowance?: Decimal | DecimalJsLike | number | string | null
+    address?: string | null
+    national_id_card?: string | null
+    salary_type?: string | null
+    line_user_id?: string | null
+    is_checkin_exempt?: boolean
+    probation_end_date?: Date | string | null
+    resignation_date?: Date | string | null
+    nickname?: string | null
+    email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
+    current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
+    asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
+    birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
+    clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
+    coin_exchanges?: coin_exchangesCreateNestedManyWithoutEmployeesInput
+    coin_ledgers?: coin_ledgersCreateNestedManyWithoutEmployeesInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersCreateNestedManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersCreateNestedManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesInput
+    commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
+    daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_coins?: employee_coinsCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
+    employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
+    departments?: departmentsCreateNestedOneWithoutEmployeesInput
+    job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
+    employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
+    employees_employees_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_supervisor_idToemployeesInput
+    other_employees_employees_supervisor_idToemployees?: employeesCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
+    branches?: branchesCreateNestedOneWithoutEmployeesInput
+    general_welfare_claims?: general_welfare_claimsCreateNestedManyWithoutEmployeesInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsCreateNestedManyWithoutEmployees_kpi_evaluations_emp_idToemployeesInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsCreateNestedManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesInput
+    leave_requests?: leave_requestsCreateNestedManyWithoutEmployeesInput
+    monthly_payroll_data?: monthly_payroll_dataCreateNestedManyWithoutEmployeesInput
+    ot_requests?: ot_requestsCreateNestedManyWithoutEmployeesInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsCreateNestedManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsCreateNestedManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput
+    product_borrowings?: product_borrowingsCreateNestedManyWithoutEmployeesInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsCreateNestedManyWithoutEmployees_reward_redemptions_emp_idToemployeesInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsCreateNestedManyWithoutEmployees_reward_redemptions_processed_byToemployeesInput
+    room_booking_attendees?: room_booking_attendeesCreateNestedManyWithoutEmployeesInput
+    room_bookings?: room_bookingsCreateNestedManyWithoutEmployeesInput
+    task_assignments?: task_assignmentsCreateNestedManyWithoutEmployeesInput
+    task_coin_budgets?: task_coin_budgetsCreateNestedOneWithoutEmployeesInput
+    tasks?: tasksCreateNestedManyWithoutEmployeesInput
+    transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
+    travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
+  }
+
+  export type employeesUncheckedCreateWithoutWheel_ticketsInput = {
+    emp_id: string
+    name: string
+    branch_id?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    pin_hash?: string | null
+    gender?: string | null
+    hire_date?: Date | string | null
+    birth_date?: Date | string | null
+    phone_number?: string | null
+    base_salary?: Decimal | DecimalJsLike | number | string | null
+    department_id?: number | null
+    job_position_id?: number | null
+    otp_code?: string | null
+    otp_expires_at?: Date | string | null
+    supervisor_id?: string | null
+    bank_account_no?: string | null
+    bank_name?: string | null
+    is_on_trial?: boolean
+    has_telephone_allowance?: boolean
+    position_allowance?: Decimal | DecimalJsLike | number | string | null
+    address?: string | null
+    national_id_card?: string | null
+    salary_type?: string | null
+    line_user_id?: string | null
+    is_checkin_exempt?: boolean
+    probation_end_date?: Date | string | null
+    resignation_date?: Date | string | null
+    secondary_supervisor_id?: string | null
+    nickname?: string | null
+    email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
+    current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
+    asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
+    birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    coin_exchanges?: coin_exchangesUncheckedCreateNestedManyWithoutEmployeesInput
+    coin_ledgers?: coin_ledgersUncheckedCreateNestedManyWithoutEmployeesInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersUncheckedCreateNestedManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersUncheckedCreateNestedManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesInput
+    commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_coins?: employee_coinsUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
+    employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
+    other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
+    general_welfare_claims?: general_welfare_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUncheckedCreateNestedManyWithoutEmployees_kpi_evaluations_emp_idToemployeesInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUncheckedCreateNestedManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesInput
+    leave_requests?: leave_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    monthly_payroll_data?: monthly_payroll_dataUncheckedCreateNestedManyWithoutEmployeesInput
+    ot_requests?: ot_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUncheckedCreateNestedManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUncheckedCreateNestedManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput
+    product_borrowings?: product_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsUncheckedCreateNestedManyWithoutEmployees_reward_redemptions_emp_idToemployeesInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsUncheckedCreateNestedManyWithoutEmployees_reward_redemptions_processed_byToemployeesInput
+    room_booking_attendees?: room_booking_attendeesUncheckedCreateNestedManyWithoutEmployeesInput
+    room_bookings?: room_bookingsUncheckedCreateNestedManyWithoutEmployeesInput
+    task_assignments?: task_assignmentsUncheckedCreateNestedManyWithoutEmployeesInput
+    task_coin_budgets?: task_coin_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
+    tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
+    transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
+    travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
+  }
+
+  export type employeesCreateOrConnectWithoutWheel_ticketsInput = {
+    where: employeesWhereUniqueInput
+    create: XOR<employeesCreateWithoutWheel_ticketsInput, employeesUncheckedCreateWithoutWheel_ticketsInput>
+  }
+
+  export type wheel_prizesCreateWithoutWheel_ticketsInput = {
+    name: string
+    bonus_amount?: number
+    quantity?: number
+    is_active?: boolean
+    wheel_events: wheel_eventsCreateNestedOneWithoutWheel_prizesInput
+    wheel_winners?: wheel_winnersCreateNestedManyWithoutWheel_prizesInput
+  }
+
+  export type wheel_prizesUncheckedCreateWithoutWheel_ticketsInput = {
+    id?: number
+    event_id: number
+    name: string
+    bonus_amount?: number
+    quantity?: number
+    is_active?: boolean
+    wheel_winners?: wheel_winnersUncheckedCreateNestedManyWithoutWheel_prizesInput
+  }
+
+  export type wheel_prizesCreateOrConnectWithoutWheel_ticketsInput = {
+    where: wheel_prizesWhereUniqueInput
+    create: XOR<wheel_prizesCreateWithoutWheel_ticketsInput, wheel_prizesUncheckedCreateWithoutWheel_ticketsInput>
+  }
+
+  export type employeesUpsertWithoutWheel_ticketsInput = {
+    update: XOR<employeesUpdateWithoutWheel_ticketsInput, employeesUncheckedUpdateWithoutWheel_ticketsInput>
+    create: XOR<employeesCreateWithoutWheel_ticketsInput, employeesUncheckedCreateWithoutWheel_ticketsInput>
+    where?: employeesWhereInput
+  }
+
+  export type employeesUpdateToOneWithWhereWithoutWheel_ticketsInput = {
+    where?: employeesWhereInput
+    data: XOR<employeesUpdateWithoutWheel_ticketsInput, employeesUncheckedUpdateWithoutWheel_ticketsInput>
+  }
+
+  export type employeesUpdateWithoutWheel_ticketsInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pin_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    hire_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    base_salary?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    otp_code?: NullableStringFieldUpdateOperationsInput | string | null
+    otp_expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    bank_account_no?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_on_trial?: BoolFieldUpdateOperationsInput | boolean
+    has_telephone_allowance?: BoolFieldUpdateOperationsInput | boolean
+    position_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    national_id_card?: NullableStringFieldUpdateOperationsInput | string | null
+    salary_type?: NullableStringFieldUpdateOperationsInput | string | null
+    line_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_checkin_exempt?: BoolFieldUpdateOperationsInput | boolean
+    probation_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
+    asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
+    birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
+    clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
+    coin_exchanges?: coin_exchangesUpdateManyWithoutEmployeesNestedInput
+    coin_ledgers?: coin_ledgersUpdateManyWithoutEmployeesNestedInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersUpdateManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesNestedInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersUpdateManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesNestedInput
+    commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
+    daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_coins?: employee_coinsUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
+    employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
+    departments?: departmentsUpdateOneWithoutEmployeesNestedInput
+    job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
+    employees_employees_secondary_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesNestedInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
+    employees_employees_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_supervisor_idToemployeesNestedInput
+    other_employees_employees_supervisor_idToemployees?: employeesUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
+    branches?: branchesUpdateOneWithoutEmployeesNestedInput
+    general_welfare_claims?: general_welfare_claimsUpdateManyWithoutEmployeesNestedInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUpdateManyWithoutEmployees_kpi_evaluations_emp_idToemployeesNestedInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUpdateManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesNestedInput
+    leave_requests?: leave_requestsUpdateManyWithoutEmployeesNestedInput
+    monthly_payroll_data?: monthly_payroll_dataUpdateManyWithoutEmployeesNestedInput
+    ot_requests?: ot_requestsUpdateManyWithoutEmployeesNestedInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesNestedInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesNestedInput
+    product_borrowings?: product_borrowingsUpdateManyWithoutEmployeesNestedInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsUpdateManyWithoutEmployees_reward_redemptions_emp_idToemployeesNestedInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsUpdateManyWithoutEmployees_reward_redemptions_processed_byToemployeesNestedInput
+    room_booking_attendees?: room_booking_attendeesUpdateManyWithoutEmployeesNestedInput
+    room_bookings?: room_bookingsUpdateManyWithoutEmployeesNestedInput
+    task_assignments?: task_assignmentsUpdateManyWithoutEmployeesNestedInput
+    task_coin_budgets?: task_coin_budgetsUpdateOneWithoutEmployeesNestedInput
+    tasks?: tasksUpdateManyWithoutEmployeesNestedInput
+    transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
+    travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
+  }
+
+  export type employeesUncheckedUpdateWithoutWheel_ticketsInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    branch_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pin_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    hire_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    base_salary?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    department_id?: NullableIntFieldUpdateOperationsInput | number | null
+    job_position_id?: NullableIntFieldUpdateOperationsInput | number | null
+    otp_code?: NullableStringFieldUpdateOperationsInput | string | null
+    otp_expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_account_no?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_on_trial?: BoolFieldUpdateOperationsInput | boolean
+    has_telephone_allowance?: BoolFieldUpdateOperationsInput | boolean
+    position_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    national_id_card?: NullableStringFieldUpdateOperationsInput | string | null
+    salary_type?: NullableStringFieldUpdateOperationsInput | string | null
+    line_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_checkin_exempt?: BoolFieldUpdateOperationsInput | boolean
+    probation_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
+    asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    coin_exchanges?: coin_exchangesUncheckedUpdateManyWithoutEmployeesNestedInput
+    coin_ledgers?: coin_ledgersUncheckedUpdateManyWithoutEmployeesNestedInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersUncheckedUpdateManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesNestedInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersUncheckedUpdateManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesNestedInput
+    commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_coins?: employee_coinsUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
+    employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
+    other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
+    general_welfare_claims?: general_welfare_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUncheckedUpdateManyWithoutEmployees_kpi_evaluations_emp_idToemployeesNestedInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUncheckedUpdateManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesNestedInput
+    leave_requests?: leave_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    monthly_payroll_data?: monthly_payroll_dataUncheckedUpdateManyWithoutEmployeesNestedInput
+    ot_requests?: ot_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesNestedInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesNestedInput
+    product_borrowings?: product_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsUncheckedUpdateManyWithoutEmployees_reward_redemptions_emp_idToemployeesNestedInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsUncheckedUpdateManyWithoutEmployees_reward_redemptions_processed_byToemployeesNestedInput
+    room_booking_attendees?: room_booking_attendeesUncheckedUpdateManyWithoutEmployeesNestedInput
+    room_bookings?: room_bookingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    task_assignments?: task_assignmentsUncheckedUpdateManyWithoutEmployeesNestedInput
+    task_coin_budgets?: task_coin_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
+    tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
+    transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
+    travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
+  }
+
+  export type wheel_prizesUpsertWithoutWheel_ticketsInput = {
+    update: XOR<wheel_prizesUpdateWithoutWheel_ticketsInput, wheel_prizesUncheckedUpdateWithoutWheel_ticketsInput>
+    create: XOR<wheel_prizesCreateWithoutWheel_ticketsInput, wheel_prizesUncheckedCreateWithoutWheel_ticketsInput>
+    where?: wheel_prizesWhereInput
+  }
+
+  export type wheel_prizesUpdateToOneWithWhereWithoutWheel_ticketsInput = {
+    where?: wheel_prizesWhereInput
+    data: XOR<wheel_prizesUpdateWithoutWheel_ticketsInput, wheel_prizesUncheckedUpdateWithoutWheel_ticketsInput>
+  }
+
+  export type wheel_prizesUpdateWithoutWheel_ticketsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    wheel_events?: wheel_eventsUpdateOneRequiredWithoutWheel_prizesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutWheel_prizesNestedInput
+  }
+
+  export type wheel_prizesUncheckedUpdateWithoutWheel_ticketsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    event_id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutWheel_prizesNestedInput
+  }
+
+  export type employeesCreateWithoutWheel_winnersInput = {
+    emp_id: string
+    name: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    pin_hash?: string | null
+    gender?: string | null
+    hire_date?: Date | string | null
+    birth_date?: Date | string | null
+    phone_number?: string | null
+    base_salary?: Decimal | DecimalJsLike | number | string | null
+    otp_code?: string | null
+    otp_expires_at?: Date | string | null
+    bank_account_no?: string | null
+    bank_name?: string | null
+    is_on_trial?: boolean
+    has_telephone_allowance?: boolean
+    position_allowance?: Decimal | DecimalJsLike | number | string | null
+    address?: string | null
+    national_id_card?: string | null
+    salary_type?: string | null
+    line_user_id?: string | null
+    is_checkin_exempt?: boolean
+    probation_end_date?: Date | string | null
+    resignation_date?: Date | string | null
+    nickname?: string | null
+    email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
+    current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
+    asset_borrowings?: asset_borrowingsCreateNestedManyWithoutEmployeesInput
+    birthday_claims?: birthday_claimsCreateNestedManyWithoutEmployeesInput
+    clothing_requests?: clothing_requestsCreateNestedManyWithoutEmployeesInput
+    coin_exchanges?: coin_exchangesCreateNestedManyWithoutEmployeesInput
+    coin_ledgers?: coin_ledgersCreateNestedManyWithoutEmployeesInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersCreateNestedManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersCreateNestedManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesInput
+    commission_claims?: commission_claimsCreateNestedManyWithoutEmployeesInput
+    daily_work_plans?: daily_work_plansCreateNestedManyWithoutEmployeesInput
+    employee_coins?: employee_coinsCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
+    employee_warnings?: employee_warningsCreateNestedManyWithoutEmployeesInput
+    departments?: departmentsCreateNestedOneWithoutEmployeesInput
+    job_positions?: job_positionsCreateNestedOneWithoutEmployeesInput
+    employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
+    employees_employees_supervisor_idToemployees?: employeesCreateNestedOneWithoutOther_employees_employees_supervisor_idToemployeesInput
+    other_employees_employees_supervisor_idToemployees?: employeesCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
+    branches?: branchesCreateNestedOneWithoutEmployeesInput
+    general_welfare_claims?: general_welfare_claimsCreateNestedManyWithoutEmployeesInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsCreateNestedManyWithoutEmployees_kpi_evaluations_emp_idToemployeesInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsCreateNestedManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesInput
+    leave_requests?: leave_requestsCreateNestedManyWithoutEmployeesInput
+    monthly_payroll_data?: monthly_payroll_dataCreateNestedManyWithoutEmployeesInput
+    ot_requests?: ot_requestsCreateNestedManyWithoutEmployeesInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsCreateNestedManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsCreateNestedManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput
+    product_borrowings?: product_borrowingsCreateNestedManyWithoutEmployeesInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsCreateNestedManyWithoutEmployees_reward_redemptions_emp_idToemployeesInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsCreateNestedManyWithoutEmployees_reward_redemptions_processed_byToemployeesInput
+    room_booking_attendees?: room_booking_attendeesCreateNestedManyWithoutEmployeesInput
+    room_bookings?: room_bookingsCreateNestedManyWithoutEmployeesInput
+    task_assignments?: task_assignmentsCreateNestedManyWithoutEmployeesInput
+    task_coin_budgets?: task_coin_budgetsCreateNestedOneWithoutEmployeesInput
+    tasks?: tasksCreateNestedManyWithoutEmployeesInput
+    transfer_budgets?: transfer_budgetsCreateNestedOneWithoutEmployeesInput
+    travel_claims?: travel_claimsCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsCreateNestedManyWithoutEmployeesInput
+  }
+
+  export type employeesUncheckedCreateWithoutWheel_winnersInput = {
+    emp_id: string
+    name: string
+    branch_id?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    pin_hash?: string | null
+    gender?: string | null
+    hire_date?: Date | string | null
+    birth_date?: Date | string | null
+    phone_number?: string | null
+    base_salary?: Decimal | DecimalJsLike | number | string | null
+    department_id?: number | null
+    job_position_id?: number | null
+    otp_code?: string | null
+    otp_expires_at?: Date | string | null
+    supervisor_id?: string | null
+    bank_account_no?: string | null
+    bank_name?: string | null
+    is_on_trial?: boolean
+    has_telephone_allowance?: boolean
+    position_allowance?: Decimal | DecimalJsLike | number | string | null
+    address?: string | null
+    national_id_card?: string | null
+    salary_type?: string | null
+    line_user_id?: string | null
+    is_checkin_exempt?: boolean
+    probation_end_date?: Date | string | null
+    resignation_date?: Date | string | null
+    secondary_supervisor_id?: string | null
+    nickname?: string | null
+    email?: string | null
+    general_allowance?: Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: boolean
+    probation_meal_allowance?: boolean
+    probation_travel_allowance?: boolean
+    fixed_accommodation_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: Decimal | DecimalJsLike | number | string | null
+    current_streak?: number
+    sso_include_fixed_accommodation?: boolean
+    sso_include_fixed_meal?: boolean
+    sso_include_fixed_travel?: boolean
+    sso_include_general_allowance?: boolean
+    sso_include_position_allowance?: boolean
+    car_benefit?: Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: boolean
+    company_car?: boolean
+    asset_borrowings?: asset_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
+    birthday_claims?: birthday_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    clothing_requests?: clothing_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    coin_exchanges?: coin_exchangesUncheckedCreateNestedManyWithoutEmployeesInput
+    coin_ledgers?: coin_ledgersUncheckedCreateNestedManyWithoutEmployeesInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersUncheckedCreateNestedManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersUncheckedCreateNestedManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesInput
+    commission_claims?: commission_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    daily_work_plans?: daily_work_plansUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_coins?: employee_coinsUncheckedCreateNestedManyWithoutEmployeesInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_assessor_idToemployeesInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedCreateNestedManyWithoutEmployees_employee_trainings_emp_idToemployeesInput
+    employee_warnings?: employee_warningsUncheckedCreateNestedManyWithoutEmployeesInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_secondary_supervisor_idToemployeesInput
+    other_employees_employees_supervisor_idToemployees?: employeesUncheckedCreateNestedManyWithoutEmployees_employees_supervisor_idToemployeesInput
+    general_welfare_claims?: general_welfare_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUncheckedCreateNestedManyWithoutEmployees_kpi_evaluations_emp_idToemployeesInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUncheckedCreateNestedManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesInput
+    leave_requests?: leave_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    monthly_payroll_data?: monthly_payroll_dataUncheckedCreateNestedManyWithoutEmployeesInput
+    ot_requests?: ot_requestsUncheckedCreateNestedManyWithoutEmployeesInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUncheckedCreateNestedManyWithoutEmployees_probation_evaluations_emp_idToemployeesInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUncheckedCreateNestedManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesInput
+    product_borrowings?: product_borrowingsUncheckedCreateNestedManyWithoutEmployeesInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsUncheckedCreateNestedManyWithoutEmployees_reward_redemptions_emp_idToemployeesInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsUncheckedCreateNestedManyWithoutEmployees_reward_redemptions_processed_byToemployeesInput
+    room_booking_attendees?: room_booking_attendeesUncheckedCreateNestedManyWithoutEmployeesInput
+    room_bookings?: room_bookingsUncheckedCreateNestedManyWithoutEmployeesInput
+    task_assignments?: task_assignmentsUncheckedCreateNestedManyWithoutEmployeesInput
+    task_coin_budgets?: task_coin_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
+    tasks?: tasksUncheckedCreateNestedManyWithoutEmployeesInput
+    transfer_budgets?: transfer_budgetsUncheckedCreateNestedOneWithoutEmployeesInput
+    travel_claims?: travel_claimsUncheckedCreateNestedManyWithoutEmployeesInput
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutEmployeesInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedCreateNestedManyWithoutEmployeesInput
+  }
+
+  export type employeesCreateOrConnectWithoutWheel_winnersInput = {
+    where: employeesWhereUniqueInput
+    create: XOR<employeesCreateWithoutWheel_winnersInput, employeesUncheckedCreateWithoutWheel_winnersInput>
+  }
+
+  export type wheel_prizesCreateWithoutWheel_winnersInput = {
+    name: string
+    bonus_amount?: number
+    quantity?: number
+    is_active?: boolean
+    wheel_events: wheel_eventsCreateNestedOneWithoutWheel_prizesInput
+    wheel_tickets?: wheel_ticketsCreateNestedManyWithoutWheel_prizesInput
+  }
+
+  export type wheel_prizesUncheckedCreateWithoutWheel_winnersInput = {
+    id?: number
+    event_id: number
+    name: string
+    bonus_amount?: number
+    quantity?: number
+    is_active?: boolean
+    wheel_tickets?: wheel_ticketsUncheckedCreateNestedManyWithoutWheel_prizesInput
+  }
+
+  export type wheel_prizesCreateOrConnectWithoutWheel_winnersInput = {
+    where: wheel_prizesWhereUniqueInput
+    create: XOR<wheel_prizesCreateWithoutWheel_winnersInput, wheel_prizesUncheckedCreateWithoutWheel_winnersInput>
+  }
+
+  export type employeesUpsertWithoutWheel_winnersInput = {
+    update: XOR<employeesUpdateWithoutWheel_winnersInput, employeesUncheckedUpdateWithoutWheel_winnersInput>
+    create: XOR<employeesCreateWithoutWheel_winnersInput, employeesUncheckedCreateWithoutWheel_winnersInput>
+    where?: employeesWhereInput
+  }
+
+  export type employeesUpdateToOneWithWhereWithoutWheel_winnersInput = {
+    where?: employeesWhereInput
+    data: XOR<employeesUpdateWithoutWheel_winnersInput, employeesUncheckedUpdateWithoutWheel_winnersInput>
+  }
+
+  export type employeesUpdateWithoutWheel_winnersInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pin_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    hire_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    base_salary?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    otp_code?: NullableStringFieldUpdateOperationsInput | string | null
+    otp_expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    bank_account_no?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_on_trial?: BoolFieldUpdateOperationsInput | boolean
+    has_telephone_allowance?: BoolFieldUpdateOperationsInput | boolean
+    position_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    national_id_card?: NullableStringFieldUpdateOperationsInput | string | null
+    salary_type?: NullableStringFieldUpdateOperationsInput | string | null
+    line_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_checkin_exempt?: BoolFieldUpdateOperationsInput | boolean
+    probation_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
+    asset_borrowings?: asset_borrowingsUpdateManyWithoutEmployeesNestedInput
+    birthday_claims?: birthday_claimsUpdateManyWithoutEmployeesNestedInput
+    clothing_requests?: clothing_requestsUpdateManyWithoutEmployeesNestedInput
+    coin_exchanges?: coin_exchangesUpdateManyWithoutEmployeesNestedInput
+    coin_ledgers?: coin_ledgersUpdateManyWithoutEmployeesNestedInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersUpdateManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesNestedInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersUpdateManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesNestedInput
+    commission_claims?: commission_claimsUpdateManyWithoutEmployeesNestedInput
+    daily_work_plans?: daily_work_plansUpdateManyWithoutEmployeesNestedInput
+    employee_coins?: employee_coinsUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
+    employee_warnings?: employee_warningsUpdateManyWithoutEmployeesNestedInput
+    departments?: departmentsUpdateOneWithoutEmployeesNestedInput
+    job_positions?: job_positionsUpdateOneWithoutEmployeesNestedInput
+    employees_employees_secondary_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_secondary_supervisor_idToemployeesNestedInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
+    employees_employees_supervisor_idToemployees?: employeesUpdateOneWithoutOther_employees_employees_supervisor_idToemployeesNestedInput
+    other_employees_employees_supervisor_idToemployees?: employeesUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
+    branches?: branchesUpdateOneWithoutEmployeesNestedInput
+    general_welfare_claims?: general_welfare_claimsUpdateManyWithoutEmployeesNestedInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUpdateManyWithoutEmployees_kpi_evaluations_emp_idToemployeesNestedInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUpdateManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesNestedInput
+    leave_requests?: leave_requestsUpdateManyWithoutEmployeesNestedInput
+    monthly_payroll_data?: monthly_payroll_dataUpdateManyWithoutEmployeesNestedInput
+    ot_requests?: ot_requestsUpdateManyWithoutEmployeesNestedInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesNestedInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesNestedInput
+    product_borrowings?: product_borrowingsUpdateManyWithoutEmployeesNestedInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsUpdateManyWithoutEmployees_reward_redemptions_emp_idToemployeesNestedInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsUpdateManyWithoutEmployees_reward_redemptions_processed_byToemployeesNestedInput
+    room_booking_attendees?: room_booking_attendeesUpdateManyWithoutEmployeesNestedInput
+    room_bookings?: room_bookingsUpdateManyWithoutEmployeesNestedInput
+    task_assignments?: task_assignmentsUpdateManyWithoutEmployeesNestedInput
+    task_coin_budgets?: task_coin_budgetsUpdateOneWithoutEmployeesNestedInput
+    tasks?: tasksUpdateManyWithoutEmployeesNestedInput
+    transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
+    travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
+  }
+
+  export type employeesUncheckedUpdateWithoutWheel_winnersInput = {
+    emp_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    branch_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pin_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    hire_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    base_salary?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    department_id?: NullableIntFieldUpdateOperationsInput | number | null
+    job_position_id?: NullableIntFieldUpdateOperationsInput | number | null
+    otp_code?: NullableStringFieldUpdateOperationsInput | string | null
+    otp_expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_account_no?: NullableStringFieldUpdateOperationsInput | string | null
+    bank_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_on_trial?: BoolFieldUpdateOperationsInput | boolean
+    has_telephone_allowance?: BoolFieldUpdateOperationsInput | boolean
+    position_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    national_id_card?: NullableStringFieldUpdateOperationsInput | string | null
+    salary_type?: NullableStringFieldUpdateOperationsInput | string | null
+    line_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_checkin_exempt?: BoolFieldUpdateOperationsInput | boolean
+    probation_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resignation_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    secondary_supervisor_id?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    general_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    probation_accommodation_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_meal_allowance?: BoolFieldUpdateOperationsInput | boolean
+    probation_travel_allowance?: BoolFieldUpdateOperationsInput | boolean
+    fixed_accommodation_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_meal_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_travel_allowance?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fixed_tax_deduction?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    current_streak?: IntFieldUpdateOperationsInput | number
+    sso_include_fixed_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_meal?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_fixed_travel?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_general_allowance?: BoolFieldUpdateOperationsInput | boolean
+    sso_include_position_allowance?: BoolFieldUpdateOperationsInput | boolean
+    car_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    housing_benefit?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_amt?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    provident_fund_rate?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    tax_deduction_override?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    company_accommodation?: BoolFieldUpdateOperationsInput | boolean
+    company_car?: BoolFieldUpdateOperationsInput | boolean
+    asset_borrowings?: asset_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    birthday_claims?: birthday_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    clothing_requests?: clothing_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    coin_exchanges?: coin_exchangesUncheckedUpdateManyWithoutEmployeesNestedInput
+    coin_ledgers?: coin_ledgersUncheckedUpdateManyWithoutEmployeesNestedInput
+    coin_transfers_coin_transfers_receiver_emp_idToemployees?: coin_transfersUncheckedUpdateManyWithoutEmployees_coin_transfers_receiver_emp_idToemployeesNestedInput
+    coin_transfers_coin_transfers_sender_emp_idToemployees?: coin_transfersUncheckedUpdateManyWithoutEmployees_coin_transfers_sender_emp_idToemployeesNestedInput
+    commission_claims?: commission_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    daily_work_plans?: daily_work_plansUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_coins?: employee_coinsUncheckedUpdateManyWithoutEmployeesNestedInput
+    employee_trainings_employee_trainings_assessor_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_assessor_idToemployeesNestedInput
+    employee_trainings_employee_trainings_emp_idToemployees?: employee_trainingsUncheckedUpdateManyWithoutEmployees_employee_trainings_emp_idToemployeesNestedInput
+    employee_warnings?: employee_warningsUncheckedUpdateManyWithoutEmployeesNestedInput
+    other_employees_employees_secondary_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_secondary_supervisor_idToemployeesNestedInput
+    other_employees_employees_supervisor_idToemployees?: employeesUncheckedUpdateManyWithoutEmployees_employees_supervisor_idToemployeesNestedInput
+    general_welfare_claims?: general_welfare_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    kpi_evaluations_kpi_evaluations_emp_idToemployees?: kpi_evaluationsUncheckedUpdateManyWithoutEmployees_kpi_evaluations_emp_idToemployeesNestedInput
+    kpi_evaluations_kpi_evaluations_supervisor_idToemployees?: kpi_evaluationsUncheckedUpdateManyWithoutEmployees_kpi_evaluations_supervisor_idToemployeesNestedInput
+    leave_requests?: leave_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    monthly_payroll_data?: monthly_payroll_dataUncheckedUpdateManyWithoutEmployeesNestedInput
+    ot_requests?: ot_requestsUncheckedUpdateManyWithoutEmployeesNestedInput
+    probation_evaluations_probation_evaluations_emp_idToemployees?: probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_emp_idToemployeesNestedInput
+    probation_evaluations_probation_evaluations_supervisor_idToemployees?: probation_evaluationsUncheckedUpdateManyWithoutEmployees_probation_evaluations_supervisor_idToemployeesNestedInput
+    product_borrowings?: product_borrowingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    reward_redemptions_reward_redemptions_emp_idToemployees?: reward_redemptionsUncheckedUpdateManyWithoutEmployees_reward_redemptions_emp_idToemployeesNestedInput
+    reward_redemptions_reward_redemptions_processed_byToemployees?: reward_redemptionsUncheckedUpdateManyWithoutEmployees_reward_redemptions_processed_byToemployeesNestedInput
+    room_booking_attendees?: room_booking_attendeesUncheckedUpdateManyWithoutEmployeesNestedInput
+    room_bookings?: room_bookingsUncheckedUpdateManyWithoutEmployeesNestedInput
+    task_assignments?: task_assignmentsUncheckedUpdateManyWithoutEmployeesNestedInput
+    task_coin_budgets?: task_coin_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
+    tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
+    transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
+    travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
+  }
+
+  export type wheel_prizesUpsertWithoutWheel_winnersInput = {
+    update: XOR<wheel_prizesUpdateWithoutWheel_winnersInput, wheel_prizesUncheckedUpdateWithoutWheel_winnersInput>
+    create: XOR<wheel_prizesCreateWithoutWheel_winnersInput, wheel_prizesUncheckedCreateWithoutWheel_winnersInput>
+    where?: wheel_prizesWhereInput
+  }
+
+  export type wheel_prizesUpdateToOneWithWhereWithoutWheel_winnersInput = {
+    where?: wheel_prizesWhereInput
+    data: XOR<wheel_prizesUpdateWithoutWheel_winnersInput, wheel_prizesUncheckedUpdateWithoutWheel_winnersInput>
+  }
+
+  export type wheel_prizesUpdateWithoutWheel_winnersInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    wheel_events?: wheel_eventsUpdateOneRequiredWithoutWheel_prizesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutWheel_prizesNestedInput
+  }
+
+  export type wheel_prizesUncheckedUpdateWithoutWheel_winnersInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    event_id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutWheel_prizesNestedInput
+  }
+
   export type CompanyCreateManyAssignedUserInput = {
     id?: string
     companyName: string
@@ -220152,9 +227884,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
   }
 
   export type ProjectCreateManyManagerInput = {
@@ -221032,9 +228764,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     company?: CompanyUpdateOneWithoutOrdersNestedInput
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
@@ -221060,9 +228792,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -221086,9 +228818,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
   }
 
   export type ProjectUpdateWithoutManagerInput = {
@@ -222054,9 +229786,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
   }
 
   export type QuotationCreateManyCompanyInput = {
@@ -222249,9 +229981,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     quotation?: QuotationUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
     statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
@@ -222277,9 +230009,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -222303,9 +230035,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
   }
 
   export type QuotationUpdateWithoutCompanyInput = {
@@ -222827,9 +230559,9 @@ export namespace Prisma {
     productionDeadline?: Date | string | null
     qcAt?: Date | string | null
     qcBy?: string | null
+    qcImages?: OrderCreateqcImagesInput | string[]
     qcNote?: string | null
     qcStatus?: string | null
-    qcImages?: OrderCreateqcImagesInput | string[]
   }
 
   export type JobCreateManyQuotationInput = {
@@ -222884,9 +230616,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     company?: CompanyUpdateOneWithoutOrdersNestedInput
     salesperson?: UserUpdateOneWithoutOrdersNestedInput
     statusLogs?: OrderStatusLogUpdateManyWithoutOrderNestedInput
@@ -222912,9 +230644,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
     statusLogs?: OrderStatusLogUncheckedUpdateManyWithoutOrderNestedInput
     purchaseRequests?: PurchaseRequestUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -222938,9 +230670,9 @@ export namespace Prisma {
     productionDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qcBy?: NullableStringFieldUpdateOperationsInput | string | null
+    qcImages?: OrderUpdateqcImagesInput | string[]
     qcNote?: NullableStringFieldUpdateOperationsInput | string | null
     qcStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    qcImages?: OrderUpdateqcImagesInput | string[]
   }
 
   export type JobUpdateWithoutQuotationInput = {
@@ -223281,6 +231013,8 @@ export namespace Prisma {
     installmentNo?: number | null
     installmentTotal?: number | null
     creditType?: string | null
+    invoiceDate?: Date | string | null
+    invoiceNumber?: string | null
   }
 
   export type InstallationOrderUpdateWithoutJobInput = {
@@ -223639,6 +231373,8 @@ export namespace Prisma {
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
     creditType?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTaskUncheckedUpdateWithoutJobInput = {
@@ -223655,6 +231391,8 @@ export namespace Prisma {
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
     creditType?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTaskUncheckedUpdateManyWithoutJobInput = {
@@ -223671,6 +231409,8 @@ export namespace Prisma {
     installmentNo?: NullableIntFieldUpdateOperationsInput | number | null
     installmentTotal?: NullableIntFieldUpdateOperationsInput | number | null
     creditType?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type announcementsCreateManyAdminsInput = {
@@ -223763,7 +231503,9 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
-    overnight_required?: boolean | null
+    overnight_required?: boolean
+    nights_count?: number | null
+    trip_fee_status?: string | null
   }
 
   export type asset_borrowingsUpdateWithoutAssetsInput = {
@@ -223792,7 +231534,9 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
-    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    overnight_required?: BoolFieldUpdateOperationsInput | boolean
+    nights_count?: NullableIntFieldUpdateOperationsInput | number | null
+    trip_fee_status?: NullableStringFieldUpdateOperationsInput | string | null
     employees?: employeesUpdateOneRequiredWithoutAsset_borrowingsNestedInput
   }
 
@@ -223824,7 +231568,9 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
-    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    overnight_required?: BoolFieldUpdateOperationsInput | boolean
+    nights_count?: NullableIntFieldUpdateOperationsInput | number | null
+    trip_fee_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type asset_borrowingsUncheckedUpdateManyWithoutAssetsInput = {
@@ -223855,7 +231601,9 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
-    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    overnight_required?: BoolFieldUpdateOperationsInput | boolean
+    nights_count?: NullableIntFieldUpdateOperationsInput | number | null
+    trip_fee_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type employeesCreateManyBranchesInput = {
@@ -223999,6 +231747,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -224088,6 +231838,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -224298,6 +232050,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -224387,6 +232141,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -224540,7 +232296,9 @@ export namespace Prisma {
     key_returned_at?: Date | string | null
     key_signature_url?: string | null
     return_status?: string | null
-    overnight_required?: boolean | null
+    overnight_required?: boolean
+    nights_count?: number | null
+    trip_fee_status?: string | null
   }
 
   export type birthday_claimsCreateManyEmployeesInput = {
@@ -225114,6 +232872,22 @@ export namespace Prisma {
     end_date?: Date | string | null
   }
 
+  export type wheel_ticketsCreateManyEmployeesInput = {
+    id?: number
+    prize_id: number
+    coin_type_used: string
+    coins_spent: number
+    ticket_count?: number
+    created_at?: Date | string
+  }
+
+  export type wheel_winnersCreateManyEmployeesInput = {
+    id?: number
+    prize_id: number
+    drawn_at?: Date | string
+    status?: string
+  }
+
   export type withholding_tax_documentsCreateManyEmployeesInput = {
     id?: number
     book_number?: string | null
@@ -225166,7 +232940,9 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
-    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    overnight_required?: BoolFieldUpdateOperationsInput | boolean
+    nights_count?: NullableIntFieldUpdateOperationsInput | number | null
+    trip_fee_status?: NullableStringFieldUpdateOperationsInput | string | null
     assets?: assetsUpdateOneRequiredWithoutAsset_borrowingsNestedInput
   }
 
@@ -225198,7 +232974,9 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
-    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    overnight_required?: BoolFieldUpdateOperationsInput | boolean
+    nights_count?: NullableIntFieldUpdateOperationsInput | number | null
+    trip_fee_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type asset_borrowingsUncheckedUpdateManyWithoutEmployeesInput = {
@@ -225229,7 +233007,9 @@ export namespace Prisma {
     key_returned_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     key_signature_url?: NullableStringFieldUpdateOperationsInput | string | null
     return_status?: NullableStringFieldUpdateOperationsInput | string | null
-    overnight_required?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    overnight_required?: BoolFieldUpdateOperationsInput | boolean
+    nights_count?: NullableIntFieldUpdateOperationsInput | number | null
+    trip_fee_status?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type birthday_claimsUpdateWithoutEmployeesInput = {
@@ -225719,6 +233499,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -225808,6 +233590,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -225952,6 +233736,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -226041,6 +233827,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -227066,6 +234854,52 @@ export namespace Prisma {
     end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type wheel_ticketsUpdateWithoutEmployeesInput = {
+    coin_type_used?: StringFieldUpdateOperationsInput | string
+    coins_spent?: IntFieldUpdateOperationsInput | number
+    ticket_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    wheel_prizes?: wheel_prizesUpdateOneRequiredWithoutWheel_ticketsNestedInput
+  }
+
+  export type wheel_ticketsUncheckedUpdateWithoutEmployeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    prize_id?: IntFieldUpdateOperationsInput | number
+    coin_type_used?: StringFieldUpdateOperationsInput | string
+    coins_spent?: IntFieldUpdateOperationsInput | number
+    ticket_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_ticketsUncheckedUpdateManyWithoutEmployeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    prize_id?: IntFieldUpdateOperationsInput | number
+    coin_type_used?: StringFieldUpdateOperationsInput | string
+    coins_spent?: IntFieldUpdateOperationsInput | number
+    ticket_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_winnersUpdateWithoutEmployeesInput = {
+    drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    wheel_prizes?: wheel_prizesUpdateOneRequiredWithoutWheel_winnersNestedInput
+  }
+
+  export type wheel_winnersUncheckedUpdateWithoutEmployeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    prize_id?: IntFieldUpdateOperationsInput | number
+    drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type wheel_winnersUncheckedUpdateManyWithoutEmployeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    prize_id?: IntFieldUpdateOperationsInput | number
+    drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
   export type withholding_tax_documentsUpdateWithoutEmployeesInput = {
     book_number?: NullableStringFieldUpdateOperationsInput | string | null
     document_number?: StringFieldUpdateOperationsInput | string
@@ -227297,6 +235131,8 @@ export namespace Prisma {
     tasks?: tasksUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -227386,6 +235222,8 @@ export namespace Prisma {
     tasks?: tasksUncheckedUpdateManyWithoutEmployeesNestedInput
     transfer_budgets?: transfer_budgetsUncheckedUpdateOneWithoutEmployeesNestedInput
     travel_claims?: travel_claimsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutEmployeesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutEmployeesNestedInput
     withholding_tax_documents?: withholding_tax_documentsUncheckedUpdateManyWithoutEmployeesNestedInput
   }
 
@@ -228849,6 +236687,103 @@ export namespace Prisma {
     payment_date?: DateTimeFieldUpdateOperationsInput | Date | string
     payment_amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     tax_withheld?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type wheel_prizesCreateManyWheel_eventsInput = {
+    id?: number
+    name: string
+    bonus_amount?: number
+    quantity?: number
+    is_active?: boolean
+  }
+
+  export type wheel_prizesUpdateWithoutWheel_eventsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    wheel_tickets?: wheel_ticketsUpdateManyWithoutWheel_prizesNestedInput
+    wheel_winners?: wheel_winnersUpdateManyWithoutWheel_prizesNestedInput
+  }
+
+  export type wheel_prizesUncheckedUpdateWithoutWheel_eventsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutWheel_prizesNestedInput
+    wheel_winners?: wheel_winnersUncheckedUpdateManyWithoutWheel_prizesNestedInput
+  }
+
+  export type wheel_prizesUncheckedUpdateManyWithoutWheel_eventsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    bonus_amount?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type wheel_ticketsCreateManyWheel_prizesInput = {
+    id?: number
+    emp_id: string
+    coin_type_used: string
+    coins_spent: number
+    ticket_count?: number
+    created_at?: Date | string
+  }
+
+  export type wheel_winnersCreateManyWheel_prizesInput = {
+    id?: number
+    emp_id: string
+    drawn_at?: Date | string
+    status?: string
+  }
+
+  export type wheel_ticketsUpdateWithoutWheel_prizesInput = {
+    coin_type_used?: StringFieldUpdateOperationsInput | string
+    coins_spent?: IntFieldUpdateOperationsInput | number
+    ticket_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    employees?: employeesUpdateOneRequiredWithoutWheel_ticketsNestedInput
+  }
+
+  export type wheel_ticketsUncheckedUpdateWithoutWheel_prizesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    coin_type_used?: StringFieldUpdateOperationsInput | string
+    coins_spent?: IntFieldUpdateOperationsInput | number
+    ticket_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_ticketsUncheckedUpdateManyWithoutWheel_prizesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    coin_type_used?: StringFieldUpdateOperationsInput | string
+    coins_spent?: IntFieldUpdateOperationsInput | number
+    ticket_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type wheel_winnersUpdateWithoutWheel_prizesInput = {
+    drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    employees?: employeesUpdateOneRequiredWithoutWheel_winnersNestedInput
+  }
+
+  export type wheel_winnersUncheckedUpdateWithoutWheel_prizesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type wheel_winnersUncheckedUpdateManyWithoutWheel_prizesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    emp_id?: StringFieldUpdateOperationsInput | string
+    drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
   }
 
 

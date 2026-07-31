@@ -18,8 +18,9 @@ export default async function AccountingPage() {
   // Role check
   const roleStr = (user.role || '').toLowerCase()
   const isAccounting = ['accounting', 'บัญชี', 'finance', 'การเงิน', 'ผู้จัดการ'].some(r => roleStr.includes(r))
+  const isExecutive = ['ผู้บริหาร', 'executive', 'super_admin'].some(r => roleStr.includes(r))
   
-  if (!isAccounting) redirect('/dashboard')
+  if (!isAccounting && !isExecutive) redirect('/dashboard')
 
   // --- TEMPORARY BACKFILL FOR PROJECT JOBS WITHOUT PAYMENT TASKS ---
   const projectJobsWithoutTasks = await prisma.job.findMany({

@@ -2,14 +2,23 @@
 import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function updatePaymentTaskStatus(taskId: string, status: string, note?: string) {
+export async function updatePaymentTaskStatus(taskId: string, status: string, note?: string, invoiceNumber?: string, invoiceDate?: string | Date) {
+  const dataToUpdate: any = {
+    status,
+    note,
+    ...(status === 'ตรวจสอบและบันทึกแล้ว' ? { paidDate: new Date() } : {})
+  };
+  
+  if (invoiceNumber) {
+    dataToUpdate.invoiceNumber = invoiceNumber;
+  }
+  if (invoiceDate) {
+    dataToUpdate.invoiceDate = new Date(invoiceDate);
+  }
+
   const task = await prisma.paymentTask.update({
     where: { id: taskId },
-    data: {
-      status,
-      note,
-      ...(status === 'ตรวจสอบและบันทึกแล้ว' ? { paidDate: new Date() } : {})
-    },
+    data: dataToUpdate,
     include: { job: true }
   });
 

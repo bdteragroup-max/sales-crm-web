@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useTransition, useEffect } from "react";
-import { DollarSign, Search, CheckCircle, Clock, AlertCircle, Eye, X, Loader2, ClipboardList, ChevronUp, ChevronDown, Filter, Download } from "lucide-react";
+import { DollarSign, Search, CheckCircle, Clock, AlertCircle, Eye, X, Loader2, ClipboardList, ChevronUp, ChevronDown, Filter, Download, Award } from "lucide-react";
 import * as XLSX from "xlsx";
 import { updatePaymentTaskStatus, recordPaymentDeposit, updatePaymentTaskCreditType } from "@/app/actions/accounting";
 
@@ -35,7 +35,7 @@ function JobDetailModal({
 }: {
   jobId: string,
   onClose: () => void,
-  onConfirmPayment: (id: string, status: string, note: string) => void,
+  onConfirmPayment: (id: string, status: string, note: string, invoiceNumber?: string, invoiceDate?: string) => void,
   onRecordDeposit: (id: string, amount: number, note: string) => void,
   onUpdateCreditType: (id: string, creditType: string) => void,
   isPending: boolean
@@ -47,6 +47,8 @@ function JobDetailModal({
   const [depositNote, setDepositNote] = useState('');
   const [confirmPaymentModal, setConfirmPaymentModal] = useState<{ id: string, status: string } | null>(null);
   const [paymentNote, setPaymentNote] = useState('');
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [invoiceDate, setInvoiceDate] = useState('');
 
   useEffect(() => {
     fetch(`/api/accounting/job/${jobId}`, { cache: 'no-store' })
@@ -187,7 +189,14 @@ function JobDetailModal({
               </div>
               <div>
                 <p className="text-xs text-blue-500/70 mb-1">ผู้รับผิดชอบ (Sales)</p>
-                <p className="text-sm font-medium text-blue-900">{project?.contractSignatory || quotation?.salesperson?.fullName || job.sellerName || '-'}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-blue-900">{project?.contractSignatory || quotation?.salesperson?.fullName || job.sellerName || '-'}</p>
+                  {(data.awardedGold || 0) > 0 && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-[10px] font-bold rounded-full shadow-sm border border-yellow-200">
+                      <Award size={12} /> {data.awardedGold} เหรียญทอง
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </section>
@@ -332,6 +341,22 @@ function JobDetailModal({
                         </div>
                       )}
                     </div>
+                    {ptIsCompleted && (pt.invoiceNumber || pt.invoiceDate) && (
+                      <div className="col-span-2 bg-emerald-100/50 p-3 rounded-lg border border-emerald-200 mt-2 flex gap-8">
+                        {pt.invoiceNumber && (
+                          <div>
+                            <p className="text-[10px] font-bold text-emerald-700/70 uppercase tracking-wider mb-0.5">เลขที่ใบกำกับภาษี / ใบเสร็จ</p>
+                            <p className="text-sm font-black text-emerald-900">{pt.invoiceNumber}</p>
+                          </div>
+                        )}
+                        {pt.invoiceDate && (
+                          <div>
+                            <p className="text-[10px] font-bold text-emerald-700/70 uppercase tracking-wider mb-0.5">วันที่ในเอกสาร</p>
+                            <p className="text-sm font-black text-emerald-900">{formatDate(pt.invoiceDate)}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     {pt.paidAmount !== null && pt.paidAmount !== undefined && pt.paidAmount > 0 && !ptIsCompleted && (
                       <div className="col-span-2 bg-white/50 p-3 rounded-lg border border-emerald-100/50 mt-1">
                         <div className="flex justify-between items-center mb-1">
@@ -445,7 +470,7 @@ function JobDetailModal({
         {confirmPaymentModal && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60] p-4">
             <div className="bg-white rounded-xl w-full max-w-sm p-6 shadow-xl relative">
-              <button onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); }} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
+              <button onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); setInvoiceNumber(''); setInvoiceDate(''); }} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
                 <X size={20} />
               </button>
               <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
@@ -453,39 +478,64 @@ function JobDetailModal({
                 ยืนยันการรับเงิน
               </h3>
 
-              <div className="mb-6">
-                <label className="block text-sm font-bold text-gray-700 mb-1">หมายเหตุ (ถ้ามี)</label>
-                <input
-                  type="text"
-                  value={paymentNote}
-                  onChange={(e) => setPaymentNote(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                  placeholder="พิมพ์หมายเหตุ..."
-                  autoFocus
-                />
+              <div className="mb-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">เลขที่ใบกำกับภาษี / ใบเสร็จ</label>
+                  <input
+                    type="text"
+                    value={invoiceNumber}
+                    onChange={(e) => setInvoiceNumber(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                    placeholder="เช่น INV-2023-001"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">วันที่ในใบกำกับภาษี / ใบเสร็จ</label>
+                  <input
+                    type="date"
+                    value={invoiceDate}
+                    onChange={(e) => setInvoiceDate(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">หมายเหตุ (ถ้ามี)</label>
+                  <input
+                    type="text"
+                    value={paymentNote}
+                    onChange={(e) => setPaymentNote(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                    placeholder="พิมพ์หมายเหตุ..."
+                  />
+                </div>
               </div>
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); }}
+                  onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); setInvoiceNumber(''); setInvoiceDate(''); }}
                   className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-lg transition-colors"
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={() => {
-                    onConfirmPayment(confirmPaymentModal.id, confirmPaymentModal.status, paymentNote);
+                    onConfirmPayment(confirmPaymentModal.id, confirmPaymentModal.status, paymentNote, invoiceNumber, invoiceDate);
                     setData((prev: any) => ({
                       ...prev,
                       paymentTasks: prev.paymentTasks?.map((pt: any) => pt.id === confirmPaymentModal.id ? {
                         ...pt,
                         status: confirmPaymentModal.status,
                         note: paymentNote || pt.note,
+                        invoiceNumber: invoiceNumber || pt.invoiceNumber,
+                        invoiceDate: invoiceDate ? new Date(invoiceDate).toISOString() : pt.invoiceDate,
                         paidDate: confirmPaymentModal.status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : pt.paidDate
                       } : pt)
                     }));
                     setConfirmPaymentModal(null);
                     setPaymentNote('');
+                    setInvoiceNumber('');
+                    setInvoiceDate('');
                   }}
                   disabled={isPending}
                   className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
@@ -515,6 +565,11 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const [isPending, startTransition] = useTransition();
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
+  const [confirmPaymentModal, setConfirmPaymentModal] = useState<{ id: string, status: string } | null>(null);
+  const [paymentNote, setPaymentNote] = useState('');
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [invoiceDate, setInvoiceDate] = useState('');
+
   // Filters
   const [filterJobNumber, setFilterJobNumber] = useState("");
   const [filterCustomerItem, setFilterCustomerItem] = useState("");
@@ -523,6 +578,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const [filterStatus, setFilterStatus] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
   const [filterYear, setFilterYear] = useState("");
+  const [filterSalesperson, setFilterSalesperson] = useState("");
 
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -531,14 +587,17 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
   const uniqueJobTypes = Array.from(new Set(tasks.map(t => t.job?.jobType).filter(Boolean)));
   const uniquePaymentMethods = Array.from(new Set(tasks.map(t => t.job?.paymentMethod).filter(Boolean)));
   const uniqueYears = Array.from(new Set(tasks.map(t => t.job?.yearBe).filter(Boolean))).sort((a, b) => Number(b) - Number(a));
+  const uniqueSalespersons = Array.from(new Set(tasks.map(t => t.job?.project?.contractSignatory || t.job?.quotation?.salesperson?.fullName || t.job?.sellerName).filter(Boolean))).sort();
 
-  const handleUpdate = (id: string, status: string, note: string = "") => {
+  const handleUpdate = (id: string, status: string, note: string = "", invoiceNumber?: string, invoiceDate?: string) => {
     startTransition(async () => {
-      await updatePaymentTaskStatus(id, status, note);
+      await updatePaymentTaskStatus(id, status, note, invoiceNumber, invoiceDate);
       setTasks(prev => prev.map(t => t.id === id ? {
         ...t,
         status,
         note: note || t.note,
+        invoiceNumber: invoiceNumber || t.invoiceNumber,
+        invoiceDate: invoiceDate ? new Date(invoiceDate).toISOString() : t.invoiceDate,
         paidDate: status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : t.paidDate
       } : t));
     });
@@ -616,7 +675,14 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
     const matchesMonth = !filterMonth || g.job?.month === parseInt(filterMonth);
     const matchesYear = !filterYear || g.job?.yearBe === parseInt(filterYear);
 
-    return matchesJobNumber && matchesCustomerItem && matchesPayment && matchesCompany && matchesStatus && matchesJobType && matchesMonth && matchesYear;
+    const qSales = filterSalesperson.toLowerCase();
+    const matchesSalesperson = !qSales || (
+      g.job?.sellerName?.toLowerCase().includes(qSales) ||
+      g.job?.project?.contractSignatory?.toLowerCase().includes(qSales) ||
+      g.job?.quotation?.salesperson?.fullName?.toLowerCase().includes(qSales)
+    );
+
+    return matchesJobNumber && matchesCustomerItem && matchesPayment && matchesCompany && matchesStatus && matchesJobType && matchesMonth && matchesYear && matchesSalesperson;
   });
 
   const sortedJobs = React.useMemo(() => {
@@ -712,6 +778,77 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           isPending={isPending}
         />
       )}
+
+      {/* Confirm Payment Modal for Main Page */}
+      {confirmPaymentModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-xl w-full max-w-sm p-6 shadow-xl relative">
+            <button onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); setInvoiceNumber(''); setInvoiceDate(''); }} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
+              <X size={20} />
+            </button>
+            <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
+              <CheckCircle size={20} className="text-emerald-600" />
+              ยืนยันการรับเงิน
+            </h3>
+
+            <div className="mb-6 space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">เลขที่ใบกำกับภาษี / ใบเสร็จ</label>
+                <input
+                  type="text"
+                  value={invoiceNumber}
+                  onChange={(e) => setInvoiceNumber(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  placeholder="เช่น INV-2023-001"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">วันที่ในใบกำกับภาษี / ใบเสร็จ</label>
+                <input
+                  type="date"
+                  value={invoiceDate}
+                  onChange={(e) => setInvoiceDate(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">หมายเหตุ (ถ้ามี)</label>
+                <input
+                  type="text"
+                  value={paymentNote}
+                  onChange={(e) => setPaymentNote(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  placeholder="พิมพ์หมายเหตุ..."
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); setInvoiceNumber(''); setInvoiceDate(''); }}
+                className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-lg transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={() => {
+                  handleUpdate(confirmPaymentModal.id, confirmPaymentModal.status, paymentNote, invoiceNumber, invoiceDate);
+                  setConfirmPaymentModal(null);
+                  setPaymentNote('');
+                  setInvoiceNumber('');
+                  setInvoiceDate('');
+                }}
+                disabled={isPending}
+                className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+              >
+                ยืนยัน
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
@@ -787,6 +924,13 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           <input type="text" placeholder="ค้นหาลูกค้าหรือรายการ..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" value={filterCustomerItem} onChange={e => setFilterCustomerItem(e.target.value)} />
         </div>
         <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 mb-1">ผู้รับผิดชอบ (Sales)</label>
+          <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white" value={filterSalesperson} onChange={e => setFilterSalesperson(e.target.value)}>
+            <option value="">ทั้งหมด</option>
+            {uniqueSalespersons.map(s => <option key={s as string} value={s as string}>{s as React.ReactNode}</option>)}
+          </select>
+        </div>
+        <div className="flex-1 min-w-[150px]">
           <label className="block text-xs font-bold text-gray-500 mb-1">รูปแบบการชำระเงิน</label>
           <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white" value={filterPaymentMethod} onChange={e => setFilterPaymentMethod(e.target.value)}>
             <option value="">ทั้งหมด</option>
@@ -835,7 +979,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           </select>
         </div>
         <button
-          onClick={() => { setFilterJobNumber(''); setFilterCustomerItem(''); setFilterPaymentMethod(''); setFilterCompany(''); setFilterStatus(''); setFilterMonth(''); setFilterYear(''); setSelectedJobTypes([]); }}
+          onClick={() => { setFilterJobNumber(''); setFilterCustomerItem(''); setFilterPaymentMethod(''); setFilterCompany(''); setFilterStatus(''); setFilterMonth(''); setFilterYear(''); setFilterSalesperson(''); setSelectedJobTypes([]); }}
           className="px-4 py-2 text-sm font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors whitespace-nowrap h-[38px]"
         >
           ล้างตัวกรองทั้งหมด
@@ -984,7 +1128,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                     {!hasInstallments && !allCompleted && singlePendingTask && (
                       <button
                         disabled={isPending}
-                        onClick={() => handleUpdate(singlePendingTask.id, 'ตรวจสอบและบันทึกแล้ว')}
+                        onClick={() => setConfirmPaymentModal({ id: singlePendingTask.id, status: 'ตรวจสอบและบันทึกแล้ว' })}
                         className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50"
                       >
                         <CheckCircle size={14} />

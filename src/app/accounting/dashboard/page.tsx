@@ -16,11 +16,12 @@ export default async function AccountingDashboardPage(props: { searchParams: any
   const user = await prisma.user.findUnique({ where: { id: payload.userId } })
   if (!user || !user.isActive) redirect('/')
 
-  // Role check: Accounting ONLY
+  // Role check: Accounting and Executive
   const roleStr = (user.role || '').toLowerCase()
   const isAccounting = ['accounting', 'บัญชี', 'finance', 'การเงิน'].some(r => roleStr.includes(r))
+  const isExecutive = ['ผู้บริหาร', 'executive', 'super_admin'].some(r => roleStr.includes(r))
   
-  if (!isAccounting) redirect('/dashboard') // Redirect non-accounting roles
+  if (!isAccounting && !isExecutive) redirect('/dashboard') // Redirect non-authorized roles
 
   const sp = await props.searchParams;
   const startDate = sp?.startDate;

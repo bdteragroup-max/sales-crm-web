@@ -36,6 +36,16 @@ export async function GET(
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
+    let awardedGold = 0;
+    if (job.quotationId) {
+      const ledger = await prisma.coin_ledgers.findFirst({
+        where: { source_key: `deal_closed:${job.quotationId}:sales` }
+      });
+      if (ledger) {
+        awardedGold = ledger.amount;
+      }
+    }
+
     return NextResponse.json({
       job: job,
       quotation: job.quotation,
@@ -43,6 +53,7 @@ export async function GET(
       paymentTasks: job.paymentTasks,
       stepLogs: job.stepLogs,
       project: job.project,
+      awardedGold: awardedGold,
     });
   } catch (error) {
     console.error("Failed to fetch job details:", error);

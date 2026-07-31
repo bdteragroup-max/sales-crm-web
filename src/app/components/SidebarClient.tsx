@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Coins
 } from 'lucide-react';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
@@ -23,6 +23,18 @@ type SidebarProps = {
   userId?: string;
   userRole?: string;
 };
+
+const executiveNav = [
+  { icon: LayoutDashboard, label: 'Executive KPI', href: '/executive/kpi' },
+  { icon: GitCommit, label: 'Pipeline Forecast', href: '/executive/pipeline' },
+  { icon: Wrench, label: 'ภาพรวมงานบริการ', href: '/executive/service' },
+  { icon: Bell, label: 'SLA Exceptions', href: '/executive/sla' },
+  { icon: Coins, label: 'ภาพรวมเหรียญรางวัล', href: '/executive/coins' },
+  { icon: ShoppingCart, label: 'ภาพรวมจัดซื้อ', href: '/executive/purchasing' },
+  { icon: LayoutDashboard, label: 'แดชบอร์ดบัญชี', href: '/accounting/dashboard' },
+  { icon: DollarSign, label: 'งานการเงิน/บัญชี', href: '/accounting' },
+  { icon: Settings, label: 'ตั้งค่าระบบ', href: '/settings' },
+];
 
 const managerNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมทีม', href: '/dashboard' },
@@ -105,7 +117,6 @@ const marketingNav = [
   { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
   { icon: Users, label: 'Marketing Leads', href: '/marketing' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
-  { icon: ClipboardList, label: 'แดชบอร์ดงานติดตั้ง', href: '/service/installation' },
 ];
 
 const projectAdminNav = [
@@ -124,7 +135,12 @@ export default function SidebarClient(props: SidebarProps) {
   let nav = repNav;
   const roleStr = (props.userRole || '').toLowerCase();
 
-  if (roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้การจัดการตลาด') {
+  const isExecutive = roleStr === 'ผู้บริหาร' || roleStr === 'executive' || roleStr === 'super_admin';
+  const isManager = roleStr === 'ผู้จัดการ' || roleStr === 'manager' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้การจัดการตลาด';
+
+  if (isExecutive) {
+    nav = executiveNav;
+  } else if (isManager) {
     nav = managerNav;
   } else if (roleStr.includes('admin project') || roleStr.includes('project admin')) {
     nav = projectAdminNav;
@@ -204,7 +220,7 @@ function ResponsiveSidebar({
       getPendingPaymentTaskCount().then(setUnpaidCount).catch(() => { });
     }
 
-    const isServiceUser = roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง') || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด';
+    const isServiceUser = roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง') || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้บริหาร' || roleStr === 'executive' || roleStr === 'super_admin';
     if (isServiceUser) {
       getPendingInstallationCount().then(setPendingInstallationCount).catch(() => { });
       getPendingRepairOrderCount().then(setPendingRepairCount).catch(() => { });

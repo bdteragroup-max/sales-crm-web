@@ -355,9 +355,9 @@ exports.Prisma.OrderScalarFieldEnum = {
   productionDeadline: 'productionDeadline',
   qcAt: 'qcAt',
   qcBy: 'qcBy',
+  qcImages: 'qcImages',
   qcNote: 'qcNote',
-  qcStatus: 'qcStatus',
-  qcImages: 'qcImages'
+  qcStatus: 'qcStatus'
 };
 
 exports.Prisma.OrderStatusLogScalarFieldEnum = {
@@ -430,7 +430,9 @@ exports.Prisma.PaymentTaskScalarFieldEnum = {
   installmentAmount: 'installmentAmount',
   installmentNo: 'installmentNo',
   installmentTotal: 'installmentTotal',
-  creditType: 'creditType'
+  creditType: 'creditType',
+  invoiceDate: 'invoiceDate',
+  invoiceNumber: 'invoiceNumber'
 };
 
 exports.Prisma.JobRunningNumberScalarFieldEnum = {
@@ -652,7 +654,9 @@ exports.Prisma.Asset_borrowingsScalarFieldEnum = {
   key_returned_at: 'key_returned_at',
   key_signature_url: 'key_signature_url',
   return_status: 'return_status',
-  overnight_required: 'overnight_required'
+  overnight_required: 'overnight_required',
+  nights_count: 'nights_count',
+  trip_fee_status: 'trip_fee_status'
 };
 
 exports.Prisma.AssetsScalarFieldEnum = {
@@ -1836,6 +1840,43 @@ exports.Prisma.PushSubscriptionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.Wheel_eventsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  start_date: 'start_date',
+  end_date: 'end_date',
+  is_active: 'is_active',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Wheel_prizesScalarFieldEnum = {
+  id: 'id',
+  event_id: 'event_id',
+  name: 'name',
+  bonus_amount: 'bonus_amount',
+  quantity: 'quantity',
+  is_active: 'is_active'
+};
+
+exports.Prisma.Wheel_ticketsScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  prize_id: 'prize_id',
+  coin_type_used: 'coin_type_used',
+  coins_spent: 'coins_spent',
+  ticket_count: 'ticket_count',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Wheel_winnersScalarFieldEnum = {
+  id: 'id',
+  emp_id: 'emp_id',
+  prize_id: 'prize_id',
+  drawn_at: 'drawn_at',
+  status: 'status'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1974,7 +2015,11 @@ exports.Prisma.ModelName = {
   withholding_tax_documents: 'withholding_tax_documents',
   withholding_tax_income_items: 'withholding_tax_income_items',
   ServiceSchedule: 'ServiceSchedule',
-  PushSubscription: 'PushSubscription'
+  PushSubscription: 'PushSubscription',
+  wheel_events: 'wheel_events',
+  wheel_prizes: 'wheel_prizes',
+  wheel_tickets: 'wheel_tickets',
+  wheel_winners: 'wheel_winners'
 };
 
 /**
