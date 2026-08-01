@@ -91812,6 +91812,14 @@ export namespace Prisma {
     deliveryDate: Date | null
     paymentDate: Date | null
     depositCollectionSchedule: Date | null
+    customerSignUrl: string | null
+    isHighVoltage: boolean | null
+    remainingWork: string | null
+    siteCheckInTime: Date | null
+    siteCheckOutTime: Date | null
+    siteSupervisor: string | null
+    siteTeamMembers: string | null
+    supervisorSignUrl: string | null
   }
 
   export type ProjectMaxAggregateOutputType = {
@@ -91863,6 +91871,14 @@ export namespace Prisma {
     deliveryDate: Date | null
     paymentDate: Date | null
     depositCollectionSchedule: Date | null
+    customerSignUrl: string | null
+    isHighVoltage: boolean | null
+    remainingWork: string | null
+    siteCheckInTime: Date | null
+    siteCheckOutTime: Date | null
+    siteSupervisor: string | null
+    siteTeamMembers: string | null
+    supervisorSignUrl: string | null
   }
 
   export type ProjectCountAggregateOutputType = {
@@ -91914,6 +91930,20 @@ export namespace Prisma {
     deliveryDate: number
     paymentDate: number
     depositCollectionSchedule: number
+    checklistImages: number
+    customerSignUrl: number
+    hvChecklist: number
+    isHighVoltage: number
+    photoChecklist: number
+    preChecklist: number
+    remainingWork: number
+    siteCheckInTime: number
+    siteCheckOutTime: number
+    siteProblems: number
+    siteSupervisor: number
+    siteTeamMembers: number
+    supervisorSignUrl: number
+    workSummary: number
     _all: number
   }
 
@@ -91997,6 +92027,14 @@ export namespace Prisma {
     deliveryDate?: true
     paymentDate?: true
     depositCollectionSchedule?: true
+    customerSignUrl?: true
+    isHighVoltage?: true
+    remainingWork?: true
+    siteCheckInTime?: true
+    siteCheckOutTime?: true
+    siteSupervisor?: true
+    siteTeamMembers?: true
+    supervisorSignUrl?: true
   }
 
   export type ProjectMaxAggregateInputType = {
@@ -92048,6 +92086,14 @@ export namespace Prisma {
     deliveryDate?: true
     paymentDate?: true
     depositCollectionSchedule?: true
+    customerSignUrl?: true
+    isHighVoltage?: true
+    remainingWork?: true
+    siteCheckInTime?: true
+    siteCheckOutTime?: true
+    siteSupervisor?: true
+    siteTeamMembers?: true
+    supervisorSignUrl?: true
   }
 
   export type ProjectCountAggregateInputType = {
@@ -92099,6 +92145,20 @@ export namespace Prisma {
     deliveryDate?: true
     paymentDate?: true
     depositCollectionSchedule?: true
+    checklistImages?: true
+    customerSignUrl?: true
+    hvChecklist?: true
+    isHighVoltage?: true
+    photoChecklist?: true
+    preChecklist?: true
+    remainingWork?: true
+    siteCheckInTime?: true
+    siteCheckOutTime?: true
+    siteProblems?: true
+    siteSupervisor?: true
+    siteTeamMembers?: true
+    supervisorSignUrl?: true
+    workSummary?: true
     _all?: true
   }
 
@@ -92237,6 +92297,20 @@ export namespace Prisma {
     deliveryDate: Date | null
     paymentDate: Date | null
     depositCollectionSchedule: Date | null
+    checklistImages: JsonValue | null
+    customerSignUrl: string | null
+    hvChecklist: JsonValue | null
+    isHighVoltage: boolean
+    photoChecklist: JsonValue | null
+    preChecklist: JsonValue | null
+    remainingWork: string | null
+    siteCheckInTime: Date | null
+    siteCheckOutTime: Date | null
+    siteProblems: JsonValue | null
+    siteSupervisor: string | null
+    siteTeamMembers: string | null
+    supervisorSignUrl: string | null
+    workSummary: JsonValue | null
     _count: ProjectCountAggregateOutputType | null
     _avg: ProjectAvgAggregateOutputType | null
     _sum: ProjectSumAggregateOutputType | null
@@ -92307,6 +92381,20 @@ export namespace Prisma {
     deliveryDate?: boolean
     paymentDate?: boolean
     depositCollectionSchedule?: boolean
+    checklistImages?: boolean
+    customerSignUrl?: boolean
+    hvChecklist?: boolean
+    isHighVoltage?: boolean
+    photoChecklist?: boolean
+    preChecklist?: boolean
+    remainingWork?: boolean
+    siteCheckInTime?: boolean
+    siteCheckOutTime?: boolean
+    siteProblems?: boolean
+    siteSupervisor?: boolean
+    siteTeamMembers?: boolean
+    supervisorSignUrl?: boolean
+    workSummary?: boolean
     job?: boolean | Project$jobArgs<ExtArgs>
     manager?: boolean | Project$managerArgs<ExtArgs>
     dailyLogs?: boolean | Project$dailyLogsArgs<ExtArgs>
@@ -92365,6 +92453,20 @@ export namespace Prisma {
     deliveryDate?: boolean
     paymentDate?: boolean
     depositCollectionSchedule?: boolean
+    checklistImages?: boolean
+    customerSignUrl?: boolean
+    hvChecklist?: boolean
+    isHighVoltage?: boolean
+    photoChecklist?: boolean
+    preChecklist?: boolean
+    remainingWork?: boolean
+    siteCheckInTime?: boolean
+    siteCheckOutTime?: boolean
+    siteProblems?: boolean
+    siteSupervisor?: boolean
+    siteTeamMembers?: boolean
+    supervisorSignUrl?: boolean
+    workSummary?: boolean
     job?: boolean | Project$jobArgs<ExtArgs>
     manager?: boolean | Project$managerArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
@@ -92418,6 +92520,20 @@ export namespace Prisma {
     deliveryDate?: boolean
     paymentDate?: boolean
     depositCollectionSchedule?: boolean
+    checklistImages?: boolean
+    customerSignUrl?: boolean
+    hvChecklist?: boolean
+    isHighVoltage?: boolean
+    photoChecklist?: boolean
+    preChecklist?: boolean
+    remainingWork?: boolean
+    siteCheckInTime?: boolean
+    siteCheckOutTime?: boolean
+    siteProblems?: boolean
+    siteSupervisor?: boolean
+    siteTeamMembers?: boolean
+    supervisorSignUrl?: boolean
+    workSummary?: boolean
     job?: boolean | Project$jobArgs<ExtArgs>
     manager?: boolean | Project$managerArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
@@ -92471,9 +92587,23 @@ export namespace Prisma {
     deliveryDate?: boolean
     paymentDate?: boolean
     depositCollectionSchedule?: boolean
+    checklistImages?: boolean
+    customerSignUrl?: boolean
+    hvChecklist?: boolean
+    isHighVoltage?: boolean
+    photoChecklist?: boolean
+    preChecklist?: boolean
+    remainingWork?: boolean
+    siteCheckInTime?: boolean
+    siteCheckOutTime?: boolean
+    siteProblems?: boolean
+    siteSupervisor?: boolean
+    siteTeamMembers?: boolean
+    supervisorSignUrl?: boolean
+    workSummary?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectNumber" | "jobId" | "name" | "description" | "clientName" | "siteAddress" | "managerId" | "startDate" | "endDate" | "budget" | "status" | "createdAt" | "updatedAt" | "externalTechnicians" | "projectCategory" | "department" | "province" | "district" | "projectValue" | "securityDeposit" | "penaltyPerDay" | "amountIncludingVat" | "installment1" | "installment2" | "installment3" | "installment4" | "firstPayment" | "secondPayment" | "contractNumber" | "documentNumber" | "deliveryDocNumber" | "jbNumber" | "certCompletionRequestNo" | "certRequestStatus" | "depositRefundRequestNo" | "contractSignatory" | "contractReturnStatus" | "remarks" | "pathFolder" | "statusPictureUrl" | "updateCompanyProfile" | "projectDuration" | "projectDurationUnit" | "contractSigningDate" | "deliveryDate" | "paymentDate" | "depositCollectionSchedule", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectNumber" | "jobId" | "name" | "description" | "clientName" | "siteAddress" | "managerId" | "startDate" | "endDate" | "budget" | "status" | "createdAt" | "updatedAt" | "externalTechnicians" | "projectCategory" | "department" | "province" | "district" | "projectValue" | "securityDeposit" | "penaltyPerDay" | "amountIncludingVat" | "installment1" | "installment2" | "installment3" | "installment4" | "firstPayment" | "secondPayment" | "contractNumber" | "documentNumber" | "deliveryDocNumber" | "jbNumber" | "certCompletionRequestNo" | "certRequestStatus" | "depositRefundRequestNo" | "contractSignatory" | "contractReturnStatus" | "remarks" | "pathFolder" | "statusPictureUrl" | "updateCompanyProfile" | "projectDuration" | "projectDurationUnit" | "contractSigningDate" | "deliveryDate" | "paymentDate" | "depositCollectionSchedule" | "checklistImages" | "customerSignUrl" | "hvChecklist" | "isHighVoltage" | "photoChecklist" | "preChecklist" | "remainingWork" | "siteCheckInTime" | "siteCheckOutTime" | "siteProblems" | "siteSupervisor" | "siteTeamMembers" | "supervisorSignUrl" | "workSummary", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     job?: boolean | Project$jobArgs<ExtArgs>
     manager?: boolean | Project$managerArgs<ExtArgs>
@@ -92551,6 +92681,20 @@ export namespace Prisma {
       deliveryDate: Date | null
       paymentDate: Date | null
       depositCollectionSchedule: Date | null
+      checklistImages: Prisma.JsonValue | null
+      customerSignUrl: string | null
+      hvChecklist: Prisma.JsonValue | null
+      isHighVoltage: boolean
+      photoChecklist: Prisma.JsonValue | null
+      preChecklist: Prisma.JsonValue | null
+      remainingWork: string | null
+      siteCheckInTime: Date | null
+      siteCheckOutTime: Date | null
+      siteProblems: Prisma.JsonValue | null
+      siteSupervisor: string | null
+      siteTeamMembers: string | null
+      supervisorSignUrl: string | null
+      workSummary: Prisma.JsonValue | null
     }, ExtArgs["result"]["project"]>
     composites: {}
   }
@@ -93028,6 +93172,20 @@ export namespace Prisma {
     readonly deliveryDate: FieldRef<"Project", 'DateTime'>
     readonly paymentDate: FieldRef<"Project", 'DateTime'>
     readonly depositCollectionSchedule: FieldRef<"Project", 'DateTime'>
+    readonly checklistImages: FieldRef<"Project", 'Json'>
+    readonly customerSignUrl: FieldRef<"Project", 'String'>
+    readonly hvChecklist: FieldRef<"Project", 'Json'>
+    readonly isHighVoltage: FieldRef<"Project", 'Boolean'>
+    readonly photoChecklist: FieldRef<"Project", 'Json'>
+    readonly preChecklist: FieldRef<"Project", 'Json'>
+    readonly remainingWork: FieldRef<"Project", 'String'>
+    readonly siteCheckInTime: FieldRef<"Project", 'DateTime'>
+    readonly siteCheckOutTime: FieldRef<"Project", 'DateTime'>
+    readonly siteProblems: FieldRef<"Project", 'Json'>
+    readonly siteSupervisor: FieldRef<"Project", 'String'>
+    readonly siteTeamMembers: FieldRef<"Project", 'String'>
+    readonly supervisorSignUrl: FieldRef<"Project", 'String'>
+    readonly workSummary: FieldRef<"Project", 'Json'>
   }
     
 
@@ -150641,7 +150799,21 @@ export namespace Prisma {
     contractSigningDate: 'contractSigningDate',
     deliveryDate: 'deliveryDate',
     paymentDate: 'paymentDate',
-    depositCollectionSchedule: 'depositCollectionSchedule'
+    depositCollectionSchedule: 'depositCollectionSchedule',
+    checklistImages: 'checklistImages',
+    customerSignUrl: 'customerSignUrl',
+    hvChecklist: 'hvChecklist',
+    isHighVoltage: 'isHighVoltage',
+    photoChecklist: 'photoChecklist',
+    preChecklist: 'preChecklist',
+    remainingWork: 'remainingWork',
+    siteCheckInTime: 'siteCheckInTime',
+    siteCheckOutTime: 'siteCheckOutTime',
+    siteProblems: 'siteProblems',
+    siteSupervisor: 'siteSupervisor',
+    siteTeamMembers: 'siteTeamMembers',
+    supervisorSignUrl: 'supervisorSignUrl',
+    workSummary: 'workSummary'
   };
 
   export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
@@ -158564,6 +158736,20 @@ export namespace Prisma {
     deliveryDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     paymentDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     depositCollectionSchedule?: DateTimeNullableFilter<"Project"> | Date | string | null
+    checklistImages?: JsonNullableFilter<"Project">
+    customerSignUrl?: StringNullableFilter<"Project"> | string | null
+    hvChecklist?: JsonNullableFilter<"Project">
+    isHighVoltage?: BoolFilter<"Project"> | boolean
+    photoChecklist?: JsonNullableFilter<"Project">
+    preChecklist?: JsonNullableFilter<"Project">
+    remainingWork?: StringNullableFilter<"Project"> | string | null
+    siteCheckInTime?: DateTimeNullableFilter<"Project"> | Date | string | null
+    siteCheckOutTime?: DateTimeNullableFilter<"Project"> | Date | string | null
+    siteProblems?: JsonNullableFilter<"Project">
+    siteSupervisor?: StringNullableFilter<"Project"> | string | null
+    siteTeamMembers?: StringNullableFilter<"Project"> | string | null
+    supervisorSignUrl?: StringNullableFilter<"Project"> | string | null
+    workSummary?: JsonNullableFilter<"Project">
     job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
     manager?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     dailyLogs?: ProjectDailyLogListRelationFilter
@@ -158621,6 +158807,20 @@ export namespace Prisma {
     deliveryDate?: SortOrderInput | SortOrder
     paymentDate?: SortOrderInput | SortOrder
     depositCollectionSchedule?: SortOrderInput | SortOrder
+    checklistImages?: SortOrderInput | SortOrder
+    customerSignUrl?: SortOrderInput | SortOrder
+    hvChecklist?: SortOrderInput | SortOrder
+    isHighVoltage?: SortOrder
+    photoChecklist?: SortOrderInput | SortOrder
+    preChecklist?: SortOrderInput | SortOrder
+    remainingWork?: SortOrderInput | SortOrder
+    siteCheckInTime?: SortOrderInput | SortOrder
+    siteCheckOutTime?: SortOrderInput | SortOrder
+    siteProblems?: SortOrderInput | SortOrder
+    siteSupervisor?: SortOrderInput | SortOrder
+    siteTeamMembers?: SortOrderInput | SortOrder
+    supervisorSignUrl?: SortOrderInput | SortOrder
+    workSummary?: SortOrderInput | SortOrder
     job?: JobOrderByWithRelationInput
     manager?: UserOrderByWithRelationInput
     dailyLogs?: ProjectDailyLogOrderByRelationAggregateInput
@@ -158681,6 +158881,20 @@ export namespace Prisma {
     deliveryDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     paymentDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     depositCollectionSchedule?: DateTimeNullableFilter<"Project"> | Date | string | null
+    checklistImages?: JsonNullableFilter<"Project">
+    customerSignUrl?: StringNullableFilter<"Project"> | string | null
+    hvChecklist?: JsonNullableFilter<"Project">
+    isHighVoltage?: BoolFilter<"Project"> | boolean
+    photoChecklist?: JsonNullableFilter<"Project">
+    preChecklist?: JsonNullableFilter<"Project">
+    remainingWork?: StringNullableFilter<"Project"> | string | null
+    siteCheckInTime?: DateTimeNullableFilter<"Project"> | Date | string | null
+    siteCheckOutTime?: DateTimeNullableFilter<"Project"> | Date | string | null
+    siteProblems?: JsonNullableFilter<"Project">
+    siteSupervisor?: StringNullableFilter<"Project"> | string | null
+    siteTeamMembers?: StringNullableFilter<"Project"> | string | null
+    supervisorSignUrl?: StringNullableFilter<"Project"> | string | null
+    workSummary?: JsonNullableFilter<"Project">
     job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
     manager?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     dailyLogs?: ProjectDailyLogListRelationFilter
@@ -158738,6 +158952,20 @@ export namespace Prisma {
     deliveryDate?: SortOrderInput | SortOrder
     paymentDate?: SortOrderInput | SortOrder
     depositCollectionSchedule?: SortOrderInput | SortOrder
+    checklistImages?: SortOrderInput | SortOrder
+    customerSignUrl?: SortOrderInput | SortOrder
+    hvChecklist?: SortOrderInput | SortOrder
+    isHighVoltage?: SortOrder
+    photoChecklist?: SortOrderInput | SortOrder
+    preChecklist?: SortOrderInput | SortOrder
+    remainingWork?: SortOrderInput | SortOrder
+    siteCheckInTime?: SortOrderInput | SortOrder
+    siteCheckOutTime?: SortOrderInput | SortOrder
+    siteProblems?: SortOrderInput | SortOrder
+    siteSupervisor?: SortOrderInput | SortOrder
+    siteTeamMembers?: SortOrderInput | SortOrder
+    supervisorSignUrl?: SortOrderInput | SortOrder
+    workSummary?: SortOrderInput | SortOrder
     _count?: ProjectCountOrderByAggregateInput
     _avg?: ProjectAvgOrderByAggregateInput
     _max?: ProjectMaxOrderByAggregateInput
@@ -158797,6 +159025,20 @@ export namespace Prisma {
     deliveryDate?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
     paymentDate?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
     depositCollectionSchedule?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
+    checklistImages?: JsonNullableWithAggregatesFilter<"Project">
+    customerSignUrl?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    hvChecklist?: JsonNullableWithAggregatesFilter<"Project">
+    isHighVoltage?: BoolWithAggregatesFilter<"Project"> | boolean
+    photoChecklist?: JsonNullableWithAggregatesFilter<"Project">
+    preChecklist?: JsonNullableWithAggregatesFilter<"Project">
+    remainingWork?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    siteCheckInTime?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
+    siteCheckOutTime?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
+    siteProblems?: JsonNullableWithAggregatesFilter<"Project">
+    siteSupervisor?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    siteTeamMembers?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    supervisorSignUrl?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    workSummary?: JsonNullableWithAggregatesFilter<"Project">
   }
 
   export type ProjectEquipmentWhereInput = {
@@ -170783,6 +171025,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobCreateNestedOneWithoutProjectInput
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
@@ -170840,6 +171096,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
     equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -170893,6 +171163,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobUpdateOneWithoutProjectNestedInput
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
@@ -170950,6 +171234,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
     equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -171005,6 +171303,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ProjectUpdateManyMutationInput = {
@@ -171054,6 +171366,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ProjectUncheckedUpdateManyInput = {
@@ -171105,6 +171431,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ProjectEquipmentCreateInput = {
@@ -180507,6 +180847,20 @@ export namespace Prisma {
     deliveryDate?: SortOrder
     paymentDate?: SortOrder
     depositCollectionSchedule?: SortOrder
+    checklistImages?: SortOrder
+    customerSignUrl?: SortOrder
+    hvChecklist?: SortOrder
+    isHighVoltage?: SortOrder
+    photoChecklist?: SortOrder
+    preChecklist?: SortOrder
+    remainingWork?: SortOrder
+    siteCheckInTime?: SortOrder
+    siteCheckOutTime?: SortOrder
+    siteProblems?: SortOrder
+    siteSupervisor?: SortOrder
+    siteTeamMembers?: SortOrder
+    supervisorSignUrl?: SortOrder
+    workSummary?: SortOrder
   }
 
   export type ProjectAvgOrderByAggregateInput = {
@@ -180573,6 +180927,14 @@ export namespace Prisma {
     deliveryDate?: SortOrder
     paymentDate?: SortOrder
     depositCollectionSchedule?: SortOrder
+    customerSignUrl?: SortOrder
+    isHighVoltage?: SortOrder
+    remainingWork?: SortOrder
+    siteCheckInTime?: SortOrder
+    siteCheckOutTime?: SortOrder
+    siteSupervisor?: SortOrder
+    siteTeamMembers?: SortOrder
+    supervisorSignUrl?: SortOrder
   }
 
   export type ProjectMinOrderByAggregateInput = {
@@ -180624,6 +180986,14 @@ export namespace Prisma {
     deliveryDate?: SortOrder
     paymentDate?: SortOrder
     depositCollectionSchedule?: SortOrder
+    customerSignUrl?: SortOrder
+    isHighVoltage?: SortOrder
+    remainingWork?: SortOrder
+    siteCheckInTime?: SortOrder
+    siteCheckOutTime?: SortOrder
+    siteSupervisor?: SortOrder
+    siteTeamMembers?: SortOrder
+    supervisorSignUrl?: SortOrder
   }
 
   export type ProjectSumOrderByAggregateInput = {
@@ -191294,6 +191664,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobCreateNestedOneWithoutProjectInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
     equipment?: ProjectEquipmentCreateNestedManyWithoutProjectInput
@@ -191349,6 +191733,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
     equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -192495,6 +192893,20 @@ export namespace Prisma {
     deliveryDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     paymentDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     depositCollectionSchedule?: DateTimeNullableFilter<"Project"> | Date | string | null
+    checklistImages?: JsonNullableFilter<"Project">
+    customerSignUrl?: StringNullableFilter<"Project"> | string | null
+    hvChecklist?: JsonNullableFilter<"Project">
+    isHighVoltage?: BoolFilter<"Project"> | boolean
+    photoChecklist?: JsonNullableFilter<"Project">
+    preChecklist?: JsonNullableFilter<"Project">
+    remainingWork?: StringNullableFilter<"Project"> | string | null
+    siteCheckInTime?: DateTimeNullableFilter<"Project"> | Date | string | null
+    siteCheckOutTime?: DateTimeNullableFilter<"Project"> | Date | string | null
+    siteProblems?: JsonNullableFilter<"Project">
+    siteSupervisor?: StringNullableFilter<"Project"> | string | null
+    siteTeamMembers?: StringNullableFilter<"Project"> | string | null
+    supervisorSignUrl?: StringNullableFilter<"Project"> | string | null
+    workSummary?: JsonNullableFilter<"Project">
   }
 
   export type ProjectDailyLogUpsertWithWhereUniqueWithoutReporterInput = {
@@ -197638,6 +198050,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
     equipment?: ProjectEquipmentCreateNestedManyWithoutProjectInput
@@ -197693,6 +198119,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
     equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -198135,6 +198575,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
     equipment?: ProjectEquipmentUpdateManyWithoutProjectNestedInput
@@ -198190,6 +198644,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
     equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -214892,6 +215360,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobCreateNestedOneWithoutProjectInput
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
@@ -214948,6 +215430,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -215016,6 +215512,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobUpdateOneWithoutProjectNestedInput
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
@@ -215072,6 +215582,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -215124,6 +215648,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobCreateNestedOneWithoutProjectInput
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
@@ -215180,6 +215718,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
     equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -215333,6 +215885,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobUpdateOneWithoutProjectNestedInput
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
@@ -215389,6 +215955,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
     equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -215720,6 +216300,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobCreateNestedOneWithoutProjectInput
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
     dailyLogs?: ProjectDailyLogCreateNestedManyWithoutProjectInput
@@ -215776,6 +216370,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutProjectInput
     equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -216006,6 +216614,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobUpdateOneWithoutProjectNestedInput
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
@@ -216062,6 +216684,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
     equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -216274,6 +216910,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobCreateNestedOneWithoutProjectInput
     manager?: UserCreateNestedOneWithoutManagedProjectsInput
     equipment?: ProjectEquipmentCreateNestedManyWithoutProjectInput
@@ -216330,6 +216980,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     equipment?: ProjectEquipmentUncheckedCreateNestedManyWithoutProjectInput
     members?: ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
     tasks?: ProjectTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -216512,6 +217176,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobUpdateOneWithoutProjectNestedInput
     manager?: UserUpdateOneWithoutManagedProjectsNestedInput
     equipment?: ProjectEquipmentUpdateManyWithoutProjectNestedInput
@@ -216568,6 +217246,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: ProjectTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -227937,6 +228629,20 @@ export namespace Prisma {
     deliveryDate?: Date | string | null
     paymentDate?: Date | string | null
     depositCollectionSchedule?: Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: string | null
+    siteCheckInTime?: Date | string | null
+    siteCheckOutTime?: Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: string | null
+    siteTeamMembers?: string | null
+    supervisorSignUrl?: string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ProjectDailyLogCreateManyReporterInput = {
@@ -228870,6 +229576,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     job?: JobUpdateOneWithoutProjectNestedInput
     dailyLogs?: ProjectDailyLogUpdateManyWithoutProjectNestedInput
     equipment?: ProjectEquipmentUpdateManyWithoutProjectNestedInput
@@ -228925,6 +229645,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
     dailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutProjectNestedInput
     equipment?: ProjectEquipmentUncheckedUpdateManyWithoutProjectNestedInput
     members?: ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -228979,6 +229713,20 @@ export namespace Prisma {
     deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     depositCollectionSchedule?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checklistImages?: NullableJsonNullValueInput | InputJsonValue
+    customerSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hvChecklist?: NullableJsonNullValueInput | InputJsonValue
+    isHighVoltage?: BoolFieldUpdateOperationsInput | boolean
+    photoChecklist?: NullableJsonNullValueInput | InputJsonValue
+    preChecklist?: NullableJsonNullValueInput | InputJsonValue
+    remainingWork?: NullableStringFieldUpdateOperationsInput | string | null
+    siteCheckInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteCheckOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    siteProblems?: NullableJsonNullValueInput | InputJsonValue
+    siteSupervisor?: NullableStringFieldUpdateOperationsInput | string | null
+    siteTeamMembers?: NullableStringFieldUpdateOperationsInput | string | null
+    supervisorSignUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    workSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ProjectDailyLogUpdateWithoutReporterInput = {

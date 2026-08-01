@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, FolderOpen, Clock, CheckCircle2, AlertCircle, LayoutDashboard, Search, FileText, Download, Settings2, Check, Pencil, Trash2, X, AlertTriangle, Loader2, Briefcase } from 'lucide-react';
 import { deleteProject, generateJobForProject } from '@/app/actions/projects';
+import { calculateProjectProgress } from '@/app/lib/project-utils';
 
 interface ProjectsClientPageProps {
   currentUser: any;
@@ -297,12 +298,7 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
                 filteredProjects.map((project, index) => {
                   
                   // Calculate overall progress based on tasks
-                  let overallProgress = 0;
-                  if (project.tasks && project.tasks.length > 0) {
-                    const totalWeight = project.tasks.reduce((sum: number, t: any) => sum + (t.weight || 1), 0);
-                    const weightedProgress = project.tasks.reduce((sum: number, t: any) => sum + ((t.actualPct || 0) * (t.weight || 1)), 0);
-                    overallProgress = totalWeight > 0 ? Math.round(weightedProgress / totalWeight) : 0;
-                  }
+                  const overallProgress = calculateProjectProgress(project);
                   
                   const isProjectOverdue = project.endDate && new Date(project.endDate) < new Date() && project.status !== 'Completed' && project.status !== 'Cancelled';
                   
@@ -444,12 +440,7 @@ export default function ProjectsClientPage({ currentUser, projects, isManager }:
           {filteredProjects.length > 0 ? (
             filteredProjects.map((project, index) => {
               // Calculate overall progress based on tasks
-              let overallProgress = 0;
-              if (project.tasks && project.tasks.length > 0) {
-                const totalWeight = project.tasks.reduce((sum: number, t: any) => sum + (t.weight || 1), 0);
-                const weightedProgress = project.tasks.reduce((sum: number, t: any) => sum + ((t.actualPct || 0) * (t.weight || 1)), 0);
-                overallProgress = totalWeight > 0 ? Math.round(weightedProgress / totalWeight) : 0;
-              }
+              const overallProgress = calculateProjectProgress(project);
               const isProjectOverdue = project.endDate && new Date(project.endDate) < new Date() && project.status !== 'Completed' && project.status !== 'Cancelled';
               
               return (

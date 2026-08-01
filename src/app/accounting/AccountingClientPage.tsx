@@ -176,7 +176,7 @@ function JobDetailModal({
                 </p>
               </div>
               <div>
-                <p className="text-xs text-blue-500/70 mb-1">มูลค่ารวมก่อน VAT</p>
+                <p className="text-xs text-blue-500/70 mb-1">มูลค่ารวมสุทธิ</p>
                 <p className="text-sm font-black text-blue-700">
                   {project?.projectValue
                     ? `฿${Number(project.projectValue).toLocaleString()}`

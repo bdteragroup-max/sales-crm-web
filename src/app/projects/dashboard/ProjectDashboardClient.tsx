@@ -6,6 +6,7 @@ import { DollarSign, Wallet, ListTodo, ClipboardList, ChevronRight, LayoutDashbo
 import DashboardCharts from './DashboardCharts';
 import * as XLSX from 'xlsx';
 import { useReactToPrint } from 'react-to-print';
+import { calculateProjectProgress } from '@/app/lib/project-utils';
 
 interface ProjectDashboardClientProps {
   projects: any[];
@@ -59,7 +60,7 @@ export default function ProjectDashboardClient({ projects }: ProjectDashboardCli
       'ค่าปรับต่อวัน (Penalty)': Number(p.penaltyPerDay) || 0,
       'งานทั้งหมด (All Tasks)': p.tasks?.length || 0,
       'งานที่ค้าง (Pending Tasks)': p.tasks?.filter((t: any) => t.status !== 'Completed').length || 0,
-      'ความคืบหน้า (Progress %)': (p.tasks?.length > 0) ? Math.round((p.tasks.filter((t: any) => t.status === 'Completed').length / p.tasks.length) * 100) : 0,
+      'ความคืบหน้า (Progress %)': calculateProjectProgress(p),
       'อุปกรณ์ทั้งหมด (Total Equipment)': p.equipment?.length || 0,
       'อุปกรณ์ใช้งาน (In Use)': p.equipment?.filter((e: any) => e.status === 'ใช้งาน').length || 0,
       'อุปกรณ์ซ่อม (Repairing)': p.equipment?.filter((e: any) => e.status === 'ซ่อม').length || 0,

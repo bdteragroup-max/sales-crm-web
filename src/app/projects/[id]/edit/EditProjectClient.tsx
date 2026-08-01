@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Plus, Trash2, Calendar, FileText, DollarSign, FolderOpen, MapPin, Search, Check } from 'lucide-react';
 import Link from 'next/link';
 import { updateProject, addProjectMember, createTask } from '@/app/actions/projects';
+import SolarChecklist from '../../components/SolarChecklist';
 
-export default function EditProjectClient({ users, jobs, currentUserId, project }: { users: any[], jobs: any[], currentUserId: string, project: any }) {
+export default function EditProjectClient({ users, jobs, currentUserId, project, currentUserRole }: { users: any[], jobs: any[], currentUserId: string, project: any, currentUserRole?: string }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -63,6 +64,22 @@ export default function EditProjectClient({ users, jobs, currentUserId, project 
     updateCompanyProfile: project.updateCompanyProfile || false,
 
     externalTechnicians: project.externalTechnicians || '',
+
+    // Solar Checklist
+    siteCheckInTime: project.siteCheckInTime ? new Date(project.siteCheckInTime).toISOString().split('T')[0] + 'T' + new Date(project.siteCheckInTime).toISOString().split('T')[1].slice(0, 5) : '',
+    siteTeamMembers: project.siteTeamMembers || '',
+    siteSupervisor: project.siteSupervisor || '',
+    preChecklist: project.preChecklist || {},
+    photoChecklist: project.photoChecklist || {},
+    checklistImages: project.checklistImages || {},
+    isHighVoltage: project.isHighVoltage || false,
+    hvChecklist: project.hvChecklist || {},
+    siteCheckOutTime: project.siteCheckOutTime ? new Date(project.siteCheckOutTime).toISOString().split('T')[0] + 'T' + new Date(project.siteCheckOutTime).toISOString().split('T')[1].slice(0, 5) : '',
+    workSummary: project.workSummary || [],
+    siteProblems: project.siteProblems || [],
+    remainingWork: project.remainingWork || '',
+    supervisorSignUrl: project.supervisorSignUrl || null,
+    customerSignUrl: project.customerSignUrl || null,
   });
 
   // Section 2: Team
@@ -168,6 +185,22 @@ export default function EditProjectClient({ users, jobs, currentUserId, project 
         statusPictureUrl: formData.statusPictureUrl || undefined,
         updateCompanyProfile: formData.updateCompanyProfile,
         externalTechnicians: formData.externalTechnicians || undefined,
+
+        // Solar Checklist
+        siteCheckInTime: formData.siteCheckInTime ? new Date(formData.siteCheckInTime) : undefined,
+        siteTeamMembers: formData.siteTeamMembers || undefined,
+        siteSupervisor: formData.siteSupervisor || undefined,
+        preChecklist: formData.preChecklist || undefined,
+        photoChecklist: formData.photoChecklist || undefined,
+        checklistImages: formData.checklistImages || undefined,
+        isHighVoltage: formData.isHighVoltage || false,
+        hvChecklist: formData.hvChecklist || undefined,
+        siteCheckOutTime: formData.siteCheckOutTime ? new Date(formData.siteCheckOutTime) : undefined,
+        workSummary: formData.workSummary || undefined,
+        siteProblems: formData.siteProblems || undefined,
+        remainingWork: formData.remainingWork || undefined,
+        supervisorSignUrl: formData.supervisorSignUrl || undefined,
+        customerSignUrl: formData.customerSignUrl || undefined,
       };
 
       await updateProject(project.id, projectData);
@@ -351,6 +384,13 @@ export default function EditProjectClient({ users, jobs, currentUserId, project 
               <label className="text-sm font-bold text-gray-700">มูลค่าโครงการ รวม VAT (Project Value)</label>
               <input type="number" step="0.01" name="projectValue" value={formData.projectValue} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red outline-none" />
             </div>
+
+            {(currentUserRole?.toLowerCase().includes('account') || currentUserRole?.includes('บัญชี') || currentUserRole?.toLowerCase().includes('admin') || currentUserRole?.includes('แอดมิน') || currentUserRole?.toLowerCase().includes('manage') || currentUserRole?.includes('ผู้จัดการ')) && (
+              <div className="space-y-1.5">
+                <label className="text-sm font-bold text-gray-700">มูลค่าโครงการ ไม่รวม VAT (Excl. VAT)</label>
+                <input type="text" readOnly value={formData.projectValue ? (Number(formData.projectValue) * 100 / 107).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''} className="w-full px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 font-medium outline-none" />
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-gray-700">งบประมาณภายใน (Internal Budget)</label>
@@ -603,6 +643,11 @@ export default function EditProjectClient({ users, jobs, currentUserId, project 
             </div>
           )}
         </div>
+
+        {/* Solar Checklist (Conditional) */}
+        {(formData.projectCategory === 'Solar Roof' || formData.projectCategory === 'Solar Pump') && (
+          <SolarChecklist formData={formData} setFormData={setFormData} />
+        )}
 
         <div className="flex justify-end gap-4 pb-8">
           <Link href="/projects" className="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors">

@@ -9,10 +9,12 @@ import GanttChart from './GanttChart';
 import DailyLogTab from './DailyLogTab';
 import WeeklyReportTab from './WeeklyReportTab';
 import EquipmentTab from './EquipmentTab';
+import SolarChecklistTab from '../components/SolarChecklistTab';
+import { calculateProjectProgress } from '@/app/lib/project-utils';
 
 export default function ProjectDetailClient({ project, currentUser, isManager, allUsers, pos = [], prs = [] }: { project: any, currentUser: any, isManager: boolean, allUsers: any[], pos?: any[], prs?: any[] }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'tasks' | 'reports'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'tasks' | 'reports' | 'checklist'>('dashboard');
   const [tasks, setTasks] = useState(project.tasks || []);
   const [showMore, setShowMore] = useState(false);
   const [taskView, setTaskView] = useState<'list' | 'gantt'>('list');
@@ -33,13 +35,8 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
     }
   };
 
-  // Calculate overall progress based on tasks
-  let overallProgress = 0;
-  if (tasks && tasks.length > 0) {
-    const totalWeight = tasks.reduce((sum: number, t: any) => sum + (t.weight || 1), 0);
-    const weightedProgress = tasks.reduce((sum: number, t: any) => sum + ((t.actualPct || 0) * (t.weight || 1)), 0);
-    overallProgress = totalWeight > 0 ? Math.round(weightedProgress / totalWeight) : 0;
-  }
+  // Calculate overall progress based on tasks and checklists
+  const overallProgress = calculateProjectProgress({ ...project, tasks });
 
   const columns = [
     { id: 'Pending', label: 'Pending (รอทำ)' },
@@ -320,6 +317,14 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
                 {project.projectValue ? `฿${Number(project.projectValue).toLocaleString()}` : '-'}
               </dd>
             </div>
+            {(currentUser?.role?.toLowerCase().includes('account') || currentUser?.role?.includes('บัญชี') || currentUser?.role?.toLowerCase().includes('admin') || currentUser?.role?.includes('แอดมิน') || currentUser?.role?.toLowerCase().includes('manage') || currentUser?.role?.includes('ผู้จัดการ')) && (
+              <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2 bg-gray-50/50 p-2 rounded-lg -mx-2">
+                <dt className="text-gray-500 font-medium flex items-center">มูลค่าโครงการ (ไม่รวม VAT):</dt>
+                <dd className="col-span-2 font-bold text-gray-700">
+                  {project.projectValue ? `฿${(Number(project.projectValue) * 100 / 107).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
+                </dd>
+              </div>
+            )}
             <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-2 border-b border-gray-50 pb-2">
               <dt className="text-gray-500 font-medium">งบประมาณภายใน:</dt>
               <dd className="col-span-2 font-bold text-emerald-600">
@@ -595,6 +600,14 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
           >
             <ClipboardList size={16} /> รายงาน
           </button>
+          {(project.projectCategory === 'Solar Roof' || project.projectCategory === 'Solar Pump') && (
+            <button 
+              onClick={() => setActiveTab('checklist')} 
+              className={`flex items-center gap-2 px-4 py-3 md:px-6 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${activeTab === 'checklist' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
+            >
+              <FileText size={16} /> แบบฟอร์มโซลาร์
+            </button>
+          )}
         </div>
         
         {activeTab === 'tasks' && (
@@ -624,6 +637,7 @@ export default function ProjectDetailClient({ project, currentUser, isManager, a
           </div>
         )}
         {activeTab === 'reports' && renderReports()}
+        {activeTab === 'checklist' && <SolarChecklistTab project={project} />}
       </div>
     </div>
   );

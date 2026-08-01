@@ -1497,6 +1497,20 @@ model Project {
   deliveryDate              DateTime?          @db.Timestamptz(6)
   paymentDate               DateTime?          @db.Timestamptz(6)
   depositCollectionSchedule DateTime?          @db.Timestamptz(6)
+  checklistImages           Json?
+  customerSignUrl           String?
+  hvChecklist               Json?
+  isHighVoltage             Boolean            @default(false)
+  photoChecklist            Json?
+  preChecklist              Json?
+  remainingWork             String?
+  siteCheckInTime           DateTime?          @db.Timestamptz(6)
+  siteCheckOutTime          DateTime?          @db.Timestamptz(6)
+  siteProblems              Json?
+  siteSupervisor            String?
+  siteTeamMembers           String?
+  supervisorSignUrl         String?
+  workSummary               Json?
   job                       Job?               @relation(fields: [jobId], references: [id])
   manager                   User?              @relation("ProjectManager", fields: [managerId], references: [id])
   dailyLogs                 ProjectDailyLog[]

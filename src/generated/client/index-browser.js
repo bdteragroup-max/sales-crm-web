@@ -1293,7 +1293,21 @@ exports.Prisma.ProjectScalarFieldEnum = {
   contractSigningDate: 'contractSigningDate',
   deliveryDate: 'deliveryDate',
   paymentDate: 'paymentDate',
-  depositCollectionSchedule: 'depositCollectionSchedule'
+  depositCollectionSchedule: 'depositCollectionSchedule',
+  checklistImages: 'checklistImages',
+  customerSignUrl: 'customerSignUrl',
+  hvChecklist: 'hvChecklist',
+  isHighVoltage: 'isHighVoltage',
+  photoChecklist: 'photoChecklist',
+  preChecklist: 'preChecklist',
+  remainingWork: 'remainingWork',
+  siteCheckInTime: 'siteCheckInTime',
+  siteCheckOutTime: 'siteCheckOutTime',
+  siteProblems: 'siteProblems',
+  siteSupervisor: 'siteSupervisor',
+  siteTeamMembers: 'siteTeamMembers',
+  supervisorSignUrl: 'supervisorSignUrl',
+  workSummary: 'workSummary'
 };
 
 exports.Prisma.ProjectEquipmentScalarFieldEnum = {

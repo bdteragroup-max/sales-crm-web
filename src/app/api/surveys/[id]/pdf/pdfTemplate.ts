@@ -164,9 +164,9 @@ export function generateSurveyPdfHtml(survey: any): string {
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width,initial-scale=1" />
-      <title>Survey PDF - \${surveyNumber}</title>
+      <title>Survey PDF - ${surveyNumber}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
         * { box-sizing: border-box; }
         html, body {
           margin: 0; padding: 0; color: #111; font-size: 16px; line-height: 1.55;

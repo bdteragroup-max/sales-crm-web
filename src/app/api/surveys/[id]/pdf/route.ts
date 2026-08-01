@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 import { generateSurveyPdfHtml } from './pdfTemplate';
 
 export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> | { id: string } }) {
@@ -35,16 +36,36 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     // Generate HTML
     const htmlContent = generateSurveyPdfHtml(survey);
 
+    const isLocal = process.env.NODE_ENV === 'development';
+
     // Launch puppeteer
     const browser = await puppeteer.launch({
+      args: isLocal ? [] : chromium.args,
+      executablePath: isLocal 
+        ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' 
+        : await chromium.executablePath(),
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
     const page = await browser.newPage();
     
     // Set content and wait for network to be idle (so fonts and images load)
     await page.setContent(htmlContent, { waitUntil: 'load' });
+
+    // Explicitly wait for fonts to load
+    await page.evaluateHandle('document.fonts.ready');
+    
+    // Explicitly wait for all images to finish loading
+    await page.evaluate(async () => {
+      const images = Array.from(document.querySelectorAll('img'));
+      await Promise.all(images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      }));
+    });
 
     // Generate PDF
     const pdfBuffer = await page.pdf({
