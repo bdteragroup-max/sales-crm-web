@@ -4,6 +4,7 @@ import prisma from '@/app/lib/db'
 import { teraDb } from '@/app/lib/teraDb'
 import { decrypt } from '@/app/lib/session'
 import { cookies } from 'next/headers'
+import { isSuperUser } from '@/app/lib/roleHelper'
 
 export async function getStaffSchedules(preFetchedUser?: any) {
   const session = (await cookies()).get('session')?.value
@@ -24,7 +25,10 @@ export async function getStaffSchedules(preFetchedUser?: any) {
 
     let whereClause: any = { userId: user.id }
     const roleLower = (user.role || '').toLowerCase();
-    if (['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
+    const isSuperAdmin = isSuperUser(user.role);
+    if (isSuperAdmin) {
+      whereClause = {};
+    } else if (['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
       const subordinates = await teraDb.employees.findMany({
         where: { supervisor_id: user.employeeId, is_active: true },
         select: { emp_id: true }
@@ -93,11 +97,12 @@ export async function createSchedule(data: { userId: string, title: string, desc
     // If user is not manager, they can only create for themselves.
     // If user is manager, they can create for themselves or their subordinates.
     const roleLower = (user.role || '').toLowerCase();
-    if (!['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
+    const isSuperAdmin = isSuperUser(user.role);
+    if (!isSuperAdmin && !['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
       if (targetUserId !== user.id) {
         return { success: false, error: 'Access Denied. You can only create your own schedule.' }
       }
-    } else {
+    } else if (!isSuperAdmin) {
       // Manager check: is targetUserId a subordinate or self?
       if (targetUserId !== user.id) {
         // Fetch subordinates from TERA_db to verify

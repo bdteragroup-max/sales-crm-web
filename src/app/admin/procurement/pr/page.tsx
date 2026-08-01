@@ -2,6 +2,7 @@ import { getUser } from '@/app/lib/dal';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/db';
 import PRListClient from './PRListClient';
+import { isSuperUser } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +12,8 @@ export default async function PRListPage() {
 
   // Only Admin, Manager, or Purchasing can view this
   const userRoleStr = (user.role || '').toLowerCase();
-  const isPurchasingOrAdmin = ['purchasing', 'จัดซื้อ', 'admin', 'ผู้จัดการ', 'manager', 'director'].some((r) => userRoleStr.includes(r));
+  const isSuperAdmin = isSuperUser(user.role);
+  const isPurchasingOrAdmin = isSuperAdmin || ['purchasing', 'จัดซื้อ', 'admin', 'ผู้จัดการ', 'manager', 'director'].some((r) => userRoleStr.includes(r));
   
   if (!isPurchasingOrAdmin) {
     redirect('/dashboard');

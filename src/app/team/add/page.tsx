@@ -3,6 +3,7 @@ import { getUser } from '@/app/lib/dal';
 import Sidebar from '@/app/components/Sidebar';
 import { redirect } from 'next/navigation';
 import SignupForm from './SignupForm'; // We'll move the form logic here
+import { isSuperUser } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,9 +19,11 @@ export default async function AddTeamMemberPage() {
                         roleLower.includes('admin') ||
                         user?.role === 'Admin';
                         
-  if (!user || !isTeamManager) {
+  if (!user || (!isTeamManager && !isSuperUser(user.role))) {
     redirect('/dashboard');
   }
+
+  const isSuperAdmin = isSuperUser(user.role);
 
   return (
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
@@ -34,7 +37,7 @@ export default async function AddTeamMemberPage() {
           </div>
           
           <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-            <SignupForm managerName={user.fullName} />
+            <SignupForm managerName={user.fullName} isSuperAdmin={isSuperAdmin} />
           </div>
         </div>
       </main>

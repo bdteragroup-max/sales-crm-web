@@ -6,6 +6,8 @@ import { redirect } from 'next/navigation'
 import bcrypt from 'bcryptjs'
 import prisma from '@/app/lib/db'
 import { getUser } from '@/app/lib/dal'
+import { isSuperUser } from '@/app/lib/roleHelper'
+import { logSuperAdminAction } from './audit'
 
 export async function signup(state: FormState, formData: FormData) {
   const sessionUser = await getUser()
@@ -19,8 +21,8 @@ export async function signup(state: FormState, formData: FormData) {
     if (registrationCode !== MASTER_CODE) {
       return { message: 'ระบบปิดการลงทะเบียนสาธารณะ กรุณาใช้รหัสลงทะเบียนสำหรับผู้จัดการ หรือติดต่อผู้ดูแลระบบ' }
     }
-  } else if (sessionUser.role !== 'ผู้จัดการ' && (sessionUser.role || '').toLowerCase() !== 'sales manager') {
-    return { message: 'เฉพาะผู้จัดการเท่านั้นที่สามารถสร้างบัญชีผู้ใช้ได้' }
+  } else if (sessionUser.role !== 'ผู้จัดการ' && (sessionUser.role || '').toLowerCase() !== 'sales manager' && !isSuperUser(sessionUser.role)) {
+    return { message: 'เฉพาะผู้จัดการหรือผู้บริหารเท่านั้นที่สามารถสร้างบัญชีผู้ใช้ได้' }
   }
 
   // Validate form fields
@@ -52,6 +54,13 @@ export async function signup(state: FormState, formData: FormData) {
     employeeId, fullName, phoneNumber, role, password,
     nickname, branch, teamLeader, position: empPosition, department, startDate
   } = validatedFields.data
+
+  if (role === 'SUPER_ADMIN' && (!sessionUser || !isSuperUser(sessionUser.role))) {
+    return {
+      message: 'คุณไม่มีสิทธิ์กำหนดบทบาท SUPER_ADMIN ให้ผู้ใช้อื่น',
+      data: Object.fromEntries(formData.entries()),
+    }
+  }
 
   // Check if user already exists
   const existingUser = await prisma.user.findUnique({
@@ -95,6 +104,10 @@ export async function signup(state: FormState, formData: FormData) {
       }
     })
 
+    if (sessionUser && isSuperUser(sessionUser.role)) {
+      await logSuperAdminAction(sessionUser.id, 'CREATE_USER', 'User', user.id, `Created user: ${fullName}`)
+    }
+
     // Logic for new Leader registration (using code when not logged in)
     if (!sessionUser) {
       await createSession(user.id)
@@ -122,8 +135,8 @@ export async function signup(state: FormState, formData: FormData) {
 
 export async function updateUser(state: FormState, formData: FormData) {
   const sessionUser = await getUser()
-  if (!sessionUser || (sessionUser.role !== 'ผู้จัดการ' && (sessionUser.role || '').toLowerCase() !== 'sales manager')) {
-    return { message: 'เฉพาะผู้จัดการเท่านั้นที่สามารถแก้ไขข้อมูลพนักงานได้' }
+  if (!sessionUser || (sessionUser.role !== 'ผู้จัดการ' && (sessionUser.role || '').toLowerCase() !== 'sales manager' && !isSuperUser(sessionUser.role))) {
+    return { message: 'เฉพาะผู้จัดการหรือผู้บริหารเท่านั้นที่สามารถแก้ไขข้อมูลพนักงานได้' }
   }
 
   // Validate form fields
@@ -151,6 +164,10 @@ export async function updateUser(state: FormState, formData: FormData) {
   }
 
   const { id, employeeId, fullName, phoneNumber, role, password, nickname, branch, teamLeader, position, department, startDate } = validatedFields.data
+
+  if (role === 'SUPER_ADMIN' && (!sessionUser || !isSuperUser(sessionUser.role))) {
+    return { message: 'คุณไม่มีสิทธิ์กำหนดบทบาท SUPER_ADMIN ให้ผู้ใช้อื่น' }
+  }
 
   try {
     // 1. Check if user exists
@@ -210,6 +227,10 @@ export async function updateUser(state: FormState, formData: FormData) {
       }
     })
 
+    if (sessionUser && isSuperUser(sessionUser.role)) {
+      await logSuperAdminAction(sessionUser.id, 'UPDATE_USER', 'User', id, `Updated user: ${fullName}`)
+    }
+
     // Success - redirect to team list
     redirect('/team')
   } catch (error: any) {
@@ -224,8 +245,8 @@ export async function updateUser(state: FormState, formData: FormData) {
 
 export async function deactivateUser(id: string) {
   const sessionUser = await getUser()
-  if (!sessionUser || (sessionUser.role !== 'ผู้จัดการ' && (sessionUser.role || '').toLowerCase() !== 'sales manager')) {
-    return { success: false, message: 'เฉพาะผู้จัดการเท่านั้นที่สามารถจัดการทีมได้' }
+  if (!sessionUser || (sessionUser.role !== 'ผู้จัดการ' && (sessionUser.role || '').toLowerCase() !== 'sales manager' && !isSuperUser(sessionUser.role))) {
+    return { success: false, message: 'เฉพาะผู้จัดการหรือผู้บริหารเท่านั้นที่สามารถจัดการทีมได้' }
   }
 
   try {
@@ -234,6 +255,10 @@ export async function deactivateUser(id: string) {
       data: { isActive: false }
     })
     
+    if (sessionUser && isSuperUser(sessionUser.role)) {
+      await logSuperAdminAction(sessionUser.id, 'DEACTIVATE_USER', 'User', id, 'Deactivated user')
+    }
+
     redirect('/team')
   } catch (error: any) {
     if (error.digest?.includes('NEXT_REDIRECT')) throw error;

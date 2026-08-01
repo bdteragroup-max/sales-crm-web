@@ -4,6 +4,7 @@ import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import TelesalesClientPage from './TelesalesClientPage';
 import { Suspense } from 'react';
+import { isSuperUser } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,11 +42,12 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   let members: any[] = [];
   let salesReps: { id: string; fullName: string; role: string }[] = [];
   const roleLower = (user?.role || '').toLowerCase();
+  const isSuperAdmin = isSuperUser(user?.role);
   const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
   
   const isMarketingManager = ['marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower);
   
-  if (isManager) {
+  if (isSuperAdmin || isManager) {
     let subEmpIds: string[] = [];
     if (user && user.employeeId) {
       try {
@@ -59,8 +61,8 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
       }
     }
 
-    if (isMarketingManager) {
-      // Marketing manager sees everyone
+    if (isSuperAdmin || isMarketingManager) {
+      // Super admin or Marketing manager sees everyone
       const teamUsers = await prisma.user.findMany({
         where: { isActive: true },
         select: { id: true, fullName: true, role: true }
@@ -74,6 +76,9 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
           { userId: null }
         ]
       };
+      if (isSuperAdmin) {
+        roleWhere = {}; // see all
+      }
     } else {
       const teamUsers = await prisma.user.findMany({
         where: { 

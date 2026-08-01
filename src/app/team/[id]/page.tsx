@@ -4,6 +4,7 @@ import prisma from '@/app/lib/db';
 import Sidebar from '@/app/components/Sidebar';
 import { redirect, notFound } from 'next/navigation';
 import EditMemberForm from './EditMemberForm';
+import { isSuperUser } from '@/app/lib/roleHelper';
 import { User, BadgeCheck, ShieldCheck } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -37,9 +38,11 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
     notFound();
   }
 
+  const isSuperAdmin = isSuperUser(user?.role);
+
   // Security Check: Only the Manager (Team Leader) can edit their subordinates
   // Project Admins can edit anyone
-  if (!isProjectAdmin && member.employeeSale?.teamLeader !== user.fullName && member.id !== user.id) {
+  if (!isSuperAdmin && !isProjectAdmin && member.employeeSale?.teamLeader !== user.fullName && member.id !== user.id) {
      redirect('/team'); 
   }
 
@@ -87,7 +90,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
           
           {/* Main Edit Form */}
           <div className="bg-white rounded-3xl p-8 lg:p-12 border border-gray-100 shadow-sm">
-            <EditMemberForm member={JSON.parse(JSON.stringify(member))} />
+            <EditMemberForm member={JSON.parse(JSON.stringify(member))} isSuperAdmin={isSuperAdmin} />
           </div>
 
           <div className="mt-10 text-center">

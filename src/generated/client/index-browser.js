@@ -146,6 +146,16 @@ exports.Prisma.MonthlyTargetScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  action: 'action',
+  resource: 'resource',
+  resourceId: 'resourceId',
+  details: 'details',
+  timestamp: 'timestamp'
+};
+
 exports.Prisma.ScheduleScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -1925,6 +1935,7 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.ModelName = {
   User: 'User',
   MonthlyTarget: 'MonthlyTarget',
+  AuditLog: 'AuditLog',
   Schedule: 'Schedule',
   EmployeeSale: 'EmployeeSale',
   Company: 'Company',

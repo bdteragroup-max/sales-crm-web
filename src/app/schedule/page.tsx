@@ -5,6 +5,7 @@ import { teraDb } from '@/app/lib/teraDb'
 import { redirect } from 'next/navigation'
 import ScheduleClientPage from './ScheduleClientPage'
 import { getStaffSchedules } from '@/app/actions/schedule'
+import { isSuperUser } from '@/app/lib/roleHelper'
 
 export default async function SchedulePage() {
   const session = (await cookies()).get('session')?.value
@@ -24,7 +25,14 @@ export default async function SchedulePage() {
 
   let staffPromise;
   const roleLower = (user.role || '').toLowerCase();
-  if (['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
+  const isSuperAdmin = isSuperUser(user.role);
+  if (isSuperAdmin) {
+    staffPromise = prisma.user.findMany({
+      where: { isActive: true },
+      select: { id: true, fullName: true },
+      orderBy: { fullName: 'asc' }
+    });
+  } else if (['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager', 'ผู้จัดการฝ่ายการตลาด', 'ผู้จัดการการตลาด', 'ผู้การจัดการตลาด'].includes(roleLower)) {
     staffPromise = async () => {
       const subordinates = await teraDb.employees.findMany({
         where: { supervisor_id: user.employeeId, is_active: true },

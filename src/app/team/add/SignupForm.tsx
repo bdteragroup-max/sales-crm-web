@@ -9,7 +9,12 @@ import {
   Network, Calendar, Save
 } from 'lucide-react'
 
-export default function SignupForm({ managerName }: { managerName?: string }) {
+interface SignupFormProps {
+  managerName?: string;
+  isSuperAdmin?: boolean;
+}
+
+export default function SignupForm({ managerName = '', isSuperAdmin = false }: SignupFormProps) {
   const [state, action, pending] = useActionState(signup, undefined)
 
   return (
@@ -147,6 +152,9 @@ export default function SignupForm({ managerName }: { managerName?: string }) {
                   <option value="Admin Project">Admin Project</option>
                   <option value="ตัวแทนฝ่ายขาย">ตัวแทนฝ่ายขาย</option>
                   <option value="ผู้จัดการ">ผู้จัดการ</option>
+                  {isSuperAdmin && (
+                    <option value="SUPER_ADMIN">SUPER_ADMIN (Executive)</option>
+                  )}
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
                   <ArrowRight size={16} className="rotate-90" />

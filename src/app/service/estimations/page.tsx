@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
 import EstimationsClientPage from './EstimationsClientPage'; // force ts update
+import { isSuperUser } from '@/app/lib/roleHelper';
 
 export const metadata = {
   title: 'ประเมินราคา - TERA CRM',
@@ -22,7 +23,8 @@ export default async function EstimationsPage() {
 
   // Fetch service team members for assignment (MGR role only)
   let serviceTeamMembers: any[] = [];
-  const isManager = (currentUser.role || '').toLowerCase().includes('service engineer mgr') || 
+  const isSuperAdmin = isSuperUser(currentUser.role);
+  const isManager = isSuperAdmin || (currentUser.role || '').toLowerCase().includes('service engineer mgr') || 
                     (currentUser.role || '').toLowerCase().includes('project manager') ||
                     (currentUser.role || '').toLowerCase().includes('ผู้จัดการโครงการ') ||
                     currentUser.role === 'ผู้จัดการ';

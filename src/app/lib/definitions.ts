@@ -13,9 +13,7 @@ export const SignupFormSchema = z.object({
     .string()
     .min(9, { message: 'เบอร์โทรศัพท์ต้องมีความยาวอย่างน้อย 9 หลัก' })
     .trim(),
-  role: z.enum(['ตัวแทนฝ่ายขาย', 'ผู้จัดการ'], {
-    message: 'กรุณาเลือกตำแหน่งที่ถูกต้อง',
-  }),
+  role: z.string().min(1, { message: 'กรุณาเลือกตำแหน่งที่ถูกต้อง' }),
   password: z
     .string()
     .min(1, { message: 'กรุณากรอกรหัสผ่าน' })
@@ -42,9 +40,7 @@ export const UpdateUserFormSchema = z.object({
     .string()
     .min(9, { message: 'เบอร์โทรศัพท์ต้องมีความยาวอย่างน้อย 9 หลัก' })
     .trim(),
-  role: z.enum(['ตัวแทนฝ่ายขาย', 'ผู้จัดการ'], {
-    message: 'กรุณาเลือกตำแหน่งที่ถูกต้อง',
-  }),
+  role: z.string().min(1, { message: 'กรุณาเลือกตำแหน่งที่ถูกต้อง' }),
   password: z
     .string()
     .min(6, { message: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' })

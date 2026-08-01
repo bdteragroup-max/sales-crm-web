@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import prisma from '@/app/lib/db';
 import { decrypt } from '@/app/lib/session';
+import { isSuperUser } from '@/app/lib/roleHelper';
 
 // Haversine formula for distance calculation
 function deg2rad(deg: number) {
@@ -64,7 +65,8 @@ export async function GET(request: Request) {
                             positionLower.includes('branch') || positionLower.includes('สาขา') ||
                             positionLower === 'ผู้จัดการ' || positionLower === 'manager';
 
-    const isExpenseAdmin = ['accounting', 'บัญชี', 'admin', 'finance', 'การเงิน'].some(r => roleLower.includes(r));
+    const isSuperAdmin = isSuperUser(user.role);
+    const isExpenseAdmin = isSuperAdmin || ['accounting', 'บัญชี', 'admin', 'finance', 'การเงิน'].some(r => roleLower.includes(r));
     
     const isMarketingRole = roleLower.includes('marketing') || roleLower.includes('การตลาด') || positionLower.includes('marketing') || positionLower.includes('การตลาด');
     const isManagerRole = roleLower.includes('manager') || roleLower.includes('ผู้จัดการ') || positionLower.includes('manager') || positionLower.includes('ผู้จัดการ');

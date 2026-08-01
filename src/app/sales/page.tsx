@@ -4,6 +4,7 @@ import { getUser } from '@/app/lib/dal';
 import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import { redirect } from 'next/navigation';
+import { isSuperUser } from '@/app/lib/roleHelper';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,9 +38,16 @@ export default async function SalesPage({ searchParams }: PageProps) {
   const isSalesDept = resolvedDept.toLowerCase().includes('sale') || resolvedDept.toLowerCase().includes('ขาย') || resolvedDept.includes('เซลส์') || resolvedDept.includes('เซลล์');
   const isSalesRole = roleStr.includes('sale') || roleStr.includes('ขาย') || roleStr.includes('เซลส์') || roleStr.includes('เซลล์');
   const isSales = isSalesDept || isSalesRole;
+  const isSuperAdmin = isSuperUser(user.role);
 
   let teamMembers: { id: string; fullName: string }[] = [];
-  if (isSalesManager) {
+  if (isSuperAdmin) {
+    teamMembers = await prisma.user.findMany({
+      where: { isActive: true },
+      select: { id: true, fullName: true },
+      orderBy: { fullName: 'asc' }
+    });
+  } else if (isSalesManager) {
     const subordinates = await teraDb.employees.findMany({
       where: { supervisor_id: user.employeeId, is_active: true },
       select: { emp_id: true }
@@ -78,7 +86,9 @@ export default async function SalesPage({ searchParams }: PageProps) {
 
   // Managers see their team's records + unassigned; Reps see their own + any unassigned; Non-sales see everything
   let whereClause: any = {};
-  if (isSalesManager) {
+  if (isSuperAdmin) {
+    whereClause = {};
+  } else if (isSalesManager) {
     whereClause = { OR: [{ salespersonId: { in: teamMembers.map(t => t.id) } }, { salespersonId: null }] };
   } else if (isSales && !isServiceManager) {
     whereClause = { OR: [{ salespersonId: user.id }, { salespersonId: null }] };
@@ -99,7 +109,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
     // Only allow edit if the user owns it or is a manager
     if (
       quotationToEdit &&
-      (isManager || quotationToEdit.salespersonId === user.id || quotationToEdit.salespersonId === null)
+      (isSuperAdmin || isManager || quotationToEdit.salespersonId === user.id || quotationToEdit.salespersonId === null)
     ) {
       editingData = JSON.parse(JSON.stringify(quotationToEdit));
     }

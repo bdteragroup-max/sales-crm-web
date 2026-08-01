@@ -62,6 +62,19 @@ model MonthlyTarget {
   @@index([month, year])
 }
 
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  resource   String?
+  resourceId String?
+  details    String?
+  timestamp  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([action])
+}
+
 model Schedule {
   id                 String    @id @default(cuid())
   userId             String

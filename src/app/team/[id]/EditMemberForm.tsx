@@ -12,9 +12,10 @@ import Link from 'next/link'
 
 interface EditMemberFormProps {
   member: any
+  isSuperAdmin?: boolean
 }
 
-export default function EditMemberForm({ member }: EditMemberFormProps) {
+export default function EditMemberForm({ member, isSuperAdmin = false }: EditMemberFormProps) {
   const [state, action, pending] = useActionState(updateUser, undefined)
 
   // Format date for input
@@ -155,6 +156,9 @@ export default function EditMemberForm({ member }: EditMemberFormProps) {
                   <option value="Admin Project">Admin Project</option>
                   <option value="ตัวแทนฝ่ายขาย">ตัวแทนฝ่ายขาย</option>
                   <option value="ผู้จัดการ">ผู้จัดการ</option>
+                  {isSuperAdmin && (
+                    <option value="SUPER_ADMIN">SUPER_ADMIN (Executive)</option>
+                  )}
                 </select>
               </div>
             </div>

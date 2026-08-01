@@ -7,6 +7,7 @@ import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
   LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Coins
 } from 'lucide-react';
+import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
 import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
 import { getPendingInstallationCount } from '@/app/actions/installationOrders';
@@ -135,10 +136,20 @@ export default function SidebarClient(props: SidebarProps) {
   let nav = repNav;
   const roleStr = (props.userRole || '').toLowerCase();
 
-  const isExecutive = roleStr === 'ผู้บริหาร' || roleStr === 'executive' || roleStr === 'super_admin';
+  const isExecutive = isReadOnlyExecutive(roleStr);
+  const isSuperAdmin = isSuperUser(roleStr);
   const isManager = roleStr === 'ผู้จัดการ' || roleStr === 'manager' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้การจัดการตลาด';
 
-  if (isExecutive) {
+  // Combine all navs for Super Admin, ensuring no duplicates by href
+  const allNavs = [
+    ...executiveNav, ...managerNav, ...repNav, ...serviceNav,
+    ...purchasingNav, ...storeNav, ...projectNav, ...marketingNav, ...productionNav
+  ];
+  const superAdminNav = Array.from(new Map(allNavs.map(item => [item.href, item])).values());
+
+  if (isSuperAdmin) {
+    nav = superAdminNav;
+  } else if (isExecutive) {
     nav = executiveNav;
   } else if (isManager) {
     nav = managerNav;
