@@ -545,6 +545,7 @@ export default function JobsClientPage({
   const [filterEmployee, setFilterEmployee] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
+  const [filterDeptStatus, setFilterDeptStatus] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const normalizedDept = useMemo(() => {
@@ -618,7 +619,11 @@ export default function JobsClientPage({
         const [y, m] = filterMonth.split("-");
         if (j.yearBe !== +y || j.month !== +m) return false;
       }
-      if (filterStatus === "pending") {
+      if (filterDeptStatus) {
+        if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)) return false;
+        const stepDef = getCurrentStepDef(j.jobType, j.currentStep, j.flowVariant, j.stepLogs);
+        if (!stepDef?.department?.includes(filterDeptStatus as any)) return false;
+      } else if (filterStatus === "pending") {
         if (isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs)) return false;
 
         if (normalizedDept.includes("production")) {
@@ -632,7 +637,7 @@ export default function JobsClientPage({
       }
       return true;
     });
-  }, [jobs, search, filterCo, filterType, filterEmployee, filterMonth, filterStartDate, filterEndDate, filterStatus, normalizedDept]);
+  }, [jobs, search, filterCo, filterType, filterEmployee, filterMonth, filterStartDate, filterEndDate, filterDeptStatus, filterStatus, normalizedDept]);
 
   // ── Handlers ── 
   function handleUpdate(id: string, data: UpdateJobPayload) {
@@ -939,6 +944,21 @@ export default function JobsClientPage({
             </div>
           )}
           <select
+            value={filterDeptStatus}
+            onChange={(e) => setFilterDeptStatus(e.target.value)}
+            className="w-full md:w-auto border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
+          >
+            <option value="">ทุกแผนก (รอทั้งหมด)</option>
+            <option value="sales">รอ ฝ่ายขาย</option>
+            <option value="store">รอ สโตร์</option>
+            <option value="service">รอ ฝ่ายบริการ</option>
+            <option value="purchase">รอ จัดซื้อ</option>
+            <option value="accounting">รอ บัญชี</option>
+            <option value="delivery">รอ จัดส่ง</option>
+            <option value="production">รอ ผลิต</option>
+            <option value="project">รอ โปรเจค</option>
+          </select>
+          <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as "all" | "pending")}
             className="w-full md:w-auto border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red transition-all"
@@ -946,9 +966,9 @@ export default function JobsClientPage({
             <option value="all">สถานะทั้งหมด</option>
             <option value="pending">รอฉันดำเนินการ</option>
           </select>
-          {(search || filterCo || filterType || filterEmployee || filterMonth || filterStartDate || filterEndDate || filterStatus !== (normalizedDept.includes("sales") ? "all" : "pending")) && (
+          {(search || filterCo || filterType || filterEmployee || filterMonth || filterStartDate || filterEndDate || filterDeptStatus || filterStatus !== (normalizedDept.includes("sales") ? "all" : "pending")) && (
             <button
-              onClick={() => { setSearch(""); setFilterCo(""); setFilterType(""); setFilterEmployee(""); setFilterMonth(""); setFilterStartDate(""); setFilterEndDate(""); setFilterStatus(normalizedDept.includes("sales") ? "all" : "pending"); }}
+              onClick={() => { setSearch(""); setFilterCo(""); setFilterType(""); setFilterEmployee(""); setFilterMonth(""); setFilterStartDate(""); setFilterEndDate(""); setFilterDeptStatus(""); setFilterStatus(normalizedDept.includes("sales") ? "all" : "pending"); }}
               className="text-xs font-bold text-gray-400 hover:text-gray-700 transition-colors"
             >
               ล้างตัวกรอง
