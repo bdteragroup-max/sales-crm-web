@@ -43,22 +43,21 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
     });
   }, [pos, selectedYear, selectedMonth, selectedDay]);
 
+  const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
   // Metrics
   const pendingPOsCount = filteredPos.filter(po => po.receiveStatus !== 'Received').length;
-  const currentMonth = new Date().getMonth();
-  const spendingCurrentMonth = filteredPos
-    .filter(po => {
-      const { year, month } = extractDateFromPO(po);
-      return month === currentMonth && year === currentYear;
-    })
-    .reduce((sum, po) => sum + Number(po.totalAmount || 0), 0);
+  const totalFilteredSpending = filteredPos.reduce((sum, po) => sum + Number(po.totalAmount || 0), 0);
+  
+  const spendingLabel = selectedMonth === 'ALL' 
+    ? (selectedYear === 'ALL' ? 'ยอดใช้จ่ายรวมทั้งหมด' : `ยอดใช้จ่ายรวม (ปี ${selectedYear})`)
+    : `ยอดใช้จ่าย (เดือน${monthNames[parseInt(selectedMonth)]})`;
   
   const prsWithoutPOs = prs.filter(pr => pr.purchaseOrders.length === 0).length;
 
   // Chart Data: Spending by Month and Company
   const monthlyData = useMemo(() => {
     const data = Array.from({ length: 12 }, (_, i) => {
-      const monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
       return {
         name: monthNames[i],
         TE: 0,
@@ -255,9 +254,9 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
           <p className="text-3xl font-bold text-gray-800 mt-2">{pendingPOsCount}</p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow border-l-4 border-blue-500">
-          <h3 className="text-gray-500 text-sm font-medium uppercase">ยอดใช้จ่าย (เดือนนี้)</h3>
+          <h3 className="text-gray-500 text-sm font-medium uppercase">{spendingLabel}</h3>
           <p className="text-3xl font-bold text-gray-800 mt-2">
-            {spendingCurrentMonth.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}
+            {totalFilteredSpending.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}
           </p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow border-l-4 border-red-500">
