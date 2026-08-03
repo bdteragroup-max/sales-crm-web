@@ -23,6 +23,7 @@ export default async function ProcurementDashboardPage() {
       poNumber: true,
       receiveStatus: true,
       totalAmount: true,
+      creditTerm: true,
       createdAt: true
     }
   });

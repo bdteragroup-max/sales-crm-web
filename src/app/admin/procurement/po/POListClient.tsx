@@ -15,14 +15,14 @@ function getNormalizedProjectGroup(rawName: string | undefined | null): string {
   if (lower.includes('กรมการข้าว')) return 'กรมการข้าว';
   if (lower.includes('จำลอง')) return 'จำลองเจริญ';
   if (lower.includes('นิชชินโบ') || lower.includes('nisshinbo')) return 'นิชชินโบ';
-  
+
   return n;
 }
 
 export default function POListClient({ initialPos, initialSearch = '' }: { initialPos: any[], initialSearch?: string }) {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState('ALL');
-  
+
   const [dateFilter, setDateFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
@@ -69,9 +69,9 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
   ];
 
   const filteredPos = initialPos.filter(po => {
-    const matchesSearch = po.poNumber?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          po.vendorName?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch = po.poNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      po.vendorName?.toLowerCase().includes(searchTerm.toLowerCase());
+
     let matchesStatus = true;
     if (statusFilter === 'RECEIVED') {
       matchesStatus = po.receiveStatus === 'Received';
@@ -80,7 +80,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
     }
 
     const poDate = po.recordedAt ? new Date(po.recordedAt) : null;
-    
+
     let matchesDate = true;
     if (dateFilter && poDate) {
       const yyyy = poDate.getFullYear();
@@ -137,6 +137,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
         'อ้างอิง PR': po.prNumber || '-',
         'โปรเจกต์': po.jobName || po.purchaseRequest?.projectName || '-',
         'ผู้ขาย': po.vendorName || '-',
+        'เครดิต': po.creditTerm || '-',
         'ยอดรวม (บาท)': Number(po.totalAmount) || 0,
         'วันส่งมอบ': po.deliveryDate ? new Date(po.deliveryDate).toLocaleDateString('th-TH') : '-',
         'สถานะ': po.receiveStatus === 'Received' ? `รับโดย ${po.receivedBy}` : 'รอรับสินค้า',
@@ -148,6 +149,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
         'อ้างอิง PR': '',
         'โปรเจกต์': '',
         'ผู้ขาย': '',
+        'เครดิต': '',
         'ยอดรวม (บาท)': totalFilteredAmount,
         'วันส่งมอบ': '',
         'สถานะ': '',
@@ -156,7 +158,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
       const worksheet = XLSX.utils.json_to_sheet(exportData);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Purchase Orders');
-      
+
       const fileName = `PO_Export_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(workbook, fileName);
     });
@@ -167,7 +169,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex justify-between items-center flex-wrap gap-4 mb-2">
           <h2 className="text-lg font-bold text-gray-800">ตัวกรองข้อมูล</h2>
-          <button 
+          <button
             onClick={handleExportExcel}
             className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
           >
@@ -177,14 +179,14 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
         </div>
         {/* Search Bar & Project Filter */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input 
-            type="text" 
-            placeholder="ค้นหาด้วยเลขที่ PO หรือชื่อผู้ขาย..." 
+          <input
+            type="text"
+            placeholder="ค้นหาด้วยเลขที่ PO หรือชื่อผู้ขาย..."
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <select 
+          <select
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
@@ -195,10 +197,10 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
             ))}
           </select>
         </div>
-        
+
         {/* Filters Grid - 2 cols on mobile, up to 5 on desktop */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <select 
+          <select
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -207,7 +209,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
             <option value="PENDING">รอรับสินค้า</option>
             <option value="RECEIVED">รับสินค้าแล้ว</option>
           </select>
-          
+
           <select
             value={companyFilter}
             onChange={(e) => setCompanyFilter(e.target.value)}
@@ -258,9 +260,8 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
             <div key={po.id} className="bg-white border rounded-lg p-4 shadow-sm flex flex-col gap-2">
               <div className="flex justify-between items-start">
                 <span className="font-bold text-gray-900">{po.poNumber}</span>
-                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  po.receiveStatus === 'Received' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                }`}>
+                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${po.receiveStatus === 'Received' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  }`}>
                   {po.receiveStatus === 'Received' ? `รับโดย ${po.receivedBy}` : 'รอรับสินค้า'}
                 </span>
               </div>
@@ -272,6 +273,9 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
               </div>
               <div className="text-sm text-gray-700">
                 <span className="font-medium">โปรเจกต์:</span> {po.jobName || po.purchaseRequest?.projectName || '-'}
+              </div>
+              <div className="text-sm text-gray-700">
+                <span className="font-medium">เครดิต:</span> {po.creditTerm || '-'}
               </div>
               <div className="flex justify-between items-center mt-2 pt-2 border-t">
                 <div className="text-sm text-gray-700">
@@ -301,6 +305,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">อ้างอิง PR</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">โปรเจกต์</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ผู้ขาย</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">เครดิต</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ยอดรวม</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">วันส่งมอบ</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
@@ -316,6 +321,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                   <td className="px-6 py-4 text-gray-600">{po.prNumber || '-'}</td>
                   <td className="px-6 py-4 text-gray-600 truncate max-w-[200px]" title={po.jobName || po.purchaseRequest?.projectName || ''}>{po.jobName || po.purchaseRequest?.projectName || '-'}</td>
                   <td className="px-6 py-4 text-gray-600">{po.vendorName || '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">{po.creditTerm || '-'}</td>
                   <td className="px-6 py-4 text-gray-600">
                     {po.totalAmount ? Number(po.totalAmount).toLocaleString('th-TH', { style: 'currency', currency: 'THB' }) : '-'}
                   </td>
@@ -323,9 +329,8 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
                     {po.deliveryDate ? new Date(po.deliveryDate).toLocaleDateString('th-TH') : '-'}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      po.receiveStatus === 'Received' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
+                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${po.receiveStatus === 'Received' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
                       {po.receiveStatus === 'Received' ? `รับโดย ${po.receivedBy}` : 'รอรับสินค้า'}
                     </span>
                   </td>
@@ -336,7 +341,7 @@ export default function POListClient({ initialPos, initialSearch = '' }: { initi
           {filteredPos.length > 0 && (
             <tfoot className="bg-gray-50 border-t-2 border-gray-200">
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-right font-bold text-gray-700 text-sm">ยอดรวมทั้งหมด:</td>
+                <td colSpan={5} className="px-6 py-4 text-right font-bold text-gray-700 text-sm">ยอดรวมทั้งหมด:</td>
                 <td className="px-6 py-4 font-bold text-gray-900 text-sm">{totalFilteredAmount.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}</td>
                 <td colSpan={2}></td>
               </tr>

@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }) {
   const currentYear = new Date().getFullYear();
@@ -71,9 +71,10 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
       const { month } = extractDateFromPO(po);
       const amt = Number(po.totalAmount || 0);
       if (po.poNumber) {
-        if (po.poNumber.includes('E')) data[month].TE += amt;
-        else if (po.poNumber.includes('P')) data[month].TP += amt;
-        else if (po.poNumber.includes('G')) data[month].TG += amt;
+        const poUpper = po.poNumber.toUpperCase();
+        if (poUpper.includes('-E')) data[month].TE += amt;
+        else if (poUpper.includes('-P')) data[month].TP += amt;
+        else if (poUpper.includes('-G')) data[month].TG += amt;
       }
     });
 
@@ -96,13 +97,79 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
     filteredPos.forEach(po => {
       const amt = Number(po.totalAmount || 0);
       if (po.poNumber) {
-        if (po.poNumber.includes('E')) TE += amt;
-        else if (po.poNumber.includes('P')) TP += amt;
-        else if (po.poNumber.includes('G')) TG += amt;
+        const poUpper = po.poNumber.toUpperCase();
+        if (poUpper.includes('-E')) TE += amt;
+        else if (poUpper.includes('-P')) TP += amt;
+        else if (poUpper.includes('-G')) TG += amt;
       }
     });
 
     return { TE, TP, TG };
+  }, [filteredPos]);
+
+  // Chart Data: Spending by Credit Term
+  const creditData = useMemo(() => {
+    const dataMap: Record<string, number> = {};
+    filteredPos.forEach(po => {
+      const amt = Number(po.totalAmount || 0);
+      let term = po.creditTerm?.trim() || 'ไม่ระบุ';
+      term = term.replace(/\s+/g, ' ').trim(); // Normalize spaces
+      
+      const tLower = term.toLowerCase();
+
+      if (tLower.includes('📌') || tLower.includes('ชื่องาน') || term.length > 30) {
+        term = 'อื่นๆ (Others)';
+      } else if (tLower === 'cash' || tLower === 'เงินสด') {
+        term = 'เงินสด';
+      } else if (tLower.includes('ตัดบัตร')) {
+        term = 'ตัดบัตรเครดิต';
+      } else if (tLower.includes('เงินสด pdc')) {
+        term = 'เงินสด PDC';
+      } else if (tLower.includes('หน้าเช็ค')) {
+        term = 'เงินสด (หน้าเช็ค)';
+      } else {
+        // Check for PDC and Days
+        const hasPdc = tLower.includes('pdc') || tLower.includes('pcd');
+        const dayMatch = term.match(/(\d+)\s*วัน/i) || term.match(/^(\d+)$/);
+        
+        if (dayMatch) {
+          const days = dayMatch[1];
+          term = hasPdc ? `PDC ${days} วัน` : `${days} วัน`;
+        }
+      }
+
+      if (!dataMap[term]) dataMap[term] = 0;
+      dataMap[term] += amt;
+    });
+
+    const sortedData = Object.entries(dataMap)
+      .sort((a, b) => b[1] - a[1]);
+
+    const MAX_ITEMS = 10;
+    const finalData: { name: string; value: number }[] = [];
+    let otherSum = 0;
+
+    sortedData.forEach(([name, value], idx) => {
+      if (idx < MAX_ITEMS - 1 || (idx === MAX_ITEMS - 1 && sortedData.length === MAX_ITEMS)) {
+        finalData.push({ name, value });
+      } else {
+        otherSum += value;
+      }
+    });
+
+    if (otherSum > 0) {
+      const existingOther = finalData.find(d => d.name === 'อื่นๆ (Others)');
+      if (existingOther) {
+        existingOther.value += otherSum;
+      } else {
+        finalData.push({ name: 'อื่นๆ (Others)', value: otherSum });
+      }
+    }
+
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b', '#06b6d4', '#84cc16', '#a8a29e', '#fb923c', '#2dd4bf'];
+    return finalData
+      .map((d, idx) => ({ ...d, fill: colors[idx % colors.length] }))
+      .sort((a, b) => b.value - a.value);
   }, [filteredPos]);
 
   const handleExportExcel = () => {
@@ -222,7 +289,7 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
         </div>
       </div>
 
-      {/* Chart */}
+      {/* Monthly Spending Bar Chart */}
       <div className="bg-white p-6 rounded-xl shadow mb-8">
         <h3 className="text-gray-800 font-semibold mb-6">ยอดใช้จ่ายรายเดือน</h3>
         <div className="h-80">
@@ -236,6 +303,32 @@ export default function DashboardClient({ pos, prs }: { pos: any[], prs: any[] }
               <Bar dataKey="TP" fill="#14b8a6" name="TP (Power)" radius={[4, 4, 0, 0]} />
               <Bar dataKey="TG" fill="#a855f7" name="TG (Group)" radius={[4, 4, 0, 0]} />
             </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Credit Term Distribution Pie Chart */}
+      <div className="bg-white p-6 rounded-xl shadow mb-8">
+        <h3 className="text-gray-800 font-semibold mb-6">สัดส่วนการใช้จ่ายตามเครดิต (Credit Terms)</h3>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={creditData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={100}
+                paddingAngle={2}
+                dataKey="value"
+              >
+                {creditData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value: any) => Number(value).toLocaleString('th-TH', { style: 'currency', currency: 'THB' })} />
+              <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontSize: '12px' }} />
+            </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
