@@ -69,17 +69,37 @@ export async function GET(request: NextRequest) {
     // Also fetch users so the frontend can assign cards, filter to Marketing only
     const allUsers = await prisma.user.findMany({
       where: { isActive: true },
-      select: { id: true, fullName: true, role: true, employeeSale: { select: { nickname: true } } }
+      select: { id: true, fullName: true, role: true, employeeId: true, employeeSale: { select: { nickname: true } } }
     });
+
+    const employeeIds = allUsers.map(u => u.employeeId).filter(Boolean);
+    
+    // Attempt to get nicknames from employees table
+    let nicknameMap = new Map<string, string>();
+    try {
+      // Use any to bypass TS if employees model isn't strictly typed yet
+      const employees = await (prisma as any).employees.findMany({
+        where: { emp_id: { in: employeeIds } },
+        select: { emp_id: true, nickname: true }
+      });
+      employees.forEach((e: any) => {
+        if (e.nickname) nicknameMap.set(e.emp_id, e.nickname);
+      });
+    } catch (e) {
+      console.warn('Could not fetch from employees table', e);
+    }
     
     const users = allUsers.filter(u => {
       const roleStr = (u.role || '').toLowerCase();
       return ['marketing', 'การตลาด'].some(r => roleStr.includes(r));
-    }).map(u => ({
-      id: u.id,
-      fullName: u.employeeSale?.nickname ? `${u.fullName} (${u.employeeSale.nickname})` : u.fullName,
-      role: u.role
-    }));
+    }).map(u => {
+      const nickname = nicknameMap.get(u.employeeId) || u.employeeSale?.nickname;
+      return {
+        id: u.id,
+        fullName: nickname ? `${u.fullName} (${nickname})` : u.fullName,
+        role: u.role
+      };
+    });
 
     return NextResponse.json({ board, users });
   } catch (error: any) {

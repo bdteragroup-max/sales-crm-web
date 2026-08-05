@@ -2304,9 +2304,9 @@ model KanbanList {
   boardId   String
   name      String
   position  Float
-  color     String?
   createdAt DateTime     @default(now()) @db.Timestamptz(6)
   updatedAt DateTime     @updatedAt @db.Timestamptz(6)
+  color     String?
   cards     KanbanCard[]
   board     KanbanBoard  @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
@@ -2319,14 +2319,14 @@ model KanbanCard {
   title          String
   description    String?
   assignedToId   String?
-  startDate      DateTime?           @db.Timestamptz(6)
   dueDate        DateTime?           @db.Timestamptz(6)
   revisionStatus String?
   position       Float
   checklist      Json?
-  color          String?
   createdAt      DateTime            @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime            @updatedAt @db.Timestamptz(6)
+  color          String?
+  startDate      DateTime?           @db.Timestamptz(6)
   activityLogs   KanbanActivityLog[]
   attachments    KanbanAttachment[]
   list           KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)

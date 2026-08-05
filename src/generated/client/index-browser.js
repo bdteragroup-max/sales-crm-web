@@ -1944,9 +1944,9 @@ exports.Prisma.KanbanListScalarFieldEnum = {
   boardId: 'boardId',
   name: 'name',
   position: 'position',
-  color: 'color',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  color: 'color'
 };
 
 exports.Prisma.KanbanCardScalarFieldEnum = {
@@ -1955,14 +1955,14 @@ exports.Prisma.KanbanCardScalarFieldEnum = {
   title: 'title',
   description: 'description',
   assignedToId: 'assignedToId',
-  startDate: 'startDate',
   dueDate: 'dueDate',
   revisionStatus: 'revisionStatus',
   position: 'position',
   checklist: 'checklist',
-  color: 'color',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  color: 'color',
+  startDate: 'startDate'
 };
 
 exports.Prisma.KanbanAttachmentScalarFieldEnum = {
