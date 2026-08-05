@@ -573,6 +573,41 @@ export type wheel_tickets = $Result.DefaultSelection<Prisma.$wheel_ticketsPayloa
  * This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
  */
 export type wheel_winners = $Result.DefaultSelection<Prisma.$wheel_winnersPayload>
+/**
+ * Model CustomerSatisfaction
+ * 
+ */
+export type CustomerSatisfaction = $Result.DefaultSelection<Prisma.$CustomerSatisfactionPayload>
+/**
+ * Model KanbanBoard
+ * 
+ */
+export type KanbanBoard = $Result.DefaultSelection<Prisma.$KanbanBoardPayload>
+/**
+ * Model KanbanList
+ * 
+ */
+export type KanbanList = $Result.DefaultSelection<Prisma.$KanbanListPayload>
+/**
+ * Model KanbanCard
+ * 
+ */
+export type KanbanCard = $Result.DefaultSelection<Prisma.$KanbanCardPayload>
+/**
+ * Model KanbanAttachment
+ * 
+ */
+export type KanbanAttachment = $Result.DefaultSelection<Prisma.$KanbanAttachmentPayload>
+/**
+ * Model KanbanComment
+ * 
+ */
+export type KanbanComment = $Result.DefaultSelection<Prisma.$KanbanCommentPayload>
+/**
+ * Model KanbanActivityLog
+ * 
+ */
+export type KanbanActivityLog = $Result.DefaultSelection<Prisma.$KanbanActivityLogPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1814,6 +1849,76 @@ export class PrismaClient<
     * ```
     */
   get wheel_winners(): Prisma.wheel_winnersDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.customerSatisfaction`: Exposes CRUD operations for the **CustomerSatisfaction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CustomerSatisfactions
+    * const customerSatisfactions = await prisma.customerSatisfaction.findMany()
+    * ```
+    */
+  get customerSatisfaction(): Prisma.CustomerSatisfactionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.kanbanBoard`: Exposes CRUD operations for the **KanbanBoard** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more KanbanBoards
+    * const kanbanBoards = await prisma.kanbanBoard.findMany()
+    * ```
+    */
+  get kanbanBoard(): Prisma.KanbanBoardDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.kanbanList`: Exposes CRUD operations for the **KanbanList** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more KanbanLists
+    * const kanbanLists = await prisma.kanbanList.findMany()
+    * ```
+    */
+  get kanbanList(): Prisma.KanbanListDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.kanbanCard`: Exposes CRUD operations for the **KanbanCard** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more KanbanCards
+    * const kanbanCards = await prisma.kanbanCard.findMany()
+    * ```
+    */
+  get kanbanCard(): Prisma.KanbanCardDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.kanbanAttachment`: Exposes CRUD operations for the **KanbanAttachment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more KanbanAttachments
+    * const kanbanAttachments = await prisma.kanbanAttachment.findMany()
+    * ```
+    */
+  get kanbanAttachment(): Prisma.KanbanAttachmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.kanbanComment`: Exposes CRUD operations for the **KanbanComment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more KanbanComments
+    * const kanbanComments = await prisma.kanbanComment.findMany()
+    * ```
+    */
+  get kanbanComment(): Prisma.KanbanCommentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.kanbanActivityLog`: Exposes CRUD operations for the **KanbanActivityLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more KanbanActivityLogs
+    * const kanbanActivityLogs = await prisma.kanbanActivityLog.findMany()
+    * ```
+    */
+  get kanbanActivityLog(): Prisma.KanbanActivityLogDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2359,7 +2464,14 @@ export namespace Prisma {
     wheel_events: 'wheel_events',
     wheel_prizes: 'wheel_prizes',
     wheel_tickets: 'wheel_tickets',
-    wheel_winners: 'wheel_winners'
+    wheel_winners: 'wheel_winners',
+    CustomerSatisfaction: 'CustomerSatisfaction',
+    KanbanBoard: 'KanbanBoard',
+    KanbanList: 'KanbanList',
+    KanbanCard: 'KanbanCard',
+    KanbanAttachment: 'KanbanAttachment',
+    KanbanComment: 'KanbanComment',
+    KanbanActivityLog: 'KanbanActivityLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2375,7 +2487,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners"
+      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -10667,6 +10779,524 @@ export namespace Prisma {
           }
         }
       }
+      CustomerSatisfaction: {
+        payload: Prisma.$CustomerSatisfactionPayload<ExtArgs>
+        fields: Prisma.CustomerSatisfactionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CustomerSatisfactionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CustomerSatisfactionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload>
+          }
+          findFirst: {
+            args: Prisma.CustomerSatisfactionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CustomerSatisfactionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload>
+          }
+          findMany: {
+            args: Prisma.CustomerSatisfactionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload>[]
+          }
+          create: {
+            args: Prisma.CustomerSatisfactionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload>
+          }
+          createMany: {
+            args: Prisma.CustomerSatisfactionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CustomerSatisfactionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload>[]
+          }
+          delete: {
+            args: Prisma.CustomerSatisfactionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload>
+          }
+          update: {
+            args: Prisma.CustomerSatisfactionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload>
+          }
+          deleteMany: {
+            args: Prisma.CustomerSatisfactionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CustomerSatisfactionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CustomerSatisfactionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload>[]
+          }
+          upsert: {
+            args: Prisma.CustomerSatisfactionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerSatisfactionPayload>
+          }
+          aggregate: {
+            args: Prisma.CustomerSatisfactionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCustomerSatisfaction>
+          }
+          groupBy: {
+            args: Prisma.CustomerSatisfactionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CustomerSatisfactionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CustomerSatisfactionCountArgs<ExtArgs>
+            result: $Utils.Optional<CustomerSatisfactionCountAggregateOutputType> | number
+          }
+        }
+      }
+      KanbanBoard: {
+        payload: Prisma.$KanbanBoardPayload<ExtArgs>
+        fields: Prisma.KanbanBoardFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.KanbanBoardFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.KanbanBoardFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload>
+          }
+          findFirst: {
+            args: Prisma.KanbanBoardFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.KanbanBoardFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload>
+          }
+          findMany: {
+            args: Prisma.KanbanBoardFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload>[]
+          }
+          create: {
+            args: Prisma.KanbanBoardCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload>
+          }
+          createMany: {
+            args: Prisma.KanbanBoardCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.KanbanBoardCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload>[]
+          }
+          delete: {
+            args: Prisma.KanbanBoardDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload>
+          }
+          update: {
+            args: Prisma.KanbanBoardUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload>
+          }
+          deleteMany: {
+            args: Prisma.KanbanBoardDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.KanbanBoardUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.KanbanBoardUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload>[]
+          }
+          upsert: {
+            args: Prisma.KanbanBoardUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanBoardPayload>
+          }
+          aggregate: {
+            args: Prisma.KanbanBoardAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateKanbanBoard>
+          }
+          groupBy: {
+            args: Prisma.KanbanBoardGroupByArgs<ExtArgs>
+            result: $Utils.Optional<KanbanBoardGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.KanbanBoardCountArgs<ExtArgs>
+            result: $Utils.Optional<KanbanBoardCountAggregateOutputType> | number
+          }
+        }
+      }
+      KanbanList: {
+        payload: Prisma.$KanbanListPayload<ExtArgs>
+        fields: Prisma.KanbanListFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.KanbanListFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.KanbanListFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload>
+          }
+          findFirst: {
+            args: Prisma.KanbanListFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.KanbanListFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload>
+          }
+          findMany: {
+            args: Prisma.KanbanListFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload>[]
+          }
+          create: {
+            args: Prisma.KanbanListCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload>
+          }
+          createMany: {
+            args: Prisma.KanbanListCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.KanbanListCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload>[]
+          }
+          delete: {
+            args: Prisma.KanbanListDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload>
+          }
+          update: {
+            args: Prisma.KanbanListUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload>
+          }
+          deleteMany: {
+            args: Prisma.KanbanListDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.KanbanListUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.KanbanListUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload>[]
+          }
+          upsert: {
+            args: Prisma.KanbanListUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanListPayload>
+          }
+          aggregate: {
+            args: Prisma.KanbanListAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateKanbanList>
+          }
+          groupBy: {
+            args: Prisma.KanbanListGroupByArgs<ExtArgs>
+            result: $Utils.Optional<KanbanListGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.KanbanListCountArgs<ExtArgs>
+            result: $Utils.Optional<KanbanListCountAggregateOutputType> | number
+          }
+        }
+      }
+      KanbanCard: {
+        payload: Prisma.$KanbanCardPayload<ExtArgs>
+        fields: Prisma.KanbanCardFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.KanbanCardFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.KanbanCardFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+          }
+          findFirst: {
+            args: Prisma.KanbanCardFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.KanbanCardFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+          }
+          findMany: {
+            args: Prisma.KanbanCardFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>[]
+          }
+          create: {
+            args: Prisma.KanbanCardCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+          }
+          createMany: {
+            args: Prisma.KanbanCardCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.KanbanCardCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>[]
+          }
+          delete: {
+            args: Prisma.KanbanCardDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+          }
+          update: {
+            args: Prisma.KanbanCardUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+          }
+          deleteMany: {
+            args: Prisma.KanbanCardDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.KanbanCardUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.KanbanCardUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>[]
+          }
+          upsert: {
+            args: Prisma.KanbanCardUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+          }
+          aggregate: {
+            args: Prisma.KanbanCardAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateKanbanCard>
+          }
+          groupBy: {
+            args: Prisma.KanbanCardGroupByArgs<ExtArgs>
+            result: $Utils.Optional<KanbanCardGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.KanbanCardCountArgs<ExtArgs>
+            result: $Utils.Optional<KanbanCardCountAggregateOutputType> | number
+          }
+        }
+      }
+      KanbanAttachment: {
+        payload: Prisma.$KanbanAttachmentPayload<ExtArgs>
+        fields: Prisma.KanbanAttachmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.KanbanAttachmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.KanbanAttachmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload>
+          }
+          findFirst: {
+            args: Prisma.KanbanAttachmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.KanbanAttachmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload>
+          }
+          findMany: {
+            args: Prisma.KanbanAttachmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload>[]
+          }
+          create: {
+            args: Prisma.KanbanAttachmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload>
+          }
+          createMany: {
+            args: Prisma.KanbanAttachmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.KanbanAttachmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload>[]
+          }
+          delete: {
+            args: Prisma.KanbanAttachmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload>
+          }
+          update: {
+            args: Prisma.KanbanAttachmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.KanbanAttachmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.KanbanAttachmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.KanbanAttachmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.KanbanAttachmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanAttachmentPayload>
+          }
+          aggregate: {
+            args: Prisma.KanbanAttachmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateKanbanAttachment>
+          }
+          groupBy: {
+            args: Prisma.KanbanAttachmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<KanbanAttachmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.KanbanAttachmentCountArgs<ExtArgs>
+            result: $Utils.Optional<KanbanAttachmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      KanbanComment: {
+        payload: Prisma.$KanbanCommentPayload<ExtArgs>
+        fields: Prisma.KanbanCommentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.KanbanCommentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.KanbanCommentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload>
+          }
+          findFirst: {
+            args: Prisma.KanbanCommentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.KanbanCommentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload>
+          }
+          findMany: {
+            args: Prisma.KanbanCommentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload>[]
+          }
+          create: {
+            args: Prisma.KanbanCommentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload>
+          }
+          createMany: {
+            args: Prisma.KanbanCommentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.KanbanCommentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload>[]
+          }
+          delete: {
+            args: Prisma.KanbanCommentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload>
+          }
+          update: {
+            args: Prisma.KanbanCommentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload>
+          }
+          deleteMany: {
+            args: Prisma.KanbanCommentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.KanbanCommentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.KanbanCommentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload>[]
+          }
+          upsert: {
+            args: Prisma.KanbanCommentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanCommentPayload>
+          }
+          aggregate: {
+            args: Prisma.KanbanCommentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateKanbanComment>
+          }
+          groupBy: {
+            args: Prisma.KanbanCommentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<KanbanCommentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.KanbanCommentCountArgs<ExtArgs>
+            result: $Utils.Optional<KanbanCommentCountAggregateOutputType> | number
+          }
+        }
+      }
+      KanbanActivityLog: {
+        payload: Prisma.$KanbanActivityLogPayload<ExtArgs>
+        fields: Prisma.KanbanActivityLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.KanbanActivityLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.KanbanActivityLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload>
+          }
+          findFirst: {
+            args: Prisma.KanbanActivityLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.KanbanActivityLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload>
+          }
+          findMany: {
+            args: Prisma.KanbanActivityLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload>[]
+          }
+          create: {
+            args: Prisma.KanbanActivityLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload>
+          }
+          createMany: {
+            args: Prisma.KanbanActivityLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.KanbanActivityLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload>[]
+          }
+          delete: {
+            args: Prisma.KanbanActivityLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload>
+          }
+          update: {
+            args: Prisma.KanbanActivityLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.KanbanActivityLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.KanbanActivityLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.KanbanActivityLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.KanbanActivityLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KanbanActivityLogPayload>
+          }
+          aggregate: {
+            args: Prisma.KanbanActivityLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateKanbanActivityLog>
+          }
+          groupBy: {
+            args: Prisma.KanbanActivityLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<KanbanActivityLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.KanbanActivityLogCountArgs<ExtArgs>
+            result: $Utils.Optional<KanbanActivityLogCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -10887,6 +11517,13 @@ export namespace Prisma {
     wheel_prizes?: wheel_prizesOmit
     wheel_tickets?: wheel_ticketsOmit
     wheel_winners?: wheel_winnersOmit
+    customerSatisfaction?: CustomerSatisfactionOmit
+    kanbanBoard?: KanbanBoardOmit
+    kanbanList?: KanbanListOmit
+    kanbanCard?: KanbanCardOmit
+    kanbanAttachment?: KanbanAttachmentOmit
+    kanbanComment?: KanbanCommentOmit
+    kanbanActivityLog?: KanbanActivityLogOmit
   }
 
   /* Types for Logging */
@@ -10971,6 +11608,7 @@ export namespace Prisma {
     companyInteractions: number
     estimatedRequirements: number
     customerRequirements: number
+    customerSatisfactions: number
     installationOrders: number
     uploadedDocuments: number
     assignedMarketingLeads: number
@@ -10998,6 +11636,7 @@ export namespace Prisma {
     companyInteractions?: boolean | UserCountOutputTypeCountCompanyInteractionsArgs
     estimatedRequirements?: boolean | UserCountOutputTypeCountEstimatedRequirementsArgs
     customerRequirements?: boolean | UserCountOutputTypeCountCustomerRequirementsArgs
+    customerSatisfactions?: boolean | UserCountOutputTypeCountCustomerSatisfactionsArgs
     installationOrders?: boolean | UserCountOutputTypeCountInstallationOrdersArgs
     uploadedDocuments?: boolean | UserCountOutputTypeCountUploadedDocumentsArgs
     assignedMarketingLeads?: boolean | UserCountOutputTypeCountAssignedMarketingLeadsArgs
@@ -11057,6 +11696,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountCustomerRequirementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CustomerRequirementWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCustomerSatisfactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomerSatisfactionWhereInput
   }
 
   /**
@@ -11207,6 +11853,7 @@ export namespace Prisma {
   export type CompanyCountOutputType = {
     interactions: number
     contacts: number
+    customerSatisfactions: number
     orders: number
     quotations: number
     schedules: number
@@ -11217,6 +11864,7 @@ export namespace Prisma {
   export type CompanyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     interactions?: boolean | CompanyCountOutputTypeCountInteractionsArgs
     contacts?: boolean | CompanyCountOutputTypeCountContactsArgs
+    customerSatisfactions?: boolean | CompanyCountOutputTypeCountCustomerSatisfactionsArgs
     orders?: boolean | CompanyCountOutputTypeCountOrdersArgs
     quotations?: boolean | CompanyCountOutputTypeCountQuotationsArgs
     schedules?: boolean | CompanyCountOutputTypeCountSchedulesArgs
@@ -11247,6 +11895,13 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountContactsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ContactWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountCustomerSatisfactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomerSatisfactionWhereInput
   }
 
   /**
@@ -12746,6 +13401,117 @@ export namespace Prisma {
 
 
   /**
+   * Count Type KanbanBoardCountOutputType
+   */
+
+  export type KanbanBoardCountOutputType = {
+    lists: number
+  }
+
+  export type KanbanBoardCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    lists?: boolean | KanbanBoardCountOutputTypeCountListsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * KanbanBoardCountOutputType without action
+   */
+  export type KanbanBoardCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoardCountOutputType
+     */
+    select?: KanbanBoardCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * KanbanBoardCountOutputType without action
+   */
+  export type KanbanBoardCountOutputTypeCountListsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanListWhereInput
+  }
+
+
+  /**
+   * Count Type KanbanListCountOutputType
+   */
+
+  export type KanbanListCountOutputType = {
+    cards: number
+  }
+
+  export type KanbanListCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cards?: boolean | KanbanListCountOutputTypeCountCardsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * KanbanListCountOutputType without action
+   */
+  export type KanbanListCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanListCountOutputType
+     */
+    select?: KanbanListCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * KanbanListCountOutputType without action
+   */
+  export type KanbanListCountOutputTypeCountCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanCardWhereInput
+  }
+
+
+  /**
+   * Count Type KanbanCardCountOutputType
+   */
+
+  export type KanbanCardCountOutputType = {
+    activityLogs: number
+    attachments: number
+    comments: number
+  }
+
+  export type KanbanCardCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activityLogs?: boolean | KanbanCardCountOutputTypeCountActivityLogsArgs
+    attachments?: boolean | KanbanCardCountOutputTypeCountAttachmentsArgs
+    comments?: boolean | KanbanCardCountOutputTypeCountCommentsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * KanbanCardCountOutputType without action
+   */
+  export type KanbanCardCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCardCountOutputType
+     */
+    select?: KanbanCardCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * KanbanCardCountOutputType without action
+   */
+  export type KanbanCardCountOutputTypeCountActivityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanActivityLogWhereInput
+  }
+
+  /**
+   * KanbanCardCountOutputType without action
+   */
+  export type KanbanCardCountOutputTypeCountAttachmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanAttachmentWhereInput
+  }
+
+  /**
+   * KanbanCardCountOutputType without action
+   */
+  export type KanbanCardCountOutputTypeCountCommentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanCommentWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -12981,6 +13747,7 @@ export namespace Prisma {
     companyInteractions?: boolean | User$companyInteractionsArgs<ExtArgs>
     estimatedRequirements?: boolean | User$estimatedRequirementsArgs<ExtArgs>
     customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
+    customerSatisfactions?: boolean | User$customerSatisfactionsArgs<ExtArgs>
     installationOrders?: boolean | User$installationOrdersArgs<ExtArgs>
     uploadedDocuments?: boolean | User$uploadedDocumentsArgs<ExtArgs>
     assignedMarketingLeads?: boolean | User$assignedMarketingLeadsArgs<ExtArgs>
@@ -13059,6 +13826,7 @@ export namespace Prisma {
     companyInteractions?: boolean | User$companyInteractionsArgs<ExtArgs>
     estimatedRequirements?: boolean | User$estimatedRequirementsArgs<ExtArgs>
     customerRequirements?: boolean | User$customerRequirementsArgs<ExtArgs>
+    customerSatisfactions?: boolean | User$customerSatisfactionsArgs<ExtArgs>
     installationOrders?: boolean | User$installationOrdersArgs<ExtArgs>
     uploadedDocuments?: boolean | User$uploadedDocumentsArgs<ExtArgs>
     assignedMarketingLeads?: boolean | User$assignedMarketingLeadsArgs<ExtArgs>
@@ -13092,6 +13860,7 @@ export namespace Prisma {
       companyInteractions: Prisma.$CompanyInteractionPayload<ExtArgs>[]
       estimatedRequirements: Prisma.$CustomerRequirementPayload<ExtArgs>[]
       customerRequirements: Prisma.$CustomerRequirementPayload<ExtArgs>[]
+      customerSatisfactions: Prisma.$CustomerSatisfactionPayload<ExtArgs>[]
       installationOrders: Prisma.$InstallationOrderPayload<ExtArgs>[]
       uploadedDocuments: Prisma.$JobDocumentPayload<ExtArgs>[]
       assignedMarketingLeads: Prisma.$MarketingLeadPayload<ExtArgs>[]
@@ -13526,6 +14295,7 @@ export namespace Prisma {
     companyInteractions<T extends User$companyInteractionsArgs<ExtArgs> = {}>(args?: Subset<T, User$companyInteractionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     estimatedRequirements<T extends User$estimatedRequirementsArgs<ExtArgs> = {}>(args?: Subset<T, User$estimatedRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerRequirements<T extends User$customerRequirementsArgs<ExtArgs> = {}>(args?: Subset<T, User$customerRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    customerSatisfactions<T extends User$customerSatisfactionsArgs<ExtArgs> = {}>(args?: Subset<T, User$customerSatisfactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     installationOrders<T extends User$installationOrdersArgs<ExtArgs> = {}>(args?: Subset<T, User$installationOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InstallationOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     uploadedDocuments<T extends User$uploadedDocumentsArgs<ExtArgs> = {}>(args?: Subset<T, User$uploadedDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedMarketingLeads<T extends User$assignedMarketingLeadsArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedMarketingLeadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -14075,6 +14845,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CustomerRequirementScalarFieldEnum | CustomerRequirementScalarFieldEnum[]
+  }
+
+  /**
+   * User.customerSatisfactions
+   */
+  export type User$customerSatisfactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    where?: CustomerSatisfactionWhereInput
+    orderBy?: CustomerSatisfactionOrderByWithRelationInput | CustomerSatisfactionOrderByWithRelationInput[]
+    cursor?: CustomerSatisfactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CustomerSatisfactionScalarFieldEnum | CustomerSatisfactionScalarFieldEnum[]
   }
 
   /**
@@ -19575,6 +20369,7 @@ export namespace Prisma {
     assignedUser?: boolean | Company$assignedUserArgs<ExtArgs>
     interactions?: boolean | Company$interactionsArgs<ExtArgs>
     contacts?: boolean | Company$contactsArgs<ExtArgs>
+    customerSatisfactions?: boolean | Company$customerSatisfactionsArgs<ExtArgs>
     orders?: boolean | Company$ordersArgs<ExtArgs>
     quotations?: boolean | Company$quotationsArgs<ExtArgs>
     schedules?: boolean | Company$schedulesArgs<ExtArgs>
@@ -19692,6 +20487,7 @@ export namespace Prisma {
     assignedUser?: boolean | Company$assignedUserArgs<ExtArgs>
     interactions?: boolean | Company$interactionsArgs<ExtArgs>
     contacts?: boolean | Company$contactsArgs<ExtArgs>
+    customerSatisfactions?: boolean | Company$customerSatisfactionsArgs<ExtArgs>
     orders?: boolean | Company$ordersArgs<ExtArgs>
     quotations?: boolean | Company$quotationsArgs<ExtArgs>
     schedules?: boolean | Company$schedulesArgs<ExtArgs>
@@ -19712,6 +20508,7 @@ export namespace Prisma {
       assignedUser: Prisma.$UserPayload<ExtArgs> | null
       interactions: Prisma.$CompanyInteractionPayload<ExtArgs>[]
       contacts: Prisma.$ContactPayload<ExtArgs>[]
+      customerSatisfactions: Prisma.$CustomerSatisfactionPayload<ExtArgs>[]
       orders: Prisma.$OrderPayload<ExtArgs>[]
       quotations: Prisma.$QuotationPayload<ExtArgs>[]
       schedules: Prisma.$SchedulePayload<ExtArgs>[]
@@ -20147,6 +20944,7 @@ export namespace Prisma {
     assignedUser<T extends Company$assignedUserArgs<ExtArgs> = {}>(args?: Subset<T, Company$assignedUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     interactions<T extends Company$interactionsArgs<ExtArgs> = {}>(args?: Subset<T, Company$interactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInteractionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     contacts<T extends Company$contactsArgs<ExtArgs> = {}>(args?: Subset<T, Company$contactsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    customerSatisfactions<T extends Company$customerSatisfactionsArgs<ExtArgs> = {}>(args?: Subset<T, Company$customerSatisfactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orders<T extends Company$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Company$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotations<T extends Company$quotationsArgs<ExtArgs> = {}>(args?: Subset<T, Company$quotationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     schedules<T extends Company$schedulesArgs<ExtArgs> = {}>(args?: Subset<T, Company$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -20677,6 +21475,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ContactScalarFieldEnum | ContactScalarFieldEnum[]
+  }
+
+  /**
+   * Company.customerSatisfactions
+   */
+  export type Company$customerSatisfactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    where?: CustomerSatisfactionWhereInput
+    orderBy?: CustomerSatisfactionOrderByWithRelationInput | CustomerSatisfactionOrderByWithRelationInput[]
+    cursor?: CustomerSatisfactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CustomerSatisfactionScalarFieldEnum | CustomerSatisfactionScalarFieldEnum[]
   }
 
   /**
@@ -150544,6 +151366,8220 @@ export namespace Prisma {
 
 
   /**
+   * Model CustomerSatisfaction
+   */
+
+  export type AggregateCustomerSatisfaction = {
+    _count: CustomerSatisfactionCountAggregateOutputType | null
+    _avg: CustomerSatisfactionAvgAggregateOutputType | null
+    _sum: CustomerSatisfactionSumAggregateOutputType | null
+    _min: CustomerSatisfactionMinAggregateOutputType | null
+    _max: CustomerSatisfactionMaxAggregateOutputType | null
+  }
+
+  export type CustomerSatisfactionAvgAggregateOutputType = {
+    surveyRound: number | null
+    surveyYear: number | null
+    scorePrice: number | null
+    scoreQuality: number | null
+    scoreDelivery: number | null
+    scoreSales: number | null
+    scoreSupport: number | null
+    scoreAfterSales: number | null
+    scoreAverage: number | null
+  }
+
+  export type CustomerSatisfactionSumAggregateOutputType = {
+    surveyRound: number | null
+    surveyYear: number | null
+    scorePrice: number | null
+    scoreQuality: number | null
+    scoreDelivery: number | null
+    scoreSales: number | null
+    scoreSupport: number | null
+    scoreAfterSales: number | null
+    scoreAverage: number | null
+  }
+
+  export type CustomerSatisfactionMinAggregateOutputType = {
+    id: string | null
+    surveyRound: number | null
+    surveyYear: number | null
+    surveyMethod: string | null
+    surveyBy: string | null
+    surveyDate: Date | null
+    companyId: string | null
+    province: string | null
+    phone: string | null
+    scorePrice: number | null
+    scoreQuality: number | null
+    scoreDelivery: number | null
+    scoreSales: number | null
+    scoreSupport: number | null
+    scoreAfterSales: number | null
+    scoreAverage: number | null
+    suggestions: string | null
+    analysisNote: string | null
+    actionPlan: string | null
+    sharedToSales: boolean | null
+    sharedToService: boolean | null
+    sharedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CustomerSatisfactionMaxAggregateOutputType = {
+    id: string | null
+    surveyRound: number | null
+    surveyYear: number | null
+    surveyMethod: string | null
+    surveyBy: string | null
+    surveyDate: Date | null
+    companyId: string | null
+    province: string | null
+    phone: string | null
+    scorePrice: number | null
+    scoreQuality: number | null
+    scoreDelivery: number | null
+    scoreSales: number | null
+    scoreSupport: number | null
+    scoreAfterSales: number | null
+    scoreAverage: number | null
+    suggestions: string | null
+    analysisNote: string | null
+    actionPlan: string | null
+    sharedToSales: boolean | null
+    sharedToService: boolean | null
+    sharedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CustomerSatisfactionCountAggregateOutputType = {
+    id: number
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: number
+    surveyBy: number
+    surveyDate: number
+    companyId: number
+    province: number
+    phone: number
+    quotationIds: number
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons: number
+    suggestions: number
+    analysisNote: number
+    actionPlan: number
+    sharedToSales: number
+    sharedToService: number
+    sharedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CustomerSatisfactionAvgAggregateInputType = {
+    surveyRound?: true
+    surveyYear?: true
+    scorePrice?: true
+    scoreQuality?: true
+    scoreDelivery?: true
+    scoreSales?: true
+    scoreSupport?: true
+    scoreAfterSales?: true
+    scoreAverage?: true
+  }
+
+  export type CustomerSatisfactionSumAggregateInputType = {
+    surveyRound?: true
+    surveyYear?: true
+    scorePrice?: true
+    scoreQuality?: true
+    scoreDelivery?: true
+    scoreSales?: true
+    scoreSupport?: true
+    scoreAfterSales?: true
+    scoreAverage?: true
+  }
+
+  export type CustomerSatisfactionMinAggregateInputType = {
+    id?: true
+    surveyRound?: true
+    surveyYear?: true
+    surveyMethod?: true
+    surveyBy?: true
+    surveyDate?: true
+    companyId?: true
+    province?: true
+    phone?: true
+    scorePrice?: true
+    scoreQuality?: true
+    scoreDelivery?: true
+    scoreSales?: true
+    scoreSupport?: true
+    scoreAfterSales?: true
+    scoreAverage?: true
+    suggestions?: true
+    analysisNote?: true
+    actionPlan?: true
+    sharedToSales?: true
+    sharedToService?: true
+    sharedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CustomerSatisfactionMaxAggregateInputType = {
+    id?: true
+    surveyRound?: true
+    surveyYear?: true
+    surveyMethod?: true
+    surveyBy?: true
+    surveyDate?: true
+    companyId?: true
+    province?: true
+    phone?: true
+    scorePrice?: true
+    scoreQuality?: true
+    scoreDelivery?: true
+    scoreSales?: true
+    scoreSupport?: true
+    scoreAfterSales?: true
+    scoreAverage?: true
+    suggestions?: true
+    analysisNote?: true
+    actionPlan?: true
+    sharedToSales?: true
+    sharedToService?: true
+    sharedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CustomerSatisfactionCountAggregateInputType = {
+    id?: true
+    surveyRound?: true
+    surveyYear?: true
+    surveyMethod?: true
+    surveyBy?: true
+    surveyDate?: true
+    companyId?: true
+    province?: true
+    phone?: true
+    quotationIds?: true
+    scorePrice?: true
+    scoreQuality?: true
+    scoreDelivery?: true
+    scoreSales?: true
+    scoreSupport?: true
+    scoreAfterSales?: true
+    scoreAverage?: true
+    purchaseReasons?: true
+    suggestions?: true
+    analysisNote?: true
+    actionPlan?: true
+    sharedToSales?: true
+    sharedToService?: true
+    sharedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CustomerSatisfactionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomerSatisfaction to aggregate.
+     */
+    where?: CustomerSatisfactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerSatisfactions to fetch.
+     */
+    orderBy?: CustomerSatisfactionOrderByWithRelationInput | CustomerSatisfactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CustomerSatisfactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerSatisfactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerSatisfactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CustomerSatisfactions
+    **/
+    _count?: true | CustomerSatisfactionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CustomerSatisfactionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CustomerSatisfactionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CustomerSatisfactionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CustomerSatisfactionMaxAggregateInputType
+  }
+
+  export type GetCustomerSatisfactionAggregateType<T extends CustomerSatisfactionAggregateArgs> = {
+        [P in keyof T & keyof AggregateCustomerSatisfaction]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCustomerSatisfaction[P]>
+      : GetScalarType<T[P], AggregateCustomerSatisfaction[P]>
+  }
+
+
+
+
+  export type CustomerSatisfactionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomerSatisfactionWhereInput
+    orderBy?: CustomerSatisfactionOrderByWithAggregationInput | CustomerSatisfactionOrderByWithAggregationInput[]
+    by: CustomerSatisfactionScalarFieldEnum[] | CustomerSatisfactionScalarFieldEnum
+    having?: CustomerSatisfactionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CustomerSatisfactionCountAggregateInputType | true
+    _avg?: CustomerSatisfactionAvgAggregateInputType
+    _sum?: CustomerSatisfactionSumAggregateInputType
+    _min?: CustomerSatisfactionMinAggregateInputType
+    _max?: CustomerSatisfactionMaxAggregateInputType
+  }
+
+  export type CustomerSatisfactionGroupByOutputType = {
+    id: string
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: string
+    surveyBy: string
+    surveyDate: Date
+    companyId: string
+    province: string
+    phone: string
+    quotationIds: string[]
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons: string[]
+    suggestions: string | null
+    analysisNote: string | null
+    actionPlan: string | null
+    sharedToSales: boolean
+    sharedToService: boolean
+    sharedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: CustomerSatisfactionCountAggregateOutputType | null
+    _avg: CustomerSatisfactionAvgAggregateOutputType | null
+    _sum: CustomerSatisfactionSumAggregateOutputType | null
+    _min: CustomerSatisfactionMinAggregateOutputType | null
+    _max: CustomerSatisfactionMaxAggregateOutputType | null
+  }
+
+  type GetCustomerSatisfactionGroupByPayload<T extends CustomerSatisfactionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CustomerSatisfactionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CustomerSatisfactionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CustomerSatisfactionGroupByOutputType[P]>
+            : GetScalarType<T[P], CustomerSatisfactionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CustomerSatisfactionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    surveyRound?: boolean
+    surveyYear?: boolean
+    surveyMethod?: boolean
+    surveyBy?: boolean
+    surveyDate?: boolean
+    companyId?: boolean
+    province?: boolean
+    phone?: boolean
+    quotationIds?: boolean
+    scorePrice?: boolean
+    scoreQuality?: boolean
+    scoreDelivery?: boolean
+    scoreSales?: boolean
+    scoreSupport?: boolean
+    scoreAfterSales?: boolean
+    scoreAverage?: boolean
+    purchaseReasons?: boolean
+    suggestions?: boolean
+    analysisNote?: boolean
+    actionPlan?: boolean
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    surveyor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customerSatisfaction"]>
+
+  export type CustomerSatisfactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    surveyRound?: boolean
+    surveyYear?: boolean
+    surveyMethod?: boolean
+    surveyBy?: boolean
+    surveyDate?: boolean
+    companyId?: boolean
+    province?: boolean
+    phone?: boolean
+    quotationIds?: boolean
+    scorePrice?: boolean
+    scoreQuality?: boolean
+    scoreDelivery?: boolean
+    scoreSales?: boolean
+    scoreSupport?: boolean
+    scoreAfterSales?: boolean
+    scoreAverage?: boolean
+    purchaseReasons?: boolean
+    suggestions?: boolean
+    analysisNote?: boolean
+    actionPlan?: boolean
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    surveyor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customerSatisfaction"]>
+
+  export type CustomerSatisfactionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    surveyRound?: boolean
+    surveyYear?: boolean
+    surveyMethod?: boolean
+    surveyBy?: boolean
+    surveyDate?: boolean
+    companyId?: boolean
+    province?: boolean
+    phone?: boolean
+    quotationIds?: boolean
+    scorePrice?: boolean
+    scoreQuality?: boolean
+    scoreDelivery?: boolean
+    scoreSales?: boolean
+    scoreSupport?: boolean
+    scoreAfterSales?: boolean
+    scoreAverage?: boolean
+    purchaseReasons?: boolean
+    suggestions?: boolean
+    analysisNote?: boolean
+    actionPlan?: boolean
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    surveyor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customerSatisfaction"]>
+
+  export type CustomerSatisfactionSelectScalar = {
+    id?: boolean
+    surveyRound?: boolean
+    surveyYear?: boolean
+    surveyMethod?: boolean
+    surveyBy?: boolean
+    surveyDate?: boolean
+    companyId?: boolean
+    province?: boolean
+    phone?: boolean
+    quotationIds?: boolean
+    scorePrice?: boolean
+    scoreQuality?: boolean
+    scoreDelivery?: boolean
+    scoreSales?: boolean
+    scoreSupport?: boolean
+    scoreAfterSales?: boolean
+    scoreAverage?: boolean
+    purchaseReasons?: boolean
+    suggestions?: boolean
+    analysisNote?: boolean
+    actionPlan?: boolean
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CustomerSatisfactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "surveyRound" | "surveyYear" | "surveyMethod" | "surveyBy" | "surveyDate" | "companyId" | "province" | "phone" | "quotationIds" | "scorePrice" | "scoreQuality" | "scoreDelivery" | "scoreSales" | "scoreSupport" | "scoreAfterSales" | "scoreAverage" | "purchaseReasons" | "suggestions" | "analysisNote" | "actionPlan" | "sharedToSales" | "sharedToService" | "sharedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["customerSatisfaction"]>
+  export type CustomerSatisfactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    surveyor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type CustomerSatisfactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    surveyor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type CustomerSatisfactionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    surveyor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $CustomerSatisfactionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CustomerSatisfaction"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      surveyor: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      surveyRound: number
+      surveyYear: number
+      surveyMethod: string
+      surveyBy: string
+      surveyDate: Date
+      companyId: string
+      province: string
+      phone: string
+      quotationIds: string[]
+      scorePrice: number
+      scoreQuality: number
+      scoreDelivery: number
+      scoreSales: number
+      scoreSupport: number
+      scoreAfterSales: number
+      scoreAverage: number
+      purchaseReasons: string[]
+      suggestions: string | null
+      analysisNote: string | null
+      actionPlan: string | null
+      sharedToSales: boolean
+      sharedToService: boolean
+      sharedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["customerSatisfaction"]>
+    composites: {}
+  }
+
+  type CustomerSatisfactionGetPayload<S extends boolean | null | undefined | CustomerSatisfactionDefaultArgs> = $Result.GetResult<Prisma.$CustomerSatisfactionPayload, S>
+
+  type CustomerSatisfactionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CustomerSatisfactionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CustomerSatisfactionCountAggregateInputType | true
+    }
+
+  export interface CustomerSatisfactionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CustomerSatisfaction'], meta: { name: 'CustomerSatisfaction' } }
+    /**
+     * Find zero or one CustomerSatisfaction that matches the filter.
+     * @param {CustomerSatisfactionFindUniqueArgs} args - Arguments to find a CustomerSatisfaction
+     * @example
+     * // Get one CustomerSatisfaction
+     * const customerSatisfaction = await prisma.customerSatisfaction.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CustomerSatisfactionFindUniqueArgs>(args: SelectSubset<T, CustomerSatisfactionFindUniqueArgs<ExtArgs>>): Prisma__CustomerSatisfactionClient<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CustomerSatisfaction that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CustomerSatisfactionFindUniqueOrThrowArgs} args - Arguments to find a CustomerSatisfaction
+     * @example
+     * // Get one CustomerSatisfaction
+     * const customerSatisfaction = await prisma.customerSatisfaction.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CustomerSatisfactionFindUniqueOrThrowArgs>(args: SelectSubset<T, CustomerSatisfactionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CustomerSatisfactionClient<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomerSatisfaction that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerSatisfactionFindFirstArgs} args - Arguments to find a CustomerSatisfaction
+     * @example
+     * // Get one CustomerSatisfaction
+     * const customerSatisfaction = await prisma.customerSatisfaction.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CustomerSatisfactionFindFirstArgs>(args?: SelectSubset<T, CustomerSatisfactionFindFirstArgs<ExtArgs>>): Prisma__CustomerSatisfactionClient<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomerSatisfaction that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerSatisfactionFindFirstOrThrowArgs} args - Arguments to find a CustomerSatisfaction
+     * @example
+     * // Get one CustomerSatisfaction
+     * const customerSatisfaction = await prisma.customerSatisfaction.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CustomerSatisfactionFindFirstOrThrowArgs>(args?: SelectSubset<T, CustomerSatisfactionFindFirstOrThrowArgs<ExtArgs>>): Prisma__CustomerSatisfactionClient<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CustomerSatisfactions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerSatisfactionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CustomerSatisfactions
+     * const customerSatisfactions = await prisma.customerSatisfaction.findMany()
+     * 
+     * // Get first 10 CustomerSatisfactions
+     * const customerSatisfactions = await prisma.customerSatisfaction.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const customerSatisfactionWithIdOnly = await prisma.customerSatisfaction.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CustomerSatisfactionFindManyArgs>(args?: SelectSubset<T, CustomerSatisfactionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CustomerSatisfaction.
+     * @param {CustomerSatisfactionCreateArgs} args - Arguments to create a CustomerSatisfaction.
+     * @example
+     * // Create one CustomerSatisfaction
+     * const CustomerSatisfaction = await prisma.customerSatisfaction.create({
+     *   data: {
+     *     // ... data to create a CustomerSatisfaction
+     *   }
+     * })
+     * 
+     */
+    create<T extends CustomerSatisfactionCreateArgs>(args: SelectSubset<T, CustomerSatisfactionCreateArgs<ExtArgs>>): Prisma__CustomerSatisfactionClient<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CustomerSatisfactions.
+     * @param {CustomerSatisfactionCreateManyArgs} args - Arguments to create many CustomerSatisfactions.
+     * @example
+     * // Create many CustomerSatisfactions
+     * const customerSatisfaction = await prisma.customerSatisfaction.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CustomerSatisfactionCreateManyArgs>(args?: SelectSubset<T, CustomerSatisfactionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CustomerSatisfactions and returns the data saved in the database.
+     * @param {CustomerSatisfactionCreateManyAndReturnArgs} args - Arguments to create many CustomerSatisfactions.
+     * @example
+     * // Create many CustomerSatisfactions
+     * const customerSatisfaction = await prisma.customerSatisfaction.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CustomerSatisfactions and only return the `id`
+     * const customerSatisfactionWithIdOnly = await prisma.customerSatisfaction.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CustomerSatisfactionCreateManyAndReturnArgs>(args?: SelectSubset<T, CustomerSatisfactionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CustomerSatisfaction.
+     * @param {CustomerSatisfactionDeleteArgs} args - Arguments to delete one CustomerSatisfaction.
+     * @example
+     * // Delete one CustomerSatisfaction
+     * const CustomerSatisfaction = await prisma.customerSatisfaction.delete({
+     *   where: {
+     *     // ... filter to delete one CustomerSatisfaction
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CustomerSatisfactionDeleteArgs>(args: SelectSubset<T, CustomerSatisfactionDeleteArgs<ExtArgs>>): Prisma__CustomerSatisfactionClient<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CustomerSatisfaction.
+     * @param {CustomerSatisfactionUpdateArgs} args - Arguments to update one CustomerSatisfaction.
+     * @example
+     * // Update one CustomerSatisfaction
+     * const customerSatisfaction = await prisma.customerSatisfaction.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CustomerSatisfactionUpdateArgs>(args: SelectSubset<T, CustomerSatisfactionUpdateArgs<ExtArgs>>): Prisma__CustomerSatisfactionClient<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CustomerSatisfactions.
+     * @param {CustomerSatisfactionDeleteManyArgs} args - Arguments to filter CustomerSatisfactions to delete.
+     * @example
+     * // Delete a few CustomerSatisfactions
+     * const { count } = await prisma.customerSatisfaction.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CustomerSatisfactionDeleteManyArgs>(args?: SelectSubset<T, CustomerSatisfactionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomerSatisfactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerSatisfactionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CustomerSatisfactions
+     * const customerSatisfaction = await prisma.customerSatisfaction.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CustomerSatisfactionUpdateManyArgs>(args: SelectSubset<T, CustomerSatisfactionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomerSatisfactions and returns the data updated in the database.
+     * @param {CustomerSatisfactionUpdateManyAndReturnArgs} args - Arguments to update many CustomerSatisfactions.
+     * @example
+     * // Update many CustomerSatisfactions
+     * const customerSatisfaction = await prisma.customerSatisfaction.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CustomerSatisfactions and only return the `id`
+     * const customerSatisfactionWithIdOnly = await prisma.customerSatisfaction.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CustomerSatisfactionUpdateManyAndReturnArgs>(args: SelectSubset<T, CustomerSatisfactionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CustomerSatisfaction.
+     * @param {CustomerSatisfactionUpsertArgs} args - Arguments to update or create a CustomerSatisfaction.
+     * @example
+     * // Update or create a CustomerSatisfaction
+     * const customerSatisfaction = await prisma.customerSatisfaction.upsert({
+     *   create: {
+     *     // ... data to create a CustomerSatisfaction
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CustomerSatisfaction we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CustomerSatisfactionUpsertArgs>(args: SelectSubset<T, CustomerSatisfactionUpsertArgs<ExtArgs>>): Prisma__CustomerSatisfactionClient<$Result.GetResult<Prisma.$CustomerSatisfactionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CustomerSatisfactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerSatisfactionCountArgs} args - Arguments to filter CustomerSatisfactions to count.
+     * @example
+     * // Count the number of CustomerSatisfactions
+     * const count = await prisma.customerSatisfaction.count({
+     *   where: {
+     *     // ... the filter for the CustomerSatisfactions we want to count
+     *   }
+     * })
+    **/
+    count<T extends CustomerSatisfactionCountArgs>(
+      args?: Subset<T, CustomerSatisfactionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CustomerSatisfactionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CustomerSatisfaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerSatisfactionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CustomerSatisfactionAggregateArgs>(args: Subset<T, CustomerSatisfactionAggregateArgs>): Prisma.PrismaPromise<GetCustomerSatisfactionAggregateType<T>>
+
+    /**
+     * Group by CustomerSatisfaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerSatisfactionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CustomerSatisfactionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CustomerSatisfactionGroupByArgs['orderBy'] }
+        : { orderBy?: CustomerSatisfactionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CustomerSatisfactionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCustomerSatisfactionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CustomerSatisfaction model
+   */
+  readonly fields: CustomerSatisfactionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CustomerSatisfaction.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CustomerSatisfactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    surveyor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CustomerSatisfaction model
+   */
+  interface CustomerSatisfactionFieldRefs {
+    readonly id: FieldRef<"CustomerSatisfaction", 'String'>
+    readonly surveyRound: FieldRef<"CustomerSatisfaction", 'Int'>
+    readonly surveyYear: FieldRef<"CustomerSatisfaction", 'Int'>
+    readonly surveyMethod: FieldRef<"CustomerSatisfaction", 'String'>
+    readonly surveyBy: FieldRef<"CustomerSatisfaction", 'String'>
+    readonly surveyDate: FieldRef<"CustomerSatisfaction", 'DateTime'>
+    readonly companyId: FieldRef<"CustomerSatisfaction", 'String'>
+    readonly province: FieldRef<"CustomerSatisfaction", 'String'>
+    readonly phone: FieldRef<"CustomerSatisfaction", 'String'>
+    readonly quotationIds: FieldRef<"CustomerSatisfaction", 'String[]'>
+    readonly scorePrice: FieldRef<"CustomerSatisfaction", 'Int'>
+    readonly scoreQuality: FieldRef<"CustomerSatisfaction", 'Int'>
+    readonly scoreDelivery: FieldRef<"CustomerSatisfaction", 'Int'>
+    readonly scoreSales: FieldRef<"CustomerSatisfaction", 'Int'>
+    readonly scoreSupport: FieldRef<"CustomerSatisfaction", 'Int'>
+    readonly scoreAfterSales: FieldRef<"CustomerSatisfaction", 'Int'>
+    readonly scoreAverage: FieldRef<"CustomerSatisfaction", 'Float'>
+    readonly purchaseReasons: FieldRef<"CustomerSatisfaction", 'String[]'>
+    readonly suggestions: FieldRef<"CustomerSatisfaction", 'String'>
+    readonly analysisNote: FieldRef<"CustomerSatisfaction", 'String'>
+    readonly actionPlan: FieldRef<"CustomerSatisfaction", 'String'>
+    readonly sharedToSales: FieldRef<"CustomerSatisfaction", 'Boolean'>
+    readonly sharedToService: FieldRef<"CustomerSatisfaction", 'Boolean'>
+    readonly sharedAt: FieldRef<"CustomerSatisfaction", 'DateTime'>
+    readonly createdAt: FieldRef<"CustomerSatisfaction", 'DateTime'>
+    readonly updatedAt: FieldRef<"CustomerSatisfaction", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CustomerSatisfaction findUnique
+   */
+  export type CustomerSatisfactionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerSatisfaction to fetch.
+     */
+    where: CustomerSatisfactionWhereUniqueInput
+  }
+
+  /**
+   * CustomerSatisfaction findUniqueOrThrow
+   */
+  export type CustomerSatisfactionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerSatisfaction to fetch.
+     */
+    where: CustomerSatisfactionWhereUniqueInput
+  }
+
+  /**
+   * CustomerSatisfaction findFirst
+   */
+  export type CustomerSatisfactionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerSatisfaction to fetch.
+     */
+    where?: CustomerSatisfactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerSatisfactions to fetch.
+     */
+    orderBy?: CustomerSatisfactionOrderByWithRelationInput | CustomerSatisfactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomerSatisfactions.
+     */
+    cursor?: CustomerSatisfactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerSatisfactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerSatisfactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomerSatisfactions.
+     */
+    distinct?: CustomerSatisfactionScalarFieldEnum | CustomerSatisfactionScalarFieldEnum[]
+  }
+
+  /**
+   * CustomerSatisfaction findFirstOrThrow
+   */
+  export type CustomerSatisfactionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerSatisfaction to fetch.
+     */
+    where?: CustomerSatisfactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerSatisfactions to fetch.
+     */
+    orderBy?: CustomerSatisfactionOrderByWithRelationInput | CustomerSatisfactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomerSatisfactions.
+     */
+    cursor?: CustomerSatisfactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerSatisfactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerSatisfactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomerSatisfactions.
+     */
+    distinct?: CustomerSatisfactionScalarFieldEnum | CustomerSatisfactionScalarFieldEnum[]
+  }
+
+  /**
+   * CustomerSatisfaction findMany
+   */
+  export type CustomerSatisfactionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerSatisfactions to fetch.
+     */
+    where?: CustomerSatisfactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerSatisfactions to fetch.
+     */
+    orderBy?: CustomerSatisfactionOrderByWithRelationInput | CustomerSatisfactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CustomerSatisfactions.
+     */
+    cursor?: CustomerSatisfactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerSatisfactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerSatisfactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomerSatisfactions.
+     */
+    distinct?: CustomerSatisfactionScalarFieldEnum | CustomerSatisfactionScalarFieldEnum[]
+  }
+
+  /**
+   * CustomerSatisfaction create
+   */
+  export type CustomerSatisfactionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CustomerSatisfaction.
+     */
+    data: XOR<CustomerSatisfactionCreateInput, CustomerSatisfactionUncheckedCreateInput>
+  }
+
+  /**
+   * CustomerSatisfaction createMany
+   */
+  export type CustomerSatisfactionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CustomerSatisfactions.
+     */
+    data: CustomerSatisfactionCreateManyInput | CustomerSatisfactionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CustomerSatisfaction createManyAndReturn
+   */
+  export type CustomerSatisfactionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * The data used to create many CustomerSatisfactions.
+     */
+    data: CustomerSatisfactionCreateManyInput | CustomerSatisfactionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomerSatisfaction update
+   */
+  export type CustomerSatisfactionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CustomerSatisfaction.
+     */
+    data: XOR<CustomerSatisfactionUpdateInput, CustomerSatisfactionUncheckedUpdateInput>
+    /**
+     * Choose, which CustomerSatisfaction to update.
+     */
+    where: CustomerSatisfactionWhereUniqueInput
+  }
+
+  /**
+   * CustomerSatisfaction updateMany
+   */
+  export type CustomerSatisfactionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CustomerSatisfactions.
+     */
+    data: XOR<CustomerSatisfactionUpdateManyMutationInput, CustomerSatisfactionUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomerSatisfactions to update
+     */
+    where?: CustomerSatisfactionWhereInput
+    /**
+     * Limit how many CustomerSatisfactions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomerSatisfaction updateManyAndReturn
+   */
+  export type CustomerSatisfactionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * The data used to update CustomerSatisfactions.
+     */
+    data: XOR<CustomerSatisfactionUpdateManyMutationInput, CustomerSatisfactionUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomerSatisfactions to update
+     */
+    where?: CustomerSatisfactionWhereInput
+    /**
+     * Limit how many CustomerSatisfactions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomerSatisfaction upsert
+   */
+  export type CustomerSatisfactionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CustomerSatisfaction to update in case it exists.
+     */
+    where: CustomerSatisfactionWhereUniqueInput
+    /**
+     * In case the CustomerSatisfaction found by the `where` argument doesn't exist, create a new CustomerSatisfaction with this data.
+     */
+    create: XOR<CustomerSatisfactionCreateInput, CustomerSatisfactionUncheckedCreateInput>
+    /**
+     * In case the CustomerSatisfaction was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CustomerSatisfactionUpdateInput, CustomerSatisfactionUncheckedUpdateInput>
+  }
+
+  /**
+   * CustomerSatisfaction delete
+   */
+  export type CustomerSatisfactionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+    /**
+     * Filter which CustomerSatisfaction to delete.
+     */
+    where: CustomerSatisfactionWhereUniqueInput
+  }
+
+  /**
+   * CustomerSatisfaction deleteMany
+   */
+  export type CustomerSatisfactionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomerSatisfactions to delete
+     */
+    where?: CustomerSatisfactionWhereInput
+    /**
+     * Limit how many CustomerSatisfactions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomerSatisfaction without action
+   */
+  export type CustomerSatisfactionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerSatisfaction
+     */
+    select?: CustomerSatisfactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerSatisfaction
+     */
+    omit?: CustomerSatisfactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerSatisfactionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model KanbanBoard
+   */
+
+  export type AggregateKanbanBoard = {
+    _count: KanbanBoardCountAggregateOutputType | null
+    _min: KanbanBoardMinAggregateOutputType | null
+    _max: KanbanBoardMaxAggregateOutputType | null
+  }
+
+  export type KanbanBoardMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    ownerId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    colorTheme: string | null
+  }
+
+  export type KanbanBoardMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    ownerId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    colorTheme: string | null
+  }
+
+  export type KanbanBoardCountAggregateOutputType = {
+    id: number
+    name: number
+    ownerId: number
+    createdAt: number
+    updatedAt: number
+    colorTheme: number
+    _all: number
+  }
+
+
+  export type KanbanBoardMinAggregateInputType = {
+    id?: true
+    name?: true
+    ownerId?: true
+    createdAt?: true
+    updatedAt?: true
+    colorTheme?: true
+  }
+
+  export type KanbanBoardMaxAggregateInputType = {
+    id?: true
+    name?: true
+    ownerId?: true
+    createdAt?: true
+    updatedAt?: true
+    colorTheme?: true
+  }
+
+  export type KanbanBoardCountAggregateInputType = {
+    id?: true
+    name?: true
+    ownerId?: true
+    createdAt?: true
+    updatedAt?: true
+    colorTheme?: true
+    _all?: true
+  }
+
+  export type KanbanBoardAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanBoard to aggregate.
+     */
+    where?: KanbanBoardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanBoards to fetch.
+     */
+    orderBy?: KanbanBoardOrderByWithRelationInput | KanbanBoardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: KanbanBoardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanBoards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanBoards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned KanbanBoards
+    **/
+    _count?: true | KanbanBoardCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: KanbanBoardMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: KanbanBoardMaxAggregateInputType
+  }
+
+  export type GetKanbanBoardAggregateType<T extends KanbanBoardAggregateArgs> = {
+        [P in keyof T & keyof AggregateKanbanBoard]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateKanbanBoard[P]>
+      : GetScalarType<T[P], AggregateKanbanBoard[P]>
+  }
+
+
+
+
+  export type KanbanBoardGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanBoardWhereInput
+    orderBy?: KanbanBoardOrderByWithAggregationInput | KanbanBoardOrderByWithAggregationInput[]
+    by: KanbanBoardScalarFieldEnum[] | KanbanBoardScalarFieldEnum
+    having?: KanbanBoardScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: KanbanBoardCountAggregateInputType | true
+    _min?: KanbanBoardMinAggregateInputType
+    _max?: KanbanBoardMaxAggregateInputType
+  }
+
+  export type KanbanBoardGroupByOutputType = {
+    id: string
+    name: string
+    ownerId: string | null
+    createdAt: Date
+    updatedAt: Date
+    colorTheme: string
+    _count: KanbanBoardCountAggregateOutputType | null
+    _min: KanbanBoardMinAggregateOutputType | null
+    _max: KanbanBoardMaxAggregateOutputType | null
+  }
+
+  type GetKanbanBoardGroupByPayload<T extends KanbanBoardGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<KanbanBoardGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof KanbanBoardGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], KanbanBoardGroupByOutputType[P]>
+            : GetScalarType<T[P], KanbanBoardGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type KanbanBoardSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    ownerId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    colorTheme?: boolean
+    lists?: boolean | KanbanBoard$listsArgs<ExtArgs>
+    _count?: boolean | KanbanBoardCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanBoard"]>
+
+  export type KanbanBoardSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    ownerId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    colorTheme?: boolean
+  }, ExtArgs["result"]["kanbanBoard"]>
+
+  export type KanbanBoardSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    ownerId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    colorTheme?: boolean
+  }, ExtArgs["result"]["kanbanBoard"]>
+
+  export type KanbanBoardSelectScalar = {
+    id?: boolean
+    name?: boolean
+    ownerId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    colorTheme?: boolean
+  }
+
+  export type KanbanBoardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "ownerId" | "createdAt" | "updatedAt" | "colorTheme", ExtArgs["result"]["kanbanBoard"]>
+  export type KanbanBoardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    lists?: boolean | KanbanBoard$listsArgs<ExtArgs>
+    _count?: boolean | KanbanBoardCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type KanbanBoardIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type KanbanBoardIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $KanbanBoardPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "KanbanBoard"
+    objects: {
+      lists: Prisma.$KanbanListPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      ownerId: string | null
+      createdAt: Date
+      updatedAt: Date
+      colorTheme: string
+    }, ExtArgs["result"]["kanbanBoard"]>
+    composites: {}
+  }
+
+  type KanbanBoardGetPayload<S extends boolean | null | undefined | KanbanBoardDefaultArgs> = $Result.GetResult<Prisma.$KanbanBoardPayload, S>
+
+  type KanbanBoardCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<KanbanBoardFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: KanbanBoardCountAggregateInputType | true
+    }
+
+  export interface KanbanBoardDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KanbanBoard'], meta: { name: 'KanbanBoard' } }
+    /**
+     * Find zero or one KanbanBoard that matches the filter.
+     * @param {KanbanBoardFindUniqueArgs} args - Arguments to find a KanbanBoard
+     * @example
+     * // Get one KanbanBoard
+     * const kanbanBoard = await prisma.kanbanBoard.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends KanbanBoardFindUniqueArgs>(args: SelectSubset<T, KanbanBoardFindUniqueArgs<ExtArgs>>): Prisma__KanbanBoardClient<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one KanbanBoard that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {KanbanBoardFindUniqueOrThrowArgs} args - Arguments to find a KanbanBoard
+     * @example
+     * // Get one KanbanBoard
+     * const kanbanBoard = await prisma.kanbanBoard.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends KanbanBoardFindUniqueOrThrowArgs>(args: SelectSubset<T, KanbanBoardFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KanbanBoardClient<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanBoard that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanBoardFindFirstArgs} args - Arguments to find a KanbanBoard
+     * @example
+     * // Get one KanbanBoard
+     * const kanbanBoard = await prisma.kanbanBoard.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends KanbanBoardFindFirstArgs>(args?: SelectSubset<T, KanbanBoardFindFirstArgs<ExtArgs>>): Prisma__KanbanBoardClient<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanBoard that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanBoardFindFirstOrThrowArgs} args - Arguments to find a KanbanBoard
+     * @example
+     * // Get one KanbanBoard
+     * const kanbanBoard = await prisma.kanbanBoard.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends KanbanBoardFindFirstOrThrowArgs>(args?: SelectSubset<T, KanbanBoardFindFirstOrThrowArgs<ExtArgs>>): Prisma__KanbanBoardClient<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more KanbanBoards that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanBoardFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all KanbanBoards
+     * const kanbanBoards = await prisma.kanbanBoard.findMany()
+     * 
+     * // Get first 10 KanbanBoards
+     * const kanbanBoards = await prisma.kanbanBoard.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const kanbanBoardWithIdOnly = await prisma.kanbanBoard.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends KanbanBoardFindManyArgs>(args?: SelectSubset<T, KanbanBoardFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a KanbanBoard.
+     * @param {KanbanBoardCreateArgs} args - Arguments to create a KanbanBoard.
+     * @example
+     * // Create one KanbanBoard
+     * const KanbanBoard = await prisma.kanbanBoard.create({
+     *   data: {
+     *     // ... data to create a KanbanBoard
+     *   }
+     * })
+     * 
+     */
+    create<T extends KanbanBoardCreateArgs>(args: SelectSubset<T, KanbanBoardCreateArgs<ExtArgs>>): Prisma__KanbanBoardClient<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many KanbanBoards.
+     * @param {KanbanBoardCreateManyArgs} args - Arguments to create many KanbanBoards.
+     * @example
+     * // Create many KanbanBoards
+     * const kanbanBoard = await prisma.kanbanBoard.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends KanbanBoardCreateManyArgs>(args?: SelectSubset<T, KanbanBoardCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many KanbanBoards and returns the data saved in the database.
+     * @param {KanbanBoardCreateManyAndReturnArgs} args - Arguments to create many KanbanBoards.
+     * @example
+     * // Create many KanbanBoards
+     * const kanbanBoard = await prisma.kanbanBoard.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many KanbanBoards and only return the `id`
+     * const kanbanBoardWithIdOnly = await prisma.kanbanBoard.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends KanbanBoardCreateManyAndReturnArgs>(args?: SelectSubset<T, KanbanBoardCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a KanbanBoard.
+     * @param {KanbanBoardDeleteArgs} args - Arguments to delete one KanbanBoard.
+     * @example
+     * // Delete one KanbanBoard
+     * const KanbanBoard = await prisma.kanbanBoard.delete({
+     *   where: {
+     *     // ... filter to delete one KanbanBoard
+     *   }
+     * })
+     * 
+     */
+    delete<T extends KanbanBoardDeleteArgs>(args: SelectSubset<T, KanbanBoardDeleteArgs<ExtArgs>>): Prisma__KanbanBoardClient<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one KanbanBoard.
+     * @param {KanbanBoardUpdateArgs} args - Arguments to update one KanbanBoard.
+     * @example
+     * // Update one KanbanBoard
+     * const kanbanBoard = await prisma.kanbanBoard.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends KanbanBoardUpdateArgs>(args: SelectSubset<T, KanbanBoardUpdateArgs<ExtArgs>>): Prisma__KanbanBoardClient<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more KanbanBoards.
+     * @param {KanbanBoardDeleteManyArgs} args - Arguments to filter KanbanBoards to delete.
+     * @example
+     * // Delete a few KanbanBoards
+     * const { count } = await prisma.kanbanBoard.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends KanbanBoardDeleteManyArgs>(args?: SelectSubset<T, KanbanBoardDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanBoards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanBoardUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many KanbanBoards
+     * const kanbanBoard = await prisma.kanbanBoard.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends KanbanBoardUpdateManyArgs>(args: SelectSubset<T, KanbanBoardUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanBoards and returns the data updated in the database.
+     * @param {KanbanBoardUpdateManyAndReturnArgs} args - Arguments to update many KanbanBoards.
+     * @example
+     * // Update many KanbanBoards
+     * const kanbanBoard = await prisma.kanbanBoard.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more KanbanBoards and only return the `id`
+     * const kanbanBoardWithIdOnly = await prisma.kanbanBoard.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends KanbanBoardUpdateManyAndReturnArgs>(args: SelectSubset<T, KanbanBoardUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one KanbanBoard.
+     * @param {KanbanBoardUpsertArgs} args - Arguments to update or create a KanbanBoard.
+     * @example
+     * // Update or create a KanbanBoard
+     * const kanbanBoard = await prisma.kanbanBoard.upsert({
+     *   create: {
+     *     // ... data to create a KanbanBoard
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the KanbanBoard we want to update
+     *   }
+     * })
+     */
+    upsert<T extends KanbanBoardUpsertArgs>(args: SelectSubset<T, KanbanBoardUpsertArgs<ExtArgs>>): Prisma__KanbanBoardClient<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of KanbanBoards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanBoardCountArgs} args - Arguments to filter KanbanBoards to count.
+     * @example
+     * // Count the number of KanbanBoards
+     * const count = await prisma.kanbanBoard.count({
+     *   where: {
+     *     // ... the filter for the KanbanBoards we want to count
+     *   }
+     * })
+    **/
+    count<T extends KanbanBoardCountArgs>(
+      args?: Subset<T, KanbanBoardCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], KanbanBoardCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a KanbanBoard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanBoardAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends KanbanBoardAggregateArgs>(args: Subset<T, KanbanBoardAggregateArgs>): Prisma.PrismaPromise<GetKanbanBoardAggregateType<T>>
+
+    /**
+     * Group by KanbanBoard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanBoardGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends KanbanBoardGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: KanbanBoardGroupByArgs['orderBy'] }
+        : { orderBy?: KanbanBoardGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, KanbanBoardGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKanbanBoardGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the KanbanBoard model
+   */
+  readonly fields: KanbanBoardFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for KanbanBoard.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__KanbanBoardClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    lists<T extends KanbanBoard$listsArgs<ExtArgs> = {}>(args?: Subset<T, KanbanBoard$listsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the KanbanBoard model
+   */
+  interface KanbanBoardFieldRefs {
+    readonly id: FieldRef<"KanbanBoard", 'String'>
+    readonly name: FieldRef<"KanbanBoard", 'String'>
+    readonly ownerId: FieldRef<"KanbanBoard", 'String'>
+    readonly createdAt: FieldRef<"KanbanBoard", 'DateTime'>
+    readonly updatedAt: FieldRef<"KanbanBoard", 'DateTime'>
+    readonly colorTheme: FieldRef<"KanbanBoard", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * KanbanBoard findUnique
+   */
+  export type KanbanBoardFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanBoardInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanBoard to fetch.
+     */
+    where: KanbanBoardWhereUniqueInput
+  }
+
+  /**
+   * KanbanBoard findUniqueOrThrow
+   */
+  export type KanbanBoardFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanBoardInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanBoard to fetch.
+     */
+    where: KanbanBoardWhereUniqueInput
+  }
+
+  /**
+   * KanbanBoard findFirst
+   */
+  export type KanbanBoardFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanBoardInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanBoard to fetch.
+     */
+    where?: KanbanBoardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanBoards to fetch.
+     */
+    orderBy?: KanbanBoardOrderByWithRelationInput | KanbanBoardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanBoards.
+     */
+    cursor?: KanbanBoardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanBoards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanBoards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanBoards.
+     */
+    distinct?: KanbanBoardScalarFieldEnum | KanbanBoardScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanBoard findFirstOrThrow
+   */
+  export type KanbanBoardFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanBoardInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanBoard to fetch.
+     */
+    where?: KanbanBoardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanBoards to fetch.
+     */
+    orderBy?: KanbanBoardOrderByWithRelationInput | KanbanBoardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanBoards.
+     */
+    cursor?: KanbanBoardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanBoards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanBoards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanBoards.
+     */
+    distinct?: KanbanBoardScalarFieldEnum | KanbanBoardScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanBoard findMany
+   */
+  export type KanbanBoardFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanBoardInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanBoards to fetch.
+     */
+    where?: KanbanBoardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanBoards to fetch.
+     */
+    orderBy?: KanbanBoardOrderByWithRelationInput | KanbanBoardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing KanbanBoards.
+     */
+    cursor?: KanbanBoardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanBoards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanBoards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanBoards.
+     */
+    distinct?: KanbanBoardScalarFieldEnum | KanbanBoardScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanBoard create
+   */
+  export type KanbanBoardCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanBoardInclude<ExtArgs> | null
+    /**
+     * The data needed to create a KanbanBoard.
+     */
+    data: XOR<KanbanBoardCreateInput, KanbanBoardUncheckedCreateInput>
+  }
+
+  /**
+   * KanbanBoard createMany
+   */
+  export type KanbanBoardCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many KanbanBoards.
+     */
+    data: KanbanBoardCreateManyInput | KanbanBoardCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * KanbanBoard createManyAndReturn
+   */
+  export type KanbanBoardCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * The data used to create many KanbanBoards.
+     */
+    data: KanbanBoardCreateManyInput | KanbanBoardCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * KanbanBoard update
+   */
+  export type KanbanBoardUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanBoardInclude<ExtArgs> | null
+    /**
+     * The data needed to update a KanbanBoard.
+     */
+    data: XOR<KanbanBoardUpdateInput, KanbanBoardUncheckedUpdateInput>
+    /**
+     * Choose, which KanbanBoard to update.
+     */
+    where: KanbanBoardWhereUniqueInput
+  }
+
+  /**
+   * KanbanBoard updateMany
+   */
+  export type KanbanBoardUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update KanbanBoards.
+     */
+    data: XOR<KanbanBoardUpdateManyMutationInput, KanbanBoardUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanBoards to update
+     */
+    where?: KanbanBoardWhereInput
+    /**
+     * Limit how many KanbanBoards to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanBoard updateManyAndReturn
+   */
+  export type KanbanBoardUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * The data used to update KanbanBoards.
+     */
+    data: XOR<KanbanBoardUpdateManyMutationInput, KanbanBoardUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanBoards to update
+     */
+    where?: KanbanBoardWhereInput
+    /**
+     * Limit how many KanbanBoards to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanBoard upsert
+   */
+  export type KanbanBoardUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanBoardInclude<ExtArgs> | null
+    /**
+     * The filter to search for the KanbanBoard to update in case it exists.
+     */
+    where: KanbanBoardWhereUniqueInput
+    /**
+     * In case the KanbanBoard found by the `where` argument doesn't exist, create a new KanbanBoard with this data.
+     */
+    create: XOR<KanbanBoardCreateInput, KanbanBoardUncheckedCreateInput>
+    /**
+     * In case the KanbanBoard was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<KanbanBoardUpdateInput, KanbanBoardUncheckedUpdateInput>
+  }
+
+  /**
+   * KanbanBoard delete
+   */
+  export type KanbanBoardDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanBoardInclude<ExtArgs> | null
+    /**
+     * Filter which KanbanBoard to delete.
+     */
+    where: KanbanBoardWhereUniqueInput
+  }
+
+  /**
+   * KanbanBoard deleteMany
+   */
+  export type KanbanBoardDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanBoards to delete
+     */
+    where?: KanbanBoardWhereInput
+    /**
+     * Limit how many KanbanBoards to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanBoard.lists
+   */
+  export type KanbanBoard$listsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+    where?: KanbanListWhereInput
+    orderBy?: KanbanListOrderByWithRelationInput | KanbanListOrderByWithRelationInput[]
+    cursor?: KanbanListWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: KanbanListScalarFieldEnum | KanbanListScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanBoard without action
+   */
+  export type KanbanBoardDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanBoard
+     */
+    select?: KanbanBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanBoard
+     */
+    omit?: KanbanBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanBoardInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model KanbanList
+   */
+
+  export type AggregateKanbanList = {
+    _count: KanbanListCountAggregateOutputType | null
+    _avg: KanbanListAvgAggregateOutputType | null
+    _sum: KanbanListSumAggregateOutputType | null
+    _min: KanbanListMinAggregateOutputType | null
+    _max: KanbanListMaxAggregateOutputType | null
+  }
+
+  export type KanbanListAvgAggregateOutputType = {
+    position: number | null
+  }
+
+  export type KanbanListSumAggregateOutputType = {
+    position: number | null
+  }
+
+  export type KanbanListMinAggregateOutputType = {
+    id: string | null
+    boardId: string | null
+    name: string | null
+    position: number | null
+    color: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type KanbanListMaxAggregateOutputType = {
+    id: string | null
+    boardId: string | null
+    name: string | null
+    position: number | null
+    color: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type KanbanListCountAggregateOutputType = {
+    id: number
+    boardId: number
+    name: number
+    position: number
+    color: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type KanbanListAvgAggregateInputType = {
+    position?: true
+  }
+
+  export type KanbanListSumAggregateInputType = {
+    position?: true
+  }
+
+  export type KanbanListMinAggregateInputType = {
+    id?: true
+    boardId?: true
+    name?: true
+    position?: true
+    color?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type KanbanListMaxAggregateInputType = {
+    id?: true
+    boardId?: true
+    name?: true
+    position?: true
+    color?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type KanbanListCountAggregateInputType = {
+    id?: true
+    boardId?: true
+    name?: true
+    position?: true
+    color?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type KanbanListAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanList to aggregate.
+     */
+    where?: KanbanListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanLists to fetch.
+     */
+    orderBy?: KanbanListOrderByWithRelationInput | KanbanListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: KanbanListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned KanbanLists
+    **/
+    _count?: true | KanbanListCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: KanbanListAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: KanbanListSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: KanbanListMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: KanbanListMaxAggregateInputType
+  }
+
+  export type GetKanbanListAggregateType<T extends KanbanListAggregateArgs> = {
+        [P in keyof T & keyof AggregateKanbanList]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateKanbanList[P]>
+      : GetScalarType<T[P], AggregateKanbanList[P]>
+  }
+
+
+
+
+  export type KanbanListGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanListWhereInput
+    orderBy?: KanbanListOrderByWithAggregationInput | KanbanListOrderByWithAggregationInput[]
+    by: KanbanListScalarFieldEnum[] | KanbanListScalarFieldEnum
+    having?: KanbanListScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: KanbanListCountAggregateInputType | true
+    _avg?: KanbanListAvgAggregateInputType
+    _sum?: KanbanListSumAggregateInputType
+    _min?: KanbanListMinAggregateInputType
+    _max?: KanbanListMaxAggregateInputType
+  }
+
+  export type KanbanListGroupByOutputType = {
+    id: string
+    boardId: string
+    name: string
+    position: number
+    color: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: KanbanListCountAggregateOutputType | null
+    _avg: KanbanListAvgAggregateOutputType | null
+    _sum: KanbanListSumAggregateOutputType | null
+    _min: KanbanListMinAggregateOutputType | null
+    _max: KanbanListMaxAggregateOutputType | null
+  }
+
+  type GetKanbanListGroupByPayload<T extends KanbanListGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<KanbanListGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof KanbanListGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], KanbanListGroupByOutputType[P]>
+            : GetScalarType<T[P], KanbanListGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type KanbanListSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    boardId?: boolean
+    name?: boolean
+    position?: boolean
+    color?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    cards?: boolean | KanbanList$cardsArgs<ExtArgs>
+    board?: boolean | KanbanBoardDefaultArgs<ExtArgs>
+    _count?: boolean | KanbanListCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanList"]>
+
+  export type KanbanListSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    boardId?: boolean
+    name?: boolean
+    position?: boolean
+    color?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    board?: boolean | KanbanBoardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanList"]>
+
+  export type KanbanListSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    boardId?: boolean
+    name?: boolean
+    position?: boolean
+    color?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    board?: boolean | KanbanBoardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanList"]>
+
+  export type KanbanListSelectScalar = {
+    id?: boolean
+    boardId?: boolean
+    name?: boolean
+    position?: boolean
+    color?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type KanbanListOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "boardId" | "name" | "position" | "color" | "createdAt" | "updatedAt", ExtArgs["result"]["kanbanList"]>
+  export type KanbanListInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cards?: boolean | KanbanList$cardsArgs<ExtArgs>
+    board?: boolean | KanbanBoardDefaultArgs<ExtArgs>
+    _count?: boolean | KanbanListCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type KanbanListIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    board?: boolean | KanbanBoardDefaultArgs<ExtArgs>
+  }
+  export type KanbanListIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    board?: boolean | KanbanBoardDefaultArgs<ExtArgs>
+  }
+
+  export type $KanbanListPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "KanbanList"
+    objects: {
+      cards: Prisma.$KanbanCardPayload<ExtArgs>[]
+      board: Prisma.$KanbanBoardPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      boardId: string
+      name: string
+      position: number
+      color: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["kanbanList"]>
+    composites: {}
+  }
+
+  type KanbanListGetPayload<S extends boolean | null | undefined | KanbanListDefaultArgs> = $Result.GetResult<Prisma.$KanbanListPayload, S>
+
+  type KanbanListCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<KanbanListFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: KanbanListCountAggregateInputType | true
+    }
+
+  export interface KanbanListDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KanbanList'], meta: { name: 'KanbanList' } }
+    /**
+     * Find zero or one KanbanList that matches the filter.
+     * @param {KanbanListFindUniqueArgs} args - Arguments to find a KanbanList
+     * @example
+     * // Get one KanbanList
+     * const kanbanList = await prisma.kanbanList.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends KanbanListFindUniqueArgs>(args: SelectSubset<T, KanbanListFindUniqueArgs<ExtArgs>>): Prisma__KanbanListClient<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one KanbanList that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {KanbanListFindUniqueOrThrowArgs} args - Arguments to find a KanbanList
+     * @example
+     * // Get one KanbanList
+     * const kanbanList = await prisma.kanbanList.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends KanbanListFindUniqueOrThrowArgs>(args: SelectSubset<T, KanbanListFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KanbanListClient<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanList that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanListFindFirstArgs} args - Arguments to find a KanbanList
+     * @example
+     * // Get one KanbanList
+     * const kanbanList = await prisma.kanbanList.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends KanbanListFindFirstArgs>(args?: SelectSubset<T, KanbanListFindFirstArgs<ExtArgs>>): Prisma__KanbanListClient<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanList that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanListFindFirstOrThrowArgs} args - Arguments to find a KanbanList
+     * @example
+     * // Get one KanbanList
+     * const kanbanList = await prisma.kanbanList.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends KanbanListFindFirstOrThrowArgs>(args?: SelectSubset<T, KanbanListFindFirstOrThrowArgs<ExtArgs>>): Prisma__KanbanListClient<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more KanbanLists that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanListFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all KanbanLists
+     * const kanbanLists = await prisma.kanbanList.findMany()
+     * 
+     * // Get first 10 KanbanLists
+     * const kanbanLists = await prisma.kanbanList.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const kanbanListWithIdOnly = await prisma.kanbanList.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends KanbanListFindManyArgs>(args?: SelectSubset<T, KanbanListFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a KanbanList.
+     * @param {KanbanListCreateArgs} args - Arguments to create a KanbanList.
+     * @example
+     * // Create one KanbanList
+     * const KanbanList = await prisma.kanbanList.create({
+     *   data: {
+     *     // ... data to create a KanbanList
+     *   }
+     * })
+     * 
+     */
+    create<T extends KanbanListCreateArgs>(args: SelectSubset<T, KanbanListCreateArgs<ExtArgs>>): Prisma__KanbanListClient<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many KanbanLists.
+     * @param {KanbanListCreateManyArgs} args - Arguments to create many KanbanLists.
+     * @example
+     * // Create many KanbanLists
+     * const kanbanList = await prisma.kanbanList.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends KanbanListCreateManyArgs>(args?: SelectSubset<T, KanbanListCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many KanbanLists and returns the data saved in the database.
+     * @param {KanbanListCreateManyAndReturnArgs} args - Arguments to create many KanbanLists.
+     * @example
+     * // Create many KanbanLists
+     * const kanbanList = await prisma.kanbanList.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many KanbanLists and only return the `id`
+     * const kanbanListWithIdOnly = await prisma.kanbanList.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends KanbanListCreateManyAndReturnArgs>(args?: SelectSubset<T, KanbanListCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a KanbanList.
+     * @param {KanbanListDeleteArgs} args - Arguments to delete one KanbanList.
+     * @example
+     * // Delete one KanbanList
+     * const KanbanList = await prisma.kanbanList.delete({
+     *   where: {
+     *     // ... filter to delete one KanbanList
+     *   }
+     * })
+     * 
+     */
+    delete<T extends KanbanListDeleteArgs>(args: SelectSubset<T, KanbanListDeleteArgs<ExtArgs>>): Prisma__KanbanListClient<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one KanbanList.
+     * @param {KanbanListUpdateArgs} args - Arguments to update one KanbanList.
+     * @example
+     * // Update one KanbanList
+     * const kanbanList = await prisma.kanbanList.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends KanbanListUpdateArgs>(args: SelectSubset<T, KanbanListUpdateArgs<ExtArgs>>): Prisma__KanbanListClient<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more KanbanLists.
+     * @param {KanbanListDeleteManyArgs} args - Arguments to filter KanbanLists to delete.
+     * @example
+     * // Delete a few KanbanLists
+     * const { count } = await prisma.kanbanList.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends KanbanListDeleteManyArgs>(args?: SelectSubset<T, KanbanListDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanLists.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanListUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many KanbanLists
+     * const kanbanList = await prisma.kanbanList.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends KanbanListUpdateManyArgs>(args: SelectSubset<T, KanbanListUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanLists and returns the data updated in the database.
+     * @param {KanbanListUpdateManyAndReturnArgs} args - Arguments to update many KanbanLists.
+     * @example
+     * // Update many KanbanLists
+     * const kanbanList = await prisma.kanbanList.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more KanbanLists and only return the `id`
+     * const kanbanListWithIdOnly = await prisma.kanbanList.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends KanbanListUpdateManyAndReturnArgs>(args: SelectSubset<T, KanbanListUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one KanbanList.
+     * @param {KanbanListUpsertArgs} args - Arguments to update or create a KanbanList.
+     * @example
+     * // Update or create a KanbanList
+     * const kanbanList = await prisma.kanbanList.upsert({
+     *   create: {
+     *     // ... data to create a KanbanList
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the KanbanList we want to update
+     *   }
+     * })
+     */
+    upsert<T extends KanbanListUpsertArgs>(args: SelectSubset<T, KanbanListUpsertArgs<ExtArgs>>): Prisma__KanbanListClient<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of KanbanLists.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanListCountArgs} args - Arguments to filter KanbanLists to count.
+     * @example
+     * // Count the number of KanbanLists
+     * const count = await prisma.kanbanList.count({
+     *   where: {
+     *     // ... the filter for the KanbanLists we want to count
+     *   }
+     * })
+    **/
+    count<T extends KanbanListCountArgs>(
+      args?: Subset<T, KanbanListCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], KanbanListCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a KanbanList.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanListAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends KanbanListAggregateArgs>(args: Subset<T, KanbanListAggregateArgs>): Prisma.PrismaPromise<GetKanbanListAggregateType<T>>
+
+    /**
+     * Group by KanbanList.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanListGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends KanbanListGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: KanbanListGroupByArgs['orderBy'] }
+        : { orderBy?: KanbanListGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, KanbanListGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKanbanListGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the KanbanList model
+   */
+  readonly fields: KanbanListFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for KanbanList.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__KanbanListClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    cards<T extends KanbanList$cardsArgs<ExtArgs> = {}>(args?: Subset<T, KanbanList$cardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    board<T extends KanbanBoardDefaultArgs<ExtArgs> = {}>(args?: Subset<T, KanbanBoardDefaultArgs<ExtArgs>>): Prisma__KanbanBoardClient<$Result.GetResult<Prisma.$KanbanBoardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the KanbanList model
+   */
+  interface KanbanListFieldRefs {
+    readonly id: FieldRef<"KanbanList", 'String'>
+    readonly boardId: FieldRef<"KanbanList", 'String'>
+    readonly name: FieldRef<"KanbanList", 'String'>
+    readonly position: FieldRef<"KanbanList", 'Float'>
+    readonly color: FieldRef<"KanbanList", 'String'>
+    readonly createdAt: FieldRef<"KanbanList", 'DateTime'>
+    readonly updatedAt: FieldRef<"KanbanList", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * KanbanList findUnique
+   */
+  export type KanbanListFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanList to fetch.
+     */
+    where: KanbanListWhereUniqueInput
+  }
+
+  /**
+   * KanbanList findUniqueOrThrow
+   */
+  export type KanbanListFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanList to fetch.
+     */
+    where: KanbanListWhereUniqueInput
+  }
+
+  /**
+   * KanbanList findFirst
+   */
+  export type KanbanListFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanList to fetch.
+     */
+    where?: KanbanListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanLists to fetch.
+     */
+    orderBy?: KanbanListOrderByWithRelationInput | KanbanListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanLists.
+     */
+    cursor?: KanbanListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanLists.
+     */
+    distinct?: KanbanListScalarFieldEnum | KanbanListScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanList findFirstOrThrow
+   */
+  export type KanbanListFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanList to fetch.
+     */
+    where?: KanbanListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanLists to fetch.
+     */
+    orderBy?: KanbanListOrderByWithRelationInput | KanbanListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanLists.
+     */
+    cursor?: KanbanListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanLists.
+     */
+    distinct?: KanbanListScalarFieldEnum | KanbanListScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanList findMany
+   */
+  export type KanbanListFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanLists to fetch.
+     */
+    where?: KanbanListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanLists to fetch.
+     */
+    orderBy?: KanbanListOrderByWithRelationInput | KanbanListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing KanbanLists.
+     */
+    cursor?: KanbanListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanLists.
+     */
+    distinct?: KanbanListScalarFieldEnum | KanbanListScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanList create
+   */
+  export type KanbanListCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+    /**
+     * The data needed to create a KanbanList.
+     */
+    data: XOR<KanbanListCreateInput, KanbanListUncheckedCreateInput>
+  }
+
+  /**
+   * KanbanList createMany
+   */
+  export type KanbanListCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many KanbanLists.
+     */
+    data: KanbanListCreateManyInput | KanbanListCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * KanbanList createManyAndReturn
+   */
+  export type KanbanListCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * The data used to create many KanbanLists.
+     */
+    data: KanbanListCreateManyInput | KanbanListCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KanbanList update
+   */
+  export type KanbanListUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+    /**
+     * The data needed to update a KanbanList.
+     */
+    data: XOR<KanbanListUpdateInput, KanbanListUncheckedUpdateInput>
+    /**
+     * Choose, which KanbanList to update.
+     */
+    where: KanbanListWhereUniqueInput
+  }
+
+  /**
+   * KanbanList updateMany
+   */
+  export type KanbanListUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update KanbanLists.
+     */
+    data: XOR<KanbanListUpdateManyMutationInput, KanbanListUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanLists to update
+     */
+    where?: KanbanListWhereInput
+    /**
+     * Limit how many KanbanLists to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanList updateManyAndReturn
+   */
+  export type KanbanListUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * The data used to update KanbanLists.
+     */
+    data: XOR<KanbanListUpdateManyMutationInput, KanbanListUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanLists to update
+     */
+    where?: KanbanListWhereInput
+    /**
+     * Limit how many KanbanLists to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KanbanList upsert
+   */
+  export type KanbanListUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+    /**
+     * The filter to search for the KanbanList to update in case it exists.
+     */
+    where: KanbanListWhereUniqueInput
+    /**
+     * In case the KanbanList found by the `where` argument doesn't exist, create a new KanbanList with this data.
+     */
+    create: XOR<KanbanListCreateInput, KanbanListUncheckedCreateInput>
+    /**
+     * In case the KanbanList was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<KanbanListUpdateInput, KanbanListUncheckedUpdateInput>
+  }
+
+  /**
+   * KanbanList delete
+   */
+  export type KanbanListDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+    /**
+     * Filter which KanbanList to delete.
+     */
+    where: KanbanListWhereUniqueInput
+  }
+
+  /**
+   * KanbanList deleteMany
+   */
+  export type KanbanListDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanLists to delete
+     */
+    where?: KanbanListWhereInput
+    /**
+     * Limit how many KanbanLists to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanList.cards
+   */
+  export type KanbanList$cardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+    where?: KanbanCardWhereInput
+    orderBy?: KanbanCardOrderByWithRelationInput | KanbanCardOrderByWithRelationInput[]
+    cursor?: KanbanCardWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: KanbanCardScalarFieldEnum | KanbanCardScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanList without action
+   */
+  export type KanbanListDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanList
+     */
+    select?: KanbanListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanList
+     */
+    omit?: KanbanListOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanListInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model KanbanCard
+   */
+
+  export type AggregateKanbanCard = {
+    _count: KanbanCardCountAggregateOutputType | null
+    _avg: KanbanCardAvgAggregateOutputType | null
+    _sum: KanbanCardSumAggregateOutputType | null
+    _min: KanbanCardMinAggregateOutputType | null
+    _max: KanbanCardMaxAggregateOutputType | null
+  }
+
+  export type KanbanCardAvgAggregateOutputType = {
+    position: number | null
+  }
+
+  export type KanbanCardSumAggregateOutputType = {
+    position: number | null
+  }
+
+  export type KanbanCardMinAggregateOutputType = {
+    id: string | null
+    listId: string | null
+    title: string | null
+    description: string | null
+    assignedToId: string | null
+    dueDate: Date | null
+    revisionStatus: string | null
+    position: number | null
+    color: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type KanbanCardMaxAggregateOutputType = {
+    id: string | null
+    listId: string | null
+    title: string | null
+    description: string | null
+    assignedToId: string | null
+    dueDate: Date | null
+    revisionStatus: string | null
+    position: number | null
+    color: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type KanbanCardCountAggregateOutputType = {
+    id: number
+    listId: number
+    title: number
+    description: number
+    assignedToId: number
+    dueDate: number
+    revisionStatus: number
+    position: number
+    checklist: number
+    color: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type KanbanCardAvgAggregateInputType = {
+    position?: true
+  }
+
+  export type KanbanCardSumAggregateInputType = {
+    position?: true
+  }
+
+  export type KanbanCardMinAggregateInputType = {
+    id?: true
+    listId?: true
+    title?: true
+    description?: true
+    assignedToId?: true
+    dueDate?: true
+    revisionStatus?: true
+    position?: true
+    color?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type KanbanCardMaxAggregateInputType = {
+    id?: true
+    listId?: true
+    title?: true
+    description?: true
+    assignedToId?: true
+    dueDate?: true
+    revisionStatus?: true
+    position?: true
+    color?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type KanbanCardCountAggregateInputType = {
+    id?: true
+    listId?: true
+    title?: true
+    description?: true
+    assignedToId?: true
+    dueDate?: true
+    revisionStatus?: true
+    position?: true
+    checklist?: true
+    color?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type KanbanCardAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanCard to aggregate.
+     */
+    where?: KanbanCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanCards to fetch.
+     */
+    orderBy?: KanbanCardOrderByWithRelationInput | KanbanCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: KanbanCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned KanbanCards
+    **/
+    _count?: true | KanbanCardCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: KanbanCardAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: KanbanCardSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: KanbanCardMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: KanbanCardMaxAggregateInputType
+  }
+
+  export type GetKanbanCardAggregateType<T extends KanbanCardAggregateArgs> = {
+        [P in keyof T & keyof AggregateKanbanCard]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateKanbanCard[P]>
+      : GetScalarType<T[P], AggregateKanbanCard[P]>
+  }
+
+
+
+
+  export type KanbanCardGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanCardWhereInput
+    orderBy?: KanbanCardOrderByWithAggregationInput | KanbanCardOrderByWithAggregationInput[]
+    by: KanbanCardScalarFieldEnum[] | KanbanCardScalarFieldEnum
+    having?: KanbanCardScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: KanbanCardCountAggregateInputType | true
+    _avg?: KanbanCardAvgAggregateInputType
+    _sum?: KanbanCardSumAggregateInputType
+    _min?: KanbanCardMinAggregateInputType
+    _max?: KanbanCardMaxAggregateInputType
+  }
+
+  export type KanbanCardGroupByOutputType = {
+    id: string
+    listId: string
+    title: string
+    description: string | null
+    assignedToId: string | null
+    dueDate: Date | null
+    revisionStatus: string | null
+    position: number
+    checklist: JsonValue | null
+    color: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: KanbanCardCountAggregateOutputType | null
+    _avg: KanbanCardAvgAggregateOutputType | null
+    _sum: KanbanCardSumAggregateOutputType | null
+    _min: KanbanCardMinAggregateOutputType | null
+    _max: KanbanCardMaxAggregateOutputType | null
+  }
+
+  type GetKanbanCardGroupByPayload<T extends KanbanCardGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<KanbanCardGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof KanbanCardGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], KanbanCardGroupByOutputType[P]>
+            : GetScalarType<T[P], KanbanCardGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type KanbanCardSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    listId?: boolean
+    title?: boolean
+    description?: boolean
+    assignedToId?: boolean
+    dueDate?: boolean
+    revisionStatus?: boolean
+    position?: boolean
+    checklist?: boolean
+    color?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    activityLogs?: boolean | KanbanCard$activityLogsArgs<ExtArgs>
+    attachments?: boolean | KanbanCard$attachmentsArgs<ExtArgs>
+    list?: boolean | KanbanListDefaultArgs<ExtArgs>
+    comments?: boolean | KanbanCard$commentsArgs<ExtArgs>
+    _count?: boolean | KanbanCardCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanCard"]>
+
+  export type KanbanCardSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    listId?: boolean
+    title?: boolean
+    description?: boolean
+    assignedToId?: boolean
+    dueDate?: boolean
+    revisionStatus?: boolean
+    position?: boolean
+    checklist?: boolean
+    color?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    list?: boolean | KanbanListDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanCard"]>
+
+  export type KanbanCardSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    listId?: boolean
+    title?: boolean
+    description?: boolean
+    assignedToId?: boolean
+    dueDate?: boolean
+    revisionStatus?: boolean
+    position?: boolean
+    checklist?: boolean
+    color?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    list?: boolean | KanbanListDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanCard"]>
+
+  export type KanbanCardSelectScalar = {
+    id?: boolean
+    listId?: boolean
+    title?: boolean
+    description?: boolean
+    assignedToId?: boolean
+    dueDate?: boolean
+    revisionStatus?: boolean
+    position?: boolean
+    checklist?: boolean
+    color?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type KanbanCardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "listId" | "title" | "description" | "assignedToId" | "dueDate" | "revisionStatus" | "position" | "checklist" | "color" | "createdAt" | "updatedAt", ExtArgs["result"]["kanbanCard"]>
+  export type KanbanCardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activityLogs?: boolean | KanbanCard$activityLogsArgs<ExtArgs>
+    attachments?: boolean | KanbanCard$attachmentsArgs<ExtArgs>
+    list?: boolean | KanbanListDefaultArgs<ExtArgs>
+    comments?: boolean | KanbanCard$commentsArgs<ExtArgs>
+    _count?: boolean | KanbanCardCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type KanbanCardIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    list?: boolean | KanbanListDefaultArgs<ExtArgs>
+  }
+  export type KanbanCardIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    list?: boolean | KanbanListDefaultArgs<ExtArgs>
+  }
+
+  export type $KanbanCardPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "KanbanCard"
+    objects: {
+      activityLogs: Prisma.$KanbanActivityLogPayload<ExtArgs>[]
+      attachments: Prisma.$KanbanAttachmentPayload<ExtArgs>[]
+      list: Prisma.$KanbanListPayload<ExtArgs>
+      comments: Prisma.$KanbanCommentPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      listId: string
+      title: string
+      description: string | null
+      assignedToId: string | null
+      dueDate: Date | null
+      revisionStatus: string | null
+      position: number
+      checklist: Prisma.JsonValue | null
+      color: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["kanbanCard"]>
+    composites: {}
+  }
+
+  type KanbanCardGetPayload<S extends boolean | null | undefined | KanbanCardDefaultArgs> = $Result.GetResult<Prisma.$KanbanCardPayload, S>
+
+  type KanbanCardCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<KanbanCardFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: KanbanCardCountAggregateInputType | true
+    }
+
+  export interface KanbanCardDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KanbanCard'], meta: { name: 'KanbanCard' } }
+    /**
+     * Find zero or one KanbanCard that matches the filter.
+     * @param {KanbanCardFindUniqueArgs} args - Arguments to find a KanbanCard
+     * @example
+     * // Get one KanbanCard
+     * const kanbanCard = await prisma.kanbanCard.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends KanbanCardFindUniqueArgs>(args: SelectSubset<T, KanbanCardFindUniqueArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one KanbanCard that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {KanbanCardFindUniqueOrThrowArgs} args - Arguments to find a KanbanCard
+     * @example
+     * // Get one KanbanCard
+     * const kanbanCard = await prisma.kanbanCard.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends KanbanCardFindUniqueOrThrowArgs>(args: SelectSubset<T, KanbanCardFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanCard that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCardFindFirstArgs} args - Arguments to find a KanbanCard
+     * @example
+     * // Get one KanbanCard
+     * const kanbanCard = await prisma.kanbanCard.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends KanbanCardFindFirstArgs>(args?: SelectSubset<T, KanbanCardFindFirstArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanCard that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCardFindFirstOrThrowArgs} args - Arguments to find a KanbanCard
+     * @example
+     * // Get one KanbanCard
+     * const kanbanCard = await prisma.kanbanCard.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends KanbanCardFindFirstOrThrowArgs>(args?: SelectSubset<T, KanbanCardFindFirstOrThrowArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more KanbanCards that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCardFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all KanbanCards
+     * const kanbanCards = await prisma.kanbanCard.findMany()
+     * 
+     * // Get first 10 KanbanCards
+     * const kanbanCards = await prisma.kanbanCard.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const kanbanCardWithIdOnly = await prisma.kanbanCard.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends KanbanCardFindManyArgs>(args?: SelectSubset<T, KanbanCardFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a KanbanCard.
+     * @param {KanbanCardCreateArgs} args - Arguments to create a KanbanCard.
+     * @example
+     * // Create one KanbanCard
+     * const KanbanCard = await prisma.kanbanCard.create({
+     *   data: {
+     *     // ... data to create a KanbanCard
+     *   }
+     * })
+     * 
+     */
+    create<T extends KanbanCardCreateArgs>(args: SelectSubset<T, KanbanCardCreateArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many KanbanCards.
+     * @param {KanbanCardCreateManyArgs} args - Arguments to create many KanbanCards.
+     * @example
+     * // Create many KanbanCards
+     * const kanbanCard = await prisma.kanbanCard.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends KanbanCardCreateManyArgs>(args?: SelectSubset<T, KanbanCardCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many KanbanCards and returns the data saved in the database.
+     * @param {KanbanCardCreateManyAndReturnArgs} args - Arguments to create many KanbanCards.
+     * @example
+     * // Create many KanbanCards
+     * const kanbanCard = await prisma.kanbanCard.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many KanbanCards and only return the `id`
+     * const kanbanCardWithIdOnly = await prisma.kanbanCard.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends KanbanCardCreateManyAndReturnArgs>(args?: SelectSubset<T, KanbanCardCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a KanbanCard.
+     * @param {KanbanCardDeleteArgs} args - Arguments to delete one KanbanCard.
+     * @example
+     * // Delete one KanbanCard
+     * const KanbanCard = await prisma.kanbanCard.delete({
+     *   where: {
+     *     // ... filter to delete one KanbanCard
+     *   }
+     * })
+     * 
+     */
+    delete<T extends KanbanCardDeleteArgs>(args: SelectSubset<T, KanbanCardDeleteArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one KanbanCard.
+     * @param {KanbanCardUpdateArgs} args - Arguments to update one KanbanCard.
+     * @example
+     * // Update one KanbanCard
+     * const kanbanCard = await prisma.kanbanCard.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends KanbanCardUpdateArgs>(args: SelectSubset<T, KanbanCardUpdateArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more KanbanCards.
+     * @param {KanbanCardDeleteManyArgs} args - Arguments to filter KanbanCards to delete.
+     * @example
+     * // Delete a few KanbanCards
+     * const { count } = await prisma.kanbanCard.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends KanbanCardDeleteManyArgs>(args?: SelectSubset<T, KanbanCardDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanCards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCardUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many KanbanCards
+     * const kanbanCard = await prisma.kanbanCard.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends KanbanCardUpdateManyArgs>(args: SelectSubset<T, KanbanCardUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanCards and returns the data updated in the database.
+     * @param {KanbanCardUpdateManyAndReturnArgs} args - Arguments to update many KanbanCards.
+     * @example
+     * // Update many KanbanCards
+     * const kanbanCard = await prisma.kanbanCard.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more KanbanCards and only return the `id`
+     * const kanbanCardWithIdOnly = await prisma.kanbanCard.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends KanbanCardUpdateManyAndReturnArgs>(args: SelectSubset<T, KanbanCardUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one KanbanCard.
+     * @param {KanbanCardUpsertArgs} args - Arguments to update or create a KanbanCard.
+     * @example
+     * // Update or create a KanbanCard
+     * const kanbanCard = await prisma.kanbanCard.upsert({
+     *   create: {
+     *     // ... data to create a KanbanCard
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the KanbanCard we want to update
+     *   }
+     * })
+     */
+    upsert<T extends KanbanCardUpsertArgs>(args: SelectSubset<T, KanbanCardUpsertArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of KanbanCards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCardCountArgs} args - Arguments to filter KanbanCards to count.
+     * @example
+     * // Count the number of KanbanCards
+     * const count = await prisma.kanbanCard.count({
+     *   where: {
+     *     // ... the filter for the KanbanCards we want to count
+     *   }
+     * })
+    **/
+    count<T extends KanbanCardCountArgs>(
+      args?: Subset<T, KanbanCardCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], KanbanCardCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a KanbanCard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCardAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends KanbanCardAggregateArgs>(args: Subset<T, KanbanCardAggregateArgs>): Prisma.PrismaPromise<GetKanbanCardAggregateType<T>>
+
+    /**
+     * Group by KanbanCard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCardGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends KanbanCardGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: KanbanCardGroupByArgs['orderBy'] }
+        : { orderBy?: KanbanCardGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, KanbanCardGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKanbanCardGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the KanbanCard model
+   */
+  readonly fields: KanbanCardFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for KanbanCard.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__KanbanCardClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    activityLogs<T extends KanbanCard$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, KanbanCard$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    attachments<T extends KanbanCard$attachmentsArgs<ExtArgs> = {}>(args?: Subset<T, KanbanCard$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    list<T extends KanbanListDefaultArgs<ExtArgs> = {}>(args?: Subset<T, KanbanListDefaultArgs<ExtArgs>>): Prisma__KanbanListClient<$Result.GetResult<Prisma.$KanbanListPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    comments<T extends KanbanCard$commentsArgs<ExtArgs> = {}>(args?: Subset<T, KanbanCard$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the KanbanCard model
+   */
+  interface KanbanCardFieldRefs {
+    readonly id: FieldRef<"KanbanCard", 'String'>
+    readonly listId: FieldRef<"KanbanCard", 'String'>
+    readonly title: FieldRef<"KanbanCard", 'String'>
+    readonly description: FieldRef<"KanbanCard", 'String'>
+    readonly assignedToId: FieldRef<"KanbanCard", 'String'>
+    readonly dueDate: FieldRef<"KanbanCard", 'DateTime'>
+    readonly revisionStatus: FieldRef<"KanbanCard", 'String'>
+    readonly position: FieldRef<"KanbanCard", 'Float'>
+    readonly checklist: FieldRef<"KanbanCard", 'Json'>
+    readonly color: FieldRef<"KanbanCard", 'String'>
+    readonly createdAt: FieldRef<"KanbanCard", 'DateTime'>
+    readonly updatedAt: FieldRef<"KanbanCard", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * KanbanCard findUnique
+   */
+  export type KanbanCardFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanCard to fetch.
+     */
+    where: KanbanCardWhereUniqueInput
+  }
+
+  /**
+   * KanbanCard findUniqueOrThrow
+   */
+  export type KanbanCardFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanCard to fetch.
+     */
+    where: KanbanCardWhereUniqueInput
+  }
+
+  /**
+   * KanbanCard findFirst
+   */
+  export type KanbanCardFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanCard to fetch.
+     */
+    where?: KanbanCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanCards to fetch.
+     */
+    orderBy?: KanbanCardOrderByWithRelationInput | KanbanCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanCards.
+     */
+    cursor?: KanbanCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanCards.
+     */
+    distinct?: KanbanCardScalarFieldEnum | KanbanCardScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanCard findFirstOrThrow
+   */
+  export type KanbanCardFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanCard to fetch.
+     */
+    where?: KanbanCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanCards to fetch.
+     */
+    orderBy?: KanbanCardOrderByWithRelationInput | KanbanCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanCards.
+     */
+    cursor?: KanbanCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanCards.
+     */
+    distinct?: KanbanCardScalarFieldEnum | KanbanCardScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanCard findMany
+   */
+  export type KanbanCardFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanCards to fetch.
+     */
+    where?: KanbanCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanCards to fetch.
+     */
+    orderBy?: KanbanCardOrderByWithRelationInput | KanbanCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing KanbanCards.
+     */
+    cursor?: KanbanCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanCards.
+     */
+    distinct?: KanbanCardScalarFieldEnum | KanbanCardScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanCard create
+   */
+  export type KanbanCardCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+    /**
+     * The data needed to create a KanbanCard.
+     */
+    data: XOR<KanbanCardCreateInput, KanbanCardUncheckedCreateInput>
+  }
+
+  /**
+   * KanbanCard createMany
+   */
+  export type KanbanCardCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many KanbanCards.
+     */
+    data: KanbanCardCreateManyInput | KanbanCardCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * KanbanCard createManyAndReturn
+   */
+  export type KanbanCardCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * The data used to create many KanbanCards.
+     */
+    data: KanbanCardCreateManyInput | KanbanCardCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KanbanCard update
+   */
+  export type KanbanCardUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+    /**
+     * The data needed to update a KanbanCard.
+     */
+    data: XOR<KanbanCardUpdateInput, KanbanCardUncheckedUpdateInput>
+    /**
+     * Choose, which KanbanCard to update.
+     */
+    where: KanbanCardWhereUniqueInput
+  }
+
+  /**
+   * KanbanCard updateMany
+   */
+  export type KanbanCardUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update KanbanCards.
+     */
+    data: XOR<KanbanCardUpdateManyMutationInput, KanbanCardUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanCards to update
+     */
+    where?: KanbanCardWhereInput
+    /**
+     * Limit how many KanbanCards to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanCard updateManyAndReturn
+   */
+  export type KanbanCardUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * The data used to update KanbanCards.
+     */
+    data: XOR<KanbanCardUpdateManyMutationInput, KanbanCardUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanCards to update
+     */
+    where?: KanbanCardWhereInput
+    /**
+     * Limit how many KanbanCards to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KanbanCard upsert
+   */
+  export type KanbanCardUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+    /**
+     * The filter to search for the KanbanCard to update in case it exists.
+     */
+    where: KanbanCardWhereUniqueInput
+    /**
+     * In case the KanbanCard found by the `where` argument doesn't exist, create a new KanbanCard with this data.
+     */
+    create: XOR<KanbanCardCreateInput, KanbanCardUncheckedCreateInput>
+    /**
+     * In case the KanbanCard was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<KanbanCardUpdateInput, KanbanCardUncheckedUpdateInput>
+  }
+
+  /**
+   * KanbanCard delete
+   */
+  export type KanbanCardDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+    /**
+     * Filter which KanbanCard to delete.
+     */
+    where: KanbanCardWhereUniqueInput
+  }
+
+  /**
+   * KanbanCard deleteMany
+   */
+  export type KanbanCardDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanCards to delete
+     */
+    where?: KanbanCardWhereInput
+    /**
+     * Limit how many KanbanCards to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanCard.activityLogs
+   */
+  export type KanbanCard$activityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+    where?: KanbanActivityLogWhereInput
+    orderBy?: KanbanActivityLogOrderByWithRelationInput | KanbanActivityLogOrderByWithRelationInput[]
+    cursor?: KanbanActivityLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: KanbanActivityLogScalarFieldEnum | KanbanActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanCard.attachments
+   */
+  export type KanbanCard$attachmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+    where?: KanbanAttachmentWhereInput
+    orderBy?: KanbanAttachmentOrderByWithRelationInput | KanbanAttachmentOrderByWithRelationInput[]
+    cursor?: KanbanAttachmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: KanbanAttachmentScalarFieldEnum | KanbanAttachmentScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanCard.comments
+   */
+  export type KanbanCard$commentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+    where?: KanbanCommentWhereInput
+    orderBy?: KanbanCommentOrderByWithRelationInput | KanbanCommentOrderByWithRelationInput[]
+    cursor?: KanbanCommentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: KanbanCommentScalarFieldEnum | KanbanCommentScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanCard without action
+   */
+  export type KanbanCardDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanCard
+     */
+    select?: KanbanCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanCard
+     */
+    omit?: KanbanCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCardInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model KanbanAttachment
+   */
+
+  export type AggregateKanbanAttachment = {
+    _count: KanbanAttachmentCountAggregateOutputType | null
+    _avg: KanbanAttachmentAvgAggregateOutputType | null
+    _sum: KanbanAttachmentSumAggregateOutputType | null
+    _min: KanbanAttachmentMinAggregateOutputType | null
+    _max: KanbanAttachmentMaxAggregateOutputType | null
+  }
+
+  export type KanbanAttachmentAvgAggregateOutputType = {
+    fileSize: number | null
+  }
+
+  export type KanbanAttachmentSumAggregateOutputType = {
+    fileSize: number | null
+  }
+
+  export type KanbanAttachmentMinAggregateOutputType = {
+    id: string | null
+    cardId: string | null
+    userId: string | null
+    fileName: string | null
+    fileUrl: string | null
+    fileType: string | null
+    fileSize: number | null
+    attachmentType: string | null
+    uploadedAt: Date | null
+  }
+
+  export type KanbanAttachmentMaxAggregateOutputType = {
+    id: string | null
+    cardId: string | null
+    userId: string | null
+    fileName: string | null
+    fileUrl: string | null
+    fileType: string | null
+    fileSize: number | null
+    attachmentType: string | null
+    uploadedAt: Date | null
+  }
+
+  export type KanbanAttachmentCountAggregateOutputType = {
+    id: number
+    cardId: number
+    userId: number
+    fileName: number
+    fileUrl: number
+    fileType: number
+    fileSize: number
+    attachmentType: number
+    uploadedAt: number
+    _all: number
+  }
+
+
+  export type KanbanAttachmentAvgAggregateInputType = {
+    fileSize?: true
+  }
+
+  export type KanbanAttachmentSumAggregateInputType = {
+    fileSize?: true
+  }
+
+  export type KanbanAttachmentMinAggregateInputType = {
+    id?: true
+    cardId?: true
+    userId?: true
+    fileName?: true
+    fileUrl?: true
+    fileType?: true
+    fileSize?: true
+    attachmentType?: true
+    uploadedAt?: true
+  }
+
+  export type KanbanAttachmentMaxAggregateInputType = {
+    id?: true
+    cardId?: true
+    userId?: true
+    fileName?: true
+    fileUrl?: true
+    fileType?: true
+    fileSize?: true
+    attachmentType?: true
+    uploadedAt?: true
+  }
+
+  export type KanbanAttachmentCountAggregateInputType = {
+    id?: true
+    cardId?: true
+    userId?: true
+    fileName?: true
+    fileUrl?: true
+    fileType?: true
+    fileSize?: true
+    attachmentType?: true
+    uploadedAt?: true
+    _all?: true
+  }
+
+  export type KanbanAttachmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanAttachment to aggregate.
+     */
+    where?: KanbanAttachmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanAttachments to fetch.
+     */
+    orderBy?: KanbanAttachmentOrderByWithRelationInput | KanbanAttachmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: KanbanAttachmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanAttachments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanAttachments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned KanbanAttachments
+    **/
+    _count?: true | KanbanAttachmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: KanbanAttachmentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: KanbanAttachmentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: KanbanAttachmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: KanbanAttachmentMaxAggregateInputType
+  }
+
+  export type GetKanbanAttachmentAggregateType<T extends KanbanAttachmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateKanbanAttachment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateKanbanAttachment[P]>
+      : GetScalarType<T[P], AggregateKanbanAttachment[P]>
+  }
+
+
+
+
+  export type KanbanAttachmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanAttachmentWhereInput
+    orderBy?: KanbanAttachmentOrderByWithAggregationInput | KanbanAttachmentOrderByWithAggregationInput[]
+    by: KanbanAttachmentScalarFieldEnum[] | KanbanAttachmentScalarFieldEnum
+    having?: KanbanAttachmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: KanbanAttachmentCountAggregateInputType | true
+    _avg?: KanbanAttachmentAvgAggregateInputType
+    _sum?: KanbanAttachmentSumAggregateInputType
+    _min?: KanbanAttachmentMinAggregateInputType
+    _max?: KanbanAttachmentMaxAggregateInputType
+  }
+
+  export type KanbanAttachmentGroupByOutputType = {
+    id: string
+    cardId: string
+    userId: string | null
+    fileName: string
+    fileUrl: string
+    fileType: string | null
+    fileSize: number | null
+    attachmentType: string | null
+    uploadedAt: Date
+    _count: KanbanAttachmentCountAggregateOutputType | null
+    _avg: KanbanAttachmentAvgAggregateOutputType | null
+    _sum: KanbanAttachmentSumAggregateOutputType | null
+    _min: KanbanAttachmentMinAggregateOutputType | null
+    _max: KanbanAttachmentMaxAggregateOutputType | null
+  }
+
+  type GetKanbanAttachmentGroupByPayload<T extends KanbanAttachmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<KanbanAttachmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof KanbanAttachmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], KanbanAttachmentGroupByOutputType[P]>
+            : GetScalarType<T[P], KanbanAttachmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type KanbanAttachmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    fileName?: boolean
+    fileUrl?: boolean
+    fileType?: boolean
+    fileSize?: boolean
+    attachmentType?: boolean
+    uploadedAt?: boolean
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanAttachment"]>
+
+  export type KanbanAttachmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    fileName?: boolean
+    fileUrl?: boolean
+    fileType?: boolean
+    fileSize?: boolean
+    attachmentType?: boolean
+    uploadedAt?: boolean
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanAttachment"]>
+
+  export type KanbanAttachmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    fileName?: boolean
+    fileUrl?: boolean
+    fileType?: boolean
+    fileSize?: boolean
+    attachmentType?: boolean
+    uploadedAt?: boolean
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanAttachment"]>
+
+  export type KanbanAttachmentSelectScalar = {
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    fileName?: boolean
+    fileUrl?: boolean
+    fileType?: boolean
+    fileSize?: boolean
+    attachmentType?: boolean
+    uploadedAt?: boolean
+  }
+
+  export type KanbanAttachmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "cardId" | "userId" | "fileName" | "fileUrl" | "fileType" | "fileSize" | "attachmentType" | "uploadedAt", ExtArgs["result"]["kanbanAttachment"]>
+  export type KanbanAttachmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }
+  export type KanbanAttachmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }
+  export type KanbanAttachmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }
+
+  export type $KanbanAttachmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "KanbanAttachment"
+    objects: {
+      card: Prisma.$KanbanCardPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      cardId: string
+      userId: string | null
+      fileName: string
+      fileUrl: string
+      fileType: string | null
+      fileSize: number | null
+      attachmentType: string | null
+      uploadedAt: Date
+    }, ExtArgs["result"]["kanbanAttachment"]>
+    composites: {}
+  }
+
+  type KanbanAttachmentGetPayload<S extends boolean | null | undefined | KanbanAttachmentDefaultArgs> = $Result.GetResult<Prisma.$KanbanAttachmentPayload, S>
+
+  type KanbanAttachmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<KanbanAttachmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: KanbanAttachmentCountAggregateInputType | true
+    }
+
+  export interface KanbanAttachmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KanbanAttachment'], meta: { name: 'KanbanAttachment' } }
+    /**
+     * Find zero or one KanbanAttachment that matches the filter.
+     * @param {KanbanAttachmentFindUniqueArgs} args - Arguments to find a KanbanAttachment
+     * @example
+     * // Get one KanbanAttachment
+     * const kanbanAttachment = await prisma.kanbanAttachment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends KanbanAttachmentFindUniqueArgs>(args: SelectSubset<T, KanbanAttachmentFindUniqueArgs<ExtArgs>>): Prisma__KanbanAttachmentClient<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one KanbanAttachment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {KanbanAttachmentFindUniqueOrThrowArgs} args - Arguments to find a KanbanAttachment
+     * @example
+     * // Get one KanbanAttachment
+     * const kanbanAttachment = await prisma.kanbanAttachment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends KanbanAttachmentFindUniqueOrThrowArgs>(args: SelectSubset<T, KanbanAttachmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KanbanAttachmentClient<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanAttachment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanAttachmentFindFirstArgs} args - Arguments to find a KanbanAttachment
+     * @example
+     * // Get one KanbanAttachment
+     * const kanbanAttachment = await prisma.kanbanAttachment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends KanbanAttachmentFindFirstArgs>(args?: SelectSubset<T, KanbanAttachmentFindFirstArgs<ExtArgs>>): Prisma__KanbanAttachmentClient<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanAttachment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanAttachmentFindFirstOrThrowArgs} args - Arguments to find a KanbanAttachment
+     * @example
+     * // Get one KanbanAttachment
+     * const kanbanAttachment = await prisma.kanbanAttachment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends KanbanAttachmentFindFirstOrThrowArgs>(args?: SelectSubset<T, KanbanAttachmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__KanbanAttachmentClient<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more KanbanAttachments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanAttachmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all KanbanAttachments
+     * const kanbanAttachments = await prisma.kanbanAttachment.findMany()
+     * 
+     * // Get first 10 KanbanAttachments
+     * const kanbanAttachments = await prisma.kanbanAttachment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const kanbanAttachmentWithIdOnly = await prisma.kanbanAttachment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends KanbanAttachmentFindManyArgs>(args?: SelectSubset<T, KanbanAttachmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a KanbanAttachment.
+     * @param {KanbanAttachmentCreateArgs} args - Arguments to create a KanbanAttachment.
+     * @example
+     * // Create one KanbanAttachment
+     * const KanbanAttachment = await prisma.kanbanAttachment.create({
+     *   data: {
+     *     // ... data to create a KanbanAttachment
+     *   }
+     * })
+     * 
+     */
+    create<T extends KanbanAttachmentCreateArgs>(args: SelectSubset<T, KanbanAttachmentCreateArgs<ExtArgs>>): Prisma__KanbanAttachmentClient<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many KanbanAttachments.
+     * @param {KanbanAttachmentCreateManyArgs} args - Arguments to create many KanbanAttachments.
+     * @example
+     * // Create many KanbanAttachments
+     * const kanbanAttachment = await prisma.kanbanAttachment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends KanbanAttachmentCreateManyArgs>(args?: SelectSubset<T, KanbanAttachmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many KanbanAttachments and returns the data saved in the database.
+     * @param {KanbanAttachmentCreateManyAndReturnArgs} args - Arguments to create many KanbanAttachments.
+     * @example
+     * // Create many KanbanAttachments
+     * const kanbanAttachment = await prisma.kanbanAttachment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many KanbanAttachments and only return the `id`
+     * const kanbanAttachmentWithIdOnly = await prisma.kanbanAttachment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends KanbanAttachmentCreateManyAndReturnArgs>(args?: SelectSubset<T, KanbanAttachmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a KanbanAttachment.
+     * @param {KanbanAttachmentDeleteArgs} args - Arguments to delete one KanbanAttachment.
+     * @example
+     * // Delete one KanbanAttachment
+     * const KanbanAttachment = await prisma.kanbanAttachment.delete({
+     *   where: {
+     *     // ... filter to delete one KanbanAttachment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends KanbanAttachmentDeleteArgs>(args: SelectSubset<T, KanbanAttachmentDeleteArgs<ExtArgs>>): Prisma__KanbanAttachmentClient<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one KanbanAttachment.
+     * @param {KanbanAttachmentUpdateArgs} args - Arguments to update one KanbanAttachment.
+     * @example
+     * // Update one KanbanAttachment
+     * const kanbanAttachment = await prisma.kanbanAttachment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends KanbanAttachmentUpdateArgs>(args: SelectSubset<T, KanbanAttachmentUpdateArgs<ExtArgs>>): Prisma__KanbanAttachmentClient<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more KanbanAttachments.
+     * @param {KanbanAttachmentDeleteManyArgs} args - Arguments to filter KanbanAttachments to delete.
+     * @example
+     * // Delete a few KanbanAttachments
+     * const { count } = await prisma.kanbanAttachment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends KanbanAttachmentDeleteManyArgs>(args?: SelectSubset<T, KanbanAttachmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanAttachments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanAttachmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many KanbanAttachments
+     * const kanbanAttachment = await prisma.kanbanAttachment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends KanbanAttachmentUpdateManyArgs>(args: SelectSubset<T, KanbanAttachmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanAttachments and returns the data updated in the database.
+     * @param {KanbanAttachmentUpdateManyAndReturnArgs} args - Arguments to update many KanbanAttachments.
+     * @example
+     * // Update many KanbanAttachments
+     * const kanbanAttachment = await prisma.kanbanAttachment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more KanbanAttachments and only return the `id`
+     * const kanbanAttachmentWithIdOnly = await prisma.kanbanAttachment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends KanbanAttachmentUpdateManyAndReturnArgs>(args: SelectSubset<T, KanbanAttachmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one KanbanAttachment.
+     * @param {KanbanAttachmentUpsertArgs} args - Arguments to update or create a KanbanAttachment.
+     * @example
+     * // Update or create a KanbanAttachment
+     * const kanbanAttachment = await prisma.kanbanAttachment.upsert({
+     *   create: {
+     *     // ... data to create a KanbanAttachment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the KanbanAttachment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends KanbanAttachmentUpsertArgs>(args: SelectSubset<T, KanbanAttachmentUpsertArgs<ExtArgs>>): Prisma__KanbanAttachmentClient<$Result.GetResult<Prisma.$KanbanAttachmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of KanbanAttachments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanAttachmentCountArgs} args - Arguments to filter KanbanAttachments to count.
+     * @example
+     * // Count the number of KanbanAttachments
+     * const count = await prisma.kanbanAttachment.count({
+     *   where: {
+     *     // ... the filter for the KanbanAttachments we want to count
+     *   }
+     * })
+    **/
+    count<T extends KanbanAttachmentCountArgs>(
+      args?: Subset<T, KanbanAttachmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], KanbanAttachmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a KanbanAttachment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanAttachmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends KanbanAttachmentAggregateArgs>(args: Subset<T, KanbanAttachmentAggregateArgs>): Prisma.PrismaPromise<GetKanbanAttachmentAggregateType<T>>
+
+    /**
+     * Group by KanbanAttachment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanAttachmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends KanbanAttachmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: KanbanAttachmentGroupByArgs['orderBy'] }
+        : { orderBy?: KanbanAttachmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, KanbanAttachmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKanbanAttachmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the KanbanAttachment model
+   */
+  readonly fields: KanbanAttachmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for KanbanAttachment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__KanbanAttachmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    card<T extends KanbanCardDefaultArgs<ExtArgs> = {}>(args?: Subset<T, KanbanCardDefaultArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the KanbanAttachment model
+   */
+  interface KanbanAttachmentFieldRefs {
+    readonly id: FieldRef<"KanbanAttachment", 'String'>
+    readonly cardId: FieldRef<"KanbanAttachment", 'String'>
+    readonly userId: FieldRef<"KanbanAttachment", 'String'>
+    readonly fileName: FieldRef<"KanbanAttachment", 'String'>
+    readonly fileUrl: FieldRef<"KanbanAttachment", 'String'>
+    readonly fileType: FieldRef<"KanbanAttachment", 'String'>
+    readonly fileSize: FieldRef<"KanbanAttachment", 'Int'>
+    readonly attachmentType: FieldRef<"KanbanAttachment", 'String'>
+    readonly uploadedAt: FieldRef<"KanbanAttachment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * KanbanAttachment findUnique
+   */
+  export type KanbanAttachmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanAttachment to fetch.
+     */
+    where: KanbanAttachmentWhereUniqueInput
+  }
+
+  /**
+   * KanbanAttachment findUniqueOrThrow
+   */
+  export type KanbanAttachmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanAttachment to fetch.
+     */
+    where: KanbanAttachmentWhereUniqueInput
+  }
+
+  /**
+   * KanbanAttachment findFirst
+   */
+  export type KanbanAttachmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanAttachment to fetch.
+     */
+    where?: KanbanAttachmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanAttachments to fetch.
+     */
+    orderBy?: KanbanAttachmentOrderByWithRelationInput | KanbanAttachmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanAttachments.
+     */
+    cursor?: KanbanAttachmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanAttachments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanAttachments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanAttachments.
+     */
+    distinct?: KanbanAttachmentScalarFieldEnum | KanbanAttachmentScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanAttachment findFirstOrThrow
+   */
+  export type KanbanAttachmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanAttachment to fetch.
+     */
+    where?: KanbanAttachmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanAttachments to fetch.
+     */
+    orderBy?: KanbanAttachmentOrderByWithRelationInput | KanbanAttachmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanAttachments.
+     */
+    cursor?: KanbanAttachmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanAttachments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanAttachments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanAttachments.
+     */
+    distinct?: KanbanAttachmentScalarFieldEnum | KanbanAttachmentScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanAttachment findMany
+   */
+  export type KanbanAttachmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanAttachments to fetch.
+     */
+    where?: KanbanAttachmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanAttachments to fetch.
+     */
+    orderBy?: KanbanAttachmentOrderByWithRelationInput | KanbanAttachmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing KanbanAttachments.
+     */
+    cursor?: KanbanAttachmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanAttachments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanAttachments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanAttachments.
+     */
+    distinct?: KanbanAttachmentScalarFieldEnum | KanbanAttachmentScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanAttachment create
+   */
+  export type KanbanAttachmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a KanbanAttachment.
+     */
+    data: XOR<KanbanAttachmentCreateInput, KanbanAttachmentUncheckedCreateInput>
+  }
+
+  /**
+   * KanbanAttachment createMany
+   */
+  export type KanbanAttachmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many KanbanAttachments.
+     */
+    data: KanbanAttachmentCreateManyInput | KanbanAttachmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * KanbanAttachment createManyAndReturn
+   */
+  export type KanbanAttachmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many KanbanAttachments.
+     */
+    data: KanbanAttachmentCreateManyInput | KanbanAttachmentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KanbanAttachment update
+   */
+  export type KanbanAttachmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a KanbanAttachment.
+     */
+    data: XOR<KanbanAttachmentUpdateInput, KanbanAttachmentUncheckedUpdateInput>
+    /**
+     * Choose, which KanbanAttachment to update.
+     */
+    where: KanbanAttachmentWhereUniqueInput
+  }
+
+  /**
+   * KanbanAttachment updateMany
+   */
+  export type KanbanAttachmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update KanbanAttachments.
+     */
+    data: XOR<KanbanAttachmentUpdateManyMutationInput, KanbanAttachmentUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanAttachments to update
+     */
+    where?: KanbanAttachmentWhereInput
+    /**
+     * Limit how many KanbanAttachments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanAttachment updateManyAndReturn
+   */
+  export type KanbanAttachmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * The data used to update KanbanAttachments.
+     */
+    data: XOR<KanbanAttachmentUpdateManyMutationInput, KanbanAttachmentUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanAttachments to update
+     */
+    where?: KanbanAttachmentWhereInput
+    /**
+     * Limit how many KanbanAttachments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KanbanAttachment upsert
+   */
+  export type KanbanAttachmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the KanbanAttachment to update in case it exists.
+     */
+    where: KanbanAttachmentWhereUniqueInput
+    /**
+     * In case the KanbanAttachment found by the `where` argument doesn't exist, create a new KanbanAttachment with this data.
+     */
+    create: XOR<KanbanAttachmentCreateInput, KanbanAttachmentUncheckedCreateInput>
+    /**
+     * In case the KanbanAttachment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<KanbanAttachmentUpdateInput, KanbanAttachmentUncheckedUpdateInput>
+  }
+
+  /**
+   * KanbanAttachment delete
+   */
+  export type KanbanAttachmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+    /**
+     * Filter which KanbanAttachment to delete.
+     */
+    where: KanbanAttachmentWhereUniqueInput
+  }
+
+  /**
+   * KanbanAttachment deleteMany
+   */
+  export type KanbanAttachmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanAttachments to delete
+     */
+    where?: KanbanAttachmentWhereInput
+    /**
+     * Limit how many KanbanAttachments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanAttachment without action
+   */
+  export type KanbanAttachmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanAttachment
+     */
+    select?: KanbanAttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanAttachment
+     */
+    omit?: KanbanAttachmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanAttachmentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model KanbanComment
+   */
+
+  export type AggregateKanbanComment = {
+    _count: KanbanCommentCountAggregateOutputType | null
+    _min: KanbanCommentMinAggregateOutputType | null
+    _max: KanbanCommentMaxAggregateOutputType | null
+  }
+
+  export type KanbanCommentMinAggregateOutputType = {
+    id: string | null
+    cardId: string | null
+    userId: string | null
+    message: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type KanbanCommentMaxAggregateOutputType = {
+    id: string | null
+    cardId: string | null
+    userId: string | null
+    message: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type KanbanCommentCountAggregateOutputType = {
+    id: number
+    cardId: number
+    userId: number
+    message: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type KanbanCommentMinAggregateInputType = {
+    id?: true
+    cardId?: true
+    userId?: true
+    message?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type KanbanCommentMaxAggregateInputType = {
+    id?: true
+    cardId?: true
+    userId?: true
+    message?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type KanbanCommentCountAggregateInputType = {
+    id?: true
+    cardId?: true
+    userId?: true
+    message?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type KanbanCommentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanComment to aggregate.
+     */
+    where?: KanbanCommentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanComments to fetch.
+     */
+    orderBy?: KanbanCommentOrderByWithRelationInput | KanbanCommentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: KanbanCommentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanComments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanComments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned KanbanComments
+    **/
+    _count?: true | KanbanCommentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: KanbanCommentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: KanbanCommentMaxAggregateInputType
+  }
+
+  export type GetKanbanCommentAggregateType<T extends KanbanCommentAggregateArgs> = {
+        [P in keyof T & keyof AggregateKanbanComment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateKanbanComment[P]>
+      : GetScalarType<T[P], AggregateKanbanComment[P]>
+  }
+
+
+
+
+  export type KanbanCommentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanCommentWhereInput
+    orderBy?: KanbanCommentOrderByWithAggregationInput | KanbanCommentOrderByWithAggregationInput[]
+    by: KanbanCommentScalarFieldEnum[] | KanbanCommentScalarFieldEnum
+    having?: KanbanCommentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: KanbanCommentCountAggregateInputType | true
+    _min?: KanbanCommentMinAggregateInputType
+    _max?: KanbanCommentMaxAggregateInputType
+  }
+
+  export type KanbanCommentGroupByOutputType = {
+    id: string
+    cardId: string
+    userId: string | null
+    message: string
+    createdAt: Date
+    updatedAt: Date
+    _count: KanbanCommentCountAggregateOutputType | null
+    _min: KanbanCommentMinAggregateOutputType | null
+    _max: KanbanCommentMaxAggregateOutputType | null
+  }
+
+  type GetKanbanCommentGroupByPayload<T extends KanbanCommentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<KanbanCommentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof KanbanCommentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], KanbanCommentGroupByOutputType[P]>
+            : GetScalarType<T[P], KanbanCommentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type KanbanCommentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    message?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanComment"]>
+
+  export type KanbanCommentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    message?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanComment"]>
+
+  export type KanbanCommentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    message?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanComment"]>
+
+  export type KanbanCommentSelectScalar = {
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    message?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type KanbanCommentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "cardId" | "userId" | "message" | "createdAt" | "updatedAt", ExtArgs["result"]["kanbanComment"]>
+  export type KanbanCommentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }
+  export type KanbanCommentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }
+  export type KanbanCommentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }
+
+  export type $KanbanCommentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "KanbanComment"
+    objects: {
+      card: Prisma.$KanbanCardPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      cardId: string
+      userId: string | null
+      message: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["kanbanComment"]>
+    composites: {}
+  }
+
+  type KanbanCommentGetPayload<S extends boolean | null | undefined | KanbanCommentDefaultArgs> = $Result.GetResult<Prisma.$KanbanCommentPayload, S>
+
+  type KanbanCommentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<KanbanCommentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: KanbanCommentCountAggregateInputType | true
+    }
+
+  export interface KanbanCommentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KanbanComment'], meta: { name: 'KanbanComment' } }
+    /**
+     * Find zero or one KanbanComment that matches the filter.
+     * @param {KanbanCommentFindUniqueArgs} args - Arguments to find a KanbanComment
+     * @example
+     * // Get one KanbanComment
+     * const kanbanComment = await prisma.kanbanComment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends KanbanCommentFindUniqueArgs>(args: SelectSubset<T, KanbanCommentFindUniqueArgs<ExtArgs>>): Prisma__KanbanCommentClient<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one KanbanComment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {KanbanCommentFindUniqueOrThrowArgs} args - Arguments to find a KanbanComment
+     * @example
+     * // Get one KanbanComment
+     * const kanbanComment = await prisma.kanbanComment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends KanbanCommentFindUniqueOrThrowArgs>(args: SelectSubset<T, KanbanCommentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KanbanCommentClient<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanComment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCommentFindFirstArgs} args - Arguments to find a KanbanComment
+     * @example
+     * // Get one KanbanComment
+     * const kanbanComment = await prisma.kanbanComment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends KanbanCommentFindFirstArgs>(args?: SelectSubset<T, KanbanCommentFindFirstArgs<ExtArgs>>): Prisma__KanbanCommentClient<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanComment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCommentFindFirstOrThrowArgs} args - Arguments to find a KanbanComment
+     * @example
+     * // Get one KanbanComment
+     * const kanbanComment = await prisma.kanbanComment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends KanbanCommentFindFirstOrThrowArgs>(args?: SelectSubset<T, KanbanCommentFindFirstOrThrowArgs<ExtArgs>>): Prisma__KanbanCommentClient<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more KanbanComments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCommentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all KanbanComments
+     * const kanbanComments = await prisma.kanbanComment.findMany()
+     * 
+     * // Get first 10 KanbanComments
+     * const kanbanComments = await prisma.kanbanComment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const kanbanCommentWithIdOnly = await prisma.kanbanComment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends KanbanCommentFindManyArgs>(args?: SelectSubset<T, KanbanCommentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a KanbanComment.
+     * @param {KanbanCommentCreateArgs} args - Arguments to create a KanbanComment.
+     * @example
+     * // Create one KanbanComment
+     * const KanbanComment = await prisma.kanbanComment.create({
+     *   data: {
+     *     // ... data to create a KanbanComment
+     *   }
+     * })
+     * 
+     */
+    create<T extends KanbanCommentCreateArgs>(args: SelectSubset<T, KanbanCommentCreateArgs<ExtArgs>>): Prisma__KanbanCommentClient<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many KanbanComments.
+     * @param {KanbanCommentCreateManyArgs} args - Arguments to create many KanbanComments.
+     * @example
+     * // Create many KanbanComments
+     * const kanbanComment = await prisma.kanbanComment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends KanbanCommentCreateManyArgs>(args?: SelectSubset<T, KanbanCommentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many KanbanComments and returns the data saved in the database.
+     * @param {KanbanCommentCreateManyAndReturnArgs} args - Arguments to create many KanbanComments.
+     * @example
+     * // Create many KanbanComments
+     * const kanbanComment = await prisma.kanbanComment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many KanbanComments and only return the `id`
+     * const kanbanCommentWithIdOnly = await prisma.kanbanComment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends KanbanCommentCreateManyAndReturnArgs>(args?: SelectSubset<T, KanbanCommentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a KanbanComment.
+     * @param {KanbanCommentDeleteArgs} args - Arguments to delete one KanbanComment.
+     * @example
+     * // Delete one KanbanComment
+     * const KanbanComment = await prisma.kanbanComment.delete({
+     *   where: {
+     *     // ... filter to delete one KanbanComment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends KanbanCommentDeleteArgs>(args: SelectSubset<T, KanbanCommentDeleteArgs<ExtArgs>>): Prisma__KanbanCommentClient<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one KanbanComment.
+     * @param {KanbanCommentUpdateArgs} args - Arguments to update one KanbanComment.
+     * @example
+     * // Update one KanbanComment
+     * const kanbanComment = await prisma.kanbanComment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends KanbanCommentUpdateArgs>(args: SelectSubset<T, KanbanCommentUpdateArgs<ExtArgs>>): Prisma__KanbanCommentClient<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more KanbanComments.
+     * @param {KanbanCommentDeleteManyArgs} args - Arguments to filter KanbanComments to delete.
+     * @example
+     * // Delete a few KanbanComments
+     * const { count } = await prisma.kanbanComment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends KanbanCommentDeleteManyArgs>(args?: SelectSubset<T, KanbanCommentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanComments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCommentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many KanbanComments
+     * const kanbanComment = await prisma.kanbanComment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends KanbanCommentUpdateManyArgs>(args: SelectSubset<T, KanbanCommentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanComments and returns the data updated in the database.
+     * @param {KanbanCommentUpdateManyAndReturnArgs} args - Arguments to update many KanbanComments.
+     * @example
+     * // Update many KanbanComments
+     * const kanbanComment = await prisma.kanbanComment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more KanbanComments and only return the `id`
+     * const kanbanCommentWithIdOnly = await prisma.kanbanComment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends KanbanCommentUpdateManyAndReturnArgs>(args: SelectSubset<T, KanbanCommentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one KanbanComment.
+     * @param {KanbanCommentUpsertArgs} args - Arguments to update or create a KanbanComment.
+     * @example
+     * // Update or create a KanbanComment
+     * const kanbanComment = await prisma.kanbanComment.upsert({
+     *   create: {
+     *     // ... data to create a KanbanComment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the KanbanComment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends KanbanCommentUpsertArgs>(args: SelectSubset<T, KanbanCommentUpsertArgs<ExtArgs>>): Prisma__KanbanCommentClient<$Result.GetResult<Prisma.$KanbanCommentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of KanbanComments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCommentCountArgs} args - Arguments to filter KanbanComments to count.
+     * @example
+     * // Count the number of KanbanComments
+     * const count = await prisma.kanbanComment.count({
+     *   where: {
+     *     // ... the filter for the KanbanComments we want to count
+     *   }
+     * })
+    **/
+    count<T extends KanbanCommentCountArgs>(
+      args?: Subset<T, KanbanCommentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], KanbanCommentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a KanbanComment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCommentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends KanbanCommentAggregateArgs>(args: Subset<T, KanbanCommentAggregateArgs>): Prisma.PrismaPromise<GetKanbanCommentAggregateType<T>>
+
+    /**
+     * Group by KanbanComment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanCommentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends KanbanCommentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: KanbanCommentGroupByArgs['orderBy'] }
+        : { orderBy?: KanbanCommentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, KanbanCommentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKanbanCommentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the KanbanComment model
+   */
+  readonly fields: KanbanCommentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for KanbanComment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__KanbanCommentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    card<T extends KanbanCardDefaultArgs<ExtArgs> = {}>(args?: Subset<T, KanbanCardDefaultArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the KanbanComment model
+   */
+  interface KanbanCommentFieldRefs {
+    readonly id: FieldRef<"KanbanComment", 'String'>
+    readonly cardId: FieldRef<"KanbanComment", 'String'>
+    readonly userId: FieldRef<"KanbanComment", 'String'>
+    readonly message: FieldRef<"KanbanComment", 'String'>
+    readonly createdAt: FieldRef<"KanbanComment", 'DateTime'>
+    readonly updatedAt: FieldRef<"KanbanComment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * KanbanComment findUnique
+   */
+  export type KanbanCommentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanComment to fetch.
+     */
+    where: KanbanCommentWhereUniqueInput
+  }
+
+  /**
+   * KanbanComment findUniqueOrThrow
+   */
+  export type KanbanCommentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanComment to fetch.
+     */
+    where: KanbanCommentWhereUniqueInput
+  }
+
+  /**
+   * KanbanComment findFirst
+   */
+  export type KanbanCommentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanComment to fetch.
+     */
+    where?: KanbanCommentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanComments to fetch.
+     */
+    orderBy?: KanbanCommentOrderByWithRelationInput | KanbanCommentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanComments.
+     */
+    cursor?: KanbanCommentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanComments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanComments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanComments.
+     */
+    distinct?: KanbanCommentScalarFieldEnum | KanbanCommentScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanComment findFirstOrThrow
+   */
+  export type KanbanCommentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanComment to fetch.
+     */
+    where?: KanbanCommentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanComments to fetch.
+     */
+    orderBy?: KanbanCommentOrderByWithRelationInput | KanbanCommentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanComments.
+     */
+    cursor?: KanbanCommentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanComments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanComments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanComments.
+     */
+    distinct?: KanbanCommentScalarFieldEnum | KanbanCommentScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanComment findMany
+   */
+  export type KanbanCommentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanComments to fetch.
+     */
+    where?: KanbanCommentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanComments to fetch.
+     */
+    orderBy?: KanbanCommentOrderByWithRelationInput | KanbanCommentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing KanbanComments.
+     */
+    cursor?: KanbanCommentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanComments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanComments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanComments.
+     */
+    distinct?: KanbanCommentScalarFieldEnum | KanbanCommentScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanComment create
+   */
+  export type KanbanCommentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a KanbanComment.
+     */
+    data: XOR<KanbanCommentCreateInput, KanbanCommentUncheckedCreateInput>
+  }
+
+  /**
+   * KanbanComment createMany
+   */
+  export type KanbanCommentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many KanbanComments.
+     */
+    data: KanbanCommentCreateManyInput | KanbanCommentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * KanbanComment createManyAndReturn
+   */
+  export type KanbanCommentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * The data used to create many KanbanComments.
+     */
+    data: KanbanCommentCreateManyInput | KanbanCommentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KanbanComment update
+   */
+  export type KanbanCommentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a KanbanComment.
+     */
+    data: XOR<KanbanCommentUpdateInput, KanbanCommentUncheckedUpdateInput>
+    /**
+     * Choose, which KanbanComment to update.
+     */
+    where: KanbanCommentWhereUniqueInput
+  }
+
+  /**
+   * KanbanComment updateMany
+   */
+  export type KanbanCommentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update KanbanComments.
+     */
+    data: XOR<KanbanCommentUpdateManyMutationInput, KanbanCommentUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanComments to update
+     */
+    where?: KanbanCommentWhereInput
+    /**
+     * Limit how many KanbanComments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanComment updateManyAndReturn
+   */
+  export type KanbanCommentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * The data used to update KanbanComments.
+     */
+    data: XOR<KanbanCommentUpdateManyMutationInput, KanbanCommentUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanComments to update
+     */
+    where?: KanbanCommentWhereInput
+    /**
+     * Limit how many KanbanComments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KanbanComment upsert
+   */
+  export type KanbanCommentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the KanbanComment to update in case it exists.
+     */
+    where: KanbanCommentWhereUniqueInput
+    /**
+     * In case the KanbanComment found by the `where` argument doesn't exist, create a new KanbanComment with this data.
+     */
+    create: XOR<KanbanCommentCreateInput, KanbanCommentUncheckedCreateInput>
+    /**
+     * In case the KanbanComment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<KanbanCommentUpdateInput, KanbanCommentUncheckedUpdateInput>
+  }
+
+  /**
+   * KanbanComment delete
+   */
+  export type KanbanCommentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+    /**
+     * Filter which KanbanComment to delete.
+     */
+    where: KanbanCommentWhereUniqueInput
+  }
+
+  /**
+   * KanbanComment deleteMany
+   */
+  export type KanbanCommentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanComments to delete
+     */
+    where?: KanbanCommentWhereInput
+    /**
+     * Limit how many KanbanComments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanComment without action
+   */
+  export type KanbanCommentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanComment
+     */
+    select?: KanbanCommentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanComment
+     */
+    omit?: KanbanCommentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanCommentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model KanbanActivityLog
+   */
+
+  export type AggregateKanbanActivityLog = {
+    _count: KanbanActivityLogCountAggregateOutputType | null
+    _min: KanbanActivityLogMinAggregateOutputType | null
+    _max: KanbanActivityLogMaxAggregateOutputType | null
+  }
+
+  export type KanbanActivityLogMinAggregateOutputType = {
+    id: string | null
+    cardId: string | null
+    userId: string | null
+    actionType: string | null
+    details: string | null
+    timestamp: Date | null
+  }
+
+  export type KanbanActivityLogMaxAggregateOutputType = {
+    id: string | null
+    cardId: string | null
+    userId: string | null
+    actionType: string | null
+    details: string | null
+    timestamp: Date | null
+  }
+
+  export type KanbanActivityLogCountAggregateOutputType = {
+    id: number
+    cardId: number
+    userId: number
+    actionType: number
+    details: number
+    timestamp: number
+    _all: number
+  }
+
+
+  export type KanbanActivityLogMinAggregateInputType = {
+    id?: true
+    cardId?: true
+    userId?: true
+    actionType?: true
+    details?: true
+    timestamp?: true
+  }
+
+  export type KanbanActivityLogMaxAggregateInputType = {
+    id?: true
+    cardId?: true
+    userId?: true
+    actionType?: true
+    details?: true
+    timestamp?: true
+  }
+
+  export type KanbanActivityLogCountAggregateInputType = {
+    id?: true
+    cardId?: true
+    userId?: true
+    actionType?: true
+    details?: true
+    timestamp?: true
+    _all?: true
+  }
+
+  export type KanbanActivityLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanActivityLog to aggregate.
+     */
+    where?: KanbanActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanActivityLogs to fetch.
+     */
+    orderBy?: KanbanActivityLogOrderByWithRelationInput | KanbanActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: KanbanActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanActivityLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned KanbanActivityLogs
+    **/
+    _count?: true | KanbanActivityLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: KanbanActivityLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: KanbanActivityLogMaxAggregateInputType
+  }
+
+  export type GetKanbanActivityLogAggregateType<T extends KanbanActivityLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateKanbanActivityLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateKanbanActivityLog[P]>
+      : GetScalarType<T[P], AggregateKanbanActivityLog[P]>
+  }
+
+
+
+
+  export type KanbanActivityLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KanbanActivityLogWhereInput
+    orderBy?: KanbanActivityLogOrderByWithAggregationInput | KanbanActivityLogOrderByWithAggregationInput[]
+    by: KanbanActivityLogScalarFieldEnum[] | KanbanActivityLogScalarFieldEnum
+    having?: KanbanActivityLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: KanbanActivityLogCountAggregateInputType | true
+    _min?: KanbanActivityLogMinAggregateInputType
+    _max?: KanbanActivityLogMaxAggregateInputType
+  }
+
+  export type KanbanActivityLogGroupByOutputType = {
+    id: string
+    cardId: string
+    userId: string | null
+    actionType: string
+    details: string | null
+    timestamp: Date
+    _count: KanbanActivityLogCountAggregateOutputType | null
+    _min: KanbanActivityLogMinAggregateOutputType | null
+    _max: KanbanActivityLogMaxAggregateOutputType | null
+  }
+
+  type GetKanbanActivityLogGroupByPayload<T extends KanbanActivityLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<KanbanActivityLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof KanbanActivityLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], KanbanActivityLogGroupByOutputType[P]>
+            : GetScalarType<T[P], KanbanActivityLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type KanbanActivityLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    actionType?: boolean
+    details?: boolean
+    timestamp?: boolean
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanActivityLog"]>
+
+  export type KanbanActivityLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    actionType?: boolean
+    details?: boolean
+    timestamp?: boolean
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanActivityLog"]>
+
+  export type KanbanActivityLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    actionType?: boolean
+    details?: boolean
+    timestamp?: boolean
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kanbanActivityLog"]>
+
+  export type KanbanActivityLogSelectScalar = {
+    id?: boolean
+    cardId?: boolean
+    userId?: boolean
+    actionType?: boolean
+    details?: boolean
+    timestamp?: boolean
+  }
+
+  export type KanbanActivityLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "cardId" | "userId" | "actionType" | "details" | "timestamp", ExtArgs["result"]["kanbanActivityLog"]>
+  export type KanbanActivityLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }
+  export type KanbanActivityLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }
+  export type KanbanActivityLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    card?: boolean | KanbanCardDefaultArgs<ExtArgs>
+  }
+
+  export type $KanbanActivityLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "KanbanActivityLog"
+    objects: {
+      card: Prisma.$KanbanCardPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      cardId: string
+      userId: string | null
+      actionType: string
+      details: string | null
+      timestamp: Date
+    }, ExtArgs["result"]["kanbanActivityLog"]>
+    composites: {}
+  }
+
+  type KanbanActivityLogGetPayload<S extends boolean | null | undefined | KanbanActivityLogDefaultArgs> = $Result.GetResult<Prisma.$KanbanActivityLogPayload, S>
+
+  type KanbanActivityLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<KanbanActivityLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: KanbanActivityLogCountAggregateInputType | true
+    }
+
+  export interface KanbanActivityLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KanbanActivityLog'], meta: { name: 'KanbanActivityLog' } }
+    /**
+     * Find zero or one KanbanActivityLog that matches the filter.
+     * @param {KanbanActivityLogFindUniqueArgs} args - Arguments to find a KanbanActivityLog
+     * @example
+     * // Get one KanbanActivityLog
+     * const kanbanActivityLog = await prisma.kanbanActivityLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends KanbanActivityLogFindUniqueArgs>(args: SelectSubset<T, KanbanActivityLogFindUniqueArgs<ExtArgs>>): Prisma__KanbanActivityLogClient<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one KanbanActivityLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {KanbanActivityLogFindUniqueOrThrowArgs} args - Arguments to find a KanbanActivityLog
+     * @example
+     * // Get one KanbanActivityLog
+     * const kanbanActivityLog = await prisma.kanbanActivityLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends KanbanActivityLogFindUniqueOrThrowArgs>(args: SelectSubset<T, KanbanActivityLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KanbanActivityLogClient<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanActivityLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanActivityLogFindFirstArgs} args - Arguments to find a KanbanActivityLog
+     * @example
+     * // Get one KanbanActivityLog
+     * const kanbanActivityLog = await prisma.kanbanActivityLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends KanbanActivityLogFindFirstArgs>(args?: SelectSubset<T, KanbanActivityLogFindFirstArgs<ExtArgs>>): Prisma__KanbanActivityLogClient<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KanbanActivityLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanActivityLogFindFirstOrThrowArgs} args - Arguments to find a KanbanActivityLog
+     * @example
+     * // Get one KanbanActivityLog
+     * const kanbanActivityLog = await prisma.kanbanActivityLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends KanbanActivityLogFindFirstOrThrowArgs>(args?: SelectSubset<T, KanbanActivityLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__KanbanActivityLogClient<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more KanbanActivityLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanActivityLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all KanbanActivityLogs
+     * const kanbanActivityLogs = await prisma.kanbanActivityLog.findMany()
+     * 
+     * // Get first 10 KanbanActivityLogs
+     * const kanbanActivityLogs = await prisma.kanbanActivityLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const kanbanActivityLogWithIdOnly = await prisma.kanbanActivityLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends KanbanActivityLogFindManyArgs>(args?: SelectSubset<T, KanbanActivityLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a KanbanActivityLog.
+     * @param {KanbanActivityLogCreateArgs} args - Arguments to create a KanbanActivityLog.
+     * @example
+     * // Create one KanbanActivityLog
+     * const KanbanActivityLog = await prisma.kanbanActivityLog.create({
+     *   data: {
+     *     // ... data to create a KanbanActivityLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends KanbanActivityLogCreateArgs>(args: SelectSubset<T, KanbanActivityLogCreateArgs<ExtArgs>>): Prisma__KanbanActivityLogClient<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many KanbanActivityLogs.
+     * @param {KanbanActivityLogCreateManyArgs} args - Arguments to create many KanbanActivityLogs.
+     * @example
+     * // Create many KanbanActivityLogs
+     * const kanbanActivityLog = await prisma.kanbanActivityLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends KanbanActivityLogCreateManyArgs>(args?: SelectSubset<T, KanbanActivityLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many KanbanActivityLogs and returns the data saved in the database.
+     * @param {KanbanActivityLogCreateManyAndReturnArgs} args - Arguments to create many KanbanActivityLogs.
+     * @example
+     * // Create many KanbanActivityLogs
+     * const kanbanActivityLog = await prisma.kanbanActivityLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many KanbanActivityLogs and only return the `id`
+     * const kanbanActivityLogWithIdOnly = await prisma.kanbanActivityLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends KanbanActivityLogCreateManyAndReturnArgs>(args?: SelectSubset<T, KanbanActivityLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a KanbanActivityLog.
+     * @param {KanbanActivityLogDeleteArgs} args - Arguments to delete one KanbanActivityLog.
+     * @example
+     * // Delete one KanbanActivityLog
+     * const KanbanActivityLog = await prisma.kanbanActivityLog.delete({
+     *   where: {
+     *     // ... filter to delete one KanbanActivityLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends KanbanActivityLogDeleteArgs>(args: SelectSubset<T, KanbanActivityLogDeleteArgs<ExtArgs>>): Prisma__KanbanActivityLogClient<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one KanbanActivityLog.
+     * @param {KanbanActivityLogUpdateArgs} args - Arguments to update one KanbanActivityLog.
+     * @example
+     * // Update one KanbanActivityLog
+     * const kanbanActivityLog = await prisma.kanbanActivityLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends KanbanActivityLogUpdateArgs>(args: SelectSubset<T, KanbanActivityLogUpdateArgs<ExtArgs>>): Prisma__KanbanActivityLogClient<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more KanbanActivityLogs.
+     * @param {KanbanActivityLogDeleteManyArgs} args - Arguments to filter KanbanActivityLogs to delete.
+     * @example
+     * // Delete a few KanbanActivityLogs
+     * const { count } = await prisma.kanbanActivityLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends KanbanActivityLogDeleteManyArgs>(args?: SelectSubset<T, KanbanActivityLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanActivityLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanActivityLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many KanbanActivityLogs
+     * const kanbanActivityLog = await prisma.kanbanActivityLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends KanbanActivityLogUpdateManyArgs>(args: SelectSubset<T, KanbanActivityLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KanbanActivityLogs and returns the data updated in the database.
+     * @param {KanbanActivityLogUpdateManyAndReturnArgs} args - Arguments to update many KanbanActivityLogs.
+     * @example
+     * // Update many KanbanActivityLogs
+     * const kanbanActivityLog = await prisma.kanbanActivityLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more KanbanActivityLogs and only return the `id`
+     * const kanbanActivityLogWithIdOnly = await prisma.kanbanActivityLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends KanbanActivityLogUpdateManyAndReturnArgs>(args: SelectSubset<T, KanbanActivityLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one KanbanActivityLog.
+     * @param {KanbanActivityLogUpsertArgs} args - Arguments to update or create a KanbanActivityLog.
+     * @example
+     * // Update or create a KanbanActivityLog
+     * const kanbanActivityLog = await prisma.kanbanActivityLog.upsert({
+     *   create: {
+     *     // ... data to create a KanbanActivityLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the KanbanActivityLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends KanbanActivityLogUpsertArgs>(args: SelectSubset<T, KanbanActivityLogUpsertArgs<ExtArgs>>): Prisma__KanbanActivityLogClient<$Result.GetResult<Prisma.$KanbanActivityLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of KanbanActivityLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanActivityLogCountArgs} args - Arguments to filter KanbanActivityLogs to count.
+     * @example
+     * // Count the number of KanbanActivityLogs
+     * const count = await prisma.kanbanActivityLog.count({
+     *   where: {
+     *     // ... the filter for the KanbanActivityLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends KanbanActivityLogCountArgs>(
+      args?: Subset<T, KanbanActivityLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], KanbanActivityLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a KanbanActivityLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanActivityLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends KanbanActivityLogAggregateArgs>(args: Subset<T, KanbanActivityLogAggregateArgs>): Prisma.PrismaPromise<GetKanbanActivityLogAggregateType<T>>
+
+    /**
+     * Group by KanbanActivityLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KanbanActivityLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends KanbanActivityLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: KanbanActivityLogGroupByArgs['orderBy'] }
+        : { orderBy?: KanbanActivityLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, KanbanActivityLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKanbanActivityLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the KanbanActivityLog model
+   */
+  readonly fields: KanbanActivityLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for KanbanActivityLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__KanbanActivityLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    card<T extends KanbanCardDefaultArgs<ExtArgs> = {}>(args?: Subset<T, KanbanCardDefaultArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the KanbanActivityLog model
+   */
+  interface KanbanActivityLogFieldRefs {
+    readonly id: FieldRef<"KanbanActivityLog", 'String'>
+    readonly cardId: FieldRef<"KanbanActivityLog", 'String'>
+    readonly userId: FieldRef<"KanbanActivityLog", 'String'>
+    readonly actionType: FieldRef<"KanbanActivityLog", 'String'>
+    readonly details: FieldRef<"KanbanActivityLog", 'String'>
+    readonly timestamp: FieldRef<"KanbanActivityLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * KanbanActivityLog findUnique
+   */
+  export type KanbanActivityLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanActivityLog to fetch.
+     */
+    where: KanbanActivityLogWhereUniqueInput
+  }
+
+  /**
+   * KanbanActivityLog findUniqueOrThrow
+   */
+  export type KanbanActivityLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanActivityLog to fetch.
+     */
+    where: KanbanActivityLogWhereUniqueInput
+  }
+
+  /**
+   * KanbanActivityLog findFirst
+   */
+  export type KanbanActivityLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanActivityLog to fetch.
+     */
+    where?: KanbanActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanActivityLogs to fetch.
+     */
+    orderBy?: KanbanActivityLogOrderByWithRelationInput | KanbanActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanActivityLogs.
+     */
+    cursor?: KanbanActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanActivityLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanActivityLogs.
+     */
+    distinct?: KanbanActivityLogScalarFieldEnum | KanbanActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanActivityLog findFirstOrThrow
+   */
+  export type KanbanActivityLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanActivityLog to fetch.
+     */
+    where?: KanbanActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanActivityLogs to fetch.
+     */
+    orderBy?: KanbanActivityLogOrderByWithRelationInput | KanbanActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KanbanActivityLogs.
+     */
+    cursor?: KanbanActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanActivityLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanActivityLogs.
+     */
+    distinct?: KanbanActivityLogScalarFieldEnum | KanbanActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanActivityLog findMany
+   */
+  export type KanbanActivityLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter, which KanbanActivityLogs to fetch.
+     */
+    where?: KanbanActivityLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KanbanActivityLogs to fetch.
+     */
+    orderBy?: KanbanActivityLogOrderByWithRelationInput | KanbanActivityLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing KanbanActivityLogs.
+     */
+    cursor?: KanbanActivityLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KanbanActivityLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KanbanActivityLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KanbanActivityLogs.
+     */
+    distinct?: KanbanActivityLogScalarFieldEnum | KanbanActivityLogScalarFieldEnum[]
+  }
+
+  /**
+   * KanbanActivityLog create
+   */
+  export type KanbanActivityLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a KanbanActivityLog.
+     */
+    data: XOR<KanbanActivityLogCreateInput, KanbanActivityLogUncheckedCreateInput>
+  }
+
+  /**
+   * KanbanActivityLog createMany
+   */
+  export type KanbanActivityLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many KanbanActivityLogs.
+     */
+    data: KanbanActivityLogCreateManyInput | KanbanActivityLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * KanbanActivityLog createManyAndReturn
+   */
+  export type KanbanActivityLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many KanbanActivityLogs.
+     */
+    data: KanbanActivityLogCreateManyInput | KanbanActivityLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KanbanActivityLog update
+   */
+  export type KanbanActivityLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a KanbanActivityLog.
+     */
+    data: XOR<KanbanActivityLogUpdateInput, KanbanActivityLogUncheckedUpdateInput>
+    /**
+     * Choose, which KanbanActivityLog to update.
+     */
+    where: KanbanActivityLogWhereUniqueInput
+  }
+
+  /**
+   * KanbanActivityLog updateMany
+   */
+  export type KanbanActivityLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update KanbanActivityLogs.
+     */
+    data: XOR<KanbanActivityLogUpdateManyMutationInput, KanbanActivityLogUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanActivityLogs to update
+     */
+    where?: KanbanActivityLogWhereInput
+    /**
+     * Limit how many KanbanActivityLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanActivityLog updateManyAndReturn
+   */
+  export type KanbanActivityLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * The data used to update KanbanActivityLogs.
+     */
+    data: XOR<KanbanActivityLogUpdateManyMutationInput, KanbanActivityLogUncheckedUpdateManyInput>
+    /**
+     * Filter which KanbanActivityLogs to update
+     */
+    where?: KanbanActivityLogWhereInput
+    /**
+     * Limit how many KanbanActivityLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KanbanActivityLog upsert
+   */
+  export type KanbanActivityLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the KanbanActivityLog to update in case it exists.
+     */
+    where: KanbanActivityLogWhereUniqueInput
+    /**
+     * In case the KanbanActivityLog found by the `where` argument doesn't exist, create a new KanbanActivityLog with this data.
+     */
+    create: XOR<KanbanActivityLogCreateInput, KanbanActivityLogUncheckedCreateInput>
+    /**
+     * In case the KanbanActivityLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<KanbanActivityLogUpdateInput, KanbanActivityLogUncheckedUpdateInput>
+  }
+
+  /**
+   * KanbanActivityLog delete
+   */
+  export type KanbanActivityLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+    /**
+     * Filter which KanbanActivityLog to delete.
+     */
+    where: KanbanActivityLogWhereUniqueInput
+  }
+
+  /**
+   * KanbanActivityLog deleteMany
+   */
+  export type KanbanActivityLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KanbanActivityLogs to delete
+     */
+    where?: KanbanActivityLogWhereInput
+    /**
+     * Limit how many KanbanActivityLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * KanbanActivityLog without action
+   */
+  export type KanbanActivityLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KanbanActivityLog
+     */
+    select?: KanbanActivityLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KanbanActivityLog
+     */
+    omit?: KanbanActivityLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KanbanActivityLogInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -152674,6 +161710,120 @@ export namespace Prisma {
   export type Wheel_winnersScalarFieldEnum = (typeof Wheel_winnersScalarFieldEnum)[keyof typeof Wheel_winnersScalarFieldEnum]
 
 
+  export const CustomerSatisfactionScalarFieldEnum: {
+    id: 'id',
+    surveyRound: 'surveyRound',
+    surveyYear: 'surveyYear',
+    surveyMethod: 'surveyMethod',
+    surveyBy: 'surveyBy',
+    surveyDate: 'surveyDate',
+    companyId: 'companyId',
+    province: 'province',
+    phone: 'phone',
+    quotationIds: 'quotationIds',
+    scorePrice: 'scorePrice',
+    scoreQuality: 'scoreQuality',
+    scoreDelivery: 'scoreDelivery',
+    scoreSales: 'scoreSales',
+    scoreSupport: 'scoreSupport',
+    scoreAfterSales: 'scoreAfterSales',
+    scoreAverage: 'scoreAverage',
+    purchaseReasons: 'purchaseReasons',
+    suggestions: 'suggestions',
+    analysisNote: 'analysisNote',
+    actionPlan: 'actionPlan',
+    sharedToSales: 'sharedToSales',
+    sharedToService: 'sharedToService',
+    sharedAt: 'sharedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CustomerSatisfactionScalarFieldEnum = (typeof CustomerSatisfactionScalarFieldEnum)[keyof typeof CustomerSatisfactionScalarFieldEnum]
+
+
+  export const KanbanBoardScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    ownerId: 'ownerId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    colorTheme: 'colorTheme'
+  };
+
+  export type KanbanBoardScalarFieldEnum = (typeof KanbanBoardScalarFieldEnum)[keyof typeof KanbanBoardScalarFieldEnum]
+
+
+  export const KanbanListScalarFieldEnum: {
+    id: 'id',
+    boardId: 'boardId',
+    name: 'name',
+    position: 'position',
+    color: 'color',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type KanbanListScalarFieldEnum = (typeof KanbanListScalarFieldEnum)[keyof typeof KanbanListScalarFieldEnum]
+
+
+  export const KanbanCardScalarFieldEnum: {
+    id: 'id',
+    listId: 'listId',
+    title: 'title',
+    description: 'description',
+    assignedToId: 'assignedToId',
+    dueDate: 'dueDate',
+    revisionStatus: 'revisionStatus',
+    position: 'position',
+    checklist: 'checklist',
+    color: 'color',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type KanbanCardScalarFieldEnum = (typeof KanbanCardScalarFieldEnum)[keyof typeof KanbanCardScalarFieldEnum]
+
+
+  export const KanbanAttachmentScalarFieldEnum: {
+    id: 'id',
+    cardId: 'cardId',
+    userId: 'userId',
+    fileName: 'fileName',
+    fileUrl: 'fileUrl',
+    fileType: 'fileType',
+    fileSize: 'fileSize',
+    attachmentType: 'attachmentType',
+    uploadedAt: 'uploadedAt'
+  };
+
+  export type KanbanAttachmentScalarFieldEnum = (typeof KanbanAttachmentScalarFieldEnum)[keyof typeof KanbanAttachmentScalarFieldEnum]
+
+
+  export const KanbanCommentScalarFieldEnum: {
+    id: 'id',
+    cardId: 'cardId',
+    userId: 'userId',
+    message: 'message',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type KanbanCommentScalarFieldEnum = (typeof KanbanCommentScalarFieldEnum)[keyof typeof KanbanCommentScalarFieldEnum]
+
+
+  export const KanbanActivityLogScalarFieldEnum: {
+    id: 'id',
+    cardId: 'cardId',
+    userId: 'userId',
+    actionType: 'actionType',
+    details: 'details',
+    timestamp: 'timestamp'
+  };
+
+  export type KanbanActivityLogScalarFieldEnum = (typeof KanbanActivityLogScalarFieldEnum)[keyof typeof KanbanActivityLogScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -152856,6 +162006,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionListRelationFilter
     estimatedRequirements?: CustomerRequirementListRelationFilter
     customerRequirements?: CustomerRequirementListRelationFilter
+    customerSatisfactions?: CustomerSatisfactionListRelationFilter
     installationOrders?: InstallationOrderListRelationFilter
     uploadedDocuments?: JobDocumentListRelationFilter
     assignedMarketingLeads?: MarketingLeadListRelationFilter
@@ -152897,6 +162048,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionOrderByRelationAggregateInput
     estimatedRequirements?: CustomerRequirementOrderByRelationAggregateInput
     customerRequirements?: CustomerRequirementOrderByRelationAggregateInput
+    customerSatisfactions?: CustomerSatisfactionOrderByRelationAggregateInput
     installationOrders?: InstallationOrderOrderByRelationAggregateInput
     uploadedDocuments?: JobDocumentOrderByRelationAggregateInput
     assignedMarketingLeads?: MarketingLeadOrderByRelationAggregateInput
@@ -152941,6 +162093,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionListRelationFilter
     estimatedRequirements?: CustomerRequirementListRelationFilter
     customerRequirements?: CustomerRequirementListRelationFilter
+    customerSatisfactions?: CustomerSatisfactionListRelationFilter
     installationOrders?: InstallationOrderListRelationFilter
     uploadedDocuments?: JobDocumentListRelationFilter
     assignedMarketingLeads?: MarketingLeadListRelationFilter
@@ -153376,6 +162529,7 @@ export namespace Prisma {
     assignedUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     interactions?: CompanyInteractionListRelationFilter
     contacts?: ContactListRelationFilter
+    customerSatisfactions?: CustomerSatisfactionListRelationFilter
     orders?: OrderListRelationFilter
     quotations?: QuotationListRelationFilter
     schedules?: ScheduleListRelationFilter
@@ -153418,6 +162572,7 @@ export namespace Prisma {
     assignedUser?: UserOrderByWithRelationInput
     interactions?: CompanyInteractionOrderByRelationAggregateInput
     contacts?: ContactOrderByRelationAggregateInput
+    customerSatisfactions?: CustomerSatisfactionOrderByRelationAggregateInput
     orders?: OrderOrderByRelationAggregateInput
     quotations?: QuotationOrderByRelationAggregateInput
     schedules?: ScheduleOrderByRelationAggregateInput
@@ -153463,6 +162618,7 @@ export namespace Prisma {
     assignedUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     interactions?: CompanyInteractionListRelationFilter
     contacts?: ContactListRelationFilter
+    customerSatisfactions?: CustomerSatisfactionListRelationFilter
     orders?: OrderListRelationFilter
     quotations?: QuotationListRelationFilter
     schedules?: ScheduleListRelationFilter
@@ -164040,6 +173196,599 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"wheel_winners"> | string
   }
 
+  export type CustomerSatisfactionWhereInput = {
+    AND?: CustomerSatisfactionWhereInput | CustomerSatisfactionWhereInput[]
+    OR?: CustomerSatisfactionWhereInput[]
+    NOT?: CustomerSatisfactionWhereInput | CustomerSatisfactionWhereInput[]
+    id?: StringFilter<"CustomerSatisfaction"> | string
+    surveyRound?: IntFilter<"CustomerSatisfaction"> | number
+    surveyYear?: IntFilter<"CustomerSatisfaction"> | number
+    surveyMethod?: StringFilter<"CustomerSatisfaction"> | string
+    surveyBy?: StringFilter<"CustomerSatisfaction"> | string
+    surveyDate?: DateTimeFilter<"CustomerSatisfaction"> | Date | string
+    companyId?: StringFilter<"CustomerSatisfaction"> | string
+    province?: StringFilter<"CustomerSatisfaction"> | string
+    phone?: StringFilter<"CustomerSatisfaction"> | string
+    quotationIds?: StringNullableListFilter<"CustomerSatisfaction">
+    scorePrice?: IntFilter<"CustomerSatisfaction"> | number
+    scoreQuality?: IntFilter<"CustomerSatisfaction"> | number
+    scoreDelivery?: IntFilter<"CustomerSatisfaction"> | number
+    scoreSales?: IntFilter<"CustomerSatisfaction"> | number
+    scoreSupport?: IntFilter<"CustomerSatisfaction"> | number
+    scoreAfterSales?: IntFilter<"CustomerSatisfaction"> | number
+    scoreAverage?: FloatFilter<"CustomerSatisfaction"> | number
+    purchaseReasons?: StringNullableListFilter<"CustomerSatisfaction">
+    suggestions?: StringNullableFilter<"CustomerSatisfaction"> | string | null
+    analysisNote?: StringNullableFilter<"CustomerSatisfaction"> | string | null
+    actionPlan?: StringNullableFilter<"CustomerSatisfaction"> | string | null
+    sharedToSales?: BoolFilter<"CustomerSatisfaction"> | boolean
+    sharedToService?: BoolFilter<"CustomerSatisfaction"> | boolean
+    sharedAt?: DateTimeNullableFilter<"CustomerSatisfaction"> | Date | string | null
+    createdAt?: DateTimeFilter<"CustomerSatisfaction"> | Date | string
+    updatedAt?: DateTimeFilter<"CustomerSatisfaction"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    surveyor?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type CustomerSatisfactionOrderByWithRelationInput = {
+    id?: SortOrder
+    surveyRound?: SortOrder
+    surveyYear?: SortOrder
+    surveyMethod?: SortOrder
+    surveyBy?: SortOrder
+    surveyDate?: SortOrder
+    companyId?: SortOrder
+    province?: SortOrder
+    phone?: SortOrder
+    quotationIds?: SortOrder
+    scorePrice?: SortOrder
+    scoreQuality?: SortOrder
+    scoreDelivery?: SortOrder
+    scoreSales?: SortOrder
+    scoreSupport?: SortOrder
+    scoreAfterSales?: SortOrder
+    scoreAverage?: SortOrder
+    purchaseReasons?: SortOrder
+    suggestions?: SortOrderInput | SortOrder
+    analysisNote?: SortOrderInput | SortOrder
+    actionPlan?: SortOrderInput | SortOrder
+    sharedToSales?: SortOrder
+    sharedToService?: SortOrder
+    sharedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    surveyor?: UserOrderByWithRelationInput
+  }
+
+  export type CustomerSatisfactionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CustomerSatisfactionWhereInput | CustomerSatisfactionWhereInput[]
+    OR?: CustomerSatisfactionWhereInput[]
+    NOT?: CustomerSatisfactionWhereInput | CustomerSatisfactionWhereInput[]
+    surveyRound?: IntFilter<"CustomerSatisfaction"> | number
+    surveyYear?: IntFilter<"CustomerSatisfaction"> | number
+    surveyMethod?: StringFilter<"CustomerSatisfaction"> | string
+    surveyBy?: StringFilter<"CustomerSatisfaction"> | string
+    surveyDate?: DateTimeFilter<"CustomerSatisfaction"> | Date | string
+    companyId?: StringFilter<"CustomerSatisfaction"> | string
+    province?: StringFilter<"CustomerSatisfaction"> | string
+    phone?: StringFilter<"CustomerSatisfaction"> | string
+    quotationIds?: StringNullableListFilter<"CustomerSatisfaction">
+    scorePrice?: IntFilter<"CustomerSatisfaction"> | number
+    scoreQuality?: IntFilter<"CustomerSatisfaction"> | number
+    scoreDelivery?: IntFilter<"CustomerSatisfaction"> | number
+    scoreSales?: IntFilter<"CustomerSatisfaction"> | number
+    scoreSupport?: IntFilter<"CustomerSatisfaction"> | number
+    scoreAfterSales?: IntFilter<"CustomerSatisfaction"> | number
+    scoreAverage?: FloatFilter<"CustomerSatisfaction"> | number
+    purchaseReasons?: StringNullableListFilter<"CustomerSatisfaction">
+    suggestions?: StringNullableFilter<"CustomerSatisfaction"> | string | null
+    analysisNote?: StringNullableFilter<"CustomerSatisfaction"> | string | null
+    actionPlan?: StringNullableFilter<"CustomerSatisfaction"> | string | null
+    sharedToSales?: BoolFilter<"CustomerSatisfaction"> | boolean
+    sharedToService?: BoolFilter<"CustomerSatisfaction"> | boolean
+    sharedAt?: DateTimeNullableFilter<"CustomerSatisfaction"> | Date | string | null
+    createdAt?: DateTimeFilter<"CustomerSatisfaction"> | Date | string
+    updatedAt?: DateTimeFilter<"CustomerSatisfaction"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    surveyor?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type CustomerSatisfactionOrderByWithAggregationInput = {
+    id?: SortOrder
+    surveyRound?: SortOrder
+    surveyYear?: SortOrder
+    surveyMethod?: SortOrder
+    surveyBy?: SortOrder
+    surveyDate?: SortOrder
+    companyId?: SortOrder
+    province?: SortOrder
+    phone?: SortOrder
+    quotationIds?: SortOrder
+    scorePrice?: SortOrder
+    scoreQuality?: SortOrder
+    scoreDelivery?: SortOrder
+    scoreSales?: SortOrder
+    scoreSupport?: SortOrder
+    scoreAfterSales?: SortOrder
+    scoreAverage?: SortOrder
+    purchaseReasons?: SortOrder
+    suggestions?: SortOrderInput | SortOrder
+    analysisNote?: SortOrderInput | SortOrder
+    actionPlan?: SortOrderInput | SortOrder
+    sharedToSales?: SortOrder
+    sharedToService?: SortOrder
+    sharedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CustomerSatisfactionCountOrderByAggregateInput
+    _avg?: CustomerSatisfactionAvgOrderByAggregateInput
+    _max?: CustomerSatisfactionMaxOrderByAggregateInput
+    _min?: CustomerSatisfactionMinOrderByAggregateInput
+    _sum?: CustomerSatisfactionSumOrderByAggregateInput
+  }
+
+  export type CustomerSatisfactionScalarWhereWithAggregatesInput = {
+    AND?: CustomerSatisfactionScalarWhereWithAggregatesInput | CustomerSatisfactionScalarWhereWithAggregatesInput[]
+    OR?: CustomerSatisfactionScalarWhereWithAggregatesInput[]
+    NOT?: CustomerSatisfactionScalarWhereWithAggregatesInput | CustomerSatisfactionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CustomerSatisfaction"> | string
+    surveyRound?: IntWithAggregatesFilter<"CustomerSatisfaction"> | number
+    surveyYear?: IntWithAggregatesFilter<"CustomerSatisfaction"> | number
+    surveyMethod?: StringWithAggregatesFilter<"CustomerSatisfaction"> | string
+    surveyBy?: StringWithAggregatesFilter<"CustomerSatisfaction"> | string
+    surveyDate?: DateTimeWithAggregatesFilter<"CustomerSatisfaction"> | Date | string
+    companyId?: StringWithAggregatesFilter<"CustomerSatisfaction"> | string
+    province?: StringWithAggregatesFilter<"CustomerSatisfaction"> | string
+    phone?: StringWithAggregatesFilter<"CustomerSatisfaction"> | string
+    quotationIds?: StringNullableListFilter<"CustomerSatisfaction">
+    scorePrice?: IntWithAggregatesFilter<"CustomerSatisfaction"> | number
+    scoreQuality?: IntWithAggregatesFilter<"CustomerSatisfaction"> | number
+    scoreDelivery?: IntWithAggregatesFilter<"CustomerSatisfaction"> | number
+    scoreSales?: IntWithAggregatesFilter<"CustomerSatisfaction"> | number
+    scoreSupport?: IntWithAggregatesFilter<"CustomerSatisfaction"> | number
+    scoreAfterSales?: IntWithAggregatesFilter<"CustomerSatisfaction"> | number
+    scoreAverage?: FloatWithAggregatesFilter<"CustomerSatisfaction"> | number
+    purchaseReasons?: StringNullableListFilter<"CustomerSatisfaction">
+    suggestions?: StringNullableWithAggregatesFilter<"CustomerSatisfaction"> | string | null
+    analysisNote?: StringNullableWithAggregatesFilter<"CustomerSatisfaction"> | string | null
+    actionPlan?: StringNullableWithAggregatesFilter<"CustomerSatisfaction"> | string | null
+    sharedToSales?: BoolWithAggregatesFilter<"CustomerSatisfaction"> | boolean
+    sharedToService?: BoolWithAggregatesFilter<"CustomerSatisfaction"> | boolean
+    sharedAt?: DateTimeNullableWithAggregatesFilter<"CustomerSatisfaction"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"CustomerSatisfaction"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"CustomerSatisfaction"> | Date | string
+  }
+
+  export type KanbanBoardWhereInput = {
+    AND?: KanbanBoardWhereInput | KanbanBoardWhereInput[]
+    OR?: KanbanBoardWhereInput[]
+    NOT?: KanbanBoardWhereInput | KanbanBoardWhereInput[]
+    id?: StringFilter<"KanbanBoard"> | string
+    name?: StringFilter<"KanbanBoard"> | string
+    ownerId?: StringNullableFilter<"KanbanBoard"> | string | null
+    createdAt?: DateTimeFilter<"KanbanBoard"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanBoard"> | Date | string
+    colorTheme?: StringFilter<"KanbanBoard"> | string
+    lists?: KanbanListListRelationFilter
+  }
+
+  export type KanbanBoardOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    ownerId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    colorTheme?: SortOrder
+    lists?: KanbanListOrderByRelationAggregateInput
+  }
+
+  export type KanbanBoardWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: KanbanBoardWhereInput | KanbanBoardWhereInput[]
+    OR?: KanbanBoardWhereInput[]
+    NOT?: KanbanBoardWhereInput | KanbanBoardWhereInput[]
+    name?: StringFilter<"KanbanBoard"> | string
+    ownerId?: StringNullableFilter<"KanbanBoard"> | string | null
+    createdAt?: DateTimeFilter<"KanbanBoard"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanBoard"> | Date | string
+    colorTheme?: StringFilter<"KanbanBoard"> | string
+    lists?: KanbanListListRelationFilter
+  }, "id">
+
+  export type KanbanBoardOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    ownerId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    colorTheme?: SortOrder
+    _count?: KanbanBoardCountOrderByAggregateInput
+    _max?: KanbanBoardMaxOrderByAggregateInput
+    _min?: KanbanBoardMinOrderByAggregateInput
+  }
+
+  export type KanbanBoardScalarWhereWithAggregatesInput = {
+    AND?: KanbanBoardScalarWhereWithAggregatesInput | KanbanBoardScalarWhereWithAggregatesInput[]
+    OR?: KanbanBoardScalarWhereWithAggregatesInput[]
+    NOT?: KanbanBoardScalarWhereWithAggregatesInput | KanbanBoardScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"KanbanBoard"> | string
+    name?: StringWithAggregatesFilter<"KanbanBoard"> | string
+    ownerId?: StringNullableWithAggregatesFilter<"KanbanBoard"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"KanbanBoard"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"KanbanBoard"> | Date | string
+    colorTheme?: StringWithAggregatesFilter<"KanbanBoard"> | string
+  }
+
+  export type KanbanListWhereInput = {
+    AND?: KanbanListWhereInput | KanbanListWhereInput[]
+    OR?: KanbanListWhereInput[]
+    NOT?: KanbanListWhereInput | KanbanListWhereInput[]
+    id?: StringFilter<"KanbanList"> | string
+    boardId?: StringFilter<"KanbanList"> | string
+    name?: StringFilter<"KanbanList"> | string
+    position?: FloatFilter<"KanbanList"> | number
+    color?: StringNullableFilter<"KanbanList"> | string | null
+    createdAt?: DateTimeFilter<"KanbanList"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanList"> | Date | string
+    cards?: KanbanCardListRelationFilter
+    board?: XOR<KanbanBoardScalarRelationFilter, KanbanBoardWhereInput>
+  }
+
+  export type KanbanListOrderByWithRelationInput = {
+    id?: SortOrder
+    boardId?: SortOrder
+    name?: SortOrder
+    position?: SortOrder
+    color?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    cards?: KanbanCardOrderByRelationAggregateInput
+    board?: KanbanBoardOrderByWithRelationInput
+  }
+
+  export type KanbanListWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: KanbanListWhereInput | KanbanListWhereInput[]
+    OR?: KanbanListWhereInput[]
+    NOT?: KanbanListWhereInput | KanbanListWhereInput[]
+    boardId?: StringFilter<"KanbanList"> | string
+    name?: StringFilter<"KanbanList"> | string
+    position?: FloatFilter<"KanbanList"> | number
+    color?: StringNullableFilter<"KanbanList"> | string | null
+    createdAt?: DateTimeFilter<"KanbanList"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanList"> | Date | string
+    cards?: KanbanCardListRelationFilter
+    board?: XOR<KanbanBoardScalarRelationFilter, KanbanBoardWhereInput>
+  }, "id">
+
+  export type KanbanListOrderByWithAggregationInput = {
+    id?: SortOrder
+    boardId?: SortOrder
+    name?: SortOrder
+    position?: SortOrder
+    color?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: KanbanListCountOrderByAggregateInput
+    _avg?: KanbanListAvgOrderByAggregateInput
+    _max?: KanbanListMaxOrderByAggregateInput
+    _min?: KanbanListMinOrderByAggregateInput
+    _sum?: KanbanListSumOrderByAggregateInput
+  }
+
+  export type KanbanListScalarWhereWithAggregatesInput = {
+    AND?: KanbanListScalarWhereWithAggregatesInput | KanbanListScalarWhereWithAggregatesInput[]
+    OR?: KanbanListScalarWhereWithAggregatesInput[]
+    NOT?: KanbanListScalarWhereWithAggregatesInput | KanbanListScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"KanbanList"> | string
+    boardId?: StringWithAggregatesFilter<"KanbanList"> | string
+    name?: StringWithAggregatesFilter<"KanbanList"> | string
+    position?: FloatWithAggregatesFilter<"KanbanList"> | number
+    color?: StringNullableWithAggregatesFilter<"KanbanList"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"KanbanList"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"KanbanList"> | Date | string
+  }
+
+  export type KanbanCardWhereInput = {
+    AND?: KanbanCardWhereInput | KanbanCardWhereInput[]
+    OR?: KanbanCardWhereInput[]
+    NOT?: KanbanCardWhereInput | KanbanCardWhereInput[]
+    id?: StringFilter<"KanbanCard"> | string
+    listId?: StringFilter<"KanbanCard"> | string
+    title?: StringFilter<"KanbanCard"> | string
+    description?: StringNullableFilter<"KanbanCard"> | string | null
+    assignedToId?: StringNullableFilter<"KanbanCard"> | string | null
+    dueDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
+    revisionStatus?: StringNullableFilter<"KanbanCard"> | string | null
+    position?: FloatFilter<"KanbanCard"> | number
+    checklist?: JsonNullableFilter<"KanbanCard">
+    color?: StringNullableFilter<"KanbanCard"> | string | null
+    createdAt?: DateTimeFilter<"KanbanCard"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanCard"> | Date | string
+    activityLogs?: KanbanActivityLogListRelationFilter
+    attachments?: KanbanAttachmentListRelationFilter
+    list?: XOR<KanbanListScalarRelationFilter, KanbanListWhereInput>
+    comments?: KanbanCommentListRelationFilter
+  }
+
+  export type KanbanCardOrderByWithRelationInput = {
+    id?: SortOrder
+    listId?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    assignedToId?: SortOrderInput | SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    revisionStatus?: SortOrderInput | SortOrder
+    position?: SortOrder
+    checklist?: SortOrderInput | SortOrder
+    color?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    activityLogs?: KanbanActivityLogOrderByRelationAggregateInput
+    attachments?: KanbanAttachmentOrderByRelationAggregateInput
+    list?: KanbanListOrderByWithRelationInput
+    comments?: KanbanCommentOrderByRelationAggregateInput
+  }
+
+  export type KanbanCardWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: KanbanCardWhereInput | KanbanCardWhereInput[]
+    OR?: KanbanCardWhereInput[]
+    NOT?: KanbanCardWhereInput | KanbanCardWhereInput[]
+    listId?: StringFilter<"KanbanCard"> | string
+    title?: StringFilter<"KanbanCard"> | string
+    description?: StringNullableFilter<"KanbanCard"> | string | null
+    assignedToId?: StringNullableFilter<"KanbanCard"> | string | null
+    dueDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
+    revisionStatus?: StringNullableFilter<"KanbanCard"> | string | null
+    position?: FloatFilter<"KanbanCard"> | number
+    checklist?: JsonNullableFilter<"KanbanCard">
+    color?: StringNullableFilter<"KanbanCard"> | string | null
+    createdAt?: DateTimeFilter<"KanbanCard"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanCard"> | Date | string
+    activityLogs?: KanbanActivityLogListRelationFilter
+    attachments?: KanbanAttachmentListRelationFilter
+    list?: XOR<KanbanListScalarRelationFilter, KanbanListWhereInput>
+    comments?: KanbanCommentListRelationFilter
+  }, "id">
+
+  export type KanbanCardOrderByWithAggregationInput = {
+    id?: SortOrder
+    listId?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    assignedToId?: SortOrderInput | SortOrder
+    dueDate?: SortOrderInput | SortOrder
+    revisionStatus?: SortOrderInput | SortOrder
+    position?: SortOrder
+    checklist?: SortOrderInput | SortOrder
+    color?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: KanbanCardCountOrderByAggregateInput
+    _avg?: KanbanCardAvgOrderByAggregateInput
+    _max?: KanbanCardMaxOrderByAggregateInput
+    _min?: KanbanCardMinOrderByAggregateInput
+    _sum?: KanbanCardSumOrderByAggregateInput
+  }
+
+  export type KanbanCardScalarWhereWithAggregatesInput = {
+    AND?: KanbanCardScalarWhereWithAggregatesInput | KanbanCardScalarWhereWithAggregatesInput[]
+    OR?: KanbanCardScalarWhereWithAggregatesInput[]
+    NOT?: KanbanCardScalarWhereWithAggregatesInput | KanbanCardScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"KanbanCard"> | string
+    listId?: StringWithAggregatesFilter<"KanbanCard"> | string
+    title?: StringWithAggregatesFilter<"KanbanCard"> | string
+    description?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
+    assignedToId?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
+    dueDate?: DateTimeNullableWithAggregatesFilter<"KanbanCard"> | Date | string | null
+    revisionStatus?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
+    position?: FloatWithAggregatesFilter<"KanbanCard"> | number
+    checklist?: JsonNullableWithAggregatesFilter<"KanbanCard">
+    color?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"KanbanCard"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"KanbanCard"> | Date | string
+  }
+
+  export type KanbanAttachmentWhereInput = {
+    AND?: KanbanAttachmentWhereInput | KanbanAttachmentWhereInput[]
+    OR?: KanbanAttachmentWhereInput[]
+    NOT?: KanbanAttachmentWhereInput | KanbanAttachmentWhereInput[]
+    id?: StringFilter<"KanbanAttachment"> | string
+    cardId?: StringFilter<"KanbanAttachment"> | string
+    userId?: StringNullableFilter<"KanbanAttachment"> | string | null
+    fileName?: StringFilter<"KanbanAttachment"> | string
+    fileUrl?: StringFilter<"KanbanAttachment"> | string
+    fileType?: StringNullableFilter<"KanbanAttachment"> | string | null
+    fileSize?: IntNullableFilter<"KanbanAttachment"> | number | null
+    attachmentType?: StringNullableFilter<"KanbanAttachment"> | string | null
+    uploadedAt?: DateTimeFilter<"KanbanAttachment"> | Date | string
+    card?: XOR<KanbanCardScalarRelationFilter, KanbanCardWhereInput>
+  }
+
+  export type KanbanAttachmentOrderByWithRelationInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    fileName?: SortOrder
+    fileUrl?: SortOrder
+    fileType?: SortOrderInput | SortOrder
+    fileSize?: SortOrderInput | SortOrder
+    attachmentType?: SortOrderInput | SortOrder
+    uploadedAt?: SortOrder
+    card?: KanbanCardOrderByWithRelationInput
+  }
+
+  export type KanbanAttachmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: KanbanAttachmentWhereInput | KanbanAttachmentWhereInput[]
+    OR?: KanbanAttachmentWhereInput[]
+    NOT?: KanbanAttachmentWhereInput | KanbanAttachmentWhereInput[]
+    cardId?: StringFilter<"KanbanAttachment"> | string
+    userId?: StringNullableFilter<"KanbanAttachment"> | string | null
+    fileName?: StringFilter<"KanbanAttachment"> | string
+    fileUrl?: StringFilter<"KanbanAttachment"> | string
+    fileType?: StringNullableFilter<"KanbanAttachment"> | string | null
+    fileSize?: IntNullableFilter<"KanbanAttachment"> | number | null
+    attachmentType?: StringNullableFilter<"KanbanAttachment"> | string | null
+    uploadedAt?: DateTimeFilter<"KanbanAttachment"> | Date | string
+    card?: XOR<KanbanCardScalarRelationFilter, KanbanCardWhereInput>
+  }, "id">
+
+  export type KanbanAttachmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    fileName?: SortOrder
+    fileUrl?: SortOrder
+    fileType?: SortOrderInput | SortOrder
+    fileSize?: SortOrderInput | SortOrder
+    attachmentType?: SortOrderInput | SortOrder
+    uploadedAt?: SortOrder
+    _count?: KanbanAttachmentCountOrderByAggregateInput
+    _avg?: KanbanAttachmentAvgOrderByAggregateInput
+    _max?: KanbanAttachmentMaxOrderByAggregateInput
+    _min?: KanbanAttachmentMinOrderByAggregateInput
+    _sum?: KanbanAttachmentSumOrderByAggregateInput
+  }
+
+  export type KanbanAttachmentScalarWhereWithAggregatesInput = {
+    AND?: KanbanAttachmentScalarWhereWithAggregatesInput | KanbanAttachmentScalarWhereWithAggregatesInput[]
+    OR?: KanbanAttachmentScalarWhereWithAggregatesInput[]
+    NOT?: KanbanAttachmentScalarWhereWithAggregatesInput | KanbanAttachmentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"KanbanAttachment"> | string
+    cardId?: StringWithAggregatesFilter<"KanbanAttachment"> | string
+    userId?: StringNullableWithAggregatesFilter<"KanbanAttachment"> | string | null
+    fileName?: StringWithAggregatesFilter<"KanbanAttachment"> | string
+    fileUrl?: StringWithAggregatesFilter<"KanbanAttachment"> | string
+    fileType?: StringNullableWithAggregatesFilter<"KanbanAttachment"> | string | null
+    fileSize?: IntNullableWithAggregatesFilter<"KanbanAttachment"> | number | null
+    attachmentType?: StringNullableWithAggregatesFilter<"KanbanAttachment"> | string | null
+    uploadedAt?: DateTimeWithAggregatesFilter<"KanbanAttachment"> | Date | string
+  }
+
+  export type KanbanCommentWhereInput = {
+    AND?: KanbanCommentWhereInput | KanbanCommentWhereInput[]
+    OR?: KanbanCommentWhereInput[]
+    NOT?: KanbanCommentWhereInput | KanbanCommentWhereInput[]
+    id?: StringFilter<"KanbanComment"> | string
+    cardId?: StringFilter<"KanbanComment"> | string
+    userId?: StringNullableFilter<"KanbanComment"> | string | null
+    message?: StringFilter<"KanbanComment"> | string
+    createdAt?: DateTimeFilter<"KanbanComment"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanComment"> | Date | string
+    card?: XOR<KanbanCardScalarRelationFilter, KanbanCardWhereInput>
+  }
+
+  export type KanbanCommentOrderByWithRelationInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    card?: KanbanCardOrderByWithRelationInput
+  }
+
+  export type KanbanCommentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: KanbanCommentWhereInput | KanbanCommentWhereInput[]
+    OR?: KanbanCommentWhereInput[]
+    NOT?: KanbanCommentWhereInput | KanbanCommentWhereInput[]
+    cardId?: StringFilter<"KanbanComment"> | string
+    userId?: StringNullableFilter<"KanbanComment"> | string | null
+    message?: StringFilter<"KanbanComment"> | string
+    createdAt?: DateTimeFilter<"KanbanComment"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanComment"> | Date | string
+    card?: XOR<KanbanCardScalarRelationFilter, KanbanCardWhereInput>
+  }, "id">
+
+  export type KanbanCommentOrderByWithAggregationInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: KanbanCommentCountOrderByAggregateInput
+    _max?: KanbanCommentMaxOrderByAggregateInput
+    _min?: KanbanCommentMinOrderByAggregateInput
+  }
+
+  export type KanbanCommentScalarWhereWithAggregatesInput = {
+    AND?: KanbanCommentScalarWhereWithAggregatesInput | KanbanCommentScalarWhereWithAggregatesInput[]
+    OR?: KanbanCommentScalarWhereWithAggregatesInput[]
+    NOT?: KanbanCommentScalarWhereWithAggregatesInput | KanbanCommentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"KanbanComment"> | string
+    cardId?: StringWithAggregatesFilter<"KanbanComment"> | string
+    userId?: StringNullableWithAggregatesFilter<"KanbanComment"> | string | null
+    message?: StringWithAggregatesFilter<"KanbanComment"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"KanbanComment"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"KanbanComment"> | Date | string
+  }
+
+  export type KanbanActivityLogWhereInput = {
+    AND?: KanbanActivityLogWhereInput | KanbanActivityLogWhereInput[]
+    OR?: KanbanActivityLogWhereInput[]
+    NOT?: KanbanActivityLogWhereInput | KanbanActivityLogWhereInput[]
+    id?: StringFilter<"KanbanActivityLog"> | string
+    cardId?: StringFilter<"KanbanActivityLog"> | string
+    userId?: StringNullableFilter<"KanbanActivityLog"> | string | null
+    actionType?: StringFilter<"KanbanActivityLog"> | string
+    details?: StringNullableFilter<"KanbanActivityLog"> | string | null
+    timestamp?: DateTimeFilter<"KanbanActivityLog"> | Date | string
+    card?: XOR<KanbanCardScalarRelationFilter, KanbanCardWhereInput>
+  }
+
+  export type KanbanActivityLogOrderByWithRelationInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    actionType?: SortOrder
+    details?: SortOrderInput | SortOrder
+    timestamp?: SortOrder
+    card?: KanbanCardOrderByWithRelationInput
+  }
+
+  export type KanbanActivityLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: KanbanActivityLogWhereInput | KanbanActivityLogWhereInput[]
+    OR?: KanbanActivityLogWhereInput[]
+    NOT?: KanbanActivityLogWhereInput | KanbanActivityLogWhereInput[]
+    cardId?: StringFilter<"KanbanActivityLog"> | string
+    userId?: StringNullableFilter<"KanbanActivityLog"> | string | null
+    actionType?: StringFilter<"KanbanActivityLog"> | string
+    details?: StringNullableFilter<"KanbanActivityLog"> | string | null
+    timestamp?: DateTimeFilter<"KanbanActivityLog"> | Date | string
+    card?: XOR<KanbanCardScalarRelationFilter, KanbanCardWhereInput>
+  }, "id">
+
+  export type KanbanActivityLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    actionType?: SortOrder
+    details?: SortOrderInput | SortOrder
+    timestamp?: SortOrder
+    _count?: KanbanActivityLogCountOrderByAggregateInput
+    _max?: KanbanActivityLogMaxOrderByAggregateInput
+    _min?: KanbanActivityLogMinOrderByAggregateInput
+  }
+
+  export type KanbanActivityLogScalarWhereWithAggregatesInput = {
+    AND?: KanbanActivityLogScalarWhereWithAggregatesInput | KanbanActivityLogScalarWhereWithAggregatesInput[]
+    OR?: KanbanActivityLogScalarWhereWithAggregatesInput[]
+    NOT?: KanbanActivityLogScalarWhereWithAggregatesInput | KanbanActivityLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"KanbanActivityLog"> | string
+    cardId?: StringWithAggregatesFilter<"KanbanActivityLog"> | string
+    userId?: StringNullableWithAggregatesFilter<"KanbanActivityLog"> | string | null
+    actionType?: StringWithAggregatesFilter<"KanbanActivityLog"> | string
+    details?: StringNullableWithAggregatesFilter<"KanbanActivityLog"> | string | null
+    timestamp?: DateTimeWithAggregatesFilter<"KanbanActivityLog"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     employeeId: string
@@ -164058,6 +173807,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -164099,6 +173849,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -164140,6 +173891,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -164181,6 +173933,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -164659,6 +174412,7 @@ export namespace Prisma {
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
     interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -164700,6 +174454,7 @@ export namespace Prisma {
     tags?: CompanyCreatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -164741,6 +174496,7 @@ export namespace Prisma {
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
     interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -164782,6 +174538,7 @@ export namespace Prisma {
     tags?: CompanyUpdatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -176745,6 +186502,670 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
   }
 
+  export type CustomerSatisfactionCreateInput = {
+    id?: string
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: string
+    surveyDate?: Date | string
+    province: string
+    phone: string
+    quotationIds?: CustomerSatisfactionCreatequotationIdsInput | string[]
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons?: CustomerSatisfactionCreatepurchaseReasonsInput | string[]
+    suggestions?: string | null
+    analysisNote?: string | null
+    actionPlan?: string | null
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutCustomerSatisfactionsInput
+    surveyor: UserCreateNestedOneWithoutCustomerSatisfactionsInput
+  }
+
+  export type CustomerSatisfactionUncheckedCreateInput = {
+    id?: string
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: string
+    surveyBy: string
+    surveyDate?: Date | string
+    companyId: string
+    province: string
+    phone: string
+    quotationIds?: CustomerSatisfactionCreatequotationIdsInput | string[]
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons?: CustomerSatisfactionCreatepurchaseReasonsInput | string[]
+    suggestions?: string | null
+    analysisNote?: string | null
+    actionPlan?: string | null
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomerSatisfactionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyRound?: IntFieldUpdateOperationsInput | number
+    surveyYear?: IntFieldUpdateOperationsInput | number
+    surveyMethod?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    province?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    quotationIds?: CustomerSatisfactionUpdatequotationIdsInput | string[]
+    scorePrice?: IntFieldUpdateOperationsInput | number
+    scoreQuality?: IntFieldUpdateOperationsInput | number
+    scoreDelivery?: IntFieldUpdateOperationsInput | number
+    scoreSales?: IntFieldUpdateOperationsInput | number
+    scoreSupport?: IntFieldUpdateOperationsInput | number
+    scoreAfterSales?: IntFieldUpdateOperationsInput | number
+    scoreAverage?: FloatFieldUpdateOperationsInput | number
+    purchaseReasons?: CustomerSatisfactionUpdatepurchaseReasonsInput | string[]
+    suggestions?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisNote?: NullableStringFieldUpdateOperationsInput | string | null
+    actionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedToSales?: BoolFieldUpdateOperationsInput | boolean
+    sharedToService?: BoolFieldUpdateOperationsInput | boolean
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutCustomerSatisfactionsNestedInput
+    surveyor?: UserUpdateOneRequiredWithoutCustomerSatisfactionsNestedInput
+  }
+
+  export type CustomerSatisfactionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyRound?: IntFieldUpdateOperationsInput | number
+    surveyYear?: IntFieldUpdateOperationsInput | number
+    surveyMethod?: StringFieldUpdateOperationsInput | string
+    surveyBy?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    province?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    quotationIds?: CustomerSatisfactionUpdatequotationIdsInput | string[]
+    scorePrice?: IntFieldUpdateOperationsInput | number
+    scoreQuality?: IntFieldUpdateOperationsInput | number
+    scoreDelivery?: IntFieldUpdateOperationsInput | number
+    scoreSales?: IntFieldUpdateOperationsInput | number
+    scoreSupport?: IntFieldUpdateOperationsInput | number
+    scoreAfterSales?: IntFieldUpdateOperationsInput | number
+    scoreAverage?: FloatFieldUpdateOperationsInput | number
+    purchaseReasons?: CustomerSatisfactionUpdatepurchaseReasonsInput | string[]
+    suggestions?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisNote?: NullableStringFieldUpdateOperationsInput | string | null
+    actionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedToSales?: BoolFieldUpdateOperationsInput | boolean
+    sharedToService?: BoolFieldUpdateOperationsInput | boolean
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerSatisfactionCreateManyInput = {
+    id?: string
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: string
+    surveyBy: string
+    surveyDate?: Date | string
+    companyId: string
+    province: string
+    phone: string
+    quotationIds?: CustomerSatisfactionCreatequotationIdsInput | string[]
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons?: CustomerSatisfactionCreatepurchaseReasonsInput | string[]
+    suggestions?: string | null
+    analysisNote?: string | null
+    actionPlan?: string | null
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomerSatisfactionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyRound?: IntFieldUpdateOperationsInput | number
+    surveyYear?: IntFieldUpdateOperationsInput | number
+    surveyMethod?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    province?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    quotationIds?: CustomerSatisfactionUpdatequotationIdsInput | string[]
+    scorePrice?: IntFieldUpdateOperationsInput | number
+    scoreQuality?: IntFieldUpdateOperationsInput | number
+    scoreDelivery?: IntFieldUpdateOperationsInput | number
+    scoreSales?: IntFieldUpdateOperationsInput | number
+    scoreSupport?: IntFieldUpdateOperationsInput | number
+    scoreAfterSales?: IntFieldUpdateOperationsInput | number
+    scoreAverage?: FloatFieldUpdateOperationsInput | number
+    purchaseReasons?: CustomerSatisfactionUpdatepurchaseReasonsInput | string[]
+    suggestions?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisNote?: NullableStringFieldUpdateOperationsInput | string | null
+    actionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedToSales?: BoolFieldUpdateOperationsInput | boolean
+    sharedToService?: BoolFieldUpdateOperationsInput | boolean
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerSatisfactionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyRound?: IntFieldUpdateOperationsInput | number
+    surveyYear?: IntFieldUpdateOperationsInput | number
+    surveyMethod?: StringFieldUpdateOperationsInput | string
+    surveyBy?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    province?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    quotationIds?: CustomerSatisfactionUpdatequotationIdsInput | string[]
+    scorePrice?: IntFieldUpdateOperationsInput | number
+    scoreQuality?: IntFieldUpdateOperationsInput | number
+    scoreDelivery?: IntFieldUpdateOperationsInput | number
+    scoreSales?: IntFieldUpdateOperationsInput | number
+    scoreSupport?: IntFieldUpdateOperationsInput | number
+    scoreAfterSales?: IntFieldUpdateOperationsInput | number
+    scoreAverage?: FloatFieldUpdateOperationsInput | number
+    purchaseReasons?: CustomerSatisfactionUpdatepurchaseReasonsInput | string[]
+    suggestions?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisNote?: NullableStringFieldUpdateOperationsInput | string | null
+    actionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedToSales?: BoolFieldUpdateOperationsInput | boolean
+    sharedToService?: BoolFieldUpdateOperationsInput | boolean
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanBoardCreateInput = {
+    id?: string
+    name: string
+    ownerId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    colorTheme?: string
+    lists?: KanbanListCreateNestedManyWithoutBoardInput
+  }
+
+  export type KanbanBoardUncheckedCreateInput = {
+    id?: string
+    name: string
+    ownerId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    colorTheme?: string
+    lists?: KanbanListUncheckedCreateNestedManyWithoutBoardInput
+  }
+
+  export type KanbanBoardUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    colorTheme?: StringFieldUpdateOperationsInput | string
+    lists?: KanbanListUpdateManyWithoutBoardNestedInput
+  }
+
+  export type KanbanBoardUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    colorTheme?: StringFieldUpdateOperationsInput | string
+    lists?: KanbanListUncheckedUpdateManyWithoutBoardNestedInput
+  }
+
+  export type KanbanBoardCreateManyInput = {
+    id?: string
+    name: string
+    ownerId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    colorTheme?: string
+  }
+
+  export type KanbanBoardUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    colorTheme?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type KanbanBoardUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    colorTheme?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type KanbanListCreateInput = {
+    id?: string
+    name: string
+    position: number
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    cards?: KanbanCardCreateNestedManyWithoutListInput
+    board: KanbanBoardCreateNestedOneWithoutListsInput
+  }
+
+  export type KanbanListUncheckedCreateInput = {
+    id?: string
+    boardId: string
+    name: string
+    position: number
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    cards?: KanbanCardUncheckedCreateNestedManyWithoutListInput
+  }
+
+  export type KanbanListUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cards?: KanbanCardUpdateManyWithoutListNestedInput
+    board?: KanbanBoardUpdateOneRequiredWithoutListsNestedInput
+  }
+
+  export type KanbanListUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    boardId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cards?: KanbanCardUncheckedUpdateManyWithoutListNestedInput
+  }
+
+  export type KanbanListCreateManyInput = {
+    id?: string
+    boardId: string
+    name: string
+    position: number
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type KanbanListUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanListUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    boardId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanCardCreateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activityLogs?: KanbanActivityLogCreateNestedManyWithoutCardInput
+    attachments?: KanbanAttachmentCreateNestedManyWithoutCardInput
+    list: KanbanListCreateNestedOneWithoutCardsInput
+    comments?: KanbanCommentCreateNestedManyWithoutCardInput
+  }
+
+  export type KanbanCardUncheckedCreateInput = {
+    id?: string
+    listId: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activityLogs?: KanbanActivityLogUncheckedCreateNestedManyWithoutCardInput
+    attachments?: KanbanAttachmentUncheckedCreateNestedManyWithoutCardInput
+    comments?: KanbanCommentUncheckedCreateNestedManyWithoutCardInput
+  }
+
+  export type KanbanCardUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activityLogs?: KanbanActivityLogUpdateManyWithoutCardNestedInput
+    attachments?: KanbanAttachmentUpdateManyWithoutCardNestedInput
+    list?: KanbanListUpdateOneRequiredWithoutCardsNestedInput
+    comments?: KanbanCommentUpdateManyWithoutCardNestedInput
+  }
+
+  export type KanbanCardUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    listId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activityLogs?: KanbanActivityLogUncheckedUpdateManyWithoutCardNestedInput
+    attachments?: KanbanAttachmentUncheckedUpdateManyWithoutCardNestedInput
+    comments?: KanbanCommentUncheckedUpdateManyWithoutCardNestedInput
+  }
+
+  export type KanbanCardCreateManyInput = {
+    id?: string
+    listId: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type KanbanCardUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanCardUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    listId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanAttachmentCreateInput = {
+    id?: string
+    userId?: string | null
+    fileName: string
+    fileUrl: string
+    fileType?: string | null
+    fileSize?: number | null
+    attachmentType?: string | null
+    uploadedAt?: Date | string
+    card: KanbanCardCreateNestedOneWithoutAttachmentsInput
+  }
+
+  export type KanbanAttachmentUncheckedCreateInput = {
+    id?: string
+    cardId: string
+    userId?: string | null
+    fileName: string
+    fileUrl: string
+    fileType?: string | null
+    fileSize?: number | null
+    attachmentType?: string | null
+    uploadedAt?: Date | string
+  }
+
+  export type KanbanAttachmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileType?: NullableStringFieldUpdateOperationsInput | string | null
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    attachmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    card?: KanbanCardUpdateOneRequiredWithoutAttachmentsNestedInput
+  }
+
+  export type KanbanAttachmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileType?: NullableStringFieldUpdateOperationsInput | string | null
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    attachmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanAttachmentCreateManyInput = {
+    id?: string
+    cardId: string
+    userId?: string | null
+    fileName: string
+    fileUrl: string
+    fileType?: string | null
+    fileSize?: number | null
+    attachmentType?: string | null
+    uploadedAt?: Date | string
+  }
+
+  export type KanbanAttachmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileType?: NullableStringFieldUpdateOperationsInput | string | null
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    attachmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanAttachmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileType?: NullableStringFieldUpdateOperationsInput | string | null
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    attachmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanCommentCreateInput = {
+    id?: string
+    userId?: string | null
+    message: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    card: KanbanCardCreateNestedOneWithoutCommentsInput
+  }
+
+  export type KanbanCommentUncheckedCreateInput = {
+    id?: string
+    cardId: string
+    userId?: string | null
+    message: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type KanbanCommentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    card?: KanbanCardUpdateOneRequiredWithoutCommentsNestedInput
+  }
+
+  export type KanbanCommentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanCommentCreateManyInput = {
+    id?: string
+    cardId: string
+    userId?: string | null
+    message: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type KanbanCommentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanCommentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanActivityLogCreateInput = {
+    id?: string
+    userId?: string | null
+    actionType: string
+    details?: string | null
+    timestamp?: Date | string
+    card: KanbanCardCreateNestedOneWithoutActivityLogsInput
+  }
+
+  export type KanbanActivityLogUncheckedCreateInput = {
+    id?: string
+    cardId: string
+    userId?: string | null
+    actionType: string
+    details?: string | null
+    timestamp?: Date | string
+  }
+
+  export type KanbanActivityLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    actionType?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    card?: KanbanCardUpdateOneRequiredWithoutActivityLogsNestedInput
+  }
+
+  export type KanbanActivityLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    actionType?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanActivityLogCreateManyInput = {
+    id?: string
+    cardId: string
+    userId?: string | null
+    actionType: string
+    details?: string | null
+    timestamp?: Date | string
+  }
+
+  export type KanbanActivityLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    actionType?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanActivityLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    actionType?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -176818,6 +187239,12 @@ export namespace Prisma {
     every?: CustomerRequirementWhereInput
     some?: CustomerRequirementWhereInput
     none?: CustomerRequirementWhereInput
+  }
+
+  export type CustomerSatisfactionListRelationFilter = {
+    every?: CustomerSatisfactionWhereInput
+    some?: CustomerSatisfactionWhereInput
+    none?: CustomerSatisfactionWhereInput
   }
 
   export type InstallationOrderListRelationFilter = {
@@ -176947,6 +187374,10 @@ export namespace Prisma {
   }
 
   export type CustomerRequirementOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CustomerSatisfactionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -184716,6 +195147,392 @@ export namespace Prisma {
     prize_id?: SortOrder
   }
 
+  export type CustomerSatisfactionCountOrderByAggregateInput = {
+    id?: SortOrder
+    surveyRound?: SortOrder
+    surveyYear?: SortOrder
+    surveyMethod?: SortOrder
+    surveyBy?: SortOrder
+    surveyDate?: SortOrder
+    companyId?: SortOrder
+    province?: SortOrder
+    phone?: SortOrder
+    quotationIds?: SortOrder
+    scorePrice?: SortOrder
+    scoreQuality?: SortOrder
+    scoreDelivery?: SortOrder
+    scoreSales?: SortOrder
+    scoreSupport?: SortOrder
+    scoreAfterSales?: SortOrder
+    scoreAverage?: SortOrder
+    purchaseReasons?: SortOrder
+    suggestions?: SortOrder
+    analysisNote?: SortOrder
+    actionPlan?: SortOrder
+    sharedToSales?: SortOrder
+    sharedToService?: SortOrder
+    sharedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomerSatisfactionAvgOrderByAggregateInput = {
+    surveyRound?: SortOrder
+    surveyYear?: SortOrder
+    scorePrice?: SortOrder
+    scoreQuality?: SortOrder
+    scoreDelivery?: SortOrder
+    scoreSales?: SortOrder
+    scoreSupport?: SortOrder
+    scoreAfterSales?: SortOrder
+    scoreAverage?: SortOrder
+  }
+
+  export type CustomerSatisfactionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    surveyRound?: SortOrder
+    surveyYear?: SortOrder
+    surveyMethod?: SortOrder
+    surveyBy?: SortOrder
+    surveyDate?: SortOrder
+    companyId?: SortOrder
+    province?: SortOrder
+    phone?: SortOrder
+    scorePrice?: SortOrder
+    scoreQuality?: SortOrder
+    scoreDelivery?: SortOrder
+    scoreSales?: SortOrder
+    scoreSupport?: SortOrder
+    scoreAfterSales?: SortOrder
+    scoreAverage?: SortOrder
+    suggestions?: SortOrder
+    analysisNote?: SortOrder
+    actionPlan?: SortOrder
+    sharedToSales?: SortOrder
+    sharedToService?: SortOrder
+    sharedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomerSatisfactionMinOrderByAggregateInput = {
+    id?: SortOrder
+    surveyRound?: SortOrder
+    surveyYear?: SortOrder
+    surveyMethod?: SortOrder
+    surveyBy?: SortOrder
+    surveyDate?: SortOrder
+    companyId?: SortOrder
+    province?: SortOrder
+    phone?: SortOrder
+    scorePrice?: SortOrder
+    scoreQuality?: SortOrder
+    scoreDelivery?: SortOrder
+    scoreSales?: SortOrder
+    scoreSupport?: SortOrder
+    scoreAfterSales?: SortOrder
+    scoreAverage?: SortOrder
+    suggestions?: SortOrder
+    analysisNote?: SortOrder
+    actionPlan?: SortOrder
+    sharedToSales?: SortOrder
+    sharedToService?: SortOrder
+    sharedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomerSatisfactionSumOrderByAggregateInput = {
+    surveyRound?: SortOrder
+    surveyYear?: SortOrder
+    scorePrice?: SortOrder
+    scoreQuality?: SortOrder
+    scoreDelivery?: SortOrder
+    scoreSales?: SortOrder
+    scoreSupport?: SortOrder
+    scoreAfterSales?: SortOrder
+    scoreAverage?: SortOrder
+  }
+
+  export type KanbanListListRelationFilter = {
+    every?: KanbanListWhereInput
+    some?: KanbanListWhereInput
+    none?: KanbanListWhereInput
+  }
+
+  export type KanbanListOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type KanbanBoardCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    ownerId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    colorTheme?: SortOrder
+  }
+
+  export type KanbanBoardMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    ownerId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    colorTheme?: SortOrder
+  }
+
+  export type KanbanBoardMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    ownerId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    colorTheme?: SortOrder
+  }
+
+  export type KanbanCardListRelationFilter = {
+    every?: KanbanCardWhereInput
+    some?: KanbanCardWhereInput
+    none?: KanbanCardWhereInput
+  }
+
+  export type KanbanBoardScalarRelationFilter = {
+    is?: KanbanBoardWhereInput
+    isNot?: KanbanBoardWhereInput
+  }
+
+  export type KanbanCardOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type KanbanListCountOrderByAggregateInput = {
+    id?: SortOrder
+    boardId?: SortOrder
+    name?: SortOrder
+    position?: SortOrder
+    color?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type KanbanListAvgOrderByAggregateInput = {
+    position?: SortOrder
+  }
+
+  export type KanbanListMaxOrderByAggregateInput = {
+    id?: SortOrder
+    boardId?: SortOrder
+    name?: SortOrder
+    position?: SortOrder
+    color?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type KanbanListMinOrderByAggregateInput = {
+    id?: SortOrder
+    boardId?: SortOrder
+    name?: SortOrder
+    position?: SortOrder
+    color?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type KanbanListSumOrderByAggregateInput = {
+    position?: SortOrder
+  }
+
+  export type KanbanActivityLogListRelationFilter = {
+    every?: KanbanActivityLogWhereInput
+    some?: KanbanActivityLogWhereInput
+    none?: KanbanActivityLogWhereInput
+  }
+
+  export type KanbanAttachmentListRelationFilter = {
+    every?: KanbanAttachmentWhereInput
+    some?: KanbanAttachmentWhereInput
+    none?: KanbanAttachmentWhereInput
+  }
+
+  export type KanbanListScalarRelationFilter = {
+    is?: KanbanListWhereInput
+    isNot?: KanbanListWhereInput
+  }
+
+  export type KanbanCommentListRelationFilter = {
+    every?: KanbanCommentWhereInput
+    some?: KanbanCommentWhereInput
+    none?: KanbanCommentWhereInput
+  }
+
+  export type KanbanActivityLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type KanbanAttachmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type KanbanCommentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type KanbanCardCountOrderByAggregateInput = {
+    id?: SortOrder
+    listId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    assignedToId?: SortOrder
+    dueDate?: SortOrder
+    revisionStatus?: SortOrder
+    position?: SortOrder
+    checklist?: SortOrder
+    color?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type KanbanCardAvgOrderByAggregateInput = {
+    position?: SortOrder
+  }
+
+  export type KanbanCardMaxOrderByAggregateInput = {
+    id?: SortOrder
+    listId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    assignedToId?: SortOrder
+    dueDate?: SortOrder
+    revisionStatus?: SortOrder
+    position?: SortOrder
+    color?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type KanbanCardMinOrderByAggregateInput = {
+    id?: SortOrder
+    listId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    assignedToId?: SortOrder
+    dueDate?: SortOrder
+    revisionStatus?: SortOrder
+    position?: SortOrder
+    color?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type KanbanCardSumOrderByAggregateInput = {
+    position?: SortOrder
+  }
+
+  export type KanbanCardScalarRelationFilter = {
+    is?: KanbanCardWhereInput
+    isNot?: KanbanCardWhereInput
+  }
+
+  export type KanbanAttachmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrder
+    fileName?: SortOrder
+    fileUrl?: SortOrder
+    fileType?: SortOrder
+    fileSize?: SortOrder
+    attachmentType?: SortOrder
+    uploadedAt?: SortOrder
+  }
+
+  export type KanbanAttachmentAvgOrderByAggregateInput = {
+    fileSize?: SortOrder
+  }
+
+  export type KanbanAttachmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrder
+    fileName?: SortOrder
+    fileUrl?: SortOrder
+    fileType?: SortOrder
+    fileSize?: SortOrder
+    attachmentType?: SortOrder
+    uploadedAt?: SortOrder
+  }
+
+  export type KanbanAttachmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrder
+    fileName?: SortOrder
+    fileUrl?: SortOrder
+    fileType?: SortOrder
+    fileSize?: SortOrder
+    attachmentType?: SortOrder
+    uploadedAt?: SortOrder
+  }
+
+  export type KanbanAttachmentSumOrderByAggregateInput = {
+    fileSize?: SortOrder
+  }
+
+  export type KanbanCommentCountOrderByAggregateInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type KanbanCommentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type KanbanCommentMinOrderByAggregateInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type KanbanActivityLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrder
+    actionType?: SortOrder
+    details?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type KanbanActivityLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrder
+    actionType?: SortOrder
+    details?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type KanbanActivityLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    cardId?: SortOrder
+    userId?: SortOrder
+    actionType?: SortOrder
+    details?: SortOrder
+    timestamp?: SortOrder
+  }
+
   export type CompanyCreateNestedManyWithoutAssignedUserInput = {
     create?: XOR<CompanyCreateWithoutAssignedUserInput, CompanyUncheckedCreateWithoutAssignedUserInput> | CompanyCreateWithoutAssignedUserInput[] | CompanyUncheckedCreateWithoutAssignedUserInput[]
     connectOrCreate?: CompanyCreateOrConnectWithoutAssignedUserInput | CompanyCreateOrConnectWithoutAssignedUserInput[]
@@ -184742,6 +195559,13 @@ export namespace Prisma {
     connectOrCreate?: CustomerRequirementCreateOrConnectWithoutUserInput | CustomerRequirementCreateOrConnectWithoutUserInput[]
     createMany?: CustomerRequirementCreateManyUserInputEnvelope
     connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+  }
+
+  export type CustomerSatisfactionCreateNestedManyWithoutSurveyorInput = {
+    create?: XOR<CustomerSatisfactionCreateWithoutSurveyorInput, CustomerSatisfactionUncheckedCreateWithoutSurveyorInput> | CustomerSatisfactionCreateWithoutSurveyorInput[] | CustomerSatisfactionUncheckedCreateWithoutSurveyorInput[]
+    connectOrCreate?: CustomerSatisfactionCreateOrConnectWithoutSurveyorInput | CustomerSatisfactionCreateOrConnectWithoutSurveyorInput[]
+    createMany?: CustomerSatisfactionCreateManySurveyorInputEnvelope
+    connect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
   }
 
   export type InstallationOrderCreateNestedManyWithoutTechnicianUserInput = {
@@ -184916,6 +195740,13 @@ export namespace Prisma {
     connectOrCreate?: CustomerRequirementCreateOrConnectWithoutUserInput | CustomerRequirementCreateOrConnectWithoutUserInput[]
     createMany?: CustomerRequirementCreateManyUserInputEnvelope
     connect?: CustomerRequirementWhereUniqueInput | CustomerRequirementWhereUniqueInput[]
+  }
+
+  export type CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput = {
+    create?: XOR<CustomerSatisfactionCreateWithoutSurveyorInput, CustomerSatisfactionUncheckedCreateWithoutSurveyorInput> | CustomerSatisfactionCreateWithoutSurveyorInput[] | CustomerSatisfactionUncheckedCreateWithoutSurveyorInput[]
+    connectOrCreate?: CustomerSatisfactionCreateOrConnectWithoutSurveyorInput | CustomerSatisfactionCreateOrConnectWithoutSurveyorInput[]
+    createMany?: CustomerSatisfactionCreateManySurveyorInputEnvelope
+    connect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
   }
 
   export type InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput = {
@@ -185138,6 +195969,20 @@ export namespace Prisma {
     update?: CustomerRequirementUpdateWithWhereUniqueWithoutUserInput | CustomerRequirementUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CustomerRequirementUpdateManyWithWhereWithoutUserInput | CustomerRequirementUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
+  }
+
+  export type CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput = {
+    create?: XOR<CustomerSatisfactionCreateWithoutSurveyorInput, CustomerSatisfactionUncheckedCreateWithoutSurveyorInput> | CustomerSatisfactionCreateWithoutSurveyorInput[] | CustomerSatisfactionUncheckedCreateWithoutSurveyorInput[]
+    connectOrCreate?: CustomerSatisfactionCreateOrConnectWithoutSurveyorInput | CustomerSatisfactionCreateOrConnectWithoutSurveyorInput[]
+    upsert?: CustomerSatisfactionUpsertWithWhereUniqueWithoutSurveyorInput | CustomerSatisfactionUpsertWithWhereUniqueWithoutSurveyorInput[]
+    createMany?: CustomerSatisfactionCreateManySurveyorInputEnvelope
+    set?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    disconnect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    delete?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    connect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    update?: CustomerSatisfactionUpdateWithWhereUniqueWithoutSurveyorInput | CustomerSatisfactionUpdateWithWhereUniqueWithoutSurveyorInput[]
+    updateMany?: CustomerSatisfactionUpdateManyWithWhereWithoutSurveyorInput | CustomerSatisfactionUpdateManyWithWhereWithoutSurveyorInput[]
+    deleteMany?: CustomerSatisfactionScalarWhereInput | CustomerSatisfactionScalarWhereInput[]
   }
 
   export type InstallationOrderUpdateManyWithoutTechnicianUserNestedInput = {
@@ -185484,6 +196329,20 @@ export namespace Prisma {
     update?: CustomerRequirementUpdateWithWhereUniqueWithoutUserInput | CustomerRequirementUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CustomerRequirementUpdateManyWithWhereWithoutUserInput | CustomerRequirementUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: CustomerRequirementScalarWhereInput | CustomerRequirementScalarWhereInput[]
+  }
+
+  export type CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput = {
+    create?: XOR<CustomerSatisfactionCreateWithoutSurveyorInput, CustomerSatisfactionUncheckedCreateWithoutSurveyorInput> | CustomerSatisfactionCreateWithoutSurveyorInput[] | CustomerSatisfactionUncheckedCreateWithoutSurveyorInput[]
+    connectOrCreate?: CustomerSatisfactionCreateOrConnectWithoutSurveyorInput | CustomerSatisfactionCreateOrConnectWithoutSurveyorInput[]
+    upsert?: CustomerSatisfactionUpsertWithWhereUniqueWithoutSurveyorInput | CustomerSatisfactionUpsertWithWhereUniqueWithoutSurveyorInput[]
+    createMany?: CustomerSatisfactionCreateManySurveyorInputEnvelope
+    set?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    disconnect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    delete?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    connect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    update?: CustomerSatisfactionUpdateWithWhereUniqueWithoutSurveyorInput | CustomerSatisfactionUpdateWithWhereUniqueWithoutSurveyorInput[]
+    updateMany?: CustomerSatisfactionUpdateManyWithWhereWithoutSurveyorInput | CustomerSatisfactionUpdateManyWithWhereWithoutSurveyorInput[]
+    deleteMany?: CustomerSatisfactionScalarWhereInput | CustomerSatisfactionScalarWhereInput[]
   }
 
   export type InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput = {
@@ -185894,6 +196753,13 @@ export namespace Prisma {
     connect?: ContactWhereUniqueInput | ContactWhereUniqueInput[]
   }
 
+  export type CustomerSatisfactionCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<CustomerSatisfactionCreateWithoutCompanyInput, CustomerSatisfactionUncheckedCreateWithoutCompanyInput> | CustomerSatisfactionCreateWithoutCompanyInput[] | CustomerSatisfactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CustomerSatisfactionCreateOrConnectWithoutCompanyInput | CustomerSatisfactionCreateOrConnectWithoutCompanyInput[]
+    createMany?: CustomerSatisfactionCreateManyCompanyInputEnvelope
+    connect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+  }
+
   export type OrderCreateNestedManyWithoutCompanyInput = {
     create?: XOR<OrderCreateWithoutCompanyInput, OrderUncheckedCreateWithoutCompanyInput> | OrderCreateWithoutCompanyInput[] | OrderUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: OrderCreateOrConnectWithoutCompanyInput | OrderCreateOrConnectWithoutCompanyInput[]
@@ -185941,6 +196807,13 @@ export namespace Prisma {
     connectOrCreate?: ContactCreateOrConnectWithoutCompanyInput | ContactCreateOrConnectWithoutCompanyInput[]
     createMany?: ContactCreateManyCompanyInputEnvelope
     connect?: ContactWhereUniqueInput | ContactWhereUniqueInput[]
+  }
+
+  export type CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<CustomerSatisfactionCreateWithoutCompanyInput, CustomerSatisfactionUncheckedCreateWithoutCompanyInput> | CustomerSatisfactionCreateWithoutCompanyInput[] | CustomerSatisfactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CustomerSatisfactionCreateOrConnectWithoutCompanyInput | CustomerSatisfactionCreateOrConnectWithoutCompanyInput[]
+    createMany?: CustomerSatisfactionCreateManyCompanyInputEnvelope
+    connect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
   }
 
   export type OrderUncheckedCreateNestedManyWithoutCompanyInput = {
@@ -186019,6 +196892,20 @@ export namespace Prisma {
     update?: ContactUpdateWithWhereUniqueWithoutCompanyInput | ContactUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: ContactUpdateManyWithWhereWithoutCompanyInput | ContactUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: ContactScalarWhereInput | ContactScalarWhereInput[]
+  }
+
+  export type CustomerSatisfactionUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<CustomerSatisfactionCreateWithoutCompanyInput, CustomerSatisfactionUncheckedCreateWithoutCompanyInput> | CustomerSatisfactionCreateWithoutCompanyInput[] | CustomerSatisfactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CustomerSatisfactionCreateOrConnectWithoutCompanyInput | CustomerSatisfactionCreateOrConnectWithoutCompanyInput[]
+    upsert?: CustomerSatisfactionUpsertWithWhereUniqueWithoutCompanyInput | CustomerSatisfactionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: CustomerSatisfactionCreateManyCompanyInputEnvelope
+    set?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    disconnect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    delete?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    connect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    update?: CustomerSatisfactionUpdateWithWhereUniqueWithoutCompanyInput | CustomerSatisfactionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: CustomerSatisfactionUpdateManyWithWhereWithoutCompanyInput | CustomerSatisfactionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: CustomerSatisfactionScalarWhereInput | CustomerSatisfactionScalarWhereInput[]
   }
 
   export type OrderUpdateManyWithoutCompanyNestedInput = {
@@ -186117,6 +197004,20 @@ export namespace Prisma {
     update?: ContactUpdateWithWhereUniqueWithoutCompanyInput | ContactUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: ContactUpdateManyWithWhereWithoutCompanyInput | ContactUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: ContactScalarWhereInput | ContactScalarWhereInput[]
+  }
+
+  export type CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<CustomerSatisfactionCreateWithoutCompanyInput, CustomerSatisfactionUncheckedCreateWithoutCompanyInput> | CustomerSatisfactionCreateWithoutCompanyInput[] | CustomerSatisfactionUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CustomerSatisfactionCreateOrConnectWithoutCompanyInput | CustomerSatisfactionCreateOrConnectWithoutCompanyInput[]
+    upsert?: CustomerSatisfactionUpsertWithWhereUniqueWithoutCompanyInput | CustomerSatisfactionUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: CustomerSatisfactionCreateManyCompanyInputEnvelope
+    set?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    disconnect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    delete?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    connect?: CustomerSatisfactionWhereUniqueInput | CustomerSatisfactionWhereUniqueInput[]
+    update?: CustomerSatisfactionUpdateWithWhereUniqueWithoutCompanyInput | CustomerSatisfactionUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: CustomerSatisfactionUpdateManyWithWhereWithoutCompanyInput | CustomerSatisfactionUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: CustomerSatisfactionScalarWhereInput | CustomerSatisfactionScalarWhereInput[]
   }
 
   export type OrderUncheckedUpdateManyWithoutCompanyNestedInput = {
@@ -191990,6 +202891,332 @@ export namespace Prisma {
     update?: XOR<XOR<wheel_prizesUpdateToOneWithWhereWithoutWheel_winnersInput, wheel_prizesUpdateWithoutWheel_winnersInput>, wheel_prizesUncheckedUpdateWithoutWheel_winnersInput>
   }
 
+  export type CustomerSatisfactionCreatequotationIdsInput = {
+    set: string[]
+  }
+
+  export type CustomerSatisfactionCreatepurchaseReasonsInput = {
+    set: string[]
+  }
+
+  export type CompanyCreateNestedOneWithoutCustomerSatisfactionsInput = {
+    create?: XOR<CompanyCreateWithoutCustomerSatisfactionsInput, CompanyUncheckedCreateWithoutCustomerSatisfactionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutCustomerSatisfactionsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutCustomerSatisfactionsInput = {
+    create?: XOR<UserCreateWithoutCustomerSatisfactionsInput, UserUncheckedCreateWithoutCustomerSatisfactionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCustomerSatisfactionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type CustomerSatisfactionUpdatequotationIdsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type CustomerSatisfactionUpdatepurchaseReasonsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type CompanyUpdateOneRequiredWithoutCustomerSatisfactionsNestedInput = {
+    create?: XOR<CompanyCreateWithoutCustomerSatisfactionsInput, CompanyUncheckedCreateWithoutCustomerSatisfactionsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutCustomerSatisfactionsInput
+    upsert?: CompanyUpsertWithoutCustomerSatisfactionsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutCustomerSatisfactionsInput, CompanyUpdateWithoutCustomerSatisfactionsInput>, CompanyUncheckedUpdateWithoutCustomerSatisfactionsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutCustomerSatisfactionsNestedInput = {
+    create?: XOR<UserCreateWithoutCustomerSatisfactionsInput, UserUncheckedCreateWithoutCustomerSatisfactionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCustomerSatisfactionsInput
+    upsert?: UserUpsertWithoutCustomerSatisfactionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCustomerSatisfactionsInput, UserUpdateWithoutCustomerSatisfactionsInput>, UserUncheckedUpdateWithoutCustomerSatisfactionsInput>
+  }
+
+  export type KanbanListCreateNestedManyWithoutBoardInput = {
+    create?: XOR<KanbanListCreateWithoutBoardInput, KanbanListUncheckedCreateWithoutBoardInput> | KanbanListCreateWithoutBoardInput[] | KanbanListUncheckedCreateWithoutBoardInput[]
+    connectOrCreate?: KanbanListCreateOrConnectWithoutBoardInput | KanbanListCreateOrConnectWithoutBoardInput[]
+    createMany?: KanbanListCreateManyBoardInputEnvelope
+    connect?: KanbanListWhereUniqueInput | KanbanListWhereUniqueInput[]
+  }
+
+  export type KanbanListUncheckedCreateNestedManyWithoutBoardInput = {
+    create?: XOR<KanbanListCreateWithoutBoardInput, KanbanListUncheckedCreateWithoutBoardInput> | KanbanListCreateWithoutBoardInput[] | KanbanListUncheckedCreateWithoutBoardInput[]
+    connectOrCreate?: KanbanListCreateOrConnectWithoutBoardInput | KanbanListCreateOrConnectWithoutBoardInput[]
+    createMany?: KanbanListCreateManyBoardInputEnvelope
+    connect?: KanbanListWhereUniqueInput | KanbanListWhereUniqueInput[]
+  }
+
+  export type KanbanListUpdateManyWithoutBoardNestedInput = {
+    create?: XOR<KanbanListCreateWithoutBoardInput, KanbanListUncheckedCreateWithoutBoardInput> | KanbanListCreateWithoutBoardInput[] | KanbanListUncheckedCreateWithoutBoardInput[]
+    connectOrCreate?: KanbanListCreateOrConnectWithoutBoardInput | KanbanListCreateOrConnectWithoutBoardInput[]
+    upsert?: KanbanListUpsertWithWhereUniqueWithoutBoardInput | KanbanListUpsertWithWhereUniqueWithoutBoardInput[]
+    createMany?: KanbanListCreateManyBoardInputEnvelope
+    set?: KanbanListWhereUniqueInput | KanbanListWhereUniqueInput[]
+    disconnect?: KanbanListWhereUniqueInput | KanbanListWhereUniqueInput[]
+    delete?: KanbanListWhereUniqueInput | KanbanListWhereUniqueInput[]
+    connect?: KanbanListWhereUniqueInput | KanbanListWhereUniqueInput[]
+    update?: KanbanListUpdateWithWhereUniqueWithoutBoardInput | KanbanListUpdateWithWhereUniqueWithoutBoardInput[]
+    updateMany?: KanbanListUpdateManyWithWhereWithoutBoardInput | KanbanListUpdateManyWithWhereWithoutBoardInput[]
+    deleteMany?: KanbanListScalarWhereInput | KanbanListScalarWhereInput[]
+  }
+
+  export type KanbanListUncheckedUpdateManyWithoutBoardNestedInput = {
+    create?: XOR<KanbanListCreateWithoutBoardInput, KanbanListUncheckedCreateWithoutBoardInput> | KanbanListCreateWithoutBoardInput[] | KanbanListUncheckedCreateWithoutBoardInput[]
+    connectOrCreate?: KanbanListCreateOrConnectWithoutBoardInput | KanbanListCreateOrConnectWithoutBoardInput[]
+    upsert?: KanbanListUpsertWithWhereUniqueWithoutBoardInput | KanbanListUpsertWithWhereUniqueWithoutBoardInput[]
+    createMany?: KanbanListCreateManyBoardInputEnvelope
+    set?: KanbanListWhereUniqueInput | KanbanListWhereUniqueInput[]
+    disconnect?: KanbanListWhereUniqueInput | KanbanListWhereUniqueInput[]
+    delete?: KanbanListWhereUniqueInput | KanbanListWhereUniqueInput[]
+    connect?: KanbanListWhereUniqueInput | KanbanListWhereUniqueInput[]
+    update?: KanbanListUpdateWithWhereUniqueWithoutBoardInput | KanbanListUpdateWithWhereUniqueWithoutBoardInput[]
+    updateMany?: KanbanListUpdateManyWithWhereWithoutBoardInput | KanbanListUpdateManyWithWhereWithoutBoardInput[]
+    deleteMany?: KanbanListScalarWhereInput | KanbanListScalarWhereInput[]
+  }
+
+  export type KanbanCardCreateNestedManyWithoutListInput = {
+    create?: XOR<KanbanCardCreateWithoutListInput, KanbanCardUncheckedCreateWithoutListInput> | KanbanCardCreateWithoutListInput[] | KanbanCardUncheckedCreateWithoutListInput[]
+    connectOrCreate?: KanbanCardCreateOrConnectWithoutListInput | KanbanCardCreateOrConnectWithoutListInput[]
+    createMany?: KanbanCardCreateManyListInputEnvelope
+    connect?: KanbanCardWhereUniqueInput | KanbanCardWhereUniqueInput[]
+  }
+
+  export type KanbanBoardCreateNestedOneWithoutListsInput = {
+    create?: XOR<KanbanBoardCreateWithoutListsInput, KanbanBoardUncheckedCreateWithoutListsInput>
+    connectOrCreate?: KanbanBoardCreateOrConnectWithoutListsInput
+    connect?: KanbanBoardWhereUniqueInput
+  }
+
+  export type KanbanCardUncheckedCreateNestedManyWithoutListInput = {
+    create?: XOR<KanbanCardCreateWithoutListInput, KanbanCardUncheckedCreateWithoutListInput> | KanbanCardCreateWithoutListInput[] | KanbanCardUncheckedCreateWithoutListInput[]
+    connectOrCreate?: KanbanCardCreateOrConnectWithoutListInput | KanbanCardCreateOrConnectWithoutListInput[]
+    createMany?: KanbanCardCreateManyListInputEnvelope
+    connect?: KanbanCardWhereUniqueInput | KanbanCardWhereUniqueInput[]
+  }
+
+  export type KanbanCardUpdateManyWithoutListNestedInput = {
+    create?: XOR<KanbanCardCreateWithoutListInput, KanbanCardUncheckedCreateWithoutListInput> | KanbanCardCreateWithoutListInput[] | KanbanCardUncheckedCreateWithoutListInput[]
+    connectOrCreate?: KanbanCardCreateOrConnectWithoutListInput | KanbanCardCreateOrConnectWithoutListInput[]
+    upsert?: KanbanCardUpsertWithWhereUniqueWithoutListInput | KanbanCardUpsertWithWhereUniqueWithoutListInput[]
+    createMany?: KanbanCardCreateManyListInputEnvelope
+    set?: KanbanCardWhereUniqueInput | KanbanCardWhereUniqueInput[]
+    disconnect?: KanbanCardWhereUniqueInput | KanbanCardWhereUniqueInput[]
+    delete?: KanbanCardWhereUniqueInput | KanbanCardWhereUniqueInput[]
+    connect?: KanbanCardWhereUniqueInput | KanbanCardWhereUniqueInput[]
+    update?: KanbanCardUpdateWithWhereUniqueWithoutListInput | KanbanCardUpdateWithWhereUniqueWithoutListInput[]
+    updateMany?: KanbanCardUpdateManyWithWhereWithoutListInput | KanbanCardUpdateManyWithWhereWithoutListInput[]
+    deleteMany?: KanbanCardScalarWhereInput | KanbanCardScalarWhereInput[]
+  }
+
+  export type KanbanBoardUpdateOneRequiredWithoutListsNestedInput = {
+    create?: XOR<KanbanBoardCreateWithoutListsInput, KanbanBoardUncheckedCreateWithoutListsInput>
+    connectOrCreate?: KanbanBoardCreateOrConnectWithoutListsInput
+    upsert?: KanbanBoardUpsertWithoutListsInput
+    connect?: KanbanBoardWhereUniqueInput
+    update?: XOR<XOR<KanbanBoardUpdateToOneWithWhereWithoutListsInput, KanbanBoardUpdateWithoutListsInput>, KanbanBoardUncheckedUpdateWithoutListsInput>
+  }
+
+  export type KanbanCardUncheckedUpdateManyWithoutListNestedInput = {
+    create?: XOR<KanbanCardCreateWithoutListInput, KanbanCardUncheckedCreateWithoutListInput> | KanbanCardCreateWithoutListInput[] | KanbanCardUncheckedCreateWithoutListInput[]
+    connectOrCreate?: KanbanCardCreateOrConnectWithoutListInput | KanbanCardCreateOrConnectWithoutListInput[]
+    upsert?: KanbanCardUpsertWithWhereUniqueWithoutListInput | KanbanCardUpsertWithWhereUniqueWithoutListInput[]
+    createMany?: KanbanCardCreateManyListInputEnvelope
+    set?: KanbanCardWhereUniqueInput | KanbanCardWhereUniqueInput[]
+    disconnect?: KanbanCardWhereUniqueInput | KanbanCardWhereUniqueInput[]
+    delete?: KanbanCardWhereUniqueInput | KanbanCardWhereUniqueInput[]
+    connect?: KanbanCardWhereUniqueInput | KanbanCardWhereUniqueInput[]
+    update?: KanbanCardUpdateWithWhereUniqueWithoutListInput | KanbanCardUpdateWithWhereUniqueWithoutListInput[]
+    updateMany?: KanbanCardUpdateManyWithWhereWithoutListInput | KanbanCardUpdateManyWithWhereWithoutListInput[]
+    deleteMany?: KanbanCardScalarWhereInput | KanbanCardScalarWhereInput[]
+  }
+
+  export type KanbanActivityLogCreateNestedManyWithoutCardInput = {
+    create?: XOR<KanbanActivityLogCreateWithoutCardInput, KanbanActivityLogUncheckedCreateWithoutCardInput> | KanbanActivityLogCreateWithoutCardInput[] | KanbanActivityLogUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanActivityLogCreateOrConnectWithoutCardInput | KanbanActivityLogCreateOrConnectWithoutCardInput[]
+    createMany?: KanbanActivityLogCreateManyCardInputEnvelope
+    connect?: KanbanActivityLogWhereUniqueInput | KanbanActivityLogWhereUniqueInput[]
+  }
+
+  export type KanbanAttachmentCreateNestedManyWithoutCardInput = {
+    create?: XOR<KanbanAttachmentCreateWithoutCardInput, KanbanAttachmentUncheckedCreateWithoutCardInput> | KanbanAttachmentCreateWithoutCardInput[] | KanbanAttachmentUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanAttachmentCreateOrConnectWithoutCardInput | KanbanAttachmentCreateOrConnectWithoutCardInput[]
+    createMany?: KanbanAttachmentCreateManyCardInputEnvelope
+    connect?: KanbanAttachmentWhereUniqueInput | KanbanAttachmentWhereUniqueInput[]
+  }
+
+  export type KanbanListCreateNestedOneWithoutCardsInput = {
+    create?: XOR<KanbanListCreateWithoutCardsInput, KanbanListUncheckedCreateWithoutCardsInput>
+    connectOrCreate?: KanbanListCreateOrConnectWithoutCardsInput
+    connect?: KanbanListWhereUniqueInput
+  }
+
+  export type KanbanCommentCreateNestedManyWithoutCardInput = {
+    create?: XOR<KanbanCommentCreateWithoutCardInput, KanbanCommentUncheckedCreateWithoutCardInput> | KanbanCommentCreateWithoutCardInput[] | KanbanCommentUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanCommentCreateOrConnectWithoutCardInput | KanbanCommentCreateOrConnectWithoutCardInput[]
+    createMany?: KanbanCommentCreateManyCardInputEnvelope
+    connect?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+  }
+
+  export type KanbanActivityLogUncheckedCreateNestedManyWithoutCardInput = {
+    create?: XOR<KanbanActivityLogCreateWithoutCardInput, KanbanActivityLogUncheckedCreateWithoutCardInput> | KanbanActivityLogCreateWithoutCardInput[] | KanbanActivityLogUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanActivityLogCreateOrConnectWithoutCardInput | KanbanActivityLogCreateOrConnectWithoutCardInput[]
+    createMany?: KanbanActivityLogCreateManyCardInputEnvelope
+    connect?: KanbanActivityLogWhereUniqueInput | KanbanActivityLogWhereUniqueInput[]
+  }
+
+  export type KanbanAttachmentUncheckedCreateNestedManyWithoutCardInput = {
+    create?: XOR<KanbanAttachmentCreateWithoutCardInput, KanbanAttachmentUncheckedCreateWithoutCardInput> | KanbanAttachmentCreateWithoutCardInput[] | KanbanAttachmentUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanAttachmentCreateOrConnectWithoutCardInput | KanbanAttachmentCreateOrConnectWithoutCardInput[]
+    createMany?: KanbanAttachmentCreateManyCardInputEnvelope
+    connect?: KanbanAttachmentWhereUniqueInput | KanbanAttachmentWhereUniqueInput[]
+  }
+
+  export type KanbanCommentUncheckedCreateNestedManyWithoutCardInput = {
+    create?: XOR<KanbanCommentCreateWithoutCardInput, KanbanCommentUncheckedCreateWithoutCardInput> | KanbanCommentCreateWithoutCardInput[] | KanbanCommentUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanCommentCreateOrConnectWithoutCardInput | KanbanCommentCreateOrConnectWithoutCardInput[]
+    createMany?: KanbanCommentCreateManyCardInputEnvelope
+    connect?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+  }
+
+  export type KanbanActivityLogUpdateManyWithoutCardNestedInput = {
+    create?: XOR<KanbanActivityLogCreateWithoutCardInput, KanbanActivityLogUncheckedCreateWithoutCardInput> | KanbanActivityLogCreateWithoutCardInput[] | KanbanActivityLogUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanActivityLogCreateOrConnectWithoutCardInput | KanbanActivityLogCreateOrConnectWithoutCardInput[]
+    upsert?: KanbanActivityLogUpsertWithWhereUniqueWithoutCardInput | KanbanActivityLogUpsertWithWhereUniqueWithoutCardInput[]
+    createMany?: KanbanActivityLogCreateManyCardInputEnvelope
+    set?: KanbanActivityLogWhereUniqueInput | KanbanActivityLogWhereUniqueInput[]
+    disconnect?: KanbanActivityLogWhereUniqueInput | KanbanActivityLogWhereUniqueInput[]
+    delete?: KanbanActivityLogWhereUniqueInput | KanbanActivityLogWhereUniqueInput[]
+    connect?: KanbanActivityLogWhereUniqueInput | KanbanActivityLogWhereUniqueInput[]
+    update?: KanbanActivityLogUpdateWithWhereUniqueWithoutCardInput | KanbanActivityLogUpdateWithWhereUniqueWithoutCardInput[]
+    updateMany?: KanbanActivityLogUpdateManyWithWhereWithoutCardInput | KanbanActivityLogUpdateManyWithWhereWithoutCardInput[]
+    deleteMany?: KanbanActivityLogScalarWhereInput | KanbanActivityLogScalarWhereInput[]
+  }
+
+  export type KanbanAttachmentUpdateManyWithoutCardNestedInput = {
+    create?: XOR<KanbanAttachmentCreateWithoutCardInput, KanbanAttachmentUncheckedCreateWithoutCardInput> | KanbanAttachmentCreateWithoutCardInput[] | KanbanAttachmentUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanAttachmentCreateOrConnectWithoutCardInput | KanbanAttachmentCreateOrConnectWithoutCardInput[]
+    upsert?: KanbanAttachmentUpsertWithWhereUniqueWithoutCardInput | KanbanAttachmentUpsertWithWhereUniqueWithoutCardInput[]
+    createMany?: KanbanAttachmentCreateManyCardInputEnvelope
+    set?: KanbanAttachmentWhereUniqueInput | KanbanAttachmentWhereUniqueInput[]
+    disconnect?: KanbanAttachmentWhereUniqueInput | KanbanAttachmentWhereUniqueInput[]
+    delete?: KanbanAttachmentWhereUniqueInput | KanbanAttachmentWhereUniqueInput[]
+    connect?: KanbanAttachmentWhereUniqueInput | KanbanAttachmentWhereUniqueInput[]
+    update?: KanbanAttachmentUpdateWithWhereUniqueWithoutCardInput | KanbanAttachmentUpdateWithWhereUniqueWithoutCardInput[]
+    updateMany?: KanbanAttachmentUpdateManyWithWhereWithoutCardInput | KanbanAttachmentUpdateManyWithWhereWithoutCardInput[]
+    deleteMany?: KanbanAttachmentScalarWhereInput | KanbanAttachmentScalarWhereInput[]
+  }
+
+  export type KanbanListUpdateOneRequiredWithoutCardsNestedInput = {
+    create?: XOR<KanbanListCreateWithoutCardsInput, KanbanListUncheckedCreateWithoutCardsInput>
+    connectOrCreate?: KanbanListCreateOrConnectWithoutCardsInput
+    upsert?: KanbanListUpsertWithoutCardsInput
+    connect?: KanbanListWhereUniqueInput
+    update?: XOR<XOR<KanbanListUpdateToOneWithWhereWithoutCardsInput, KanbanListUpdateWithoutCardsInput>, KanbanListUncheckedUpdateWithoutCardsInput>
+  }
+
+  export type KanbanCommentUpdateManyWithoutCardNestedInput = {
+    create?: XOR<KanbanCommentCreateWithoutCardInput, KanbanCommentUncheckedCreateWithoutCardInput> | KanbanCommentCreateWithoutCardInput[] | KanbanCommentUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanCommentCreateOrConnectWithoutCardInput | KanbanCommentCreateOrConnectWithoutCardInput[]
+    upsert?: KanbanCommentUpsertWithWhereUniqueWithoutCardInput | KanbanCommentUpsertWithWhereUniqueWithoutCardInput[]
+    createMany?: KanbanCommentCreateManyCardInputEnvelope
+    set?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+    disconnect?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+    delete?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+    connect?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+    update?: KanbanCommentUpdateWithWhereUniqueWithoutCardInput | KanbanCommentUpdateWithWhereUniqueWithoutCardInput[]
+    updateMany?: KanbanCommentUpdateManyWithWhereWithoutCardInput | KanbanCommentUpdateManyWithWhereWithoutCardInput[]
+    deleteMany?: KanbanCommentScalarWhereInput | KanbanCommentScalarWhereInput[]
+  }
+
+  export type KanbanActivityLogUncheckedUpdateManyWithoutCardNestedInput = {
+    create?: XOR<KanbanActivityLogCreateWithoutCardInput, KanbanActivityLogUncheckedCreateWithoutCardInput> | KanbanActivityLogCreateWithoutCardInput[] | KanbanActivityLogUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanActivityLogCreateOrConnectWithoutCardInput | KanbanActivityLogCreateOrConnectWithoutCardInput[]
+    upsert?: KanbanActivityLogUpsertWithWhereUniqueWithoutCardInput | KanbanActivityLogUpsertWithWhereUniqueWithoutCardInput[]
+    createMany?: KanbanActivityLogCreateManyCardInputEnvelope
+    set?: KanbanActivityLogWhereUniqueInput | KanbanActivityLogWhereUniqueInput[]
+    disconnect?: KanbanActivityLogWhereUniqueInput | KanbanActivityLogWhereUniqueInput[]
+    delete?: KanbanActivityLogWhereUniqueInput | KanbanActivityLogWhereUniqueInput[]
+    connect?: KanbanActivityLogWhereUniqueInput | KanbanActivityLogWhereUniqueInput[]
+    update?: KanbanActivityLogUpdateWithWhereUniqueWithoutCardInput | KanbanActivityLogUpdateWithWhereUniqueWithoutCardInput[]
+    updateMany?: KanbanActivityLogUpdateManyWithWhereWithoutCardInput | KanbanActivityLogUpdateManyWithWhereWithoutCardInput[]
+    deleteMany?: KanbanActivityLogScalarWhereInput | KanbanActivityLogScalarWhereInput[]
+  }
+
+  export type KanbanAttachmentUncheckedUpdateManyWithoutCardNestedInput = {
+    create?: XOR<KanbanAttachmentCreateWithoutCardInput, KanbanAttachmentUncheckedCreateWithoutCardInput> | KanbanAttachmentCreateWithoutCardInput[] | KanbanAttachmentUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanAttachmentCreateOrConnectWithoutCardInput | KanbanAttachmentCreateOrConnectWithoutCardInput[]
+    upsert?: KanbanAttachmentUpsertWithWhereUniqueWithoutCardInput | KanbanAttachmentUpsertWithWhereUniqueWithoutCardInput[]
+    createMany?: KanbanAttachmentCreateManyCardInputEnvelope
+    set?: KanbanAttachmentWhereUniqueInput | KanbanAttachmentWhereUniqueInput[]
+    disconnect?: KanbanAttachmentWhereUniqueInput | KanbanAttachmentWhereUniqueInput[]
+    delete?: KanbanAttachmentWhereUniqueInput | KanbanAttachmentWhereUniqueInput[]
+    connect?: KanbanAttachmentWhereUniqueInput | KanbanAttachmentWhereUniqueInput[]
+    update?: KanbanAttachmentUpdateWithWhereUniqueWithoutCardInput | KanbanAttachmentUpdateWithWhereUniqueWithoutCardInput[]
+    updateMany?: KanbanAttachmentUpdateManyWithWhereWithoutCardInput | KanbanAttachmentUpdateManyWithWhereWithoutCardInput[]
+    deleteMany?: KanbanAttachmentScalarWhereInput | KanbanAttachmentScalarWhereInput[]
+  }
+
+  export type KanbanCommentUncheckedUpdateManyWithoutCardNestedInput = {
+    create?: XOR<KanbanCommentCreateWithoutCardInput, KanbanCommentUncheckedCreateWithoutCardInput> | KanbanCommentCreateWithoutCardInput[] | KanbanCommentUncheckedCreateWithoutCardInput[]
+    connectOrCreate?: KanbanCommentCreateOrConnectWithoutCardInput | KanbanCommentCreateOrConnectWithoutCardInput[]
+    upsert?: KanbanCommentUpsertWithWhereUniqueWithoutCardInput | KanbanCommentUpsertWithWhereUniqueWithoutCardInput[]
+    createMany?: KanbanCommentCreateManyCardInputEnvelope
+    set?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+    disconnect?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+    delete?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+    connect?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+    update?: KanbanCommentUpdateWithWhereUniqueWithoutCardInput | KanbanCommentUpdateWithWhereUniqueWithoutCardInput[]
+    updateMany?: KanbanCommentUpdateManyWithWhereWithoutCardInput | KanbanCommentUpdateManyWithWhereWithoutCardInput[]
+    deleteMany?: KanbanCommentScalarWhereInput | KanbanCommentScalarWhereInput[]
+  }
+
+  export type KanbanCardCreateNestedOneWithoutAttachmentsInput = {
+    create?: XOR<KanbanCardCreateWithoutAttachmentsInput, KanbanCardUncheckedCreateWithoutAttachmentsInput>
+    connectOrCreate?: KanbanCardCreateOrConnectWithoutAttachmentsInput
+    connect?: KanbanCardWhereUniqueInput
+  }
+
+  export type KanbanCardUpdateOneRequiredWithoutAttachmentsNestedInput = {
+    create?: XOR<KanbanCardCreateWithoutAttachmentsInput, KanbanCardUncheckedCreateWithoutAttachmentsInput>
+    connectOrCreate?: KanbanCardCreateOrConnectWithoutAttachmentsInput
+    upsert?: KanbanCardUpsertWithoutAttachmentsInput
+    connect?: KanbanCardWhereUniqueInput
+    update?: XOR<XOR<KanbanCardUpdateToOneWithWhereWithoutAttachmentsInput, KanbanCardUpdateWithoutAttachmentsInput>, KanbanCardUncheckedUpdateWithoutAttachmentsInput>
+  }
+
+  export type KanbanCardCreateNestedOneWithoutCommentsInput = {
+    create?: XOR<KanbanCardCreateWithoutCommentsInput, KanbanCardUncheckedCreateWithoutCommentsInput>
+    connectOrCreate?: KanbanCardCreateOrConnectWithoutCommentsInput
+    connect?: KanbanCardWhereUniqueInput
+  }
+
+  export type KanbanCardUpdateOneRequiredWithoutCommentsNestedInput = {
+    create?: XOR<KanbanCardCreateWithoutCommentsInput, KanbanCardUncheckedCreateWithoutCommentsInput>
+    connectOrCreate?: KanbanCardCreateOrConnectWithoutCommentsInput
+    upsert?: KanbanCardUpsertWithoutCommentsInput
+    connect?: KanbanCardWhereUniqueInput
+    update?: XOR<XOR<KanbanCardUpdateToOneWithWhereWithoutCommentsInput, KanbanCardUpdateWithoutCommentsInput>, KanbanCardUncheckedUpdateWithoutCommentsInput>
+  }
+
+  export type KanbanCardCreateNestedOneWithoutActivityLogsInput = {
+    create?: XOR<KanbanCardCreateWithoutActivityLogsInput, KanbanCardUncheckedCreateWithoutActivityLogsInput>
+    connectOrCreate?: KanbanCardCreateOrConnectWithoutActivityLogsInput
+    connect?: KanbanCardWhereUniqueInput
+  }
+
+  export type KanbanCardUpdateOneRequiredWithoutActivityLogsNestedInput = {
+    create?: XOR<KanbanCardCreateWithoutActivityLogsInput, KanbanCardUncheckedCreateWithoutActivityLogsInput>
+    connectOrCreate?: KanbanCardCreateOrConnectWithoutActivityLogsInput
+    upsert?: KanbanCardUpsertWithoutActivityLogsInput
+    connect?: KanbanCardWhereUniqueInput
+    update?: XOR<XOR<KanbanCardUpdateToOneWithWhereWithoutActivityLogsInput, KanbanCardUpdateWithoutActivityLogsInput>, KanbanCardUncheckedUpdateWithoutActivityLogsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -192396,6 +203623,7 @@ export namespace Prisma {
     tags?: CompanyCreatetagsInput | string[]
     interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -192436,6 +203664,7 @@ export namespace Prisma {
     tags?: CompanyCreatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -192588,6 +203817,72 @@ export namespace Prisma {
 
   export type CustomerRequirementCreateManyUserInputEnvelope = {
     data: CustomerRequirementCreateManyUserInput | CustomerRequirementCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CustomerSatisfactionCreateWithoutSurveyorInput = {
+    id?: string
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: string
+    surveyDate?: Date | string
+    province: string
+    phone: string
+    quotationIds?: CustomerSatisfactionCreatequotationIdsInput | string[]
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons?: CustomerSatisfactionCreatepurchaseReasonsInput | string[]
+    suggestions?: string | null
+    analysisNote?: string | null
+    actionPlan?: string | null
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutCustomerSatisfactionsInput
+  }
+
+  export type CustomerSatisfactionUncheckedCreateWithoutSurveyorInput = {
+    id?: string
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: string
+    surveyDate?: Date | string
+    companyId: string
+    province: string
+    phone: string
+    quotationIds?: CustomerSatisfactionCreatequotationIdsInput | string[]
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons?: CustomerSatisfactionCreatepurchaseReasonsInput | string[]
+    suggestions?: string | null
+    analysisNote?: string | null
+    actionPlan?: string | null
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomerSatisfactionCreateOrConnectWithoutSurveyorInput = {
+    where: CustomerSatisfactionWhereUniqueInput
+    create: XOR<CustomerSatisfactionCreateWithoutSurveyorInput, CustomerSatisfactionUncheckedCreateWithoutSurveyorInput>
+  }
+
+  export type CustomerSatisfactionCreateManySurveyorInputEnvelope = {
+    data: CustomerSatisfactionCreateManySurveyorInput | CustomerSatisfactionCreateManySurveyorInput[]
     skipDuplicates?: boolean
   }
 
@@ -193875,6 +205170,54 @@ export namespace Prisma {
     data: XOR<CustomerRequirementUpdateManyMutationInput, CustomerRequirementUncheckedUpdateManyWithoutUserInput>
   }
 
+  export type CustomerSatisfactionUpsertWithWhereUniqueWithoutSurveyorInput = {
+    where: CustomerSatisfactionWhereUniqueInput
+    update: XOR<CustomerSatisfactionUpdateWithoutSurveyorInput, CustomerSatisfactionUncheckedUpdateWithoutSurveyorInput>
+    create: XOR<CustomerSatisfactionCreateWithoutSurveyorInput, CustomerSatisfactionUncheckedCreateWithoutSurveyorInput>
+  }
+
+  export type CustomerSatisfactionUpdateWithWhereUniqueWithoutSurveyorInput = {
+    where: CustomerSatisfactionWhereUniqueInput
+    data: XOR<CustomerSatisfactionUpdateWithoutSurveyorInput, CustomerSatisfactionUncheckedUpdateWithoutSurveyorInput>
+  }
+
+  export type CustomerSatisfactionUpdateManyWithWhereWithoutSurveyorInput = {
+    where: CustomerSatisfactionScalarWhereInput
+    data: XOR<CustomerSatisfactionUpdateManyMutationInput, CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorInput>
+  }
+
+  export type CustomerSatisfactionScalarWhereInput = {
+    AND?: CustomerSatisfactionScalarWhereInput | CustomerSatisfactionScalarWhereInput[]
+    OR?: CustomerSatisfactionScalarWhereInput[]
+    NOT?: CustomerSatisfactionScalarWhereInput | CustomerSatisfactionScalarWhereInput[]
+    id?: StringFilter<"CustomerSatisfaction"> | string
+    surveyRound?: IntFilter<"CustomerSatisfaction"> | number
+    surveyYear?: IntFilter<"CustomerSatisfaction"> | number
+    surveyMethod?: StringFilter<"CustomerSatisfaction"> | string
+    surveyBy?: StringFilter<"CustomerSatisfaction"> | string
+    surveyDate?: DateTimeFilter<"CustomerSatisfaction"> | Date | string
+    companyId?: StringFilter<"CustomerSatisfaction"> | string
+    province?: StringFilter<"CustomerSatisfaction"> | string
+    phone?: StringFilter<"CustomerSatisfaction"> | string
+    quotationIds?: StringNullableListFilter<"CustomerSatisfaction">
+    scorePrice?: IntFilter<"CustomerSatisfaction"> | number
+    scoreQuality?: IntFilter<"CustomerSatisfaction"> | number
+    scoreDelivery?: IntFilter<"CustomerSatisfaction"> | number
+    scoreSales?: IntFilter<"CustomerSatisfaction"> | number
+    scoreSupport?: IntFilter<"CustomerSatisfaction"> | number
+    scoreAfterSales?: IntFilter<"CustomerSatisfaction"> | number
+    scoreAverage?: FloatFilter<"CustomerSatisfaction"> | number
+    purchaseReasons?: StringNullableListFilter<"CustomerSatisfaction">
+    suggestions?: StringNullableFilter<"CustomerSatisfaction"> | string | null
+    analysisNote?: StringNullableFilter<"CustomerSatisfaction"> | string | null
+    actionPlan?: StringNullableFilter<"CustomerSatisfaction"> | string | null
+    sharedToSales?: BoolFilter<"CustomerSatisfaction"> | boolean
+    sharedToService?: BoolFilter<"CustomerSatisfaction"> | boolean
+    sharedAt?: DateTimeNullableFilter<"CustomerSatisfaction"> | Date | string | null
+    createdAt?: DateTimeFilter<"CustomerSatisfaction"> | Date | string
+    updatedAt?: DateTimeFilter<"CustomerSatisfaction"> | Date | string
+  }
+
   export type InstallationOrderUpsertWithWhereUniqueWithoutTechnicianUserInput = {
     where: InstallationOrderWhereUniqueInput
     update: XOR<InstallationOrderUpdateWithoutTechnicianUserInput, InstallationOrderUncheckedUpdateWithoutTechnicianUserInput>
@@ -194700,6 +206043,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -194740,6 +206084,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -194796,6 +206141,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -194836,6 +206182,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -194892,6 +206239,7 @@ export namespace Prisma {
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
     interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
@@ -194932,6 +206280,7 @@ export namespace Prisma {
     tags?: CompanyCreatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
@@ -195010,6 +206359,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -195050,6 +206400,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -195122,6 +206473,7 @@ export namespace Prisma {
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
     interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
@@ -195162,6 +206514,7 @@ export namespace Prisma {
     tags?: CompanyUpdatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
@@ -195252,6 +206605,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -195292,6 +206646,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -195332,6 +206687,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -195372,6 +206728,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -195428,6 +206785,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -195468,6 +206826,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -195507,6 +206866,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -195547,6 +206907,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -195636,6 +206997,72 @@ export namespace Prisma {
 
   export type ContactCreateManyCompanyInputEnvelope = {
     data: ContactCreateManyCompanyInput | ContactCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CustomerSatisfactionCreateWithoutCompanyInput = {
+    id?: string
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: string
+    surveyDate?: Date | string
+    province: string
+    phone: string
+    quotationIds?: CustomerSatisfactionCreatequotationIdsInput | string[]
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons?: CustomerSatisfactionCreatepurchaseReasonsInput | string[]
+    suggestions?: string | null
+    analysisNote?: string | null
+    actionPlan?: string | null
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    surveyor: UserCreateNestedOneWithoutCustomerSatisfactionsInput
+  }
+
+  export type CustomerSatisfactionUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: string
+    surveyBy: string
+    surveyDate?: Date | string
+    province: string
+    phone: string
+    quotationIds?: CustomerSatisfactionCreatequotationIdsInput | string[]
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons?: CustomerSatisfactionCreatepurchaseReasonsInput | string[]
+    suggestions?: string | null
+    analysisNote?: string | null
+    actionPlan?: string | null
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomerSatisfactionCreateOrConnectWithoutCompanyInput = {
+    where: CustomerSatisfactionWhereUniqueInput
+    create: XOR<CustomerSatisfactionCreateWithoutCompanyInput, CustomerSatisfactionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type CustomerSatisfactionCreateManyCompanyInputEnvelope = {
+    data: CustomerSatisfactionCreateManyCompanyInput | CustomerSatisfactionCreateManyCompanyInput[]
     skipDuplicates?: boolean
   }
 
@@ -196011,6 +207438,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -196051,6 +207479,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -196119,6 +207548,22 @@ export namespace Prisma {
     isETaxReceiver?: BoolFilter<"Contact"> | boolean
     createdAt?: DateTimeFilter<"Contact"> | Date | string
     updatedAt?: DateTimeFilter<"Contact"> | Date | string
+  }
+
+  export type CustomerSatisfactionUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: CustomerSatisfactionWhereUniqueInput
+    update: XOR<CustomerSatisfactionUpdateWithoutCompanyInput, CustomerSatisfactionUncheckedUpdateWithoutCompanyInput>
+    create: XOR<CustomerSatisfactionCreateWithoutCompanyInput, CustomerSatisfactionUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type CustomerSatisfactionUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: CustomerSatisfactionWhereUniqueInput
+    data: XOR<CustomerSatisfactionUpdateWithoutCompanyInput, CustomerSatisfactionUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type CustomerSatisfactionUpdateManyWithWhereWithoutCompanyInput = {
+    where: CustomerSatisfactionScalarWhereInput
+    data: XOR<CustomerSatisfactionUpdateManyMutationInput, CustomerSatisfactionUncheckedUpdateManyWithoutCompanyInput>
   }
 
   export type OrderUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -196234,6 +207679,7 @@ export namespace Prisma {
     tags?: CompanyCreatetagsInput | string[]
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -196274,6 +207720,7 @@ export namespace Prisma {
     segment?: string | null
     tags?: CompanyCreatetagsInput | string[]
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -196303,6 +207750,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -196343,6 +207791,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -196415,6 +207864,7 @@ export namespace Prisma {
     tags?: CompanyUpdatetagsInput | string[]
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -196455,6 +207905,7 @@ export namespace Prisma {
     segment?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: CompanyUpdatetagsInput | string[]
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -196490,6 +207941,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -196530,6 +207982,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -196586,6 +208039,7 @@ export namespace Prisma {
     tags?: CompanyCreatetagsInput | string[]
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
     interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -196626,6 +208080,7 @@ export namespace Prisma {
     segment?: string | null
     tags?: CompanyCreatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -196770,6 +208225,7 @@ export namespace Prisma {
     tags?: CompanyUpdatetagsInput | string[]
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
     interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -196810,6 +208266,7 @@ export namespace Prisma {
     segment?: NullableStringFieldUpdateOperationsInput | string | null
     tags?: CompanyUpdatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -196966,6 +208423,7 @@ export namespace Prisma {
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
     interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
@@ -197006,6 +208464,7 @@ export namespace Prisma {
     tags?: CompanyCreatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
@@ -197064,6 +208523,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -197104,6 +208564,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -197420,6 +208881,7 @@ export namespace Prisma {
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
     interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
@@ -197460,6 +208922,7 @@ export namespace Prisma {
     tags?: CompanyUpdatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
@@ -197530,6 +208993,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -197570,6 +209034,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -197817,6 +209282,7 @@ export namespace Prisma {
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
     interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -197857,6 +209323,7 @@ export namespace Prisma {
     tags?: CompanyCreatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -197886,6 +209353,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -197926,6 +209394,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -198045,6 +209514,7 @@ export namespace Prisma {
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
     interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -198085,6 +209555,7 @@ export namespace Prisma {
     tags?: CompanyUpdatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -198120,6 +209591,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -198160,6 +209632,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -198200,6 +209673,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -198240,6 +209714,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -198296,6 +209771,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -198336,6 +209812,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -198392,6 +209869,7 @@ export namespace Prisma {
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
     interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
@@ -198432,6 +209910,7 @@ export namespace Prisma {
     tags?: CompanyCreatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
@@ -198544,6 +210023,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -198584,6 +210064,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -198721,6 +210202,7 @@ export namespace Prisma {
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
     interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
@@ -198761,6 +210243,7 @@ export namespace Prisma {
     tags?: CompanyUpdatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
@@ -198885,6 +210368,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -198925,6 +210409,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -200329,6 +211814,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
@@ -200369,6 +211855,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
@@ -200522,6 +212009,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
@@ -200562,6 +212050,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -200790,6 +212279,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -200830,6 +212320,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -200977,6 +212468,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -201017,6 +212509,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -201621,6 +213114,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
@@ -201661,6 +213155,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
@@ -201814,6 +213309,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
@@ -201854,6 +213350,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -202081,6 +213578,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -202121,6 +213619,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -202166,6 +213665,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -202206,6 +213706,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -202262,6 +213763,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -202302,6 +213804,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -202353,6 +213856,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -202393,6 +213897,7 @@ export namespace Prisma {
     assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -216098,6 +227603,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -216138,6 +227644,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -216465,6 +227972,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -216505,6 +228013,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -217052,6 +228561,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -217092,6 +228602,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -217295,6 +228806,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -217335,6 +228847,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -217375,6 +228888,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -217415,6 +228929,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -217715,6 +229230,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -217755,6 +229271,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -218314,6 +229831,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -218354,6 +229872,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -218586,6 +230105,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -218626,6 +230146,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -224049,6 +235570,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
@@ -224089,6 +235611,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
@@ -224134,6 +235657,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -224174,6 +235698,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -224313,6 +235838,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
@@ -224353,6 +235879,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -224404,6 +235931,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -224444,6 +235972,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -224573,6 +236102,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -224613,6 +236143,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -224669,6 +236200,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -224709,6 +236241,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -224853,6 +236386,7 @@ export namespace Prisma {
     assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
     interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
     contacts?: ContactCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutCompanyInput
     orders?: OrderCreateNestedManyWithoutCompanyInput
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
@@ -224893,6 +236427,7 @@ export namespace Prisma {
     tags?: CompanyCreatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
     contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput
     orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
@@ -224922,6 +236457,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -224962,6 +236498,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -225007,6 +236544,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -225047,6 +236585,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -225391,6 +236930,7 @@ export namespace Prisma {
     assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
     interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -225431,6 +236971,7 @@ export namespace Prisma {
     tags?: CompanyUpdatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -225466,6 +237007,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -225506,6 +237048,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -225557,6 +237100,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -225597,6 +237141,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -228269,6 +239814,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -228309,6 +239855,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -228365,6 +239912,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -228405,6 +239953,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -228445,6 +239994,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
@@ -228485,6 +240035,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
     estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
     customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutSurveyorInput
     installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
     uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
     assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
@@ -228541,6 +240092,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
@@ -228581,6 +240133,7 @@ export namespace Prisma {
     companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
     estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
     customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorNestedInput
     installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
     uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
     assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -229664,6 +241217,1034 @@ export namespace Prisma {
     wheel_tickets?: wheel_ticketsUncheckedUpdateManyWithoutWheel_prizesNestedInput
   }
 
+  export type CompanyCreateWithoutCustomerSatisfactionsInput = {
+    id?: string
+    companyName: string
+    taxId?: string | null
+    address?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    area?: string | null
+    branchOrHeadOffice?: string | null
+    businessType?: string | null
+    customerAccessChannel?: string | null
+    customerStatus?: string | null
+    customerType?: string | null
+    district?: string | null
+    postalCode?: string | null
+    province?: string | null
+    subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+    interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
+    contacts?: ContactCreateNestedManyWithoutCompanyInput
+    orders?: OrderCreateNestedManyWithoutCompanyInput
+    quotations?: QuotationCreateNestedManyWithoutCompanyInput
+    schedules?: ScheduleCreateNestedManyWithoutCompanyInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
+    telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutCustomerSatisfactionsInput = {
+    id?: string
+    companyName: string
+    taxId?: string | null
+    address?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    area?: string | null
+    branchOrHeadOffice?: string | null
+    businessType?: string | null
+    customerAccessChannel?: string | null
+    customerStatus?: string | null
+    customerType?: string | null
+    district?: string | null
+    postalCode?: string | null
+    province?: string | null
+    subDistrict?: string | null
+    assignedUserId?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
+    contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutCustomerSatisfactionsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutCustomerSatisfactionsInput, CompanyUncheckedCreateWithoutCustomerSatisfactionsInput>
+  }
+
+  export type UserCreateWithoutCustomerSatisfactionsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionCreateNestedManyWithoutUserInput
+    quotations?: QuotationCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutSalespersonInput
+    telesales?: TelesaleCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPICreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserUncheckedCreateWithoutCustomerSatisfactionsInput = {
+    id?: string
+    employeeId: string
+    email?: string | null
+    fullName: string
+    phoneNumber?: string | null
+    role?: string
+    position?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otpCode?: string | null
+    otpExpiresAt?: Date | string | null
+    isActive?: boolean
+    assignedCompanies?: CompanyUncheckedCreateNestedManyWithoutAssignedUserInput
+    companyInteractions?: CompanyInteractionUncheckedCreateNestedManyWithoutUserInput
+    estimatedRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    customerRequirements?: CustomerRequirementUncheckedCreateNestedManyWithoutUserInput
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutTechnicianUserInput
+    uploadedDocuments?: JobDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedMarketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutAssignedToInput
+    marketingLeads?: MarketingLeadUncheckedCreateNestedManyWithoutCreatedByInput
+    monthlyTargets?: MonthlyTargetUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutSalespersonInput
+    managedProjects?: ProjectUncheckedCreateNestedManyWithoutManagerInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedCreateNestedManyWithoutReporterInput
+    projectMembers?: ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+    assignedTasks?: ProjectTaskUncheckedCreateNestedManyWithoutAssigneeInput
+    pushSubscriptions?: PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutSalespersonInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutUserInput
+    serviceSchedules?: ServiceScheduleUncheckedCreateNestedManyWithoutUserInput
+    estimatedSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutEstimatedByUserInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutSalespersonInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutUserInput
+    telesalesKPIs?: TelesalesKPIUncheckedCreateNestedManyWithoutUserInput
+    employeeSale?: EmployeeSaleUncheckedCreateNestedOneWithoutUserInput
+    jobStepLogs?: JobStepLogUncheckedCreateNestedManyWithoutCompletedByUserInput
+  }
+
+  export type UserCreateOrConnectWithoutCustomerSatisfactionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCustomerSatisfactionsInput, UserUncheckedCreateWithoutCustomerSatisfactionsInput>
+  }
+
+  export type CompanyUpsertWithoutCustomerSatisfactionsInput = {
+    update: XOR<CompanyUpdateWithoutCustomerSatisfactionsInput, CompanyUncheckedUpdateWithoutCustomerSatisfactionsInput>
+    create: XOR<CompanyCreateWithoutCustomerSatisfactionsInput, CompanyUncheckedCreateWithoutCustomerSatisfactionsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutCustomerSatisfactionsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutCustomerSatisfactionsInput, CompanyUncheckedUpdateWithoutCustomerSatisfactionsInput>
+  }
+
+  export type CompanyUpdateWithoutCustomerSatisfactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    area?: NullableStringFieldUpdateOperationsInput | string | null
+    branchOrHeadOffice?: NullableStringFieldUpdateOperationsInput | string | null
+    businessType?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAccessChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    customerType?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+    interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
+    contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUpdateManyWithoutCompanyNestedInput
+    quotations?: QuotationUpdateManyWithoutCompanyNestedInput
+    schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
+    telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutCustomerSatisfactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    area?: NullableStringFieldUpdateOperationsInput | string | null
+    branchOrHeadOffice?: NullableStringFieldUpdateOperationsInput | string | null
+    businessType?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAccessChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    customerType?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
+    contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type UserUpsertWithoutCustomerSatisfactionsInput = {
+    update: XOR<UserUpdateWithoutCustomerSatisfactionsInput, UserUncheckedUpdateWithoutCustomerSatisfactionsInput>
+    create: XOR<UserCreateWithoutCustomerSatisfactionsInput, UserUncheckedCreateWithoutCustomerSatisfactionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCustomerSatisfactionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCustomerSatisfactionsInput, UserUncheckedUpdateWithoutCustomerSatisfactionsInput>
+  }
+
+  export type UserUpdateWithoutCustomerSatisfactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutSalespersonNestedInput
+    telesales?: TelesaleUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUpdateManyWithoutCompletedByUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCustomerSatisfactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otpCode?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedCompanies?: CompanyUncheckedUpdateManyWithoutAssignedUserNestedInput
+    companyInteractions?: CompanyInteractionUncheckedUpdateManyWithoutUserNestedInput
+    estimatedRequirements?: CustomerRequirementUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    customerRequirements?: CustomerRequirementUncheckedUpdateManyWithoutUserNestedInput
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutTechnicianUserNestedInput
+    uploadedDocuments?: JobDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedMarketingLeads?: MarketingLeadUncheckedUpdateManyWithoutAssignedToNestedInput
+    marketingLeads?: MarketingLeadUncheckedUpdateManyWithoutCreatedByNestedInput
+    monthlyTargets?: MonthlyTargetUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutSalespersonNestedInput
+    managedProjects?: ProjectUncheckedUpdateManyWithoutManagerNestedInput
+    reportedDailyLogs?: ProjectDailyLogUncheckedUpdateManyWithoutReporterNestedInput
+    projectMembers?: ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+    assignedTasks?: ProjectTaskUncheckedUpdateManyWithoutAssigneeNestedInput
+    pushSubscriptions?: PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutSalespersonNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutUserNestedInput
+    serviceSchedules?: ServiceScheduleUncheckedUpdateManyWithoutUserNestedInput
+    estimatedSurveys?: SiteSurveyUncheckedUpdateManyWithoutEstimatedByUserNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutSalespersonNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutUserNestedInput
+    telesalesKPIs?: TelesalesKPIUncheckedUpdateManyWithoutUserNestedInput
+    employeeSale?: EmployeeSaleUncheckedUpdateOneWithoutUserNestedInput
+    jobStepLogs?: JobStepLogUncheckedUpdateManyWithoutCompletedByUserNestedInput
+  }
+
+  export type KanbanListCreateWithoutBoardInput = {
+    id?: string
+    name: string
+    position: number
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    cards?: KanbanCardCreateNestedManyWithoutListInput
+  }
+
+  export type KanbanListUncheckedCreateWithoutBoardInput = {
+    id?: string
+    name: string
+    position: number
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    cards?: KanbanCardUncheckedCreateNestedManyWithoutListInput
+  }
+
+  export type KanbanListCreateOrConnectWithoutBoardInput = {
+    where: KanbanListWhereUniqueInput
+    create: XOR<KanbanListCreateWithoutBoardInput, KanbanListUncheckedCreateWithoutBoardInput>
+  }
+
+  export type KanbanListCreateManyBoardInputEnvelope = {
+    data: KanbanListCreateManyBoardInput | KanbanListCreateManyBoardInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type KanbanListUpsertWithWhereUniqueWithoutBoardInput = {
+    where: KanbanListWhereUniqueInput
+    update: XOR<KanbanListUpdateWithoutBoardInput, KanbanListUncheckedUpdateWithoutBoardInput>
+    create: XOR<KanbanListCreateWithoutBoardInput, KanbanListUncheckedCreateWithoutBoardInput>
+  }
+
+  export type KanbanListUpdateWithWhereUniqueWithoutBoardInput = {
+    where: KanbanListWhereUniqueInput
+    data: XOR<KanbanListUpdateWithoutBoardInput, KanbanListUncheckedUpdateWithoutBoardInput>
+  }
+
+  export type KanbanListUpdateManyWithWhereWithoutBoardInput = {
+    where: KanbanListScalarWhereInput
+    data: XOR<KanbanListUpdateManyMutationInput, KanbanListUncheckedUpdateManyWithoutBoardInput>
+  }
+
+  export type KanbanListScalarWhereInput = {
+    AND?: KanbanListScalarWhereInput | KanbanListScalarWhereInput[]
+    OR?: KanbanListScalarWhereInput[]
+    NOT?: KanbanListScalarWhereInput | KanbanListScalarWhereInput[]
+    id?: StringFilter<"KanbanList"> | string
+    boardId?: StringFilter<"KanbanList"> | string
+    name?: StringFilter<"KanbanList"> | string
+    position?: FloatFilter<"KanbanList"> | number
+    color?: StringNullableFilter<"KanbanList"> | string | null
+    createdAt?: DateTimeFilter<"KanbanList"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanList"> | Date | string
+  }
+
+  export type KanbanCardCreateWithoutListInput = {
+    id?: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activityLogs?: KanbanActivityLogCreateNestedManyWithoutCardInput
+    attachments?: KanbanAttachmentCreateNestedManyWithoutCardInput
+    comments?: KanbanCommentCreateNestedManyWithoutCardInput
+  }
+
+  export type KanbanCardUncheckedCreateWithoutListInput = {
+    id?: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activityLogs?: KanbanActivityLogUncheckedCreateNestedManyWithoutCardInput
+    attachments?: KanbanAttachmentUncheckedCreateNestedManyWithoutCardInput
+    comments?: KanbanCommentUncheckedCreateNestedManyWithoutCardInput
+  }
+
+  export type KanbanCardCreateOrConnectWithoutListInput = {
+    where: KanbanCardWhereUniqueInput
+    create: XOR<KanbanCardCreateWithoutListInput, KanbanCardUncheckedCreateWithoutListInput>
+  }
+
+  export type KanbanCardCreateManyListInputEnvelope = {
+    data: KanbanCardCreateManyListInput | KanbanCardCreateManyListInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type KanbanBoardCreateWithoutListsInput = {
+    id?: string
+    name: string
+    ownerId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    colorTheme?: string
+  }
+
+  export type KanbanBoardUncheckedCreateWithoutListsInput = {
+    id?: string
+    name: string
+    ownerId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    colorTheme?: string
+  }
+
+  export type KanbanBoardCreateOrConnectWithoutListsInput = {
+    where: KanbanBoardWhereUniqueInput
+    create: XOR<KanbanBoardCreateWithoutListsInput, KanbanBoardUncheckedCreateWithoutListsInput>
+  }
+
+  export type KanbanCardUpsertWithWhereUniqueWithoutListInput = {
+    where: KanbanCardWhereUniqueInput
+    update: XOR<KanbanCardUpdateWithoutListInput, KanbanCardUncheckedUpdateWithoutListInput>
+    create: XOR<KanbanCardCreateWithoutListInput, KanbanCardUncheckedCreateWithoutListInput>
+  }
+
+  export type KanbanCardUpdateWithWhereUniqueWithoutListInput = {
+    where: KanbanCardWhereUniqueInput
+    data: XOR<KanbanCardUpdateWithoutListInput, KanbanCardUncheckedUpdateWithoutListInput>
+  }
+
+  export type KanbanCardUpdateManyWithWhereWithoutListInput = {
+    where: KanbanCardScalarWhereInput
+    data: XOR<KanbanCardUpdateManyMutationInput, KanbanCardUncheckedUpdateManyWithoutListInput>
+  }
+
+  export type KanbanCardScalarWhereInput = {
+    AND?: KanbanCardScalarWhereInput | KanbanCardScalarWhereInput[]
+    OR?: KanbanCardScalarWhereInput[]
+    NOT?: KanbanCardScalarWhereInput | KanbanCardScalarWhereInput[]
+    id?: StringFilter<"KanbanCard"> | string
+    listId?: StringFilter<"KanbanCard"> | string
+    title?: StringFilter<"KanbanCard"> | string
+    description?: StringNullableFilter<"KanbanCard"> | string | null
+    assignedToId?: StringNullableFilter<"KanbanCard"> | string | null
+    dueDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
+    revisionStatus?: StringNullableFilter<"KanbanCard"> | string | null
+    position?: FloatFilter<"KanbanCard"> | number
+    checklist?: JsonNullableFilter<"KanbanCard">
+    color?: StringNullableFilter<"KanbanCard"> | string | null
+    createdAt?: DateTimeFilter<"KanbanCard"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanCard"> | Date | string
+  }
+
+  export type KanbanBoardUpsertWithoutListsInput = {
+    update: XOR<KanbanBoardUpdateWithoutListsInput, KanbanBoardUncheckedUpdateWithoutListsInput>
+    create: XOR<KanbanBoardCreateWithoutListsInput, KanbanBoardUncheckedCreateWithoutListsInput>
+    where?: KanbanBoardWhereInput
+  }
+
+  export type KanbanBoardUpdateToOneWithWhereWithoutListsInput = {
+    where?: KanbanBoardWhereInput
+    data: XOR<KanbanBoardUpdateWithoutListsInput, KanbanBoardUncheckedUpdateWithoutListsInput>
+  }
+
+  export type KanbanBoardUpdateWithoutListsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    colorTheme?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type KanbanBoardUncheckedUpdateWithoutListsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    colorTheme?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type KanbanActivityLogCreateWithoutCardInput = {
+    id?: string
+    userId?: string | null
+    actionType: string
+    details?: string | null
+    timestamp?: Date | string
+  }
+
+  export type KanbanActivityLogUncheckedCreateWithoutCardInput = {
+    id?: string
+    userId?: string | null
+    actionType: string
+    details?: string | null
+    timestamp?: Date | string
+  }
+
+  export type KanbanActivityLogCreateOrConnectWithoutCardInput = {
+    where: KanbanActivityLogWhereUniqueInput
+    create: XOR<KanbanActivityLogCreateWithoutCardInput, KanbanActivityLogUncheckedCreateWithoutCardInput>
+  }
+
+  export type KanbanActivityLogCreateManyCardInputEnvelope = {
+    data: KanbanActivityLogCreateManyCardInput | KanbanActivityLogCreateManyCardInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type KanbanAttachmentCreateWithoutCardInput = {
+    id?: string
+    userId?: string | null
+    fileName: string
+    fileUrl: string
+    fileType?: string | null
+    fileSize?: number | null
+    attachmentType?: string | null
+    uploadedAt?: Date | string
+  }
+
+  export type KanbanAttachmentUncheckedCreateWithoutCardInput = {
+    id?: string
+    userId?: string | null
+    fileName: string
+    fileUrl: string
+    fileType?: string | null
+    fileSize?: number | null
+    attachmentType?: string | null
+    uploadedAt?: Date | string
+  }
+
+  export type KanbanAttachmentCreateOrConnectWithoutCardInput = {
+    where: KanbanAttachmentWhereUniqueInput
+    create: XOR<KanbanAttachmentCreateWithoutCardInput, KanbanAttachmentUncheckedCreateWithoutCardInput>
+  }
+
+  export type KanbanAttachmentCreateManyCardInputEnvelope = {
+    data: KanbanAttachmentCreateManyCardInput | KanbanAttachmentCreateManyCardInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type KanbanListCreateWithoutCardsInput = {
+    id?: string
+    name: string
+    position: number
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    board: KanbanBoardCreateNestedOneWithoutListsInput
+  }
+
+  export type KanbanListUncheckedCreateWithoutCardsInput = {
+    id?: string
+    boardId: string
+    name: string
+    position: number
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type KanbanListCreateOrConnectWithoutCardsInput = {
+    where: KanbanListWhereUniqueInput
+    create: XOR<KanbanListCreateWithoutCardsInput, KanbanListUncheckedCreateWithoutCardsInput>
+  }
+
+  export type KanbanCommentCreateWithoutCardInput = {
+    id?: string
+    userId?: string | null
+    message: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type KanbanCommentUncheckedCreateWithoutCardInput = {
+    id?: string
+    userId?: string | null
+    message: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type KanbanCommentCreateOrConnectWithoutCardInput = {
+    where: KanbanCommentWhereUniqueInput
+    create: XOR<KanbanCommentCreateWithoutCardInput, KanbanCommentUncheckedCreateWithoutCardInput>
+  }
+
+  export type KanbanCommentCreateManyCardInputEnvelope = {
+    data: KanbanCommentCreateManyCardInput | KanbanCommentCreateManyCardInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type KanbanActivityLogUpsertWithWhereUniqueWithoutCardInput = {
+    where: KanbanActivityLogWhereUniqueInput
+    update: XOR<KanbanActivityLogUpdateWithoutCardInput, KanbanActivityLogUncheckedUpdateWithoutCardInput>
+    create: XOR<KanbanActivityLogCreateWithoutCardInput, KanbanActivityLogUncheckedCreateWithoutCardInput>
+  }
+
+  export type KanbanActivityLogUpdateWithWhereUniqueWithoutCardInput = {
+    where: KanbanActivityLogWhereUniqueInput
+    data: XOR<KanbanActivityLogUpdateWithoutCardInput, KanbanActivityLogUncheckedUpdateWithoutCardInput>
+  }
+
+  export type KanbanActivityLogUpdateManyWithWhereWithoutCardInput = {
+    where: KanbanActivityLogScalarWhereInput
+    data: XOR<KanbanActivityLogUpdateManyMutationInput, KanbanActivityLogUncheckedUpdateManyWithoutCardInput>
+  }
+
+  export type KanbanActivityLogScalarWhereInput = {
+    AND?: KanbanActivityLogScalarWhereInput | KanbanActivityLogScalarWhereInput[]
+    OR?: KanbanActivityLogScalarWhereInput[]
+    NOT?: KanbanActivityLogScalarWhereInput | KanbanActivityLogScalarWhereInput[]
+    id?: StringFilter<"KanbanActivityLog"> | string
+    cardId?: StringFilter<"KanbanActivityLog"> | string
+    userId?: StringNullableFilter<"KanbanActivityLog"> | string | null
+    actionType?: StringFilter<"KanbanActivityLog"> | string
+    details?: StringNullableFilter<"KanbanActivityLog"> | string | null
+    timestamp?: DateTimeFilter<"KanbanActivityLog"> | Date | string
+  }
+
+  export type KanbanAttachmentUpsertWithWhereUniqueWithoutCardInput = {
+    where: KanbanAttachmentWhereUniqueInput
+    update: XOR<KanbanAttachmentUpdateWithoutCardInput, KanbanAttachmentUncheckedUpdateWithoutCardInput>
+    create: XOR<KanbanAttachmentCreateWithoutCardInput, KanbanAttachmentUncheckedCreateWithoutCardInput>
+  }
+
+  export type KanbanAttachmentUpdateWithWhereUniqueWithoutCardInput = {
+    where: KanbanAttachmentWhereUniqueInput
+    data: XOR<KanbanAttachmentUpdateWithoutCardInput, KanbanAttachmentUncheckedUpdateWithoutCardInput>
+  }
+
+  export type KanbanAttachmentUpdateManyWithWhereWithoutCardInput = {
+    where: KanbanAttachmentScalarWhereInput
+    data: XOR<KanbanAttachmentUpdateManyMutationInput, KanbanAttachmentUncheckedUpdateManyWithoutCardInput>
+  }
+
+  export type KanbanAttachmentScalarWhereInput = {
+    AND?: KanbanAttachmentScalarWhereInput | KanbanAttachmentScalarWhereInput[]
+    OR?: KanbanAttachmentScalarWhereInput[]
+    NOT?: KanbanAttachmentScalarWhereInput | KanbanAttachmentScalarWhereInput[]
+    id?: StringFilter<"KanbanAttachment"> | string
+    cardId?: StringFilter<"KanbanAttachment"> | string
+    userId?: StringNullableFilter<"KanbanAttachment"> | string | null
+    fileName?: StringFilter<"KanbanAttachment"> | string
+    fileUrl?: StringFilter<"KanbanAttachment"> | string
+    fileType?: StringNullableFilter<"KanbanAttachment"> | string | null
+    fileSize?: IntNullableFilter<"KanbanAttachment"> | number | null
+    attachmentType?: StringNullableFilter<"KanbanAttachment"> | string | null
+    uploadedAt?: DateTimeFilter<"KanbanAttachment"> | Date | string
+  }
+
+  export type KanbanListUpsertWithoutCardsInput = {
+    update: XOR<KanbanListUpdateWithoutCardsInput, KanbanListUncheckedUpdateWithoutCardsInput>
+    create: XOR<KanbanListCreateWithoutCardsInput, KanbanListUncheckedCreateWithoutCardsInput>
+    where?: KanbanListWhereInput
+  }
+
+  export type KanbanListUpdateToOneWithWhereWithoutCardsInput = {
+    where?: KanbanListWhereInput
+    data: XOR<KanbanListUpdateWithoutCardsInput, KanbanListUncheckedUpdateWithoutCardsInput>
+  }
+
+  export type KanbanListUpdateWithoutCardsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    board?: KanbanBoardUpdateOneRequiredWithoutListsNestedInput
+  }
+
+  export type KanbanListUncheckedUpdateWithoutCardsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    boardId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanCommentUpsertWithWhereUniqueWithoutCardInput = {
+    where: KanbanCommentWhereUniqueInput
+    update: XOR<KanbanCommentUpdateWithoutCardInput, KanbanCommentUncheckedUpdateWithoutCardInput>
+    create: XOR<KanbanCommentCreateWithoutCardInput, KanbanCommentUncheckedCreateWithoutCardInput>
+  }
+
+  export type KanbanCommentUpdateWithWhereUniqueWithoutCardInput = {
+    where: KanbanCommentWhereUniqueInput
+    data: XOR<KanbanCommentUpdateWithoutCardInput, KanbanCommentUncheckedUpdateWithoutCardInput>
+  }
+
+  export type KanbanCommentUpdateManyWithWhereWithoutCardInput = {
+    where: KanbanCommentScalarWhereInput
+    data: XOR<KanbanCommentUpdateManyMutationInput, KanbanCommentUncheckedUpdateManyWithoutCardInput>
+  }
+
+  export type KanbanCommentScalarWhereInput = {
+    AND?: KanbanCommentScalarWhereInput | KanbanCommentScalarWhereInput[]
+    OR?: KanbanCommentScalarWhereInput[]
+    NOT?: KanbanCommentScalarWhereInput | KanbanCommentScalarWhereInput[]
+    id?: StringFilter<"KanbanComment"> | string
+    cardId?: StringFilter<"KanbanComment"> | string
+    userId?: StringNullableFilter<"KanbanComment"> | string | null
+    message?: StringFilter<"KanbanComment"> | string
+    createdAt?: DateTimeFilter<"KanbanComment"> | Date | string
+    updatedAt?: DateTimeFilter<"KanbanComment"> | Date | string
+  }
+
+  export type KanbanCardCreateWithoutAttachmentsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activityLogs?: KanbanActivityLogCreateNestedManyWithoutCardInput
+    list: KanbanListCreateNestedOneWithoutCardsInput
+    comments?: KanbanCommentCreateNestedManyWithoutCardInput
+  }
+
+  export type KanbanCardUncheckedCreateWithoutAttachmentsInput = {
+    id?: string
+    listId: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activityLogs?: KanbanActivityLogUncheckedCreateNestedManyWithoutCardInput
+    comments?: KanbanCommentUncheckedCreateNestedManyWithoutCardInput
+  }
+
+  export type KanbanCardCreateOrConnectWithoutAttachmentsInput = {
+    where: KanbanCardWhereUniqueInput
+    create: XOR<KanbanCardCreateWithoutAttachmentsInput, KanbanCardUncheckedCreateWithoutAttachmentsInput>
+  }
+
+  export type KanbanCardUpsertWithoutAttachmentsInput = {
+    update: XOR<KanbanCardUpdateWithoutAttachmentsInput, KanbanCardUncheckedUpdateWithoutAttachmentsInput>
+    create: XOR<KanbanCardCreateWithoutAttachmentsInput, KanbanCardUncheckedCreateWithoutAttachmentsInput>
+    where?: KanbanCardWhereInput
+  }
+
+  export type KanbanCardUpdateToOneWithWhereWithoutAttachmentsInput = {
+    where?: KanbanCardWhereInput
+    data: XOR<KanbanCardUpdateWithoutAttachmentsInput, KanbanCardUncheckedUpdateWithoutAttachmentsInput>
+  }
+
+  export type KanbanCardUpdateWithoutAttachmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activityLogs?: KanbanActivityLogUpdateManyWithoutCardNestedInput
+    list?: KanbanListUpdateOneRequiredWithoutCardsNestedInput
+    comments?: KanbanCommentUpdateManyWithoutCardNestedInput
+  }
+
+  export type KanbanCardUncheckedUpdateWithoutAttachmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    listId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activityLogs?: KanbanActivityLogUncheckedUpdateManyWithoutCardNestedInput
+    comments?: KanbanCommentUncheckedUpdateManyWithoutCardNestedInput
+  }
+
+  export type KanbanCardCreateWithoutCommentsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activityLogs?: KanbanActivityLogCreateNestedManyWithoutCardInput
+    attachments?: KanbanAttachmentCreateNestedManyWithoutCardInput
+    list: KanbanListCreateNestedOneWithoutCardsInput
+  }
+
+  export type KanbanCardUncheckedCreateWithoutCommentsInput = {
+    id?: string
+    listId: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activityLogs?: KanbanActivityLogUncheckedCreateNestedManyWithoutCardInput
+    attachments?: KanbanAttachmentUncheckedCreateNestedManyWithoutCardInput
+  }
+
+  export type KanbanCardCreateOrConnectWithoutCommentsInput = {
+    where: KanbanCardWhereUniqueInput
+    create: XOR<KanbanCardCreateWithoutCommentsInput, KanbanCardUncheckedCreateWithoutCommentsInput>
+  }
+
+  export type KanbanCardUpsertWithoutCommentsInput = {
+    update: XOR<KanbanCardUpdateWithoutCommentsInput, KanbanCardUncheckedUpdateWithoutCommentsInput>
+    create: XOR<KanbanCardCreateWithoutCommentsInput, KanbanCardUncheckedCreateWithoutCommentsInput>
+    where?: KanbanCardWhereInput
+  }
+
+  export type KanbanCardUpdateToOneWithWhereWithoutCommentsInput = {
+    where?: KanbanCardWhereInput
+    data: XOR<KanbanCardUpdateWithoutCommentsInput, KanbanCardUncheckedUpdateWithoutCommentsInput>
+  }
+
+  export type KanbanCardUpdateWithoutCommentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activityLogs?: KanbanActivityLogUpdateManyWithoutCardNestedInput
+    attachments?: KanbanAttachmentUpdateManyWithoutCardNestedInput
+    list?: KanbanListUpdateOneRequiredWithoutCardsNestedInput
+  }
+
+  export type KanbanCardUncheckedUpdateWithoutCommentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    listId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activityLogs?: KanbanActivityLogUncheckedUpdateManyWithoutCardNestedInput
+    attachments?: KanbanAttachmentUncheckedUpdateManyWithoutCardNestedInput
+  }
+
+  export type KanbanCardCreateWithoutActivityLogsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    attachments?: KanbanAttachmentCreateNestedManyWithoutCardInput
+    list: KanbanListCreateNestedOneWithoutCardsInput
+    comments?: KanbanCommentCreateNestedManyWithoutCardInput
+  }
+
+  export type KanbanCardUncheckedCreateWithoutActivityLogsInput = {
+    id?: string
+    listId: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    attachments?: KanbanAttachmentUncheckedCreateNestedManyWithoutCardInput
+    comments?: KanbanCommentUncheckedCreateNestedManyWithoutCardInput
+  }
+
+  export type KanbanCardCreateOrConnectWithoutActivityLogsInput = {
+    where: KanbanCardWhereUniqueInput
+    create: XOR<KanbanCardCreateWithoutActivityLogsInput, KanbanCardUncheckedCreateWithoutActivityLogsInput>
+  }
+
+  export type KanbanCardUpsertWithoutActivityLogsInput = {
+    update: XOR<KanbanCardUpdateWithoutActivityLogsInput, KanbanCardUncheckedUpdateWithoutActivityLogsInput>
+    create: XOR<KanbanCardCreateWithoutActivityLogsInput, KanbanCardUncheckedCreateWithoutActivityLogsInput>
+    where?: KanbanCardWhereInput
+  }
+
+  export type KanbanCardUpdateToOneWithWhereWithoutActivityLogsInput = {
+    where?: KanbanCardWhereInput
+    data: XOR<KanbanCardUpdateWithoutActivityLogsInput, KanbanCardUncheckedUpdateWithoutActivityLogsInput>
+  }
+
+  export type KanbanCardUpdateWithoutActivityLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attachments?: KanbanAttachmentUpdateManyWithoutCardNestedInput
+    list?: KanbanListUpdateOneRequiredWithoutCardsNestedInput
+    comments?: KanbanCommentUpdateManyWithoutCardNestedInput
+  }
+
+  export type KanbanCardUncheckedUpdateWithoutActivityLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    listId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attachments?: KanbanAttachmentUncheckedUpdateManyWithoutCardNestedInput
+    comments?: KanbanCommentUncheckedUpdateManyWithoutCardNestedInput
+  }
+
   export type CompanyCreateManyAssignedUserInput = {
     id?: string
     companyName: string
@@ -229749,6 +242330,34 @@ export namespace Prisma {
     estimationDueDate?: Date | string | null
     boqNumber?: string | null
     estimatedByUserId?: string | null
+  }
+
+  export type CustomerSatisfactionCreateManySurveyorInput = {
+    id?: string
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: string
+    surveyDate?: Date | string
+    companyId: string
+    province: string
+    phone: string
+    quotationIds?: CustomerSatisfactionCreatequotationIdsInput | string[]
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons?: CustomerSatisfactionCreatepurchaseReasonsInput | string[]
+    suggestions?: string | null
+    analysisNote?: string | null
+    actionPlan?: string | null
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type InstallationOrderCreateManyTechnicianUserInput = {
@@ -230209,6 +242818,7 @@ export namespace Prisma {
     tags?: CompanyUpdatetagsInput | string[]
     interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutCompanyNestedInput
     orders?: OrderUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
@@ -230249,6 +242859,7 @@ export namespace Prisma {
     tags?: CompanyUpdatetagsInput | string[]
     interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
     contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput
     orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
@@ -230449,6 +243060,90 @@ export namespace Prisma {
     estimationDueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     boqNumber?: NullableStringFieldUpdateOperationsInput | string | null
     estimatedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CustomerSatisfactionUpdateWithoutSurveyorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyRound?: IntFieldUpdateOperationsInput | number
+    surveyYear?: IntFieldUpdateOperationsInput | number
+    surveyMethod?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    province?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    quotationIds?: CustomerSatisfactionUpdatequotationIdsInput | string[]
+    scorePrice?: IntFieldUpdateOperationsInput | number
+    scoreQuality?: IntFieldUpdateOperationsInput | number
+    scoreDelivery?: IntFieldUpdateOperationsInput | number
+    scoreSales?: IntFieldUpdateOperationsInput | number
+    scoreSupport?: IntFieldUpdateOperationsInput | number
+    scoreAfterSales?: IntFieldUpdateOperationsInput | number
+    scoreAverage?: FloatFieldUpdateOperationsInput | number
+    purchaseReasons?: CustomerSatisfactionUpdatepurchaseReasonsInput | string[]
+    suggestions?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisNote?: NullableStringFieldUpdateOperationsInput | string | null
+    actionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedToSales?: BoolFieldUpdateOperationsInput | boolean
+    sharedToService?: BoolFieldUpdateOperationsInput | boolean
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutCustomerSatisfactionsNestedInput
+  }
+
+  export type CustomerSatisfactionUncheckedUpdateWithoutSurveyorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyRound?: IntFieldUpdateOperationsInput | number
+    surveyYear?: IntFieldUpdateOperationsInput | number
+    surveyMethod?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    province?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    quotationIds?: CustomerSatisfactionUpdatequotationIdsInput | string[]
+    scorePrice?: IntFieldUpdateOperationsInput | number
+    scoreQuality?: IntFieldUpdateOperationsInput | number
+    scoreDelivery?: IntFieldUpdateOperationsInput | number
+    scoreSales?: IntFieldUpdateOperationsInput | number
+    scoreSupport?: IntFieldUpdateOperationsInput | number
+    scoreAfterSales?: IntFieldUpdateOperationsInput | number
+    scoreAverage?: FloatFieldUpdateOperationsInput | number
+    purchaseReasons?: CustomerSatisfactionUpdatepurchaseReasonsInput | string[]
+    suggestions?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisNote?: NullableStringFieldUpdateOperationsInput | string | null
+    actionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedToSales?: BoolFieldUpdateOperationsInput | boolean
+    sharedToService?: BoolFieldUpdateOperationsInput | boolean
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerSatisfactionUncheckedUpdateManyWithoutSurveyorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyRound?: IntFieldUpdateOperationsInput | number
+    surveyYear?: IntFieldUpdateOperationsInput | number
+    surveyMethod?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    province?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    quotationIds?: CustomerSatisfactionUpdatequotationIdsInput | string[]
+    scorePrice?: IntFieldUpdateOperationsInput | number
+    scoreQuality?: IntFieldUpdateOperationsInput | number
+    scoreDelivery?: IntFieldUpdateOperationsInput | number
+    scoreSales?: IntFieldUpdateOperationsInput | number
+    scoreSupport?: IntFieldUpdateOperationsInput | number
+    scoreAfterSales?: IntFieldUpdateOperationsInput | number
+    scoreAverage?: FloatFieldUpdateOperationsInput | number
+    purchaseReasons?: CustomerSatisfactionUpdatepurchaseReasonsInput | string[]
+    suggestions?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisNote?: NullableStringFieldUpdateOperationsInput | string | null
+    actionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedToSales?: BoolFieldUpdateOperationsInput | boolean
+    sharedToService?: BoolFieldUpdateOperationsInput | boolean
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type InstallationOrderUpdateWithoutTechnicianUserInput = {
@@ -231807,6 +244502,34 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type CustomerSatisfactionCreateManyCompanyInput = {
+    id?: string
+    surveyRound: number
+    surveyYear: number
+    surveyMethod: string
+    surveyBy: string
+    surveyDate?: Date | string
+    province: string
+    phone: string
+    quotationIds?: CustomerSatisfactionCreatequotationIdsInput | string[]
+    scorePrice: number
+    scoreQuality: number
+    scoreDelivery: number
+    scoreSales: number
+    scoreSupport: number
+    scoreAfterSales: number
+    scoreAverage: number
+    purchaseReasons?: CustomerSatisfactionCreatepurchaseReasonsInput | string[]
+    suggestions?: string | null
+    analysisNote?: string | null
+    actionPlan?: string | null
+    sharedToSales?: boolean
+    sharedToService?: boolean
+    sharedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type OrderCreateManyCompanyInput = {
     id?: string
     orderNumber: string
@@ -232000,6 +244723,90 @@ export namespace Prisma {
     mobilePhone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     isETaxReceiver?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerSatisfactionUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyRound?: IntFieldUpdateOperationsInput | number
+    surveyYear?: IntFieldUpdateOperationsInput | number
+    surveyMethod?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    province?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    quotationIds?: CustomerSatisfactionUpdatequotationIdsInput | string[]
+    scorePrice?: IntFieldUpdateOperationsInput | number
+    scoreQuality?: IntFieldUpdateOperationsInput | number
+    scoreDelivery?: IntFieldUpdateOperationsInput | number
+    scoreSales?: IntFieldUpdateOperationsInput | number
+    scoreSupport?: IntFieldUpdateOperationsInput | number
+    scoreAfterSales?: IntFieldUpdateOperationsInput | number
+    scoreAverage?: FloatFieldUpdateOperationsInput | number
+    purchaseReasons?: CustomerSatisfactionUpdatepurchaseReasonsInput | string[]
+    suggestions?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisNote?: NullableStringFieldUpdateOperationsInput | string | null
+    actionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedToSales?: BoolFieldUpdateOperationsInput | boolean
+    sharedToService?: BoolFieldUpdateOperationsInput | boolean
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    surveyor?: UserUpdateOneRequiredWithoutCustomerSatisfactionsNestedInput
+  }
+
+  export type CustomerSatisfactionUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyRound?: IntFieldUpdateOperationsInput | number
+    surveyYear?: IntFieldUpdateOperationsInput | number
+    surveyMethod?: StringFieldUpdateOperationsInput | string
+    surveyBy?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    province?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    quotationIds?: CustomerSatisfactionUpdatequotationIdsInput | string[]
+    scorePrice?: IntFieldUpdateOperationsInput | number
+    scoreQuality?: IntFieldUpdateOperationsInput | number
+    scoreDelivery?: IntFieldUpdateOperationsInput | number
+    scoreSales?: IntFieldUpdateOperationsInput | number
+    scoreSupport?: IntFieldUpdateOperationsInput | number
+    scoreAfterSales?: IntFieldUpdateOperationsInput | number
+    scoreAverage?: FloatFieldUpdateOperationsInput | number
+    purchaseReasons?: CustomerSatisfactionUpdatepurchaseReasonsInput | string[]
+    suggestions?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisNote?: NullableStringFieldUpdateOperationsInput | string | null
+    actionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedToSales?: BoolFieldUpdateOperationsInput | boolean
+    sharedToService?: BoolFieldUpdateOperationsInput | boolean
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerSatisfactionUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    surveyRound?: IntFieldUpdateOperationsInput | number
+    surveyYear?: IntFieldUpdateOperationsInput | number
+    surveyMethod?: StringFieldUpdateOperationsInput | string
+    surveyBy?: StringFieldUpdateOperationsInput | string
+    surveyDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    province?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    quotationIds?: CustomerSatisfactionUpdatequotationIdsInput | string[]
+    scorePrice?: IntFieldUpdateOperationsInput | number
+    scoreQuality?: IntFieldUpdateOperationsInput | number
+    scoreDelivery?: IntFieldUpdateOperationsInput | number
+    scoreSales?: IntFieldUpdateOperationsInput | number
+    scoreSupport?: IntFieldUpdateOperationsInput | number
+    scoreAfterSales?: IntFieldUpdateOperationsInput | number
+    scoreAverage?: FloatFieldUpdateOperationsInput | number
+    purchaseReasons?: CustomerSatisfactionUpdatepurchaseReasonsInput | string[]
+    suggestions?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisNote?: NullableStringFieldUpdateOperationsInput | string | null
+    actionPlan?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedToSales?: BoolFieldUpdateOperationsInput | boolean
+    sharedToService?: BoolFieldUpdateOperationsInput | boolean
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -238824,6 +251631,214 @@ export namespace Prisma {
     emp_id?: StringFieldUpdateOperationsInput | string
     drawn_at?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type KanbanListCreateManyBoardInput = {
+    id?: string
+    name: string
+    position: number
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type KanbanListUpdateWithoutBoardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cards?: KanbanCardUpdateManyWithoutListNestedInput
+  }
+
+  export type KanbanListUncheckedUpdateWithoutBoardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cards?: KanbanCardUncheckedUpdateManyWithoutListNestedInput
+  }
+
+  export type KanbanListUncheckedUpdateManyWithoutBoardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanCardCreateManyListInput = {
+    id?: string
+    title: string
+    description?: string | null
+    assignedToId?: string | null
+    dueDate?: Date | string | null
+    revisionStatus?: string | null
+    position: number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type KanbanCardUpdateWithoutListInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activityLogs?: KanbanActivityLogUpdateManyWithoutCardNestedInput
+    attachments?: KanbanAttachmentUpdateManyWithoutCardNestedInput
+    comments?: KanbanCommentUpdateManyWithoutCardNestedInput
+  }
+
+  export type KanbanCardUncheckedUpdateWithoutListInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activityLogs?: KanbanActivityLogUncheckedUpdateManyWithoutCardNestedInput
+    attachments?: KanbanAttachmentUncheckedUpdateManyWithoutCardNestedInput
+    comments?: KanbanCommentUncheckedUpdateManyWithoutCardNestedInput
+  }
+
+  export type KanbanCardUncheckedUpdateManyWithoutListInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    checklist?: NullableJsonNullValueInput | InputJsonValue
+    color?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanActivityLogCreateManyCardInput = {
+    id?: string
+    userId?: string | null
+    actionType: string
+    details?: string | null
+    timestamp?: Date | string
+  }
+
+  export type KanbanAttachmentCreateManyCardInput = {
+    id?: string
+    userId?: string | null
+    fileName: string
+    fileUrl: string
+    fileType?: string | null
+    fileSize?: number | null
+    attachmentType?: string | null
+    uploadedAt?: Date | string
+  }
+
+  export type KanbanCommentCreateManyCardInput = {
+    id?: string
+    userId?: string | null
+    message: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type KanbanActivityLogUpdateWithoutCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    actionType?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanActivityLogUncheckedUpdateWithoutCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    actionType?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanActivityLogUncheckedUpdateManyWithoutCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    actionType?: StringFieldUpdateOperationsInput | string
+    details?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanAttachmentUpdateWithoutCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileType?: NullableStringFieldUpdateOperationsInput | string | null
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    attachmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanAttachmentUncheckedUpdateWithoutCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileType?: NullableStringFieldUpdateOperationsInput | string | null
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    attachmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanAttachmentUncheckedUpdateManyWithoutCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    fileType?: NullableStringFieldUpdateOperationsInput | string | null
+    fileSize?: NullableIntFieldUpdateOperationsInput | number | null
+    attachmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanCommentUpdateWithoutCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanCommentUncheckedUpdateWithoutCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KanbanCommentUncheckedUpdateManyWithoutCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

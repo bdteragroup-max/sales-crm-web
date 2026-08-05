@@ -8,31 +8,32 @@ datasource db {
 }
 
 model User {
-  id                     String                @id @default(cuid())
-  employeeId             String                @unique
-  email                  String?               @unique
+  id                     String                 @id @default(cuid())
+  employeeId             String                 @unique
+  email                  String?                @unique
   fullName               String
   phoneNumber            String?
-  role                   String                @default("Sales Representative")
+  role                   String                 @default("Sales Representative")
   position               String?
   password               String
-  createdAt              DateTime              @default(now()) @db.Timestamptz(6)
-  updatedAt              DateTime              @default(now()) @updatedAt @db.Timestamptz(6)
+  createdAt              DateTime               @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime               @default(now()) @updatedAt @db.Timestamptz(6)
   otpCode                String?
-  otpExpiresAt           DateTime?             @db.Timestamptz(6)
-  isActive               Boolean               @default(true)
-  assignedCompanies      Company[]             @relation("AssignedCompany")
+  otpExpiresAt           DateTime?              @db.Timestamptz(6)
+  isActive               Boolean                @default(true)
+  assignedCompanies      Company[]              @relation("AssignedCompany")
   companyInteractions    CompanyInteraction[]
-  estimatedRequirements  CustomerRequirement[] @relation("Estimator")
+  estimatedRequirements  CustomerRequirement[]  @relation("Estimator")
   customerRequirements   CustomerRequirement[]
+  customerSatisfactions  CustomerSatisfaction[]
   installationOrders     InstallationOrder[]
   uploadedDocuments      JobDocument[]
-  assignedMarketingLeads MarketingLead[]       @relation("AssignedLeads")
+  assignedMarketingLeads MarketingLead[]        @relation("AssignedLeads")
   marketingLeads         MarketingLead[]
   monthlyTargets         MonthlyTarget[]
   notifications          Notification[]
   orders                 Order[]
-  managedProjects        Project[]             @relation("ProjectManager")
+  managedProjects        Project[]              @relation("ProjectManager")
   reportedDailyLogs      ProjectDailyLog[]
   projectMembers         ProjectMember[]
   assignedTasks          ProjectTask[]
@@ -40,7 +41,7 @@ model User {
   quotations             Quotation[]
   schedules              Schedule[]
   serviceSchedules       ServiceSchedule[]
-  estimatedSurveys       SiteSurvey[]          @relation("SurveyEstimator")
+  estimatedSurveys       SiteSurvey[]           @relation("SurveyEstimator")
   siteSurveys            SiteSurvey[]
   telesales              Telesale[]
   telesalesKPIs          TelesalesKPI[]
@@ -120,12 +121,12 @@ model EmployeeSale {
 }
 
 model Company {
-  id                    String               @id @default(cuid())
+  id                    String                 @id @default(cuid())
   companyName           String
   taxId                 String?
   address               String?
-  createdAt             DateTime             @default(now()) @db.Timestamptz(6)
-  updatedAt             DateTime             @updatedAt @db.Timestamptz(6)
+  createdAt             DateTime               @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime               @updatedAt @db.Timestamptz(6)
   area                  String?
   branchOrHeadOffice    String?
   businessType          String?
@@ -151,9 +152,10 @@ model Company {
   region                String?
   segment               String?
   tags                  String[]
-  assignedUser          User?                @relation("AssignedCompany", fields: [assignedUserId], references: [id])
+  assignedUser          User?                  @relation("AssignedCompany", fields: [assignedUserId], references: [id])
   interactions          CompanyInteraction[]
   contacts              Contact[]
+  customerSatisfactions CustomerSatisfaction[]
   orders                Order[]
   quotations            Quotation[]
   schedules             Schedule[]
@@ -2254,4 +2256,120 @@ model wheel_winners {
   status       String       @default("pending")
   employees    employees    @relation(fields: [emp_id], references: [emp_id], onDelete: Cascade)
   wheel_prizes wheel_prizes @relation(fields: [prize_id], references: [id], onDelete: Cascade)
+}
+
+model CustomerSatisfaction {
+  id              String    @id @default(cuid())
+  surveyRound     Int
+  surveyYear      Int
+  surveyMethod    String
+  surveyBy        String
+  surveyDate      DateTime  @default(now())
+  companyId       String
+  province        String
+  phone           String
+  quotationIds    String[]
+  scorePrice      Int
+  scoreQuality    Int
+  scoreDelivery   Int
+  scoreSales      Int
+  scoreSupport    Int
+  scoreAfterSales Int
+  scoreAverage    Float
+  purchaseReasons String[]
+  suggestions     String?
+  analysisNote    String?
+  actionPlan      String?
+  sharedToSales   Boolean   @default(false)
+  sharedToService Boolean   @default(false)
+  sharedAt        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  company         Company   @relation(fields: [companyId], references: [id])
+  surveyor        User      @relation(fields: [surveyBy], references: [id])
+}
+
+model KanbanBoard {
+  id         String       @id @default(cuid())
+  name       String
+  ownerId    String?
+  createdAt  DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime     @updatedAt @db.Timestamptz(6)
+  colorTheme String       @default("brandRed")
+  lists      KanbanList[]
+}
+
+model KanbanList {
+  id        String       @id @default(cuid())
+  boardId   String
+  name      String
+  position  Float
+  color     String?
+  createdAt DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime     @updatedAt @db.Timestamptz(6)
+  cards     KanbanCard[]
+  board     KanbanBoard  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@index([boardId])
+}
+
+model KanbanCard {
+  id             String              @id @default(cuid())
+  listId         String
+  title          String
+  description    String?
+  assignedToId   String?
+  dueDate        DateTime?           @db.Timestamptz(6)
+  revisionStatus String?
+  position       Float
+  checklist      Json?
+  color          String?
+  createdAt      DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime            @updatedAt @db.Timestamptz(6)
+  activityLogs   KanbanActivityLog[]
+  attachments    KanbanAttachment[]
+  list           KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)
+  comments       KanbanComment[]
+
+  @@index([listId])
+  @@index([assignedToId])
+}
+
+model KanbanAttachment {
+  id             String     @id @default(cuid())
+  cardId         String
+  userId         String?
+  fileName       String
+  fileUrl        String
+  fileType       String?
+  fileSize       Int?
+  attachmentType String?
+  uploadedAt     DateTime   @default(now()) @db.Timestamptz(6)
+  card           KanbanCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId])
+}
+
+model KanbanComment {
+  id        String     @id @default(cuid())
+  cardId    String
+  userId    String?
+  message   String
+  createdAt DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime   @updatedAt @db.Timestamptz(6)
+  card      KanbanCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId])
+}
+
+model KanbanActivityLog {
+  id         String     @id @default(cuid())
+  cardId     String
+  userId     String?
+  actionType String
+  details    String?
+  timestamp  DateTime   @default(now()) @db.Timestamptz(6)
+  card       KanbanCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId])
 }

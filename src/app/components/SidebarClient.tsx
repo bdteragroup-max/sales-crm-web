@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Coins
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Coins, Kanban
 } from 'lucide-react';
 import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -117,7 +117,9 @@ const projectNav = [
 const marketingNav = [
   { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
   { icon: Users, label: 'Marketing Leads', href: '/marketing' },
+  { icon: ClipboardList, label: 'Satisfaction Survey', href: '/marketing/satisfaction' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
+  { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
 ];
 
 const projectAdminNav = [
@@ -151,6 +153,12 @@ export default function SidebarClient(props: SidebarProps) {
     nav = superAdminNav;
   } else if (isExecutive) {
     nav = executiveNav;
+  } else if (['marketing', 'การตลาด'].some(r => roleStr.includes(r))) {
+    if (isManager) {
+      nav = Array.from(new Map([...managerNav, ...marketingNav].map(item => [item.href, item])).values());
+    } else {
+      nav = marketingNav;
+    }
   } else if (isManager) {
     nav = managerNav;
   } else if (roleStr.includes('admin project') || roleStr.includes('project admin')) {
@@ -166,8 +174,6 @@ export default function SidebarClient(props: SidebarProps) {
     ];
   } else if (['project', 'โปรเจค', 'โปรเจกต์'].some(r => roleStr.includes(r))) {
     nav = projectNav; // Project users see their projects
-  } else if (['marketing', 'การตลาด'].some(r => roleStr.includes(r))) {
-    nav = marketingNav; // Marketing role sees marketing dashboard
   } else if (roleStr === 'ผู้จัดการคลังสินค้าและจัดซื้อ' || (roleStr.includes('คลังสินค้า') && roleStr.includes('จัดซื้อ'))) {
     nav = storeAndPurchasingNav;
   } else if (roleStr.includes('production') || roleStr.includes('ผลิต')) {

@@ -1901,6 +1901,99 @@ exports.Prisma.Wheel_winnersScalarFieldEnum = {
   status: 'status'
 };
 
+exports.Prisma.CustomerSatisfactionScalarFieldEnum = {
+  id: 'id',
+  surveyRound: 'surveyRound',
+  surveyYear: 'surveyYear',
+  surveyMethod: 'surveyMethod',
+  surveyBy: 'surveyBy',
+  surveyDate: 'surveyDate',
+  companyId: 'companyId',
+  province: 'province',
+  phone: 'phone',
+  quotationIds: 'quotationIds',
+  scorePrice: 'scorePrice',
+  scoreQuality: 'scoreQuality',
+  scoreDelivery: 'scoreDelivery',
+  scoreSales: 'scoreSales',
+  scoreSupport: 'scoreSupport',
+  scoreAfterSales: 'scoreAfterSales',
+  scoreAverage: 'scoreAverage',
+  purchaseReasons: 'purchaseReasons',
+  suggestions: 'suggestions',
+  analysisNote: 'analysisNote',
+  actionPlan: 'actionPlan',
+  sharedToSales: 'sharedToSales',
+  sharedToService: 'sharedToService',
+  sharedAt: 'sharedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.KanbanBoardScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  ownerId: 'ownerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  colorTheme: 'colorTheme'
+};
+
+exports.Prisma.KanbanListScalarFieldEnum = {
+  id: 'id',
+  boardId: 'boardId',
+  name: 'name',
+  position: 'position',
+  color: 'color',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.KanbanCardScalarFieldEnum = {
+  id: 'id',
+  listId: 'listId',
+  title: 'title',
+  description: 'description',
+  assignedToId: 'assignedToId',
+  dueDate: 'dueDate',
+  revisionStatus: 'revisionStatus',
+  position: 'position',
+  checklist: 'checklist',
+  color: 'color',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.KanbanAttachmentScalarFieldEnum = {
+  id: 'id',
+  cardId: 'cardId',
+  userId: 'userId',
+  fileName: 'fileName',
+  fileUrl: 'fileUrl',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  attachmentType: 'attachmentType',
+  uploadedAt: 'uploadedAt'
+};
+
+exports.Prisma.KanbanCommentScalarFieldEnum = {
+  id: 'id',
+  cardId: 'cardId',
+  userId: 'userId',
+  message: 'message',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.KanbanActivityLogScalarFieldEnum = {
+  id: 'id',
+  cardId: 'cardId',
+  userId: 'userId',
+  actionType: 'actionType',
+  details: 'details',
+  timestamp: 'timestamp'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2044,7 +2137,14 @@ exports.Prisma.ModelName = {
   wheel_events: 'wheel_events',
   wheel_prizes: 'wheel_prizes',
   wheel_tickets: 'wheel_tickets',
-  wheel_winners: 'wheel_winners'
+  wheel_winners: 'wheel_winners',
+  CustomerSatisfaction: 'CustomerSatisfaction',
+  KanbanBoard: 'KanbanBoard',
+  KanbanList: 'KanbanList',
+  KanbanCard: 'KanbanCard',
+  KanbanAttachment: 'KanbanAttachment',
+  KanbanComment: 'KanbanComment',
+  KanbanActivityLog: 'KanbanActivityLog'
 };
 
 /**

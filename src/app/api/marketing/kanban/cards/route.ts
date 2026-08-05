@@ -1,0 +1,131 @@
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/app/lib/db';
+import { getUser } from '@/app/lib/dal';
+
+// POST: Create a new card
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const data = await request.json();
+    const { listId, title, description, assignedToId, dueDate } = data;
+
+    if (!listId || !title) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Find the max position in the list
+    const lastCard = await prisma.kanbanCard.findFirst({
+      where: { listId },
+      orderBy: { position: 'desc' }
+    });
+    
+    const newPosition = lastCard ? lastCard.position + 1000 : 1000;
+
+    const card = await prisma.kanbanCard.create({
+      data: {
+        listId,
+        title,
+        description,
+        assignedToId,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        position: newPosition
+      },
+      include: {
+        attachments: true,
+        comments: true,
+        activityLogs: true
+      }
+    });
+
+    await prisma.kanbanActivityLog.create({
+      data: {
+        cardId: card.id,
+        userId: user.id,
+        actionType: 'CREATED',
+        details: 'Created card'
+      }
+    });
+
+    return NextResponse.json(card);
+  } catch (error: any) {
+    console.error('Error in POST /api/marketing/kanban/cards:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// PUT: Update card details or move/reorder
+export async function PUT(request: NextRequest) {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const data = await request.json();
+    const { id, listId, position, title, description, assignedToId, dueDate, revisionStatus, checklist, color } = data;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Missing card ID' }, { status: 400 });
+    }
+
+    const updateData: any = {};
+    const logDetails: string[] = [];
+    let isMove = false;
+
+    if (listId !== undefined) {
+      updateData.listId = listId;
+      isMove = true;
+    }
+    if (position !== undefined) updateData.position = position;
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (assignedToId !== undefined) updateData.assignedToId = assignedToId;
+    if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
+    if (revisionStatus !== undefined) updateData.revisionStatus = revisionStatus;
+    if (checklist !== undefined) updateData.checklist = checklist;
+    if (color !== undefined) updateData.color = color;
+
+    const oldCard = await prisma.kanbanCard.findUnique({ where: { id } });
+
+    const card = await prisma.kanbanCard.update({
+      where: { id },
+      data: updateData,
+      include: {
+        attachments: true,
+        comments: true,
+        activityLogs: true
+      }
+    });
+
+    if (isMove && oldCard && oldCard.listId !== listId) {
+       await prisma.kanbanActivityLog.create({
+         data: {
+           cardId: card.id,
+           userId: user.id,
+           actionType: 'MOVED',
+           details: `Moved to another list`
+         }
+       });
+    }
+
+    if (revisionStatus !== undefined && oldCard && oldCard.revisionStatus !== revisionStatus) {
+       await prisma.kanbanActivityLog.create({
+         data: {
+           cardId: card.id,
+           userId: user.id,
+           actionType: 'STATUS_CHANGE',
+           details: `Status changed to ${revisionStatus}`
+         }
+       });
+    }
+
+    return NextResponse.json(card);
+  } catch (error: any) {
+    console.error('Error in PUT /api/marketing/kanban/cards:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
