@@ -7,13 +7,14 @@ import type { TKanbanList, TKanbanCard } from './KanbanBoardClient';
 
 type Props = {
   list: TKanbanList;
+  users: any[];
   onAddCard: (listId: string, title: string) => void;
   onCardClick: (card: TKanbanCard) => void;
   onUpdateList?: (listId: string, updates: Partial<TKanbanList>) => void;
   onDeleteList?: (listId: string) => void;
 };
 
-export default function KanbanList({ list, onAddCard, onCardClick, onUpdateList, onDeleteList }: Props) {
+export default function KanbanList({ list, users, onAddCard, onCardClick, onUpdateList, onDeleteList }: Props) {
   const [isAdding, setIsAdding] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [showMenu, setShowMenu] = useState(false);
@@ -183,7 +184,7 @@ export default function KanbanList({ list, onAddCard, onCardClick, onUpdateList,
           strategy={verticalListSortingStrategy}
         >
           {list.cards.map((card) => (
-            <KanbanCard key={card.id} card={card} onClick={() => onCardClick(card)} />
+            <KanbanCard key={card.id} card={card} users={users} onClick={() => onCardClick(card)} />
           ))}
         </SortableContext>
 

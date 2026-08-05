@@ -1955,6 +1955,7 @@ exports.Prisma.KanbanCardScalarFieldEnum = {
   title: 'title',
   description: 'description',
   assignedToId: 'assignedToId',
+  startDate: 'startDate',
   dueDate: 'dueDate',
   revisionStatus: 'revisionStatus',
   position: 'position',

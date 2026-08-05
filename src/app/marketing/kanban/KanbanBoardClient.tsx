@@ -31,6 +31,7 @@ export type TKanbanCard = {
   title: string;
   description: string | null;
   assignedToId: string | null;
+  startDate: string | null;
   dueDate: string | null;
   revisionStatus: string | null;
   position: number;
@@ -454,6 +455,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
                   <KanbanList 
                     key={filteredList.id} 
                     list={filteredList} 
+                    users={users}
                     onAddCard={handleAddCard}
                     onCardClick={(card: TKanbanCard) => setEditingCard(card)}
                     onUpdateList={handleUpdateList}

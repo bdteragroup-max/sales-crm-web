@@ -6,10 +6,11 @@ import type { TKanbanCard } from './KanbanBoardClient';
 
 type Props = {
   card: TKanbanCard;
+  users: any[];
   onClick: () => void;
 };
 
-export default function KanbanCard({ card, onClick }: Props) {
+export default function KanbanCard({ card, users, onClick }: Props) {
   const {
     attributes,
     listeners,
@@ -45,6 +46,8 @@ export default function KanbanCard({ card, onClick }: Props) {
   // Find cover image (first image attachment)
   const coverImage = card.attachments?.find((att: any) => att.fileType?.startsWith('image/'));
 
+  const assignedUser = users.find(u => u.id === card.assignedToId);
+
   const getRevisionBadge = () => {
     switch (card.revisionStatus) {
       case 'needs_revision':
@@ -78,9 +81,18 @@ export default function KanbanCard({ card, onClick }: Props) {
         {getRevisionBadge()}
       </div>
 
-      <h4 className="font-semibold text-gray-800 text-sm leading-snug mb-3">
+      <h4 className={`font-semibold text-gray-800 text-sm leading-snug ${assignedUser ? 'mb-2' : 'mb-3'}`}>
         {card.title}
       </h4>
+
+      {assignedUser && (
+        <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-3 font-medium">
+          <div className="w-5 h-5 rounded-full bg-red-100 text-[#ff2301] flex items-center justify-center font-bold text-[10px] shrink-0">
+            {assignedUser.fullName?.charAt(0) || assignedUser.email?.charAt(0) || '?'}
+          </div>
+          <span className="truncate">{assignedUser.fullName}</span>
+        </div>
+      )}
 
       <div className="flex items-center justify-between text-gray-400">
         <div className="flex items-center gap-3">
@@ -108,12 +120,16 @@ export default function KanbanCard({ card, onClick }: Props) {
           )}
         </div>
 
-        {hasDueDate && card.dueDate && (
+        {(card.startDate || card.dueDate) && (
           <div className={`flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded-md ${
-            new Date(card.dueDate) < new Date() ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+            card.dueDate && new Date(card.dueDate) < new Date() ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
           }`}>
             <Calendar size={12} />
-            <span>{new Date(card.dueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</span>
+            <span>
+              {card.startDate ? new Date(card.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : ''}
+              {card.startDate && card.dueDate ? ' - ' : ''}
+              {card.dueDate ? new Date(card.dueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : ''}
+            </span>
           </div>
         )}
       </div>

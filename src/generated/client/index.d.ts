@@ -155034,6 +155034,7 @@ export namespace Prisma {
     title: string | null
     description: string | null
     assignedToId: string | null
+    startDate: Date | null
     dueDate: Date | null
     revisionStatus: string | null
     position: number | null
@@ -155048,6 +155049,7 @@ export namespace Prisma {
     title: string | null
     description: string | null
     assignedToId: string | null
+    startDate: Date | null
     dueDate: Date | null
     revisionStatus: string | null
     position: number | null
@@ -155062,6 +155064,7 @@ export namespace Prisma {
     title: number
     description: number
     assignedToId: number
+    startDate: number
     dueDate: number
     revisionStatus: number
     position: number
@@ -155087,6 +155090,7 @@ export namespace Prisma {
     title?: true
     description?: true
     assignedToId?: true
+    startDate?: true
     dueDate?: true
     revisionStatus?: true
     position?: true
@@ -155101,6 +155105,7 @@ export namespace Prisma {
     title?: true
     description?: true
     assignedToId?: true
+    startDate?: true
     dueDate?: true
     revisionStatus?: true
     position?: true
@@ -155115,6 +155120,7 @@ export namespace Prisma {
     title?: true
     description?: true
     assignedToId?: true
+    startDate?: true
     dueDate?: true
     revisionStatus?: true
     position?: true
@@ -155217,6 +155223,7 @@ export namespace Prisma {
     title: string
     description: string | null
     assignedToId: string | null
+    startDate: Date | null
     dueDate: Date | null
     revisionStatus: string | null
     position: number
@@ -155251,6 +155258,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     assignedToId?: boolean
+    startDate?: boolean
     dueDate?: boolean
     revisionStatus?: boolean
     position?: boolean
@@ -155271,6 +155279,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     assignedToId?: boolean
+    startDate?: boolean
     dueDate?: boolean
     revisionStatus?: boolean
     position?: boolean
@@ -155287,6 +155296,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     assignedToId?: boolean
+    startDate?: boolean
     dueDate?: boolean
     revisionStatus?: boolean
     position?: boolean
@@ -155303,6 +155313,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     assignedToId?: boolean
+    startDate?: boolean
     dueDate?: boolean
     revisionStatus?: boolean
     position?: boolean
@@ -155312,7 +155323,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type KanbanCardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "listId" | "title" | "description" | "assignedToId" | "dueDate" | "revisionStatus" | "position" | "checklist" | "color" | "createdAt" | "updatedAt", ExtArgs["result"]["kanbanCard"]>
+  export type KanbanCardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "listId" | "title" | "description" | "assignedToId" | "startDate" | "dueDate" | "revisionStatus" | "position" | "checklist" | "color" | "createdAt" | "updatedAt", ExtArgs["result"]["kanbanCard"]>
   export type KanbanCardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     activityLogs?: boolean | KanbanCard$activityLogsArgs<ExtArgs>
     attachments?: boolean | KanbanCard$attachmentsArgs<ExtArgs>
@@ -155341,6 +155352,7 @@ export namespace Prisma {
       title: string
       description: string | null
       assignedToId: string | null
+      startDate: Date | null
       dueDate: Date | null
       revisionStatus: string | null
       position: number
@@ -155780,6 +155792,7 @@ export namespace Prisma {
     readonly title: FieldRef<"KanbanCard", 'String'>
     readonly description: FieldRef<"KanbanCard", 'String'>
     readonly assignedToId: FieldRef<"KanbanCard", 'String'>
+    readonly startDate: FieldRef<"KanbanCard", 'DateTime'>
     readonly dueDate: FieldRef<"KanbanCard", 'DateTime'>
     readonly revisionStatus: FieldRef<"KanbanCard", 'String'>
     readonly position: FieldRef<"KanbanCard", 'Float'>
@@ -161773,6 +161786,7 @@ export namespace Prisma {
     title: 'title',
     description: 'description',
     assignedToId: 'assignedToId',
+    startDate: 'startDate',
     dueDate: 'dueDate',
     revisionStatus: 'revisionStatus',
     position: 'position',
@@ -173500,6 +173514,7 @@ export namespace Prisma {
     title?: StringFilter<"KanbanCard"> | string
     description?: StringNullableFilter<"KanbanCard"> | string | null
     assignedToId?: StringNullableFilter<"KanbanCard"> | string | null
+    startDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
     dueDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
     revisionStatus?: StringNullableFilter<"KanbanCard"> | string | null
     position?: FloatFilter<"KanbanCard"> | number
@@ -173519,6 +173534,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     assignedToId?: SortOrderInput | SortOrder
+    startDate?: SortOrderInput | SortOrder
     dueDate?: SortOrderInput | SortOrder
     revisionStatus?: SortOrderInput | SortOrder
     position?: SortOrder
@@ -173541,6 +173557,7 @@ export namespace Prisma {
     title?: StringFilter<"KanbanCard"> | string
     description?: StringNullableFilter<"KanbanCard"> | string | null
     assignedToId?: StringNullableFilter<"KanbanCard"> | string | null
+    startDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
     dueDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
     revisionStatus?: StringNullableFilter<"KanbanCard"> | string | null
     position?: FloatFilter<"KanbanCard"> | number
@@ -173560,6 +173577,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     assignedToId?: SortOrderInput | SortOrder
+    startDate?: SortOrderInput | SortOrder
     dueDate?: SortOrderInput | SortOrder
     revisionStatus?: SortOrderInput | SortOrder
     position?: SortOrder
@@ -173583,6 +173601,7 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"KanbanCard"> | string
     description?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
     assignedToId?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
+    startDate?: DateTimeNullableWithAggregatesFilter<"KanbanCard"> | Date | string | null
     dueDate?: DateTimeNullableWithAggregatesFilter<"KanbanCard"> | Date | string | null
     revisionStatus?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
     position?: FloatWithAggregatesFilter<"KanbanCard"> | number
@@ -186848,6 +186867,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -186867,6 +186887,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -186884,6 +186905,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -186903,6 +186925,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -186921,6 +186944,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -186935,6 +186959,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -186950,6 +186975,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -195385,6 +195411,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     assignedToId?: SortOrder
+    startDate?: SortOrder
     dueDate?: SortOrder
     revisionStatus?: SortOrder
     position?: SortOrder
@@ -195404,6 +195431,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     assignedToId?: SortOrder
+    startDate?: SortOrder
     dueDate?: SortOrder
     revisionStatus?: SortOrder
     position?: SortOrder
@@ -195418,6 +195446,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     assignedToId?: SortOrder
+    startDate?: SortOrder
     dueDate?: SortOrder
     revisionStatus?: SortOrder
     position?: SortOrder
@@ -241641,6 +241670,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -241658,6 +241688,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -241728,6 +241759,7 @@ export namespace Prisma {
     title?: StringFilter<"KanbanCard"> | string
     description?: StringNullableFilter<"KanbanCard"> | string | null
     assignedToId?: StringNullableFilter<"KanbanCard"> | string | null
+    startDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
     dueDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
     revisionStatus?: StringNullableFilter<"KanbanCard"> | string | null
     position?: FloatFilter<"KanbanCard"> | number
@@ -241998,6 +242030,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -242016,6 +242049,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -242048,6 +242082,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -242066,6 +242101,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -242082,6 +242118,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -242100,6 +242137,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -242132,6 +242170,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -242150,6 +242189,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -242166,6 +242206,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -242184,6 +242225,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -242216,6 +242258,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -242234,6 +242277,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -251676,6 +251720,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     assignedToId?: string | null
+    startDate?: Date | string | null
     dueDate?: Date | string | null
     revisionStatus?: string | null
     position: number
@@ -251690,6 +251735,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -251707,6 +251753,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
@@ -251724,6 +251771,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     assignedToId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revisionStatus?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number

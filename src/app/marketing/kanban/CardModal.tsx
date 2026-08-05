@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { X, Calendar, AlignLeft, CheckSquare, MessageSquare, Paperclip, Send, Loader2, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import type { TKanbanCard, TKanbanList } from './KanbanBoardClient';
+import { createClient } from '@/utils/supabase/client';
 
 type Props = {
   card: TKanbanCard;
@@ -16,6 +17,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description || '');
   const [assignedToId, setAssignedToId] = useState(card.assignedToId || '');
+  const [startDate, setStartDate] = useState(card.startDate ? new Date(card.startDate).toISOString().split('T')[0] : '');
   const [dueDate, setDueDate] = useState(card.dueDate ? new Date(card.dueDate).toISOString().split('T')[0] : '');
   const [cardColor, setCardColor] = useState(card.color || '');
   
@@ -116,15 +118,52 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const isVideo = file.type.startsWith('video/');
+    const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    
+    if (isVideo && file.size > MAX_VIDEO_SIZE) {
+      setErrorMsg(`วิดีโอมีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    } else if (!isVideo && file.size > MAX_FILE_SIZE) {
+      setErrorMsg(`ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 10MB)`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('cardId', card.id);
 
     try {
+      const supabase = createClient();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `kanban/${card.id}/${fileName}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('marketing_assets')
+        .upload(filePath, file, {
+          contentType: file.type,
+          upsert: false
+        });
+        
+      if (uploadError) throw new Error(uploadError.message);
+      
+      const { data: urlData } = supabase.storage
+        .from('marketing_assets')
+        .getPublicUrl(filePath);
+
       const res = await fetch('/api/marketing/kanban/attachments', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardId: card.id,
+          fileName: file.name,
+          fileUrl: urlData.publicUrl,
+          fileType: file.type,
+          fileSize: file.size,
+          attachmentType: 'general'
+        })
       });
       const attachment = await res.json();
       if (!res.ok) throw new Error(attachment.error);
@@ -228,7 +267,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
           <div className="flex items-center gap-3 mt-1">
             <button
               onClick={() => {
-                handleSave({ title, description, assignedToId, dueDate, color: cardColor });
+                handleSave({ title, description, assignedToId, startDate, dueDate, color: cardColor });
                 onClose();
               }}
               className="flex items-center gap-2 bg-[#ff2301] hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all"
@@ -340,26 +379,42 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                   type="file" 
                   ref={fileInputRef} 
                   className="hidden" 
+                  accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"
                   onChange={handleFileUpload} 
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                {attachments.map(att => (
-                  <div key={att.id} className="relative group">
-                    <a href={att.fileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50 transition-colors h-full">
-                      <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
-                         {att.fileType?.includes('image') ? (
-                           <img src={att.fileUrl} alt={att.fileName} className="w-full h-full object-cover" />
-                         ) : (
-                           <Paperclip size={20} />
-                         )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {attachments.map(att => {
+                  const isVideo = att.fileType?.startsWith('video/');
+                  
+                  return (
+                  <div key={att.id} className={`relative group ${isVideo ? 'col-span-1 sm:col-span-2' : ''}`}>
+                    {isVideo ? (
+                      <div className="flex flex-col gap-2 p-3 border border-gray-200 rounded-xl bg-gray-50 relative">
+                        <video controls className="w-full rounded-lg max-h-64 bg-black" src={att.fileUrl}>
+                          <track kind="captions" />
+                        </video>
+                        <div className="flex justify-between items-center px-1">
+                          <span className="text-sm font-bold text-gray-800 truncate">{att.fileName}</span>
+                          <span className="text-xs text-gray-500">{(att.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+                        </div>
                       </div>
-                      <div className="flex flex-col overflow-hidden">
-                        <span className="text-sm font-bold text-gray-800 truncate">{att.fileName}</span>
-                        <span className="text-xs text-gray-500">{(att.fileSize / 1024).toFixed(1)} KB</span>
-                      </div>
-                    </a>
+                    ) : (
+                      <a href={att.fileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50 transition-colors h-full">
+                        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
+                           {att.fileType?.includes('image') ? (
+                             <img src={att.fileUrl} alt={att.fileName} className="w-full h-full object-cover" />
+                           ) : (
+                             <Paperclip size={20} />
+                           )}
+                        </div>
+                        <div className="flex flex-col overflow-hidden">
+                          <span className="text-sm font-bold text-gray-800 truncate">{att.fileName}</span>
+                          <span className="text-xs text-gray-500">{(att.fileSize / 1024).toFixed(1)} KB</span>
+                        </div>
+                      </a>
+                    )}
                     <button
                       onClick={(e) => handleDeleteAttachment(e, att)}
                       className="absolute -top-2 -right-2 bg-white border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 p-1.5 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all z-10"
@@ -368,7 +423,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                       <X size={14} strokeWidth={3} />
                     </button>
                   </div>
-                ))}
+                )})}
               </div>
             </section>
 
@@ -449,7 +504,20 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
             </div>
 
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">วันครบกำหนด</span>
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">วันเริ่มงาน (Start Date)</span>
+              <input 
+                type="date" 
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  handleSave({ startDate: e.target.value });
+                }}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-100"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">วันครบกำหนด (End Date)</span>
               <input 
                 type="date" 
                 value={dueDate}

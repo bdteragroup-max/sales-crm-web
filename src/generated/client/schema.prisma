@@ -2319,6 +2319,7 @@ model KanbanCard {
   title          String
   description    String?
   assignedToId   String?
+  startDate      DateTime?           @db.Timestamptz(6)
   dueDate        DateTime?           @db.Timestamptz(6)
   revisionStatus String?
   position       Float

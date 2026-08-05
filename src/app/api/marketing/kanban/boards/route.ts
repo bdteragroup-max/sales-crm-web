@@ -69,13 +69,17 @@ export async function GET(request: NextRequest) {
     // Also fetch users so the frontend can assign cards, filter to Marketing only
     const allUsers = await prisma.user.findMany({
       where: { isActive: true },
-      select: { id: true, fullName: true, role: true }
+      select: { id: true, fullName: true, role: true, employeeSale: { select: { nickname: true } } }
     });
     
     const users = allUsers.filter(u => {
       const roleStr = (u.role || '').toLowerCase();
       return ['marketing', 'การตลาด'].some(r => roleStr.includes(r));
-    });
+    }).map(u => ({
+      id: u.id,
+      fullName: u.employeeSale?.nickname ? `${u.fullName} (${u.employeeSale.nickname})` : u.fullName,
+      role: u.role
+    }));
 
     return NextResponse.json({ board, users });
   } catch (error: any) {
