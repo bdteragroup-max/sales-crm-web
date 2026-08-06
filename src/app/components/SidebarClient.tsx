@@ -81,6 +81,7 @@ const serviceNav = [
   { icon: UserSquare, label: 'งานของฉัน', href: '/service/my-tasks' },
   { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
   { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
+  { icon: Package, label: 'ใบส่งคืนสินค้า', href: '/service/goods-returns' },
 ];
 
 const backofficeNav = [

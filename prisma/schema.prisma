@@ -161,6 +161,7 @@ model Company {
   schedules             Schedule[]
   siteSurveys           SiteSurvey[]
   telesales             Telesale[]
+  goodsReturns          GoodsReturn[]
 
   @@index([companyName])
   @@index([assignedUserId])
@@ -238,6 +239,7 @@ model Quotation {
   salesperson          User?          @relation(fields: [salespersonId], references: [id])
   siteSurvey           SiteSurvey?    @relation(fields: [siteSurveyId], references: [id])
   jobs                 Job[]
+  goodsReturns         GoodsReturn[]
 
   @@index([companyId])
   @@index([salespersonId])
@@ -410,6 +412,7 @@ model Job {
   outsourceRepairs      OutsourceRepair[]
   project               Project?
   repairDeliveries      RepairDelivery[]
+  goodsReturns          GoodsReturn[]
   repairOrder           RepairOrder?
   stepLogs              JobStepLog[]
   quotation             Quotation?          @relation(fields: [quotationId], references: [id])
@@ -553,6 +556,32 @@ model RepairDelivery {
   workTrainingDetails String?
   internalCompany     String?
   job                 Job?      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model GoodsReturn {
+  id               String    @id @default(cuid())
+  documentNo       String    @unique // e.g., RT-2569-001
+  date             DateTime  @default(now()) @db.Timestamptz(6)
+  customer         String?
+  deliveryLocation String?
+  reference        String?
+  items            Json?     // [{ no, itemCode, description, quantity, unit, totalAmount }]
+  receiverName     String?
+  receiverDate     DateTime? @db.Timestamptz(6)
+  senderName       String?
+  senderDate       DateTime? @db.Timestamptz(6)
+  status           String    @default("Draft")
+  returnType       String    @default("DEFECT") // "DEFECT" | "REPAIR" | "SUPPLIER"
+  createdAt        DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @db.Timestamptz(6)
+  
+  jobId            String?
+  quotationId      String?
+  companyId        String?
+  
+  job              Job?      @relation(fields: [jobId], references: [id])
+  quotation        Quotation? @relation(fields: [quotationId], references: [id])
+  company          Company?  @relation(fields: [companyId], references: [id])
 }
 
 model InstallationOrder {

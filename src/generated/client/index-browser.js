@@ -535,6 +535,27 @@ exports.Prisma.RepairDeliveryScalarFieldEnum = {
   internalCompany: 'internalCompany'
 };
 
+exports.Prisma.GoodsReturnScalarFieldEnum = {
+  id: 'id',
+  documentNo: 'documentNo',
+  date: 'date',
+  customer: 'customer',
+  deliveryLocation: 'deliveryLocation',
+  reference: 'reference',
+  items: 'items',
+  receiverName: 'receiverName',
+  receiverDate: 'receiverDate',
+  senderName: 'senderName',
+  senderDate: 'senderDate',
+  status: 'status',
+  returnType: 'returnType',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  jobId: 'jobId',
+  quotationId: 'quotationId',
+  companyId: 'companyId'
+};
+
 exports.Prisma.InstallationOrderScalarFieldEnum = {
   id: 'id',
   installationNo: 'installationNo',
@@ -2053,6 +2074,7 @@ exports.Prisma.ModelName = {
   JobStepLog: 'JobStepLog',
   RepairOrder: 'RepairOrder',
   RepairDelivery: 'RepairDelivery',
+  GoodsReturn: 'GoodsReturn',
   InstallationOrder: 'InstallationOrder',
   OutsourceRepair: 'OutsourceRepair',
   CustomerRequirement: 'CustomerRequirement',

@@ -58,13 +58,13 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
   const [lists, setLists] = useState<TKanbanList[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [activeCard, setActiveCard] = useState<TKanbanCard | null>(null);
   const [activeList, setActiveList] = useState<TKanbanList | null>(null);
 
   // For Card Modal
   const [editingCard, setEditingCard] = useState<TKanbanCard | null>(null);
-  
+
   // For List Delete Modal
   const [listToDelete, setListToDelete] = useState<TKanbanList | null>(null);
 
@@ -120,7 +120,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const { id } = active;
-    
+
     // Find if we're dragging a list or a card
     const list = lists.find((l) => l.id === id);
     if (list) {
@@ -152,7 +152,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
 
     setLists((prev) => {
       const activeListIndex = prev.findIndex((l) => l.cards.some((c) => c.id === activeId));
-      const overListIndex = isOverList 
+      const overListIndex = isOverList
         ? prev.findIndex((l) => l.id === overId)
         : prev.findIndex((l) => l.cards.some((c) => c.id === overId));
 
@@ -160,7 +160,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
 
       const activeList = prev[activeListIndex];
       const overList = prev[overListIndex];
-      
+
       const activeCardIndex = activeList.cards.findIndex((c) => c.id === activeId);
 
       // If moving within the same list, handle in DragEnd
@@ -169,14 +169,14 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
       }
 
       // Moving to a different list (optimistic UI update during drag over)
-      const overCardIndex = isOverCard 
+      const overCardIndex = isOverCard
         ? overList.cards.findIndex((c) => c.id === overId)
         : overList.cards.length;
 
       const newLists = [...prev];
       const newActiveCards = [...activeList.cards];
       const [movedCard] = newActiveCards.splice(activeCardIndex, 1);
-      
+
       // Mutate the dragged card to conceptually belong to the new list immediately for UI
       movedCard.listId = overList.id;
 
@@ -203,7 +203,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
     if (activeId === overId) return;
 
     const isActiveList = active.data.current?.type === 'List';
-    
+
     // Handle List Reordering (omitted API call for brevity in MVP, but state updates)
     if (isActiveList) {
       setLists((prev) => {
@@ -229,59 +229,59 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
 
     const activeListObj = lists[activeListIndex];
     const overListObj = lists[overListIndex];
-    
+
     const oldIndex = activeListObj.cards.findIndex((c) => c.id === activeId);
     const newIndex = overListObj.cards.findIndex((c) => c.id === overId);
 
     let newPosition = 1000;
-    
+
     // Calculate new position float
     if (activeListObj.id === overListObj.id) {
-       // Same list reorder
-       const reorderedCards = arrayMove(activeListObj.cards, oldIndex, newIndex);
-       const prevCard = reorderedCards[newIndex - 1];
-       const nextCard = reorderedCards[newIndex + 1];
-       
-       if (prevCard && nextCard) {
-         newPosition = (prevCard.position + nextCard.position) / 2;
-       } else if (prevCard) {
-         newPosition = prevCard.position + 1000;
-       } else if (nextCard) {
-         newPosition = nextCard.position / 2;
-       }
+      // Same list reorder
+      const reorderedCards = arrayMove(activeListObj.cards, oldIndex, newIndex);
+      const prevCard = reorderedCards[newIndex - 1];
+      const nextCard = reorderedCards[newIndex + 1];
 
-       setLists((prev) => {
-         const updatedLists = [...prev];
-         updatedLists[activeListIndex] = {
-           ...activeListObj,
-           cards: reorderedCards.map(c => c.id === activeId ? { ...c, position: newPosition } : c)
-         };
-         return updatedLists;
-       });
+      if (prevCard && nextCard) {
+        newPosition = (prevCard.position + nextCard.position) / 2;
+      } else if (prevCard) {
+        newPosition = prevCard.position + 1000;
+      } else if (nextCard) {
+        newPosition = nextCard.position / 2;
+      }
+
+      setLists((prev) => {
+        const updatedLists = [...prev];
+        updatedLists[activeListIndex] = {
+          ...activeListObj,
+          cards: reorderedCards.map(c => c.id === activeId ? { ...c, position: newPosition } : c)
+        };
+        return updatedLists;
+      });
     } else {
-       // Different list move - already partially handled in dragOver for UI, but let's recalculate position
-       const prevCard = overListObj.cards[newIndex - 1];
-       const nextCard = overListObj.cards[newIndex + 1];
+      // Different list move - already partially handled in dragOver for UI, but let's recalculate position
+      const prevCard = overListObj.cards[newIndex - 1];
+      const nextCard = overListObj.cards[newIndex + 1];
 
-       if (prevCard && nextCard) {
-         newPosition = (prevCard.position + nextCard.position) / 2;
-       } else if (prevCard) {
-         newPosition = prevCard.position + 1000;
-       } else if (nextCard) {
-         newPosition = nextCard.position / 2;
-       } else if (overListObj.cards.length > 0) {
-          // It was dropped on the list itself or an empty list
-          newPosition = 1000;
-       }
-       
-       setLists((prev) => {
-         const newLists = [...prev];
-         const cList = newLists[overListIndex];
-         cList.cards = cList.cards.map(c => c.id === activeId ? { ...c, position: newPosition, listId: overListObj.id } : c);
-         // Sort cards by position just in case
-         cList.cards.sort((a,b) => a.position - b.position);
-         return newLists;
-       });
+      if (prevCard && nextCard) {
+        newPosition = (prevCard.position + nextCard.position) / 2;
+      } else if (prevCard) {
+        newPosition = prevCard.position + 1000;
+      } else if (nextCard) {
+        newPosition = nextCard.position / 2;
+      } else if (overListObj.cards.length > 0) {
+        // It was dropped on the list itself or an empty list
+        newPosition = 1000;
+      }
+
+      setLists((prev) => {
+        const newLists = [...prev];
+        const cList = newLists[overListIndex];
+        cList.cards = cList.cards.map(c => c.id === activeId ? { ...c, position: newPosition, listId: overListObj.id } : c);
+        // Sort cards by position just in case
+        cList.cards.sort((a, b) => a.position - b.position);
+        return newLists;
+      });
     }
 
     // Call API to persist
@@ -308,7 +308,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
         body: JSON.stringify({ listId, title })
       });
       const newCard = await res.json();
-      
+
       setLists(prev => prev.map(list => {
         if (list.id === listId) {
           return { ...list, cards: [...list.cards, newCard] };
@@ -376,20 +376,20 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
     setLists(prev => prev.map(list => {
       const cardExists = list.cards.some(c => c.id === updatedCard.id);
       if (cardExists && list.id === updatedCard.listId) {
-         return {
-           ...list,
-           cards: list.cards.map(c => c.id === updatedCard.id ? updatedCard : c)
-         };
+        return {
+          ...list,
+          cards: list.cards.map(c => c.id === updatedCard.id ? updatedCard : c)
+        };
       } else if (cardExists && list.id !== updatedCard.listId) {
-         return {
-           ...list,
-           cards: list.cards.filter(c => c.id !== updatedCard.id)
-         };
+        return {
+          ...list,
+          cards: list.cards.filter(c => c.id !== updatedCard.id)
+        };
       } else if (!cardExists && list.id === updatedCard.listId) {
-         return {
-           ...list,
-           cards: [...list.cards, updatedCard].sort((a,b) => a.position - b.position)
-         };
+        return {
+          ...list,
+          cards: [...list.cards, updatedCard].sort((a, b) => a.position - b.position)
+        };
       }
       return list;
     }));
@@ -436,6 +436,26 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
     return acts;
   }, [lists]);
 
+  const renderCommentText = (text: string) => {
+    if (!text) return null;
+    if (!users || users.length === 0) return <span className="whitespace-pre-wrap">{text}</span>;
+    
+    const sortedUsers = [...users].filter(u => u.fullName).sort((a, b) => b.fullName.length - a.fullName.length);
+    const namesRegexStr = sortedUsers.map(u => u.fullName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    
+    if (!namesRegexStr) return <span className="whitespace-pre-wrap">{text}</span>;
+    
+    const mentionRegex = new RegExp(`@(${namesRegexStr})`, 'g');
+    const parts = text.split(mentionRegex);
+    
+    return parts.map((part, i) => {
+      if (i % 2 === 1) {
+         return <span key={i} className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md font-semibold text-xs mx-0.5 inline-block">@{part}</span>;
+      }
+      return <span key={i} className="whitespace-pre-wrap">{part}</span>;
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -458,9 +478,8 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
         </div>
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-            isSidebarOpen ? 'bg-red-50 text-[#ff2301]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-          }`}
+          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isSidebarOpen ? 'bg-red-50 text-[#ff2301]' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            }`}
         >
           {isSidebarOpen ? <PanelRightClose size={20} /> : <PanelRightOpen size={20} />}
         </button>
@@ -468,274 +487,266 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
 
       <div className="flex-1 flex min-h-0 overflow-hidden relative">
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 custom-scrollbar transition-all duration-300">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="flex gap-6 h-full items-start">
-            <SortableContext items={lists.map(l => l.id)} strategy={horizontalListSortingStrategy}>
-              {lists.map(list => {
-                const filteredList = {
-                  ...list,
-                  cards: list.cards.filter(card => {
-                    if (!showCompleted && card.isCompleted) return false;
-                    if (filterAssignee && card.assignedToId !== filterAssignee && !(card.engineeringReviewers || []).includes(filterAssignee)) return false;
-                    // Mock label filter for revisionStatus
-                    if (filterLabel === 'needs_revision' && card.revisionStatus !== 'needs_revision') return false;
-                    if (filterLabel === 'pending_review' && card.revisionStatus !== 'pending_review') return false;
-                    return true;
-                  })
-                };
-                return (
-                  <KanbanList 
-                    key={filteredList.id} 
-                    list={filteredList} 
-                    users={users}
-                    onAddCard={handleAddCard}
-                    onCardClick={(card: TKanbanCard) => setEditingCard(card)}
-                    onUpdateList={handleUpdateList}
-                    onDeleteList={(id: string) => setListToDelete(lists.find(l => l.id === id) || null)}
-                    onCompleteCard={handleCompleteCard}
-                  />
-                );
-              })}
-            </SortableContext>
-            
-            {/* Add List Button / Form */}
-            {isAddingList ? (
-              <div className="flex-shrink-0 w-72 bg-gray-100 rounded-2xl p-3 shadow-sm border border-gray-200 flex flex-col gap-2">
-                <input
-                  type="text"
-                  autoFocus
-                  value={newListTitle}
-                  onChange={(e) => setNewListTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddList();
-                    if (e.key === 'Escape') setIsAddingList(false);
-                  }}
-                  placeholder="ชื่อรายการใหม่ (New List Name)..."
-                  className="w-full bg-white border-0 ring-1 ring-gray-200 rounded-xl px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-[#ff2301] shadow-inner"
-                />
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleAddList}
-                    className="flex-1 bg-[#ff2301] hover:bg-red-600 text-white font-bold py-2 rounded-xl text-sm transition-colors shadow-sm"
-                  >
-                    บันทึก (Save)
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsAddingList(false);
-                      setNewListTitle('');
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+          >
+            <div className="flex gap-6 h-full items-start">
+              <SortableContext items={lists.map(l => l.id)} strategy={horizontalListSortingStrategy}>
+                {lists.map(list => {
+                  const filteredList = {
+                    ...list,
+                    cards: list.cards.filter(card => {
+                      if (!showCompleted && card.isCompleted) return false;
+                      if (filterAssignee && card.assignedToId !== filterAssignee && !(card.engineeringReviewers || []).includes(filterAssignee)) return false;
+                      // Mock label filter for revisionStatus
+                      if (filterLabel === 'needs_revision' && card.revisionStatus !== 'needs_revision') return false;
+                      if (filterLabel === 'pending_review' && card.revisionStatus !== 'pending_review') return false;
+                      return true;
+                    })
+                  };
+                  return (
+                    <KanbanList
+                      key={filteredList.id}
+                      list={filteredList}
+                      users={users}
+                      onAddCard={handleAddCard}
+                      onCardClick={(card: TKanbanCard) => setEditingCard(card)}
+                      onUpdateList={handleUpdateList}
+                      onDeleteList={(id: string) => setListToDelete(lists.find(l => l.id === id) || null)}
+                      onCompleteCard={handleCompleteCard}
+                    />
+                  );
+                })}
+              </SortableContext>
+
+              {/* Add List Button / Form */}
+              {isAddingList ? (
+                <div className="flex-shrink-0 w-72 bg-gray-100 rounded-2xl p-3 shadow-sm border border-gray-200 flex flex-col gap-2">
+                  <input
+                    type="text"
+                    autoFocus
+                    value={newListTitle}
+                    onChange={(e) => setNewListTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleAddList();
+                      if (e.key === 'Escape') setIsAddingList(false);
                     }}
-                    className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2 rounded-xl text-sm border border-gray-200 transition-colors shadow-sm"
-                  >
-                    ยกเลิก (Cancel)
-                  </button>
+                    placeholder="ชื่อรายการใหม่ (New List Name)..."
+                    className="w-full bg-white border-0 ring-1 ring-gray-200 rounded-xl px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-[#ff2301] shadow-inner"
+                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleAddList}
+                      className="flex-1 bg-[#ff2301] hover:bg-red-600 text-white font-bold py-2 rounded-xl text-sm transition-colors shadow-sm"
+                    >
+                      บันทึก (Save)
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsAddingList(false);
+                        setNewListTitle('');
+                      }}
+                      className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2 rounded-xl text-sm border border-gray-200 transition-colors shadow-sm"
+                    >
+                      ยกเลิก (Cancel)
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <button 
-                onClick={() => setIsAddingList(true)}
-                className="flex-shrink-0 w-72 h-12 bg-gray-200/50 hover:bg-gray-200 rounded-xl flex items-center gap-2 px-4 text-gray-600 font-semibold transition-colors"
+              ) : (
+                <button
+                  onClick={() => setIsAddingList(true)}
+                  className="flex-shrink-0 w-72 h-12 bg-gray-200/50 hover:bg-gray-200 rounded-xl flex items-center gap-2 px-4 text-gray-600 font-semibold transition-colors"
+                >
+                  <Plus size={18} />
+                  เพิ่มรายการใหม่ (Add List)
+                </button>
+              )}
+            </div>
+          </DndContext>
+        </div>
+
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div
+            className="md:hidden absolute inset-0 bg-slate-900/40 z-10 backdrop-blur-sm"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* Right Sidebar */}
+        <div
+          className={`absolute top-0 right-0 bottom-0 z-20 md:relative flex-shrink-0 bg-white border-l transition-all duration-300 ease-in-out flex flex-col shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)] ${isSidebarOpen ? 'w-80 translate-x-0' : 'w-0 translate-x-full border-transparent opacity-0'
+            }`}
+        >
+          <div className="flex-1 min-w-[320px] max-w-[320px] flex flex-col h-full">
+            <div className="h-14 border-b flex p-1 bg-gray-50/50">
+              <button
+                onClick={() => setSidebarTab('filters')}
+                className={`flex-1 flex items-center justify-center gap-2 text-sm font-semibold rounded-lg transition-colors ${sidebarTab === 'filters' ? 'bg-white shadow-sm text-gray-900 border border-gray-100' : 'text-gray-500 hover:text-gray-700'
+                  }`}
               >
-                <Plus size={18} />
-                เพิ่มรายการใหม่ (Add List)
+                <Filter size={16} /> ตัวกรอง
               </button>
-            )}
-          </div>
-        </DndContext>
-      </div>
+              <button
+                onClick={() => setSidebarTab('activity')}
+                className={`flex-1 flex items-center justify-center gap-2 text-sm font-semibold rounded-lg transition-colors ${sidebarTab === 'activity' ? 'bg-white shadow-sm text-gray-900 border border-gray-100' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+              >
+                <Activity size={16} /> กิจกรรม
+              </button>
+            </div>
 
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div 
-          className="md:hidden absolute inset-0 bg-slate-900/40 z-10 backdrop-blur-sm" 
-          onClick={() => setIsSidebarOpen(false)} 
-        />
-      )}
-
-      {/* Right Sidebar */}
-      <div 
-        className={`absolute top-0 right-0 bottom-0 z-20 md:relative flex-shrink-0 bg-white border-l transition-all duration-300 ease-in-out flex flex-col shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)] ${
-          isSidebarOpen ? 'w-80 translate-x-0' : 'w-0 translate-x-full border-transparent opacity-0'
-        }`}
-      >
-        <div className="flex-1 min-w-[320px] max-w-[320px] flex flex-col h-full">
-          <div className="h-14 border-b flex p-1 bg-gray-50/50">
-            <button
-              onClick={() => setSidebarTab('filters')}
-              className={`flex-1 flex items-center justify-center gap-2 text-sm font-semibold rounded-lg transition-colors ${
-                sidebarTab === 'filters' ? 'bg-white shadow-sm text-gray-900 border border-gray-100' : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <Filter size={16} /> ตัวกรอง
-            </button>
-            <button
-              onClick={() => setSidebarTab('activity')}
-              className={`flex-1 flex items-center justify-center gap-2 text-sm font-semibold rounded-lg transition-colors ${
-                sidebarTab === 'activity' ? 'bg-white shadow-sm text-gray-900 border border-gray-100' : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <Activity size={16} /> กิจกรรม
-            </button>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
-            {sidebarTab === 'filters' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">ผู้รับผิดชอบ (Assignees)</h3>
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => setFilterAssignee(null)}
-                      className={`w-full flex items-center gap-3 p-2 rounded-xl border text-sm font-medium transition-all ${
-                        filterAssignee === null 
-                          ? 'border-[#ff2301] bg-red-50 text-[#ff2301]' 
-                          : 'border-transparent hover:bg-gray-50 text-gray-700'
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold">
-                        A
-                      </div>
-                      ทุกคน (All)
-                    </button>
-                    {users.map(u => (
+            <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
+              {sidebarTab === 'filters' && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">ผู้รับผิดชอบ (Assignees)</h3>
+                    <div className="space-y-2">
                       <button
-                        key={u.id}
-                        onClick={() => setFilterAssignee(u.id)}
-                        className={`w-full flex items-center gap-3 p-2 rounded-xl border text-sm font-medium transition-all text-left ${
-                          filterAssignee === u.id 
-                            ? 'border-[#ff2301] bg-red-50 text-[#ff2301]' 
-                            : 'border-transparent hover:bg-gray-50 text-gray-700'
-                        }`}
+                        onClick={() => setFilterAssignee(null)}
+                        className={`w-full flex items-center gap-3 p-2 rounded-xl border text-sm font-medium transition-all ${filterAssignee === null
+                          ? 'border-[#ff2301] bg-red-50 text-[#ff2301]'
+                          : 'border-transparent hover:bg-gray-50 text-gray-700'
+                          }`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-red-100 text-[#ff2301] flex items-center justify-center font-bold shrink-0">
-                          {u.fullName?.charAt(0) || u.email?.charAt(0) || '?'}
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold">
+                          A
                         </div>
-                        <div className="truncate flex-1">
-                          <div>{u.fullName}</div>
-                          <div className="text-[10px] text-gray-400 font-normal truncate">{u.role}</div>
-                        </div>
+                        ทุกคน (All)
                       </button>
-                    ))}
+                      {users.map(u => (
+                        <button
+                          key={u.id}
+                          onClick={() => setFilterAssignee(u.id)}
+                          className={`w-full flex items-center gap-3 p-2 rounded-xl border text-sm font-medium transition-all text-left ${filterAssignee === u.id
+                            ? 'border-[#ff2301] bg-red-50 text-[#ff2301]'
+                            : 'border-transparent hover:bg-gray-50 text-gray-700'
+                            }`}
+                        >
+                          <div className="w-8 h-8 rounded-full bg-red-100 text-[#ff2301] flex items-center justify-center font-bold shrink-0">
+                            {u.fullName?.charAt(0) || u.email?.charAt(0) || '?'}
+                          </div>
+                          <div className="truncate flex-1">
+                            <div>{u.fullName}</div>
+                            <div className="text-[10px] text-gray-400 font-normal truncate">{u.role}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">สถานะงาน (Status)</h3>
-                  <button
-                    onClick={() => setShowCompleted(!showCompleted)}
-                    className={`w-full flex items-center gap-3 p-2 rounded-xl border text-sm font-medium transition-all text-left ${
-                      showCompleted 
-                        ? 'border-green-500 bg-green-50 text-green-700' 
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">สถานะงาน (Status)</h3>
+                    <button
+                      onClick={() => setShowCompleted(!showCompleted)}
+                      className={`w-full flex items-center gap-3 p-2 rounded-xl border text-sm font-medium transition-all text-left ${showCompleted
+                        ? 'border-green-500 bg-green-50 text-green-700'
                         : 'border-gray-200 hover:bg-gray-50 text-gray-700'
-                    }`}
-                  >
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${showCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
-                      {showCompleted && <Check size={12} strokeWidth={4} />}
-                    </div>
-                    <div className="flex-1">
-                      แสดงงานที่ทำเสร็จแล้ว
-                    </div>
-                  </button>
-                </div>
-
-                <div>
-                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">ป้ายกำกับ (Labels)</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => setFilterLabel(filterLabel === 'needs_revision' ? null : 'needs_revision')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
-                        filterLabel === 'needs_revision' 
-                          ? 'bg-red-500 text-white border-red-600' 
-                          : 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100'
-                      }`}
+                        }`}
                     >
-                      ต้องแก้ไขด่วน
-                    </button>
-                    <button
-                      onClick={() => setFilterLabel(filterLabel === 'pending_review' ? null : 'pending_review')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
-                        filterLabel === 'pending_review' 
-                          ? 'bg-orange-500 text-white border-orange-600' 
-                          : 'bg-orange-50 text-orange-600 border-orange-100 hover:bg-orange-100'
-                      }`}
-                    >
-                      รอตรวจทาน
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {sidebarTab === 'activity' && (
-              <div className="space-y-4">
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">ล่าสุด (Recent)</h3>
-                
-                {allActivities.length === 0 ? (
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                      <Activity size={14} className="text-gray-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-800"><span className="font-semibold">ระบบ</span> เริ่มต้นกระดานนี้</p>
-                      <p className="text-xs text-gray-400 mt-0.5">วันนี้</p>
-                    </div>
-                  </div>
-                ) : (
-                  allActivities.map((log) => {
-                    const user = users.find(u => u.id === log.userId);
-                    return (
-                      <div key={log.id} className="flex gap-3 group">
-                        <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 font-bold text-xs">
-                          {user ? (user.fullName?.charAt(0) || user.email?.charAt(0) || '?') : 'S'}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-800 break-words">
-                            <span className="font-semibold">{user ? user.fullName.split(' ')[0] : 'ระบบ'}</span>
-                            {' '}
-                            {log.actionType === 'create' ? 'สร้างงาน' : 
-                             log.actionType === 'move' ? 'ย้ายงาน' :
-                             log.actionType === 'update' ? 'อัปเดตงาน' : 
-                             log.actionType === 'comment' ? 'แสดงความเห็น' :
-                             log.actionType === 'upload' ? 'อัปโหลดไฟล์' : 
-                             log.actionType === 'delete' ? 'ลบงาน' : log.actionType}
-                            {' '}
-                            <span className="font-medium text-gray-600">"{log.cardTitle}"</span>
-                          </p>
-                          {log.details && (
-                            <p className="text-xs text-gray-500 mt-0.5 break-words bg-gray-50 p-1.5 rounded border border-gray-100">
-                              {log.details}
-                            </p>
-                          )}
-                          <p className="text-[10px] text-gray-400 mt-1">
-                            {new Date(log.timestamp).toLocaleString('th-TH', { 
-                              day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' 
-                            })}
-                          </p>
-                        </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${showCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
+                        {showCompleted && <Check size={12} strokeWidth={4} />}
                       </div>
-                    );
-                  })
-                )}
-              </div>
-            )}
+                      <div className="flex-1">
+                        แสดงงานที่ทำเสร็จแล้ว
+                      </div>
+                    </button>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">ป้ายกำกับ (Labels)</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setFilterLabel(filterLabel === 'needs_revision' ? null : 'needs_revision')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${filterLabel === 'needs_revision'
+                          ? 'bg-red-500 text-white border-red-600'
+                          : 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100'
+                          }`}
+                      >
+                        ต้องแก้ไขด่วน
+                      </button>
+                      <button
+                        onClick={() => setFilterLabel(filterLabel === 'pending_review' ? null : 'pending_review')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${filterLabel === 'pending_review'
+                          ? 'bg-orange-500 text-white border-orange-600'
+                          : 'bg-orange-50 text-orange-600 border-orange-100 hover:bg-orange-100'
+                          }`}
+                      >
+                        รอตรวจทาน
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {sidebarTab === 'activity' && (
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">ล่าสุด (Recent)</h3>
+
+                  {allActivities.length === 0 ? (
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                        <Activity size={14} className="text-gray-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-800"><span className="font-semibold">ระบบ</span> เริ่มต้นกระดานนี้</p>
+                        <p className="text-xs text-gray-400 mt-0.5">วันนี้</p>
+                      </div>
+                    </div>
+                  ) : (
+                    allActivities.map((log) => {
+                      const user = users.find(u => u.id === log.userId);
+                      return (
+                        <div key={log.id} className="flex gap-3 group">
+                          <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 font-bold text-xs">
+                            {user ? (user.fullName?.charAt(0) || user.email?.charAt(0) || '?') : 'S'}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-800 break-words">
+                              <span className="font-semibold">{user ? user.fullName.split(' ')[0] : 'ระบบ'}</span>
+                              {' '}
+                              {log.actionType === 'create' ? 'สร้างงาน' :
+                                log.actionType === 'move' ? 'ย้ายงาน' :
+                                  log.actionType === 'update' ? 'อัปเดตงาน' :
+                                    log.actionType === 'comment' ? 'แสดงความเห็น' :
+                                      log.actionType === 'upload' ? 'อัปโหลดไฟล์' :
+                                        log.actionType === 'delete' ? 'ลบงาน' : log.actionType}
+                              {' '}
+                              <span className="font-medium text-gray-600">"{log.cardTitle}"</span>
+                            </p>
+                            {log.details && (
+                              <p className="text-xs text-gray-500 mt-0.5 break-words bg-gray-50 p-1.5 rounded border border-gray-100">
+                                {renderCommentText(log.details)}
+                              </p>
+                            )}
+                            <p className="text-[10px] text-gray-400 mt-1">
+                              {new Date(log.timestamp).toLocaleString('th-TH', {
+                                day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-      </div>
 
       {editingCard && (
-        <CardModal 
-          card={editingCard} 
+        <CardModal
+          card={editingCard}
           users={users}
           lists={lists}
           currentUser={currentUser}
-          onClose={() => setEditingCard(null)} 
+          onClose={() => setEditingCard(null)}
           onUpdate={handleCardUpdate}
           onDeleteCard={handleDeleteCard}
         />
@@ -746,17 +757,17 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 overflow-hidden">
             <h3 className="text-lg font-bold text-gray-900 mb-2">ลบรายการ (Delete List)</h3>
             <p className="text-sm text-gray-600 mb-6">
-              คุณแน่ใจหรือไม่ว่าต้องการลบรายการ <span className="font-semibold text-gray-900">"{listToDelete.name}"</span>? 
+              คุณแน่ใจหรือไม่ว่าต้องการลบรายการ <span className="font-semibold text-gray-900">"{listToDelete.name}"</span>?
               งานทั้งหมดในรายการนี้จะถูกลบด้วยและไม่สามารถกู้คืนได้
             </p>
             <div className="flex gap-3 justify-end">
-              <button 
+              <button
                 onClick={() => setListToDelete(null)}
                 className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
               >
                 ยกเลิก (Cancel)
               </button>
-              <button 
+              <button
                 onClick={executeDeleteList}
                 className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[#ff2301] hover:bg-red-600 shadow-md shadow-red-200 transition-all"
               >

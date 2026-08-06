@@ -24,9 +24,12 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
   const [checklist, setChecklist] = useState<any[]>(card.checklist || []);
   const [newChecklistItem, setNewChecklistItem] = useState('');
+  const [hideCompletedChecklist, setHideCompletedChecklist] = useState(false);
 
   const [comments, setComments] = useState<any[]>(card.comments || []);
   const [newComment, setNewComment] = useState('');
+  const [showMentions, setShowMentions] = useState(false);
+  const [mentionFilter, setMentionFilter] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [attachments, setAttachments] = useState<any[]>(card.attachments || []);
@@ -246,6 +249,27 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   };
 
   const listName = lists.find(l => l.id === card.listId)?.name || 'รายการที่ไม่รู้จัก';
+  const filteredMentionUsers = users.filter(u => u.fullName?.toLowerCase().includes(mentionFilter));
+
+  const renderCommentText = (text: string) => {
+    if (!text) return null;
+    if (!users || users.length === 0) return <span className="whitespace-pre-wrap">{text}</span>;
+    
+    const sortedUsers = [...users].filter(u => u.fullName).sort((a, b) => b.fullName.length - a.fullName.length);
+    const namesRegexStr = sortedUsers.map(u => u.fullName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    
+    if (!namesRegexStr) return <span className="whitespace-pre-wrap">{text}</span>;
+    
+    const mentionRegex = new RegExp(`@(${namesRegexStr})`, 'g');
+    const parts = text.split(mentionRegex);
+    
+    return parts.map((part, i) => {
+      if (i % 2 === 1) {
+         return <span key={i} className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md font-semibold text-xs mx-0.5 inline-block">@{part}</span>;
+      }
+      return <span key={i} className="whitespace-pre-wrap">{part}</span>;
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
@@ -325,7 +349,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
               </div>
 
               <div className="flex flex-col gap-2 mb-4">
-                {checklist.map((item, idx) => (
+                {checklist.filter(item => !item.completed).map((item, idx) => (
                   <div key={item.id} className="flex items-center gap-3 group">
                     <input
                       type="checkbox"
@@ -333,7 +357,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                       onChange={() => toggleChecklist(item.id)}
                       className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
                     />
-                    <span className={`text-sm flex-1 ${item.completed ? 'line-through text-gray-400' : 'text-gray-700 font-medium'}`}>
+                    <span className="text-sm flex-1 text-gray-700 font-medium">
                       {item.title}
                     </span>
                     <button
@@ -345,6 +369,42 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                     </button>
                   </div>
                 ))}
+
+                {checklist.filter(i => i.completed).length > 0 && (
+                  <div className="mt-2">
+                    <button 
+                      onClick={() => setHideCompletedChecklist(!hideCompletedChecklist)}
+                      className="text-xs font-semibold text-gray-500 hover:text-gray-700 bg-gray-100 px-3 py-1.5 rounded-md transition-colors"
+                    >
+                      {hideCompletedChecklist ? `Show ${checklist.filter(i => i.completed).length} completed tasks` : 'Hide completed tasks'}
+                    </button>
+                    
+                    {!hideCompletedChecklist && (
+                      <div className="flex flex-col gap-2 mt-3 pl-1">
+                        {checklist.filter(item => item.completed).map((item, idx) => (
+                          <div key={item.id} className="flex items-center gap-3 group">
+                            <input
+                              type="checkbox"
+                              checked={item.completed}
+                              onChange={() => toggleChecklist(item.id)}
+                              className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                            />
+                            <span className="text-sm flex-1 line-through text-gray-400">
+                              {item.title}
+                            </span>
+                            <button
+                              onClick={() => deleteChecklistItem(item.id)}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1"
+                              title="ลบรายการ"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-2">
@@ -453,7 +513,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                           <span className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleString()}</span>
                         </div>
                         <div className="bg-gray-50 border border-gray-100 shadow-sm px-4 py-3 rounded-tr-2xl rounded-b-2xl text-sm text-gray-700 inline-block min-w-[200px]">
-                          {comment.message}
+                          {renderCommentText(comment.message)}
                         </div>
                       </div>
                     </div>
@@ -466,14 +526,51 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                 <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 font-bold flex items-center justify-center flex-shrink-0 uppercase">
                   {currentUser?.fullName?.[0] || 'U'}
                 </div>
-                <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-hidden focus-within:border-red-300 focus-within:ring-2 focus-within:ring-red-100 transition-all shadow-sm">
+                <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-visible relative focus-within:border-red-300 focus-within:ring-2 focus-within:ring-red-100 transition-all shadow-sm">
                   <textarea
                     value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="เขียนความคิดเห็นใหม่ที่นี่..."
-                    className="w-full p-4 text-sm outline-none resize-none min-h-[100px]"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setNewComment(val);
+                      const lastWordMatch = val.match(/@([\w\u0E00-\u0E7F]*)$/);
+                      if (lastWordMatch) {
+                        setShowMentions(true);
+                        setMentionFilter(lastWordMatch[1].toLowerCase());
+                      } else {
+                        setShowMentions(false);
+                      }
+                    }}
+                    placeholder="เขียนความคิดเห็นใหม่ที่นี่ (พิมพ์ @ เพื่อกล่าวถึง)..."
+                    className="w-full p-4 text-sm outline-none resize-none min-h-[100px] rounded-t-xl"
                   />
-                  <div className="bg-gray-50 px-4 py-3 flex justify-end border-t border-gray-100">
+                  
+                  {showMentions && filteredMentionUsers.length > 0 && (
+                    <div className="absolute bottom-full left-4 mb-2 w-64 bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden z-50">
+                      <div className="p-2 text-xs font-bold text-gray-500 bg-gray-50 border-b border-gray-100">
+                        กล่าวถึงผู้ใช้ (Mention)
+                      </div>
+                      <div className="max-h-48 overflow-y-auto">
+                        {filteredMentionUsers.map(u => (
+                          <button
+                            key={u.id}
+                            onClick={() => {
+                              const newValue = newComment.replace(/@([\w\u0E00-\u0E7F]*)$/, `@${u.fullName} `);
+                              setNewComment(newValue);
+                              setShowMentions(false);
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 hover:text-red-700 flex items-center gap-2 transition-colors"
+                          >
+                            <div className="w-6 h-6 rounded-full bg-red-100 text-[#ff2301] flex items-center justify-center font-bold text-[10px] shrink-0 uppercase">
+                              {u.fullName?.[0] || '?'}
+                            </div>
+                            <span className="truncate">{u.fullName}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-gray-50 px-4 py-3 flex justify-end border-t border-gray-100 rounded-b-xl">
                     <button
                       onClick={handleAddComment}
                       className="bg-[#ff2301] hover:bg-red-600 text-white font-bold px-5 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 shadow-sm"
@@ -521,8 +618,8 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-100"
               >
                 <option value="">ไม่ได้มอบหมาย</option>
-                {users.filter(u => ['SERVICE', 'SERVICE_ENGINEER', 'SERVICE_MGR', 'บริการ'].some(r => (u.role || '').toUpperCase().includes(r))).map(u => (
-                  <option key={u.id} value={u.id}>{u.fullName}</option>
+                {users.filter(u => ['SERVICE', 'SERVICE_ENGINEER', 'SERVICE_MGR', 'บริการ', 'PROJECT', 'โปรเจค', 'โปรเจกต์'].some(r => (u.role || '').toUpperCase().includes(r))).map(u => (
+                  <option key={u.id} value={u.id}>{u.fullName} {u.role ? `(${u.role})` : ''}</option>
                 ))}
               </select>
             </div>

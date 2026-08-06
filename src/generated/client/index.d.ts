@@ -134,6 +134,11 @@ export type RepairOrder = $Result.DefaultSelection<Prisma.$RepairOrderPayload>
  */
 export type RepairDelivery = $Result.DefaultSelection<Prisma.$RepairDeliveryPayload>
 /**
+ * Model GoodsReturn
+ * 
+ */
+export type GoodsReturn = $Result.DefaultSelection<Prisma.$GoodsReturnPayload>
+/**
  * Model InstallationOrder
  * 
  */
@@ -969,6 +974,16 @@ export class PrismaClient<
     * ```
     */
   get repairDelivery(): Prisma.RepairDeliveryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.goodsReturn`: Exposes CRUD operations for the **GoodsReturn** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GoodsReturns
+    * const goodsReturns = await prisma.goodsReturn.findMany()
+    * ```
+    */
+  get goodsReturn(): Prisma.GoodsReturnDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.installationOrder`: Exposes CRUD operations for the **InstallationOrder** model.
@@ -2377,6 +2392,7 @@ export namespace Prisma {
     JobStepLog: 'JobStepLog',
     RepairOrder: 'RepairOrder',
     RepairDelivery: 'RepairDelivery',
+    GoodsReturn: 'GoodsReturn',
     InstallationOrder: 'InstallationOrder',
     OutsourceRepair: 'OutsourceRepair',
     CustomerRequirement: 'CustomerRequirement',
@@ -2487,7 +2503,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog"
+      modelProps: "user" | "monthlyTarget" | "auditLog" | "schedule" | "employeeSale" | "company" | "companyInteraction" | "contact" | "quotation" | "telesale" | "businessType" | "postalData" | "competitor" | "telesalesKPI" | "order" | "orderStatusLog" | "job" | "jobDocument" | "paymentTask" | "jobRunningNumber" | "orderRunningNumber" | "jobStepLog" | "repairOrder" | "repairDelivery" | "goodsReturn" | "installationOrder" | "outsourceRepair" | "customerRequirement" | "admin_login_attempts" | "admins" | "asset_borrowings" | "assets" | "birthday_claims" | "branches" | "checkins" | "commission_claims" | "daily_work_plans" | "departments" | "divisions" | "employee_warnings" | "employees" | "general_welfare_claims" | "holidays" | "job_positions" | "kpi_evaluations" | "kpi_items" | "leave_entitlements" | "leave_requests" | "leave_types" | "meeting_rooms" | "monthly_payroll_data" | "ot_requests" | "probation_evaluations" | "product_borrowings" | "products" | "projects" | "room_booking_attendees" | "room_bookings" | "sessions" | "travel_claims" | "employee_trainings" | "purchaseRequest" | "purchaseOrder" | "goodsReceipt" | "project" | "projectEquipment" | "projectMember" | "projectTask" | "dailyLogWorker" | "projectDailyLog" | "branchExpense" | "clothing_items" | "clothing_requests" | "clothing_variants" | "coin_exchange_rates" | "coin_exchanges" | "coin_ledgers" | "coin_transfers" | "coin_types" | "employee_coins" | "reward_redemptions" | "rewards" | "task_assignments" | "task_coin_budgets" | "tasks" | "transfer_budgets" | "marketingLead" | "notification" | "siteSurvey" | "surveyUsageBehavior" | "surveyElectricalProfile" | "surveyTariffSelection" | "surveyTariffTier" | "surveyStructure" | "surveyRoofAge" | "surveyQA" | "surveyPhoto" | "surveyDocument" | "surveyBill" | "announcements" | "fuelFlagReview" | "fleetcards" | "fleetcard_transactions" | "company_settings" | "tax_configs" | "withholding_tax_documents" | "withholding_tax_income_items" | "serviceSchedule" | "pushSubscription" | "wheel_events" | "wheel_prizes" | "wheel_tickets" | "wheel_winners" | "customerSatisfaction" | "kanbanBoard" | "kanbanList" | "kanbanCard" | "kanbanAttachment" | "kanbanComment" | "kanbanActivityLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4264,6 +4280,80 @@ export namespace Prisma {
           count: {
             args: Prisma.RepairDeliveryCountArgs<ExtArgs>
             result: $Utils.Optional<RepairDeliveryCountAggregateOutputType> | number
+          }
+        }
+      }
+      GoodsReturn: {
+        payload: Prisma.$GoodsReturnPayload<ExtArgs>
+        fields: Prisma.GoodsReturnFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GoodsReturnFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GoodsReturnFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload>
+          }
+          findFirst: {
+            args: Prisma.GoodsReturnFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GoodsReturnFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload>
+          }
+          findMany: {
+            args: Prisma.GoodsReturnFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload>[]
+          }
+          create: {
+            args: Prisma.GoodsReturnCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload>
+          }
+          createMany: {
+            args: Prisma.GoodsReturnCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GoodsReturnCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload>[]
+          }
+          delete: {
+            args: Prisma.GoodsReturnDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload>
+          }
+          update: {
+            args: Prisma.GoodsReturnUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload>
+          }
+          deleteMany: {
+            args: Prisma.GoodsReturnDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GoodsReturnUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GoodsReturnUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload>[]
+          }
+          upsert: {
+            args: Prisma.GoodsReturnUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GoodsReturnPayload>
+          }
+          aggregate: {
+            args: Prisma.GoodsReturnAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGoodsReturn>
+          }
+          groupBy: {
+            args: Prisma.GoodsReturnGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GoodsReturnGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GoodsReturnCountArgs<ExtArgs>
+            result: $Utils.Optional<GoodsReturnCountAggregateOutputType> | number
           }
         }
       }
@@ -11429,6 +11519,7 @@ export namespace Prisma {
     jobStepLog?: JobStepLogOmit
     repairOrder?: RepairOrderOmit
     repairDelivery?: RepairDeliveryOmit
+    goodsReturn?: GoodsReturnOmit
     installationOrder?: InstallationOrderOmit
     outsourceRepair?: OutsourceRepairOmit
     customerRequirement?: CustomerRequirementOmit
@@ -11859,6 +11950,7 @@ export namespace Prisma {
     schedules: number
     siteSurveys: number
     telesales: number
+    goodsReturns: number
   }
 
   export type CompanyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11870,6 +11962,7 @@ export namespace Prisma {
     schedules?: boolean | CompanyCountOutputTypeCountSchedulesArgs
     siteSurveys?: boolean | CompanyCountOutputTypeCountSiteSurveysArgs
     telesales?: boolean | CompanyCountOutputTypeCountTelesalesArgs
+    goodsReturns?: boolean | CompanyCountOutputTypeCountGoodsReturnsArgs
   }
 
   // Custom InputTypes
@@ -11939,6 +12032,13 @@ export namespace Prisma {
     where?: TelesaleWhereInput
   }
 
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountGoodsReturnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GoodsReturnWhereInput
+  }
+
 
   /**
    * Count Type ContactCountOutputType
@@ -11978,11 +12078,13 @@ export namespace Prisma {
   export type QuotationCountOutputType = {
     orders: number
     jobs: number
+    goodsReturns: number
   }
 
   export type QuotationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     orders?: boolean | QuotationCountOutputTypeCountOrdersArgs
     jobs?: boolean | QuotationCountOutputTypeCountJobsArgs
+    goodsReturns?: boolean | QuotationCountOutputTypeCountGoodsReturnsArgs
   }
 
   // Custom InputTypes
@@ -12008,6 +12110,13 @@ export namespace Prisma {
    */
   export type QuotationCountOutputTypeCountJobsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: JobWhereInput
+  }
+
+  /**
+   * QuotationCountOutputType without action
+   */
+  export type QuotationCountOutputTypeCountGoodsReturnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GoodsReturnWhereInput
   }
 
 
@@ -12060,6 +12169,7 @@ export namespace Prisma {
     documents: number
     outsourceRepairs: number
     repairDeliveries: number
+    goodsReturns: number
     stepLogs: number
     paymentTasks: number
   }
@@ -12069,6 +12179,7 @@ export namespace Prisma {
     documents?: boolean | JobCountOutputTypeCountDocumentsArgs
     outsourceRepairs?: boolean | JobCountOutputTypeCountOutsourceRepairsArgs
     repairDeliveries?: boolean | JobCountOutputTypeCountRepairDeliveriesArgs
+    goodsReturns?: boolean | JobCountOutputTypeCountGoodsReturnsArgs
     stepLogs?: boolean | JobCountOutputTypeCountStepLogsArgs
     paymentTasks?: boolean | JobCountOutputTypeCountPaymentTasksArgs
   }
@@ -12110,6 +12221,13 @@ export namespace Prisma {
    */
   export type JobCountOutputTypeCountRepairDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RepairDeliveryWhereInput
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeCountGoodsReturnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GoodsReturnWhereInput
   }
 
   /**
@@ -20375,6 +20493,7 @@ export namespace Prisma {
     schedules?: boolean | Company$schedulesArgs<ExtArgs>
     siteSurveys?: boolean | Company$siteSurveysArgs<ExtArgs>
     telesales?: boolean | Company$telesalesArgs<ExtArgs>
+    goodsReturns?: boolean | Company$goodsReturnsArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -20493,6 +20612,7 @@ export namespace Prisma {
     schedules?: boolean | Company$schedulesArgs<ExtArgs>
     siteSurveys?: boolean | Company$siteSurveysArgs<ExtArgs>
     telesales?: boolean | Company$telesalesArgs<ExtArgs>
+    goodsReturns?: boolean | Company$goodsReturnsArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CompanyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -20514,6 +20634,7 @@ export namespace Prisma {
       schedules: Prisma.$SchedulePayload<ExtArgs>[]
       siteSurveys: Prisma.$SiteSurveyPayload<ExtArgs>[]
       telesales: Prisma.$TelesalePayload<ExtArgs>[]
+      goodsReturns: Prisma.$GoodsReturnPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -20950,6 +21071,7 @@ export namespace Prisma {
     schedules<T extends Company$schedulesArgs<ExtArgs> = {}>(args?: Subset<T, Company$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     siteSurveys<T extends Company$siteSurveysArgs<ExtArgs> = {}>(args?: Subset<T, Company$siteSurveysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SiteSurveyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     telesales<T extends Company$telesalesArgs<ExtArgs> = {}>(args?: Subset<T, Company$telesalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TelesalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    goodsReturns<T extends Company$goodsReturnsArgs<ExtArgs> = {}>(args?: Subset<T, Company$goodsReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -21619,6 +21741,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TelesaleScalarFieldEnum | TelesaleScalarFieldEnum[]
+  }
+
+  /**
+   * Company.goodsReturns
+   */
+  export type Company$goodsReturnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    where?: GoodsReturnWhereInput
+    orderBy?: GoodsReturnOrderByWithRelationInput | GoodsReturnOrderByWithRelationInput[]
+    cursor?: GoodsReturnWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GoodsReturnScalarFieldEnum | GoodsReturnScalarFieldEnum[]
   }
 
   /**
@@ -24348,6 +24494,7 @@ export namespace Prisma {
     salesperson?: boolean | Quotation$salespersonArgs<ExtArgs>
     siteSurvey?: boolean | Quotation$siteSurveyArgs<ExtArgs>
     jobs?: boolean | Quotation$jobsArgs<ExtArgs>
+    goodsReturns?: boolean | Quotation$goodsReturnsArgs<ExtArgs>
     _count?: boolean | QuotationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["quotation"]>
 
@@ -24479,6 +24626,7 @@ export namespace Prisma {
     salesperson?: boolean | Quotation$salespersonArgs<ExtArgs>
     siteSurvey?: boolean | Quotation$siteSurveyArgs<ExtArgs>
     jobs?: boolean | Quotation$jobsArgs<ExtArgs>
+    goodsReturns?: boolean | Quotation$goodsReturnsArgs<ExtArgs>
     _count?: boolean | QuotationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type QuotationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -24504,6 +24652,7 @@ export namespace Prisma {
       salesperson: Prisma.$UserPayload<ExtArgs> | null
       siteSurvey: Prisma.$SiteSurveyPayload<ExtArgs> | null
       jobs: Prisma.$JobPayload<ExtArgs>[]
+      goodsReturns: Prisma.$GoodsReturnPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -24941,6 +25090,7 @@ export namespace Prisma {
     salesperson<T extends Quotation$salespersonArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$salespersonArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     siteSurvey<T extends Quotation$siteSurveyArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$siteSurveyArgs<ExtArgs>>): Prisma__SiteSurveyClient<$Result.GetResult<Prisma.$SiteSurveyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     jobs<T extends Quotation$jobsArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$jobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    goodsReturns<T extends Quotation$goodsReturnsArgs<ExtArgs> = {}>(args?: Subset<T, Quotation$goodsReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -25526,6 +25676,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: JobScalarFieldEnum | JobScalarFieldEnum[]
+  }
+
+  /**
+   * Quotation.goodsReturns
+   */
+  export type Quotation$goodsReturnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    where?: GoodsReturnWhereInput
+    orderBy?: GoodsReturnOrderByWithRelationInput | GoodsReturnOrderByWithRelationInput[]
+    cursor?: GoodsReturnWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GoodsReturnScalarFieldEnum | GoodsReturnScalarFieldEnum[]
   }
 
   /**
@@ -34093,6 +34267,7 @@ export namespace Prisma {
     outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
     project?: boolean | Job$projectArgs<ExtArgs>
     repairDeliveries?: boolean | Job$repairDeliveriesArgs<ExtArgs>
+    goodsReturns?: boolean | Job$goodsReturnsArgs<ExtArgs>
     repairOrder?: boolean | Job$repairOrderArgs<ExtArgs>
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
     quotation?: boolean | Job$quotationArgs<ExtArgs>
@@ -34217,6 +34392,7 @@ export namespace Prisma {
     outsourceRepairs?: boolean | Job$outsourceRepairsArgs<ExtArgs>
     project?: boolean | Job$projectArgs<ExtArgs>
     repairDeliveries?: boolean | Job$repairDeliveriesArgs<ExtArgs>
+    goodsReturns?: boolean | Job$goodsReturnsArgs<ExtArgs>
     repairOrder?: boolean | Job$repairOrderArgs<ExtArgs>
     stepLogs?: boolean | Job$stepLogsArgs<ExtArgs>
     quotation?: boolean | Job$quotationArgs<ExtArgs>
@@ -34238,6 +34414,7 @@ export namespace Prisma {
       outsourceRepairs: Prisma.$OutsourceRepairPayload<ExtArgs>[]
       project: Prisma.$ProjectPayload<ExtArgs> | null
       repairDeliveries: Prisma.$RepairDeliveryPayload<ExtArgs>[]
+      goodsReturns: Prisma.$GoodsReturnPayload<ExtArgs>[]
       repairOrder: Prisma.$RepairOrderPayload<ExtArgs> | null
       stepLogs: Prisma.$JobStepLogPayload<ExtArgs>[]
       quotation: Prisma.$QuotationPayload<ExtArgs> | null
@@ -34676,6 +34853,7 @@ export namespace Prisma {
     outsourceRepairs<T extends Job$outsourceRepairsArgs<ExtArgs> = {}>(args?: Subset<T, Job$outsourceRepairsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutsourceRepairPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     project<T extends Job$projectArgs<ExtArgs> = {}>(args?: Subset<T, Job$projectArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     repairDeliveries<T extends Job$repairDeliveriesArgs<ExtArgs> = {}>(args?: Subset<T, Job$repairDeliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RepairDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    goodsReturns<T extends Job$goodsReturnsArgs<ExtArgs> = {}>(args?: Subset<T, Job$goodsReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     repairOrder<T extends Job$repairOrderArgs<ExtArgs> = {}>(args?: Subset<T, Job$repairOrderArgs<ExtArgs>>): Prisma__RepairOrderClient<$Result.GetResult<Prisma.$RepairOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     stepLogs<T extends Job$stepLogsArgs<ExtArgs> = {}>(args?: Subset<T, Job$stepLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobStepLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     quotation<T extends Job$quotationArgs<ExtArgs> = {}>(args?: Subset<T, Job$quotationArgs<ExtArgs>>): Prisma__QuotationClient<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -35255,6 +35433,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: RepairDeliveryScalarFieldEnum | RepairDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * Job.goodsReturns
+   */
+  export type Job$goodsReturnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    where?: GoodsReturnWhereInput
+    orderBy?: GoodsReturnOrderByWithRelationInput | GoodsReturnOrderByWithRelationInput[]
+    cursor?: GoodsReturnWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GoodsReturnScalarFieldEnum | GoodsReturnScalarFieldEnum[]
   }
 
   /**
@@ -43712,6 +43914,1307 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: RepairDeliveryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GoodsReturn
+   */
+
+  export type AggregateGoodsReturn = {
+    _count: GoodsReturnCountAggregateOutputType | null
+    _min: GoodsReturnMinAggregateOutputType | null
+    _max: GoodsReturnMaxAggregateOutputType | null
+  }
+
+  export type GoodsReturnMinAggregateOutputType = {
+    id: string | null
+    documentNo: string | null
+    date: Date | null
+    customer: string | null
+    deliveryLocation: string | null
+    reference: string | null
+    receiverName: string | null
+    receiverDate: Date | null
+    senderName: string | null
+    senderDate: Date | null
+    status: string | null
+    returnType: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    jobId: string | null
+    quotationId: string | null
+    companyId: string | null
+  }
+
+  export type GoodsReturnMaxAggregateOutputType = {
+    id: string | null
+    documentNo: string | null
+    date: Date | null
+    customer: string | null
+    deliveryLocation: string | null
+    reference: string | null
+    receiverName: string | null
+    receiverDate: Date | null
+    senderName: string | null
+    senderDate: Date | null
+    status: string | null
+    returnType: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    jobId: string | null
+    quotationId: string | null
+    companyId: string | null
+  }
+
+  export type GoodsReturnCountAggregateOutputType = {
+    id: number
+    documentNo: number
+    date: number
+    customer: number
+    deliveryLocation: number
+    reference: number
+    items: number
+    receiverName: number
+    receiverDate: number
+    senderName: number
+    senderDate: number
+    status: number
+    returnType: number
+    createdAt: number
+    updatedAt: number
+    jobId: number
+    quotationId: number
+    companyId: number
+    _all: number
+  }
+
+
+  export type GoodsReturnMinAggregateInputType = {
+    id?: true
+    documentNo?: true
+    date?: true
+    customer?: true
+    deliveryLocation?: true
+    reference?: true
+    receiverName?: true
+    receiverDate?: true
+    senderName?: true
+    senderDate?: true
+    status?: true
+    returnType?: true
+    createdAt?: true
+    updatedAt?: true
+    jobId?: true
+    quotationId?: true
+    companyId?: true
+  }
+
+  export type GoodsReturnMaxAggregateInputType = {
+    id?: true
+    documentNo?: true
+    date?: true
+    customer?: true
+    deliveryLocation?: true
+    reference?: true
+    receiverName?: true
+    receiverDate?: true
+    senderName?: true
+    senderDate?: true
+    status?: true
+    returnType?: true
+    createdAt?: true
+    updatedAt?: true
+    jobId?: true
+    quotationId?: true
+    companyId?: true
+  }
+
+  export type GoodsReturnCountAggregateInputType = {
+    id?: true
+    documentNo?: true
+    date?: true
+    customer?: true
+    deliveryLocation?: true
+    reference?: true
+    items?: true
+    receiverName?: true
+    receiverDate?: true
+    senderName?: true
+    senderDate?: true
+    status?: true
+    returnType?: true
+    createdAt?: true
+    updatedAt?: true
+    jobId?: true
+    quotationId?: true
+    companyId?: true
+    _all?: true
+  }
+
+  export type GoodsReturnAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GoodsReturn to aggregate.
+     */
+    where?: GoodsReturnWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoodsReturns to fetch.
+     */
+    orderBy?: GoodsReturnOrderByWithRelationInput | GoodsReturnOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GoodsReturnWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoodsReturns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoodsReturns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GoodsReturns
+    **/
+    _count?: true | GoodsReturnCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GoodsReturnMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GoodsReturnMaxAggregateInputType
+  }
+
+  export type GetGoodsReturnAggregateType<T extends GoodsReturnAggregateArgs> = {
+        [P in keyof T & keyof AggregateGoodsReturn]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGoodsReturn[P]>
+      : GetScalarType<T[P], AggregateGoodsReturn[P]>
+  }
+
+
+
+
+  export type GoodsReturnGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GoodsReturnWhereInput
+    orderBy?: GoodsReturnOrderByWithAggregationInput | GoodsReturnOrderByWithAggregationInput[]
+    by: GoodsReturnScalarFieldEnum[] | GoodsReturnScalarFieldEnum
+    having?: GoodsReturnScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GoodsReturnCountAggregateInputType | true
+    _min?: GoodsReturnMinAggregateInputType
+    _max?: GoodsReturnMaxAggregateInputType
+  }
+
+  export type GoodsReturnGroupByOutputType = {
+    id: string
+    documentNo: string
+    date: Date
+    customer: string | null
+    deliveryLocation: string | null
+    reference: string | null
+    items: JsonValue | null
+    receiverName: string | null
+    receiverDate: Date | null
+    senderName: string | null
+    senderDate: Date | null
+    status: string
+    returnType: string
+    createdAt: Date
+    updatedAt: Date
+    jobId: string | null
+    quotationId: string | null
+    companyId: string | null
+    _count: GoodsReturnCountAggregateOutputType | null
+    _min: GoodsReturnMinAggregateOutputType | null
+    _max: GoodsReturnMaxAggregateOutputType | null
+  }
+
+  type GetGoodsReturnGroupByPayload<T extends GoodsReturnGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GoodsReturnGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GoodsReturnGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GoodsReturnGroupByOutputType[P]>
+            : GetScalarType<T[P], GoodsReturnGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GoodsReturnSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    documentNo?: boolean
+    date?: boolean
+    customer?: boolean
+    deliveryLocation?: boolean
+    reference?: boolean
+    items?: boolean
+    receiverName?: boolean
+    receiverDate?: boolean
+    senderName?: boolean
+    senderDate?: boolean
+    status?: boolean
+    returnType?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    jobId?: boolean
+    quotationId?: boolean
+    companyId?: boolean
+    job?: boolean | GoodsReturn$jobArgs<ExtArgs>
+    quotation?: boolean | GoodsReturn$quotationArgs<ExtArgs>
+    company?: boolean | GoodsReturn$companyArgs<ExtArgs>
+  }, ExtArgs["result"]["goodsReturn"]>
+
+  export type GoodsReturnSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    documentNo?: boolean
+    date?: boolean
+    customer?: boolean
+    deliveryLocation?: boolean
+    reference?: boolean
+    items?: boolean
+    receiverName?: boolean
+    receiverDate?: boolean
+    senderName?: boolean
+    senderDate?: boolean
+    status?: boolean
+    returnType?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    jobId?: boolean
+    quotationId?: boolean
+    companyId?: boolean
+    job?: boolean | GoodsReturn$jobArgs<ExtArgs>
+    quotation?: boolean | GoodsReturn$quotationArgs<ExtArgs>
+    company?: boolean | GoodsReturn$companyArgs<ExtArgs>
+  }, ExtArgs["result"]["goodsReturn"]>
+
+  export type GoodsReturnSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    documentNo?: boolean
+    date?: boolean
+    customer?: boolean
+    deliveryLocation?: boolean
+    reference?: boolean
+    items?: boolean
+    receiverName?: boolean
+    receiverDate?: boolean
+    senderName?: boolean
+    senderDate?: boolean
+    status?: boolean
+    returnType?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    jobId?: boolean
+    quotationId?: boolean
+    companyId?: boolean
+    job?: boolean | GoodsReturn$jobArgs<ExtArgs>
+    quotation?: boolean | GoodsReturn$quotationArgs<ExtArgs>
+    company?: boolean | GoodsReturn$companyArgs<ExtArgs>
+  }, ExtArgs["result"]["goodsReturn"]>
+
+  export type GoodsReturnSelectScalar = {
+    id?: boolean
+    documentNo?: boolean
+    date?: boolean
+    customer?: boolean
+    deliveryLocation?: boolean
+    reference?: boolean
+    items?: boolean
+    receiverName?: boolean
+    receiverDate?: boolean
+    senderName?: boolean
+    senderDate?: boolean
+    status?: boolean
+    returnType?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    jobId?: boolean
+    quotationId?: boolean
+    companyId?: boolean
+  }
+
+  export type GoodsReturnOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "documentNo" | "date" | "customer" | "deliveryLocation" | "reference" | "items" | "receiverName" | "receiverDate" | "senderName" | "senderDate" | "status" | "returnType" | "createdAt" | "updatedAt" | "jobId" | "quotationId" | "companyId", ExtArgs["result"]["goodsReturn"]>
+  export type GoodsReturnInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | GoodsReturn$jobArgs<ExtArgs>
+    quotation?: boolean | GoodsReturn$quotationArgs<ExtArgs>
+    company?: boolean | GoodsReturn$companyArgs<ExtArgs>
+  }
+  export type GoodsReturnIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | GoodsReturn$jobArgs<ExtArgs>
+    quotation?: boolean | GoodsReturn$quotationArgs<ExtArgs>
+    company?: boolean | GoodsReturn$companyArgs<ExtArgs>
+  }
+  export type GoodsReturnIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    job?: boolean | GoodsReturn$jobArgs<ExtArgs>
+    quotation?: boolean | GoodsReturn$quotationArgs<ExtArgs>
+    company?: boolean | GoodsReturn$companyArgs<ExtArgs>
+  }
+
+  export type $GoodsReturnPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GoodsReturn"
+    objects: {
+      job: Prisma.$JobPayload<ExtArgs> | null
+      quotation: Prisma.$QuotationPayload<ExtArgs> | null
+      company: Prisma.$CompanyPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      documentNo: string
+      date: Date
+      customer: string | null
+      deliveryLocation: string | null
+      reference: string | null
+      items: Prisma.JsonValue | null
+      receiverName: string | null
+      receiverDate: Date | null
+      senderName: string | null
+      senderDate: Date | null
+      status: string
+      returnType: string
+      createdAt: Date
+      updatedAt: Date
+      jobId: string | null
+      quotationId: string | null
+      companyId: string | null
+    }, ExtArgs["result"]["goodsReturn"]>
+    composites: {}
+  }
+
+  type GoodsReturnGetPayload<S extends boolean | null | undefined | GoodsReturnDefaultArgs> = $Result.GetResult<Prisma.$GoodsReturnPayload, S>
+
+  type GoodsReturnCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GoodsReturnFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GoodsReturnCountAggregateInputType | true
+    }
+
+  export interface GoodsReturnDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GoodsReturn'], meta: { name: 'GoodsReturn' } }
+    /**
+     * Find zero or one GoodsReturn that matches the filter.
+     * @param {GoodsReturnFindUniqueArgs} args - Arguments to find a GoodsReturn
+     * @example
+     * // Get one GoodsReturn
+     * const goodsReturn = await prisma.goodsReturn.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GoodsReturnFindUniqueArgs>(args: SelectSubset<T, GoodsReturnFindUniqueArgs<ExtArgs>>): Prisma__GoodsReturnClient<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GoodsReturn that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GoodsReturnFindUniqueOrThrowArgs} args - Arguments to find a GoodsReturn
+     * @example
+     * // Get one GoodsReturn
+     * const goodsReturn = await prisma.goodsReturn.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GoodsReturnFindUniqueOrThrowArgs>(args: SelectSubset<T, GoodsReturnFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GoodsReturnClient<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GoodsReturn that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReturnFindFirstArgs} args - Arguments to find a GoodsReturn
+     * @example
+     * // Get one GoodsReturn
+     * const goodsReturn = await prisma.goodsReturn.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GoodsReturnFindFirstArgs>(args?: SelectSubset<T, GoodsReturnFindFirstArgs<ExtArgs>>): Prisma__GoodsReturnClient<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GoodsReturn that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReturnFindFirstOrThrowArgs} args - Arguments to find a GoodsReturn
+     * @example
+     * // Get one GoodsReturn
+     * const goodsReturn = await prisma.goodsReturn.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GoodsReturnFindFirstOrThrowArgs>(args?: SelectSubset<T, GoodsReturnFindFirstOrThrowArgs<ExtArgs>>): Prisma__GoodsReturnClient<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GoodsReturns that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReturnFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GoodsReturns
+     * const goodsReturns = await prisma.goodsReturn.findMany()
+     * 
+     * // Get first 10 GoodsReturns
+     * const goodsReturns = await prisma.goodsReturn.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const goodsReturnWithIdOnly = await prisma.goodsReturn.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GoodsReturnFindManyArgs>(args?: SelectSubset<T, GoodsReturnFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GoodsReturn.
+     * @param {GoodsReturnCreateArgs} args - Arguments to create a GoodsReturn.
+     * @example
+     * // Create one GoodsReturn
+     * const GoodsReturn = await prisma.goodsReturn.create({
+     *   data: {
+     *     // ... data to create a GoodsReturn
+     *   }
+     * })
+     * 
+     */
+    create<T extends GoodsReturnCreateArgs>(args: SelectSubset<T, GoodsReturnCreateArgs<ExtArgs>>): Prisma__GoodsReturnClient<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GoodsReturns.
+     * @param {GoodsReturnCreateManyArgs} args - Arguments to create many GoodsReturns.
+     * @example
+     * // Create many GoodsReturns
+     * const goodsReturn = await prisma.goodsReturn.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GoodsReturnCreateManyArgs>(args?: SelectSubset<T, GoodsReturnCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GoodsReturns and returns the data saved in the database.
+     * @param {GoodsReturnCreateManyAndReturnArgs} args - Arguments to create many GoodsReturns.
+     * @example
+     * // Create many GoodsReturns
+     * const goodsReturn = await prisma.goodsReturn.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GoodsReturns and only return the `id`
+     * const goodsReturnWithIdOnly = await prisma.goodsReturn.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GoodsReturnCreateManyAndReturnArgs>(args?: SelectSubset<T, GoodsReturnCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GoodsReturn.
+     * @param {GoodsReturnDeleteArgs} args - Arguments to delete one GoodsReturn.
+     * @example
+     * // Delete one GoodsReturn
+     * const GoodsReturn = await prisma.goodsReturn.delete({
+     *   where: {
+     *     // ... filter to delete one GoodsReturn
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GoodsReturnDeleteArgs>(args: SelectSubset<T, GoodsReturnDeleteArgs<ExtArgs>>): Prisma__GoodsReturnClient<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GoodsReturn.
+     * @param {GoodsReturnUpdateArgs} args - Arguments to update one GoodsReturn.
+     * @example
+     * // Update one GoodsReturn
+     * const goodsReturn = await prisma.goodsReturn.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GoodsReturnUpdateArgs>(args: SelectSubset<T, GoodsReturnUpdateArgs<ExtArgs>>): Prisma__GoodsReturnClient<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GoodsReturns.
+     * @param {GoodsReturnDeleteManyArgs} args - Arguments to filter GoodsReturns to delete.
+     * @example
+     * // Delete a few GoodsReturns
+     * const { count } = await prisma.goodsReturn.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GoodsReturnDeleteManyArgs>(args?: SelectSubset<T, GoodsReturnDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GoodsReturns.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReturnUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GoodsReturns
+     * const goodsReturn = await prisma.goodsReturn.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GoodsReturnUpdateManyArgs>(args: SelectSubset<T, GoodsReturnUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GoodsReturns and returns the data updated in the database.
+     * @param {GoodsReturnUpdateManyAndReturnArgs} args - Arguments to update many GoodsReturns.
+     * @example
+     * // Update many GoodsReturns
+     * const goodsReturn = await prisma.goodsReturn.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GoodsReturns and only return the `id`
+     * const goodsReturnWithIdOnly = await prisma.goodsReturn.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GoodsReturnUpdateManyAndReturnArgs>(args: SelectSubset<T, GoodsReturnUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GoodsReturn.
+     * @param {GoodsReturnUpsertArgs} args - Arguments to update or create a GoodsReturn.
+     * @example
+     * // Update or create a GoodsReturn
+     * const goodsReturn = await prisma.goodsReturn.upsert({
+     *   create: {
+     *     // ... data to create a GoodsReturn
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GoodsReturn we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GoodsReturnUpsertArgs>(args: SelectSubset<T, GoodsReturnUpsertArgs<ExtArgs>>): Prisma__GoodsReturnClient<$Result.GetResult<Prisma.$GoodsReturnPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GoodsReturns.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReturnCountArgs} args - Arguments to filter GoodsReturns to count.
+     * @example
+     * // Count the number of GoodsReturns
+     * const count = await prisma.goodsReturn.count({
+     *   where: {
+     *     // ... the filter for the GoodsReturns we want to count
+     *   }
+     * })
+    **/
+    count<T extends GoodsReturnCountArgs>(
+      args?: Subset<T, GoodsReturnCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GoodsReturnCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GoodsReturn.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReturnAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GoodsReturnAggregateArgs>(args: Subset<T, GoodsReturnAggregateArgs>): Prisma.PrismaPromise<GetGoodsReturnAggregateType<T>>
+
+    /**
+     * Group by GoodsReturn.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GoodsReturnGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GoodsReturnGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GoodsReturnGroupByArgs['orderBy'] }
+        : { orderBy?: GoodsReturnGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GoodsReturnGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGoodsReturnGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GoodsReturn model
+   */
+  readonly fields: GoodsReturnFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GoodsReturn.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GoodsReturnClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    job<T extends GoodsReturn$jobArgs<ExtArgs> = {}>(args?: Subset<T, GoodsReturn$jobArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    quotation<T extends GoodsReturn$quotationArgs<ExtArgs> = {}>(args?: Subset<T, GoodsReturn$quotationArgs<ExtArgs>>): Prisma__QuotationClient<$Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    company<T extends GoodsReturn$companyArgs<ExtArgs> = {}>(args?: Subset<T, GoodsReturn$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GoodsReturn model
+   */
+  interface GoodsReturnFieldRefs {
+    readonly id: FieldRef<"GoodsReturn", 'String'>
+    readonly documentNo: FieldRef<"GoodsReturn", 'String'>
+    readonly date: FieldRef<"GoodsReturn", 'DateTime'>
+    readonly customer: FieldRef<"GoodsReturn", 'String'>
+    readonly deliveryLocation: FieldRef<"GoodsReturn", 'String'>
+    readonly reference: FieldRef<"GoodsReturn", 'String'>
+    readonly items: FieldRef<"GoodsReturn", 'Json'>
+    readonly receiverName: FieldRef<"GoodsReturn", 'String'>
+    readonly receiverDate: FieldRef<"GoodsReturn", 'DateTime'>
+    readonly senderName: FieldRef<"GoodsReturn", 'String'>
+    readonly senderDate: FieldRef<"GoodsReturn", 'DateTime'>
+    readonly status: FieldRef<"GoodsReturn", 'String'>
+    readonly returnType: FieldRef<"GoodsReturn", 'String'>
+    readonly createdAt: FieldRef<"GoodsReturn", 'DateTime'>
+    readonly updatedAt: FieldRef<"GoodsReturn", 'DateTime'>
+    readonly jobId: FieldRef<"GoodsReturn", 'String'>
+    readonly quotationId: FieldRef<"GoodsReturn", 'String'>
+    readonly companyId: FieldRef<"GoodsReturn", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GoodsReturn findUnique
+   */
+  export type GoodsReturnFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    /**
+     * Filter, which GoodsReturn to fetch.
+     */
+    where: GoodsReturnWhereUniqueInput
+  }
+
+  /**
+   * GoodsReturn findUniqueOrThrow
+   */
+  export type GoodsReturnFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    /**
+     * Filter, which GoodsReturn to fetch.
+     */
+    where: GoodsReturnWhereUniqueInput
+  }
+
+  /**
+   * GoodsReturn findFirst
+   */
+  export type GoodsReturnFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    /**
+     * Filter, which GoodsReturn to fetch.
+     */
+    where?: GoodsReturnWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoodsReturns to fetch.
+     */
+    orderBy?: GoodsReturnOrderByWithRelationInput | GoodsReturnOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GoodsReturns.
+     */
+    cursor?: GoodsReturnWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoodsReturns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoodsReturns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GoodsReturns.
+     */
+    distinct?: GoodsReturnScalarFieldEnum | GoodsReturnScalarFieldEnum[]
+  }
+
+  /**
+   * GoodsReturn findFirstOrThrow
+   */
+  export type GoodsReturnFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    /**
+     * Filter, which GoodsReturn to fetch.
+     */
+    where?: GoodsReturnWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoodsReturns to fetch.
+     */
+    orderBy?: GoodsReturnOrderByWithRelationInput | GoodsReturnOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GoodsReturns.
+     */
+    cursor?: GoodsReturnWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoodsReturns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoodsReturns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GoodsReturns.
+     */
+    distinct?: GoodsReturnScalarFieldEnum | GoodsReturnScalarFieldEnum[]
+  }
+
+  /**
+   * GoodsReturn findMany
+   */
+  export type GoodsReturnFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    /**
+     * Filter, which GoodsReturns to fetch.
+     */
+    where?: GoodsReturnWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GoodsReturns to fetch.
+     */
+    orderBy?: GoodsReturnOrderByWithRelationInput | GoodsReturnOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GoodsReturns.
+     */
+    cursor?: GoodsReturnWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GoodsReturns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GoodsReturns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GoodsReturns.
+     */
+    distinct?: GoodsReturnScalarFieldEnum | GoodsReturnScalarFieldEnum[]
+  }
+
+  /**
+   * GoodsReturn create
+   */
+  export type GoodsReturnCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GoodsReturn.
+     */
+    data: XOR<GoodsReturnCreateInput, GoodsReturnUncheckedCreateInput>
+  }
+
+  /**
+   * GoodsReturn createMany
+   */
+  export type GoodsReturnCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GoodsReturns.
+     */
+    data: GoodsReturnCreateManyInput | GoodsReturnCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GoodsReturn createManyAndReturn
+   */
+  export type GoodsReturnCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * The data used to create many GoodsReturns.
+     */
+    data: GoodsReturnCreateManyInput | GoodsReturnCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GoodsReturn update
+   */
+  export type GoodsReturnUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GoodsReturn.
+     */
+    data: XOR<GoodsReturnUpdateInput, GoodsReturnUncheckedUpdateInput>
+    /**
+     * Choose, which GoodsReturn to update.
+     */
+    where: GoodsReturnWhereUniqueInput
+  }
+
+  /**
+   * GoodsReturn updateMany
+   */
+  export type GoodsReturnUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GoodsReturns.
+     */
+    data: XOR<GoodsReturnUpdateManyMutationInput, GoodsReturnUncheckedUpdateManyInput>
+    /**
+     * Filter which GoodsReturns to update
+     */
+    where?: GoodsReturnWhereInput
+    /**
+     * Limit how many GoodsReturns to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GoodsReturn updateManyAndReturn
+   */
+  export type GoodsReturnUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * The data used to update GoodsReturns.
+     */
+    data: XOR<GoodsReturnUpdateManyMutationInput, GoodsReturnUncheckedUpdateManyInput>
+    /**
+     * Filter which GoodsReturns to update
+     */
+    where?: GoodsReturnWhereInput
+    /**
+     * Limit how many GoodsReturns to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GoodsReturn upsert
+   */
+  export type GoodsReturnUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GoodsReturn to update in case it exists.
+     */
+    where: GoodsReturnWhereUniqueInput
+    /**
+     * In case the GoodsReturn found by the `where` argument doesn't exist, create a new GoodsReturn with this data.
+     */
+    create: XOR<GoodsReturnCreateInput, GoodsReturnUncheckedCreateInput>
+    /**
+     * In case the GoodsReturn was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GoodsReturnUpdateInput, GoodsReturnUncheckedUpdateInput>
+  }
+
+  /**
+   * GoodsReturn delete
+   */
+  export type GoodsReturnDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
+    /**
+     * Filter which GoodsReturn to delete.
+     */
+    where: GoodsReturnWhereUniqueInput
+  }
+
+  /**
+   * GoodsReturn deleteMany
+   */
+  export type GoodsReturnDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GoodsReturns to delete
+     */
+    where?: GoodsReturnWhereInput
+    /**
+     * Limit how many GoodsReturns to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GoodsReturn.job
+   */
+  export type GoodsReturn$jobArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Job
+     */
+    select?: JobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Job
+     */
+    omit?: JobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobInclude<ExtArgs> | null
+    where?: JobWhereInput
+  }
+
+  /**
+   * GoodsReturn.quotation
+   */
+  export type GoodsReturn$quotationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Quotation
+     */
+    select?: QuotationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Quotation
+     */
+    omit?: QuotationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: QuotationInclude<ExtArgs> | null
+    where?: QuotationWhereInput
+  }
+
+  /**
+   * GoodsReturn.company
+   */
+  export type GoodsReturn$companyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Company
+     */
+    select?: CompanySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Company
+     */
+    omit?: CompanyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInclude<ExtArgs> | null
+    where?: CompanyWhereInput
+  }
+
+  /**
+   * GoodsReturn without action
+   */
+  export type GoodsReturnDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GoodsReturn
+     */
+    select?: GoodsReturnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GoodsReturn
+     */
+    omit?: GoodsReturnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GoodsReturnInclude<ExtArgs> | null
   }
 
 
@@ -160115,6 +161618,30 @@ export namespace Prisma {
   export type RepairDeliveryScalarFieldEnum = (typeof RepairDeliveryScalarFieldEnum)[keyof typeof RepairDeliveryScalarFieldEnum]
 
 
+  export const GoodsReturnScalarFieldEnum: {
+    id: 'id',
+    documentNo: 'documentNo',
+    date: 'date',
+    customer: 'customer',
+    deliveryLocation: 'deliveryLocation',
+    reference: 'reference',
+    items: 'items',
+    receiverName: 'receiverName',
+    receiverDate: 'receiverDate',
+    senderName: 'senderName',
+    senderDate: 'senderDate',
+    status: 'status',
+    returnType: 'returnType',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    jobId: 'jobId',
+    quotationId: 'quotationId',
+    companyId: 'companyId'
+  };
+
+  export type GoodsReturnScalarFieldEnum = (typeof GoodsReturnScalarFieldEnum)[keyof typeof GoodsReturnScalarFieldEnum]
+
+
   export const InstallationOrderScalarFieldEnum: {
     id: 'id',
     installationNo: 'installationNo',
@@ -162573,6 +164100,7 @@ export namespace Prisma {
     schedules?: ScheduleListRelationFilter
     siteSurveys?: SiteSurveyListRelationFilter
     telesales?: TelesaleListRelationFilter
+    goodsReturns?: GoodsReturnListRelationFilter
   }
 
   export type CompanyOrderByWithRelationInput = {
@@ -162616,6 +164144,7 @@ export namespace Prisma {
     schedules?: ScheduleOrderByRelationAggregateInput
     siteSurveys?: SiteSurveyOrderByRelationAggregateInput
     telesales?: TelesaleOrderByRelationAggregateInput
+    goodsReturns?: GoodsReturnOrderByRelationAggregateInput
   }
 
   export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -162662,6 +164191,7 @@ export namespace Prisma {
     schedules?: ScheduleListRelationFilter
     siteSurveys?: SiteSurveyListRelationFilter
     telesales?: TelesaleListRelationFilter
+    goodsReturns?: GoodsReturnListRelationFilter
   }, "id">
 
   export type CompanyOrderByWithAggregationInput = {
@@ -162934,6 +164464,7 @@ export namespace Prisma {
     salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     siteSurvey?: XOR<SiteSurveyNullableScalarRelationFilter, SiteSurveyWhereInput> | null
     jobs?: JobListRelationFilter
+    goodsReturns?: GoodsReturnListRelationFilter
   }
 
   export type QuotationOrderByWithRelationInput = {
@@ -162978,6 +164509,7 @@ export namespace Prisma {
     salesperson?: UserOrderByWithRelationInput
     siteSurvey?: SiteSurveyOrderByWithRelationInput
     jobs?: JobOrderByRelationAggregateInput
+    goodsReturns?: GoodsReturnOrderByRelationAggregateInput
   }
 
   export type QuotationWhereUniqueInput = Prisma.AtLeast<{
@@ -163025,6 +164557,7 @@ export namespace Prisma {
     salesperson?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     siteSurvey?: XOR<SiteSurveyNullableScalarRelationFilter, SiteSurveyWhereInput> | null
     jobs?: JobListRelationFilter
+    goodsReturns?: GoodsReturnListRelationFilter
   }, "id">
 
   export type QuotationOrderByWithAggregationInput = {
@@ -163749,6 +165282,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairListRelationFilter
     project?: XOR<ProjectNullableScalarRelationFilter, ProjectWhereInput> | null
     repairDeliveries?: RepairDeliveryListRelationFilter
+    goodsReturns?: GoodsReturnListRelationFilter
     repairOrder?: XOR<RepairOrderNullableScalarRelationFilter, RepairOrderWhereInput> | null
     stepLogs?: JobStepLogListRelationFilter
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
@@ -163794,6 +165328,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairOrderByRelationAggregateInput
     project?: ProjectOrderByWithRelationInput
     repairDeliveries?: RepairDeliveryOrderByRelationAggregateInput
+    goodsReturns?: GoodsReturnOrderByRelationAggregateInput
     repairOrder?: RepairOrderOrderByWithRelationInput
     stepLogs?: JobStepLogOrderByRelationAggregateInput
     quotation?: QuotationOrderByWithRelationInput
@@ -163842,6 +165377,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairListRelationFilter
     project?: XOR<ProjectNullableScalarRelationFilter, ProjectWhereInput> | null
     repairDeliveries?: RepairDeliveryListRelationFilter
+    goodsReturns?: GoodsReturnListRelationFilter
     repairOrder?: XOR<RepairOrderNullableScalarRelationFilter, RepairOrderWhereInput> | null
     stepLogs?: JobStepLogListRelationFilter
     quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
@@ -164641,6 +166177,132 @@ export namespace Prisma {
     workRepairDetails?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     workTrainingDetails?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
     internalCompany?: StringNullableWithAggregatesFilter<"RepairDelivery"> | string | null
+  }
+
+  export type GoodsReturnWhereInput = {
+    AND?: GoodsReturnWhereInput | GoodsReturnWhereInput[]
+    OR?: GoodsReturnWhereInput[]
+    NOT?: GoodsReturnWhereInput | GoodsReturnWhereInput[]
+    id?: StringFilter<"GoodsReturn"> | string
+    documentNo?: StringFilter<"GoodsReturn"> | string
+    date?: DateTimeFilter<"GoodsReturn"> | Date | string
+    customer?: StringNullableFilter<"GoodsReturn"> | string | null
+    deliveryLocation?: StringNullableFilter<"GoodsReturn"> | string | null
+    reference?: StringNullableFilter<"GoodsReturn"> | string | null
+    items?: JsonNullableFilter<"GoodsReturn">
+    receiverName?: StringNullableFilter<"GoodsReturn"> | string | null
+    receiverDate?: DateTimeNullableFilter<"GoodsReturn"> | Date | string | null
+    senderName?: StringNullableFilter<"GoodsReturn"> | string | null
+    senderDate?: DateTimeNullableFilter<"GoodsReturn"> | Date | string | null
+    status?: StringFilter<"GoodsReturn"> | string
+    returnType?: StringFilter<"GoodsReturn"> | string
+    createdAt?: DateTimeFilter<"GoodsReturn"> | Date | string
+    updatedAt?: DateTimeFilter<"GoodsReturn"> | Date | string
+    jobId?: StringNullableFilter<"GoodsReturn"> | string | null
+    quotationId?: StringNullableFilter<"GoodsReturn"> | string | null
+    companyId?: StringNullableFilter<"GoodsReturn"> | string | null
+    job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
+    quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
+    company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
+  }
+
+  export type GoodsReturnOrderByWithRelationInput = {
+    id?: SortOrder
+    documentNo?: SortOrder
+    date?: SortOrder
+    customer?: SortOrderInput | SortOrder
+    deliveryLocation?: SortOrderInput | SortOrder
+    reference?: SortOrderInput | SortOrder
+    items?: SortOrderInput | SortOrder
+    receiverName?: SortOrderInput | SortOrder
+    receiverDate?: SortOrderInput | SortOrder
+    senderName?: SortOrderInput | SortOrder
+    senderDate?: SortOrderInput | SortOrder
+    status?: SortOrder
+    returnType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    jobId?: SortOrderInput | SortOrder
+    quotationId?: SortOrderInput | SortOrder
+    companyId?: SortOrderInput | SortOrder
+    job?: JobOrderByWithRelationInput
+    quotation?: QuotationOrderByWithRelationInput
+    company?: CompanyOrderByWithRelationInput
+  }
+
+  export type GoodsReturnWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    documentNo?: string
+    AND?: GoodsReturnWhereInput | GoodsReturnWhereInput[]
+    OR?: GoodsReturnWhereInput[]
+    NOT?: GoodsReturnWhereInput | GoodsReturnWhereInput[]
+    date?: DateTimeFilter<"GoodsReturn"> | Date | string
+    customer?: StringNullableFilter<"GoodsReturn"> | string | null
+    deliveryLocation?: StringNullableFilter<"GoodsReturn"> | string | null
+    reference?: StringNullableFilter<"GoodsReturn"> | string | null
+    items?: JsonNullableFilter<"GoodsReturn">
+    receiverName?: StringNullableFilter<"GoodsReturn"> | string | null
+    receiverDate?: DateTimeNullableFilter<"GoodsReturn"> | Date | string | null
+    senderName?: StringNullableFilter<"GoodsReturn"> | string | null
+    senderDate?: DateTimeNullableFilter<"GoodsReturn"> | Date | string | null
+    status?: StringFilter<"GoodsReturn"> | string
+    returnType?: StringFilter<"GoodsReturn"> | string
+    createdAt?: DateTimeFilter<"GoodsReturn"> | Date | string
+    updatedAt?: DateTimeFilter<"GoodsReturn"> | Date | string
+    jobId?: StringNullableFilter<"GoodsReturn"> | string | null
+    quotationId?: StringNullableFilter<"GoodsReturn"> | string | null
+    companyId?: StringNullableFilter<"GoodsReturn"> | string | null
+    job?: XOR<JobNullableScalarRelationFilter, JobWhereInput> | null
+    quotation?: XOR<QuotationNullableScalarRelationFilter, QuotationWhereInput> | null
+    company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
+  }, "id" | "documentNo">
+
+  export type GoodsReturnOrderByWithAggregationInput = {
+    id?: SortOrder
+    documentNo?: SortOrder
+    date?: SortOrder
+    customer?: SortOrderInput | SortOrder
+    deliveryLocation?: SortOrderInput | SortOrder
+    reference?: SortOrderInput | SortOrder
+    items?: SortOrderInput | SortOrder
+    receiverName?: SortOrderInput | SortOrder
+    receiverDate?: SortOrderInput | SortOrder
+    senderName?: SortOrderInput | SortOrder
+    senderDate?: SortOrderInput | SortOrder
+    status?: SortOrder
+    returnType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    jobId?: SortOrderInput | SortOrder
+    quotationId?: SortOrderInput | SortOrder
+    companyId?: SortOrderInput | SortOrder
+    _count?: GoodsReturnCountOrderByAggregateInput
+    _max?: GoodsReturnMaxOrderByAggregateInput
+    _min?: GoodsReturnMinOrderByAggregateInput
+  }
+
+  export type GoodsReturnScalarWhereWithAggregatesInput = {
+    AND?: GoodsReturnScalarWhereWithAggregatesInput | GoodsReturnScalarWhereWithAggregatesInput[]
+    OR?: GoodsReturnScalarWhereWithAggregatesInput[]
+    NOT?: GoodsReturnScalarWhereWithAggregatesInput | GoodsReturnScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GoodsReturn"> | string
+    documentNo?: StringWithAggregatesFilter<"GoodsReturn"> | string
+    date?: DateTimeWithAggregatesFilter<"GoodsReturn"> | Date | string
+    customer?: StringNullableWithAggregatesFilter<"GoodsReturn"> | string | null
+    deliveryLocation?: StringNullableWithAggregatesFilter<"GoodsReturn"> | string | null
+    reference?: StringNullableWithAggregatesFilter<"GoodsReturn"> | string | null
+    items?: JsonNullableWithAggregatesFilter<"GoodsReturn">
+    receiverName?: StringNullableWithAggregatesFilter<"GoodsReturn"> | string | null
+    receiverDate?: DateTimeNullableWithAggregatesFilter<"GoodsReturn"> | Date | string | null
+    senderName?: StringNullableWithAggregatesFilter<"GoodsReturn"> | string | null
+    senderDate?: DateTimeNullableWithAggregatesFilter<"GoodsReturn"> | Date | string | null
+    status?: StringWithAggregatesFilter<"GoodsReturn"> | string
+    returnType?: StringWithAggregatesFilter<"GoodsReturn"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"GoodsReturn"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GoodsReturn"> | Date | string
+    jobId?: StringNullableWithAggregatesFilter<"GoodsReturn"> | string | null
+    quotationId?: StringNullableWithAggregatesFilter<"GoodsReturn"> | string | null
+    companyId?: StringNullableWithAggregatesFilter<"GoodsReturn"> | string | null
   }
 
   export type InstallationOrderWhereInput = {
@@ -174471,6 +176133,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateInput = {
@@ -174513,6 +176176,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUpdateInput = {
@@ -174555,6 +176219,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateInput = {
@@ -174597,6 +176262,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateManyInput = {
@@ -174900,6 +176566,7 @@ export namespace Prisma {
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
     siteSurvey?: SiteSurveyCreateNestedOneWithoutQuotationsInput
     jobs?: JobCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateInput = {
@@ -174940,6 +176607,7 @@ export namespace Prisma {
     marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUpdateInput = {
@@ -174980,6 +176648,7 @@ export namespace Prisma {
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
     siteSurvey?: SiteSurveyUpdateOneWithoutQuotationsNestedInput
     jobs?: JobUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateInput = {
@@ -175020,6 +176689,7 @@ export namespace Prisma {
     marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationCreateManyInput = {
@@ -175837,6 +177507,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
@@ -175882,6 +177553,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -175925,6 +177597,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
@@ -175970,6 +177643,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -176913,6 +178587,150 @@ export namespace Prisma {
     workRepairDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workTrainingDetails?: NullableStringFieldUpdateOperationsInput | string | null
     internalCompany?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type GoodsReturnCreateInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    job?: JobCreateNestedOneWithoutGoodsReturnsInput
+    quotation?: QuotationCreateNestedOneWithoutGoodsReturnsInput
+    company?: CompanyCreateNestedOneWithoutGoodsReturnsInput
+  }
+
+  export type GoodsReturnUncheckedCreateInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    jobId?: string | null
+    quotationId?: string | null
+    companyId?: string | null
+  }
+
+  export type GoodsReturnUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneWithoutGoodsReturnsNestedInput
+    quotation?: QuotationUpdateOneWithoutGoodsReturnsNestedInput
+    company?: CompanyUpdateOneWithoutGoodsReturnsNestedInput
+  }
+
+  export type GoodsReturnUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type GoodsReturnCreateManyInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    jobId?: string | null
+    quotationId?: string | null
+    companyId?: string | null
+  }
+
+  export type GoodsReturnUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GoodsReturnUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InstallationOrderCreateInput = {
@@ -187915,7 +189733,17 @@ export namespace Prisma {
     none?: ContactWhereInput
   }
 
+  export type GoodsReturnListRelationFilter = {
+    every?: GoodsReturnWhereInput
+    some?: GoodsReturnWhereInput
+    none?: GoodsReturnWhereInput
+  }
+
   export type ContactOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type GoodsReturnOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -189341,6 +191169,67 @@ export namespace Prisma {
     workRepairDetails?: SortOrder
     workTrainingDetails?: SortOrder
     internalCompany?: SortOrder
+  }
+
+  export type GoodsReturnCountOrderByAggregateInput = {
+    id?: SortOrder
+    documentNo?: SortOrder
+    date?: SortOrder
+    customer?: SortOrder
+    deliveryLocation?: SortOrder
+    reference?: SortOrder
+    items?: SortOrder
+    receiverName?: SortOrder
+    receiverDate?: SortOrder
+    senderName?: SortOrder
+    senderDate?: SortOrder
+    status?: SortOrder
+    returnType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    jobId?: SortOrder
+    quotationId?: SortOrder
+    companyId?: SortOrder
+  }
+
+  export type GoodsReturnMaxOrderByAggregateInput = {
+    id?: SortOrder
+    documentNo?: SortOrder
+    date?: SortOrder
+    customer?: SortOrder
+    deliveryLocation?: SortOrder
+    reference?: SortOrder
+    receiverName?: SortOrder
+    receiverDate?: SortOrder
+    senderName?: SortOrder
+    senderDate?: SortOrder
+    status?: SortOrder
+    returnType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    jobId?: SortOrder
+    quotationId?: SortOrder
+    companyId?: SortOrder
+  }
+
+  export type GoodsReturnMinOrderByAggregateInput = {
+    id?: SortOrder
+    documentNo?: SortOrder
+    date?: SortOrder
+    customer?: SortOrder
+    deliveryLocation?: SortOrder
+    reference?: SortOrder
+    receiverName?: SortOrder
+    receiverDate?: SortOrder
+    senderName?: SortOrder
+    senderDate?: SortOrder
+    status?: SortOrder
+    returnType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    jobId?: SortOrder
+    quotationId?: SortOrder
+    companyId?: SortOrder
   }
 
   export type InstallationOrderCountOrderByAggregateInput = {
@@ -196876,6 +198765,13 @@ export namespace Prisma {
     connect?: TelesaleWhereUniqueInput | TelesaleWhereUniqueInput[]
   }
 
+  export type GoodsReturnCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<GoodsReturnCreateWithoutCompanyInput, GoodsReturnUncheckedCreateWithoutCompanyInput> | GoodsReturnCreateWithoutCompanyInput[] | GoodsReturnUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutCompanyInput | GoodsReturnCreateOrConnectWithoutCompanyInput[]
+    createMany?: GoodsReturnCreateManyCompanyInputEnvelope
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+  }
+
   export type CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput = {
     create?: XOR<CompanyInteractionCreateWithoutCompanyInput, CompanyInteractionUncheckedCreateWithoutCompanyInput> | CompanyInteractionCreateWithoutCompanyInput[] | CompanyInteractionUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: CompanyInteractionCreateOrConnectWithoutCompanyInput | CompanyInteractionCreateOrConnectWithoutCompanyInput[]
@@ -196930,6 +198826,13 @@ export namespace Prisma {
     connectOrCreate?: TelesaleCreateOrConnectWithoutCompanyInput | TelesaleCreateOrConnectWithoutCompanyInput[]
     createMany?: TelesaleCreateManyCompanyInputEnvelope
     connect?: TelesaleWhereUniqueInput | TelesaleWhereUniqueInput[]
+  }
+
+  export type GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<GoodsReturnCreateWithoutCompanyInput, GoodsReturnUncheckedCreateWithoutCompanyInput> | GoodsReturnCreateWithoutCompanyInput[] | GoodsReturnUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutCompanyInput | GoodsReturnCreateOrConnectWithoutCompanyInput[]
+    createMany?: GoodsReturnCreateManyCompanyInputEnvelope
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
   }
 
   export type CompanyUpdatetagsInput = {
@@ -197059,6 +198962,20 @@ export namespace Prisma {
     deleteMany?: TelesaleScalarWhereInput | TelesaleScalarWhereInput[]
   }
 
+  export type GoodsReturnUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<GoodsReturnCreateWithoutCompanyInput, GoodsReturnUncheckedCreateWithoutCompanyInput> | GoodsReturnCreateWithoutCompanyInput[] | GoodsReturnUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutCompanyInput | GoodsReturnCreateOrConnectWithoutCompanyInput[]
+    upsert?: GoodsReturnUpsertWithWhereUniqueWithoutCompanyInput | GoodsReturnUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: GoodsReturnCreateManyCompanyInputEnvelope
+    set?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    disconnect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    delete?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    update?: GoodsReturnUpdateWithWhereUniqueWithoutCompanyInput | GoodsReturnUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: GoodsReturnUpdateManyWithWhereWithoutCompanyInput | GoodsReturnUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: GoodsReturnScalarWhereInput | GoodsReturnScalarWhereInput[]
+  }
+
   export type CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput = {
     create?: XOR<CompanyInteractionCreateWithoutCompanyInput, CompanyInteractionUncheckedCreateWithoutCompanyInput> | CompanyInteractionCreateWithoutCompanyInput[] | CompanyInteractionUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: CompanyInteractionCreateOrConnectWithoutCompanyInput | CompanyInteractionCreateOrConnectWithoutCompanyInput[]
@@ -197169,6 +199086,20 @@ export namespace Prisma {
     update?: TelesaleUpdateWithWhereUniqueWithoutCompanyInput | TelesaleUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: TelesaleUpdateManyWithWhereWithoutCompanyInput | TelesaleUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: TelesaleScalarWhereInput | TelesaleScalarWhereInput[]
+  }
+
+  export type GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<GoodsReturnCreateWithoutCompanyInput, GoodsReturnUncheckedCreateWithoutCompanyInput> | GoodsReturnCreateWithoutCompanyInput[] | GoodsReturnUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutCompanyInput | GoodsReturnCreateOrConnectWithoutCompanyInput[]
+    upsert?: GoodsReturnUpsertWithWhereUniqueWithoutCompanyInput | GoodsReturnUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: GoodsReturnCreateManyCompanyInputEnvelope
+    set?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    disconnect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    delete?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    update?: GoodsReturnUpdateWithWhereUniqueWithoutCompanyInput | GoodsReturnUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: GoodsReturnUpdateManyWithWhereWithoutCompanyInput | GoodsReturnUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: GoodsReturnScalarWhereInput | GoodsReturnScalarWhereInput[]
   }
 
   export type CompanyCreateNestedOneWithoutInteractionsInput = {
@@ -197299,6 +199230,13 @@ export namespace Prisma {
     connect?: JobWhereUniqueInput | JobWhereUniqueInput[]
   }
 
+  export type GoodsReturnCreateNestedManyWithoutQuotationInput = {
+    create?: XOR<GoodsReturnCreateWithoutQuotationInput, GoodsReturnUncheckedCreateWithoutQuotationInput> | GoodsReturnCreateWithoutQuotationInput[] | GoodsReturnUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutQuotationInput | GoodsReturnCreateOrConnectWithoutQuotationInput[]
+    createMany?: GoodsReturnCreateManyQuotationInputEnvelope
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+  }
+
   export type MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput = {
     create?: XOR<MarketingLeadCreateWithoutQuotationInput, MarketingLeadUncheckedCreateWithoutQuotationInput>
     connectOrCreate?: MarketingLeadCreateOrConnectWithoutQuotationInput
@@ -197317,6 +199255,13 @@ export namespace Prisma {
     connectOrCreate?: JobCreateOrConnectWithoutQuotationInput | JobCreateOrConnectWithoutQuotationInput[]
     createMany?: JobCreateManyQuotationInputEnvelope
     connect?: JobWhereUniqueInput | JobWhereUniqueInput[]
+  }
+
+  export type GoodsReturnUncheckedCreateNestedManyWithoutQuotationInput = {
+    create?: XOR<GoodsReturnCreateWithoutQuotationInput, GoodsReturnUncheckedCreateWithoutQuotationInput> | GoodsReturnCreateWithoutQuotationInput[] | GoodsReturnUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutQuotationInput | GoodsReturnCreateOrConnectWithoutQuotationInput[]
+    createMany?: GoodsReturnCreateManyQuotationInputEnvelope
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
   }
 
   export type NullableFloatFieldUpdateOperationsInput = {
@@ -197403,6 +199348,20 @@ export namespace Prisma {
     deleteMany?: JobScalarWhereInput | JobScalarWhereInput[]
   }
 
+  export type GoodsReturnUpdateManyWithoutQuotationNestedInput = {
+    create?: XOR<GoodsReturnCreateWithoutQuotationInput, GoodsReturnUncheckedCreateWithoutQuotationInput> | GoodsReturnCreateWithoutQuotationInput[] | GoodsReturnUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutQuotationInput | GoodsReturnCreateOrConnectWithoutQuotationInput[]
+    upsert?: GoodsReturnUpsertWithWhereUniqueWithoutQuotationInput | GoodsReturnUpsertWithWhereUniqueWithoutQuotationInput[]
+    createMany?: GoodsReturnCreateManyQuotationInputEnvelope
+    set?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    disconnect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    delete?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    update?: GoodsReturnUpdateWithWhereUniqueWithoutQuotationInput | GoodsReturnUpdateWithWhereUniqueWithoutQuotationInput[]
+    updateMany?: GoodsReturnUpdateManyWithWhereWithoutQuotationInput | GoodsReturnUpdateManyWithWhereWithoutQuotationInput[]
+    deleteMany?: GoodsReturnScalarWhereInput | GoodsReturnScalarWhereInput[]
+  }
+
   export type MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput = {
     create?: XOR<MarketingLeadCreateWithoutQuotationInput, MarketingLeadUncheckedCreateWithoutQuotationInput>
     connectOrCreate?: MarketingLeadCreateOrConnectWithoutQuotationInput
@@ -197439,6 +199398,20 @@ export namespace Prisma {
     update?: JobUpdateWithWhereUniqueWithoutQuotationInput | JobUpdateWithWhereUniqueWithoutQuotationInput[]
     updateMany?: JobUpdateManyWithWhereWithoutQuotationInput | JobUpdateManyWithWhereWithoutQuotationInput[]
     deleteMany?: JobScalarWhereInput | JobScalarWhereInput[]
+  }
+
+  export type GoodsReturnUncheckedUpdateManyWithoutQuotationNestedInput = {
+    create?: XOR<GoodsReturnCreateWithoutQuotationInput, GoodsReturnUncheckedCreateWithoutQuotationInput> | GoodsReturnCreateWithoutQuotationInput[] | GoodsReturnUncheckedCreateWithoutQuotationInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutQuotationInput | GoodsReturnCreateOrConnectWithoutQuotationInput[]
+    upsert?: GoodsReturnUpsertWithWhereUniqueWithoutQuotationInput | GoodsReturnUpsertWithWhereUniqueWithoutQuotationInput[]
+    createMany?: GoodsReturnCreateManyQuotationInputEnvelope
+    set?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    disconnect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    delete?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    update?: GoodsReturnUpdateWithWhereUniqueWithoutQuotationInput | GoodsReturnUpdateWithWhereUniqueWithoutQuotationInput[]
+    updateMany?: GoodsReturnUpdateManyWithWhereWithoutQuotationInput | GoodsReturnUpdateManyWithWhereWithoutQuotationInput[]
+    deleteMany?: GoodsReturnScalarWhereInput | GoodsReturnScalarWhereInput[]
   }
 
   export type ScheduleCreateNestedOneWithoutTelesaleInput = {
@@ -197716,6 +199689,13 @@ export namespace Prisma {
     connect?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
   }
 
+  export type GoodsReturnCreateNestedManyWithoutJobInput = {
+    create?: XOR<GoodsReturnCreateWithoutJobInput, GoodsReturnUncheckedCreateWithoutJobInput> | GoodsReturnCreateWithoutJobInput[] | GoodsReturnUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutJobInput | GoodsReturnCreateOrConnectWithoutJobInput[]
+    createMany?: GoodsReturnCreateManyJobInputEnvelope
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+  }
+
   export type RepairOrderCreateNestedOneWithoutJobInput = {
     create?: XOR<RepairOrderCreateWithoutJobInput, RepairOrderUncheckedCreateWithoutJobInput>
     connectOrCreate?: RepairOrderCreateOrConnectWithoutJobInput
@@ -197774,6 +199754,13 @@ export namespace Prisma {
     connectOrCreate?: RepairDeliveryCreateOrConnectWithoutJobInput | RepairDeliveryCreateOrConnectWithoutJobInput[]
     createMany?: RepairDeliveryCreateManyJobInputEnvelope
     connect?: RepairDeliveryWhereUniqueInput | RepairDeliveryWhereUniqueInput[]
+  }
+
+  export type GoodsReturnUncheckedCreateNestedManyWithoutJobInput = {
+    create?: XOR<GoodsReturnCreateWithoutJobInput, GoodsReturnUncheckedCreateWithoutJobInput> | GoodsReturnCreateWithoutJobInput[] | GoodsReturnUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutJobInput | GoodsReturnCreateOrConnectWithoutJobInput[]
+    createMany?: GoodsReturnCreateManyJobInputEnvelope
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
   }
 
   export type RepairOrderUncheckedCreateNestedOneWithoutJobInput = {
@@ -197860,6 +199847,20 @@ export namespace Prisma {
     update?: RepairDeliveryUpdateWithWhereUniqueWithoutJobInput | RepairDeliveryUpdateWithWhereUniqueWithoutJobInput[]
     updateMany?: RepairDeliveryUpdateManyWithWhereWithoutJobInput | RepairDeliveryUpdateManyWithWhereWithoutJobInput[]
     deleteMany?: RepairDeliveryScalarWhereInput | RepairDeliveryScalarWhereInput[]
+  }
+
+  export type GoodsReturnUpdateManyWithoutJobNestedInput = {
+    create?: XOR<GoodsReturnCreateWithoutJobInput, GoodsReturnUncheckedCreateWithoutJobInput> | GoodsReturnCreateWithoutJobInput[] | GoodsReturnUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutJobInput | GoodsReturnCreateOrConnectWithoutJobInput[]
+    upsert?: GoodsReturnUpsertWithWhereUniqueWithoutJobInput | GoodsReturnUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: GoodsReturnCreateManyJobInputEnvelope
+    set?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    disconnect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    delete?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    update?: GoodsReturnUpdateWithWhereUniqueWithoutJobInput | GoodsReturnUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: GoodsReturnUpdateManyWithWhereWithoutJobInput | GoodsReturnUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: GoodsReturnScalarWhereInput | GoodsReturnScalarWhereInput[]
   }
 
   export type RepairOrderUpdateOneWithoutJobNestedInput = {
@@ -197974,6 +199975,20 @@ export namespace Prisma {
     update?: RepairDeliveryUpdateWithWhereUniqueWithoutJobInput | RepairDeliveryUpdateWithWhereUniqueWithoutJobInput[]
     updateMany?: RepairDeliveryUpdateManyWithWhereWithoutJobInput | RepairDeliveryUpdateManyWithWhereWithoutJobInput[]
     deleteMany?: RepairDeliveryScalarWhereInput | RepairDeliveryScalarWhereInput[]
+  }
+
+  export type GoodsReturnUncheckedUpdateManyWithoutJobNestedInput = {
+    create?: XOR<GoodsReturnCreateWithoutJobInput, GoodsReturnUncheckedCreateWithoutJobInput> | GoodsReturnCreateWithoutJobInput[] | GoodsReturnUncheckedCreateWithoutJobInput[]
+    connectOrCreate?: GoodsReturnCreateOrConnectWithoutJobInput | GoodsReturnCreateOrConnectWithoutJobInput[]
+    upsert?: GoodsReturnUpsertWithWhereUniqueWithoutJobInput | GoodsReturnUpsertWithWhereUniqueWithoutJobInput[]
+    createMany?: GoodsReturnCreateManyJobInputEnvelope
+    set?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    disconnect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    delete?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    connect?: GoodsReturnWhereUniqueInput | GoodsReturnWhereUniqueInput[]
+    update?: GoodsReturnUpdateWithWhereUniqueWithoutJobInput | GoodsReturnUpdateWithWhereUniqueWithoutJobInput[]
+    updateMany?: GoodsReturnUpdateManyWithWhereWithoutJobInput | GoodsReturnUpdateManyWithWhereWithoutJobInput[]
+    deleteMany?: GoodsReturnScalarWhereInput | GoodsReturnScalarWhereInput[]
   }
 
   export type RepairOrderUncheckedUpdateOneWithoutJobNestedInput = {
@@ -198114,6 +200129,54 @@ export namespace Prisma {
     delete?: JobWhereInput | boolean
     connect?: JobWhereUniqueInput
     update?: XOR<XOR<JobUpdateToOneWithWhereWithoutRepairDeliveriesInput, JobUpdateWithoutRepairDeliveriesInput>, JobUncheckedUpdateWithoutRepairDeliveriesInput>
+  }
+
+  export type JobCreateNestedOneWithoutGoodsReturnsInput = {
+    create?: XOR<JobCreateWithoutGoodsReturnsInput, JobUncheckedCreateWithoutGoodsReturnsInput>
+    connectOrCreate?: JobCreateOrConnectWithoutGoodsReturnsInput
+    connect?: JobWhereUniqueInput
+  }
+
+  export type QuotationCreateNestedOneWithoutGoodsReturnsInput = {
+    create?: XOR<QuotationCreateWithoutGoodsReturnsInput, QuotationUncheckedCreateWithoutGoodsReturnsInput>
+    connectOrCreate?: QuotationCreateOrConnectWithoutGoodsReturnsInput
+    connect?: QuotationWhereUniqueInput
+  }
+
+  export type CompanyCreateNestedOneWithoutGoodsReturnsInput = {
+    create?: XOR<CompanyCreateWithoutGoodsReturnsInput, CompanyUncheckedCreateWithoutGoodsReturnsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutGoodsReturnsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type JobUpdateOneWithoutGoodsReturnsNestedInput = {
+    create?: XOR<JobCreateWithoutGoodsReturnsInput, JobUncheckedCreateWithoutGoodsReturnsInput>
+    connectOrCreate?: JobCreateOrConnectWithoutGoodsReturnsInput
+    upsert?: JobUpsertWithoutGoodsReturnsInput
+    disconnect?: JobWhereInput | boolean
+    delete?: JobWhereInput | boolean
+    connect?: JobWhereUniqueInput
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutGoodsReturnsInput, JobUpdateWithoutGoodsReturnsInput>, JobUncheckedUpdateWithoutGoodsReturnsInput>
+  }
+
+  export type QuotationUpdateOneWithoutGoodsReturnsNestedInput = {
+    create?: XOR<QuotationCreateWithoutGoodsReturnsInput, QuotationUncheckedCreateWithoutGoodsReturnsInput>
+    connectOrCreate?: QuotationCreateOrConnectWithoutGoodsReturnsInput
+    upsert?: QuotationUpsertWithoutGoodsReturnsInput
+    disconnect?: QuotationWhereInput | boolean
+    delete?: QuotationWhereInput | boolean
+    connect?: QuotationWhereUniqueInput
+    update?: XOR<XOR<QuotationUpdateToOneWithWhereWithoutGoodsReturnsInput, QuotationUpdateWithoutGoodsReturnsInput>, QuotationUncheckedUpdateWithoutGoodsReturnsInput>
+  }
+
+  export type CompanyUpdateOneWithoutGoodsReturnsNestedInput = {
+    create?: XOR<CompanyCreateWithoutGoodsReturnsInput, CompanyUncheckedCreateWithoutGoodsReturnsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutGoodsReturnsInput
+    upsert?: CompanyUpsertWithoutGoodsReturnsInput
+    disconnect?: CompanyWhereInput | boolean
+    delete?: CompanyWhereInput | boolean
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutGoodsReturnsInput, CompanyUpdateWithoutGoodsReturnsInput>, CompanyUncheckedUpdateWithoutGoodsReturnsInput>
   }
 
   export type JobCreateNestedOneWithoutInstallationOrdersInput = {
@@ -203719,6 +205782,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutAssignedUserInput = {
@@ -203760,6 +205824,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutAssignedUserInput = {
@@ -204649,6 +206714,7 @@ export namespace Prisma {
     contact?: ContactCreateNestedOneWithoutQuotationsInput
     siteSurvey?: SiteSurveyCreateNestedOneWithoutQuotationsInput
     jobs?: JobCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateWithoutSalespersonInput = {
@@ -204688,6 +206754,7 @@ export namespace Prisma {
     marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationCreateOrConnectWithoutSalespersonInput = {
@@ -206334,6 +208401,7 @@ export namespace Prisma {
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutSchedulesInput = {
@@ -206375,6 +208443,7 @@ export namespace Prisma {
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutSchedulesInput = {
@@ -206568,6 +208637,7 @@ export namespace Prisma {
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutSchedulesInput = {
@@ -206609,6 +208679,7 @@ export namespace Prisma {
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type TelesaleUpsertWithoutScheduleInput = {
@@ -207255,6 +209326,7 @@ export namespace Prisma {
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
     siteSurvey?: SiteSurveyCreateNestedOneWithoutQuotationsInput
     jobs?: JobCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateWithoutCompanyInput = {
@@ -207294,6 +209366,7 @@ export namespace Prisma {
     marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationCreateOrConnectWithoutCompanyInput = {
@@ -207497,6 +209570,56 @@ export namespace Prisma {
 
   export type TelesaleCreateManyCompanyInputEnvelope = {
     data: TelesaleCreateManyCompanyInput | TelesaleCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type GoodsReturnCreateWithoutCompanyInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    job?: JobCreateNestedOneWithoutGoodsReturnsInput
+    quotation?: QuotationCreateNestedOneWithoutGoodsReturnsInput
+  }
+
+  export type GoodsReturnUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    jobId?: string | null
+    quotationId?: string | null
+  }
+
+  export type GoodsReturnCreateOrConnectWithoutCompanyInput = {
+    where: GoodsReturnWhereUniqueInput
+    create: XOR<GoodsReturnCreateWithoutCompanyInput, GoodsReturnUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type GoodsReturnCreateManyCompanyInputEnvelope = {
+    data: GoodsReturnCreateManyCompanyInput | GoodsReturnCreateManyCompanyInput[]
     skipDuplicates?: boolean
   }
 
@@ -207736,6 +209859,46 @@ export namespace Prisma {
     data: XOR<TelesaleUpdateManyMutationInput, TelesaleUncheckedUpdateManyWithoutCompanyInput>
   }
 
+  export type GoodsReturnUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: GoodsReturnWhereUniqueInput
+    update: XOR<GoodsReturnUpdateWithoutCompanyInput, GoodsReturnUncheckedUpdateWithoutCompanyInput>
+    create: XOR<GoodsReturnCreateWithoutCompanyInput, GoodsReturnUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type GoodsReturnUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: GoodsReturnWhereUniqueInput
+    data: XOR<GoodsReturnUpdateWithoutCompanyInput, GoodsReturnUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type GoodsReturnUpdateManyWithWhereWithoutCompanyInput = {
+    where: GoodsReturnScalarWhereInput
+    data: XOR<GoodsReturnUpdateManyMutationInput, GoodsReturnUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type GoodsReturnScalarWhereInput = {
+    AND?: GoodsReturnScalarWhereInput | GoodsReturnScalarWhereInput[]
+    OR?: GoodsReturnScalarWhereInput[]
+    NOT?: GoodsReturnScalarWhereInput | GoodsReturnScalarWhereInput[]
+    id?: StringFilter<"GoodsReturn"> | string
+    documentNo?: StringFilter<"GoodsReturn"> | string
+    date?: DateTimeFilter<"GoodsReturn"> | Date | string
+    customer?: StringNullableFilter<"GoodsReturn"> | string | null
+    deliveryLocation?: StringNullableFilter<"GoodsReturn"> | string | null
+    reference?: StringNullableFilter<"GoodsReturn"> | string | null
+    items?: JsonNullableFilter<"GoodsReturn">
+    receiverName?: StringNullableFilter<"GoodsReturn"> | string | null
+    receiverDate?: DateTimeNullableFilter<"GoodsReturn"> | Date | string | null
+    senderName?: StringNullableFilter<"GoodsReturn"> | string | null
+    senderDate?: DateTimeNullableFilter<"GoodsReturn"> | Date | string | null
+    status?: StringFilter<"GoodsReturn"> | string
+    returnType?: StringFilter<"GoodsReturn"> | string
+    createdAt?: DateTimeFilter<"GoodsReturn"> | Date | string
+    updatedAt?: DateTimeFilter<"GoodsReturn"> | Date | string
+    jobId?: StringNullableFilter<"GoodsReturn"> | string | null
+    quotationId?: StringNullableFilter<"GoodsReturn"> | string | null
+    companyId?: StringNullableFilter<"GoodsReturn"> | string | null
+  }
+
   export type CompanyCreateWithoutInteractionsInput = {
     id?: string
     companyName: string
@@ -207775,6 +209938,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInteractionsInput = {
@@ -207816,6 +209980,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInteractionsInput = {
@@ -207960,6 +210125,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInteractionsInput = {
@@ -208001,6 +210167,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithoutCompanyInteractionsInput = {
@@ -208135,6 +210302,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutContactsInput = {
@@ -208176,6 +210344,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutContactsInput = {
@@ -208220,6 +210389,7 @@ export namespace Prisma {
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
     siteSurvey?: SiteSurveyCreateNestedOneWithoutQuotationsInput
     jobs?: JobCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateWithoutContactInput = {
@@ -208259,6 +210429,7 @@ export namespace Prisma {
     marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationCreateOrConnectWithoutContactInput = {
@@ -208321,6 +210492,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutContactsInput = {
@@ -208362,6 +210534,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type QuotationUpsertWithWhereUniqueWithoutContactInput = {
@@ -208518,6 +210691,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutQuotationsInput = {
@@ -208559,6 +210733,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutQuotationsInput = {
@@ -208809,6 +210984,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
@@ -208852,6 +211028,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -208864,6 +211041,56 @@ export namespace Prisma {
 
   export type JobCreateManyQuotationInputEnvelope = {
     data: JobCreateManyQuotationInput | JobCreateManyQuotationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type GoodsReturnCreateWithoutQuotationInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    job?: JobCreateNestedOneWithoutGoodsReturnsInput
+    company?: CompanyCreateNestedOneWithoutGoodsReturnsInput
+  }
+
+  export type GoodsReturnUncheckedCreateWithoutQuotationInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    jobId?: string | null
+    companyId?: string | null
+  }
+
+  export type GoodsReturnCreateOrConnectWithoutQuotationInput = {
+    where: GoodsReturnWhereUniqueInput
+    create: XOR<GoodsReturnCreateWithoutQuotationInput, GoodsReturnUncheckedCreateWithoutQuotationInput>
+  }
+
+  export type GoodsReturnCreateManyQuotationInputEnvelope = {
+    data: GoodsReturnCreateManyQuotationInput | GoodsReturnCreateManyQuotationInput[]
     skipDuplicates?: boolean
   }
 
@@ -208976,6 +211203,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutQuotationsInput = {
@@ -209017,6 +211245,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type ContactUpsertWithoutQuotationsInput = {
@@ -209297,6 +211526,22 @@ export namespace Prisma {
     requiredDeliveryDate?: DateTimeNullableFilter<"Job"> | Date | string | null
   }
 
+  export type GoodsReturnUpsertWithWhereUniqueWithoutQuotationInput = {
+    where: GoodsReturnWhereUniqueInput
+    update: XOR<GoodsReturnUpdateWithoutQuotationInput, GoodsReturnUncheckedUpdateWithoutQuotationInput>
+    create: XOR<GoodsReturnCreateWithoutQuotationInput, GoodsReturnUncheckedCreateWithoutQuotationInput>
+  }
+
+  export type GoodsReturnUpdateWithWhereUniqueWithoutQuotationInput = {
+    where: GoodsReturnWhereUniqueInput
+    data: XOR<GoodsReturnUpdateWithoutQuotationInput, GoodsReturnUncheckedUpdateWithoutQuotationInput>
+  }
+
+  export type GoodsReturnUpdateManyWithWhereWithoutQuotationInput = {
+    where: GoodsReturnScalarWhereInput
+    data: XOR<GoodsReturnUpdateManyMutationInput, GoodsReturnUncheckedUpdateManyWithoutQuotationInput>
+  }
+
   export type ScheduleCreateWithoutTelesaleInput = {
     id?: string
     title: string
@@ -209377,6 +211622,7 @@ export namespace Prisma {
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutTelesalesInput = {
@@ -209418,6 +211664,7 @@ export namespace Prisma {
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutTelesalesInput = {
@@ -209609,6 +211856,7 @@ export namespace Prisma {
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutTelesalesInput = {
@@ -209650,6 +211898,7 @@ export namespace Prisma {
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithoutTelesalesInput = {
@@ -209964,6 +212213,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutOrdersInput = {
@@ -210005,6 +212255,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutOrdersInput = {
@@ -210049,6 +212300,7 @@ export namespace Prisma {
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
     siteSurvey?: SiteSurveyCreateNestedOneWithoutQuotationsInput
     jobs?: JobCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateWithoutOrdersInput = {
@@ -210088,6 +212340,7 @@ export namespace Prisma {
     siteSurveyId?: string | null
     marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationCreateOrConnectWithoutOrdersInput = {
@@ -210297,6 +212550,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutOrdersInput = {
@@ -210338,6 +212592,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type QuotationUpsertWithoutOrdersInput = {
@@ -210388,6 +212643,7 @@ export namespace Prisma {
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
     siteSurvey?: SiteSurveyUpdateOneWithoutQuotationsNestedInput
     jobs?: JobUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateWithoutOrdersInput = {
@@ -210427,6 +212683,7 @@ export namespace Prisma {
     siteSurveyId?: NullableStringFieldUpdateOperationsInput | string | null
     marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type UserUpsertWithoutOrdersInput = {
@@ -211093,6 +213350,56 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type GoodsReturnCreateWithoutJobInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    quotation?: QuotationCreateNestedOneWithoutGoodsReturnsInput
+    company?: CompanyCreateNestedOneWithoutGoodsReturnsInput
+  }
+
+  export type GoodsReturnUncheckedCreateWithoutJobInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    quotationId?: string | null
+    companyId?: string | null
+  }
+
+  export type GoodsReturnCreateOrConnectWithoutJobInput = {
+    where: GoodsReturnWhereUniqueInput
+    create: XOR<GoodsReturnCreateWithoutJobInput, GoodsReturnUncheckedCreateWithoutJobInput>
+  }
+
+  export type GoodsReturnCreateManyJobInputEnvelope = {
+    data: GoodsReturnCreateManyJobInput | GoodsReturnCreateManyJobInput[]
+    skipDuplicates?: boolean
+  }
+
   export type RepairOrderCreateWithoutJobInput = {
     id?: string
     invoiceNo?: string | null
@@ -211219,6 +213526,7 @@ export namespace Prisma {
     contact?: ContactCreateNestedOneWithoutQuotationsInput
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
     siteSurvey?: SiteSurveyCreateNestedOneWithoutQuotationsInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateWithoutJobsInput = {
@@ -211258,6 +213566,7 @@ export namespace Prisma {
     siteSurveyId?: string | null
     marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationCreateOrConnectWithoutJobsInput = {
@@ -211587,6 +213896,22 @@ export namespace Prisma {
     internalCompany?: StringNullableFilter<"RepairDelivery"> | string | null
   }
 
+  export type GoodsReturnUpsertWithWhereUniqueWithoutJobInput = {
+    where: GoodsReturnWhereUniqueInput
+    update: XOR<GoodsReturnUpdateWithoutJobInput, GoodsReturnUncheckedUpdateWithoutJobInput>
+    create: XOR<GoodsReturnCreateWithoutJobInput, GoodsReturnUncheckedCreateWithoutJobInput>
+  }
+
+  export type GoodsReturnUpdateWithWhereUniqueWithoutJobInput = {
+    where: GoodsReturnWhereUniqueInput
+    data: XOR<GoodsReturnUpdateWithoutJobInput, GoodsReturnUncheckedUpdateWithoutJobInput>
+  }
+
+  export type GoodsReturnUpdateManyWithWhereWithoutJobInput = {
+    where: GoodsReturnScalarWhereInput
+    data: XOR<GoodsReturnUpdateManyMutationInput, GoodsReturnUncheckedUpdateManyWithoutJobInput>
+  }
+
   export type RepairOrderUpsertWithoutJobInput = {
     update: XOR<RepairOrderUpdateWithoutJobInput, RepairOrderUncheckedUpdateWithoutJobInput>
     create: XOR<RepairOrderCreateWithoutJobInput, RepairOrderUncheckedCreateWithoutJobInput>
@@ -211716,6 +214041,7 @@ export namespace Prisma {
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
     siteSurvey?: SiteSurveyUpdateOneWithoutQuotationsNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateWithoutJobsInput = {
@@ -211755,6 +214081,7 @@ export namespace Prisma {
     siteSurveyId?: NullableStringFieldUpdateOperationsInput | string | null
     marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type PaymentTaskUpsertWithWhereUniqueWithoutJobInput = {
@@ -211832,6 +214159,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
@@ -211876,6 +214204,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -212021,6 +214350,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
@@ -212065,6 +214395,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -212201,6 +214532,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
@@ -212245,6 +214577,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
   }
@@ -212303,6 +214636,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
@@ -212347,6 +214681,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
   }
@@ -212476,6 +214811,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
@@ -212520,6 +214856,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
   }
@@ -212671,6 +215008,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
@@ -212715,6 +215053,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
   }
@@ -212757,6 +215096,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
     paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
@@ -212801,6 +215141,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
   }
@@ -212859,6 +215200,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
@@ -212903,6 +215245,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
   }
@@ -212944,6 +215287,7 @@ export namespace Prisma {
     documents?: JobDocumentCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
@@ -212988,6 +215332,7 @@ export namespace Prisma {
     documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -213046,6 +215391,7 @@ export namespace Prisma {
     documents?: JobDocumentUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
@@ -213090,9 +215436,562 @@ export namespace Prisma {
     documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobCreateWithoutGoodsReturnsInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    courierCompany?: string | null
+    deliveryDate?: Date | string | null
+    deliveryMethod?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    billingRegulations?: string | null
+    creditDocsUrl?: string | null
+    creditTerms?: string | null
+    percentageTerms?: string | null
+    salesOrderDate?: Date | string | null
+    paymentDate?: Date | string | null
+    billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
+    installationOrders?: InstallationOrderCreateNestedManyWithoutJobInput
+    documents?: JobDocumentCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
+    project?: ProjectCreateNestedOneWithoutJobInput
+    repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
+    quotation?: QuotationCreateNestedOneWithoutJobsInput
+    paymentTasks?: PaymentTaskCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateWithoutGoodsReturnsInput = {
+    id?: string
+    jobNumber: string
+    companyCode: string
+    jobType?: string
+    month: number
+    yearBe: number
+    dateClosed: Date | string
+    customerName: string
+    item?: string | null
+    quotationNumber?: string | null
+    poNumber?: string | null
+    sellerName?: string | null
+    quotationId?: string | null
+    currentStep?: string
+    flowVariant?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    courierCompany?: string | null
+    deliveryDate?: Date | string | null
+    deliveryMethod?: string | null
+    trackingNumber?: string | null
+    trackingPhotoUrl?: string | null
+    paymentMethod?: string | null
+    paymentStatus?: string | null
+    billingRegulations?: string | null
+    creditDocsUrl?: string | null
+    creditTerms?: string | null
+    percentageTerms?: string | null
+    salesOrderDate?: Date | string | null
+    paymentDate?: Date | string | null
+    billingDocsUrl?: string | null
+    additionalInformation?: string | null
+    requiredDeliveryDate?: Date | string | null
+    installationOrders?: InstallationOrderUncheckedCreateNestedManyWithoutJobInput
+    documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
+    outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
+    project?: ProjectUncheckedCreateNestedOneWithoutJobInput
+    repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
+    stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
+    paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobCreateOrConnectWithoutGoodsReturnsInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutGoodsReturnsInput, JobUncheckedCreateWithoutGoodsReturnsInput>
+  }
+
+  export type QuotationCreateWithoutGoodsReturnsInput = {
+    id?: string
+    status?: string
+    salesBeforeVat?: number | null
+    transportationFee?: number | null
+    installationFee?: number | null
+    totalAmountBeforeVat?: number | null
+    actualClosingAmount?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
+    followUp1?: Date | string | null
+    followUp2?: Date | string | null
+    followUp3?: Date | string | null
+    followUp4?: Date | string | null
+    invoiceNumber?: string | null
+    poDate?: Date | string | null
+    poNumber?: string | null
+    productType?: string | null
+    quotationDate?: Date | string | null
+    quotationNumber?: string | null
+    rejectReason?: string | null
+    remarks?: string | null
+    requirementDate?: Date | string | null
+    requirementNumber?: string | null
+    salesBranch?: string | null
+    salesTeamLeader?: string | null
+    subject?: string | null
+    winLossReason?: string | null
+    marketingLead?: MarketingLeadCreateNestedOneWithoutQuotationInput
+    orders?: OrderCreateNestedManyWithoutQuotationInput
+    company: CompanyCreateNestedOneWithoutQuotationsInput
+    contact?: ContactCreateNestedOneWithoutQuotationsInput
+    salesperson?: UserCreateNestedOneWithoutQuotationsInput
+    siteSurvey?: SiteSurveyCreateNestedOneWithoutQuotationsInput
+    jobs?: JobCreateNestedManyWithoutQuotationInput
+  }
+
+  export type QuotationUncheckedCreateWithoutGoodsReturnsInput = {
+    id?: string
+    companyId: string
+    status?: string
+    salesBeforeVat?: number | null
+    transportationFee?: number | null
+    installationFee?: number | null
+    totalAmountBeforeVat?: number | null
+    actualClosingAmount?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    billingDate?: Date | string | null
+    appointmentDate?: Date | string | null
+    appointmentNote?: string | null
+    contactId?: string | null
+    followUp1?: Date | string | null
+    followUp2?: Date | string | null
+    followUp3?: Date | string | null
+    followUp4?: Date | string | null
+    invoiceNumber?: string | null
+    poDate?: Date | string | null
+    poNumber?: string | null
+    productType?: string | null
+    quotationDate?: Date | string | null
+    quotationNumber?: string | null
+    rejectReason?: string | null
+    remarks?: string | null
+    requirementDate?: Date | string | null
+    requirementNumber?: string | null
+    salesBranch?: string | null
+    salesTeamLeader?: string | null
+    salespersonId?: string | null
+    subject?: string | null
+    winLossReason?: string | null
+    siteSurveyId?: string | null
+    marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
+    orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
+    jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
+  }
+
+  export type QuotationCreateOrConnectWithoutGoodsReturnsInput = {
+    where: QuotationWhereUniqueInput
+    create: XOR<QuotationCreateWithoutGoodsReturnsInput, QuotationUncheckedCreateWithoutGoodsReturnsInput>
+  }
+
+  export type CompanyCreateWithoutGoodsReturnsInput = {
+    id?: string
+    companyName: string
+    taxId?: string | null
+    address?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    area?: string | null
+    branchOrHeadOffice?: string | null
+    businessType?: string | null
+    customerAccessChannel?: string | null
+    customerStatus?: string | null
+    customerType?: string | null
+    district?: string | null
+    postalCode?: string | null
+    province?: string | null
+    subDistrict?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    assignedUser?: UserCreateNestedOneWithoutAssignedCompaniesInput
+    interactions?: CompanyInteractionCreateNestedManyWithoutCompanyInput
+    contacts?: ContactCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionCreateNestedManyWithoutCompanyInput
+    orders?: OrderCreateNestedManyWithoutCompanyInput
+    quotations?: QuotationCreateNestedManyWithoutCompanyInput
+    schedules?: ScheduleCreateNestedManyWithoutCompanyInput
+    siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
+    telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutGoodsReturnsInput = {
+    id?: string
+    companyName: string
+    taxId?: string | null
+    address?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    area?: string | null
+    branchOrHeadOffice?: string | null
+    businessType?: string | null
+    customerAccessChannel?: string | null
+    customerStatus?: string | null
+    customerType?: string | null
+    district?: string | null
+    postalCode?: string | null
+    province?: string | null
+    subDistrict?: string | null
+    assignedUserId?: string | null
+    billingAddress?: string | null
+    billingSubDistrict?: string | null
+    billingDistrict?: string | null
+    billingProvince?: string | null
+    billingPostalCode?: string | null
+    shippingAddress?: string | null
+    shippingSubDistrict?: string | null
+    shippingDistrict?: string | null
+    shippingProvince?: string | null
+    shippingPostalCode?: string | null
+    paymentMethod?: string | null
+    region?: string | null
+    segment?: string | null
+    tags?: CompanyCreatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedCreateNestedManyWithoutCompanyInput
+    contacts?: ContactUncheckedCreateNestedManyWithoutCompanyInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedCreateNestedManyWithoutCompanyInput
+    orders?: OrderUncheckedCreateNestedManyWithoutCompanyInput
+    quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
+    schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
+    siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
+    telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutGoodsReturnsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutGoodsReturnsInput, CompanyUncheckedCreateWithoutGoodsReturnsInput>
+  }
+
+  export type JobUpsertWithoutGoodsReturnsInput = {
+    update: XOR<JobUpdateWithoutGoodsReturnsInput, JobUncheckedUpdateWithoutGoodsReturnsInput>
+    create: XOR<JobCreateWithoutGoodsReturnsInput, JobUncheckedCreateWithoutGoodsReturnsInput>
+    where?: JobWhereInput
+  }
+
+  export type JobUpdateToOneWithWhereWithoutGoodsReturnsInput = {
+    where?: JobWhereInput
+    data: XOR<JobUpdateWithoutGoodsReturnsInput, JobUncheckedUpdateWithoutGoodsReturnsInput>
+  }
+
+  export type JobUpdateWithoutGoodsReturnsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    installationOrders?: InstallationOrderUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
+    project?: ProjectUpdateOneWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
+    quotation?: QuotationUpdateOneWithoutJobsNestedInput
+    paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutGoodsReturnsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jobNumber?: StringFieldUpdateOperationsInput | string
+    companyCode?: StringFieldUpdateOperationsInput | string
+    jobType?: StringFieldUpdateOperationsInput | string
+    month?: IntFieldUpdateOperationsInput | number
+    yearBe?: IntFieldUpdateOperationsInput | number
+    dateClosed?: DateTimeFieldUpdateOperationsInput | Date | string
+    customerName?: StringFieldUpdateOperationsInput | string
+    item?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    sellerName?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStep?: StringFieldUpdateOperationsInput | string
+    flowVariant?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    courierCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    trackingPhotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRegulations?: NullableStringFieldUpdateOperationsInput | string | null
+    creditDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    creditTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    percentageTerms?: NullableStringFieldUpdateOperationsInput | string | null
+    salesOrderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    installationOrders?: InstallationOrderUncheckedUpdateManyWithoutJobNestedInput
+    documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
+    outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
+    project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
+    repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
+    stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
+    paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type QuotationUpsertWithoutGoodsReturnsInput = {
+    update: XOR<QuotationUpdateWithoutGoodsReturnsInput, QuotationUncheckedUpdateWithoutGoodsReturnsInput>
+    create: XOR<QuotationCreateWithoutGoodsReturnsInput, QuotationUncheckedCreateWithoutGoodsReturnsInput>
+    where?: QuotationWhereInput
+  }
+
+  export type QuotationUpdateToOneWithWhereWithoutGoodsReturnsInput = {
+    where?: QuotationWhereInput
+    data: XOR<QuotationUpdateWithoutGoodsReturnsInput, QuotationUncheckedUpdateWithoutGoodsReturnsInput>
+  }
+
+  export type QuotationUpdateWithoutGoodsReturnsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    salesBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    transportationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    installationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalAmountBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    actualClosingAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
+    followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    requirementDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    salesBranch?: NullableStringFieldUpdateOperationsInput | string | null
+    salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUpdateOneWithoutQuotationNestedInput
+    orders?: OrderUpdateManyWithoutQuotationNestedInput
+    company?: CompanyUpdateOneRequiredWithoutQuotationsNestedInput
+    contact?: ContactUpdateOneWithoutQuotationsNestedInput
+    salesperson?: UserUpdateOneWithoutQuotationsNestedInput
+    siteSurvey?: SiteSurveyUpdateOneWithoutQuotationsNestedInput
+    jobs?: JobUpdateManyWithoutQuotationNestedInput
+  }
+
+  export type QuotationUncheckedUpdateWithoutGoodsReturnsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    salesBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    transportationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    installationFee?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalAmountBeforeVat?: NullableFloatFieldUpdateOperationsInput | number | null
+    actualClosingAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    appointmentNote?: NullableStringFieldUpdateOperationsInput | string | null
+    contactId?: NullableStringFieldUpdateOperationsInput | string | null
+    followUp1?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp2?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp3?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    followUp4?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoiceNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    poDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    poNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    productType?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    quotationNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    rejectReason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    requirementDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requirementNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    salesBranch?: NullableStringFieldUpdateOperationsInput | string | null
+    salesTeamLeader?: NullableStringFieldUpdateOperationsInput | string | null
+    salespersonId?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    winLossReason?: NullableStringFieldUpdateOperationsInput | string | null
+    siteSurveyId?: NullableStringFieldUpdateOperationsInput | string | null
+    marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
+    jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+  }
+
+  export type CompanyUpsertWithoutGoodsReturnsInput = {
+    update: XOR<CompanyUpdateWithoutGoodsReturnsInput, CompanyUncheckedUpdateWithoutGoodsReturnsInput>
+    create: XOR<CompanyCreateWithoutGoodsReturnsInput, CompanyUncheckedCreateWithoutGoodsReturnsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutGoodsReturnsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutGoodsReturnsInput, CompanyUncheckedUpdateWithoutGoodsReturnsInput>
+  }
+
+  export type CompanyUpdateWithoutGoodsReturnsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    area?: NullableStringFieldUpdateOperationsInput | string | null
+    branchOrHeadOffice?: NullableStringFieldUpdateOperationsInput | string | null
+    businessType?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAccessChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    customerType?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    assignedUser?: UserUpdateOneWithoutAssignedCompaniesNestedInput
+    interactions?: CompanyInteractionUpdateManyWithoutCompanyNestedInput
+    contacts?: ContactUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUpdateManyWithoutCompanyNestedInput
+    quotations?: QuotationUpdateManyWithoutCompanyNestedInput
+    schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
+    siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
+    telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutGoodsReturnsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    area?: NullableStringFieldUpdateOperationsInput | string | null
+    branchOrHeadOffice?: NullableStringFieldUpdateOperationsInput | string | null
+    businessType?: NullableStringFieldUpdateOperationsInput | string | null
+    customerAccessChannel?: NullableStringFieldUpdateOperationsInput | string | null
+    customerStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    customerType?: NullableStringFieldUpdateOperationsInput | string | null
+    district?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    province?: NullableStringFieldUpdateOperationsInput | string | null
+    subDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    billingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    billingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    billingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingSubDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingDistrict?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPostalCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: CompanyUpdatetagsInput | string[]
+    interactions?: CompanyInteractionUncheckedUpdateManyWithoutCompanyNestedInput
+    contacts?: ContactUncheckedUpdateManyWithoutCompanyNestedInput
+    customerSatisfactions?: CustomerSatisfactionUncheckedUpdateManyWithoutCompanyNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutCompanyNestedInput
+    quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
+    schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
+    siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
+    telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type JobCreateWithoutInstallationOrdersInput = {
@@ -213132,6 +216031,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
@@ -213176,6 +216076,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -213321,6 +216222,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
@@ -213365,6 +216267,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -213500,6 +216403,7 @@ export namespace Prisma {
     documents?: JobDocumentCreateNestedManyWithoutJobInput
     project?: ProjectCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
@@ -213544,6 +216448,7 @@ export namespace Prisma {
     documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     project?: ProjectUncheckedCreateNestedOneWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -213602,6 +216507,7 @@ export namespace Prisma {
     documents?: JobDocumentUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
@@ -213646,6 +216552,7 @@ export namespace Prisma {
     documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -227621,6 +230528,7 @@ export namespace Prisma {
     documents?: JobDocumentCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogCreateNestedManyWithoutJobInput
     quotation?: QuotationCreateNestedOneWithoutJobsInput
@@ -227665,6 +230573,7 @@ export namespace Prisma {
     documents?: JobDocumentUncheckedCreateNestedManyWithoutJobInput
     outsourceRepairs?: OutsourceRepairUncheckedCreateNestedManyWithoutJobInput
     repairDeliveries?: RepairDeliveryUncheckedCreateNestedManyWithoutJobInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutJobInput
     repairOrder?: RepairOrderUncheckedCreateNestedOneWithoutJobInput
     stepLogs?: JobStepLogUncheckedCreateNestedManyWithoutJobInput
     paymentTasks?: PaymentTaskUncheckedCreateNestedManyWithoutJobInput
@@ -227984,6 +230893,7 @@ export namespace Prisma {
     documents?: JobDocumentUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     quotation?: QuotationUpdateOneWithoutJobsNestedInput
@@ -228028,6 +230938,7 @@ export namespace Prisma {
     documents?: JobDocumentUncheckedUpdateManyWithoutJobNestedInput
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -235853,6 +238764,7 @@ export namespace Prisma {
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
     siteSurvey?: SiteSurveyCreateNestedOneWithoutQuotationsInput
     jobs?: JobCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateWithoutMarketingLeadInput = {
@@ -235892,6 +238804,7 @@ export namespace Prisma {
     siteSurveyId?: string | null
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationCreateOrConnectWithoutMarketingLeadInput = {
@@ -236133,6 +239046,7 @@ export namespace Prisma {
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
     siteSurvey?: SiteSurveyUpdateOneWithoutQuotationsNestedInput
     jobs?: JobUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateWithoutMarketingLeadInput = {
@@ -236172,6 +239086,7 @@ export namespace Prisma {
     siteSurveyId?: NullableStringFieldUpdateOperationsInput | string | null
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -236391,6 +239306,7 @@ export namespace Prisma {
     contact?: ContactCreateNestedOneWithoutQuotationsInput
     salesperson?: UserCreateNestedOneWithoutQuotationsInput
     jobs?: JobCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationUncheckedCreateWithoutSiteSurveyInput = {
@@ -236430,6 +239346,7 @@ export namespace Prisma {
     marketingLead?: MarketingLeadUncheckedCreateNestedOneWithoutQuotationInput
     orders?: OrderUncheckedCreateNestedManyWithoutQuotationInput
     jobs?: JobUncheckedCreateNestedManyWithoutQuotationInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutQuotationInput
   }
 
   export type QuotationCreateOrConnectWithoutSiteSurveyInput = {
@@ -236481,6 +239398,7 @@ export namespace Prisma {
     quotations?: QuotationCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutSiteSurveysInput = {
@@ -236522,6 +239440,7 @@ export namespace Prisma {
     quotations?: QuotationUncheckedCreateNestedManyWithoutCompanyInput
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutSiteSurveysInput = {
@@ -237025,6 +239944,7 @@ export namespace Prisma {
     quotations?: QuotationUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutSiteSurveysInput = {
@@ -237066,6 +239986,7 @@ export namespace Prisma {
     quotations?: QuotationUncheckedUpdateManyWithoutCompanyNestedInput
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithoutEstimatedSurveysInput = {
@@ -241346,6 +244267,7 @@ export namespace Prisma {
     schedules?: ScheduleCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutCustomerSatisfactionsInput = {
@@ -241387,6 +244309,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedCreateNestedManyWithoutCompanyInput
     siteSurveys?: SiteSurveyUncheckedCreateNestedManyWithoutCompanyInput
     telesales?: TelesaleUncheckedCreateNestedManyWithoutCompanyInput
+    goodsReturns?: GoodsReturnUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutCustomerSatisfactionsInput = {
@@ -241531,6 +244454,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutCustomerSatisfactionsInput = {
@@ -241572,6 +244496,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserUpsertWithoutCustomerSatisfactionsInput = {
@@ -242959,6 +245884,7 @@ export namespace Prisma {
     schedules?: ScheduleUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutAssignedUserInput = {
@@ -243000,6 +245926,7 @@ export namespace Prisma {
     schedules?: ScheduleUncheckedUpdateManyWithoutCompanyNestedInput
     siteSurveys?: SiteSurveyUncheckedUpdateManyWithoutCompanyNestedInput
     telesales?: TelesaleUncheckedUpdateManyWithoutCompanyNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateManyWithoutAssignedUserInput = {
@@ -244084,6 +247011,7 @@ export namespace Prisma {
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
     siteSurvey?: SiteSurveyUpdateOneWithoutQuotationsNestedInput
     jobs?: JobUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateWithoutSalespersonInput = {
@@ -244123,6 +247051,7 @@ export namespace Prisma {
     marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateManyWithoutSalespersonInput = {
@@ -244797,6 +247726,26 @@ export namespace Prisma {
     visitDate?: Date | string | null
   }
 
+  export type GoodsReturnCreateManyCompanyInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    jobId?: string | null
+    quotationId?: string | null
+  }
+
   export type CompanyInteractionUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
@@ -245059,6 +248008,7 @@ export namespace Prisma {
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
     siteSurvey?: SiteSurveyUpdateOneWithoutQuotationsNestedInput
     jobs?: JobUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateWithoutCompanyInput = {
@@ -245098,6 +248048,7 @@ export namespace Prisma {
     marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateManyWithoutCompanyInput = {
@@ -245372,6 +248323,66 @@ export namespace Prisma {
     visitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type GoodsReturnUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneWithoutGoodsReturnsNestedInput
+    quotation?: QuotationUpdateOneWithoutGoodsReturnsNestedInput
+  }
+
+  export type GoodsReturnUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type GoodsReturnUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type QuotationCreateManyContactInput = {
     id?: string
     companyId: string
@@ -245445,6 +248456,7 @@ export namespace Prisma {
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
     siteSurvey?: SiteSurveyUpdateOneWithoutQuotationsNestedInput
     jobs?: JobUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateWithoutContactInput = {
@@ -245484,6 +248496,7 @@ export namespace Prisma {
     marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateManyWithoutContactInput = {
@@ -245579,6 +248592,26 @@ export namespace Prisma {
     billingDocsUrl?: string | null
     additionalInformation?: string | null
     requiredDeliveryDate?: Date | string | null
+  }
+
+  export type GoodsReturnCreateManyQuotationInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    jobId?: string | null
+    companyId?: string | null
   }
 
   export type OrderUpdateWithoutQuotationInput = {
@@ -245695,6 +248728,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUpdateManyWithoutJobNestedInput
     project?: ProjectUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUpdateManyWithoutJobNestedInput
@@ -245738,6 +248772,7 @@ export namespace Prisma {
     outsourceRepairs?: OutsourceRepairUncheckedUpdateManyWithoutJobNestedInput
     project?: ProjectUncheckedUpdateOneWithoutJobNestedInput
     repairDeliveries?: RepairDeliveryUncheckedUpdateManyWithoutJobNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutJobNestedInput
     repairOrder?: RepairOrderUncheckedUpdateOneWithoutJobNestedInput
     stepLogs?: JobStepLogUncheckedUpdateManyWithoutJobNestedInput
     paymentTasks?: PaymentTaskUncheckedUpdateManyWithoutJobNestedInput
@@ -245776,6 +248811,66 @@ export namespace Prisma {
     billingDocsUrl?: NullableStringFieldUpdateOperationsInput | string | null
     additionalInformation?: NullableStringFieldUpdateOperationsInput | string | null
     requiredDeliveryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type GoodsReturnUpdateWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    job?: JobUpdateOneWithoutGoodsReturnsNestedInput
+    company?: CompanyUpdateOneWithoutGoodsReturnsNestedInput
+  }
+
+  export type GoodsReturnUncheckedUpdateWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type GoodsReturnUncheckedUpdateManyWithoutQuotationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    jobId?: NullableStringFieldUpdateOperationsInput | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderStatusLogCreateManyOrderInput = {
@@ -245969,6 +249064,26 @@ export namespace Prisma {
     workRepairDetails?: string | null
     workTrainingDetails?: string | null
     internalCompany?: string | null
+  }
+
+  export type GoodsReturnCreateManyJobInput = {
+    id?: string
+    documentNo: string
+    date?: Date | string
+    customer?: string | null
+    deliveryLocation?: string | null
+    reference?: string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: string | null
+    receiverDate?: Date | string | null
+    senderName?: string | null
+    senderDate?: Date | string | null
+    status?: string
+    returnType?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    quotationId?: string | null
+    companyId?: string | null
   }
 
   export type JobStepLogCreateManyJobInput = {
@@ -246309,6 +249424,66 @@ export namespace Prisma {
     workRepairDetails?: NullableStringFieldUpdateOperationsInput | string | null
     workTrainingDetails?: NullableStringFieldUpdateOperationsInput | string | null
     internalCompany?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type GoodsReturnUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    quotation?: QuotationUpdateOneWithoutGoodsReturnsNestedInput
+    company?: CompanyUpdateOneWithoutGoodsReturnsNestedInput
+  }
+
+  export type GoodsReturnUncheckedUpdateWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type GoodsReturnUncheckedUpdateManyWithoutJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    documentNo?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    items?: NullableJsonNullValueInput | InputJsonValue
+    receiverName?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    senderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    returnType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    quotationId?: NullableStringFieldUpdateOperationsInput | string | null
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type JobStepLogUpdateWithoutJobInput = {
@@ -251462,6 +254637,7 @@ export namespace Prisma {
     contact?: ContactUpdateOneWithoutQuotationsNestedInput
     salesperson?: UserUpdateOneWithoutQuotationsNestedInput
     jobs?: JobUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateWithoutSiteSurveyInput = {
@@ -251501,6 +254677,7 @@ export namespace Prisma {
     marketingLead?: MarketingLeadUncheckedUpdateOneWithoutQuotationNestedInput
     orders?: OrderUncheckedUpdateManyWithoutQuotationNestedInput
     jobs?: JobUncheckedUpdateManyWithoutQuotationNestedInput
+    goodsReturns?: GoodsReturnUncheckedUpdateManyWithoutQuotationNestedInput
   }
 
   export type QuotationUncheckedUpdateManyWithoutSiteSurveyInput = {

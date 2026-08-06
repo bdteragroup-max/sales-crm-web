@@ -107,7 +107,15 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
             />
           </form>
         ) : (
-          <h3 className="font-bold text-gray-800 text-[15px] tracking-tight truncate flex-1 pr-2">{list.name}</h3>
+          <>
+            <h3 className="font-bold text-gray-800 text-[15px] tracking-tight truncate flex-1 pr-2">{list.name}</h3>
+            <span 
+              className="text-xs font-semibold text-gray-500 bg-white/60 border border-gray-200/50 px-2 py-0.5 rounded-full mr-2 shadow-sm"
+              title={`${list.cards.filter(c => c.isCompleted).length} completed out of ${list.cards.length} tasks`}
+            >
+              {list.cards.filter(c => c.isCompleted).length}/{list.cards.length}
+            </span>
+          </>
         )}
 
         <div className="relative">
