@@ -47,6 +47,7 @@ export default function KanbanCard({ card, users, onClick }: Props) {
   const coverImage = card.attachments?.find((att: any) => att.fileType?.startsWith('image/'));
 
   const assignedUser = users.find(u => u.id === card.assignedToId);
+  const serviceReviewers = (card.engineeringReviewers || []).map(id => users.find(u => u.id === id)).filter(Boolean);
 
   const getRevisionBadge = () => {
     switch (card.revisionStatus) {
@@ -81,18 +82,29 @@ export default function KanbanCard({ card, users, onClick }: Props) {
         {getRevisionBadge()}
       </div>
 
-      <h4 className={`font-semibold text-gray-800 text-sm leading-snug ${assignedUser ? 'mb-2' : 'mb-3'}`}>
+      <h4 className={`font-semibold text-gray-800 text-sm leading-snug ${assignedUser || serviceReviewers.length > 0 ? 'mb-2' : 'mb-3'}`}>
         {card.title}
       </h4>
 
       {assignedUser && (
-        <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-3 font-medium">
+        <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1 font-medium">
           <div className="w-5 h-5 rounded-full bg-red-100 text-[#ff2301] flex items-center justify-center font-bold text-[10px] shrink-0">
             {assignedUser.fullName?.charAt(0) || assignedUser.email?.charAt(0) || '?'}
           </div>
           <span className="truncate">{assignedUser.fullName}</span>
         </div>
       )}
+
+      {serviceReviewers.map(reviewer => (
+        <div key={reviewer.id} className="flex items-center gap-1.5 text-xs text-blue-600 mb-1 font-medium">
+          <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[10px] shrink-0">
+            {reviewer.fullName?.charAt(0) || reviewer.email?.charAt(0) || '?'}
+          </div>
+          <span className="truncate">{reviewer.fullName} (บริการ)</span>
+        </div>
+      ))}
+
+      {(assignedUser || serviceReviewers.length > 0) && <div className="mb-2"></div>}
 
       <div className="flex items-center justify-between text-gray-400">
         <div className="flex items-center gap-3">

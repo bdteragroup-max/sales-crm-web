@@ -80,6 +80,7 @@ const serviceNav = [
   { icon: Calculator, label: 'ประเมินราคางานซ่อม/ประกอบ', href: '/service/estimations' },
   { icon: UserSquare, label: 'งานของฉัน', href: '/service/my-tasks' },
   { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
+  { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
 ];
 
 const backofficeNav = [

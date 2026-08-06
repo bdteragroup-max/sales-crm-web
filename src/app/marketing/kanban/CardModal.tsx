@@ -20,6 +20,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   const [startDate, setStartDate] = useState(card.startDate ? new Date(card.startDate).toISOString().split('T')[0] : '');
   const [dueDate, setDueDate] = useState(card.dueDate ? new Date(card.dueDate).toISOString().split('T')[0] : '');
   const [cardColor, setCardColor] = useState(card.color || '');
+  const [engineeringReviewers, setEngineeringReviewers] = useState<string[]>(card.engineeringReviewers || []);
   
   const [checklist, setChecklist] = useState<any[]>(card.checklist || []);
   const [newChecklistItem, setNewChecklistItem] = useState('');
@@ -57,13 +58,15 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
   const handleRevisionRequest = async () => {
     setErrorMsg(null);
-    if (!newComment) {
+    if (!newComment && comments.length === 0) {
       setErrorMsg("กรุณาระบุเหตุผลการขอแก้ไขในกล่องความคิดเห็นก่อน");
       return;
     }
     
-    // Add comment first
-    await handleAddComment();
+    if (newComment) {
+      // Add comment first
+      await handleAddComment();
+    }
 
     // Find the "To Revise" list
     const reviseList = lists.find(l => l.name.toLowerCase().includes('revise'));
@@ -106,9 +109,10 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
         body: JSON.stringify({ cardId: card.id, message: newComment.trim() })
       });
       const comment = await res.json();
-      setComments([comment, ...comments]);
+      const newComments = [comment, ...comments];
+      setComments(newComments);
       setNewComment('');
-      // Trigger a light card update to refresh activity logs if needed, but local state is fine for now
+      onUpdate({ ...card, comments: newComments });
     } catch (e) {
       console.error(e);
     }
@@ -267,7 +271,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
           <div className="flex items-center gap-3 mt-1">
             <button
               onClick={() => {
-                handleSave({ title, description, assignedToId, startDate, dueDate, color: cardColor });
+                handleSave({ title, description, assignedToId, engineeringReviewers, startDate, dueDate, color: cardColor });
                 onClose();
               }}
               className="flex items-center gap-2 bg-[#ff2301] hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all"
@@ -498,6 +502,25 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
               >
                 <option value="">ไม่ได้มอบหมาย</option>
                 {users.map(u => (
+                  <option key={u.id} value={u.id}>{u.fullName}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Service Reviewers (วิศวกรบริการ)</span>
+              <select 
+                value={engineeringReviewers[0] || ""} 
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const newReviewers = val ? [val] : [];
+                  setEngineeringReviewers(newReviewers);
+                  handleSave({ engineeringReviewers: newReviewers });
+                }}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-100"
+              >
+                <option value="">ไม่ได้มอบหมาย</option>
+                {users.filter(u => ['SERVICE', 'SERVICE_ENGINEER', 'SERVICE_MGR', 'บริการ'].some(r => (u.role||'').toUpperCase().includes(r))).map(u => (
                   <option key={u.id} value={u.id}>{u.fullName}</option>
                 ))}
               </select>

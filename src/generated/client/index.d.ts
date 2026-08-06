@@ -155072,6 +155072,7 @@ export namespace Prisma {
     updatedAt: number
     color: number
     startDate: number
+    engineeringReviewers: number
     _all: number
   }
 
@@ -155128,6 +155129,7 @@ export namespace Prisma {
     updatedAt?: true
     color?: true
     startDate?: true
+    engineeringReviewers?: true
     _all?: true
   }
 
@@ -155231,6 +155233,7 @@ export namespace Prisma {
     updatedAt: Date
     color: string | null
     startDate: Date | null
+    engineeringReviewers: string[]
     _count: KanbanCardCountAggregateOutputType | null
     _avg: KanbanCardAvgAggregateOutputType | null
     _sum: KanbanCardSumAggregateOutputType | null
@@ -155266,6 +155269,7 @@ export namespace Prisma {
     updatedAt?: boolean
     color?: boolean
     startDate?: boolean
+    engineeringReviewers?: boolean
     activityLogs?: boolean | KanbanCard$activityLogsArgs<ExtArgs>
     attachments?: boolean | KanbanCard$attachmentsArgs<ExtArgs>
     list?: boolean | KanbanListDefaultArgs<ExtArgs>
@@ -155287,6 +155291,7 @@ export namespace Prisma {
     updatedAt?: boolean
     color?: boolean
     startDate?: boolean
+    engineeringReviewers?: boolean
     list?: boolean | KanbanListDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["kanbanCard"]>
 
@@ -155304,6 +155309,7 @@ export namespace Prisma {
     updatedAt?: boolean
     color?: boolean
     startDate?: boolean
+    engineeringReviewers?: boolean
     list?: boolean | KanbanListDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["kanbanCard"]>
 
@@ -155321,9 +155327,10 @@ export namespace Prisma {
     updatedAt?: boolean
     color?: boolean
     startDate?: boolean
+    engineeringReviewers?: boolean
   }
 
-  export type KanbanCardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "listId" | "title" | "description" | "assignedToId" | "dueDate" | "revisionStatus" | "position" | "checklist" | "createdAt" | "updatedAt" | "color" | "startDate", ExtArgs["result"]["kanbanCard"]>
+  export type KanbanCardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "listId" | "title" | "description" | "assignedToId" | "dueDate" | "revisionStatus" | "position" | "checklist" | "createdAt" | "updatedAt" | "color" | "startDate" | "engineeringReviewers", ExtArgs["result"]["kanbanCard"]>
   export type KanbanCardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     activityLogs?: boolean | KanbanCard$activityLogsArgs<ExtArgs>
     attachments?: boolean | KanbanCard$attachmentsArgs<ExtArgs>
@@ -155360,6 +155367,7 @@ export namespace Prisma {
       updatedAt: Date
       color: string | null
       startDate: Date | null
+      engineeringReviewers: string[]
     }, ExtArgs["result"]["kanbanCard"]>
     composites: {}
   }
@@ -155800,6 +155808,7 @@ export namespace Prisma {
     readonly updatedAt: FieldRef<"KanbanCard", 'DateTime'>
     readonly color: FieldRef<"KanbanCard", 'String'>
     readonly startDate: FieldRef<"KanbanCard", 'DateTime'>
+    readonly engineeringReviewers: FieldRef<"KanbanCard", 'String[]'>
   }
     
 
@@ -161793,7 +161802,8 @@ export namespace Prisma {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     color: 'color',
-    startDate: 'startDate'
+    startDate: 'startDate',
+    engineeringReviewers: 'engineeringReviewers'
   };
 
   export type KanbanCardScalarFieldEnum = (typeof KanbanCardScalarFieldEnum)[keyof typeof KanbanCardScalarFieldEnum]
@@ -173522,6 +173532,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"KanbanCard"> | Date | string
     color?: StringNullableFilter<"KanbanCard"> | string | null
     startDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
+    engineeringReviewers?: StringNullableListFilter<"KanbanCard">
     activityLogs?: KanbanActivityLogListRelationFilter
     attachments?: KanbanAttachmentListRelationFilter
     list?: XOR<KanbanListScalarRelationFilter, KanbanListWhereInput>
@@ -173542,6 +173553,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     color?: SortOrderInput | SortOrder
     startDate?: SortOrderInput | SortOrder
+    engineeringReviewers?: SortOrder
     activityLogs?: KanbanActivityLogOrderByRelationAggregateInput
     attachments?: KanbanAttachmentOrderByRelationAggregateInput
     list?: KanbanListOrderByWithRelationInput
@@ -173565,6 +173577,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"KanbanCard"> | Date | string
     color?: StringNullableFilter<"KanbanCard"> | string | null
     startDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
+    engineeringReviewers?: StringNullableListFilter<"KanbanCard">
     activityLogs?: KanbanActivityLogListRelationFilter
     attachments?: KanbanAttachmentListRelationFilter
     list?: XOR<KanbanListScalarRelationFilter, KanbanListWhereInput>
@@ -173585,6 +173598,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     color?: SortOrderInput | SortOrder
     startDate?: SortOrderInput | SortOrder
+    engineeringReviewers?: SortOrder
     _count?: KanbanCardCountOrderByAggregateInput
     _avg?: KanbanCardAvgOrderByAggregateInput
     _max?: KanbanCardMaxOrderByAggregateInput
@@ -173609,6 +173623,7 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"KanbanCard"> | Date | string
     color?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
     startDate?: DateTimeNullableWithAggregatesFilter<"KanbanCard"> | Date | string | null
+    engineeringReviewers?: StringNullableListFilter<"KanbanCard">
   }
 
   export type KanbanAttachmentWhereInput = {
@@ -186875,6 +186890,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogCreateNestedManyWithoutCardInput
     attachments?: KanbanAttachmentCreateNestedManyWithoutCardInput
     list: KanbanListCreateNestedOneWithoutCardsInput
@@ -186895,6 +186911,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUncheckedCreateNestedManyWithoutCardInput
     attachments?: KanbanAttachmentUncheckedCreateNestedManyWithoutCardInput
     comments?: KanbanCommentUncheckedCreateNestedManyWithoutCardInput
@@ -186913,6 +186930,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUpdateManyWithoutCardNestedInput
     attachments?: KanbanAttachmentUpdateManyWithoutCardNestedInput
     list?: KanbanListUpdateOneRequiredWithoutCardsNestedInput
@@ -186933,6 +186951,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUncheckedUpdateManyWithoutCardNestedInput
     attachments?: KanbanAttachmentUncheckedUpdateManyWithoutCardNestedInput
     comments?: KanbanCommentUncheckedUpdateManyWithoutCardNestedInput
@@ -186952,6 +186971,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
   }
 
   export type KanbanCardUpdateManyMutationInput = {
@@ -186967,6 +186987,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
   }
 
   export type KanbanCardUncheckedUpdateManyInput = {
@@ -186983,6 +187004,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
   }
 
   export type KanbanAttachmentCreateInput = {
@@ -195419,6 +195441,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     color?: SortOrder
     startDate?: SortOrder
+    engineeringReviewers?: SortOrder
   }
 
   export type KanbanCardAvgOrderByAggregateInput = {
@@ -203064,6 +203087,10 @@ export namespace Prisma {
     deleteMany?: KanbanCardScalarWhereInput | KanbanCardScalarWhereInput[]
   }
 
+  export type KanbanCardCreateengineeringReviewersInput = {
+    set: string[]
+  }
+
   export type KanbanActivityLogCreateNestedManyWithoutCardInput = {
     create?: XOR<KanbanActivityLogCreateWithoutCardInput, KanbanActivityLogUncheckedCreateWithoutCardInput> | KanbanActivityLogCreateWithoutCardInput[] | KanbanActivityLogUncheckedCreateWithoutCardInput[]
     connectOrCreate?: KanbanActivityLogCreateOrConnectWithoutCardInput | KanbanActivityLogCreateOrConnectWithoutCardInput[]
@@ -203110,6 +203137,11 @@ export namespace Prisma {
     connectOrCreate?: KanbanCommentCreateOrConnectWithoutCardInput | KanbanCommentCreateOrConnectWithoutCardInput[]
     createMany?: KanbanCommentCreateManyCardInputEnvelope
     connect?: KanbanCommentWhereUniqueInput | KanbanCommentWhereUniqueInput[]
+  }
+
+  export type KanbanCardUpdateengineeringReviewersInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type KanbanActivityLogUpdateManyWithoutCardNestedInput = {
@@ -241678,6 +241710,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogCreateNestedManyWithoutCardInput
     attachments?: KanbanAttachmentCreateNestedManyWithoutCardInput
     comments?: KanbanCommentCreateNestedManyWithoutCardInput
@@ -241696,6 +241729,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUncheckedCreateNestedManyWithoutCardInput
     attachments?: KanbanAttachmentUncheckedCreateNestedManyWithoutCardInput
     comments?: KanbanCommentUncheckedCreateNestedManyWithoutCardInput
@@ -241767,6 +241801,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"KanbanCard"> | Date | string
     color?: StringNullableFilter<"KanbanCard"> | string | null
     startDate?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
+    engineeringReviewers?: StringNullableListFilter<"KanbanCard">
   }
 
   export type KanbanBoardUpsertWithoutListsInput = {
@@ -242038,6 +242073,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogCreateNestedManyWithoutCardInput
     list: KanbanListCreateNestedOneWithoutCardsInput
     comments?: KanbanCommentCreateNestedManyWithoutCardInput
@@ -242057,6 +242093,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUncheckedCreateNestedManyWithoutCardInput
     comments?: KanbanCommentUncheckedCreateNestedManyWithoutCardInput
   }
@@ -242090,6 +242127,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUpdateManyWithoutCardNestedInput
     list?: KanbanListUpdateOneRequiredWithoutCardsNestedInput
     comments?: KanbanCommentUpdateManyWithoutCardNestedInput
@@ -242109,6 +242147,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUncheckedUpdateManyWithoutCardNestedInput
     comments?: KanbanCommentUncheckedUpdateManyWithoutCardNestedInput
   }
@@ -242126,6 +242165,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogCreateNestedManyWithoutCardInput
     attachments?: KanbanAttachmentCreateNestedManyWithoutCardInput
     list: KanbanListCreateNestedOneWithoutCardsInput
@@ -242145,6 +242185,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUncheckedCreateNestedManyWithoutCardInput
     attachments?: KanbanAttachmentUncheckedCreateNestedManyWithoutCardInput
   }
@@ -242178,6 +242219,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUpdateManyWithoutCardNestedInput
     attachments?: KanbanAttachmentUpdateManyWithoutCardNestedInput
     list?: KanbanListUpdateOneRequiredWithoutCardsNestedInput
@@ -242197,6 +242239,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUncheckedUpdateManyWithoutCardNestedInput
     attachments?: KanbanAttachmentUncheckedUpdateManyWithoutCardNestedInput
   }
@@ -242214,6 +242257,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
     attachments?: KanbanAttachmentCreateNestedManyWithoutCardInput
     list: KanbanListCreateNestedOneWithoutCardsInput
     comments?: KanbanCommentCreateNestedManyWithoutCardInput
@@ -242233,6 +242277,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
     attachments?: KanbanAttachmentUncheckedCreateNestedManyWithoutCardInput
     comments?: KanbanCommentUncheckedCreateNestedManyWithoutCardInput
   }
@@ -242266,6 +242311,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
     attachments?: KanbanAttachmentUpdateManyWithoutCardNestedInput
     list?: KanbanListUpdateOneRequiredWithoutCardsNestedInput
     comments?: KanbanCommentUpdateManyWithoutCardNestedInput
@@ -242285,6 +242331,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
     attachments?: KanbanAttachmentUncheckedUpdateManyWithoutCardNestedInput
     comments?: KanbanCommentUncheckedUpdateManyWithoutCardNestedInput
   }
@@ -251728,6 +251775,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     color?: string | null
     startDate?: Date | string | null
+    engineeringReviewers?: KanbanCardCreateengineeringReviewersInput | string[]
   }
 
   export type KanbanCardUpdateWithoutListInput = {
@@ -251743,6 +251791,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUpdateManyWithoutCardNestedInput
     attachments?: KanbanAttachmentUpdateManyWithoutCardNestedInput
     comments?: KanbanCommentUpdateManyWithoutCardNestedInput
@@ -251761,6 +251810,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
     activityLogs?: KanbanActivityLogUncheckedUpdateManyWithoutCardNestedInput
     attachments?: KanbanAttachmentUncheckedUpdateManyWithoutCardNestedInput
     comments?: KanbanCommentUncheckedUpdateManyWithoutCardNestedInput
@@ -251779,6 +251829,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     color?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    engineeringReviewers?: KanbanCardUpdateengineeringReviewersInput | string[]
   }
 
   export type KanbanActivityLogCreateManyCardInput = {

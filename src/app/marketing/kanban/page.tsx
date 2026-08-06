@@ -10,11 +10,12 @@ export default async function KanbanPage() {
     redirect('/login');
   }
 
-  // Marketing roles or managers
-  const roleStr = (session.role || '').toLowerCase();
-  const isMarketing = ['marketing', 'การตลาด', 'ผู้จัดการ', 'manager', 'executive', 'super_admin'].some(r => roleStr.includes(r));
+  // Marketing roles, managers, or service
+  const roleStr = (session.role || '').toUpperCase();
+  const allowedRoles = ["MARKETING", "SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "MANAGER", "SUPER_ADMIN", "การตลาด", "บริการ", "ผู้จัดการ"];
+  const hasAccess = allowedRoles.some(r => roleStr.includes(r));
 
-  if (!isMarketing) {
+  if (!hasAccess) {
     return (
       <div className="p-8 text-center text-red-500 font-bold">
         คุณไม่มีสิทธิ์เข้าถึงกระดานงานการตลาด

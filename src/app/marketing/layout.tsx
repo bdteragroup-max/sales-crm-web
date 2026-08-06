@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { decrypt } from '@/app/lib/session'
 import prisma from '@/app/lib/db'
 import Sidebar from '@/app/components/Sidebar'
@@ -24,13 +24,15 @@ export default async function MarketingLayout({
     redirect('/')
   }
 
-  const roleStr = (user.role || '').toLowerCase();
+  const headersList = await headers();
+  const currentUrl = headersList.get('x-invoke-path') || headersList.get('referer') || '';
   
-  // Only allow marketing roles or managers
-  const isMarketing = ['marketing', 'การตลาด'].some(r => roleStr.includes(r));
-  const isManager = ['ผู้จัดการ', 'manager', 'sales manager', 'marketing manager'].some(r => roleStr.includes(r));
+  const roleStr = (user.role || '').toUpperCase();
   
-  if (!isMarketing && !isManager) {
+  const allowedRoles = ["MARKETING", "SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "MANAGER", "SUPER_ADMIN", "การตลาด", "บริการ", "ผู้จัดการ"];
+  const hasAccess = allowedRoles.some(r => roleStr.includes(r));
+  
+  if (!hasAccess) {
     redirect('/dashboard') // Or some unauthorized page
   }
 

@@ -2314,23 +2314,24 @@ model KanbanList {
 }
 
 model KanbanCard {
-  id             String              @id @default(cuid())
-  listId         String
-  title          String
-  description    String?
-  assignedToId   String?
-  dueDate        DateTime?           @db.Timestamptz(6)
-  revisionStatus String?
-  position       Float
-  checklist      Json?
-  createdAt      DateTime            @default(now()) @db.Timestamptz(6)
-  updatedAt      DateTime            @updatedAt @db.Timestamptz(6)
-  color          String?
-  startDate      DateTime?           @db.Timestamptz(6)
-  activityLogs   KanbanActivityLog[]
-  attachments    KanbanAttachment[]
-  list           KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)
-  comments       KanbanComment[]
+  id                   String              @id @default(cuid())
+  listId               String
+  title                String
+  description          String?
+  assignedToId         String?
+  dueDate              DateTime?           @db.Timestamptz(6)
+  revisionStatus       String?
+  position             Float
+  checklist            Json?
+  createdAt            DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime            @updatedAt @db.Timestamptz(6)
+  color                String?
+  startDate            DateTime?           @db.Timestamptz(6)
+  engineeringReviewers String[]            @default([])
+  activityLogs         KanbanActivityLog[]
+  attachments          KanbanAttachment[]
+  list                 KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)
+  comments             KanbanComment[]
 
   @@index([listId])
   @@index([assignedToId])

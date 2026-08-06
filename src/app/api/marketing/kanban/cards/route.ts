@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { getUser } from '@/app/lib/dal';
+import { sendPushToUser } from '@/app/lib/pushNotification';
 
 // POST: Create a new card
 export async function POST(request: NextRequest) {
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { listId, title, description, assignedToId, startDate, dueDate } = data;
+    const { listId, title, description, assignedToId, engineeringReviewers, startDate, dueDate } = data;
 
     if (!listId || !title) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
         title,
         description,
         assignedToId,
+        engineeringReviewers: engineeringReviewers || [],
         startDate: startDate ? new Date(startDate) : null,
         dueDate: dueDate ? new Date(dueDate) : null,
         position: newPosition
@@ -71,7 +73,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { id, listId, position, title, description, assignedToId, startDate, dueDate, revisionStatus, checklist, color } = data;
+    const { id, listId, position, title, description, assignedToId, engineeringReviewers, startDate, dueDate, revisionStatus, checklist, color } = data;
 
     if (!id) {
       return NextResponse.json({ error: 'Missing card ID' }, { status: 400 });
@@ -89,6 +91,7 @@ export async function PUT(request: NextRequest) {
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (assignedToId !== undefined) updateData.assignedToId = assignedToId;
+    if (engineeringReviewers !== undefined) updateData.engineeringReviewers = engineeringReviewers;
     if (startDate !== undefined) updateData.startDate = startDate ? new Date(startDate) : null;
     if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
     if (revisionStatus !== undefined) updateData.revisionStatus = revisionStatus;
@@ -126,6 +129,18 @@ export async function PUT(request: NextRequest) {
            details: `Moved to another list`
          }
        });
+       
+       const newList = await prisma.kanbanList.findUnique({ where: { id: listId } });
+       if (newList && newList.name === 'Product & Service Review' && card.engineeringReviewers?.length > 0) {
+         for (const reviewerId of card.engineeringReviewers) {
+           await sendPushToUser(reviewerId, {
+             title: 'Product & Service Review Required',
+             body: `A Kanban card "${card.title}" has been moved to the Product & Service Review list.`,
+             url: '/marketing/kanban',
+             category: 'kanban_review'
+           }).catch(console.error);
+         }
+       }
     }
 
     if (revisionStatus !== undefined && oldCard && oldCard.revisionStatus !== revisionStatus) {

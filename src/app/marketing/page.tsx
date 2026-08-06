@@ -1,3 +1,7 @@
+import { cookies } from 'next/headers'
+import { decrypt } from '@/app/lib/session'
+import prisma from '@/app/lib/db'
+import { redirect } from 'next/navigation'
 import { getMarketingLeads } from '@/app/actions/marketing'
 import Link from 'next/link'
 import { PlusCircle, Search, LayoutDashboard, Calendar, Edit3, FileText } from 'lucide-react'
@@ -8,6 +12,17 @@ export default async function MarketingDashboard({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const session = (await cookies()).get('session')?.value
+  const payload = await decrypt(session)
+  if (payload?.userId) {
+    const user = await prisma.user.findUnique({ where: { id: payload.userId } })
+    const roleStr = (user?.role || '').toUpperCase();
+    const isServiceOnly = ["SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "บริการ"].some(r => roleStr.includes(r)) && !["MARKETING", "MANAGER", "SUPER_ADMIN", "การตลาด", "ผู้จัดการ"].some(r => roleStr.includes(r));
+    if (isServiceOnly) {
+      redirect('/marketing/kanban');
+    }
+  }
+
   const resolvedParams = await searchParams
   const searchQuery = typeof resolvedParams.search === 'string' ? resolvedParams.search : ''
 

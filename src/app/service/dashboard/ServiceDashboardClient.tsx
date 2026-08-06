@@ -395,10 +395,15 @@ export default function ServiceDashboardClient({
               </div>
             </div>
 
-            <h3 className="text-sm font-bold text-gray-700 mb-3">⚠️ งานซ่อมที่เกินกำหนด SLA ({SLA_DAYS} วัน)</h3>
+            <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <AlertTriangle size={16} className="text-amber-500" /> งานซ่อมที่เกินกำหนด SLA ({SLA_DAYS} วัน)
+            </h3>
             <div className="max-h-64 overflow-y-auto custom-scrollbar pr-2 space-y-3">
               {slaExceededJobs.length === 0 ? (
-                <div className="text-center py-6 text-sm text-gray-400 font-medium bg-gray-50 rounded-xl">ไม่มีงานที่เกิน SLA 🎉</div>
+                <div className="text-center py-6 text-sm text-gray-400 font-medium bg-gray-50 rounded-xl flex flex-col items-center justify-center gap-2">
+                  <CheckCircle size={24} className="text-green-500" />
+                  ไม่มีงานที่เกิน SLA
+                </div>
               ) : (
                 slaExceededJobs.map(job => (
                   <div key={job.id} className="flex justify-between items-center p-3 hover:bg-gray-50 rounded-xl border border-gray-100 transition-colors">

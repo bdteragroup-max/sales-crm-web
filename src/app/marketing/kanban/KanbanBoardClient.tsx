@@ -37,6 +37,7 @@ export type TKanbanCard = {
   position: number;
   checklist: any | null;
   color?: string | null;
+  engineeringReviewers?: string[];
   attachments: any[];
   comments: any[];
   activityLogs: any[];
@@ -444,7 +445,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
                 const filteredList = {
                   ...list,
                   cards: list.cards.filter(card => {
-                    if (filterAssignee && card.assignedToId !== filterAssignee) return false;
+                    if (filterAssignee && card.assignedToId !== filterAssignee && !(card.engineeringReviewers || []).includes(filterAssignee)) return false;
                     // Mock label filter for revisionStatus
                     if (filterLabel === 'needs_revision' && card.revisionStatus !== 'needs_revision') return false;
                     if (filterLabel === 'pending_review' && card.revisionStatus !== 'pending_review') return false;

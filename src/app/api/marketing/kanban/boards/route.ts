@@ -40,11 +40,11 @@ export async function GET(request: NextRequest) {
           ownerId: user.id,
           lists: {
             create: [
-              { name: 'To Do', position: 1000 },
-              { name: 'In Progress', position: 2000 },
-              { name: 'Review', position: 3000 },
-              { name: 'To Revise', position: 4000 },
-              { name: 'Completed', position: 5000 }
+              { name: 'Backlog (Todo)', position: 1000 },
+              { name: 'Assigned to Team', position: 2000 },
+              { name: 'Product & Service Review', position: 3000 },
+              { name: 'Approval / Revise', position: 4000 },
+              { name: 'Done', position: 5000 }
             ]
           }
         },
@@ -90,8 +90,9 @@ export async function GET(request: NextRequest) {
     }
     
     const users = allUsers.filter(u => {
-      const roleStr = (u.role || '').toLowerCase();
-      return ['marketing', 'การตลาด'].some(r => roleStr.includes(r));
+      const roleStr = (u.role || '').toUpperCase();
+      const allowedRoles = ["MARKETING", "SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "MANAGER", "SUPER_ADMIN", "การตลาด", "บริการ", "ผู้จัดการ"];
+      return allowedRoles.some(r => roleStr.includes(r));
     }).map(u => {
       const nickname = nicknameMap.get(u.employeeId) || u.employeeSale?.nickname;
       return {
