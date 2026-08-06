@@ -21,16 +21,16 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   const [dueDate, setDueDate] = useState(card.dueDate ? new Date(card.dueDate).toISOString().split('T')[0] : '');
   const [cardColor, setCardColor] = useState(card.color || '');
   const [engineeringReviewers, setEngineeringReviewers] = useState<string[]>(card.engineeringReviewers || []);
-  
+
   const [checklist, setChecklist] = useState<any[]>(card.checklist || []);
   const [newChecklistItem, setNewChecklistItem] = useState('');
-  
+
   const [comments, setComments] = useState<any[]>(card.comments || []);
   const [newComment, setNewComment] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  
+
   const [attachments, setAttachments] = useState<any[]>(card.attachments || []);
-  
+
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [attachmentToDelete, setAttachmentToDelete] = useState<any>(null);
@@ -62,7 +62,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
       setErrorMsg("กรุณาระบุเหตุผลการขอแก้ไขในกล่องความคิดเห็นก่อน");
       return;
     }
-    
+
     if (newComment) {
       // Add comment first
       await handleAddComment();
@@ -79,7 +79,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
       revisionStatus: 'needs_revision',
       listId: reviseList.id
     });
-    
+
     onClose();
   };
 
@@ -125,7 +125,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
     const isVideo = file.type.startsWith('video/');
     const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-    
+
     if (isVideo && file.size > MAX_VIDEO_SIZE) {
       setErrorMsg(`วิดีโอมีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -143,16 +143,16 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `kanban/${card.id}/${fileName}`;
-      
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('marketing_assets')
         .upload(filePath, file, {
           contentType: file.type,
           upsert: false
         });
-        
+
       if (uploadError) throw new Error(uploadError.message);
-      
+
       const { data: urlData } = supabase.storage
         .from('marketing_assets')
         .getPublicUrl(filePath);
@@ -171,7 +171,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
       });
       const attachment = await res.json();
       if (!res.ok) throw new Error(attachment.error);
-      
+
       setAttachments([...attachments, attachment]);
     } catch (e: any) {
       setErrorMsg("อัปโหลดล้มเหลว: " + e.message);
@@ -250,12 +250,12 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   return (
     <div className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        
+
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-start justify-between bg-gray-50/50">
-          <div className="flex-1 mr-4">
-            <input 
-              type="text" 
+        <div className="px-4 md:px-6 py-4 border-b border-gray-100 flex items-start justify-between bg-gray-50/50">
+          <div className="flex-1 mr-2 md:mr-4">
+            <input
+              type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onBlur={() => title !== card.title && handleSave({ title })}
@@ -279,7 +279,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
               <CheckSquare size={16} />
               บันทึก (Save)
             </button>
-            <button 
+            <button
               onClick={onClose}
               className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all"
               title="Close"
@@ -290,18 +290,18 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 flex gap-8">
-          
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 flex flex-col md:flex-row gap-6 md:gap-8">
+
           {/* Main Column */}
-          <div className="flex-1 flex flex-col gap-8 pb-12">
-            
+          <div className="flex-1 flex flex-col gap-6 md:gap-8 pb-12 order-2 md:order-1">
+
             {/* Description */}
             <section>
               <div className="flex items-center gap-3 mb-3">
                 <AlignLeft size={20} className="text-gray-400" />
                 <h3 className="text-lg font-bold text-gray-800">รายละเอียด (Description)</h3>
               </div>
-              <textarea 
+              <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 onBlur={() => description !== card.description && handleSave({ description })}
@@ -316,10 +316,10 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                 <CheckSquare size={20} className="text-gray-400" />
                 <h3 className="text-lg font-bold text-gray-800">รายการตรวจสอบ (Checklist)</h3>
               </div>
-              
+
               <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-4">
-                <div 
-                  className="bg-green-500 h-full transition-all duration-300" 
+                <div
+                  className="bg-green-500 h-full transition-all duration-300"
                   style={{ width: `${checklist.length ? (checklist.filter(i => i.completed).length / checklist.length) * 100 : 0}%` }}
                 />
               </div>
@@ -327,8 +327,8 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
               <div className="flex flex-col gap-2 mb-4">
                 {checklist.map((item, idx) => (
                   <div key={item.id} className="flex items-center gap-3 group">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={item.completed}
                       onChange={() => toggleChecklist(item.id)}
                       className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
@@ -348,15 +348,15 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
               </div>
 
               <div className="flex gap-2">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={newChecklistItem}
                   onChange={(e) => setNewChecklistItem(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && addChecklistItem()}
                   placeholder="เพิ่มรายการ..."
                   className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-100"
                 />
-                <button 
+                <button
                   onClick={addChecklistItem}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-4 rounded-lg text-sm transition-colors"
                 >
@@ -372,62 +372,63 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                   <Paperclip size={20} className="text-gray-400" />
                   <h3 className="text-lg font-bold text-gray-800">ไฟล์แนบ (Attachments)</h3>
                 </div>
-                <button 
+                <button
                   onClick={() => fileInputRef.current?.click()}
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
                 >
                   {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
                   แนบไฟล์
                 </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  className="hidden" 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
                   accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"
-                  onChange={handleFileUpload} 
+                  onChange={handleFileUpload}
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {attachments.map(att => {
                   const isVideo = att.fileType?.startsWith('video/');
-                  
+
                   return (
-                  <div key={att.id} className={`relative group ${isVideo ? 'col-span-1 sm:col-span-2' : ''}`}>
-                    {isVideo ? (
-                      <div className="flex flex-col gap-2 p-3 border border-gray-200 rounded-xl bg-gray-50 relative">
-                        <video controls className="w-full rounded-lg max-h-64 bg-black" src={att.fileUrl}>
-                          <track kind="captions" />
-                        </video>
-                        <div className="flex justify-between items-center px-1">
-                          <span className="text-sm font-bold text-gray-800 truncate">{att.fileName}</span>
-                          <span className="text-xs text-gray-500">{(att.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+                    <div key={att.id} className={`relative group ${isVideo ? 'col-span-1 sm:col-span-2' : ''}`}>
+                      {isVideo ? (
+                        <div className="flex flex-col gap-2 p-3 border border-gray-200 rounded-xl bg-gray-50 relative">
+                          <video controls className="w-full rounded-lg max-h-64 bg-black" src={att.fileUrl}>
+                            <track kind="captions" />
+                          </video>
+                          <div className="flex justify-between items-center px-1">
+                            <span className="text-sm font-bold text-gray-800 truncate">{att.fileName}</span>
+                            <span className="text-xs text-gray-500">{(att.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <a href={att.fileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50 transition-colors h-full">
-                        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
-                           {att.fileType?.includes('image') ? (
-                             <img src={att.fileUrl} alt={att.fileName} className="w-full h-full object-cover" />
-                           ) : (
-                             <Paperclip size={20} />
-                           )}
-                        </div>
-                        <div className="flex flex-col overflow-hidden">
-                          <span className="text-sm font-bold text-gray-800 truncate">{att.fileName}</span>
-                          <span className="text-xs text-gray-500">{(att.fileSize / 1024).toFixed(1)} KB</span>
-                        </div>
-                      </a>
-                    )}
-                    <button
-                      onClick={(e) => handleDeleteAttachment(e, att)}
-                      className="absolute -top-2 -right-2 bg-white border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 p-1.5 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all z-10"
-                      title="ลบไฟล์แนบ"
-                    >
-                      <X size={14} strokeWidth={3} />
-                    </button>
-                  </div>
-                )})}
+                      ) : (
+                        <a href={att.fileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50 transition-colors h-full">
+                          <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
+                            {att.fileType?.includes('image') ? (
+                              <img src={att.fileUrl} alt={att.fileName} className="w-full h-full object-cover" />
+                            ) : (
+                              <Paperclip size={20} />
+                            )}
+                          </div>
+                          <div className="flex flex-col overflow-hidden">
+                            <span className="text-sm font-bold text-gray-800 truncate">{att.fileName}</span>
+                            <span className="text-xs text-gray-500">{(att.fileSize / 1024).toFixed(1)} KB</span>
+                          </div>
+                        </a>
+                      )}
+                      <button
+                        onClick={(e) => handleDeleteAttachment(e, att)}
+                        className="absolute -top-2 -right-2 bg-white border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 p-1.5 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all z-10"
+                        title="ลบไฟล์แนบ"
+                      >
+                        <X size={14} strokeWidth={3} />
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
             </section>
 
@@ -440,8 +441,8 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
               <div className="flex flex-col gap-5 mb-8">
                 {comments.map(comment => {
-                   const author = users.find(u => u.id === comment.userId);
-                   return (
+                  const author = users.find(u => u.id === comment.userId);
+                  return (
                     <div key={comment.id} className="flex gap-4">
                       <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 text-gray-600 font-bold flex items-center justify-center flex-shrink-0 uppercase text-xs">
                         {author?.fullName?.[0] || 'U'}
@@ -456,7 +457,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                         </div>
                       </div>
                     </div>
-                   );
+                  );
                 })}
               </div>
 
@@ -466,14 +467,14 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                   {currentUser?.fullName?.[0] || 'U'}
                 </div>
                 <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-hidden focus-within:border-red-300 focus-within:ring-2 focus-within:ring-red-100 transition-all shadow-sm">
-                  <textarea 
+                  <textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="เขียนความคิดเห็นใหม่ที่นี่..."
                     className="w-full p-4 text-sm outline-none resize-none min-h-[100px]"
                   />
                   <div className="bg-gray-50 px-4 py-3 flex justify-end border-t border-gray-100">
-                    <button 
+                    <button
                       onClick={handleAddComment}
                       className="bg-[#ff2301] hover:bg-red-600 text-white font-bold px-5 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 shadow-sm"
                     >
@@ -483,17 +484,17 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                 </div>
               </div>
             </section>
-            
+
             <div className="h-8"></div>
           </div>
 
           {/* Sidebar Column */}
-          <div className="w-48 flex-shrink-0 flex flex-col gap-6">
-            
+          <div className="w-full md:w-48 flex-shrink-0 flex flex-col gap-4 md:gap-6 order-1 md:order-2 bg-gray-50 md:bg-transparent p-4 md:p-0 rounded-xl md:rounded-none border border-gray-100 md:border-none">
+
             <div className="flex flex-col gap-2">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">ผู้รับผิดชอบ</span>
-              <select 
-                value={assignedToId} 
+              <select
+                value={assignedToId}
                 onChange={(e) => {
                   setAssignedToId(e.target.value);
                   handleSave({ assignedToId: e.target.value });
@@ -509,8 +510,8 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
             <div className="flex flex-col gap-2">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Service Reviewers (วิศวกรบริการ)</span>
-              <select 
-                value={engineeringReviewers[0] || ""} 
+              <select
+                value={engineeringReviewers[0] || ""}
                 onChange={(e) => {
                   const val = e.target.value;
                   const newReviewers = val ? [val] : [];
@@ -520,7 +521,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-100"
               >
                 <option value="">ไม่ได้มอบหมาย</option>
-                {users.filter(u => ['SERVICE', 'SERVICE_ENGINEER', 'SERVICE_MGR', 'บริการ'].some(r => (u.role||'').toUpperCase().includes(r))).map(u => (
+                {users.filter(u => ['SERVICE', 'SERVICE_ENGINEER', 'SERVICE_MGR', 'บริการ'].some(r => (u.role || '').toUpperCase().includes(r))).map(u => (
                   <option key={u.id} value={u.id}>{u.fullName}</option>
                 ))}
               </select>
@@ -528,8 +529,8 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
             <div className="flex flex-col gap-2">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">วันเริ่มงาน (Start Date)</span>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 value={startDate}
                 onChange={(e) => {
                   setStartDate(e.target.value);
@@ -541,8 +542,8 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
             <div className="flex flex-col gap-2">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">วันครบกำหนด (End Date)</span>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 value={dueDate}
                 onChange={(e) => {
                   setDueDate(e.target.value);
@@ -588,18 +589,18 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
             </div>
 
             <div className="h-px bg-gray-200 w-full my-2" />
-            
+
             <div className="flex flex-col gap-2">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">การกระทำ</span>
-              
+
               {errorMsg && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 font-bold mb-1 flex items-start gap-2 shadow-sm animate-in fade-in zoom-in-95">
                   <AlertCircle size={16} className="shrink-0 mt-0.5" />
                   <span className="leading-tight">{errorMsg}</span>
                 </div>
               )}
-              
-              <button 
+
+              <button
                 onClick={handleRevisionRequest}
                 className="w-full flex items-center justify-start gap-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
               >
@@ -607,7 +608,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                 ขอให้แก้ไข (Request Revision)
               </button>
 
-              <button 
+              <button
                 onClick={handleResubmit}
                 className="w-full flex items-center justify-start gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
               >
@@ -617,8 +618,8 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
             </div>
 
             <div className="h-px bg-gray-200 w-full my-4" />
-            
-            <button 
+
+            <button
               onClick={() => setIsDeletingCard(true)}
               className="w-full flex items-center justify-start gap-2 bg-gray-50 hover:bg-red-50 text-gray-700 hover:text-red-700 border border-gray-200 hover:border-red-200 px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
             >
@@ -639,14 +640,14 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
               คุณแน่ใจหรือไม่ว่าต้องการลบไฟล์ <span className="font-semibold text-gray-900">"{attachmentToDelete.fileName}"</span>?
             </p>
             <div className="flex gap-3 justify-end">
-              <button 
+              <button
                 onClick={() => setAttachmentToDelete(null)}
                 disabled={isDeleting}
                 className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
               >
                 ยกเลิก (Cancel)
               </button>
-              <button 
+              <button
                 onClick={confirmDeleteAttachment}
                 className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors flex items-center gap-2"
               >
@@ -666,13 +667,13 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
               คุณแน่ใจหรือไม่ว่าต้องการลบการ์ดนี้? การกระทำนี้ไม่สามารถกู้คืนได้
             </p>
             <div className="flex gap-3 justify-end">
-              <button 
+              <button
                 onClick={() => setIsDeletingCard(false)}
                 className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
               >
                 ยกเลิก (Cancel)
               </button>
-              <button 
+              <button
                 onClick={confirmDeleteCard}
                 className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors flex items-center gap-2"
               >

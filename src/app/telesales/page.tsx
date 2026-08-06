@@ -166,7 +166,8 @@ export default async function TelesalesPage({ searchParams }: PageProps) {
   if (search) {
     searchFilter.OR = [
       { company: { companyName: { contains: search, mode: 'insensitive' as const } } },
-      { user: { fullName: { contains: search, mode: 'insensitive' as const } } }
+      { user: { fullName: { contains: search, mode: 'insensitive' as const } } },
+      { company: { contacts: { some: { mobilePhone: { contains: search } } } } }
     ];
   }
 

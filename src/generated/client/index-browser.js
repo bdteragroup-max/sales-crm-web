@@ -1963,7 +1963,8 @@ exports.Prisma.KanbanCardScalarFieldEnum = {
   updatedAt: 'updatedAt',
   color: 'color',
   startDate: 'startDate',
-  engineeringReviewers: 'engineeringReviewers'
+  engineeringReviewers: 'engineeringReviewers',
+  isCompleted: 'isCompleted'
 };
 
 exports.Prisma.KanbanAttachmentScalarFieldEnum = {

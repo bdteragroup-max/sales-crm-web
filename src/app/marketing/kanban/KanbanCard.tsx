@@ -1,16 +1,17 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { MessageSquare, Paperclip, AlignLeft, Calendar } from 'lucide-react';
+import { MessageSquare, Paperclip, AlignLeft, Calendar, Check } from 'lucide-react';
 import type { TKanbanCard } from './KanbanBoardClient';
 
 type Props = {
   card: TKanbanCard;
   users: any[];
   onClick: () => void;
+  onCompleteCard?: (id: string, isCompleted: boolean) => void;
 };
 
-export default function KanbanCard({ card, users, onClick }: Props) {
+export default function KanbanCard({ card, users, onClick, onCompleteCard }: Props) {
   const {
     attributes,
     listeners,
@@ -69,7 +70,7 @@ export default function KanbanCard({ card, users, onClick }: Props) {
       {...attributes}
       {...listeners}
       onClick={onClick}
-      className={`bg-white rounded-xl shadow-sm border border-gray-100 cursor-grab active:cursor-grabbing hover:border-red-200 hover:shadow-md transition-all group relative overflow-hidden ${card.color ? 'pl-4 pr-3 py-3' : 'p-3'} ${
+      className={`shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 cursor-grab active:cursor-grabbing hover:border-red-200 hover:shadow-md transition-all group relative overflow-hidden ${card.color ? 'pl-4 pr-3 py-3' : 'p-3'} ${
         isDragging ? 'opacity-50 ring-2 ring-red-500 scale-105 z-50' : ''
       }`}
     >
@@ -82,9 +83,28 @@ export default function KanbanCard({ card, users, onClick }: Props) {
         {getRevisionBadge()}
       </div>
 
-      <h4 className={`font-semibold text-gray-800 text-sm leading-snug ${assignedUser || serviceReviewers.length > 0 ? 'mb-2' : 'mb-3'}`}>
-        {card.title}
-      </h4>
+      <div className={`flex items-start gap-2 ${assignedUser || serviceReviewers.length > 0 ? 'mb-2' : 'mb-3'}`}>
+        <button
+          title={card.isCompleted ? "เสร็จสิ้น (Completed)" : "ทำเครื่องหมายว่าเสร็จและบันทึก (Mark as completed and saved)"}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onCompleteCard) {
+              onCompleteCard(card.id, !card.isCompleted);
+            }
+          }}
+          onPointerDown={(e) => e.stopPropagation()} // Prevent drag start when clicking the checkbox
+          className={`mt-0.5 w-5 h-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
+            card.isCompleted 
+              ? 'bg-green-500 border-green-500 text-white' 
+              : 'border-gray-300 text-transparent hover:border-green-500 hover:text-green-500 bg-white'
+          }`}
+        >
+          <Check size={12} strokeWidth={4} />
+        </button>
+        <h4 className={`font-semibold text-gray-800 text-sm leading-snug flex-1 ${card.isCompleted ? 'line-through text-gray-400' : ''}`}>
+          {card.title}
+        </h4>
+      </div>
 
       {assignedUser && (
         <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1 font-medium">

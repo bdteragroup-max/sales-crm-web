@@ -12,7 +12,7 @@ export default async function KanbanPage() {
 
   // Marketing roles, managers, or service
   const roleStr = (session.role || '').toUpperCase();
-  const allowedRoles = ["MARKETING", "SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "MANAGER", "SUPER_ADMIN", "การตลาด", "บริการ", "ผู้จัดการ"];
+  const allowedRoles = ["MARKETING", "SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "MANAGER", "SUPER_ADMIN", "PROJECT", "การตลาด", "บริการ", "ผู้จัดการ", "โปรเจค", "โครงการ"];
   const hasAccess = allowedRoles.some(r => roleStr.includes(r));
 
   if (!hasAccess) {

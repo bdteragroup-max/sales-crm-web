@@ -4,11 +4,12 @@ import CompanyDetailClient from './CompanyDetailClient';
 import { notFound } from 'next/navigation';
 import { getUser } from '@/app/lib/dal';
 
-export default async function CompanyDetailPage({ params }: { params: { id: string } }) {
+export default async function CompanyDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   const user = await getUser();
   
   const company = await prisma.company.findUnique({
-    where: { id: params.id },
+    where: { id: resolvedParams.id },
     include: {
       interactions: {
         orderBy: { occurredAt: 'desc' },

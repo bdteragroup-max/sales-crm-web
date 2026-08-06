@@ -17,8 +17,8 @@ export default async function MarketingDashboard({
   if (payload?.userId) {
     const user = await prisma.user.findUnique({ where: { id: payload.userId } })
     const roleStr = (user?.role || '').toUpperCase();
-    const isServiceOnly = ["SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "บริการ"].some(r => roleStr.includes(r)) && !["MARKETING", "MANAGER", "SUPER_ADMIN", "การตลาด", "ผู้จัดการ"].some(r => roleStr.includes(r));
-    if (isServiceOnly) {
+    const isServiceOrProjectOnly = ["SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "PROJECT", "บริการ", "โปรเจค", "โครงการ"].some(r => roleStr.includes(r)) && !["MARKETING", "MANAGER", "SUPER_ADMIN", "การตลาด", "ผู้จัดการ"].some(r => roleStr.includes(r));
+    if (isServiceOrProjectOnly) {
       redirect('/marketing/kanban');
     }
   }

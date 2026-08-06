@@ -73,7 +73,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { id, listId, position, title, description, assignedToId, engineeringReviewers, startDate, dueDate, revisionStatus, checklist, color } = data;
+    const { id, listId, position, title, description, assignedToId, engineeringReviewers, startDate, dueDate, revisionStatus, checklist, color, isCompleted } = data;
 
     if (!id) {
       return NextResponse.json({ error: 'Missing card ID' }, { status: 400 });
@@ -97,6 +97,7 @@ export async function PUT(request: NextRequest) {
     if (revisionStatus !== undefined) updateData.revisionStatus = revisionStatus;
     if (checklist !== undefined) updateData.checklist = checklist;
     if (color !== undefined) updateData.color = color;
+    if (isCompleted !== undefined) updateData.isCompleted = isCompleted;
 
     const oldCard = await prisma.kanbanCard.findUnique({ where: { id } });
     if (!oldCard) {

@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     
     const users = allUsers.filter(u => {
       const roleStr = (u.role || '').toUpperCase();
-      const allowedRoles = ["MARKETING", "SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "MANAGER", "SUPER_ADMIN", "การตลาด", "บริการ", "ผู้จัดการ"];
+      const allowedRoles = ["MARKETING", "SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "MANAGER", "SUPER_ADMIN", "PROJECT", "การตลาด", "บริการ", "ผู้จัดการ", "โปรเจค", "โครงการ"];
       return allowedRoles.some(r => roleStr.includes(r));
     }).map(u => {
       const nickname = nicknameMap.get(u.employeeId) || u.employeeSale?.nickname;

@@ -2328,6 +2328,7 @@ model KanbanCard {
   color                String?
   startDate            DateTime?           @db.Timestamptz(6)
   engineeringReviewers String[]            @default([])
+  isCompleted          Boolean             @default(false)
   activityLogs         KanbanActivityLog[]
   attachments          KanbanAttachment[]
   list                 KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)

@@ -113,6 +113,7 @@ const projectNav = [
   { icon: FolderOpen, label: 'โครงการของฉัน', href: '/projects' },
   { icon: MapPin, label: 'แบบสำรวจไซต์งาน', href: '/sales/surveys' },
   { icon: Calculator, label: 'ประเมินราคางานซ่อม/ประกอบ', href: '/service/estimations' },
+  { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
 ];
 
 const marketingNav = [
@@ -127,6 +128,7 @@ const projectAdminNav = [
   { icon: LayoutDashboard, label: 'ภาพรวมโครงการ', href: '/projects/dashboard' },
   { icon: FolderOpen, label: 'จัดการโครงการ', href: '/projects' },
   { icon: MapPin, label: 'แบบสำรวจไซต์งาน', href: '/sales/surveys' },
+  { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
 ];
 
 const productionNav = [

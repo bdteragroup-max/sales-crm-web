@@ -12,9 +12,10 @@ type Props = {
   onCardClick: (card: TKanbanCard) => void;
   onUpdateList?: (listId: string, updates: Partial<TKanbanList>) => void;
   onDeleteList?: (listId: string) => void;
+  onCompleteCard?: (id: string, isCompleted: boolean) => void;
 };
 
-export default function KanbanList({ list, users, onAddCard, onCardClick, onUpdateList, onDeleteList }: Props) {
+export default function KanbanList({ list, users, onAddCard, onCardClick, onUpdateList, onDeleteList, onCompleteCard }: Props) {
   const [isAdding, setIsAdding] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [showMenu, setShowMenu] = useState(false);
@@ -66,17 +67,16 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex-shrink-0 w-72 flex flex-col ${currentBgClass} border ${currentBorderClass} rounded-2xl max-h-full shadow-sm transition-colors ${
-        isDragging ? 'opacity-50 ring-2 ring-red-500' : ''
-      }`}
+      className={`flex-shrink-0 w-72 flex flex-col ${currentBgClass} border ${currentBorderClass} rounded-2xl max-h-full shadow-sm transition-colors ${isDragging ? 'opacity-50 ring-2 ring-red-500' : ''
+        }`}
     >
-      <div 
-        {...attributes} 
+      <div
+        {...attributes}
         {...listeners}
         className="p-4 flex items-center justify-between cursor-grab active:cursor-grabbing group relative"
       >
         {isRenamingList ? (
-          <form 
+          <form
             onSubmit={(e) => {
               e.preventDefault();
               if (editListName.trim() && editListName.trim() !== list.name) {
@@ -87,7 +87,7 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
             className="flex-1 mr-2"
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <input 
+            <input
               autoFocus
               value={editListName}
               onChange={(e) => setEditListName(e.target.value)}
@@ -109,9 +109,9 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
         ) : (
           <h3 className="font-bold text-gray-800 text-[15px] tracking-tight truncate flex-1 pr-2">{list.name}</h3>
         )}
-        
+
         <div className="relative">
-          <button 
+          <button
             onPointerDown={(e) => e.stopPropagation()} // Prevent drag start when interacting with menu
             onClick={() => setShowMenu(!showMenu)}
             onBlur={() => setTimeout(() => setShowMenu(false), 200)}
@@ -119,13 +119,13 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
           >
             <MoreHorizontal size={18} />
           </button>
-          
+
           {showMenu && (
-            <div 
+            <div
               className="absolute right-0 top-full mt-1 w-36 bg-white border border-gray-200 shadow-lg rounded-lg py-1 z-[100]"
               onPointerDown={(e) => e.stopPropagation()}
             >
-              <button 
+              <button
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                 onClick={() => {
                   setShowMenu(false);
@@ -135,7 +135,7 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
               >
                 แก้ไขชื่อ (Rename)
               </button>
-              <button 
+              <button
                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-b border-gray-100"
                 onClick={() => {
                   setShowMenu(false);
@@ -144,7 +144,7 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
               >
                 ลบรายการ (Delete)
               </button>
-              
+
               <div className="px-4 py-2">
                 <span className="text-xs text-gray-500 font-semibold mb-2 block">สีรายการ (List Color)</span>
                 <div className="flex flex-wrap gap-1.5">
@@ -179,12 +179,12 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 pb-3 custom-scrollbar flex flex-col gap-3 min-h-[10px]">
-        <SortableContext 
+        <SortableContext
           items={list.cards.map(c => c.id)}
           strategy={verticalListSortingStrategy}
         >
           {list.cards.map((card) => (
-            <KanbanCard key={card.id} card={card} users={users} onClick={() => onCardClick(card)} />
+            <KanbanCard key={card.id} card={card} users={users} onClick={() => onCardClick(card)} onCompleteCard={onCompleteCard} />
           ))}
         </SortableContext>
 
@@ -206,14 +206,14 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
               rows={3}
             />
             <div className="flex items-center gap-2 mt-2">
-              <button 
+              <button
                 type="submit"
                 className="bg-[#ff2301] text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md shadow-red-200 hover:bg-red-600 transition-colors"
               >
                 เพิ่มงาน
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setIsAdding(false)}
                 className="text-gray-500 hover:text-gray-700 text-xs font-bold px-2 py-1.5"
               >
@@ -222,7 +222,7 @@ export default function KanbanList({ list, users, onAddCard, onCardClick, onUpda
             </div>
           </form>
         ) : (
-          <button 
+          <button
             onClick={() => setIsAdding(true)}
             className="flex items-center gap-2 text-gray-500 hover:bg-gray-200 hover:text-gray-800 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all"
           >

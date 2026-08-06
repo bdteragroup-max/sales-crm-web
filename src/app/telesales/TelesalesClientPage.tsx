@@ -233,7 +233,7 @@ export default function TelesalesClientPage({
                   <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="ค้นหาตามชื่อบริษัท หรือ เซลล์..."
+                    placeholder="ค้นหาตามชื่อบริษัท เบอร์โทร หรือ เซลล์..."
                     className="w-full pl-9 pr-4 py-2 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
                     value={localSearch}
                     onChange={(e) => setLocalSearch(e.target.value)}
@@ -318,6 +318,7 @@ export default function TelesalesClientPage({
                   <tr className="border-b border-gray-100">
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">วันที่โทร</th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">บริษัท / เซลล์</th>
+                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">เบอร์โทรศัพท์</th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">สถานะ</th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ผลลัพธ์</th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">นัดโทรกลับ</th>
@@ -334,6 +335,9 @@ export default function TelesalesClientPage({
                         <td className="py-4 px-5">
                           <p className="text-xs font-bold text-gray-900 leading-tight">{record.company?.companyName || '-'}</p>
                           <p className="text-[10px] text-gray-400 font-medium mt-0.5">{record.user?.fullName || '-'}</p>
+                        </td>
+                        <td className="py-4 px-5">
+                          <p className="text-xs font-bold text-gray-700">{record.company?.contacts?.[0]?.mobilePhone || '-'}</p>
                         </td>
                         <td className="py-4 px-5">
                           <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
@@ -478,7 +482,7 @@ export default function TelesalesClientPage({
                   <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="ค้นหาตามชื่อบริษัท หรือ เซลล์..."
+                    placeholder="ค้นหาตามชื่อบริษัท เบอร์โทร หรือ เซลล์..."
                     className="w-full pl-9 pr-4 py-2 text-sm font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red placeholder-gray-300 transition-all"
                     value={localSearch}
                     onChange={(e) => setLocalSearch(e.target.value)}
@@ -515,6 +519,7 @@ export default function TelesalesClientPage({
                   <tr className="border-b border-gray-100">
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">นัดหมาย</th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">ชื่อบริษัท</th>
+                    <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">เบอร์โทรศัพท์</th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest">สถานะล่าสุด</th>
                     <th className="py-4 px-5 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">จัดการ</th>
                   </tr>
@@ -567,8 +572,11 @@ export default function TelesalesClientPage({
                           <td className="py-4 px-5">
                             <p className="text-xs font-bold text-gray-900">{record.company?.companyName || '-'}</p>
                             <p className="text-[10px] text-gray-400 font-medium mt-0.5">
-                              {primaryContact ? `ผู้ติดต่อ: ${primaryContact.contactName} (${primaryContact.mobilePhone})` : 'ไม่มีข้อมูลผู้ติดต่อหลัก'}
+                              {primaryContact ? `ผู้ติดต่อ: ${primaryContact.contactName}` : 'ไม่มีข้อมูลผู้ติดต่อหลัก'}
                             </p>
+                          </td>
+                          <td className="py-4 px-5">
+                            <p className="text-xs font-bold text-gray-700">{primaryContact?.mobilePhone || '-'}</p>
                           </td>
                           <td className="py-4 px-5">
                             <div className="flex flex-col gap-1.5 items-start">

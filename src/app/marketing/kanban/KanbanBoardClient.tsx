@@ -20,7 +20,7 @@ import {
   sortableKeyboardCoordinates,
   horizontalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { Loader2, Plus, KanbanSquare, PanelRightClose, PanelRightOpen, Filter, Activity, X } from 'lucide-react';
+import { Loader2, Plus, KanbanSquare, PanelRightClose, PanelRightOpen, Filter, Activity, X, Check } from 'lucide-react';
 import KanbanList from '@/app/marketing/kanban/KanbanList';
 import CardModal from '@/app/marketing/kanban/CardModal';
 
@@ -41,6 +41,7 @@ export type TKanbanCard = {
   attachments: any[];
   comments: any[];
   activityLogs: any[];
+  isCompleted?: boolean;
 };
 
 export type TKanbanList = {
@@ -76,6 +77,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
   const [sidebarTab, setSidebarTab] = useState<'filters' | 'activity'>('filters');
   const [filterAssignee, setFilterAssignee] = useState<string | null>(null);
   const [filterLabel, setFilterLabel] = useState<string | null>(null);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const fetchBoard = useCallback(async () => {
     try {
@@ -400,6 +402,40 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
     })));
     setEditingCard(null);
   };
+
+  const handleCompleteCard = async (cardId: string, isCompleted: boolean) => {
+    setLists(prev => prev.map(list => ({
+      ...list,
+      cards: list.cards.map(c => c.id === cardId ? { ...c, isCompleted } : c)
+    })));
+    try {
+      await fetch('/api/marketing/kanban/cards', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: cardId, isCompleted })
+      });
+    } catch (e) {
+      console.error("Failed to update card completion", e);
+    }
+  };
+  const allActivities = React.useMemo(() => {
+    const acts: any[] = [];
+    lists.forEach(list => {
+      list.cards.forEach(card => {
+        if (card.activityLogs) {
+          card.activityLogs.forEach((log: any) => {
+            acts.push({
+              ...log,
+              cardTitle: card.title
+            });
+          });
+        }
+      });
+    });
+    acts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    return acts;
+  }, [lists]);
+
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -415,9 +451,9 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
           <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-[#ff2301]">
             <KanbanSquare size={20} strokeWidth={2.5} />
           </div>
-          <div>
-            <h1 className="font-bold text-lg text-gray-900 tracking-tight">{board?.name || 'กระดานการตลาด (Marketing Board)'}</h1>
-            <p className="text-xs text-gray-500 font-medium">ระบบจัดการงาน (Task Management System)</p>
+          <div className="min-w-0">
+            <h1 className="font-bold text-base md:text-lg text-gray-900 tracking-tight truncate">{board?.name || 'กระดานการตลาด (Marketing Board)'}</h1>
+            <p className="text-[10px] md:text-xs text-gray-500 font-medium truncate">ระบบจัดการงาน (Task Management System)</p>
           </div>
         </div>
         <button
@@ -445,6 +481,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
                 const filteredList = {
                   ...list,
                   cards: list.cards.filter(card => {
+                    if (!showCompleted && card.isCompleted) return false;
                     if (filterAssignee && card.assignedToId !== filterAssignee && !(card.engineeringReviewers || []).includes(filterAssignee)) return false;
                     // Mock label filter for revisionStatus
                     if (filterLabel === 'needs_revision' && card.revisionStatus !== 'needs_revision') return false;
@@ -461,6 +498,7 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
                     onCardClick={(card: TKanbanCard) => setEditingCard(card)}
                     onUpdateList={handleUpdateList}
                     onDeleteList={(id: string) => setListToDelete(lists.find(l => l.id === id) || null)}
+                    onCompleteCard={handleCompleteCard}
                   />
                 );
               })}
@@ -512,9 +550,17 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
         </DndContext>
       </div>
 
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="md:hidden absolute inset-0 bg-slate-900/40 z-10 backdrop-blur-sm" 
+          onClick={() => setIsSidebarOpen(false)} 
+        />
+      )}
+
       {/* Right Sidebar */}
       <div 
-        className={`flex-shrink-0 bg-white border-l transition-all duration-300 ease-in-out flex flex-col shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)] ${
+        className={`absolute top-0 right-0 bottom-0 z-20 md:relative flex-shrink-0 bg-white border-l transition-all duration-300 ease-in-out flex flex-col shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)] ${
           isSidebarOpen ? 'w-80 translate-x-0' : 'w-0 translate-x-full border-transparent opacity-0'
         }`}
       >
@@ -580,6 +626,25 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
                 </div>
 
                 <div>
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">สถานะงาน (Status)</h3>
+                  <button
+                    onClick={() => setShowCompleted(!showCompleted)}
+                    className={`w-full flex items-center gap-3 p-2 rounded-xl border text-sm font-medium transition-all text-left ${
+                      showCompleted 
+                        ? 'border-green-500 bg-green-50 text-green-700' 
+                        : 'border-gray-200 hover:bg-gray-50 text-gray-700'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${showCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
+                      {showCompleted && <Check size={12} strokeWidth={4} />}
+                    </div>
+                    <div className="flex-1">
+                      แสดงงานที่ทำเสร็จแล้ว
+                    </div>
+                  </button>
+                </div>
+
+                <div>
                   <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">ป้ายกำกับ (Labels)</h3>
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -610,19 +675,53 @@ export default function KanbanBoardClient({ currentUser }: { currentUser: any })
             {sidebarTab === 'activity' && (
               <div className="space-y-4">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">ล่าสุด (Recent)</h3>
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                    <Activity size={14} className="text-gray-500" />
+                
+                {allActivities.length === 0 ? (
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                      <Activity size={14} className="text-gray-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-800"><span className="font-semibold">ระบบ</span> เริ่มต้นกระดานนี้</p>
+                      <p className="text-xs text-gray-400 mt-0.5">วันนี้</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-800"><span className="font-semibold">ระบบ</span> เริ่มต้นกระดานนี้</p>
-                    <p className="text-xs text-gray-400 mt-0.5">วันนี้</p>
-                  </div>
-                </div>
-                {/* Real activity logs could be mapped here later */}
-                <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 text-center text-sm text-gray-500 mt-4">
-                  รอโหลดประวัติเพิ่มเติม...
-                </div>
+                ) : (
+                  allActivities.map((log) => {
+                    const user = users.find(u => u.id === log.userId);
+                    return (
+                      <div key={log.id} className="flex gap-3 group">
+                        <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 font-bold text-xs">
+                          {user ? (user.fullName?.charAt(0) || user.email?.charAt(0) || '?') : 'S'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-gray-800 break-words">
+                            <span className="font-semibold">{user ? user.fullName.split(' ')[0] : 'ระบบ'}</span>
+                            {' '}
+                            {log.actionType === 'create' ? 'สร้างงาน' : 
+                             log.actionType === 'move' ? 'ย้ายงาน' :
+                             log.actionType === 'update' ? 'อัปเดตงาน' : 
+                             log.actionType === 'comment' ? 'แสดงความเห็น' :
+                             log.actionType === 'upload' ? 'อัปโหลดไฟล์' : 
+                             log.actionType === 'delete' ? 'ลบงาน' : log.actionType}
+                            {' '}
+                            <span className="font-medium text-gray-600">"{log.cardTitle}"</span>
+                          </p>
+                          {log.details && (
+                            <p className="text-xs text-gray-500 mt-0.5 break-words bg-gray-50 p-1.5 rounded border border-gray-100">
+                              {log.details}
+                            </p>
+                          )}
+                          <p className="text-[10px] text-gray-400 mt-1">
+                            {new Date(log.timestamp).toLocaleString('th-TH', { 
+                              day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' 
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             )}
           </div>
