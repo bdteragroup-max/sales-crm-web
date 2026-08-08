@@ -8,11 +8,13 @@ interface ProductionDashboardClientProps {
   orders: any[];
   prs: any[];
   pos: any[];
+  cabinetJobs?: any[];
 }
 
-export default function ProductionDashboardClient({ orders, prs, pos }: ProductionDashboardClientProps) {
+export default function ProductionDashboardClient({ orders, prs, pos, cabinetJobs = [] }: ProductionDashboardClientProps) {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'jobs' | 'prs'>('jobs');
+  const [techChartTimeFilter, setTechChartTimeFilter] = useState<'all' | 'this_month' | 'this_week'>('all');
   
   const filteredOrders = orders.filter(o => {
     if (search) {
@@ -87,6 +89,35 @@ export default function ProductionDashboardClient({ orders, prs, pos }: Producti
     { name: 'Pending', value: pendingQC },
   ];
   const qcColors = ['#22c55e', '#ef4444', '#f59e0b'];
+
+  // Technician Chart Logic
+  const filteredTechJobs = cabinetJobs.filter(job => {
+    if (techChartTimeFilter === 'all') return true;
+    const jobDate = new Date(job.createdAt);
+    const today = new Date();
+    if (techChartTimeFilter === 'this_month') {
+      return jobDate.getMonth() === today.getMonth() && jobDate.getFullYear() === today.getFullYear();
+    }
+    if (techChartTimeFilter === 'this_week') {
+      const firstDay = new Date(today.setDate(today.getDate() - today.getDay()));
+      return jobDate >= firstDay;
+    }
+    return true;
+  });
+
+  const techStatsMap: Record<string, { name: string, completed: number, inProgress: number }> = {};
+  filteredTechJobs.forEach(job => {
+    const techName = job.technician?.fullName || 'Unknown';
+    if (!techStatsMap[techName]) {
+      techStatsMap[techName] = { name: techName, completed: 0, inProgress: 0 };
+    }
+    if (job.status === 'COMPLETED') {
+      techStatsMap[techName].completed += 1;
+    } else {
+      techStatsMap[techName].inProgress += 1;
+    }
+  });
+  const techChartData = Object.values(techStatsMap).sort((a, b) => (b.completed + b.inProgress) - (a.completed + a.inProgress));
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-10">
@@ -209,6 +240,44 @@ export default function ProductionDashboardClient({ orders, prs, pos }: Producti
               </PieChart>
             </ResponsiveContainer>
           </div>
+        </div>
+      </div>
+
+      {/* Technician Performance Chart */}
+      <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <h3 className="text-sm font-bold text-gray-700 uppercase tracking-widest">ผลงานช่างประกอบ (Cumulative Output)</h3>
+          <select 
+            value={techChartTimeFilter}
+            onChange={(e) => setTechChartTimeFilter(e.target.value as any)}
+            className="text-xs font-bold text-gray-600 bg-gray-50 border-none rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500/20 outline-none"
+          >
+            <option value="all">ทั้งหมด (All Time)</option>
+            <option value="this_month">เดือนนี้ (This Month)</option>
+            <option value="this_week">สัปดาห์นี้ (This Week)</option>
+          </select>
+        </div>
+        <div className="h-[300px] w-full">
+          {techChartData.length === 0 ? (
+            <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+              <Package size={32} className="mb-2 opacity-20" />
+              <p className="text-sm font-medium">ไม่มีข้อมูลงานประกอบในช่วงเวลานี้</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={techChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                <Tooltip 
+                  cursor={{ fill: '#f3f4f6' }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} 
+                />
+                <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', fontWeight: 'bold' }} />
+                <Bar dataKey="completed" name="ประกอบเสร็จ (Completed)" stackId="a" fill="#10b981" radius={[0, 0, 4, 4]} />
+                <Bar dataKey="inProgress" name="กำลังทำ (In Progress)" stackId="a" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 

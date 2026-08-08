@@ -98,6 +98,10 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
   const [showCoinModal, setShowCoinModal] = useState(false);
   const [coinModalData, setCoinModalData] = useState({ gold: 0, message: '' });
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [quotationToDelete, setQuotationToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const executeMove = async (id: string, status: string, extraData?: any) => {
     try {
       const response = await updateQuotationStatus(id, status, extraData);
@@ -195,12 +199,25 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
   const handleEdit = (q: any) => { setEditingData(q); setActiveTab('new'); };
   const handleCreateNew = () => { setEditingData(null); setActiveTab('new'); };
 
-  const handleDelete = async (q: any) => {
-    if (window.confirm(`คุณต้องการลบข้อมูล ${q.quotationNumber || q.company?.companyName || 'นี้'} ใช่หรือไม่?`)) {
-      const res = await deleteQuotation(q.id);
+  const handleDelete = (q: any) => {
+    setQuotationToDelete(q);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!quotationToDelete) return;
+    setIsDeleting(true);
+    try {
+      const res = await deleteQuotation(quotationToDelete.id);
       if (!res.success) {
         alert(res.error || 'ลบข้อมูลไม่สำเร็จ');
       }
+    } catch (err) {
+      alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+      setQuotationToDelete(null);
     }
   };
 
@@ -562,6 +579,42 @@ export default function SalesClientPage({ initialQuotations = [], businessTypes 
             >
               เยี่ยมไปเลย!
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && quotationToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden scale-in-center p-6 text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
+              <Trash2 size={32} />
+            </div>
+            <h2 className="text-xl font-black text-gray-900 mb-2">ยืนยันการลบข้อมูล</h2>
+            <p className="text-gray-500 mb-6 font-medium">
+              คุณต้องการลบใบเสนอราคา <span className="font-bold text-gray-900">{quotationToDelete.quotationNumber || quotationToDelete.company?.companyName || 'นี้'}</span> ใช่หรือไม่?
+              <br />การกระทำนี้ไม่สามารถเรียกคืนได้
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors disabled:opacity-50"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2.5 bg-brand-red hover:bg-red-700 text-white font-bold rounded-xl transition-colors shadow-lg shadow-red-200 disabled:opacity-50 flex items-center justify-center"
+              >
+                {isDeleting ? (
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                ) : (
+                  'ลบข้อมูล'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

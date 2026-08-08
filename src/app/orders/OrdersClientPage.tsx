@@ -21,6 +21,7 @@ import {
   Receipt,
   Bell,
   X,
+  Users
 } from 'lucide-react'
 
 interface OrdersClientPageProps {
@@ -28,13 +29,15 @@ interface OrdersClientPageProps {
   teamMembers: any[]
   userRole?: string
   currentUserId?: string
+  technicians?: any[]
 }
 
 export default function OrdersClientPage({
   initialOrders,
   teamMembers,
   userRole,
-  currentUserId
+  currentUserId,
+  technicians = []
 }: OrdersClientPageProps) {
   const router = useRouter()
   const [orders, setOrders] = useState(initialOrders)
@@ -201,7 +204,7 @@ export default function OrdersClientPage({
     }
   }
 
-  const handleProductionStart = async (data: { materialReady: boolean, estimatedDays: number, prNote?: string }) => {
+  const handleProductionStart = async (data: { materialReady: boolean, estimatedDays: number, prNote?: string, assignedTechnicianIds?: string[], cabinetCount?: number, technicianWorkload?: { technicianId: string, count: number }[], productionStaffCount?: number, contractorCount?: number, assignments?: { userId?: string, contractorName?: string, workerType: string }[] }) => {
     if (!productionModalOrder) return;
     const orderId = productionModalOrder.id;
     setProductionModalOrder(null);
@@ -232,10 +235,25 @@ export default function OrdersClientPage({
     }
   }
 
+  // Workload Summary (only for 'กำลังผลิต')
+  const inProductionOrders = filteredOrders.filter((o: any) => o.status === 'กำลังผลิต');
+  const workload = technicians.map(tech => {
+    let cabinetCount = 0;
+    inProductionOrders.forEach((o: any) => {
+      if (o.technicianWorkload && Array.isArray(o.technicianWorkload)) {
+        const w = o.technicianWorkload.find((tw: any) => tw.technicianId === tech.id);
+        if (w) cabinetCount += w.count;
+      } else if (o.assignedTechnicians?.some((t: any) => t.id === tech.id)) {
+        cabinetCount += (o.cabinetCount || 1);
+      }
+    });
+    return { ...tech, cabinetCount };
+  }).filter(t => t.cabinetCount > 0);
+
   return (
     <div className="h-full flex flex-col bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Header */}
-      <div className="shrink-0 px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="shrink-0 px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
             <Package className="text-blue-600" size={24} />
@@ -277,8 +295,26 @@ export default function OrdersClientPage({
         </div>
       </div>
 
+      {/* Workload Summary */}
+      {workload.length > 0 && (
+        <div className="shrink-0 px-4 md:px-6 py-3 border-b border-gray-100 bg-blue-50/30 flex items-center gap-4 overflow-x-auto custom-scrollbar">
+          <div className="text-xs font-black text-gray-700 shrink-0 flex items-center gap-1.5">
+            <User2 size={14} className="text-blue-600" />
+            สรุปงานช่าง (กำลังผลิต):
+          </div>
+          <div className="flex gap-2">
+            {workload.map(tech => (
+              <div key={tech.id} className="flex items-center gap-1.5 bg-white border border-blue-100 px-2 py-1 rounded-lg shadow-sm shrink-0">
+                <span className="text-[11px] font-bold text-gray-700">{tech.fullName}</span>
+                <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-1.5 rounded">{tech.cabinetCount} ตู้</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Kanban Board */}
-      <div className="flex-1 overflow-x-auto p-5 custom-scrollbar bg-gray-50/30">
+      <div className="flex-1 overflow-x-auto p-4 md:p-5 custom-scrollbar bg-gray-50/30">
         <div className="h-full flex gap-4 min-w-[1100px]">
           {COLUMNS.map(col => {
             const { list, totalValue } = getColumnData(col.id)
@@ -390,6 +426,21 @@ export default function OrdersClientPage({
                             </div>
                           )}
 
+                          {order.assignedTechnicians && order.assignedTechnicians.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {order.assignedTechnicians.map((t: any) => {
+                                const w = order.technicianWorkload?.find((tw: any) => tw.technicianId === t.id);
+                                const countLabel = w ? ` (${w.count} ตู้)` : '';
+                                return (
+                                  <div key={t.id} className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 w-fit px-2 py-1 rounded-lg">
+                                    <User2 size={12} className="text-indigo-500" />
+                                    ช่าง: {t.fullName}{countLabel}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
                           <div className="border-t border-gray-100 my-2" />
 
                           <div className="flex items-center justify-between gap-2 mt-1">
@@ -449,7 +500,7 @@ export default function OrdersClientPage({
               </button>
             </div>
 
-            <div className="p-6 space-y-5 max-h-[65vh] overflow-y-auto custom-scrollbar bg-gray-50/50">
+            <div className="p-4 md:p-6 space-y-4 md:space-y-5 max-h-[65vh] overflow-y-auto custom-scrollbar bg-gray-50/50">
               <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">บริษัท / ลูกค้า</p>
                 <p className="text-sm font-black text-gray-800">{selectedOrder.company?.companyName || 'ไม่ระบุ'}</p>
@@ -540,6 +591,51 @@ export default function OrdersClientPage({
                 </div>
               )}
 
+              {/* Assignment Details */}
+              {(selectedOrder.assignedTechnicians && selectedOrder.assignedTechnicians.length > 0) && (
+                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-3">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-2">
+                    <Users size={14} className="text-blue-500" />
+                    ข้อมูลการมอบหมายงานประกอบ (Assignment Details)
+                  </h4>
+                  
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">ผู้รับผิดชอบงานประกอบ</p>
+                    <div className="flex flex-col gap-1.5">
+                      {selectedOrder.assignedTechnicians.map((tech: any) => {
+                        let count = 0;
+                        if (Array.isArray(selectedOrder.technicianWorkload)) {
+                          const w = selectedOrder.technicianWorkload.find((w: any) => w.technicianId === tech.id);
+                          if (w) count = w.count;
+                        }
+                        return (
+                          <div key={tech.id} className="flex items-center justify-between bg-gray-50 rounded px-3 py-2 border border-gray-100">
+                            <span className="text-[13px] font-medium text-gray-800 flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[9px] font-black shrink-0">
+                                {tech.fullName?.substring(0, 2).toUpperCase()}
+                              </span>
+                              {tech.fullName}
+                            </span>
+                            {count > 0 && (
+                              <span className="text-[11px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                {count} ตู้
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-gray-50">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">ผู้มอบหมายงาน (Assigned By)</p>
+                    <p className="text-xs font-medium text-gray-700">
+                      {selectedOrder.statusLogs?.[0]?.user?.fullName || 'ระบบ / ไม่ระบุ'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Purchase Requests & Orders */}
               {selectedOrder.purchaseRequests && selectedOrder.purchaseRequests.length > 0 && (
                 <div className="mt-4 space-y-4">
@@ -623,6 +719,7 @@ export default function OrdersClientPage({
       {productionModalOrder && (
         <ProductionStartModal
           order={productionModalOrder}
+          technicians={technicians}
           onClose={() => setProductionModalOrder(null)}
           onSubmit={handleProductionStart}
         />

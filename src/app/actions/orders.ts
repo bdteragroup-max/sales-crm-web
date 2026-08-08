@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
  * Update order status and log the change
  */
 export async function updateOrderStatus(
-  id: string, 
+  id: string,
   newStatus: string
 ) {
   const user = await getUser();
@@ -38,7 +38,7 @@ export async function updateOrderStatus(
     const updated = await prisma.$transaction(async (tx) => {
       const updatedOrder = await tx.order.update({
         where: { id },
-        data: { 
+        data: {
           status: newStatus,
           updatedAt: new Date()
         },
@@ -103,7 +103,7 @@ export async function updateOrderStatus(
     revalidatePath("/orders");
     revalidatePath("/dashboard");
     revalidatePath("/jobs");
-    
+
     return { success: true, data: updated };
   } catch (error: any) {
     console.error("Error updating order status:", error);
@@ -158,6 +158,12 @@ export async function fetchOrders(filters?: {
             role: true
           }
         },
+        assignedTechnicians: {
+          select: {
+            id: true,
+            fullName: true
+          }
+        },
         statusLogs: {
           orderBy: { createdAt: 'desc' },
           take: 5,
@@ -191,7 +197,7 @@ export async function createOrder(data: {
 
   try {
     const finalOrderNumber = data.orderNumber || await generateOrderNumber();
-    
+
     const newOrder = await prisma.order.create({
       data: {
         orderNumber: finalOrderNumber,
@@ -218,7 +224,7 @@ export async function createOrder(data: {
 
     revalidatePath("/orders");
     revalidatePath("/dashboard");
-    
+
     return { success: true, data: newOrder };
   } catch (error: any) {
     console.error("Error creating order:", error);
@@ -234,6 +240,12 @@ export async function startProductionWorkflow(id: string, payload: {
   materialReady: boolean;
   estimatedDays?: number;
   prNote?: string;
+  assignedTechnicianIds?: string[];
+  cabinetCount?: number;
+  technicianWorkload?: any;
+  productionStaffCount?: number;
+  contractorCount?: number;
+  assignments?: { userId?: string; contractorName?: string; workerType: string; role?: string }[];
 }) {
   const user = await getUser();
   if (!user) return { success: false, error: "Unauthorized" };
@@ -244,16 +256,16 @@ export async function startProductionWorkflow(id: string, payload: {
 
     const { addWorkingDays } = await import('@/app/utils/date');
     let productionDeadline = null;
-    
+
     if (payload.estimatedDays) {
       const today = new Date();
       const maxDate = new Date();
       maxDate.setMonth(today.getMonth() + 3);
-      
+
       const holidays = await prisma.holidays.findMany({
         where: { date: { gte: today, lte: maxDate } }
       });
-      
+
       const holidayDates = holidays.map(h => h.date);
       productionDeadline = addWorkingDays(new Date(), payload.estimatedDays, holidayDates);
     }
@@ -270,10 +282,46 @@ export async function startProductionWorkflow(id: string, payload: {
           productionDeadline,
           prRequired,
           prNote: payload.prNote,
+          cabinetCount: payload.cabinetCount ?? 1,
+          technicianWorkload: payload.technicianWorkload,
+          productionStaffCount: payload.productionStaffCount,
+          contractorCount: payload.contractorCount,
+          workerCount: (payload.productionStaffCount || 0) + (payload.contractorCount || 0),
+          assignments: payload.assignments?.length ? {
+            create: payload.assignments.map(a => ({
+              userId: a.userId,
+              contractorName: a.contractorName,
+              workerType: a.workerType,
+              role: a.role,
+              assignedBy: user.id
+            }))
+          } : undefined,
+          productionSteps: {
+            create: [
+              { stepIndex: 1, stepName: "1. ตัดเหล็ก/เตรียมโครงสร้าง" },
+              { stepIndex: 2, stepName: "2. ประกอบโครงสร้างตู้" },
+              { stepIndex: 3, stepName: "3. พ่นสี/ชุบกันสนิม" },
+              { stepIndex: 4, stepName: "4. ประกอบแผงอุปกรณ์ (Mounting Plate)" },
+              { stepIndex: 5, stepName: "5. เดินสายไฟเมน (Main Wiring)" },
+              { stepIndex: 6, stepName: "6. เดินสายไฟควบคุม (Control Wiring)" },
+              { stepIndex: 7, stepName: "7. ติดตั้งอุปกรณ์หน้าตู้" },
+              { stepIndex: 8, stepName: "8. ตรวจสอบคุณภาพ (QC)" },
+              { stepIndex: 9, stepName: "9. ทำความสะอาด/แพ็คกิ้ง" }
+            ]
+          },
+          assignedTechnicians: payload.assignedTechnicianIds?.length ? {
+            connect: payload.assignedTechnicianIds.map(tId => ({ id: tId }))
+          } : undefined,
           updatedAt: new Date()
         },
         include: {
-          company: true
+          company: true,
+          assignedTechnicians: {
+            select: {
+              id: true,
+              fullName: true
+            }
+          }
         }
       });
 
@@ -294,20 +342,20 @@ export async function startProductionWorkflow(id: string, payload: {
       // Adding common procurement roles
       const procurementRoles = ['PROCUREMENT', 'ADMIN', 'จัดซื้อ', 'admin', 'ผู้จัดการจัดซื้อ', 'ผู้อำนวยการ', 'purchasing'];
       const procurementUsers = await prisma.user.findMany({
-        where: { 
+        where: {
           isActive: true
         }
       });
-      
-      const targetUsers = procurementUsers.filter(u => 
+
+      const targetUsers = procurementUsers.filter(u =>
         procurementRoles.some(r => (u.role || '').toLowerCase().includes(r.toLowerCase()))
       );
-      
+
       for (const pUser of targetUsers) {
         await sendPushToUser(pUser.id, {
           title: "🛒 แจ้งเตือน: กรุณาเปิด PR สำหรับงานผลิต",
           body: `Order ${order.orderNumber} ต้องการจัดซื้อวัสดุ${payload.prNote ? ` — ${payload.prNote}` : ""}`,
-          url: `/admin/procurement/pr`, 
+          url: `/admin/procurement/pr`,
           category: "PRODUCTION_PR"
         }).catch(console.error);
       }
@@ -322,7 +370,7 @@ export async function startProductionWorkflow(id: string, payload: {
 }
 
 export async function submitQCReport(
-  orderId: string, 
+  orderId: string,
   payload: { status: 'PASS' | 'FAIL'; note?: string; qcImages?: string[] }
 ) {
   try {

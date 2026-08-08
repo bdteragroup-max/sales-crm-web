@@ -5,12 +5,24 @@ import { X, Calendar, Settings, AlertTriangle } from 'lucide-react';
 
 export default function ProductionStartModal({
   order,
+  technicians,
   onClose,
   onSubmit
 }: {
   order: any,
+  technicians: { id: string, fullName: string }[],
   onClose: () => void,
-  onSubmit: (data: { materialReady: boolean, estimatedDays: number, prNote?: string }) => void
+  onSubmit: (data: { 
+    materialReady: boolean, 
+    estimatedDays: number, 
+    prNote?: string, 
+    assignedTechnicianIds?: string[], 
+    cabinetCount?: number, 
+    technicianWorkload?: { technicianId: string, count: number }[],
+    productionStaffCount?: number,
+    contractorCount?: number,
+    assignments?: { userId?: string, contractorName?: string, workerType: string }[]
+  }) => void
 }) {
   const [materialReady, setMaterialReady] = useState(true);
   const [estimatedDays, setEstimatedDays] = useState<number | ''>(() => {
@@ -35,6 +47,11 @@ export default function ProductionStartModal({
   });
   const [prNote, setPrNote] = useState('');
   const [estimatedDate, setEstimatedDate] = useState<Date | null>(null);
+  const [technicianCounts, setTechnicianCounts] = useState<Record<string, number>>({});
+  const [techSearch, setTechSearch] = useState('');
+  
+  const [contractors, setContractors] = useState<string[]>([]);
+  const [newContractor, setNewContractor] = useState('');
 
   // Quick client-side estimation (skipping Sundays only for preview)
   useEffect(() => {
@@ -53,10 +70,25 @@ export default function ProductionStartModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const assignedTechnicianIds = Object.keys(technicianCounts).filter(id => technicianCounts[id] > 0);
+    const technicianWorkload = assignedTechnicianIds.map(id => ({ technicianId: id, count: technicianCounts[id] }));
+    const totalCount = assignedTechnicianIds.reduce((sum, id) => sum + technicianCounts[id], 0);
+
+    const assignments = [
+      ...assignedTechnicianIds.map(id => ({ userId: id, workerType: 'EMPLOYEE' })),
+      ...contractors.map(name => ({ contractorName: name, workerType: 'CONTRACTOR' }))
+    ];
+
     onSubmit({
       materialReady,
       estimatedDays: Number(estimatedDays) || 0,
-      prNote: materialReady ? undefined : prNote
+      prNote: materialReady ? undefined : prNote,
+      assignedTechnicianIds: assignedTechnicianIds.length > 0 ? assignedTechnicianIds : undefined,
+      cabinetCount: totalCount > 0 ? totalCount : 1,
+      technicianWorkload: technicianWorkload.length > 0 ? technicianWorkload : undefined,
+      productionStaffCount: assignedTechnicianIds.length,
+      contractorCount: contractors.length,
+      assignments: assignments.length > 0 ? assignments : undefined
     });
   };
 
@@ -119,6 +151,98 @@ export default function ProductionStartModal({
               />
             </div>
           )}
+
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-gray-700">ช่างเทคนิคที่รับผิดชอบและจำนวนตู้ (Technicians & Cabinets)</label>
+            <div className="relative mb-2">
+              <input 
+                type="text"
+                placeholder="ค้นหาช่าง (Search Technician)..."
+                value={techSearch}
+                onChange={e => setTechSearch(e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red"
+              />
+            </div>
+            <div className="flex flex-col gap-2 border border-gray-200 rounded-lg p-2 max-h-48 overflow-y-auto">
+              {technicians
+                .filter(t => t.fullName.toLowerCase().includes(techSearch.toLowerCase()))
+                .map(tech => {
+                const count = technicianCounts[tech.id] || 0;
+                return (
+                  <div key={tech.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-100 transition-colors">
+                    <span className="text-sm font-semibold text-gray-700">{tech.fullName}</span>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        type="button" 
+                        onClick={() => setTechnicianCounts(prev => ({ ...prev, [tech.id]: Math.max(0, count - 1) }))}
+                        className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200"
+                      >
+                        -
+                      </button>
+                      <span className="w-6 text-center font-bold text-sm text-brand-red">{count}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => setTechnicianCounts(prev => ({ ...prev, [tech.id]: count + 1 }))}
+                        className="w-7 h-7 rounded-full bg-brand-red flex items-center justify-center text-white hover:bg-red-700 shadow-sm shadow-red-200"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-gray-700">ผู้รับเหมา (Contractors)</label>
+            <div className="flex gap-2">
+              <input 
+                type="text"
+                placeholder="ระบุชื่อผู้รับเหมา/ทีม..."
+                value={newContractor}
+                onChange={e => setNewContractor(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (newContractor.trim()) {
+                      setContractors([...contractors, newContractor.trim()]);
+                      setNewContractor('');
+                    }
+                  }
+                }}
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-red/20 focus:border-brand-red"
+              />
+              <button 
+                type="button"
+                onClick={() => {
+                  if (newContractor.trim()) {
+                    setContractors([...contractors, newContractor.trim()]);
+                    setNewContractor('');
+                  }
+                }}
+                className="px-3 py-2 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                เพิ่ม
+              </button>
+            </div>
+            {contractors.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {contractors.map((contractor, idx) => (
+                  <div key={idx} className="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs font-semibold border border-blue-100">
+                    {contractor}
+                    <button 
+                      type="button" 
+                      onClick={() => setContractors(contractors.filter((_, i) => i !== idx))}
+                      className="ml-1 text-blue-400 hover:text-blue-600 focus:outline-none"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {estimatedDate && (
             <div className="bg-gray-50 rounded-lg p-3 border border-gray-100 flex items-center justify-between">

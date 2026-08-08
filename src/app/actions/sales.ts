@@ -366,16 +366,6 @@ export async function saveSalesData(formData: FormData) {
     let awardedGold = 0;
     let awardMessage = '';
     if (status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) {
-      // Award Gold Coins when closed
-      if (status === 'เปิดบิลแล้ว') {
-        const { awardGoldOnDealClosed } = await import('@/app/actions/coins');
-        const coinRes = await awardGoldOnDealClosed(newQuotation.id);
-        if (coinRes.success && 'awardedGold' in coinRes && coinRes.awardedGold) {
-          awardedGold = coinRes.awardedGold;
-          awardMessage = coinRes.message || '';
-        }
-      }
-
       const existingOrder = await prisma.order.findFirst({
         where: { quotationId: newQuotation.id }
       });
@@ -651,16 +641,6 @@ export async function updateSalesData(quotationId: string, formData: FormData) {
     let awardedGold = 0;
     let awardMessage = '';
     if (status === 'เปิดบิลแล้ว' || status?.startsWith('PO')) {
-      // Award Gold Coins when closed
-      if (status === 'เปิดบิลแล้ว') {
-        const { awardGoldOnDealClosed } = await import('@/app/actions/coins');
-        const coinRes = await awardGoldOnDealClosed(updatedQuotation.id);
-        if (coinRes.success && 'awardedGold' in coinRes && coinRes.awardedGold) {
-          awardedGold = coinRes.awardedGold;
-          awardMessage = coinRes.message || '';
-        }
-      }
-
       const existingOrder = await prisma.order.findFirst({
         where: { quotationId: updatedQuotation.id }
       });

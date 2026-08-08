@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Coins, Kanban
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity
 } from 'lucide-react';
 import { isSuperUser, isReadOnlyExecutive } from '@/app/lib/roleHelper';
 import { logout, getMyDepartment } from '@/app/actions/auth';
@@ -16,19 +16,21 @@ import { getPendingOutsourceRepairCount } from '@/app/actions/outsourceRepairs';
 import { getPendingRepairDeliveryCount } from '@/app/actions/repairDeliveries';
 import { getPendingEstimationCount } from '@/app/actions/estimations';
 import CoinMiniWidget from './CoinMiniWidget';
-import NotificationBell from './NotificationBell';
+import NotificationBell from './NotificationBell'; // HMR flush
 
 type SidebarProps = {
   activeRoute?: string;
   userFullName?: string;
   userId?: string;
   userRole?: string;
+  theme?: 'red' | 'blue' | 'purple' | 'green';
 };
 
 const executiveNav = [
   { icon: LayoutDashboard, label: 'Executive KPI', href: '/executive/kpi' },
   { icon: GitCommit, label: 'Pipeline Forecast', href: '/executive/pipeline' },
   { icon: Wrench, label: 'ภาพรวมงานบริการ', href: '/executive/service' },
+  { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
   { icon: Bell, label: 'SLA Exceptions', href: '/executive/sla' },
   { icon: Coins, label: 'ภาพรวมเหรียญรางวัล', href: '/executive/coins' },
   { icon: ShoppingCart, label: 'ภาพรวมจัดซื้อ', href: '/executive/purchasing' },
@@ -79,9 +81,16 @@ const serviceNav = [
   { icon: ClipboardList, label: 'แดชบอร์ดงานติดตั้ง', href: '/service/installation' },
   { icon: Calculator, label: 'ประเมินราคางานซ่อม/ประกอบ', href: '/service/estimations' },
   { icon: UserSquare, label: 'งานของฉัน', href: '/service/my-tasks' },
+  { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
   { icon: Calendar, label: 'ตารางงานเซอร์วิส', href: '/service/schedules' },
   { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
   { icon: Package, label: 'ใบส่งคืนสินค้า', href: '/service/goods-returns' },
+];
+
+const technicianNav = [
+  { icon: Wrench, label: 'งานผลิตของฉัน (Cabinet)', href: '/technician/production' },
+  { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
+  { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
 ];
 
 const backofficeNav = [
@@ -112,6 +121,7 @@ const storeAndPurchasingNav = [
 
 const projectNav = [
   { icon: FolderOpen, label: 'โครงการของฉัน', href: '/projects' },
+  { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Tasks)', href: '/technician/schedule' },
   { icon: MapPin, label: 'แบบสำรวจไซต์งาน', href: '/sales/surveys' },
   { icon: Calculator, label: 'ประเมินราคางานซ่อม/ประกอบ', href: '/service/estimations' },
   { icon: Kanban, label: 'กระดานงาน (Kanban)', href: '/marketing/kanban' },
@@ -135,6 +145,10 @@ const projectAdminNav = [
 const productionNav = [
   { icon: LayoutDashboard, label: 'Production Dashboard', href: '/production/dashboard' },
   { icon: Package, label: 'สถานะคำสั่งผลิต', href: '/orders' },
+  { icon: ClipboardList, label: 'ตรวจสอบคุณภาพ (QC)', href: '/production/qc' },
+  { icon: Activity, label: 'ทดสอบการทำงาน (FAT)', href: '/production/fat' },
+  { icon: Boxes, label: 'ผลิตเพื่อสต็อก (Stock)', href: '/production/stock' },
+  { icon: Users, label: 'ภาระงานช่าง (Workload)', href: '/production/workload' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
 ];
 
@@ -148,7 +162,7 @@ export default function SidebarClient(props: SidebarProps) {
 
   // Combine all navs for Super Admin, ensuring no duplicates by href
   const allNavs = [
-    ...executiveNav, ...managerNav, ...repNav, ...serviceNav,
+    ...executiveNav, ...managerNav, ...repNav, ...serviceNav, ...technicianNav,
     ...purchasingNav, ...storeNav, ...projectNav, ...marketingNav, ...productionNav
   ];
   const superAdminNav = Array.from(new Map(allNavs.map(item => [item.href, item])).values());
@@ -167,7 +181,9 @@ export default function SidebarClient(props: SidebarProps) {
     nav = managerNav;
   } else if (roleStr.includes('admin project') || roleStr.includes('project admin')) {
     nav = projectAdminNav;
-  } else if (roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง')) {
+  } else if (roleStr.includes('technician') || roleStr === 'ช่าง' || roleStr.includes('ช่างประกอบ') || roleStr.includes('ช่างตู้')) {
+    nav = technicianNav;
+  } else if (roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม')) {
     nav = serviceNav; // Service / non-sales departments see repair orders
   } else if (['accounting', 'บัญชี', 'finance', 'การเงิน'].some(r => roleStr.includes(r))) {
     nav = [
@@ -207,6 +223,7 @@ function ResponsiveSidebar({
   userFullName = 'User',
   userRole = 'ตัวแทนฝ่ายขาย',
   userId,
+  theme,
   nav,
 }: SidebarProps & { nav: NavItem[] }) {
   const router = useRouter();
@@ -241,7 +258,7 @@ function ResponsiveSidebar({
       getPendingPaymentTaskCount().then(setUnpaidCount).catch(() => { });
     }
 
-    const isServiceUser = roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง') || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้บริหาร' || roleStr === 'executive' || roleStr === 'super_admin';
+    const isServiceUser = roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('technician') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง') || roleStr === 'ผู้จัดการ' || roleStr === 'sales manager' || roleStr === 'marketing manager' || roleStr === 'ผู้จัดการฝ่ายการตลาด' || roleStr === 'ผู้จัดการการตลาด' || roleStr === 'ผู้บริหาร' || roleStr === 'executive' || roleStr === 'super_admin';
     if (isServiceUser) {
       getPendingInstallationCount().then(setPendingInstallationCount).catch(() => { });
       getPendingRepairOrderCount().then(setPendingRepairCount).catch(() => { });
@@ -277,6 +294,20 @@ function ResponsiveSidebar({
   const sortedNav = [...nav].sort((a, b) => b.href.length - a.href.length);
   const bestMatchHref = sortedNav.find(n => currentFullPath === n.href || pathname === n.href || pathname.startsWith(n.href + '/'))?.href || activeRoute;
 
+  const currentTheme = theme || 'red';
+  
+  const getThemeColors = () => {
+    switch (currentTheme) {
+      case 'blue': return { bg: 'bg-blue-600', text: 'text-blue-600', lightBg: 'bg-blue-50', border: 'border-blue-100', shadow: 'shadow-blue-200', hoverBg: 'hover:bg-blue-50' };
+      case 'purple': return { bg: 'bg-purple-600', text: 'text-purple-600', lightBg: 'bg-purple-50', border: 'border-purple-100', shadow: 'shadow-purple-200', hoverBg: 'hover:bg-purple-50' };
+      case 'green': return { bg: 'bg-green-600', text: 'text-green-600', lightBg: 'bg-green-50', border: 'border-green-100', shadow: 'shadow-green-200', hoverBg: 'hover:bg-green-50' };
+      case 'red':
+      default:
+        return { bg: 'bg-[#ff2301]', text: 'text-[#ff2301]', lightBg: 'bg-red-50', border: 'border-red-100', shadow: 'shadow-red-100', hoverBg: 'hover:bg-red-50' };
+    }
+  };
+  const colors = getThemeColors();
+
   return (
     <>
       {/* ─── DESKTOP SIDEBAR (Inline, in-flow) ─── */}
@@ -286,7 +317,7 @@ function ResponsiveSidebar({
         {/* Top brand logo and navigation */}
         <div className="flex flex-col items-center w-full shrink-0">
           {/* Logo mark */}
-          <Link href={userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} className="w-12 h-12 bg-[#ff2301] rounded-2xl flex items-center justify-center shadow-lg shadow-red-100 hover:scale-105 transition-all duration-300">
+          <Link href={userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} className={`w-12 h-12 ${colors.bg} rounded-2xl flex items-center justify-center shadow-lg ${colors.shadow} hover:scale-105 transition-all duration-300`}>
             <TrendingUp size={22} className="text-white" strokeWidth={2.5} />
           </Link>
 
@@ -294,7 +325,7 @@ function ResponsiveSidebar({
           <div className="w-8 h-px bg-gray-100 my-5 shrink-0" />
 
           {/* Nav items */}
-          <nav className="flex flex-col gap-2 w-full px-2">
+          <nav className="flex flex-col gap-4 w-full px-2">
             {nav.map(({ icon: Icon, label, href }) => {
               const isActive = href === bestMatchHref;
               const isLoading = loadingHref === href;
@@ -311,18 +342,18 @@ function ResponsiveSidebar({
                     }
                   }}
                   className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative mx-auto group ${isActive
-                    ? 'bg-red-50 text-[#ff2301] shadow-sm border border-red-100'
+                    ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
                     : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                 >
                   {isLoading ? (
-                    <Loader2 size={20} className="animate-spin text-[#ff2301]" />
+                    <Loader2 size={20} className={`animate-spin ${colors.text}`} />
                   ) : (
                     <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
                   )}
                   {isActive && !isLoading && (
                     <span
-                      className="absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full bg-[#ff2301] border border-white animate-pulse"
+                      className={`absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full ${colors.bg} border border-white animate-pulse`}
                     />
                   )}
                   {href === '/accounting' && unpaidCount > 0 && (
@@ -386,17 +417,17 @@ function ResponsiveSidebar({
               }
             }}
             className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative group ${(activeRoute === '/jobs' || activeRoute === '/department')
-              ? 'bg-red-50 text-[#ff2301] shadow-sm border border-red-100'
+              ? `${colors.lightBg} ${colors.text} shadow-sm border ${colors.border}`
               : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
               }`}
           >
             {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
-              <Loader2 size={20} className="animate-spin text-[#ff2301]" />
+              <Loader2 size={20} className={`animate-spin ${colors.text}`} />
             ) : (
               <Briefcase size={20} strokeWidth={(activeRoute === '/jobs' || activeRoute === '/department') ? 2.5 : 2} className="transition-transform duration-200 group-hover:scale-105" />
             )}
             {(activeRoute === '/jobs' || activeRoute === '/department') && loadingHref !== (userRole === 'อื่นๆ' ? '/department' : '/jobs') && (
-              <span className="absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full bg-[#ff2301] border border-white animate-pulse" />
+              <span className={`absolute -right-0.5 -top-0.5 w-2 h-2 rounded-full ${colors.bg} border border-white animate-pulse`} />
             )}
           </Link>
 
@@ -414,10 +445,10 @@ function ResponsiveSidebar({
                 setIsSettingsLoading(true);
               }
             }}
-            className="w-10 h-10 rounded-2xl bg-red-50 text-[#ff2301] border border-red-100 font-black text-xs flex items-center justify-center transition-all duration-200 hover:bg-red-100 hover:scale-105 uppercase"
+            className={`w-10 h-10 rounded-2xl ${colors.lightBg} ${colors.text} border ${colors.border} font-black text-xs flex items-center justify-center transition-all duration-200 hover:scale-105 uppercase`}
           >
             {isSettingsLoading ? (
-              <Loader2 size={16} className="animate-spin text-[#ff2301]" />
+              <Loader2 size={16} className={`animate-spin ${colors.text}`} />
             ) : (
               userFullName.charAt(0)
             )}
@@ -428,10 +459,10 @@ function ResponsiveSidebar({
               type="submit"
               onMouseEnter={(e) => showTooltip('ออกจากระบบ', e)}
               onMouseLeave={hideTooltip}
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:text-[#ff2301] hover:bg-red-50 transition-all duration-200 group"
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:${colors.text} ${colors.hoverBg} transition-all duration-200 group`}
             >
               {isLogoutLoading ? (
-                <Loader2 size={18} className="animate-spin text-[#ff2301]" />
+                <Loader2 size={18} className={`animate-spin ${colors.text}`} />
               ) : (
                 <LogOut
                   size={18}
@@ -447,7 +478,7 @@ function ResponsiveSidebar({
       {/* ─── MOBILE FLOATING TRIGGER BUTTON ─── */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="md:hidden fixed left-4 bottom-4 z-50 bg-[#ff2301] text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-red-200 hover:scale-105 active:scale-95 transition-all outline-none print:hidden"
+        className={`md:hidden fixed left-4 bottom-4 z-50 ${colors.bg} text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all outline-none print:hidden`}
       >
         {isMobileMenuOpen ? <X size={26} strokeWidth={2.5} /> : <Menu size={26} strokeWidth={2.5} />}
       </button>
@@ -468,7 +499,7 @@ function ResponsiveSidebar({
         {/* Brand header */}
         <div className="flex flex-col w-full">
           <Link href={userRole === 'อื่นๆ' ? '/department' : (userRole || '').toLowerCase().includes('project') ? '/jobs' : '/dashboard'} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#ff2301] rounded-xl flex items-center justify-center shadow-lg shadow-red-100">
+            <div className={`w-10 h-10 ${colors.bg} rounded-xl flex items-center justify-center shadow-lg ${colors.shadow}`}>
               <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
             </div>
             <div>
@@ -481,7 +512,7 @@ function ResponsiveSidebar({
           <div className="w-full h-px bg-gray-100 my-6" />
 
           {/* Nav items list */}
-          <nav className="flex flex-col gap-1.5 w-full">
+          <nav className="flex flex-col gap-3 w-full">
             {nav.map(({ icon: Icon, label, href }) => {
               const isActive = href === bestMatchHref;
               const isLoading = loadingHref === href;
@@ -497,13 +528,13 @@ function ResponsiveSidebar({
                     setIsMobileMenuOpen(false);
                   }}
                   className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 transition-all duration-200 border ${isActive
-                    ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
+                    ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold`
                     : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
                     }`}
                 >
                   <div className="shrink-0 relative">
                     {isLoading ? (
-                      <Loader2 size={18} className="animate-spin text-[#ff2301]" />
+                      <Loader2 size={24} className={`animate-spin ${colors.text}`} />
                     ) : (
                       <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                     )}
@@ -568,13 +599,13 @@ function ResponsiveSidebar({
               setIsMobileMenuOpen(false);
             }}
             className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 transition-all duration-200 border ${(activeRoute === '/jobs' || activeRoute === '/department')
-              ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
+              ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold`
               : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-transparent'
               }`}
           >
             <div className="shrink-0">
               {loadingHref === (userRole === 'อื่นๆ' ? '/department' : '/jobs') ? (
-                <Loader2 size={18} className="animate-spin text-[#ff2301]" />
+                <Loader2 size={18} className={`animate-spin ${colors.text}`} />
               ) : (
                 <Briefcase size={18} strokeWidth={(activeRoute === '/jobs' || activeRoute === '/department') ? 2.5 : 2} />
               )}
@@ -593,13 +624,13 @@ function ResponsiveSidebar({
               setIsMobileMenuOpen(false);
             }}
             className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all duration-200 border ${activeRoute === '/settings'
-              ? 'bg-red-50 text-[#ff2301] border-red-100 font-bold'
+              ? `${colors.lightBg} ${colors.text} ${colors.border} font-bold`
               : 'bg-gray-50/50 hover:bg-gray-50 text-gray-700 border-gray-100'
               }`}
           >
-            <div className="w-10 h-10 rounded-lg bg-red-100 text-[#ff2301] border border-red-200 font-black text-sm flex items-center justify-center uppercase shrink-0">
+            <div className={`w-10 h-10 rounded-lg ${colors.lightBg} ${colors.text} border ${colors.border} font-black text-sm flex items-center justify-center uppercase shrink-0`}>
               {isSettingsLoading ? (
-                <Loader2 size={16} className="animate-spin text-[#ff2301]" />
+                <Loader2 size={16} className={`animate-spin ${colors.text}`} />
               ) : (
                 userFullName.charAt(0)
               )}
@@ -614,11 +645,11 @@ function ResponsiveSidebar({
           <form action={logout} onSubmit={() => setIsLogoutLoading(true)} className="w-full">
             <button
               type="submit"
-              className="w-full h-12 rounded-xl flex items-center gap-3.5 px-4 text-gray-500 hover:text-[#ff2301] hover:bg-red-50 transition-all duration-200 font-sans font-semibold text-sm outline-none"
+              className={`w-full h-12 rounded-xl flex items-center gap-3.5 px-4 text-gray-500 hover:${colors.text} ${colors.hoverBg} transition-all duration-200 font-sans font-semibold text-sm outline-none`}
             >
               <div className="shrink-0">
                 {isLogoutLoading ? (
-                  <Loader2 size={18} className="animate-spin text-[#ff2301]" />
+                  <Loader2 size={18} className={`animate-spin ${colors.text}`} />
                 ) : (
                   <LogOut size={18} strokeWidth={2} />
                 )}

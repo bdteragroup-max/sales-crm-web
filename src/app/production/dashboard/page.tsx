@@ -55,9 +55,22 @@ export default async function ProductionDashboardPage() {
   const prs = orders.flatMap(o => o.purchaseRequests || []);
   const pos = prs.flatMap(pr => pr.purchaseOrders || []);
 
+  // Fetch all cabinet assembly jobs for the technician chart
+  const cabinetJobs = await prisma.cabinetAssemblyJob.findMany({
+    include: {
+      technician: {
+        select: {
+          id: true,
+          fullName: true
+        }
+      }
+    }
+  });
+
   const serializedOrders = JSON.parse(JSON.stringify(orders));
   const serializedPrs = JSON.parse(JSON.stringify(prs));
   const serializedPos = JSON.parse(JSON.stringify(pos));
+  const serializedCabinetJobs = JSON.parse(JSON.stringify(cabinetJobs));
 
   return (
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
@@ -69,6 +82,7 @@ export default async function ProductionDashboardPage() {
             orders={serializedOrders} 
             prs={serializedPrs} 
             pos={serializedPos} 
+            cabinetJobs={serializedCabinetJobs}
           />
         </div>
       </main>

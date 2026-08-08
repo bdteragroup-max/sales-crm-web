@@ -13,15 +13,15 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
   const { id } = await params;
   const user = await getUser();
   const roleLower = (user?.role || '').toLowerCase();
-  const isTeamManager = user?.role === 'ผู้จัดการ' || 
-                        roleLower === 'sales manager' || 
-                        roleLower === 'marketing manager' || 
-                        roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
-                        roleLower.includes('ผู้จัดการการตลาด') ||
-                        roleLower.includes('ผู้การจัดการตลาด') ||
-                        roleLower.includes('admin') ||
-                        user?.role === 'Admin';
-                        
+  const isTeamManager = user?.role === 'ผู้จัดการ' ||
+    roleLower === 'sales manager' ||
+    roleLower === 'marketing manager' ||
+    roleLower.includes('ผู้จัดการฝ่ายการตลาด') ||
+    roleLower.includes('ผู้จัดการการตลาด') ||
+    roleLower.includes('ผู้การจัดการตลาด') ||
+    roleLower.includes('admin') ||
+    user?.role === 'Admin';
+
   const isProjectAdmin = roleLower.includes('admin project') || roleLower.includes('project admin') || roleLower.includes('admin') || user?.role === 'Admin';
 
   if (!user || !isTeamManager) {
@@ -43,13 +43,13 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
   // Security Check: Only the Manager (Team Leader) can edit their subordinates
   // Project Admins can edit anyone
   if (!isSuperAdmin && !isProjectAdmin && member.employeeSale?.teamLeader !== user.fullName && member.id !== user.id) {
-     redirect('/team'); 
+    redirect('/team');
   }
 
   return (
     <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
       <Sidebar activeRoute="/team" userFullName={user.fullName} userId={user.id} userRole={user.role} />
-      
+
       <main className="flex-1 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-10 pb-24 md:pb-10">
         <div className="max-w-5xl mx-auto w-full">
           {/* Breadcrumb / Nav */}
@@ -62,7 +62,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
           {/* Profile Header Card */}
           <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm mb-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-red-50 rounded-full blur-[80px] -mr-32 -mt-32 -z-0 opacity-50"></div>
-            
+
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
               <div className="w-24 h-24 rounded-3xl bg-red-600 flex items-center justify-center text-white font-black text-4xl shadow-xl shadow-red-200 shrink-0">
                 {member.fullName.charAt(0)}
@@ -87,7 +87,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
               </div>
             </div>
           </div>
-          
+
           {/* Main Edit Form */}
           <div className="bg-white rounded-3xl p-8 lg:p-12 border border-gray-100 shadow-sm">
             <EditMemberForm member={JSON.parse(JSON.stringify(member))} isSuperAdmin={isSuperAdmin} />

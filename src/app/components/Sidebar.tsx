@@ -6,6 +6,7 @@ type SidebarProps = {
   userFullName?: string;
   userId?: string;
   userRole?: string;
+  theme?: 'red' | 'blue' | 'purple' | 'green';
 };
 
 export default function Sidebar(props: SidebarProps) {

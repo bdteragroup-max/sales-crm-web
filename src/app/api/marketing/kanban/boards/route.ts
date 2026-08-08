@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     
     const users = allUsers.filter(u => {
       const roleStr = (u.role || '').toUpperCase();
-      const allowedRoles = ["MARKETING", "SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "MANAGER", "SUPER_ADMIN", "PROJECT", "การตลาด", "บริการ", "ผู้จัดการ", "โปรเจค", "โครงการ"];
+      const allowedRoles = ["MARKETING", "SERVICE", "SERVICE_ENGINEER", "SERVICE_MGR", "MANAGER", "SUPER_ADMIN", "PROJECT", "การตลาด", "บริการ", "ผู้จัดการ", "โปรเจค", "โครงการ", "SALES", "SALE", "เซลส์", "ขาย"];
       return allowedRoles.some(r => roleStr.includes(r));
     }).map(u => {
       const nickname = nicknameMap.get(u.employeeId) || u.employeeSale?.nickname;
@@ -101,6 +101,9 @@ export async function GET(request: NextRequest) {
         role: u.role
       };
     });
+    
+    console.log("Total users fetched for Kanban Board:", users.length);
+    console.log("Sales users included:", users.filter(u => ['SALES', 'SALE', 'เซลส์', 'ขาย'].some(r => (u.role || '').toUpperCase().includes(r))).length);
 
     return NextResponse.json({ board, users });
   } catch (error: any) {

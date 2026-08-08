@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { listId, title, description, assignedToId, engineeringReviewers, startDate, dueDate } = data;
+    const { listId, title, description, assignedToId, engineeringReviewers, startDate, dueDate, salespersonId } = data;
 
     if (!listId || !title) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
         engineeringReviewers: engineeringReviewers || [],
         startDate: startDate ? new Date(startDate) : null,
         dueDate: dueDate ? new Date(dueDate) : null,
-        position: newPosition
+        position: newPosition,
+        salespersonId
       },
       include: {
         attachments: true,
@@ -73,7 +74,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { id, listId, position, title, description, assignedToId, engineeringReviewers, startDate, dueDate, revisionStatus, checklist, color, isCompleted } = data;
+    const { id, listId, position, title, description, assignedToId, engineeringReviewers, startDate, dueDate, revisionStatus, checklist, color, isCompleted, salespersonId } = data;
 
     if (!id) {
       return NextResponse.json({ error: 'Missing card ID' }, { status: 400 });
@@ -98,6 +99,7 @@ export async function PUT(request: NextRequest) {
     if (checklist !== undefined) updateData.checklist = checklist;
     if (color !== undefined) updateData.color = color;
     if (isCompleted !== undefined) updateData.isCompleted = isCompleted;
+    if (salespersonId !== undefined) updateData.salespersonId = salespersonId;
 
     const oldCard = await prisma.kanbanCard.findUnique({ where: { id } });
     if (!oldCard) {

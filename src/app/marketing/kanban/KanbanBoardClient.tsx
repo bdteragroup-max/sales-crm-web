@@ -42,6 +42,7 @@ export type TKanbanCard = {
   comments: any[];
   activityLogs: any[];
   isCompleted?: boolean;
+  salespersonId?: string | null;
 };
 
 export type TKanbanList = {

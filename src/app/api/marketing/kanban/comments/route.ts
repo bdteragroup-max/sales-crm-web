@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/lib/db';
 import { getUser } from '@/app/lib/dal';
+import { sendPushToUser } from '@/app/lib/pushNotification';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,8 +39,33 @@ export async function POST(request: NextRequest) {
 
     // Parse mentions and create notifications
     try {
-      const usersList = await prisma.user.findMany({ select: { id: true, fullName: true } });
-      const sortedUsers = usersList.filter(u => u.fullName).sort((a, b) => b.fullName.length - a.fullName.length);
+      const usersList = await prisma.user.findMany({ 
+        select: { id: true, fullName: true, employeeId: true, employeeSale: { select: { nickname: true } } } 
+      });
+      
+      const employeeIds = usersList.map(u => u.employeeId).filter(Boolean);
+      let nicknameMap = new Map<string, string>();
+      try {
+        const employees = await (prisma as any).employees.findMany({
+          where: { emp_id: { in: employeeIds } },
+          select: { emp_id: true, nickname: true }
+        });
+        employees.forEach((e: any) => {
+          if (e.nickname) nicknameMap.set(e.emp_id, e.nickname);
+        });
+      } catch (e) {
+        console.warn('Could not fetch from employees table', e);
+      }
+      
+      const usersWithNicknames = usersList.map(u => {
+        const nickname = nicknameMap.get(u.employeeId) || u.employeeSale?.nickname;
+        return {
+          id: u.id,
+          fullName: nickname ? `${u.fullName} (${nickname})` : u.fullName
+        };
+      });
+
+      const sortedUsers = usersWithNicknames.filter(u => u.fullName).sort((a, b) => b.fullName.length - a.fullName.length);
       const mentionedUserIds = new Set<string>();
       
       let tempMessage = message;
@@ -61,6 +87,13 @@ export async function POST(request: NextRequest) {
               linkUrl: '/marketing/kanban'
             }
           });
+
+          await sendPushToUser(mentionedId, {
+            title: 'มีคนกล่าวถึงคุณ (Mention)',
+            body: `${user.fullName} กล่าวถึงคุณในความคิดเห็นในการ์ด "${comment.card?.title || 'Kanban'}"`,
+            url: '/marketing/kanban',
+            category: 'kanban_mention'
+          }).catch(console.error);
         }
       }
     } catch (mentionError) {

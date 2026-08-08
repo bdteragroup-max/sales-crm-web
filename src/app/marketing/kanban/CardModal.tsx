@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Calendar, AlignLeft, CheckSquare, MessageSquare, Paperclip, Send, Loader2, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import type { TKanbanCard, TKanbanList } from './KanbanBoardClient';
 import { createClient } from '@/utils/supabase/client';
@@ -21,6 +21,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   const [dueDate, setDueDate] = useState(card.dueDate ? new Date(card.dueDate).toISOString().split('T')[0] : '');
   const [cardColor, setCardColor] = useState(card.color || '');
   const [engineeringReviewers, setEngineeringReviewers] = useState<string[]>(card.engineeringReviewers || []);
+  const [salespersonId, setSalespersonId] = useState(card.salespersonId || '');
 
   const [checklist, setChecklist] = useState<any[]>(card.checklist || []);
   const [newChecklistItem, setNewChecklistItem] = useState('');
@@ -40,7 +41,35 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeletingCard, setIsDeletingCard] = useState(false);
 
+  const [serviceReviewerSearch, setServiceReviewerSearch] = useState('');
+  const [isServiceReviewerOpen, setIsServiceReviewerOpen] = useState(false);
+  const reviewerDropdownRef = useRef<HTMLDivElement>(null);
+
+  const [assigneeSearch, setAssigneeSearch] = useState('');
+  const [isAssigneeOpen, setIsAssigneeOpen] = useState(false);
+  const assigneeDropdownRef = useRef<HTMLDivElement>(null);
+
+  const [salespersonSearch, setSalespersonSearch] = useState('');
+  const [isSalespersonOpen, setIsSalespersonOpen] = useState(false);
+  const salespersonDropdownRef = useRef<HTMLDivElement>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (reviewerDropdownRef.current && !reviewerDropdownRef.current.contains(event.target as Node)) {
+        setIsServiceReviewerOpen(false);
+      }
+      if (assigneeDropdownRef.current && !assigneeDropdownRef.current.contains(event.target as Node)) {
+        setIsAssigneeOpen(false);
+      }
+      if (salespersonDropdownRef.current && !salespersonDropdownRef.current.contains(event.target as Node)) {
+        setIsSalespersonOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSave = async (updates: Partial<TKanbanCard>) => {
     setIsSaving(true);
@@ -254,18 +283,18 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
   const renderCommentText = (text: string) => {
     if (!text) return null;
     if (!users || users.length === 0) return <span className="whitespace-pre-wrap">{text}</span>;
-    
+
     const sortedUsers = [...users].filter(u => u.fullName).sort((a, b) => b.fullName.length - a.fullName.length);
     const namesRegexStr = sortedUsers.map(u => u.fullName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-    
+
     if (!namesRegexStr) return <span className="whitespace-pre-wrap">{text}</span>;
-    
+
     const mentionRegex = new RegExp(`@(${namesRegexStr})`, 'g');
     const parts = text.split(mentionRegex);
-    
+
     return parts.map((part, i) => {
       if (i % 2 === 1) {
-         return <span key={i} className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md font-semibold text-xs mx-0.5 inline-block">@{part}</span>;
+        return <span key={i} className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md font-semibold text-xs mx-0.5 inline-block">@{part}</span>;
       }
       return <span key={i} className="whitespace-pre-wrap">{part}</span>;
     });
@@ -295,7 +324,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
           <div className="flex items-center gap-3 mt-1">
             <button
               onClick={() => {
-                handleSave({ title, description, assignedToId, engineeringReviewers, startDate, dueDate, color: cardColor });
+                handleSave({ title, description, assignedToId, engineeringReviewers, startDate, dueDate, color: cardColor, salespersonId });
                 onClose();
               }}
               className="flex items-center gap-2 bg-[#ff2301] hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all"
@@ -372,13 +401,13 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
 
                 {checklist.filter(i => i.completed).length > 0 && (
                   <div className="mt-2">
-                    <button 
+                    <button
                       onClick={() => setHideCompletedChecklist(!hideCompletedChecklist)}
                       className="text-xs font-semibold text-gray-500 hover:text-gray-700 bg-gray-100 px-3 py-1.5 rounded-md transition-colors"
                     >
                       {hideCompletedChecklist ? `Show ${checklist.filter(i => i.completed).length} completed tasks` : 'Hide completed tasks'}
                     </button>
-                    
+
                     {!hideCompletedChecklist && (
                       <div className="flex flex-col gap-2 mt-3 pl-1">
                         {checklist.filter(item => item.completed).map((item, idx) => (
@@ -543,7 +572,7 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
                     placeholder="เขียนความคิดเห็นใหม่ที่นี่ (พิมพ์ @ เพื่อกล่าวถึง)..."
                     className="w-full p-4 text-sm outline-none resize-none min-h-[100px] rounded-t-xl"
                   />
-                  
+
                   {showMentions && filteredMentionUsers.length > 0 && (
                     <div className="absolute bottom-full left-4 mb-2 w-64 bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden z-50">
                       <div className="p-2 text-xs font-bold text-gray-500 bg-gray-50 border-b border-gray-100">
@@ -588,40 +617,263 @@ export default function CardModal({ card, users, lists, currentUser, onClose, on
           {/* Sidebar Column */}
           <div className="w-full md:w-48 flex-shrink-0 flex flex-col gap-4 md:gap-6 order-1 md:order-2 bg-gray-50 md:bg-transparent p-4 md:p-0 rounded-xl md:rounded-none border border-gray-100 md:border-none">
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2" ref={assigneeDropdownRef}>
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">ผู้รับผิดชอบ</span>
-              <select
-                value={assignedToId}
-                onChange={(e) => {
-                  setAssignedToId(e.target.value);
-                  handleSave({ assignedToId: e.target.value });
-                }}
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-100"
-              >
-                <option value="">ไม่ได้มอบหมาย</option>
-                {users.map(u => (
-                  <option key={u.id} value={u.id}>{u.fullName}</option>
-                ))}
-              </select>
+              
+              <div className="relative">
+                <div 
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus-within:ring-2 focus-within:ring-red-100 flex items-center justify-between cursor-text"
+                  onClick={() => setIsAssigneeOpen(true)}
+                >
+                  {isAssigneeOpen ? (
+                    <input
+                      type="text"
+                      autoFocus
+                      className="w-full bg-transparent outline-none"
+                      placeholder="ค้นหาชื่อหรือชื่อเล่น..."
+                      value={assigneeSearch}
+                      onChange={(e) => setAssigneeSearch(e.target.value)}
+                    />
+                  ) : (
+                    <div className="w-full text-gray-700 truncate">
+                      {(() => {
+                        const selectedUser = users.find(u => u.id === assignedToId);
+                        return selectedUser 
+                          ? `${selectedUser.fullName} ${selectedUser.role ? `(${selectedUser.role})` : ''}` 
+                          : 'ไม่ได้มอบหมาย (คลิกเพื่อค้นหา)';
+                      })()}
+                    </div>
+                  )}
+                  {assignedToId && !isAssigneeOpen && (
+                     <button 
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         setAssignedToId('');
+                         handleSave({ assignedToId: null as any });
+                       }}
+                       className="text-gray-400 hover:text-red-500 ml-2"
+                     >
+                       <X size={14} />
+                     </button>
+                  )}
+                </div>
+
+                {isAssigneeOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1">
+                    <div 
+                      className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${!assignedToId ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-700'}`}
+                      onClick={() => {
+                        setAssignedToId('');
+                        handleSave({ assignedToId: null as any });
+                        setIsAssigneeOpen(false);
+                        setAssigneeSearch('');
+                      }}
+                    >
+                      ไม่ได้มอบหมาย
+                    </div>
+                    {(() => {
+                      const filteredAssignees = users.filter(u => 
+                        u.fullName.toLowerCase().includes(assigneeSearch.toLowerCase())
+                      );
+                      
+                      return filteredAssignees.length > 0 ? (
+                        filteredAssignees.map(u => (
+                          <div
+                            key={u.id}
+                            className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${assignedToId === u.id ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-700'}`}
+                            onClick={() => {
+                              setAssignedToId(u.id);
+                              handleSave({ assignedToId: u.id });
+                              setIsAssigneeOpen(false);
+                              setAssigneeSearch('');
+                            }}
+                          >
+                            {u.fullName} {u.role ? `(${u.role})` : ''}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-3 py-2 text-sm text-gray-500 italic">
+                          ไม่พบผู้ใช้ที่ค้นหา
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2" ref={reviewerDropdownRef}>
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Service Reviewers (วิศวกรบริการ)</span>
-              <select
-                value={engineeringReviewers[0] || ""}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  const newReviewers = val ? [val] : [];
-                  setEngineeringReviewers(newReviewers);
-                  handleSave({ engineeringReviewers: newReviewers });
-                }}
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-100"
-              >
-                <option value="">ไม่ได้มอบหมาย</option>
-                {users.filter(u => ['SERVICE', 'SERVICE_ENGINEER', 'SERVICE_MGR', 'บริการ', 'PROJECT', 'โปรเจค', 'โปรเจกต์'].some(r => (u.role || '').toUpperCase().includes(r))).map(u => (
-                  <option key={u.id} value={u.id}>{u.fullName} {u.role ? `(${u.role})` : ''}</option>
-                ))}
-              </select>
+
+              <div className="relative">
+                <div
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus-within:ring-2 focus-within:ring-red-100 flex items-center justify-between cursor-text"
+                  onClick={() => setIsServiceReviewerOpen(true)}
+                >
+                  {isServiceReviewerOpen ? (
+                    <input
+                      type="text"
+                      autoFocus
+                      className="w-full bg-transparent outline-none"
+                      placeholder="ค้นหาชื่อหรือชื่อเล่น..."
+                      value={serviceReviewerSearch}
+                      onChange={(e) => setServiceReviewerSearch(e.target.value)}
+                    />
+                  ) : (
+                    <div className="w-full text-gray-700 truncate">
+                      {(() => {
+                        const eligibleReviewers = users.filter(u => ['SERVICE', 'SERVICE_ENGINEER', 'SERVICE_MGR', 'บริการ', 'PROJECT', 'โปรเจค', 'โปรเจกต์'].some(r => (u.role || '').toUpperCase().includes(r)));
+                        const selectedReviewer = eligibleReviewers.find(u => u.id === engineeringReviewers[0]);
+                        return selectedReviewer
+                          ? `${selectedReviewer.fullName} ${selectedReviewer.role ? `(${selectedReviewer.role})` : ''}`
+                          : 'ไม่ได้มอบหมาย (คลิกเพื่อค้นหา)';
+                      })()}
+                    </div>
+                  )}
+                  {engineeringReviewers[0] && !isServiceReviewerOpen && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEngineeringReviewers([]);
+                        handleSave({ engineeringReviewers: [] });
+                      }}
+                      className="text-gray-400 hover:text-red-500 ml-2"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                {isServiceReviewerOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1">
+                    <div
+                      className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${!engineeringReviewers[0] ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-700'}`}
+                      onClick={() => {
+                        setEngineeringReviewers([]);
+                        handleSave({ engineeringReviewers: [] });
+                        setIsServiceReviewerOpen(false);
+                        setServiceReviewerSearch('');
+                      }}
+                    >
+                      ไม่ได้มอบหมาย
+                    </div>
+                    {(() => {
+                      const eligibleReviewers = users.filter(u => ['SERVICE', 'SERVICE_ENGINEER', 'SERVICE_MGR', 'บริการ', 'PROJECT', 'โปรเจค', 'โปรเจกต์'].some(r => (u.role || '').toUpperCase().includes(r)));
+                      const filteredReviewers = eligibleReviewers.filter(u =>
+                        u.fullName.toLowerCase().includes(serviceReviewerSearch.toLowerCase())
+                      );
+
+                      return filteredReviewers.length > 0 ? (
+                        filteredReviewers.map(u => (
+                          <div
+                            key={u.id}
+                            className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${engineeringReviewers[0] === u.id ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-700'}`}
+                            onClick={() => {
+                              setEngineeringReviewers([u.id]);
+                              handleSave({ engineeringReviewers: [u.id] });
+                              setIsServiceReviewerOpen(false);
+                              setServiceReviewerSearch('');
+                            }}
+                          >
+                            {u.fullName} {u.role ? `(${u.role})` : ''}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-3 py-2 text-sm text-gray-500 italic">
+                          ไม่พบผู้ใช้ที่ค้นหา
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2" ref={salespersonDropdownRef}>
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">เซลส์ (Salesperson)</span>
+              
+              <div className="relative">
+                <div 
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus-within:ring-2 focus-within:ring-red-100 flex items-center justify-between cursor-text"
+                  onClick={() => setIsSalespersonOpen(true)}
+                >
+                  {isSalespersonOpen ? (
+                    <input
+                      type="text"
+                      autoFocus
+                      className="w-full bg-transparent outline-none"
+                      placeholder="ค้นหาชื่อหรือชื่อเล่น..."
+                      value={salespersonSearch}
+                      onChange={(e) => setSalespersonSearch(e.target.value)}
+                    />
+                  ) : (
+                    <div className="w-full text-gray-700 truncate">
+                      {(() => {
+                        const eligibleSales = users.filter(u => ['SALES', 'SALE', 'เซลส์', 'ขาย'].some(r => (u.role || '').toUpperCase().includes(r)));
+                        const selectedSales = eligibleSales.find(u => u.id === salespersonId);
+                        return selectedSales 
+                          ? `${selectedSales.fullName} ${selectedSales.role ? `(${selectedSales.role})` : ''}` 
+                          : 'ไม่ได้มอบหมาย (คลิกเพื่อค้นหา)';
+                      })()}
+                    </div>
+                  )}
+                  {salespersonId && !isSalespersonOpen && (
+                     <button 
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         setSalespersonId('');
+                         handleSave({ salespersonId: null as any });
+                       }}
+                       className="text-gray-400 hover:text-red-500 ml-2"
+                     >
+                       <X size={14} />
+                     </button>
+                  )}
+                </div>
+
+                {isSalespersonOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1">
+                    <div 
+                      className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${!salespersonId ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-700'}`}
+                      onClick={() => {
+                        setSalespersonId('');
+                        handleSave({ salespersonId: null as any });
+                        setIsSalespersonOpen(false);
+                        setSalespersonSearch('');
+                      }}
+                    >
+                      ไม่ได้มอบหมาย
+                    </div>
+                    {(() => {
+                      const eligibleSales = users.filter(u => ['SALES', 'SALE', 'เซลส์', 'ขาย'].some(r => (u.role || '').toUpperCase().includes(r)));
+                      const filteredSales = eligibleSales.filter(u => 
+                        u.fullName.toLowerCase().includes(salespersonSearch.toLowerCase())
+                      );
+                      
+                      return filteredSales.length > 0 ? (
+                        filteredSales.map(u => (
+                          <div
+                            key={u.id}
+                            className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${salespersonId === u.id ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-700'}`}
+                            onClick={() => {
+                              setSalespersonId(u.id);
+                              handleSave({ salespersonId: u.id });
+                              setIsSalespersonOpen(false);
+                              setSalespersonSearch('');
+                            }}
+                          >
+                            {u.fullName} {u.role ? `(${u.role})` : ''}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-3 py-2 text-sm text-gray-500 italic">
+                          ไม่พบผู้ใช้ที่ค้นหา
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">

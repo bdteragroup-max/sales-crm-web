@@ -143,6 +143,7 @@ export default function SignupForm({ managerName = '', isSuperAdmin = false }: S
                   <option value="Accounting">Accounting</option>
                   <option value="Service Engineer MGR">Service Engineer MGR</option>
                   <option value="Service Engineer">Service Engineer</option>
+                  <option value="Technician">Technician</option>
                   <option value="Service">Service</option>
                   <option value="Warehouse">Warehouse</option>
                   <option value="Marketing Manager">Marketing Manager</option>

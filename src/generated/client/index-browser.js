@@ -367,7 +367,15 @@ exports.Prisma.OrderScalarFieldEnum = {
   qcBy: 'qcBy',
   qcImages: 'qcImages',
   qcNote: 'qcNote',
-  qcStatus: 'qcStatus'
+  qcStatus: 'qcStatus',
+  isProduceToStock: 'isProduceToStock',
+  stockItems: 'stockItems',
+  cabinetCount: 'cabinetCount',
+  technicianWorkload: 'technicianWorkload',
+  contractorCount: 'contractorCount',
+  productionStaffCount: 'productionStaffCount',
+  progressPct: 'progressPct',
+  workerCount: 'workerCount'
 };
 
 exports.Prisma.OrderStatusLogScalarFieldEnum = {
@@ -1985,7 +1993,8 @@ exports.Prisma.KanbanCardScalarFieldEnum = {
   color: 'color',
   startDate: 'startDate',
   engineeringReviewers: 'engineeringReviewers',
-  isCompleted: 'isCompleted'
+  isCompleted: 'isCompleted',
+  salespersonId: 'salespersonId'
 };
 
 exports.Prisma.KanbanAttachmentScalarFieldEnum = {
@@ -2018,17 +2027,146 @@ exports.Prisma.KanbanActivityLogScalarFieldEnum = {
   timestamp: 'timestamp'
 };
 
+exports.Prisma.CabinetAssemblyJobScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  technicianId: 'technicianId',
+  jobNumber: 'jobNumber',
+  cabinetIndex: 'cabinetIndex',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  normalTimeMinutes: 'normalTimeMinutes',
+  overtimeMinutes: 'overtimeMinutes'
+};
+
+exports.Prisma.AssemblyTimeLogScalarFieldEnum = {
+  id: 'id',
+  cabinetAssemblyJobId: 'cabinetAssemblyJobId',
+  action: 'action',
+  reason: 'reason',
+  timestamp: 'timestamp'
+};
+
+exports.Prisma.CabinetQCReportScalarFieldEnum = {
+  id: 'id',
+  cabinetAssemblyJobId: 'cabinetAssemblyJobId',
+  serialNumber: 'serialNumber',
+  nameplate: 'nameplate',
+  cabinetType: 'cabinetType',
+  fanStatus: 'fanStatus',
+  magicMarks: 'magicMarks',
+  cabinetBody: 'cabinetBody',
+  inverterCorrect: 'inverterCorrect',
+  frontPanelEquipment: 'frontPanelEquipment',
+  wireDucting: 'wireDucting',
+  terminals: 'terminals',
+  cabinetKey: 'cabinetKey',
+  internalWiring: 'internalWiring',
+  screwsTightened: 'screwsTightened',
+  groundingSystem: 'groundingSystem',
+  noMarks: 'noMarks',
+  overallEquipmentCheck: 'overallEquipmentCheck',
+  electricalSystem: 'electricalSystem',
+  wiringConnections: 'wiringConnections',
+  warningLabels: 'warningLabels',
+  confirmationPhotos: 'confirmationPhotos',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  qcCorrections: 'qcCorrections',
+  qcInspectorName: 'qcInspectorName',
+  qcNotes: 'qcNotes',
+  qcStatus: 'qcStatus'
+};
+
+exports.Prisma.CabinetFATReportScalarFieldEnum = {
+  id: 'id',
+  cabinetAssemblyJobId: 'cabinetAssemblyJobId',
+  testerName: 'testerName',
+  panelFunctionalTest: 'panelFunctionalTest',
+  acInputVoltage: 'acInputVoltage',
+  dcInputVoltage: 'dcInputVoltage',
+  outputVoltage: 'outputVoltage',
+  protectionSystemTest: 'protectionSystemTest',
+  testDetails: 'testDetails',
+  displaySystemCheck: 'displaySystemCheck',
+  remarks: 'remarks',
+  fatStatus: 'fatStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TechnicianTaskScalarFieldEnum = {
+  id: 'id',
+  taskType: 'taskType',
+  title: 'title',
+  description: 'description',
+  scheduledDate: 'scheduledDate',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  assignedBy: 'assignedBy',
+  assignedByRole: 'assignedByRole',
+  technicianIds: 'technicianIds',
+  jobId: 'jobId',
+  projectId: 'projectId',
+  panelCount: 'panelCount',
+  location: 'location',
+  locationLat: 'locationLat',
+  locationLon: 'locationLon',
+  status: 'status',
+  photosBefore: 'photosBefore',
+  photosAfter: 'photosAfter',
+  completedAt: 'completedAt',
+  completedNote: 'completedNote',
+  isWarranty: 'isWarranty',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProductionAssignmentScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  userId: 'userId',
+  contractorName: 'contractorName',
+  workerType: 'workerType',
+  role: 'role',
+  assignedAt: 'assignedAt',
+  assignedBy: 'assignedBy'
+};
+
+exports.Prisma.ProductionTimeLogScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  userId: 'userId',
+  stepName: 'stepName',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  durationMins: 'durationMins',
+  note: 'note',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ProductionStepScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  stepIndex: 'stepIndex',
+  stepName: 'stepName',
+  isCompleted: 'isCompleted',
+  completedAt: 'completedAt',
+  completedBy: 'completedBy'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
-exports.Prisma.JsonNullValueInput = {
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
-exports.Prisma.NullableJsonNullValueInput = {
-  DbNull: Prisma.DbNull,
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -2169,7 +2307,15 @@ exports.Prisma.ModelName = {
   KanbanCard: 'KanbanCard',
   KanbanAttachment: 'KanbanAttachment',
   KanbanComment: 'KanbanComment',
-  KanbanActivityLog: 'KanbanActivityLog'
+  KanbanActivityLog: 'KanbanActivityLog',
+  CabinetAssemblyJob: 'CabinetAssemblyJob',
+  AssemblyTimeLog: 'AssemblyTimeLog',
+  CabinetQCReport: 'CabinetQCReport',
+  CabinetFATReport: 'CabinetFATReport',
+  TechnicianTask: 'TechnicianTask',
+  ProductionAssignment: 'ProductionAssignment',
+  ProductionTimeLog: 'ProductionTimeLog',
+  ProductionStep: 'ProductionStep'
 };
 
 /**

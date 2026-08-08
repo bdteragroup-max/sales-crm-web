@@ -101,8 +101,36 @@ export default async function OrdersPage({
         include: {
           purchaseOrders: true
         }
+      },
+      assignedTechnicians: {
+        select: {
+          id: true,
+          fullName: true
+        }
+      },
+      statusLogs: {
+        where: {
+          toStatus: 'กำลังผลิต'
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: 1,
+        include: {
+          user: {
+            select: {
+              fullName: true
+            }
+          }
+        }
       }
     }
+  })
+
+  const technicians = await prisma.user.findMany({
+    where: { isActive: true, role: 'Technician' },
+    select: { id: true, fullName: true },
+    orderBy: { fullName: 'asc' }
   })
 
   return (
@@ -112,6 +140,7 @@ export default async function OrdersPage({
         teamMembers={JSON.parse(JSON.stringify(teamMembers))}
         userRole={user.role}
         currentUserId={user.id}
+        technicians={technicians}
       />
     </main>
   )

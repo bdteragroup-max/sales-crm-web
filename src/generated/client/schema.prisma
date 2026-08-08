@@ -8,45 +8,51 @@ datasource db {
 }
 
 model User {
-  id                     String                 @id @default(cuid())
-  employeeId             String                 @unique
-  email                  String?                @unique
-  fullName               String
-  phoneNumber            String?
-  role                   String                 @default("Sales Representative")
-  position               String?
-  password               String
-  createdAt              DateTime               @default(now()) @db.Timestamptz(6)
-  updatedAt              DateTime               @default(now()) @updatedAt @db.Timestamptz(6)
-  otpCode                String?
-  otpExpiresAt           DateTime?              @db.Timestamptz(6)
-  isActive               Boolean                @default(true)
-  assignedCompanies      Company[]              @relation("AssignedCompany")
-  companyInteractions    CompanyInteraction[]
-  estimatedRequirements  CustomerRequirement[]  @relation("Estimator")
-  customerRequirements   CustomerRequirement[]
-  customerSatisfactions  CustomerSatisfaction[]
-  installationOrders     InstallationOrder[]
-  uploadedDocuments      JobDocument[]
-  assignedMarketingLeads MarketingLead[]        @relation("AssignedLeads")
-  marketingLeads         MarketingLead[]
-  monthlyTargets         MonthlyTarget[]
-  notifications          Notification[]
-  orders                 Order[]
-  managedProjects        Project[]              @relation("ProjectManager")
-  reportedDailyLogs      ProjectDailyLog[]
-  projectMembers         ProjectMember[]
-  assignedTasks          ProjectTask[]
-  pushSubscriptions      PushSubscription[]
-  quotations             Quotation[]
-  schedules              Schedule[]
-  serviceSchedules       ServiceSchedule[]
-  estimatedSurveys       SiteSurvey[]           @relation("SurveyEstimator")
-  siteSurveys            SiteSurvey[]
-  telesales              Telesale[]
-  telesalesKPIs          TelesalesKPI[]
-  employeeSale           EmployeeSale?
-  jobStepLogs            JobStepLog[]
+  id                      String                 @id @default(cuid())
+  employeeId              String                 @unique
+  email                   String?                @unique
+  fullName                String
+  phoneNumber             String?
+  role                    String                 @default("Sales Representative")
+  position                String?
+  password                String
+  createdAt               DateTime               @default(now()) @db.Timestamptz(6)
+  updatedAt               DateTime               @default(now()) @updatedAt @db.Timestamptz(6)
+  otpCode                 String?
+  otpExpiresAt            DateTime?              @db.Timestamptz(6)
+  isActive                Boolean                @default(true)
+  cabinetAssemblyJobs     CabinetAssemblyJob[]
+  assignedCompanies       Company[]              @relation("AssignedCompany")
+  companyInteractions     CompanyInteraction[]
+  estimatedRequirements   CustomerRequirement[]  @relation("Estimator")
+  customerRequirements    CustomerRequirement[]
+  customerSatisfactions   CustomerSatisfaction[]
+  installationOrders      InstallationOrder[]
+  uploadedDocuments       JobDocument[]
+  assignedMarketingLeads  MarketingLead[]        @relation("AssignedLeads")
+  marketingLeads          MarketingLead[]
+  monthlyTargets          MonthlyTarget[]
+  notifications           Notification[]
+  orders                  Order[]
+  orderStatusLogs         OrderStatusLog[]
+  productionAssignments   ProductionAssignment[]
+  productionTimeLogs      ProductionTimeLog[]
+  managedProjects         Project[]              @relation("ProjectManager")
+  reportedDailyLogs       ProjectDailyLog[]
+  projectMembers          ProjectMember[]
+  assignedTasks           ProjectTask[]
+  pushSubscriptions       PushSubscription[]
+  quotations              Quotation[]
+  schedules               Schedule[]
+  serviceSchedules        ServiceSchedule[]
+  estimatedSurveys        SiteSurvey[]           @relation("SurveyEstimator")
+  siteSurveys             SiteSurvey[]
+  assignedTechnicianTasks TechnicianTask[]       @relation("TaskAssigner")
+  telesales               Telesale[]
+  telesalesKPIs           TelesalesKPI[]
+  employeeSale            EmployeeSale?
+  jobStepLogs             JobStepLog[]
+  technicianOrders        Order[]                @relation("OrderTechnicians")
 }
 
 model MonthlyTarget {
@@ -156,12 +162,12 @@ model Company {
   interactions          CompanyInteraction[]
   contacts              Contact[]
   customerSatisfactions CustomerSatisfaction[]
+  goodsReturns          GoodsReturn[]
   orders                Order[]
   quotations            Quotation[]
   schedules             Schedule[]
   siteSurveys           SiteSurvey[]
   telesales             Telesale[]
-  goodsReturns          GoodsReturn[]
 
   @@index([companyName])
   @@index([assignedUserId])
@@ -232,6 +238,7 @@ model Quotation {
   subject              String?
   winLossReason        String?
   siteSurveyId         String?
+  goodsReturns         GoodsReturn[]
   marketingLead        MarketingLead?
   orders               Order[]
   company              Company        @relation(fields: [companyId], references: [id])
@@ -239,7 +246,6 @@ model Quotation {
   salesperson          User?          @relation(fields: [salespersonId], references: [id])
   siteSurvey           SiteSurvey?    @relation(fields: [siteSurveyId], references: [id])
   jobs                 Job[]
-  goodsReturns         GoodsReturn[]
 
   @@index([companyId])
   @@index([salespersonId])
@@ -327,33 +333,46 @@ model TelesalesKPI {
 }
 
 model Order {
-  id                 String            @id @default(cuid())
-  orderNumber        String            @unique
-  companyId          String?
-  quotationId        String?
-  salespersonId      String?
-  status             String            @default("รอยืนยัน")
-  value              Float             @default(0)
-  priority           String            @default("Normal")
-  targetDeliveryDate DateTime?         @db.Timestamptz(6)
-  createdAt          DateTime          @default(now()) @db.Timestamptz(6)
-  updatedAt          DateTime          @updatedAt @db.Timestamptz(6)
-  estimatedDays      Int?
-  materialReady      Boolean           @default(false)
-  prFulfilledAt      DateTime?         @db.Timestamptz(6)
-  prNote             String?
-  prRequired         Boolean           @default(false)
-  productionDeadline DateTime?         @db.Timestamptz(6)
-  qcAt               DateTime?         @db.Timestamptz(6)
-  qcBy               String?
-  qcImages           String[]          @default([])
-  qcNote             String?
-  qcStatus           String?           @default("PENDING")
-  company            Company?          @relation(fields: [companyId], references: [id])
-  quotation          Quotation?        @relation(fields: [quotationId], references: [id])
-  salesperson        User?             @relation(fields: [salespersonId], references: [id])
-  statusLogs         OrderStatusLog[]
-  purchaseRequests   PurchaseRequest[]
+  id                   String                 @id @default(cuid())
+  orderNumber          String                 @unique
+  companyId            String?
+  quotationId          String?
+  salespersonId        String?
+  status               String                 @default("รอยืนยัน")
+  value                Float                  @default(0)
+  priority             String                 @default("Normal")
+  targetDeliveryDate   DateTime?              @db.Timestamptz(6)
+  createdAt            DateTime               @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime               @updatedAt @db.Timestamptz(6)
+  estimatedDays        Int?
+  materialReady        Boolean                @default(false)
+  prFulfilledAt        DateTime?              @db.Timestamptz(6)
+  prNote               String?
+  prRequired           Boolean                @default(false)
+  productionDeadline   DateTime?              @db.Timestamptz(6)
+  qcAt                 DateTime?              @db.Timestamptz(6)
+  qcBy                 String?
+  qcImages             String[]               @default([])
+  qcNote               String?
+  qcStatus             String?                @default("PENDING")
+  isProduceToStock     Boolean                @default(false)
+  stockItems           Json?
+  cabinetCount         Int                    @default(1)
+  technicianWorkload   Json?
+  contractorCount      Int?                   @default(0)
+  productionStaffCount Int?                   @default(0)
+  progressPct          Float?
+  workerCount          Int?
+  cabinetAssemblyJobs  CabinetAssemblyJob[]
+  company              Company?               @relation(fields: [companyId], references: [id])
+  quotation            Quotation?             @relation(fields: [quotationId], references: [id])
+  salesperson          User?                  @relation(fields: [salespersonId], references: [id])
+  statusLogs           OrderStatusLog[]
+  assignments          ProductionAssignment[]
+  productionSteps      ProductionStep[]
+  timeLogs             ProductionTimeLog[]
+  purchaseRequests     PurchaseRequest[]
+  assignedTechnicians  User[]                 @relation("OrderTechnicians")
 
   @@index([companyId])
   @@index([quotationId])
@@ -369,8 +388,10 @@ model OrderStatusLog {
   toStatus   String
   createdAt  DateTime @default(now()) @db.Timestamptz(6)
   order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id])
 
   @@index([orderId])
+  @@index([userId])
 }
 
 model Job {
@@ -407,13 +428,14 @@ model Job {
   billingDocsUrl        String?
   additionalInformation String?
   requiredDeliveryDate  DateTime?
+  goodsReturns          GoodsReturn[]
   installationOrders    InstallationOrder[]
   documents             JobDocument[]
   outsourceRepairs      OutsourceRepair[]
   project               Project?
   repairDeliveries      RepairDelivery[]
-  goodsReturns          GoodsReturn[]
   repairOrder           RepairOrder?
+  technicianTasks       TechnicianTask[]
   stepLogs              JobStepLog[]
   quotation             Quotation?          @relation(fields: [quotationId], references: [id])
   paymentTasks          PaymentTask[]
@@ -559,29 +581,27 @@ model RepairDelivery {
 }
 
 model GoodsReturn {
-  id               String    @id @default(cuid())
-  documentNo       String    @unique // e.g., RT-2569-001
-  date             DateTime  @default(now()) @db.Timestamptz(6)
+  id               String     @id @default(cuid())
+  documentNo       String     @unique
+  date             DateTime   @default(now()) @db.Timestamptz(6)
   customer         String?
   deliveryLocation String?
   reference        String?
-  items            Json? // [{ no, itemCode, description, quantity, unit, totalAmount }]
+  items            Json?
   receiverName     String?
-  receiverDate     DateTime? @db.Timestamptz(6)
+  receiverDate     DateTime?  @db.Timestamptz(6)
   senderName       String?
-  senderDate       DateTime? @db.Timestamptz(6)
-  status           String    @default("Draft")
-  returnType       String    @default("DEFECT") // "DEFECT" | "REPAIR" | "SUPPLIER"
-  createdAt        DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt        DateTime  @updatedAt @db.Timestamptz(6)
-
-  jobId       String?
-  quotationId String?
-  companyId   String?
-
-  job       Job?       @relation(fields: [jobId], references: [id])
-  quotation Quotation? @relation(fields: [quotationId], references: [id])
-  company   Company?   @relation(fields: [companyId], references: [id])
+  senderDate       DateTime?  @db.Timestamptz(6)
+  status           String     @default("Draft")
+  returnType       String     @default("DEFECT")
+  createdAt        DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime   @updatedAt @db.Timestamptz(6)
+  jobId            String?
+  quotationId      String?
+  companyId        String?
+  company          Company?   @relation(fields: [companyId], references: [id])
+  job              Job?       @relation(fields: [jobId], references: [id])
+  quotation        Quotation? @relation(fields: [quotationId], references: [id])
 }
 
 model InstallationOrder {
@@ -1561,6 +1581,7 @@ model Project {
   equipment                 ProjectEquipment[]
   members                   ProjectMember[]
   tasks                     ProjectTask[]
+  technicianTasks           TechnicianTask[]
 }
 
 model ProjectEquipment {
@@ -2358,6 +2379,7 @@ model KanbanCard {
   startDate            DateTime?           @db.Timestamptz(6)
   engineeringReviewers String[]            @default([])
   isCompleted          Boolean             @default(false)
+  salespersonId        String?
   activityLogs         KanbanActivityLog[]
   attachments          KanbanAttachment[]
   list                 KanbanList          @relation(fields: [listId], references: [id], onDelete: Cascade)
@@ -2404,4 +2426,166 @@ model KanbanActivityLog {
   card       KanbanCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
   @@index([cardId])
+}
+
+model CabinetAssemblyJob {
+  id                String            @id @default(cuid())
+  orderId           String
+  technicianId      String
+  jobNumber         String            @unique
+  cabinetIndex      Int
+  status            String            @default("PENDING")
+  createdAt         DateTime          @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime          @updatedAt @db.Timestamptz(6)
+  normalTimeMinutes Int?
+  overtimeMinutes   Int?
+  timeLogs          AssemblyTimeLog[]
+  order             Order             @relation(fields: [orderId], references: [id])
+  technician        User              @relation(fields: [technicianId], references: [id])
+  qcReport          CabinetQCReport?
+  fatReport         CabinetFATReport?
+
+  @@index([orderId])
+  @@index([technicianId])
+}
+
+model AssemblyTimeLog {
+  id                   String             @id @default(cuid())
+  cabinetAssemblyJobId String
+  action               String
+  reason               String?
+  timestamp            DateTime           @default(now()) @db.Timestamptz(6)
+  job                  CabinetAssemblyJob @relation(fields: [cabinetAssemblyJobId], references: [id], onDelete: Cascade)
+
+  @@index([cabinetAssemblyJobId])
+}
+
+model CabinetQCReport {
+  id                   String @id @default(cuid())
+  cabinetAssemblyJobId String @unique
+
+  // Basic info
+  serialNumber String?
+  nameplate    String?
+  cabinetType  String
+  fanStatus    String?
+  magicMarks   Boolean @default(false)
+
+  // Checklist
+  cabinetBody           Boolean @default(false)
+  inverterCorrect       Boolean @default(false)
+  frontPanelEquipment   Boolean @default(false)
+  wireDucting           Boolean @default(false)
+  terminals             Boolean @default(false)
+  cabinetKey            Boolean @default(false)
+  internalWiring        Boolean @default(false)
+  screwsTightened       Boolean @default(false)
+  groundingSystem       Boolean @default(false)
+  noMarks               Boolean @default(false)
+  overallEquipmentCheck Boolean @default(false)
+  electricalSystem      Boolean @default(false)
+  wiringConnections     Boolean @default(false)
+  warningLabels         Boolean @default(false)
+
+  // System & Metadata
+  confirmationPhotos String[] @default([])
+  createdAt          DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime @updatedAt @db.Timestamptz(6)
+
+  qcCorrections   String?
+  qcInspectorName String?
+  qcNotes         String?
+  qcStatus        String  @default("Pending Inspection")
+
+  job CabinetAssemblyJob @relation(fields: [cabinetAssemblyJobId], references: [id], onDelete: Cascade)
+}
+
+model CabinetFATReport {
+  id                   String  @id @default(cuid())
+  cabinetAssemblyJobId String  @unique
+  testerName           String?
+
+  panelFunctionalTest  Boolean @default(false)
+  acInputVoltage       Float?
+  dcInputVoltage       Float?
+  outputVoltage        Float?
+  protectionSystemTest Boolean @default(false)
+  testDetails          String?
+  displaySystemCheck   Boolean @default(false)
+  remarks              String?
+
+  fatStatus String @default("Pending")
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  job CabinetAssemblyJob @relation(fields: [cabinetAssemblyJobId], references: [id], onDelete: Cascade)
+}
+
+model TechnicianTask {
+  id             String    @id @default(cuid())
+  taskType       String
+  title          String
+  description    String?
+  scheduledDate  DateTime  @db.Timestamptz(6)
+  startTime      String?
+  endTime        String?
+  assignedBy     String
+  assignedByRole String
+  technicianIds  String[]
+  jobId          String?
+  projectId      String?
+  panelCount     Int?
+  location       String?
+  locationLat    Decimal?
+  locationLon    Decimal?
+  status         String    @default("ASSIGNED")
+  photosBefore   String[]
+  photosAfter    String[]
+  completedAt    DateTime? @db.Timestamptz(6)
+  completedNote  String?
+  isWarranty     Boolean   @default(false)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @db.Timestamptz(6)
+  assigner       User      @relation("TaskAssigner", fields: [assignedBy], references: [id])
+  job            Job?      @relation(fields: [jobId], references: [id])
+  project        Project?  @relation(fields: [projectId], references: [id])
+}
+
+model ProductionAssignment {
+  id             String   @id @default(cuid())
+  orderId        String
+  userId         String?
+  contractorName String?
+  workerType     String
+  role           String?
+  assignedAt     DateTime @default(now())
+  assignedBy     String
+  order          Order    @relation(fields: [orderId], references: [id])
+  user           User?    @relation(fields: [userId], references: [id])
+}
+
+model ProductionTimeLog {
+  id           String    @id @default(cuid())
+  orderId      String
+  userId       String
+  stepName     String?
+  startTime    DateTime
+  endTime      DateTime?
+  durationMins Int?
+  note         String?
+  createdAt    DateTime  @default(now())
+  order        Order     @relation(fields: [orderId], references: [id])
+  user         User      @relation(fields: [userId], references: [id])
+}
+
+model ProductionStep {
+  id          String    @id @default(cuid())
+  orderId     String
+  stepIndex   Int
+  stepName    String
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  completedBy String?
+  order       Order     @relation(fields: [orderId], references: [id])
 }
