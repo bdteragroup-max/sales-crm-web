@@ -2440,7 +2440,7 @@ model CabinetAssemblyJob {
   normalTimeMinutes Int?
   overtimeMinutes   Int?
   timeLogs          AssemblyTimeLog[]
-  order             Order             @relation(fields: [orderId], references: [id])
+  order             Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
   technician        User              @relation(fields: [technicianId], references: [id])
   qcReport          CabinetQCReport?
   fatReport         CabinetFATReport?
