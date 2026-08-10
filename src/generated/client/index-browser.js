@@ -2179,7 +2179,8 @@ exports.Prisma.BDProjectScalarFieldEnum = {
   updatedAt: 'updatedAt',
   parentId: 'parentId',
   intakeDate: 'intakeDate',
-  color: 'color'
+  color: 'color',
+  completedAt: 'completedAt'
 };
 
 exports.Prisma.BDWorkflowTemplateScalarFieldEnum = {

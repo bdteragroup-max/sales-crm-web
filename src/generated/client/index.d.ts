@@ -174199,6 +174199,7 @@ export namespace Prisma {
     parentId: string | null
     intakeDate: Date | null
     color: string | null
+    completedAt: Date | null
   }
 
   export type BDProjectMaxAggregateOutputType = {
@@ -174218,6 +174219,7 @@ export namespace Prisma {
     parentId: string | null
     intakeDate: Date | null
     color: string | null
+    completedAt: Date | null
   }
 
   export type BDProjectCountAggregateOutputType = {
@@ -174237,6 +174239,7 @@ export namespace Prisma {
     parentId: number
     intakeDate: number
     color: number
+    completedAt: number
     _all: number
   }
 
@@ -174258,6 +174261,7 @@ export namespace Prisma {
     parentId?: true
     intakeDate?: true
     color?: true
+    completedAt?: true
   }
 
   export type BDProjectMaxAggregateInputType = {
@@ -174277,6 +174281,7 @@ export namespace Prisma {
     parentId?: true
     intakeDate?: true
     color?: true
+    completedAt?: true
   }
 
   export type BDProjectCountAggregateInputType = {
@@ -174296,6 +174301,7 @@ export namespace Prisma {
     parentId?: true
     intakeDate?: true
     color?: true
+    completedAt?: true
     _all?: true
   }
 
@@ -174388,6 +174394,7 @@ export namespace Prisma {
     parentId: string | null
     intakeDate: Date | null
     color: string | null
+    completedAt: Date | null
     _count: BDProjectCountAggregateOutputType | null
     _min: BDProjectMinAggregateOutputType | null
     _max: BDProjectMaxAggregateOutputType | null
@@ -174424,6 +174431,7 @@ export namespace Prisma {
     parentId?: boolean
     intakeDate?: boolean
     color?: boolean
+    completedAt?: boolean
     activities?: boolean | BDProject$activitiesArgs<ExtArgs>
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
     parent?: boolean | BDProject$parentArgs<ExtArgs>
@@ -174452,6 +174460,7 @@ export namespace Prisma {
     parentId?: boolean
     intakeDate?: boolean
     color?: boolean
+    completedAt?: boolean
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
     parent?: boolean | BDProject$parentArgs<ExtArgs>
     requester?: boolean | UserDefaultArgs<ExtArgs>
@@ -174475,6 +174484,7 @@ export namespace Prisma {
     parentId?: boolean
     intakeDate?: boolean
     color?: boolean
+    completedAt?: boolean
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
     parent?: boolean | BDProject$parentArgs<ExtArgs>
     requester?: boolean | UserDefaultArgs<ExtArgs>
@@ -174498,9 +174508,10 @@ export namespace Prisma {
     parentId?: boolean
     intakeDate?: boolean
     color?: boolean
+    completedAt?: boolean
   }
 
-  export type BDProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "objective" | "workTypeId" | "urgency" | "deadline" | "status" | "requesterId" | "ownerId" | "blockedReason" | "waitingOn" | "createdAt" | "updatedAt" | "parentId" | "intakeDate" | "color", ExtArgs["result"]["bDProject"]>
+  export type BDProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "objective" | "workTypeId" | "urgency" | "deadline" | "status" | "requesterId" | "ownerId" | "blockedReason" | "waitingOn" | "createdAt" | "updatedAt" | "parentId" | "intakeDate" | "color" | "completedAt", ExtArgs["result"]["bDProject"]>
   export type BDProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     activities?: boolean | BDProject$activitiesArgs<ExtArgs>
     owner?: boolean | BDProject$ownerArgs<ExtArgs>
@@ -174554,6 +174565,7 @@ export namespace Prisma {
       parentId: string | null
       intakeDate: Date | null
       color: string | null
+      completedAt: Date | null
     }, ExtArgs["result"]["bDProject"]>
     composites: {}
   }
@@ -175001,6 +175013,7 @@ export namespace Prisma {
     readonly parentId: FieldRef<"BDProject", 'String'>
     readonly intakeDate: FieldRef<"BDProject", 'DateTime'>
     readonly color: FieldRef<"BDProject", 'String'>
+    readonly completedAt: FieldRef<"BDProject", 'DateTime'>
   }
     
 
@@ -182505,7 +182518,8 @@ export namespace Prisma {
     updatedAt: 'updatedAt',
     parentId: 'parentId',
     intakeDate: 'intakeDate',
-    color: 'color'
+    color: 'color',
+    completedAt: 'completedAt'
   };
 
   export type BDProjectScalarFieldEnum = (typeof BDProjectScalarFieldEnum)[keyof typeof BDProjectScalarFieldEnum]
@@ -195652,6 +195666,7 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"BDProject"> | string | null
     intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     color?: StringNullableFilter<"BDProject"> | string | null
+    completedAt?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     activities?: BDActivityListRelationFilter
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     parent?: XOR<BDProjectNullableScalarRelationFilter, BDProjectWhereInput> | null
@@ -195679,6 +195694,7 @@ export namespace Prisma {
     parentId?: SortOrderInput | SortOrder
     intakeDate?: SortOrderInput | SortOrder
     color?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
     activities?: BDActivityOrderByRelationAggregateInput
     owner?: UserOrderByWithRelationInput
     parent?: BDProjectOrderByWithRelationInput
@@ -195709,6 +195725,7 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"BDProject"> | string | null
     intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     color?: StringNullableFilter<"BDProject"> | string | null
+    completedAt?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     activities?: BDActivityListRelationFilter
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     parent?: XOR<BDProjectNullableScalarRelationFilter, BDProjectWhereInput> | null
@@ -195736,6 +195753,7 @@ export namespace Prisma {
     parentId?: SortOrderInput | SortOrder
     intakeDate?: SortOrderInput | SortOrder
     color?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
     _count?: BDProjectCountOrderByAggregateInput
     _max?: BDProjectMaxOrderByAggregateInput
     _min?: BDProjectMinOrderByAggregateInput
@@ -195761,6 +195779,7 @@ export namespace Prisma {
     parentId?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
     intakeDate?: DateTimeNullableWithAggregatesFilter<"BDProject"> | Date | string | null
     color?: StringNullableWithAggregatesFilter<"BDProject"> | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"BDProject"> | Date | string | null
   }
 
   export type BDWorkflowTemplateWhereInput = {
@@ -210691,6 +210710,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -210718,6 +210738,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -210737,6 +210758,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -210764,6 +210786,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -210787,6 +210810,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
   }
 
   export type BDProjectUpdateManyMutationInput = {
@@ -210802,6 +210826,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BDProjectUncheckedUpdateManyInput = {
@@ -210821,6 +210846,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BDWorkflowTemplateCreateInput = {
@@ -220183,6 +220209,7 @@ export namespace Prisma {
     parentId?: SortOrder
     intakeDate?: SortOrder
     color?: SortOrder
+    completedAt?: SortOrder
   }
 
   export type BDProjectMaxOrderByAggregateInput = {
@@ -220202,6 +220229,7 @@ export namespace Prisma {
     parentId?: SortOrder
     intakeDate?: SortOrder
     color?: SortOrder
+    completedAt?: SortOrder
   }
 
   export type BDProjectMinOrderByAggregateInput = {
@@ -220221,6 +220249,7 @@ export namespace Prisma {
     parentId?: SortOrder
     intakeDate?: SortOrder
     color?: SortOrder
+    completedAt?: SortOrder
   }
 
   export type BDWorkTypeListRelationFilter = {
@@ -230192,6 +230221,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
@@ -230217,6 +230247,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -230246,6 +230277,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -230271,6 +230303,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -232003,6 +232036,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -232029,6 +232063,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -232186,6 +232221,7 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"BDProject"> | string | null
     intakeDate?: DateTimeNullableFilter<"BDProject"> | Date | string | null
     color?: StringNullableFilter<"BDProject"> | string | null
+    completedAt?: DateTimeNullableFilter<"BDProject"> | Date | string | null
   }
 
   export type BDProjectUpsertWithWhereUniqueWithoutRequesterInput = {
@@ -275238,6 +275274,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -275263,6 +275300,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -275487,6 +275525,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -275513,6 +275552,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
     members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
@@ -275536,6 +275576,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
@@ -275561,6 +275602,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
@@ -276011,6 +276053,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -276037,6 +276080,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
     members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
@@ -276497,6 +276541,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityCreateNestedManyWithoutProjectInput
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
@@ -276523,6 +276568,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     activities?: BDActivityUncheckedCreateNestedManyWithoutProjectInput
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
@@ -276672,6 +276718,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -276698,6 +276745,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
@@ -276716,6 +276764,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     owner?: UserCreateNestedOneWithoutBdOwnedProjectsInput
     parent?: BDProjectCreateNestedOneWithoutSubProjectsInput
     subProjects?: BDProjectCreateNestedManyWithoutParentInput
@@ -276742,6 +276791,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
     subProjects?: BDProjectUncheckedCreateNestedManyWithoutParentInput
     tasks?: BDTaskUncheckedCreateNestedManyWithoutProjectInput
     members?: UserUncheckedCreateNestedManyWithoutBdMemberProjectsInput
@@ -276885,6 +276935,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
@@ -276911,6 +276962,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
     members?: UserUncheckedUpdateManyWithoutBdMemberProjectsNestedInput
@@ -277055,6 +277107,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
   }
 
   export type BDProjectCreateManyRequesterInput = {
@@ -277073,6 +277126,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
   }
 
   export type BDTaskCreateManyAssigneeInput = {
@@ -277743,6 +277797,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
@@ -277768,6 +277823,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -277790,6 +277846,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BDProjectUpdateWithoutRequesterInput = {
@@ -277805,6 +277862,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -277830,6 +277888,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -277852,6 +277911,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BDTaskUpdateWithoutAssigneeInput = {
@@ -279858,6 +279918,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -279884,6 +279945,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -279906,6 +279968,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderUpdateWithoutAssignedTechniciansInput = {
@@ -288275,6 +288338,7 @@ export namespace Prisma {
     parentId?: string | null
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
   }
 
   export type BDProjectUpdateWithoutWorkTypeInput = {
@@ -288290,6 +288354,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     parent?: BDProjectUpdateOneWithoutSubProjectsNestedInput
@@ -288315,6 +288380,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -288337,6 +288403,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BDActivityCreateManyProjectInput = {
@@ -288363,6 +288430,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     intakeDate?: Date | string | null
     color?: string | null
+    completedAt?: Date | string | null
   }
 
   export type BDTaskCreateManyProjectInput = {
@@ -288418,6 +288486,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUpdateManyWithoutProjectNestedInput
     owner?: UserUpdateOneWithoutBdOwnedProjectsNestedInput
     subProjects?: BDProjectUpdateManyWithoutParentNestedInput
@@ -288443,6 +288512,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activities?: BDActivityUncheckedUpdateManyWithoutProjectNestedInput
     subProjects?: BDProjectUncheckedUpdateManyWithoutParentNestedInput
     tasks?: BDTaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -288465,6 +288535,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     intakeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BDTaskUpdateWithoutProjectInput = {

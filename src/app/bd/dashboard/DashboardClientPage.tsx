@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { getBDProjects, deleteBDProject, updateBDProject } from '@/app/actions/bd';
+import { getBDProjects, deleteBDProject, updateBDProject, getAllUsersForBD } from '@/app/actions/bd';
 import Link from 'next/link';
 
 export default function DashboardClientPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All'); // All, My Pending Cases
+  const [selectedOwner, setSelectedOwner] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
   
   const [editingProject, setEditingProject] = useState<any>(null);
-  const [editFormData, setEditFormData] = useState({ name: '', urgency: '', status: '' });
+  const [editFormData, setEditFormData] = useState({ name: '', urgency: '', status: '', completedAt: '' });
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   const confirmDelete = async () => {
@@ -27,14 +29,26 @@ export default function DashboardClientPage() {
 
   const handleEdit = (project: any) => {
     setEditingProject(project);
-    setEditFormData({ name: project.name, urgency: project.urgency, status: project.status });
+    let completedAtStr = '';
+    if (project.completedAt) {
+      completedAtStr = new Date(project.completedAt).toISOString().split('T')[0];
+    } else if (project.status === 'COMPLETED') {
+      completedAtStr = new Date().toISOString().split('T')[0];
+    }
+    setEditFormData({ name: project.name, urgency: project.urgency, status: project.status, completedAt: completedAtStr });
   };
 
   const handleSaveEdit = async () => {
     if (!editingProject) return;
-    const res = await updateBDProject(editingProject.id, editFormData);
+    const payload: any = { ...editFormData };
+    if (payload.status === 'COMPLETED') {
+      payload.completedAt = payload.completedAt ? new Date(payload.completedAt) : new Date();
+    } else {
+      payload.completedAt = null;
+    }
+    const res = await updateBDProject(editingProject.id, payload);
     if (res.success) {
-      setProjects(projects.map(p => p.id === editingProject.id ? { ...p, ...editFormData } : p));
+      setProjects(projects.map(p => p.id === editingProject.id ? { ...p, ...payload } : p));
       setEditingProject(null);
     } else {
       alert(res.error || 'Failed to update');
@@ -50,6 +64,15 @@ export default function DashboardClientPage() {
       if (res.success && res.data) {
         setProjects(res.data);
       }
+      
+      const usersRes = await getAllUsersForBD();
+      if (usersRes.success && usersRes.data) {
+        // Just show users who are BD or Managers
+        setTeamMembers(usersRes.data.filter((u: any) => 
+          ['Business Development', 'BD Intern', 'ผู้จัดการ', 'Admin', 'SUPER_ADMIN'].includes(u.role)
+        ));
+      }
+      
       setLoading(false);
     }
     loadData();
@@ -69,6 +92,12 @@ export default function DashboardClientPage() {
       if (p.status !== 'IN_PROGRESS') return false;
       const hasUnclaimedTask = p.tasks.some((t: any) => t.assigneeId === null && t.status === 'PENDING');
       if (!hasUnclaimedTask) return false;
+    }
+
+    if (selectedOwner !== 'All') {
+      const isOwner = p.ownerId === selectedOwner;
+      const isMember = p.members?.some((m: any) => m.id === selectedOwner);
+      if (!isOwner && !isMember) return false;
     }
 
     if (searchQuery) {
@@ -117,6 +146,16 @@ export default function DashboardClientPage() {
               <option value="My Pending Cases">งานที่รอฉันดำเนินการ</option>
               <option value="Unclaimed Briefs">บรีฟที่ว่าง (Unclaimed Briefs)</option>
               <option value="Unclaimed Tasks">งานที่ว่าง (Unclaimed Tasks)</option>
+            </select>
+            <select
+              value={selectedOwner}
+              onChange={(e) => setSelectedOwner(e.target.value)}
+              className="border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 outline-none whitespace-nowrap"
+            >
+              <option value="All">ผู้รับผิดชอบทั้งหมด</option>
+              {teamMembers.map(m => (
+                <option key={m.id} value={m.id}>{m.fullName}</option>
+              ))}
             </select>
             <Link
               href="/bd/intake"
@@ -282,6 +321,18 @@ export default function DashboardClientPage() {
                   <option value="Urgent">ด่วนมาก</option>
                 </select>
               </div>
+
+              {editFormData.status === 'COMPLETED' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">วันที่เสร็จสิ้น</label>
+                  <input 
+                    type="date" 
+                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                    value={editFormData.completedAt}
+                    onChange={e => setEditFormData({...editFormData, completedAt: e.target.value})}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="mt-6 flex justify-end gap-3">

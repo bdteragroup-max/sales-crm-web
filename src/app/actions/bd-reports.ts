@@ -29,7 +29,8 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
     const startOfMonth = new Date(targetYear, targetMonth, 1);
     const endOfMonth = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
 
-    let baseFilter: any = {};
+    let projectBaseFilter: any = {};
+    let taskBaseFilter: any = {};
     let completedFilter: any = { gte: startOfMonth, lte: endOfMonth };
 
     if (filterOptions?.startDate && filterOptions?.endDate) {
@@ -37,9 +38,13 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
       const e = new Date(filterOptions.endDate);
       e.setHours(23, 59, 59, 999);
       if (filterOptions.dateType === 'ASSIGNED') {
-        baseFilter = { createdAt: { gte: s, lte: e } };
-        completedFilter = undefined; // Don't filter completedAt, rely on createdAt via baseFilter
+        projectBaseFilter = { createdAt: { gte: s, lte: e } };
+        taskBaseFilter = { createdAt: { gte: s, lte: e } };
+        completedFilter = undefined;
       } else if (filterOptions.dateType === 'COMPLETED') {
+        // Projects don't have completedAt, so we don't filter them by completedAt
+        projectBaseFilter = {}; 
+        taskBaseFilter = { completedAt: { gte: s, lte: e } };
         completedFilter = { gte: s, lte: e };
       }
     }
@@ -52,7 +57,7 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
           { members: { some: { id: effectiveUserId } } }
         ],
         status: 'IN_PROGRESS', 
-        ...baseFilter 
+        ...projectBaseFilter 
       },
       include: { workType: true }
     });
@@ -62,7 +67,7 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
       where: {
         assigneeId: effectiveUserId,
         status: { in: ['PENDING', 'IN_PROGRESS'] },
-        ...baseFilter
+        ...taskBaseFilter
       }
     });
 
@@ -71,7 +76,7 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
       where: {
         assigneeId: effectiveUserId,
         blockedReason: { not: null },
-        ...baseFilter
+        ...taskBaseFilter
       },
       include: {
         project: { select: { id: true, name: true } }
@@ -83,7 +88,7 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
       where: {
         assigneeId: effectiveUserId,
         status: 'COMPLETED',
-        ...(completedFilter ? { completedAt: completedFilter } : baseFilter)
+        ...(completedFilter ? { completedAt: completedFilter } : taskBaseFilter)
       }
     });
 
@@ -92,21 +97,29 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
     // 1. Tasks by Status
     const tasksByStatusAgg = await prisma.bDTask.groupBy({
       by: ['status'],
-      where: { assigneeId: effectiveUserId },
+      where: { assigneeId: effectiveUserId, ...taskBaseFilter },
       _count: { status: true }
     });
 
-    // 2. Trend Data (last 6 months)
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
-    sixMonthsAgo.setDate(1);
-    sixMonthsAgo.setHours(0, 0, 0, 0);
+    // 2. Trend Data (last 6 months or custom range)
+    let trendStartDate = new Date();
+    trendStartDate.setMonth(trendStartDate.getMonth() - 5);
+    trendStartDate.setDate(1);
+    trendStartDate.setHours(0, 0, 0, 0);
     
+    let trendEndDate = new Date();
+    
+    if (filterOptions?.startDate && filterOptions?.endDate) {
+      trendStartDate = new Date(filterOptions.startDate);
+      trendEndDate = new Date(filterOptions.endDate);
+      trendEndDate.setHours(23, 59, 59, 999);
+    }
+
     const recentlyCompletedTasks = await prisma.bDTask.findMany({
       where: {
         assigneeId: effectiveUserId,
         status: 'COMPLETED',
-        completedAt: { gte: sixMonthsAgo }
+        completedAt: { gte: trendStartDate, lte: trendEndDate }
       },
       select: { completedAt: true }
     });
@@ -114,7 +127,7 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
     const recentlyAssignedTasks = await prisma.bDTask.findMany({
       where: {
         assigneeId: effectiveUserId,
-        createdAt: { gte: sixMonthsAgo }
+        createdAt: { gte: trendStartDate, lte: trendEndDate }
       },
       select: { createdAt: true }
     });
@@ -131,7 +144,7 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
       where: {
         assigneeId: effectiveUserId,
         status: 'COMPLETED',
-        ...(completedFilter ? { completedAt: completedFilter } : baseFilter)
+        ...(completedFilter ? { completedAt: completedFilter } : taskBaseFilter)
       },
       include: {
         project: { include: { workType: true } }
@@ -174,7 +187,9 @@ export async function getBDReportData(targetUserId?: string, month?: number, yea
           tasksByStatus: tasksByStatusAgg.map(t => ({ name: t.status, value: t._count.status })),
           trendData: {
             completed: recentlyCompletedTasks,
-            assigned: recentlyAssignedTasks
+            assigned: recentlyAssignedTasks,
+            trendStartDate,
+            trendEndDate
           },
           projectsByWorkType: Object.entries(workTypeCounts).map(([name, count]) => ({ name, value: count })),
           competencies: Object.entries(radarWorkTypeCounts).map(([name, count]) => ({ subject: name, A: count, fullMark: 100 }))
@@ -228,7 +243,8 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
 
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    let baseFilter: any = {};
+    let projectBaseFilter: any = {};
+    let taskBaseFilter: any = {};
     let completedFilter: any = { gte: startOfMonth };
 
     if (filterOptions?.startDate && filterOptions?.endDate) {
@@ -236,9 +252,12 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
       const e = new Date(filterOptions.endDate);
       e.setHours(23, 59, 59, 999);
       if (filterOptions.dateType === 'ASSIGNED') {
-        baseFilter = { createdAt: { gte: s, lte: e } };
+        projectBaseFilter = { createdAt: { gte: s, lte: e } };
+        taskBaseFilter = { createdAt: { gte: s, lte: e } };
         completedFilter = undefined;
       } else if (filterOptions.dateType === 'COMPLETED') {
+        projectBaseFilter = {}; 
+        taskBaseFilter = { completedAt: { gte: s, lte: e } };
         completedFilter = { gte: s, lte: e };
       }
     }
@@ -247,7 +266,7 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
       const activeProjects = await prisma.bDProject.count({ 
         where: { 
           status: 'IN_PROGRESS',
-          ...baseFilter,
+          ...projectBaseFilter,
           OR: [
             { ownerId: u.id },
             { members: { some: { id: u.id } } },
@@ -255,19 +274,36 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
           ]
         } 
       });
-      const activeTasks = await prisma.bDTask.count({ where: { assigneeId: u.id, status: { in: ['PENDING', 'IN_PROGRESS'] }, ...baseFilter } });
-      const blockedTasks = await prisma.bDTask.count({ where: { assigneeId: u.id, blockedReason: { not: null }, ...baseFilter } });
+      // If filtering by COMPLETED, don't apply completedAt filter to active/blocked tasks since they aren't completed yet
+      const pendingFilter = filterOptions?.dateType === 'COMPLETED' ? {} : taskBaseFilter;
+      
+      const activeTasks = await prisma.bDTask.count({ where: { assigneeId: u.id, status: { in: ['PENDING', 'IN_PROGRESS'] }, ...pendingFilter } });
+      const inProgressTasks = await prisma.bDTask.count({ where: { assigneeId: u.id, status: 'IN_PROGRESS', ...pendingFilter } });
+      const pendingTasks = await prisma.bDTask.count({ where: { assigneeId: u.id, status: 'PENDING', ...pendingFilter } });
+      const blockedTasks = await prisma.bDTask.count({ where: { assigneeId: u.id, blockedReason: { not: null }, ...pendingFilter } });
       const completedThisMonth = await prisma.bDTask.count({
         where: { 
           assigneeId: u.id, 
           status: 'COMPLETED', 
-          ...(completedFilter ? { completedAt: completedFilter } : baseFilter)
+          ...(completedFilter ? { completedAt: completedFilter } : taskBaseFilter)
+        }
+      });
+
+      const completedProjectsThisMonth = await prisma.bDProject.count({
+        where: {
+          status: 'COMPLETED',
+          ...(completedFilter ? { completedAt: completedFilter } : projectBaseFilter),
+          OR: [
+            { ownerId: u.id },
+            { members: { some: { id: u.id } } },
+            { ownerId: null, requesterId: u.id }
+          ]
         }
       });
       
-      const totalAssigned = await prisma.bDTask.count({ where: { assigneeId: u.id, ...baseFilter }});
-      const completedCount = await prisma.bDTask.count({ where: { assigneeId: u.id, status: 'COMPLETED', ...baseFilter }});
-      const blockedCount = await prisma.bDTask.count({ where: { assigneeId: u.id, blockedReason: { not: null }, ...baseFilter }});
+      const totalAssigned = await prisma.bDTask.count({ where: { assigneeId: u.id, ...taskBaseFilter }});
+      const completedCount = await prisma.bDTask.count({ where: { assigneeId: u.id, status: 'COMPLETED', ...taskBaseFilter }});
+      const blockedCount = await prisma.bDTask.count({ where: { assigneeId: u.id, blockedReason: { not: null }, ...taskBaseFilter }});
       
       const completionPercentage = totalAssigned > 0 ? Math.round((completedCount / totalAssigned) * 100) : 0;
       const blockedPercentage = totalAssigned > 0 ? Math.round((blockedCount / totalAssigned) * 100) : 0;
@@ -276,7 +312,10 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
         userId: u.id,
         fullName: u.fullName,
         activeProjects,
+        completedProjectsThisMonth,
         activeTasks,
+        inProgressTasks,
+        pendingTasks,
         blockedTasks,
         completedThisMonth,
         completionPercentage,
@@ -288,7 +327,7 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
     const teamTaskStatusRaw = await prisma.bDTask.groupBy({
       by: ['status'],
       _count: true,
-      where: { ...baseFilter }
+      where: { ...taskBaseFilter }
     });
     
     const teamTaskStatus = teamTaskStatusRaw.map(s => ({
@@ -299,7 +338,7 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
 
     // Gantt Projects (In Progress or Pending)
     const activeProjectsList = await prisma.bDProject.findMany({
-      where: { status: { in: ['IN_PROGRESS', 'PENDING_REVIEW'] }, ...baseFilter },
+      where: { status: { in: ['IN_PROGRESS', 'PENDING_REVIEW'] }, ...projectBaseFilter },
       select: { id: true, name: true, intakeDate: true, createdAt: true, deadline: true, color: true }
     });
     const ganttProjects = activeProjectsList.map(p => ({
@@ -312,7 +351,7 @@ export async function getBDTeamOverview(filterOptions?: { dateType: 'ASSIGNED' |
 
     // Project Progress
     const projectProgressRaw = await prisma.bDProject.findMany({
-      where: { status: { in: ['IN_PROGRESS', 'PENDING_REVIEW'] }, ...baseFilter },
+      where: { status: { in: ['IN_PROGRESS', 'PENDING_REVIEW'] }, ...projectBaseFilter },
       include: {
         tasks: { select: { status: true } },
         subProjects: { select: { status: true } }

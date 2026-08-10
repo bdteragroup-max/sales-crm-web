@@ -185,6 +185,7 @@ export async function createBDProject(data: {
         urgency: data.urgency,
         deadline: data.deadline || null,
         requesterId: user.id,
+        ownerId: user.id,
         status: 'PENDING_REVIEW',
         parentId: data.parentId || null,
         intakeDate: data.intakeDate || null,
@@ -351,6 +352,7 @@ export async function updateBDProject(id: string, data: {
   deadline?: Date | null;
   intakeDate?: Date | null;
   color?: string | null;
+  completedAt?: Date | null;
   memberIds?: string[];
 }) {
   try {
@@ -362,6 +364,26 @@ export async function updateBDProject(id: string, data: {
         ...(memberIds ? { members: { set: memberIds.map(id => ({ id })) } } : {})
       }
     });
+    
+    // Sync completion date to tasks
+    if (data.status === 'COMPLETED' && data.completedAt) {
+      await prisma.bDTask.updateMany({
+        where: { projectId: id },
+        data: {
+          status: 'COMPLETED',
+          completedAt: data.completedAt
+        }
+      });
+    } else if (data.status === 'COMPLETED') {
+      await prisma.bDTask.updateMany({
+        where: { projectId: id, status: { not: 'COMPLETED' } },
+        data: {
+          status: 'COMPLETED',
+          completedAt: new Date()
+        }
+      });
+    }
+
     return { success: true, data: project };
   } catch (error) {
     console.error('Error updating project:', error);

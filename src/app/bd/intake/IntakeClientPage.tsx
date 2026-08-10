@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getBDWorkTypes, createBDProject, getParentBDProjects } from '@/app/actions/bd';
 
@@ -24,6 +24,20 @@ export default function IntakeClientPage() {
     parentId: initialParentId,
   });
   const [error, setError] = useState('');
+
+  const [parentSearch, setParentSearch] = useState('');
+  const [parentDropdownOpen, setParentDropdownOpen] = useState(false);
+  const parentDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (parentDropdownRef.current && !parentDropdownRef.current.contains(event.target as Node)) {
+        setParentDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     async function loadData() {
@@ -184,16 +198,51 @@ export default function IntakeClientPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">ส่วนของโครงการหลัก (ไม่บังคับ)</label>
-            <select 
-              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
-              value={formData.parentId}
-              onChange={e => setFormData({...formData, parentId: e.target.value})}
-            >
-              <option value="">-- ไม่ใช่โครงการย่อย --</option>
-              {parentProjects.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
+            <div className="relative" ref={parentDropdownRef}>
+              <input
+                type="text"
+                className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
+                placeholder="-- ไม่ใช่โครงการย่อย (พิมพ์เพื่อค้นหา) --"
+                value={parentDropdownOpen ? parentSearch : (parentProjects.find(p => p.id === formData.parentId)?.name || '')}
+                onChange={e => {
+                  setParentSearch(e.target.value);
+                  setParentDropdownOpen(true);
+                  if (formData.parentId) setFormData({...formData, parentId: ''});
+                }}
+                onFocus={() => {
+                  setParentDropdownOpen(true);
+                  setParentSearch('');
+                }}
+              />
+              {parentDropdownOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  <div 
+                    className="p-2.5 hover:bg-red-50 cursor-pointer text-gray-700 border-b border-gray-100"
+                    onClick={() => {
+                      setFormData({...formData, parentId: ''});
+                      setParentDropdownOpen(false);
+                    }}
+                  >
+                    -- ไม่ใช่โครงการย่อย --
+                  </div>
+                  {parentProjects.filter(p => p.name.toLowerCase().includes(parentSearch.toLowerCase())).map(p => (
+                    <div 
+                      key={p.id}
+                      className={`p-2.5 hover:bg-red-50 cursor-pointer ${formData.parentId === p.id ? 'bg-red-50 text-red-700 font-medium' : 'text-gray-700'}`}
+                      onClick={() => {
+                        setFormData({...formData, parentId: p.id});
+                        setParentDropdownOpen(false);
+                      }}
+                    >
+                      {p.name}
+                    </div>
+                  ))}
+                  {parentProjects.filter(p => p.name.toLowerCase().includes(parentSearch.toLowerCase())).length === 0 && (
+                    <div className="p-2.5 text-gray-500 text-center">ไม่พบโครงการที่ค้นหา</div>
+                  )}
+                </div>
+              )}
+            </div>
             <p className="text-xs text-gray-500 mt-1">ระบุหากงานนี้เป็นโครงการย่อย (Sub-project) ของโครงการหลัก</p>
           </div>
 
